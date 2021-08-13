@@ -4810,7 +4810,7 @@ namespace social.OpenData.UsersAPI
         protected virtual String MixWithHTMLTemplate(String ResourceName)
 
             => MixWithHTMLTemplate(ResourceName,
-                                   new Tuple<String, System.Reflection.Assembly>(UsersAPI.HTTPRoot, typeof(UsersAPI).    Assembly));
+                                   new Tuple<String, System.Reflection.Assembly>(UsersAPI.HTTPRoot, typeof(UsersAPI).Assembly));
 
         #endregion
 
@@ -5695,6 +5695,51 @@ namespace social.OpenData.UsersAPI
                                              },
 
                                              AllowReplacement: URLReplacement.Allow);
+
+            #endregion
+
+
+            #region GET         ~/profile
+
+            // --------------------------------------------------------------
+            // curl -v -H "Accept: text/html" http://127.0.0.1:2100/profile
+            // --------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "profile",
+                                         HTTPContentType.HTML_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse.Builder   Response,
+                                                                 Recursive:                 true))
+                                             {
+                                                 return Task.FromResult(Response.AsImmutable);
+                                             }
+
+                                             #endregion
+
+
+                                             return Task.FromResult(
+                                                 new HTTPResponse.Builder(Request) {
+                                                     HTTPStatusCode              = HTTPStatusCode.OK,
+                                                     Server                      = HTTPServer.DefaultServerName,
+                                                     Date                        = DateTime.UtcNow,
+                                                     AccessControlAllowOrigin    = "*",
+                                                     AccessControlAllowMethods   = "GET",
+                                                     AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                     ContentType                 = HTTPContentType.HTML_UTF8,
+                                                     Content                     = MixWithHTMLTemplate("profile.profile.shtml").ToUTF8Bytes(),
+                                                     Connection                  = "close",
+                                                     Vary                        = "Accept"
+                                                 }.AsImmutable);
+
+                                         });
 
             #endregion
 
@@ -6629,6 +6674,8 @@ namespace social.OpenData.UsersAPI
 
             #region GET         ~/users/{UserId}
 
+            #region JSON
+
             // ------------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:2100/users/ahzf
             // ------------------------------------------------------------------------
@@ -6785,21 +6832,75 @@ namespace social.OpenData.UsersAPI
 
                                          });
 
-
-            #region Get HTTP user and its organizations
-
-            // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
-            //if (!TryGetHTTPUser(Request,
-            //                    out User                   HTTPUser,
-            //                    out HashSet<Organization>  HTTPOrganizations,
-            //                    out HTTPResponse           Response,
-            //                    Recursive: true))
-            //{
-            //    return Task.FromResult(Response);
-            //}
-
             #endregion
 
+            #region HTML
+
+            // ------------------------------------------------------------------------------
+            // curl -v -H "Accept: text/html" http://127.0.0.1:2100/users/CardiLink
+            // ------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "users/{UserId}",
+                                         HTTPContentType.HTML_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse.Builder   Response,
+                                                                 Recursive:                 true))
+                                             {
+                                                 return Task.FromResult(Response.AsImmutable);
+                                             }
+
+                                             #endregion
+
+                                             #region Check UserId URL parameter
+
+                                             if (!Request.ParseUser(this,
+                                                                    out User_Id?              UserId,
+                                                                    out User                  User,
+                                                                    out HTTPResponse.Builder  HTTPResponse))
+                                             {
+                                                 return Task.FromResult(HTTPResponse.AsImmutable);
+                                             }
+
+                                             #endregion
+
+
+                                             // You request your own profile or you are a valid *admin*
+                                             return Task.FromResult(User == HTTPUser || CanImpersonate(HTTPUser, User)
+
+                                                         ? new HTTPResponse.Builder(Request) {
+                                                               HTTPStatusCode              = HTTPStatusCode.OK,
+                                                               Server                      = HTTPServer.DefaultServerName,
+                                                               Date                        = DateTime.UtcNow,
+                                                               AccessControlAllowOrigin    = "*",
+                                                               AccessControlAllowMethods   = "GET",
+                                                               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                               ContentType                 = HTTPContentType.HTML_UTF8,
+                                                               Content                     = MixWithHTMLTemplate("user.user.shtml").ToUTF8Bytes(),
+                                                               Connection                  = "close",
+                                                               Vary                        = "Accept"
+                                                           }.AsImmutable
+
+                                                         : new HTTPResponse.Builder(Request) {
+                                                               HTTPStatusCode              = HTTPStatusCode.Unauthorized,
+                                                               Server                      = HTTPServer.DefaultServerName,
+                                                               Date                        = DateTime.UtcNow,
+                                                               AccessControlAllowOrigin    = "*",
+                                                               AccessControlAllowMethods   = "GET",
+                                                               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                               Connection                  = "close"
+                                                           }.AsImmutable);
+
+                                         });
+
+            #endregion
 
             #endregion
 
@@ -7620,7 +7721,6 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
-
             #region GET         ~/users/{UserId}/organizations
 
             // ------------------------------------------------------------------------------------------
@@ -7682,6 +7782,8 @@ namespace social.OpenData.UsersAPI
 
             #region GET         ~/users/{UserId}/notifications
 
+            #region JSON
+
             // --------------------------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:2100/users/ahzf/notifications
             // --------------------------------------------------------------------------------------
@@ -7720,6 +7822,76 @@ namespace social.OpenData.UsersAPI
                                                     }.AsImmutable);
 
             });
+
+            #endregion
+
+            #region HTML
+
+            // -------------------------------------------------------------------------------
+            // curl -v -H "Accept: text/html" http://127.0.0.1:2100/users/ahzf/notifications
+            // -------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "users/{UserId}/notifications",
+                                         HTTPContentType.HTML_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse.Builder   Response,
+                                                                 Recursive:                 true))
+                                             {
+                                                 return Task.FromResult(Response.AsImmutable);
+                                             }
+
+                                             #endregion
+
+                                             #region Check UserId URL parameter
+
+                                             if (!Request.ParseUser(this,
+                                                                    out User_Id?              UserId,
+                                                                    out User                  User,
+                                                                    out HTTPResponse.Builder  HTTPResponse))
+                                             {
+                                                 return Task.FromResult(HTTPResponse.AsImmutable);
+                                             }
+
+                                             #endregion
+
+
+                                             // You request your own profile or you are a valid *admin*
+                                             return Task.FromResult(User == HTTPUser || CanImpersonate(HTTPUser, User)
+
+                                                         ? new HTTPResponse.Builder(Request) {
+                                                               HTTPStatusCode              = HTTPStatusCode.OK,
+                                                               Server                      = HTTPServer.DefaultServerName,
+                                                               Date                        = DateTime.UtcNow,
+                                                               AccessControlAllowOrigin    = "*",
+                                                               AccessControlAllowMethods   = "GET",
+                                                               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                               ContentType                 = HTTPContentType.HTML_UTF8,
+                                                               Content                     = MixWithHTMLTemplate("user.notifications.shtml").ToUTF8Bytes(),
+                                                               Connection                  = "close",
+                                                               Vary                        = "Accept"
+                                                           }.AsImmutable
+
+                                                         : new HTTPResponse.Builder(Request) {
+                                                               HTTPStatusCode              = HTTPStatusCode.Unauthorized,
+                                                               Server                      = HTTPServer.DefaultServerName,
+                                                               Date                        = DateTime.UtcNow,
+                                                               AccessControlAllowOrigin    = "*",
+                                                               AccessControlAllowMethods   = "GET",
+                                                               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                               Connection                  = "close"
+                                                           }.AsImmutable);
+
+                                         });
+
+            #endregion
 
             #endregion
 
@@ -8105,6 +8277,8 @@ namespace social.OpenData.UsersAPI
 
             #region GET         ~/users/{UserId}/notifications/{notificationId}
 
+            #region JSON
+
             // -------------------------------------------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:2100/users/ahzf/notifications/{notificationId}
             // -------------------------------------------------------------------------------------------------------
@@ -8180,6 +8354,164 @@ namespace social.OpenData.UsersAPI
                                                         }.AsImmutable);
 
             });
+
+            #endregion
+
+            #region HTML
+
+            // ------------------------------------------------------------------------------------------------
+            // curl -v -H "Accept: text/html" http://127.0.0.1:2100/users/ahzf/notifications/{notificationId}
+            // ------------------------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "users/{UserId}/notifications/{notificationId}",
+                                         HTTPContentType.HTML_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse.Builder   Response,
+                                                                 Recursive:                 true))
+                                             {
+                                                 return Task.FromResult(Response.AsImmutable);
+                                             }
+
+                                             #endregion
+
+                                             #region Check UserId URL parameter
+
+                                             if (!Request.ParseUser(this,
+                                                                    out User_Id?              UserId,
+                                                                    out User                  User,
+                                                                    out HTTPResponse.Builder  HTTPResponse))
+                                             {
+                                                 return Task.FromResult(HTTPResponse.AsImmutable);
+                                             }
+
+                                             #endregion
+
+                                             #region Get notificationId URL parameter
+
+                                             if (Request.ParsedURLParameters.Length < 2 ||
+                                                 !UInt32.TryParse(Request.ParsedURLParameters[1], out UInt32 NotificationId))
+                                             {
+
+                                                 return Task.FromResult(
+                                                            new HTTPResponse.Builder(Request) {
+                                                                HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                                                                Server          = HTTPServer.DefaultServerName,
+                                                                Date            = DateTime.UtcNow,
+                                                                Connection      = "close"
+                                                            }.AsImmutable);
+
+                                             }
+
+                                             #endregion
+
+
+                                             // You request your own profile or you are a valid *admin*
+                                             return Task.FromResult(User == HTTPUser || CanImpersonate(HTTPUser, User)
+
+                                                         ? new HTTPResponse.Builder(Request) {
+                                                               HTTPStatusCode              = HTTPStatusCode.OK,
+                                                               Server                      = HTTPServer.DefaultServerName,
+                                                               Date                        = DateTime.UtcNow,
+                                                               AccessControlAllowOrigin    = "*",
+                                                               AccessControlAllowMethods   = "GET",
+                                                               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                               ContentType                 = HTTPContentType.HTML_UTF8,
+                                                               Content                     = MixWithHTMLTemplate("user.editNotification.shtml").ToUTF8Bytes(),
+                                                               Connection                  = "close",
+                                                               Vary                        = "Accept"
+                                                           }.AsImmutable
+
+                                                         : new HTTPResponse.Builder(Request) {
+                                                               HTTPStatusCode              = HTTPStatusCode.Unauthorized,
+                                                               Server                      = HTTPServer.DefaultServerName,
+                                                               Date                        = DateTime.UtcNow,
+                                                               AccessControlAllowOrigin    = "*",
+                                                               AccessControlAllowMethods   = "GET",
+                                                               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                               Connection                  = "close"
+                                                           }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+            #endregion
+
+            #region GET         ~/users/{UserId}/notification/_new
+
+            // ------------------------------------------------------------------------------------
+            // curl -v -H "Accept: text/html" http://127.0.0.1:2100/users/ahzf/notification/_new
+            // ------------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "users/{UserId}/notification/_new",
+                                         HTTPContentType.HTML_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse.Builder   Response,
+                                                                 Recursive:                 true))
+                                             {
+                                                 return Task.FromResult(Response.AsImmutable);
+                                             }
+
+                                             #endregion
+
+                                             #region Check UserId URL parameter
+
+                                             if (!Request.ParseUser(this,
+                                                                    out User_Id?              UserId,
+                                                                    out User                  User,
+                                                                    out HTTPResponse.Builder  HTTPResponse))
+                                             {
+                                                 return Task.FromResult(HTTPResponse.AsImmutable);
+                                             }
+
+                                             if (User != HTTPUser)
+                                             {
+                                                 return Task.FromResult(
+                                                            new HTTPResponse.Builder(Request) {
+                                                                HTTPStatusCode              = HTTPStatusCode.Unauthorized,
+                                                                Server                      = HTTPServer.DefaultServerName,
+                                                                Date                        = DateTime.UtcNow,
+                                                                AccessControlAllowOrigin    = "*",
+                                                                AccessControlAllowMethods   = "GET",
+                                                                AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                                Connection                  = "close"
+                                                            }.AsImmutable);
+                                             }
+
+                                             #endregion
+
+
+                                             return Task.FromResult(
+                                                 new HTTPResponse.Builder(Request) {
+                                                     HTTPStatusCode              = HTTPStatusCode.OK,
+                                                     Server                      = HTTPServer.DefaultServerName,
+                                                     Date                        = DateTime.UtcNow,
+                                                     AccessControlAllowOrigin    = "*",
+                                                     AccessControlAllowMethods   = "GET",
+                                                     AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                     ContentType                 = HTTPContentType.HTML_UTF8,
+                                                     Content                     = MixWithHTMLTemplate("user.editNotification.shtml").ToUTF8Bytes(),
+                                                     Connection                  = "close",
+                                                     Vary                        = "Accept"
+                                                 }.AsImmutable);
+
+                                         });
 
             #endregion
 
