@@ -29,6 +29,7 @@ namespace social.OpenData.UsersAPI
     public enum User2OrganizationEdgeTypes
     {
         IsAdmin,
+        IsAdminReadOnly,
         IsMember,
         IsGuest,
         follows,

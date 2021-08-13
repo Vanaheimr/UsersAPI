@@ -176,23 +176,23 @@ namespace social.OpenData.UsersAPI
 
             => JSONObject.Create(
 
-                   new JProperty("@id",                 APIKey.        ToString()),
+                   new JProperty("@id",                 APIKey.         ToString()),
 
                    Embedded
                        ? null
-                       : new JProperty("@context",      JSONLDContext.ToString()),
+                       : new JProperty("@context",      JSONLDContext.  ToString()),
 
-                   new JProperty("userId",              User.Id.       ToString()),
-                   new JProperty("description",         Description.   ToJSON()),
-                   new JProperty("accessRights",        AccessRights.  AsText()),
-                   new JProperty("created",             Created.       ToIso8601()),
+                   new JProperty("userId",              User.Id.        ToString()),
+                   new JProperty("description",         Description.    ToJSON()),
+                   new JProperty("accessRights",        AccessRights.   AsText()),
+                   new JProperty("created",             Created.        ToIso8601()),
 
                    NotBefore.HasValue
-                       ? new JProperty("notBefore",     NotAfter.Value.ToIso8601())
+                       ? new JProperty("notBefore",     NotBefore.Value.ToIso8601())
                        : null,
 
                    NotAfter.HasValue
-                       ? new JProperty("notAfter",      NotAfter.Value.ToIso8601())
+                       ? new JProperty("notAfter",      NotAfter. Value.ToIso8601())
                        : null,
 
                    IsDisabled

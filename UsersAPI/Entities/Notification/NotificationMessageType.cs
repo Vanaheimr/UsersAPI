@@ -185,7 +185,7 @@ namespace social.OpenData.UsersAPI.Notifications
         public static Boolean operator != (NotificationMessageType NotificationMessageType1,
                                            NotificationMessageType NotificationMessageType2)
 
-            => !(NotificationMessageType1 == NotificationMessageType2);
+            => !NotificationMessageType1.Equals(NotificationMessageType2);
 
         #endregion
 

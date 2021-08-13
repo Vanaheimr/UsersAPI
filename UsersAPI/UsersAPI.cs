@@ -1471,7 +1471,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         public  static readonly   HTTPCookieName                                DefaultCookieName                       = HTTPCookieName.Parse("UsersAPI");
 
-        public  const             String                                        AdminGroupName                          = "Admins";
+        public  static readonly   Organization_Id                               DefaultAdminOrganizationId              = Organization_Id.Parse("Admins");
 
 
         /// <summary>
@@ -1523,6 +1523,9 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         public String                        APIVersionHash                     { get; }
 
+
+        public Organization_Id               AdminOrganizationId                { get; }
+
         /// <summary>
         /// The maintenance interval.
         /// </summary>
@@ -1558,11 +1561,6 @@ namespace social.OpenData.UsersAPI
         public String                        APIPassphrase                      { get; }
 
         /// <summary>
-        /// The E-Mail Addresses of the service admins.
-        /// </summary>
-        public EMailAddressList              APIAdminEMails                     { get; }
-
-        /// <summary>
         /// A SMTP client to be used by the Open Data API.
         /// </summary>
         public SMTPClient                    APISMTPClient                      { get; }
@@ -1571,11 +1569,6 @@ namespace social.OpenData.UsersAPI
         /// The (default) SMS sender name.
         /// </summary>
         public String                        SMSSenderName                      { get; }
-
-        /// <summary>
-        /// A list of admin SMS phonenumbers.
-        /// </summary>
-        public IEnumerable<PhoneNumber>      APIAdminSMS                        { get; }
 
         /// <summary>
         /// The Telegram API access token of the bot.
@@ -1593,7 +1586,7 @@ namespace social.OpenData.UsersAPI
         public TelegramStore                 TelegramStore                      { get; }
 
 
-        public UserGroup                     AdminUserGroup                             { get; }
+        //public Organization                  AdminOrganization                  { get; }
 
         public HTTPCookieName                CookieName                         { get; }
 
@@ -2497,15 +2490,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="ClientCertificateSelector">An optional delegate to select the SSL/TLS client certificate used for authentication.</param>
         /// <param name="AllowedTLSProtocols">The SSL/TLS protocol(s) allowed for this connection.</param>
         /// 
-        /// <param name="APIEMailAddress">An e-mail address for this API.</param>
-        /// <param name="APIPassphrase">A GPG passphrase for this API.</param>
-        /// <param name="APIAdminEMails">A list of admin e-mail addresses.</param>
+        /// <param name="APIRobotGPGPassphrase">A GPG passphrase for this API.</param>
         /// <param name="APISMTPClient">A SMTP client for sending e-mails.</param>
-        /// 
         /// <param name="SMSAPICredentials">The credentials for the SMS API.</param>
         /// <param name="SMSSenderName">The (default) SMS sender name.</param>
-        /// <param name="APIAdminSMS">A list of admin SMS phonenumbers.</param>
-        /// 
         /// <param name="TelegramBotToken">The Telegram API access token of the bot.</param>
         /// 
         /// <param name="CookieName">The name of the HTTP Cookie for authentication.</param>
@@ -2549,15 +2537,12 @@ namespace social.OpenData.UsersAPI
                         LocalCertificateSelectionCallback    ClientCertificateSelector          = null,
                         SslProtocols                         AllowedTLSProtocols                = SslProtocols.Tls12,
 
-                        EMailAddress                         APIEMailAddress                    = null,
-                        String                               APIPassphrase                      = null,
-                        EMailAddressList                     APIAdminEMails                     = null,
+                        Organization_Id?                     AdminOrganizationId                = null,
+                        EMailAddress                         APIRobotEMailAddress               = null,
+                        String                               APIRobotGPGPassphrase              = null,
                         SMTPClient                           APISMTPClient                      = null,
-
                         Credentials                          SMSAPICredentials                  = null,
                         String                               SMSSenderName                      = null,
-                        IEnumerable<PhoneNumber>             APIAdminSMS                        = null,
-
                         String                               TelegramBotToken                   = null,
 
                         HTTPCookieName?                      CookieName                         = null,
@@ -2632,15 +2617,12 @@ namespace social.OpenData.UsersAPI
                    HTMLTemplate,
                    APIVersionHashes,
 
-                   APIEMailAddress,
-                   APIPassphrase,
-                   APIAdminEMails,
+                   AdminOrganizationId,
+                   APIRobotEMailAddress,
+                   APIRobotGPGPassphrase,
                    APISMTPClient,
-
                    SMSAPICredentials,
                    SMSSenderName,
-                   APIAdminSMS,
-
                    TelegramBotToken,
 
                    CookieName,
@@ -2697,15 +2679,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="HTMLTemplate">An optional HTML template.</param>
         /// <param name="APIVersionHashes">The API version hashes (git commit hash values).</param>
         /// 
-        /// <param name="APIEMailAddress">An e-mail address for this API.</param>
-        /// <param name="APIPassphrase">A GPG passphrase for this API.</param>
-        /// <param name="APIAdminEMails">A list of admin e-mail addresses.</param>
+        /// <param name="APIRobotGPGPassphrase">A GPG passphrase for this API.</param>
         /// <param name="APISMTPClient">A SMTP client for sending e-mails.</param>
-        /// 
         /// <param name="SMSAPICredentials">The credentials for the SMS API.</param>
         /// <param name="SMSSenderName">The (default) SMS sender name.</param>
-        /// <param name="APIAdminSMS">A list of admin SMS phonenumbers.</param>
-        /// 
         /// <param name="TelegramBotToken">The Telegram API access token of the bot.</param>
         /// 
         /// <param name="CookieName">The name of the HTTP Cookie for authentication.</param>
@@ -2731,15 +2708,12 @@ namespace social.OpenData.UsersAPI
                            String                        HTMLTemplate                     = null,
                            JObject                       APIVersionHashes                 = null,
 
-                           EMailAddress                  APIEMailAddress                  = null,
-                           String                        APIPassphrase                    = null,
-                           EMailAddressList              APIAdminEMails                   = null,
+                           Organization_Id?              AdminOrganizationId              = null,
+                           EMailAddress                  APIRobotEMailAddress             = null,
+                           String                        APIRobotGPGPassphrase            = null,
                            SMTPClient                    APISMTPClient                    = null,
-
                            Credentials                   SMSAPICredentials                = null,
                            String                        SMSSenderName                    = null,
-                           IEnumerable<PhoneNumber>      APIAdminSMS                      = null,
-
                            String                        TelegramBotToken                 = null,
 
                            HTTPCookieName?               CookieName                       = null,
@@ -2789,23 +2763,26 @@ namespace social.OpenData.UsersAPI
             if (HTTPServer is null)
                 throw new ArgumentNullException(nameof(HTTPServer),       "The given HTTP server must not be null!");
 
-            if (APIEMailAddress is null)
-                throw new ArgumentNullException(nameof(APIEMailAddress),  "The given API e-mail address must not be null!");
+            if (APIRobotEMailAddress is null)
+                throw new ArgumentNullException(nameof(APIRobotEMailAddress),  "The given API e-mail address must not be null!");
 
             #endregion
 
             #region Init data
 
-            this.APIVersionHash               = APIVersionHashes?[nameof(UsersAPI)]?.Value<String>()?.Trim();
+            this.APIVersionHash                  = APIVersionHashes?[nameof(UsersAPI)]?.Value<String>()?.Trim();
 
-            this.DatabaseFileName             = this.LoggingPath + (DatabaseFileName ?? DefaultUsersAPI_DatabaseFileName);
+            if (this.APIVersionHash.IsNullOrEmpty())
+                this.APIVersionHash              = "unknown";
 
-            this.UsersAPIPath                 = this.LoggingPath + "UsersAPI"       + Path.DirectorySeparatorChar;
-            this.MetricsPath                  = this.LoggingPath + "Metrics"        + Path.DirectorySeparatorChar;
-            this.NotificationsPath            = this.LoggingPath + "Notifications"  + Path.DirectorySeparatorChar;
-            this.TelegramLoggingPath          = this.LoggingPath + "Telegram"       + Path.DirectorySeparatorChar;
-            this.SMTPLoggingPath              = this.LoggingPath + "SMTPClient"     + Path.DirectorySeparatorChar;
-            this.SMSAPILoggingPath            = this.LoggingPath + "SMSAPIClient"   + Path.DirectorySeparatorChar;
+            this.DatabaseFileName                = this.LoggingPath + (DatabaseFileName ?? DefaultUsersAPI_DatabaseFileName);
+
+            this.UsersAPIPath                    = this.LoggingPath + "UsersAPI"       + Path.DirectorySeparatorChar;
+            this.MetricsPath                     = this.LoggingPath + "Metrics"        + Path.DirectorySeparatorChar;
+            this.NotificationsPath               = this.LoggingPath + "Notifications"  + Path.DirectorySeparatorChar;
+            this.TelegramLoggingPath             = this.LoggingPath + "Telegram"       + Path.DirectorySeparatorChar;
+            this.SMTPLoggingPath                 = this.LoggingPath + "SMTPClient"     + Path.DirectorySeparatorChar;
+            this.SMSAPILoggingPath               = this.LoggingPath + "SMSAPIClient"   + Path.DirectorySeparatorChar;
 
             if (!DisableLogfile)
             {
@@ -2818,21 +2795,21 @@ namespace social.OpenData.UsersAPI
             }
 
             this.Robot                           = new User(Id:               User_Id.Parse("robot"),
-                                                            EMail:            APIEMailAddress.Address,
-                                                            Name:             APIEMailAddress.OwnerName,
-                                                            PublicKeyRing:    APIEMailAddress.PublicKeyRing,
-                                                            SecretKeyRing:    APIEMailAddress.SecretKeyRing,
+                                                            EMail:            APIRobotEMailAddress.Address,
+                                                            Name:             APIRobotEMailAddress.OwnerName,
+                                                            PublicKeyRing:    APIRobotEMailAddress.PublicKeyRing,
+                                                            SecretKeyRing:    APIRobotEMailAddress.SecretKeyRing,
                                                             Description:      I18NString.Create(Languages.en, "API robot"),
                                                             IsAuthenticated:  true);
 
             CurrentAsyncLocalUserId.Value        = Robot.Id;
 
-            this.APIPassphrase                   = APIPassphrase                  ?? throw new ArgumentNullException(nameof(APIPassphrase),  "The given API passphrase must not be null!");
-            this.APIAdminEMails                  = APIAdminEMails                 ?? throw new ArgumentNullException(nameof(APIAdminEMails), "The given API admin e-mail (list) must not be null!");
-            this.APISMTPClient                   = APISMTPClient                  ?? throw new ArgumentNullException(nameof(APISMTPClient),  "The given API SMTP client must not be null!");
+            this.AdminOrganizationId             = AdminOrganizationId            ?? DefaultAdminOrganizationId;
+            this.APIPassphrase                   = APIRobotGPGPassphrase          ?? throw new ArgumentNullException(nameof(APIRobotGPGPassphrase),  "The given API passphrase must not be null!");
+            this.APISMTPClient                   = APISMTPClient                  ?? throw new ArgumentNullException(nameof(APISMTPClient),          "The given API SMTP client must not be null!");
 
             this.CookieName                      = CookieName                     ?? DefaultCookieName;
-            this.SessionCookieName               = this.CookieName + "Session";   
+            this.SessionCookieName               = this.CookieName + "Session";
             this.UseSecureCookies                = UseSecureCookies;
             this.Language                        = Language                       ?? DefaultLanguage;
 
@@ -2897,20 +2874,9 @@ namespace social.OpenData.UsersAPI
 
             #region Create default organizations/user groups
 
-            this.AdminUserGroup               = AddUserGroupIfNotExists(
-                                                    new UserGroup(
-                                                        UserGroup_Id.Parse(AdminGroupName),
-                                                        I18NString.Create(Languages.en, AdminGroupName),
-                                                        I18NString.Create(Languages.en, "All admins of this API.")
-                                                    ),
-                                                    null,
-                                                    EventTracking_Id.New,
-                                                    Robot.Id).Result;
-
-            this.NoOwner                      = new Organization(Organization_Id.Parse("NoOwner"),
-                                                                 I18NString.Create(Languages.en, "No owner"));
-
-            _Organizations.Add(NoOwner.Id, NoOwner);
+            this.NoOwner = _Organizations.AddAndReturnValue(Organization_Id.Parse("NoOwner"),
+                                                            new Organization(Organization_Id.Parse("NoOwner"),
+                                                                             I18NString.Create(Languages.en, "No owner")));
 
             #endregion
 
@@ -2920,7 +2886,6 @@ namespace social.OpenData.UsersAPI
             {
                 this._SMSAPI                     = new SMSAPI(Credentials: SMSAPICredentials);
                 this.SMSSenderName               = SMSSenderName;
-                this.APIAdminSMS                 = APIAdminSMS;
             }
 
             if (SMSAPICredentials != null && !DisableLogfile)
@@ -3154,46 +3119,49 @@ namespace social.OpenData.UsersAPI
 
                                 });
 
-            Warden.EveryHours (1,
-                               Environment.OSVersion.Platform == PlatformID.Unix
-                                   ? new DriveInfo("/")
-                                   : new DriveInfo(Directory.GetCurrentDirectory()),
-                               async (timestamp, driveInfo, ct) => {
-                                   using (var writer = File.AppendText(String.Concat(this.MetricsPath,
-                                                                                     Path.DirectorySeparatorChar,
-                                                                                     "disc-stats_",
-                                                                                     DateTime.Now.Year, "-",
-                                                                                     DateTime.Now.Month.ToString("D2"),
-                                                                                     ".log")))
-                                   {
+            Warden.EveryMinutes(15,
+                                Environment.OSVersion.Platform == PlatformID.Unix
+                                    ? new DriveInfo("/")
+                                    : new DriveInfo(Directory.GetCurrentDirectory()),
+                                async (timestamp, driveInfo, ct) => {
+                                    using (var writer = File.AppendText(String.Concat(this.MetricsPath,
+                                                                                      Path.DirectorySeparatorChar,
+                                                                                      "disc-stats_",
+                                                                                      DateTime.Now.Year, "-",
+                                                                                      DateTime.Now.Month.ToString("D2"),
+                                                                                      ".log")))
+                                    {
 
-                                       var MBytesFree       = driveInfo.AvailableFreeSpace / 1024 / 1024;
-                                       var HDPercentageFree = 100 * driveInfo.AvailableFreeSpace / driveInfo.TotalSize;
+                                        var MBytesFree       = driveInfo.AvailableFreeSpace / 1024 / 1024;
+                                        var HDPercentageFree = 100 * driveInfo.AvailableFreeSpace / driveInfo.TotalSize;
 
-                                       await writer.WriteLineAsync(String.Concat(timestamp.ToIso8601(), ";",
-                                                                                 MBytesFree, ";",
-                                                                                 HDPercentageFree)).
-                                                    ConfigureAwait(false);
+                                        await writer.WriteLineAsync(String.Concat(timestamp.ToIso8601(), ";",
+                                                                                  MBytesFree, ";",
+                                                                                  HDPercentageFree)).
+                                                     ConfigureAwait(false);
 
 
-                                       if (HDPercentageFree < 3)
-                                       {
+                                        if (HDPercentageFree < 3 &&
+                                            TryGetOrganization(this.AdminOrganizationId, out Organization adminOrganization))
+                                        {
 
-                                           var EMailTask = await APISMTPClient.Send(new HTMLEMailBuilder {
-                                                                                        From           = Robot.EMail,
-                                                                                        To             = APIAdminEMails,
-                                                                                        Passphrase     = APIPassphrase,
-                                                                                        Subject        = this.ServiceName + " is low on disc (<" + HDPercentageFree + "%, " + MBytesFree + " MB free)",
-                                                                                        HTMLText       = this.ServiceName + " is low on disc (<" + HDPercentageFree + "%, " + MBytesFree + " MB free)" + Environment.NewLine + Environment.NewLine,
-                                                                                        PlainText      = this.ServiceName + " is low on disc (<" + HDPercentageFree + "%, " + MBytesFree + " MB free)" + Environment.NewLine + Environment.NewLine,
-                                                                                        SecurityLevel  = EMailSecurity.sign
-                                                                                    }).ConfigureAwait(false);
+                                            //lowStorage_MessageType
 
-                                       }
+                                            var EMailTask = await APISMTPClient.Send(new HTMLEMailBuilder {
+                                                                                         From           = Robot.EMail,
+                                                                                         To             = EMailAddressList.Create(adminOrganization.Admins.Select(admin => admin.EMail)),
+                                                                                         Passphrase     = APIRobotGPGPassphrase,
+                                                                                         Subject        = this.ServiceName + " is low on disc (<" + HDPercentageFree + "%, " + MBytesFree + " MB free)",
+                                                                                         HTMLText       = this.ServiceName + " is low on disc (<" + HDPercentageFree + "%, " + MBytesFree + " MB free)" + Environment.NewLine + Environment.NewLine,
+                                                                                         PlainText      = this.ServiceName + " is low on disc (<" + HDPercentageFree + "%, " + MBytesFree + " MB free)" + Environment.NewLine + Environment.NewLine,
+                                                                                         SecurityLevel  = EMailSecurity.sign
+                                                                                     }).ConfigureAwait(false);
 
-                                   }
+                                        }
 
-                               });
+                                    }
+
+                                });
 
             #endregion
 
@@ -3277,6 +3245,8 @@ namespace social.OpenData.UsersAPI
 
         #region (static) NotificationMessageTypes
 
+        public static NotificationMessageType lowStorage_MessageType                          = NotificationMessageType.Parse("lowStorage");
+
         public static NotificationMessageType addUser_MessageType                             = NotificationMessageType.Parse("addUser");
         public static NotificationMessageType addUserIfNotExists_MessageType                  = NotificationMessageType.Parse("addUserIfNotExists");
         public static NotificationMessageType addOrUpdateUser_MessageType                     = NotificationMessageType.Parse("addOrUpdateUser");
@@ -3285,6 +3255,9 @@ namespace social.OpenData.UsersAPI
 
         public static NotificationMessageType addPassword_MessageType                         = NotificationMessageType.Parse("addPassword");
         public static NotificationMessageType changePassword_MessageType                      = NotificationMessageType.Parse("changePassword");
+        public static NotificationMessageType resetPassword_MessageType                       = NotificationMessageType.Parse("resetPassword");
+        public static NotificationMessageType addToPasswordFile                               = NotificationMessageType.Parse("add");
+        public static NotificationMessageType removeFromPasswordFile                          = NotificationMessageType.Parse("remove");
 
         public static NotificationMessageType addUserGroup_MessageType                        = NotificationMessageType.Parse("addUserGroup");
         public static NotificationMessageType addUserGroupIfNotExists_MessageType             = NotificationMessageType.Parse("addUserGroupIfNotExists");
@@ -4071,8 +4044,8 @@ namespace social.OpenData.UsersAPI
         /// <param name="HTMLTemplate">An optional HTML template.</param>
         /// <param name="APIVersionHashes">The API version hashes (git commit hash values).</param>
         /// 
-        /// <param name="APIEMailAddress">An e-mail address for this API.</param>
-        /// <param name="APIPassphrase">A GPG passphrase for this API.</param>
+        /// <param name="APIRobotEMailAddress">An e-mail address for this API.</param>
+        /// <param name="APIRobotGPGPassphrase">A GPG passphrase for this API.</param>
         /// <param name="APIAdminEMails">A list of admin e-mail addresses.</param>
         /// <param name="APISMTPClient">A SMTP client for sending e-mails.</param>
         /// 
@@ -4100,15 +4073,12 @@ namespace social.OpenData.UsersAPI
                                                String                               HTMLTemplate                     = null,
                                                JObject                              APIVersionHashes                 = null,
 
-                                               EMailAddress                         APIEMailAddress                  = null,
-                                               String                               APIPassphrase                    = null,
-                                               EMailAddressList                     APIAdminEMails                   = null,
+                                               Organization_Id?                     AdminOrganizationId              = null,
+                                               EMailAddress                         APIRobotEMailAddress             = null,
+                                               String                               APIRobotGPGPassphrase            = null,
                                                SMTPClient                           APISMTPClient                    = null,
-
                                                Credentials                          SMSAPICredentials                = null,
                                                String                               SMSSenderName                    = null,
-                                               IEnumerable<PhoneNumber>             APIAdminSMS                      = null,
-
                                                String                               TelegramBotToken                 = null,
 
                                                HTTPCookieName?                      CookieName                       = null,
@@ -4149,15 +4119,12 @@ namespace social.OpenData.UsersAPI
                             HTMLTemplate,
                             APIVersionHashes,
 
-                            APIEMailAddress,
-                            APIPassphrase,
-                            APIAdminEMails,
+                            AdminOrganizationId,
+                            APIRobotEMailAddress,
+                            APIRobotGPGPassphrase,
                             APISMTPClient,
-
                             SMSAPICredentials,
                             SMSSenderName,
-                            APIAdminSMS,
-
                             TelegramBotToken,
 
                             CookieName,
@@ -4490,13 +4457,13 @@ namespace social.OpenData.UsersAPI
             if (!TryGetHTTPUser(Request, out User))
             {
 
-                if (Request.HTTPSource.IPAddress.IsIPv4 &&
-                    Request.HTTPSource.IPAddress.IsLocalhost)
-                {
-                    User           = AdminUserGroup.User2GroupInEdges(edgelabel => edgelabel == User2GroupEdgeTypes.IsAdmin).FirstOrDefault()?.Source;
-                    Organizations  = new HashSet<Organization>(User.Organizations(AccessLevel, Recursive));
-                    return;
-                }
+                //if (Request.HTTPSource.IPAddress.IsIPv4 &&
+                //    Request.HTTPSource.IPAddress.IsLocalhost)
+                //{
+                //    User           = AdminOrganization.User2OrganizationInEdges(edge => edge label == User2OrganizationEdgeTypes.IsAdmin).FirstOrDefault()?.Source;
+                //    Organizations  = new HashSet<Organization>(User.Organizations(AccessLevel, Recursive));
+                //    return;
+                //}
 
                 Organizations  = null;
                 return;
@@ -5661,7 +5628,8 @@ namespace social.OpenData.UsersAPI
                                              foreach (var userId in _PasswordReset.UserIds)
                                              {
 
-                                                 await WriteToDatabaseFile(NotificationMessageType.Parse("resetPassword"),
+                                                 await WriteToDatabaseFile(this.UsersAPIPath + DefaultPasswordFile,
+                                                                           resetPassword_MessageType,
                                                                            JSONObject.Create(
 
                                                                                new JProperty("login",                 userId.ToString()),
@@ -5678,7 +5646,6 @@ namespace social.OpenData.UsersAPI
                                                                                    : null
 
                                                                            ),
-                                                                           this.UsersAPIPath + DefaultPasswordFile,
                                                                            Request.EventTrackingId,
                                                                            Robot.Id);
 
@@ -5686,7 +5653,8 @@ namespace social.OpenData.UsersAPI
 
                                                  _LoginPasswords.Add(userId, new LoginPassword(userId, NewPassword));
 
-                                                 await Remove(_PasswordReset);
+                                                 await RemovePasswordReset(_PasswordReset,
+                                                                           Request.EventTrackingId);
 
                                                  #region Send e-mail...
 
@@ -12407,6 +12375,11 @@ namespace social.OpenData.UsersAPI
 
         #region (protected) ReadDatabaseFile(ProcessEventDelegate, DatabaseFileName = null)
 
+        /// <summary>
+        /// Read the database file.
+        /// </summary>
+        /// <param name="ProcessEventDelegate">A delegate to process each database entry.</param>
+        /// <param name="DatabaseFileName">The optional database file name.</param>
         protected async Task ReadDatabaseFile(Func<String, JObject, String, UInt64?, Task>  ProcessEventDelegate,
                                               String                                        DatabaseFileName = null)
         {
@@ -12457,9 +12430,7 @@ namespace social.OpenData.UsersAPI
                 });
 
             }
-#pragma warning disable CS0168 // Variable is declared but never used
-            catch (FileNotFoundException ignore)
-#pragma warning restore CS0168 // Variable is declared but never used
+            catch (FileNotFoundException)
             { }
             catch (Exception e)
             {
@@ -12474,58 +12445,13 @@ namespace social.OpenData.UsersAPI
 
         #region (protected) ReadUsersAPIDatabaseFiles()
 
+        /// <summary>
+        /// Read all UsersAPI database files.
+        /// </summary>
         protected async Task ReadUsersAPIDatabaseFiles()
         {
 
             DebugX.Log("Reloading all UsersAPI database helper files...");
-
-            #region Read DefaultUsersAPIFile
-
-            //try
-            //{
-
-            //    JObject JSONLine;
-            //    String  JSONCommand;
-            //    JObject JSONObject;
-
-            //    // Info: File.Exists(...) is harmful!
-            //    File.ReadLines(APIDatabaseFile).ForEachCounted(async (line, linenumber) => {
-
-            //        if (line.IsNeitherNullNorEmpty() &&
-            //           !line.StartsWith("#")         &&
-            //           !line.StartsWith("//"))
-            //        {
-
-            //            try
-            //            {
-
-            //                JSONLine                  = JObject.Parse(line);
-            //                JSONCommand               = (JSONLine.First as JProperty)?.Name;
-            //                JSONObject                = (JSONLine.First as JProperty)?.Value as JObject;
-            //                CurrentDatabaseHashValue  =  JSONLine["sha256hash"]?["hashValue"]?.Value<String>();
-
-            //                if (JSONCommand.IsNotNullOrEmpty() && JSONObject != null)
-            //                    await ProcessCommand(JSONCommand, JSONObject);
-
-            //            }
-            //            catch (Exception e)
-            //            {
-            //                DebugX.Log("Could not read database file '" + APIDatabaseFile + "' line " + linenumber + ": " + e.Message);
-            //            }
-
-            //        }
-
-            //    });
-
-            //}
-            //catch (FileNotFoundException fe)
-            //{ }
-            //catch (Exception e)
-            //{
-            //    DebugX.LogT("Could not read database file '" + APIDatabaseFile + "': " + e.Message);
-            //}
-
-            #endregion
 
             #region Read Password file...
 
@@ -12537,7 +12463,7 @@ namespace social.OpenData.UsersAPI
                 JObject JSONObject;
 
                 // Info: File.Exists(...) is harmful!
-                File.ReadLines(this.UsersAPIPath + DefaultPasswordFile).ForEachCounted((line, linenumber) => {
+                File.ReadLines(UsersAPIPath + DefaultPasswordFile).ForEachCounted((line, linenumber) => {
 
                     if (line.IsNeitherNullNorEmpty() &&
                        !line.StartsWith("#")         &&
@@ -12560,7 +12486,7 @@ namespace social.OpenData.UsersAPI
                                 switch (JSONCommand)
                                 {
 
-                                    #region AddPassword
+                                    #region addPassword
 
                                         case "addPassword":
                                         case "AddPassword":
@@ -12582,7 +12508,7 @@ namespace social.OpenData.UsersAPI
 
                                         #endregion
 
-                                    #region ChangePassword
+                                    #region changePassword
 
                                         case "changePassword":
                                         case "ChangePassword":
@@ -12605,7 +12531,7 @@ namespace social.OpenData.UsersAPI
 
                                         #endregion
 
-                                    #region ResetPassword
+                                    #region resetPassword
 
                                         case "resetPassword":
                                         case "ResetPassword":
@@ -12661,7 +12587,7 @@ namespace social.OpenData.UsersAPI
                 try
                 {
 
-                    File.ReadLines(this.UsersAPIPath + DefaultHTTPCookiesFile).ForEachCounted((line, linenumber) => {
+                    File.ReadLines(UsersAPIPath + DefaultHTTPCookiesFile).ForEachCounted((line, linenumber) => {
 
                         try
                         {
@@ -12681,9 +12607,9 @@ namespace social.OpenData.UsersAPI
                             {
 
                                 _HTTPCookies.Add(SecurityTokenId,
-                                                new SecurityToken(Login,
-                                                                  Expires,
-                                                                  Astronaut));
+                                                 new SecurityToken(Login,
+                                                                   Expires,
+                                                                   Astronaut));
 
                             }
 
@@ -12696,7 +12622,7 @@ namespace social.OpenData.UsersAPI
                     });
 
                 }
-                catch (FileNotFoundException fe)
+                catch (FileNotFoundException)
                 { }
                 catch (Exception e)
                 {
@@ -12708,7 +12634,7 @@ namespace social.OpenData.UsersAPI
                 try
                 {
 
-                    File.WriteAllLines(this.UsersAPIPath + DefaultHTTPCookiesFile,
+                    File.WriteAllLines(UsersAPIPath + DefaultHTTPCookiesFile,
                                        _HTTPCookies.Select(token => token.Key + ";" + token.Value.ToLogLine()));
 
                 }
@@ -12734,7 +12660,7 @@ namespace social.OpenData.UsersAPI
                 var MaxAge  = TimeSpan.FromDays(7);
 
                 // Info: File.Exists(...) is harmful!
-                File.ReadLines(this.UsersAPIPath + DefaultPasswordResetsFile).ForEachCounted((line, linenumber) => {
+                File.ReadLines(UsersAPIPath + DefaultPasswordResetsFile).ForEachCounted((line, linenumber) => {
 
                     if (line.IsNeitherNullNorEmpty() &&
                        !line.StartsWith("#")         &&
@@ -12762,33 +12688,33 @@ namespace social.OpenData.UsersAPI
                                     switch (JSONCommand.ToLower())
                                     {
 
-                                        #region Add
+                                        #region add
 
-                                            case "add":
+                                        case "add":
 
-                                                if (!_PasswordResets.ContainsKey(_PasswordReset.SecurityToken1))
+                                            if (!_PasswordResets.ContainsKey(_PasswordReset.SecurityToken1))
+                                            {
+                                                if (Now - _PasswordReset.Timestamp <= MaxAge)
                                                 {
-                                                    if (Now - _PasswordReset.Timestamp <= MaxAge)
-                                                    {
-                                                        _PasswordResets.Add(_PasswordReset.SecurityToken1,
-                                                                           _PasswordReset);
-                                                    }
+                                                    _PasswordResets.Add(_PasswordReset.SecurityToken1,
+                                                                        _PasswordReset);
                                                 }
+                                            }
 
-                                                else
-                                                    DebugX.Log("Invalid 'Add' command in '" + this.UsersAPIPath + DefaultPasswordResetsFile + "' line " + linenumber + "!");
+                                            else
+                                                DebugX.Log("Invalid 'Add' command in '" + this.UsersAPIPath + DefaultPasswordResetsFile + "' line " + linenumber + "!");
 
-                                                break;
+                                            break;
 
-                                            #endregion
+                                        #endregion
 
-                                        #region Remove
+                                        #region remove
 
-                                            case "remove":
-                                                _PasswordResets.Remove(_PasswordReset.SecurityToken1);
-                                                break;
+                                        case "remove":
+                                            _PasswordResets.Remove(_PasswordReset.SecurityToken1);
+                                            break;
 
-                                            #endregion
+                                        #endregion
 
                                         default:
                                             DebugX.Log("Unknown command '" + JSONCommand + "' in password file '" + this.UsersAPIPath + DefaultPasswordResetsFile + "' line " + linenumber + "!");
@@ -12814,7 +12740,7 @@ namespace social.OpenData.UsersAPI
                 });
 
             }
-            catch (FileNotFoundException fe)
+            catch (FileNotFoundException)
             { }
             catch (Exception e)
             {
@@ -12834,7 +12760,7 @@ namespace social.OpenData.UsersAPI
         #region (protected) ProcessEvent(Command, Data, Sender = null, LineNumber = null)
 
         /// <summary>
-        /// Process an event.
+        /// Process a database event.
         /// </summary>
         /// <param name="Command">The event command.</param>
         /// <param name="Data">The event data.</param>
@@ -12845,6 +12771,8 @@ namespace social.OpenData.UsersAPI
                                           String   Sender     = null,
                                           UInt64?  LineNumber = null)
         {
+
+            #region Initial checks
 
             if (Command.IsNullOrEmpty() || Data == null)
                 return;
@@ -12857,6 +12785,8 @@ namespace social.OpenData.UsersAPI
             NewsPosting      newsPosting;
             NewsBanner       newsBanner;
             FAQ              faq;
+
+            #endregion
 
             switch (Command)
             {
@@ -13036,24 +12966,6 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-
-                #region Create organization
-
-                case "createOrganization":
-
-                    if (Organization.TryParseJSON(Data,
-                                                  out organization,
-                                                  out ErrorResponse))
-                    {
-                        _Organizations.AddAndReturnValue(organization.Id, organization);
-                    }
-
-                    else
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, Sender.IsNotNullOrEmpty() ? " via " + Sender : "", LineNumber.HasValue ? ", line " + LineNumber.Value : "", ": ", ErrorResponse));
-
-                    break;
-
-                #endregion
 
                 #region Add organization
 
@@ -13441,8 +13353,7 @@ namespace social.OpenData.UsersAPI
                                                _UserGroups.TryGetValue,
                                                _Users.TryGetValue,
                                                out userGroup,
-                                               out ErrorResponse) &&
-                        userGroup.Id != AdminUserGroup.Id)
+                                               out ErrorResponse))
                     {
 
                         if (!_UserGroups.ContainsKey(userGroup.Id))
@@ -13471,8 +13382,7 @@ namespace social.OpenData.UsersAPI
                                                _UserGroups.TryGetValue,
                                                _Users.TryGetValue,
                                                out userGroup,
-                                               out ErrorResponse) &&
-                        userGroup.Id != AdminUserGroup.Id)
+                                               out ErrorResponse))
                     {
 
                         if (!_UserGroups.ContainsKey(userGroup.Id))
@@ -13898,8 +13808,7 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-
-        #region WriteToDatabaseFile(MessageType, JSONData,                     EventTrackingId,        CurrentUserId = null)
+        #region (protected internal) WriteToDatabaseFile(              MessageType, JSONData, EventTrackingId, CurrentUserId = null)
 
         /// <summary>
         /// Write data to a log file.
@@ -13908,34 +13817,34 @@ namespace social.OpenData.UsersAPI
         /// <param name="JSONData">The JSON data of the message.</param>
         /// <param name="EventTrackingId">An unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public Task WriteToDatabaseFile(NotificationMessageType  MessageType,
-                                        JObject                  JSONData,
-                                        EventTracking_Id         EventTrackingId,
-                                        User_Id?                 CurrentUserId   = null)
+        protected internal Task WriteToDatabaseFile(NotificationMessageType  MessageType,
+                                                    JObject                  JSONData,
+                                                    EventTracking_Id         EventTrackingId,
+                                                    User_Id?                 CurrentUserId   = null)
 
-            => WriteToDatabaseFile(MessageType,
+            => WriteToDatabaseFile(DatabaseFileName,
+                                   MessageType,
                                    JSONData,
-                                   DatabaseFileName,
                                    EventTrackingId,
                                    CurrentUserId);
 
         #endregion
 
-        #region WriteToDatabaseFile(MessageType, JSONData, DatabaseFile, EventTrackingId = null, CurrentUserId = null)
+        #region (protected internal) WriteToDatabaseFile(DatabaseFile, MessageType, JSONData, EventTrackingId, CurrentUserId = null)
 
         /// <summary>
         /// Write data to a database file.
         /// </summary>
+        /// <param name="DatabaseFile">The database file.</param>
         /// <param name="MessageType">The type of the message.</param>
         /// <param name="JSONData">The JSON data of the message.</param>
-        /// <param name="DatabaseFile">The database file.</param>
-        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="EventTrackingId">An unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task WriteToDatabaseFile(NotificationMessageType  MessageType,
-                                              JObject                  JSONData,
-                                              String                   DatabaseFile,
-                                              EventTracking_Id         EventTrackingId   = null,
-                                              User_Id?                 CurrentUserId     = null)
+        protected internal async Task WriteToDatabaseFile(String                   DatabaseFile,
+                                                          NotificationMessageType  MessageType,
+                                                          JObject                  JSONData,
+                                                          EventTracking_Id         EventTrackingId,
+                                                          User_Id?                 CurrentUserId     = null)
         {
 
             if (!DisableLogfile || !DisableNotifications)
@@ -13947,8 +13856,8 @@ namespace social.OpenData.UsersAPI
                     var Now          = DateTime.UtcNow;
 
                     var JSONMessage  = new JObject(
-                                           new JProperty("eventTrackingId",       (EventTrackingId ?? EventTracking_Id.New).ToString()),
                                            new JProperty(MessageType.ToString(),  JSONData),
+                                           new JProperty("eventTrackingId",       (EventTrackingId ?? EventTracking_Id.New).ToString()),
                                            new JProperty("userId",                (CurrentUserId ?? CurrentAsyncLocalUserId.Value ?? Robot.Id).ToString()),
                                            new JProperty("systemId",              SystemId.ToString()),
                                            new JProperty("timestamp",             Now.ToIso8601()),
@@ -14063,7 +13972,7 @@ namespace social.OpenData.UsersAPI
 
                             var retry       = 0;
                             var maxRetries  = 23;
-                            var text1       = Comment + (CurrentUserId.HasValue ? "by " + CurrentUserId.ToString() + " " : "");
+                            var text1       = (Comment ?? "no comment!") + (CurrentUserId.HasValue ? "by " + CurrentUserId.ToString() + " " : "");
                             var text2       = "# --" + (text1 != null ? "< " + text1 + " >" : "");
                             var text3       = text2 + new String('-', Math.Max(10, 200 - text2.Length)) + Environment.NewLine;
 
@@ -14113,7 +14022,6 @@ namespace social.OpenData.UsersAPI
         }
 
         #endregion
-
 
         #region WriteToCustomLogfile(Logfilename, Lock, Data)
 
@@ -17827,16 +17735,16 @@ namespace social.OpenData.UsersAPI
         public Access_Levels IsAdmin(User User)
         {
 
-            if (User.Groups(User2GroupEdgeTypes.IsAdmin_ReadOnly).
-                     Contains(AdminUserGroup))
-            {
-                return Access_Levels.ReadOnly;
-            }
-
-            if (User.Groups(User2GroupEdgeTypes.IsAdmin).
-                     Contains(AdminUserGroup))
+            if (User.Organizations(Access_Levels.Admin, false).
+                     Any          (org => org.Id == AdminOrganizationId))
             {
                 return Access_Levels.ReadWrite;
+            }
+
+            if (User.Organizations(Access_Levels.AdminReadOnly, false).
+                     Any          (org => org.Id == AdminOrganizationId))
+            {
+                return Access_Levels.ReadOnly;
             }
 
             return Access_Levels.None;
@@ -18063,10 +17971,10 @@ namespace social.OpenData.UsersAPI
         #region TryChangePassword(UserId, NewPassword, CurrentPassword = null, CurrentUserId = null)
 
         protected internal async Task<Boolean> _TryChangePassword(User_Id           UserId,
-                                                         Password          NewPassword,
-                                                         String            CurrentPassword   = null,
-                                                         EventTracking_Id  EventTrackingId   = null,
-                                                         User_Id?          CurrentUserId     = null)
+                                                                  Password          NewPassword,
+                                                                  String            CurrentPassword   = null,
+                                                                  EventTracking_Id  EventTrackingId   = null,
+                                                                  User_Id?          CurrentUserId     = null)
         {
 
             if (UserId.Length < MinUserIdLength)
@@ -18080,7 +17988,8 @@ namespace social.OpenData.UsersAPI
             if (!_LoginPasswords.TryGetValue(UserId, out LoginPassword _LoginPassword))
             {
 
-                await WriteToDatabaseFile(addPassword_MessageType,
+                await WriteToDatabaseFile(UsersAPIPath + DefaultPasswordFile,
+                                          addPassword_MessageType,
                                           new JObject(
                                               new JProperty("login",         UserId.ToString()),
                                               new JProperty("newPassword", new JObject(
@@ -18088,7 +17997,6 @@ namespace social.OpenData.UsersAPI
                                                   new JProperty("passwordHash",  NewPassword.UnsecureString)
                                               ))
                                           ),
-                                          UsersAPIPath + DefaultPasswordFile,
                                           eventTrackingId,
                                           CurrentUserId);
 
@@ -18105,7 +18013,8 @@ namespace social.OpenData.UsersAPI
             else if (CurrentPassword.IsNotNullOrEmpty() && _LoginPassword.VerifyPassword(CurrentPassword))
             {
 
-                await WriteToDatabaseFile(changePassword_MessageType,
+                await WriteToDatabaseFile(UsersAPIPath + DefaultPasswordFile,
+                                          changePassword_MessageType,
                                           new JObject(
                                               new JProperty("login",         UserId.ToString()),
                                               new JProperty("currentPassword", new JObject(
@@ -18117,7 +18026,6 @@ namespace social.OpenData.UsersAPI
                                                   new JProperty("passwordHash",  NewPassword.UnsecureString)
                                               ))
                                           ),
-                                          UsersAPIPath + DefaultPasswordFile,
                                           eventTrackingId,
                                           CurrentUserId);
 
@@ -18189,33 +18097,44 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region ResetPassword(UserId,  SecurityToken1, SecurityToken2 = null)
+        #region ResetPassword(UserId,  SecurityToken1, SecurityToken2 = null, EventTrackingId = null)
 
         public Task<PasswordReset> ResetPassword(User_Id            UserId,
                                                  SecurityToken_Id   SecurityToken1,
-                                                 SecurityToken_Id?  SecurityToken2 = null)
+                                                 SecurityToken_Id?  SecurityToken2    = null,
+                                                 EventTracking_Id   EventTrackingId   = null)
 
-            => Add(new PasswordReset(new User_Id[] { UserId },
-                                     SecurityToken1,
-                                     SecurityToken2));
+            => AddPasswordReset(new PasswordReset(new User_Id[] { UserId },
+                                                  SecurityToken1,
+                                                  SecurityToken2),
+                                EventTrackingId ?? EventTracking_Id.New);
 
         #endregion
 
-        #region ResetPassword(UserIds, SecurityToken1, SecurityToken2 = null)
+        #region ResetPassword(UserIds, SecurityToken1, SecurityToken2 = null, EventTrackingId = null)
 
         public Task<PasswordReset> ResetPassword(IEnumerable<User_Id>  UserIds,
                                                  SecurityToken_Id      SecurityToken1,
-                                                 SecurityToken_Id?     SecurityToken2 = null)
+                                                 SecurityToken_Id?     SecurityToken2    = null,
+                                                 EventTracking_Id      EventTrackingId   = null)
 
-            => Add(new PasswordReset(UserIds,
-                                     SecurityToken1,
-                                     SecurityToken2));
+            => AddPasswordReset(new PasswordReset(UserIds,
+                                                  SecurityToken1,
+                                                  SecurityToken2),
+                                EventTrackingId ?? EventTracking_Id.New);
 
         #endregion
 
-        #region Add   (passwordReset)
 
-        public async Task<PasswordReset> Add(PasswordReset passwordReset)
+        #region AddPasswordReset   (PasswordReset, EventTrackingId)
+
+        /// <summary>
+        /// Add a password reset.
+        /// </summary>
+        /// <param name="PasswordReset">A password reset.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        public async Task<PasswordReset> AddPasswordReset(PasswordReset     PasswordReset,
+                                                          EventTracking_Id  EventTrackingId)
         {
 
             try
@@ -18223,13 +18142,14 @@ namespace social.OpenData.UsersAPI
 
                 await UsersSemaphore.WaitAsync();
 
-                await WriteToDatabaseFile(NotificationMessageType.Parse("add"),
-                                          passwordReset.ToJSON(),
-                                          UsersAPIPath + DefaultPasswordResetsFile);
+                await WriteToDatabaseFile(UsersAPIPath + DefaultPasswordResetsFile,
+                                          addToPasswordFile,
+                                          PasswordReset.ToJSON(),
+                                          EventTrackingId ?? EventTracking_Id.New);
 
-                this._PasswordResets.Add(passwordReset.SecurityToken1, passwordReset);
+                this._PasswordResets.Add(PasswordReset.SecurityToken1, PasswordReset);
 
-                return passwordReset;
+                return PasswordReset;
 
             }
             finally
@@ -18241,9 +18161,15 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region Remove(passwordReset)
+        #region RemovePasswordReset(PasswordReset, EventTrackingId)
 
-        public async Task<PasswordReset> Remove(PasswordReset passwordReset)
+        /// <summary>
+        /// Remove a password reset.
+        /// </summary>
+        /// <param name="PasswordReset">A password reset.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        public async Task<PasswordReset> RemovePasswordReset(PasswordReset     PasswordReset,
+                                                             EventTracking_Id  EventTrackingId)
         {
 
             try
@@ -18251,13 +18177,14 @@ namespace social.OpenData.UsersAPI
 
                 await UsersSemaphore.WaitAsync();
 
-                await WriteToDatabaseFile(NotificationMessageType.Parse("remove"),
-                                          passwordReset.ToJSON(),
-                                          UsersAPIPath + DefaultPasswordResetsFile);
+                await WriteToDatabaseFile(UsersAPIPath + DefaultPasswordResetsFile,
+                                          removeFromPasswordFile,
+                                          PasswordReset.ToJSON(),
+                                          EventTrackingId);
 
-                this._PasswordResets.Remove(passwordReset.SecurityToken1);
+                this._PasswordResets.Remove(PasswordReset.SecurityToken1);
 
-                return passwordReset;
+                return PasswordReset;
 
             }
             finally
@@ -26712,13 +26639,18 @@ namespace social.OpenData.UsersAPI
             if (Astronaut == Member)
                 return false;
 
-            // API admins can impersonate everyone! Except other API Admins!
-            if (AdminUserGroup.InEdges(Astronaut).Any())
-                return !AdminUserGroup.InEdges(Member).Any();
+            var adminOrganization = GetOrganization(AdminOrganizationId);
+
+            if (adminOrganization is null)
+                return false;
 
             // API admins can never be impersonated!
-            if (AdminUserGroup.InEdges(Member).Any())
+            if (Member.HasAccessToOrganization(Access_Levels.Admin, AdminOrganizationId))
                 return false;
+
+            // API admins can impersonate everyone!
+            if (Astronaut.HasAccessToOrganization(Access_Levels.Admin, AdminOrganizationId))
+                return true;
 
             // An astronaut must be at least an admin of some parent organization!
             if (!Astronaut.User2Organization_OutEdges.Any(edge => edge.EdgeLabel == User2OrganizationEdgeTypes.IsAdmin))
@@ -26734,53 +26666,53 @@ namespace social.OpenData.UsersAPI
             return childResults.Any(result => result == true);
 
 
-            do
-            {
+            //do
+            //{
 
-                var NextOrgs  = new HashSet<Organization>(CurrentOrganizations.SelectMany(org => org.Organization2OrganizationInEdges.Where(edge => edge.EdgeLabel == Organization2OrganizationEdgeTypes.IsChildOf)).Select(edge => edge.Source));
+            //    var NextOrgs  = new HashSet<Organization>(CurrentOrganizations.SelectMany(org => org.Organization2OrganizationInEdges.Where(edge => edge.EdgeLabel == Organization2OrganizationEdgeTypes.IsChildOf)).Select(edge => edge.Source));
 
-                foreach (var currentOrg in NextOrgs)
-                {
+            //    foreach (var currentOrg in NextOrgs)
+            //    {
 
-                    var currentUsers = new HashSet<User>(currentOrg.User2OrganizationEdges.Select(edge => edge.Source));
+            //        var currentUsers = new HashSet<User>(currentOrg.User2OrganizationEdges.Select(edge => edge.Source));
 
-                    AstronautFound |= currentUsers.Contains(Astronaut);
+            //        AstronautFound |= currentUsers.Contains(Astronaut);
 
-                    if (!AstronautFound)
-                    {
+            //        if (!AstronautFound)
+            //        {
 
-                        // Fail early!
-                        if (currentUsers.Contains(Member))
-                            return false;
+            //            // Fail early!
+            //            if (currentUsers.Contains(Member))
+            //                return false;
 
-                    }
+            //        }
 
-                    else if (currentUsers.Contains(Member))
-                    {
+            //        else if (currentUsers.Contains(Member))
+            //        {
 
-                        // Astronaut and member are on the same level, e.g. both admin of the same organization!
-                        if (currentUsers.Contains(Astronaut))
-                        {
-                            // Currently this is allowed!
-                        }
+            //            // Astronaut and member are on the same level, e.g. both admin of the same organization!
+            //            if (currentUsers.Contains(Astronaut))
+            //            {
+            //                // Currently this is allowed!
+            //            }
 
-                        return !VetoUsers.Contains(Member);
+            //            return !VetoUsers.Contains(Member);
 
-                    }
+            //        }
 
-                    // Everyone found so far can no longer be impersonated!
-                    currentUsers.ForEach(user => VetoUsers.Add(user));
+            //        // Everyone found so far can no longer be impersonated!
+            //        currentUsers.ForEach(user => VetoUsers.Add(user));
 
-                }
+            //    }
 
-                CurrentOrganizations.Clear();
-                NextOrgs.ForEach(org => CurrentOrganizations.Add(org));
+            //    CurrentOrganizations.Clear();
+            //    NextOrgs.ForEach(org => CurrentOrganizations.Add(org));
 
-            }
-            while (CurrentOrganizations.Count > 0);
+            //}
+            //while (CurrentOrganizations.Count > 0);
 
-            // The member was not found within the organizational hierarchy!
-            return false;
+            //// The member was not found within the organizational hierarchy!
+            //return false;
 
         }
 
@@ -27643,7 +27575,7 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region WriteToLogfileAndNotify(ServiceTicket,        MessageType, OldServiceTicket        = null, CurrentUserId = null)
+        #region WriteToLogfileAndNotify(ServiceTicket, MessageType, OldServiceTicket = null, EventTrackingId = null, CurrentUserId = null)
 
         public async Task WriteToLogfileAndNotify<TServiceTicket>(TServiceTicket           ServiceTicket,
                                                                   NotificationMessageType  MessageType,
@@ -27658,9 +27590,9 @@ namespace social.OpenData.UsersAPI
             if (ServiceTicket == null)
                 return;
 
-            await WriteToDatabaseFile(MessageType,
+            await WriteToDatabaseFile(DatabaseFileName,
+                                      MessageType,
                                       ServiceTicket.ToJSON(),
-                                      DatabaseFileName,
                                       EventTrackingId,
                                       CurrentUserId);
 

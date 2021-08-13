@@ -394,10 +394,10 @@ namespace social.OpenData.UsersAPI
             => _User2Group_OutEdges.Where(edge => User2GroupEdgeFilter(edge.EdgeLabel));
 
 
-        #region Organizations(RequireAdminAccess, RequireReadWriteAccess, Recursive)
+        #region Organizations(RequireAdminAccess, RequireReadWriteAccess, Recursive = true)
 
         public IEnumerable<Organization> Organizations(Access_Levels  AccessLevel,
-                                                       Boolean        Recursive)
+                                                       Boolean        Recursive = true)
         {
 
             var AllMyOrganizations = new HashSet<Organization>();
@@ -408,6 +408,15 @@ namespace social.OpenData.UsersAPI
                 case Access_Levels.Admin:
                     foreach (var organization in _User2Organization_OutEdges.
                                                      Where (edge => edge.EdgeLabel == User2OrganizationEdgeTypes.IsAdmin).
+                                                     Select(edge => edge.Target))
+                    {
+                        AllMyOrganizations.Add(organization);
+                    }
+                    break;
+
+                case Access_Levels.AdminReadOnly:
+                    foreach (var organization in _User2Organization_OutEdges.
+                                                     Where (edge => edge.EdgeLabel == User2OrganizationEdgeTypes.IsAdminReadOnly).
                                                      Select(edge => edge.Target))
                     {
                         AllMyOrganizations.Add(organization);
@@ -465,6 +474,29 @@ namespace social.OpenData.UsersAPI
         }
 
         #endregion
+
+        #region HasAccessToOrganization(AccessLevel, Organization,   Recursive = true)
+
+        public Boolean HasAccessToOrganization(Access_Levels  AccessLevel,
+                                               Organization   Organization,
+                                               Boolean        Recursive = true)
+
+            => !(Organization is null) &&
+                 Organizations(AccessLevel, Recursive).Contains(Organization);
+
+        #endregion
+
+        #region HasAccessToOrganization(AccessLevel, OrganizationId, Recursive = true)
+
+        public Boolean HasAccessToOrganization(Access_Levels    AccessLevel,
+                                               Organization_Id  OrganizationId,
+                                               Boolean          Recursive = true)
+
+            => !OrganizationId.IsNullOrEmpty &&
+                Organizations(AccessLevel, Recursive).Any(org => org.Id == OrganizationId);
+
+        #endregion
+
 
         public Boolean RemoveOutEdge(User2OrganizationEdge Edge)
             => _User2Organization_OutEdges.Remove(Edge);
