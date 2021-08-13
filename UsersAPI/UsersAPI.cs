@@ -2679,6 +2679,8 @@ namespace social.OpenData.UsersAPI
         /// <param name="HTMLTemplate">An optional HTML template.</param>
         /// <param name="APIVersionHashes">The API version hashes (git commit hash values).</param>
         /// 
+        /// <param name="AdminOrganizationId">The API admin organization identification.</param>
+        /// <param name="APIRobotEMailAddress">An e-mail address for this API.</param>
         /// <param name="APIRobotGPGPassphrase">A GPG passphrase for this API.</param>
         /// <param name="APISMTPClient">A SMTP client for sending e-mails.</param>
         /// <param name="SMSAPICredentials">The credentials for the SMS API.</param>
