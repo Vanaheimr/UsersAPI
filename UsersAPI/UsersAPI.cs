@@ -3753,7 +3753,7 @@ namespace social.OpenData.UsersAPI
                                             "Dear " + User.Name + ",<br /><br />" + Environment.NewLine +
                                             "someone - hopefully you - requested us to change your password!<br />" + Environment.NewLine +
                                             "If this request was your intention, please click the following link to set a new password...<br /><br />" + Environment.NewLine +
-                                            "<a href=\"" + ExternalDNSName + "/setPassword?" + SecurityToken + (Use2FactorAuth ? "&2factor" : "") + "\" style=\"text-decoration: none; color: #FFFFFF; background-color: #ff7300; Border: solid #ff7300; border-width: 10px 20px; line-height: 2; font-weight: bold; text-align: center; cursor: pointer; display: inline-block; border-radius: 4px; margin-top: 20px; font-size: 70%\">Set a new password</a>" + Environment.NewLine +
+                                            "<a href=\"https://" + ExternalDNSName + "/setPassword?" + SecurityToken + (Use2FactorAuth ? "&2factor" : "") + "\" style=\"text-decoration: none; color: #FFFFFF; background-color: #ff7300; Border: solid #ff7300; border-width: 10px 20px; line-height: 2; font-weight: bold; text-align: center; cursor: pointer; display: inline-block; border-radius: 4px; margin-top: 20px; font-size: 70%\">Set a new password</a>" + Environment.NewLine +
                                         HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.System)
                                     ),
 
@@ -3762,7 +3762,7 @@ namespace social.OpenData.UsersAPI
                                             "Dear " + User.Name + "," + Environment.NewLine +
                                             "someone - hopefully you - requested us to change your password!" + Environment.NewLine +
                                             "If this request was your intention, please click the following link to set a new password..." + Environment.NewLine + Environment.NewLine +
-                                            ExternalDNSName + "/setPassword?" + SecurityToken + (Use2FactorAuth ? "&2factor" : "") +
+                                            "https://" + ExternalDNSName + "/setPassword?" + SecurityToken + (Use2FactorAuth ? "&2factor" : "") +
                                         TextEMailFooter(ExternalDNSName, BasePath, EMailType.System)
                                     ),
 
@@ -3792,7 +3792,7 @@ namespace social.OpenData.UsersAPI
                                         HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.System) +
                                             "Dear " + User.Name + ",<br /><br />" + Environment.NewLine +
                                             "your password has successfully been changed!<br />" + Environment.NewLine +
-                                            "<a href=\"" + ExternalDNSName + "/login?" + User.Id + "\" style=\"text-decoration: none; color: #FFFFFF; background-color: #ff7300; Border: solid #ff7300; border-width: 10px 20px; line-height: 2; font-weight: bold; text-align: center; cursor: pointer; display: inline-block; border-radius: 4px; margin-top: 20px; font-size: 70%\">Login</a>" + Environment.NewLine +
+                                            "<a href=\"https://" + ExternalDNSName + "/login?" + User.Id + "\" style=\"text-decoration: none; color: #FFFFFF; background-color: #ff7300; Border: solid #ff7300; border-width: 10px 20px; line-height: 2; font-weight: bold; text-align: center; cursor: pointer; display: inline-block; border-radius: 4px; margin-top: 20px; font-size: 70%\">Login</a>" + Environment.NewLine +
                                         HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.System)
                                     ),
 
@@ -3800,7 +3800,7 @@ namespace social.OpenData.UsersAPI
                                         TextEMailHeader(ExternalDNSName, BasePath, EMailType.System) +
                                             "Dear " + User.Name + "," + Environment.NewLine +
                                             "your password has successfully been changed!" + Environment.NewLine +
-                                            ExternalDNSName + "/login?" + User.Id +
+                                            "https://" + ExternalDNSName + "/login?" + User.Id +
                                         TextEMailFooter(ExternalDNSName, BasePath, EMailType.System)
                                     ),
 
@@ -5421,7 +5421,10 @@ namespace social.OpenData.UsersAPI
 
                                              var PasswordReset    = await ResetPassword(Users.Select(user => user.Id),
                                                                                         SecurityToken_Id.Random(40, _Random),
-                                                                                        SecurityToken_Id.Parse(_Random.RandomString(5) + "-" + _Random.RandomString(5)));
+                                                                                        Users.All(user => user.Use2AuthFactor == Use2AuthFactor.MobilePhoneSMS &&
+                                                                                                          user.MobilePhone.HasValue)
+                                                                                            ? SecurityToken_Id.Parse(_Random.RandomString(5) + "-" + _Random.RandomString(5))
+                                                                                            : null);
 
                                              var MailSentResults  = new List<MailSentStatus>();
                                              var SMSSentResults   = new List<SMSAPIResponseStatus>();
@@ -5437,8 +5440,7 @@ namespace social.OpenData.UsersAPI
                                                      var MailResultTask = APISMTPClient.Send(ResetPasswordEMailCreator(user,
                                                                                                                        user.EMail,
                                                                                                                        PasswordReset.SecurityToken1,
-                                                                                                                       user.MobilePhone.HasValue,
-                                                                                                                       //"https://" + Request.Host.SimpleString,
+                                                                                                                       user.Use2AuthFactor == Use2AuthFactor.MobilePhoneSMS && user.MobilePhone.HasValue,
                                                                                                                        DefaultLanguage));
 
                                                      if (MailResultTask.Wait(60000))
@@ -5448,12 +5450,12 @@ namespace social.OpenData.UsersAPI
 
                                                      #region Send SMS...
 
-                                                     if (_SMSAPI != null && user.MobilePhone.HasValue)
+                                                     if (_SMSAPI != null && PasswordReset.SecurityToken2.HasValue)
                                                      {
 
                                                          SMSSentResults.Add(_SMSAPI.Send("Dear '" + user.Name + "' your 2nd security token for resetting your password is '" + PasswordReset.SecurityToken2 + "'!",
                                                                                          user.MobilePhone.Value.ToString()).
-                                                                                    SetSender("CardiCloud").
+                                                                                    SetSender(SMSSenderName).
                                                                                     Execute());
 
                                                      }
@@ -6164,7 +6166,7 @@ namespace social.OpenData.UsersAPI
                                                                                               newUser.Use2AuthFactor == Use2AuthFactor.MobilePhoneSMS &&
                                                                                               newUser.MobilePhone.HasValue
                                                                                                   ? SecurityToken_Id.Parse(_Random.RandomString(5) + "-" + _Random.RandomString(5))
-                                                                                                  : default);
+                                                                                                  : null);
 
                                                  #endregion
 
@@ -6583,7 +6585,7 @@ namespace social.OpenData.UsersAPI
                                                  //                                 // "Your new account is 'hsadgsagd'!" makes them type also ' and ! characters!
                                                  //    var SMSSentResult = _SMSAPI.Send("Dear '" + Name + "' your 2nd security token for your new account is: " + SetPasswordRequest.SecurityToken2,
                                                  //                                     MobilePhone.Value.ToString()).
-                                                 //                                SetSender("CardiCloud").
+                                                 //                                SetSender(SMSSenderName).
                                                  //                                Execute();
 
                                                  //}
@@ -6810,7 +6812,10 @@ namespace social.OpenData.UsersAPI
 
                                              #region 2. You request _your own_ or you are a valid _admin_ => r/w access
 
-                                             if (HTTPUser.Id == User.Id || CanImpersonate(HTTPUser, User))
+                                             if (HTTPUser.Id == User.Id || CanImpersonate(HTTPUser,
+                                                                                          User,
+                                                                                          Access_Levels.ReadOnly))
+
                                                  return Task.FromResult(
                                                      new HTTPResponse.Builder(Request) {
                                                          HTTPStatusCode              = HTTPStatusCode.OK,
@@ -6906,7 +6911,9 @@ namespace social.OpenData.UsersAPI
 
 
                                              // You request your own profile or you are a valid *admin*
-                                             return Task.FromResult(User == HTTPUser || CanImpersonate(HTTPUser, User)
+                                             return Task.FromResult(User == HTTPUser || CanImpersonate(HTTPUser,
+                                                                                                       User,
+                                                                                                       Access_Levels.ReadOnly)
 
                                                          ? new HTTPResponse.Builder(Request) {
                                                                HTTPStatusCode              = HTTPStatusCode.OK,
@@ -15241,7 +15248,7 @@ namespace social.OpenData.UsersAPI
                                                   "https://", ExternalDNSName, BasePath, "/users/", User.Id),
                                                   // to Organization {Org_Name}.",
                                     AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
-                                    "CardiCloud");
+                                    SMSSenderName);
                         }
 
                         if (messageTypes.Contains(updateUser_MessageType))
@@ -15250,7 +15257,7 @@ namespace social.OpenData.UsersAPI
                                                   "https://", ExternalDNSName, BasePath, "/users/", User.Id),
                                                   // + {Updated information}
                                     AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
-                                    "CardiCloud");
+                                    SMSSenderName);
                         }
 
                         if (messageTypes.Contains(removeUser_MessageType))
@@ -15258,7 +15265,7 @@ namespace social.OpenData.UsersAPI
                             SendSMS(String.Concat("User '", User.Name, "' information has been removed. ",
                                                   "If you haven't approved this request, please contact support: support@cardi-link.com"),
                                     AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
-                                    "CardiCloud");
+                                    SMSSenderName);
                         }
 
                     }
@@ -24115,7 +24122,7 @@ namespace social.OpenData.UsersAPI
                             SendSMS(String.Concat("Organization '", Organization.Name.FirstText(), "' was successfully created. ",
                                                   "https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id),
                                     AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
-                                    "CardiCloud");
+                                    SMSSenderName);
                         }
 
                         if (messageTypes.Contains(updateOrganization_MessageType))
@@ -24124,14 +24131,14 @@ namespace social.OpenData.UsersAPI
                                                   "https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id),
                                                   // + {Updated information}
                                     AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
-                                    "CardiCloud");
+                                    SMSSenderName);
                         }
 
                         if (messageTypes.Contains(removeOrganization_MessageType))
                         {
                             SendSMS(String.Concat("Organization '", Organization.Name.FirstText(), "' has been removed."),
                                     AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
-                                    "CardiCloud");
+                                    SMSSenderName);
                         }
 
                     }
@@ -27316,10 +27323,11 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region CanImpersonate(Astronaut, Member)
+        #region CanImpersonate(Astronaut, Member, RequestedAccessLevel = Access_Levels.ReadWrite)
 
-        public Boolean CanImpersonate(User  Astronaut,
-                                      User  Member)
+        public Boolean CanImpersonate(User           Astronaut,
+                                      User           Member,
+                                      Access_Levels  RequestedAccessLevel = Access_Levels.ReadWrite)
         {
 
             if (Astronaut == Member)
@@ -27331,7 +27339,7 @@ namespace social.OpenData.UsersAPI
                 return false;
 
             // API admins can never be impersonated!
-            if (Member.HasAccessToOrganization(Access_Levels.Admin, AdminOrganizationId))
+            if (Member.HasAccessToOrganization(Access_Levels.Admin, AdminOrganizationId) && RequestedAccessLevel != Access_Levels.ReadOnly)
                 return false;
 
             // API admins can impersonate everyone!
@@ -27500,14 +27508,14 @@ namespace social.OpenData.UsersAPI
                         {
                             SendSMS(String.Concat("User '", User.Name, "' was added to organization '", Organization.Name.FirstText(), "'."),
                                     AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
-                                    "CardiCloud");
+                                    SMSSenderName);
                         }
 
                         if (_MessageTypes.Contains(removeUserFromOrganization_MessageType))
                         {
                             SendSMS(String.Concat("User '", User.Name, "' was removed from organization '", Organization.Name.FirstText(), "'."),
                                     AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
-                                    "CardiCloud");
+                                    SMSSenderName);
                         }
 
                     }
@@ -27904,14 +27912,14 @@ namespace social.OpenData.UsersAPI
                         {
                             SendSMS(String.Concat("Organization '", OrganizationOut.Name.FirstText(), "' was linked to organization '", OrganizationIn.Name.FirstText(), "'."),
                                     AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
-                                    "CardiCloud");
+                                    SMSSenderName);
                         }
 
                         if (_MessageTypes.Contains(unlinkOrganizations_MessageType))
                         {
                             SendSMS(String.Concat("Organization '", OrganizationOut.Name.FirstText(), "' was unlinked from organization '", OrganizationIn.Name.FirstText(), "'."),
                                     AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
-                                    "CardiCloud");
+                                    SMSSenderName);
                         }
 
                     }
@@ -28370,7 +28378,7 @@ namespace social.OpenData.UsersAPI
 
                         SendSMS("ServiceTicket '" + ServiceTicket.Id + "' sent '" + MessageType + "'!",
                                 AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
-                                "CardiCloud");
+                                SMSSenderName);
 
                     }
 

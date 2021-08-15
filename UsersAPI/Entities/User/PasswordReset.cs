@@ -51,22 +51,22 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// The creation timestamp of the password-reset-information.
         /// </summary>
-        public DateTime              Timestamp        { get; }
+        public DateTime           Timestamp         { get; }
 
         /// <summary>
         /// An enumeration of valid user identifications.
         /// </summary>
-        public IEnumerable<User_Id>  UserIds          { get; }
+        public HashSet<User_Id>   UserIds           { get; }
 
         /// <summary>
         /// A security token to authorize the password reset.
         /// </summary>
-        public SecurityToken_Id      SecurityToken1   { get; }
+        public SecurityToken_Id   SecurityToken1    { get; }
 
         /// <summary>
         /// An optional second security token to authorize the password reset.
         /// </summary>
-        public SecurityToken_Id?     SecurityToken2   { get; }
+        public SecurityToken_Id?  SecurityToken2    { get; }
 
         #endregion
 
@@ -103,11 +103,11 @@ namespace social.OpenData.UsersAPI
                              SecurityToken_Id?     SecurityToken2)
         {
 
-            if (UserIds == null || !UserIds.Any())
+            if (UserIds is null || !UserIds.Any())
                 throw new ArgumentNullException(nameof(UserIds), "The given enumeration of user identifications must not be null or empty!");
 
             this.Timestamp       = Timestamp;
-            this.UserIds         = UserIds;
+            this.UserIds         = new HashSet<User_Id>(UserIds);
             this.SecurityToken1  = SecurityToken1;
             this.SecurityToken2  = SecurityToken2;
 
@@ -135,7 +135,7 @@ namespace social.OpenData.UsersAPI
                    new JProperty("securityToken1",  SecurityToken1.ToString()),
 
                    SecurityToken2.HasValue
-                       ? new JProperty("securityToken2",  SecurityToken2.ToString())
+                       ? new JProperty("securityToken2",  SecurityToken2.Value.ToString())
                        : null
 
                );
@@ -208,11 +208,16 @@ namespace social.OpenData.UsersAPI
                     return false;
                 }
 
-                var UserIds = new User_Id[0];
+                HashSet<User_Id> UserIds = null;
 
                 try
                 {
-                    UserIds = UserIdArray.Select(jsonvalue => User_Id.Parse(jsonvalue.Value<String>())).ToArray();
+
+                    UserIds = UserIdArray.
+                                  Where (jsonvalue => jsonvalue != null).
+                                  Select(jsonvalue => User_Id.Parse(jsonvalue.Value<String>())).
+                                  ToHashSet();
+
                 }
                 catch
                 {
@@ -220,9 +225,9 @@ namespace social.OpenData.UsersAPI
                     return false;
                 }
 
-                if (UserIds.Length == 0)
+                if (!UserIds.Any())
                 {
-                    ErrorResponse = "The given array of users '" + UserIdArray + "' is invalid!";
+                    ErrorResponse = "The given array of users '" + UserIdArray + "' must not be empty!";
                     return false;
                 }
 
@@ -249,10 +254,8 @@ namespace social.OpenData.UsersAPI
                                                    out SecurityToken_Id? SecurityToken2,
                                                    out ErrorResponse))
                 {
-
                     if (ErrorResponse != null)
                         return false;
-
                 }
 
                 #endregion

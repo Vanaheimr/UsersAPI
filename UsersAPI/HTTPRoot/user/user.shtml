@@ -9,6 +9,7 @@
     </div>
 
     <div id="upperButtons">
+        <button id="removeButton"      class="button" disabled><i class="fas fa-trash-alt"></i> Remove</button>
         <button id="impersonateButton" class="button" disabled><i class="fas fa-theater-masks"></i> Impersonate</button>
     </div>
 
