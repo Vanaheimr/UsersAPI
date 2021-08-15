@@ -14825,7 +14825,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An enumeration of all users.
         /// </summary>
-        protected readonly Dictionary<User_Id, User> _Users;
+        protected internal readonly Dictionary<User_Id, User> _Users;
 
         /// <summary>
         /// An enumeration of all users.
@@ -15913,7 +15913,7 @@ namespace social.OpenData.UsersAPI
                 return AddOrUpdateUserResult.ArgumentError(User,
                                                            eventTrackingId,
                                                            nameof(User),
-                                                           "User identification '" + User.Id + "' is too short!");
+                                                           "The given user identification '" + User.Id + "' is too short!");
 
             if (User.Name.IsNullOrEmpty() || User.Name.Trim().IsNullOrEmpty())
                 return AddOrUpdateUserResult.ArgumentError(User,
@@ -16204,7 +16204,7 @@ namespace social.OpenData.UsersAPI
                                                       nameof(User),
                                                       "The given user '" + User.Id + "' does not exists in this API!");
 
-            if (User.API != this)
+            if (User.API != null && User.API != this)
                 return UpdateUserResult.ArgumentError(User,
                                                       eventTrackingId,
                                                       nameof(User.API),
@@ -16716,7 +16716,7 @@ namespace social.OpenData.UsersAPI
         /// A delegate called whenever a user was removed.
         /// </summary>
         /// <param name="Timestamp">The timestamp when the user was removed.</param>
-        /// <param name="User">The removed user.</param>
+        /// <param name="User">The user to be removed.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public delegate Task OnUserRemovedDelegate(DateTime          Timestamp,
@@ -16753,7 +16753,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Remove the given user from the API.
         /// </summary>
-        /// <param name="User">The user to be removed from this API.</param>
+        /// <param name="User">The user to be removed.</param>
         /// <param name="OnRemoved">A delegate run whenever the user had been removed successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
@@ -16832,7 +16832,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Remove the given user from the API.
         /// </summary>
-        /// <param name="User">The user to be removed from this API.</param>
+        /// <param name="User">The user to be removed.</param>
         /// <param name="OnRemoved">A delegate run whenever the user had been removed successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
@@ -23551,7 +23551,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An enumeration of all organizations.
         /// </summary>
-        protected readonly Dictionary<Organization_Id, Organization> _Organizations;
+        protected internal readonly Dictionary<Organization_Id, Organization> _Organizations;
 
         /// <summary>
         /// An enumeration of all organizations.
@@ -24532,7 +24532,7 @@ namespace social.OpenData.UsersAPI
                 return AddOrUpdateOrganizationResult.ArgumentError(Organization,
                                                                    eventTrackingId,
                                                                    nameof(Organization),
-                                                                   "Organization identification '" + Organization.Id + "' is too short!");
+                                                                   "The given organization identification '" + Organization.Id + "' is too short!");
 
             if (Organization.Name.IsNullOrEmpty() || Organization.Name.IsNullOrEmpty())
                 return AddOrUpdateOrganizationResult.ArgumentError(Organization,
@@ -24821,19 +24821,17 @@ namespace social.OpenData.UsersAPI
                                                               nameof(Organization),
                                                               "The given organization must not be null!");
 
-            if (Organization.API != null && Organization.API != this)
-                return UpdateOrganizationResult.ArgumentError(Organization,
-                                                              eventTrackingId,
-                                                              nameof(Organization.API),
-                                                              "The given organization is already attached to another API!");
-
-
             if (!_TryGetOrganization(Organization.Id, out Organization OldOrganization))
                 return UpdateOrganizationResult.ArgumentError(Organization,
                                                               eventTrackingId,
                                                               nameof(Organization),
                                                               "The given organization '" + Organization.Id + "' does not exists in this API!");
 
+            if (Organization.API != null && Organization.API != this)
+                return UpdateOrganizationResult.ArgumentError(Organization,
+                                                              eventTrackingId,
+                                                              nameof(Organization.API),
+                                                              "The given organization is already attached to another API!");
 
             Organization.API = this;
 
@@ -25454,7 +25452,7 @@ namespace social.OpenData.UsersAPI
         /// A delegate called whenever a organization was removed.
         /// </summary>
         /// <param name="Timestamp">The timestamp when the organization was removed.</param>
-        /// <param name="Organization">The removed organization.</param>
+        /// <param name="Organization">The organization to be removed.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public delegate Task OnOrganizationRemovedDelegate(DateTime          Timestamp,
@@ -25494,7 +25492,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Remove the given organization from the API.
         /// </summary>
-        /// <param name="Organization">The organization to be removed from this API.</param>
+        /// <param name="Organization">The organization to be removed.</param>
         /// <param name="OnRemoved">A delegate run whenever the organization had been removed successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
@@ -25581,7 +25579,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Remove the given organization from the API.
         /// </summary>
-        /// <param name="Organization">The organization to be removed from this API.</param>
+        /// <param name="Organization">The organization to be removed.</param>
         /// <param name="OnRemoved">A delegate run whenever the organization had been removed successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>

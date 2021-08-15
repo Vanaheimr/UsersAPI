@@ -977,108 +977,6 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region ToJSON(Embedded = false, IncludeCryptoHash = false)
-
-        /// <summary>
-        /// Return a JSON representation of this object.
-        /// </summary>
-        /// <param name="Embedded">Whether this data is embedded into another data structure.</param>
-        /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
-        public override JObject ToJSON(Boolean Embedded           = false,
-                                       Boolean IncludeCryptoHash  = false)
-
-            => ToJSON(Embedded,
-                      InfoStatus.Hidden,
-                      InfoStatus.Hidden,
-                      false);
-
-
-        /// <summary>
-        /// Return a JSON representation of this object.
-        /// </summary>
-        /// <param name="Embedded">Whether this data is embedded into another data structure.</param>
-        /// <param name="ExpandOrganizations">Whether to expand the organizations this user is a member of.</param>
-        /// <param name="ExpandGroups">Whether to expand the groups this user is a member of.</param>
-        /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
-        public JObject ToJSON(Boolean                                Embedded               = false,
-                              InfoStatus                             ExpandOrganizations    = InfoStatus.Hidden,
-                              InfoStatus                             ExpandGroups           = InfoStatus.Hidden,
-                              Boolean                                IncludeLastChange      = true,
-                              Boolean                                IncludeCryptoHash      = true,
-                              CustomJObjectSerializerDelegate<User>  CustomUserSerializer   = null)
-
-        {
-
-            var JSON = base.ToJSON(Embedded,
-                                   IncludeLastChange,
-                                   IncludeCryptoHash,
-                                   null,
-                                   new JProperty[] {
-
-                                       new JProperty("name",                   Name),
-
-                                       Description.IsNeitherNullNorEmpty()
-                                           ? new JProperty("description",      Description.ToJSON())
-                                           : null,
-
-                                       new JProperty("email",                  EMail.Address.ToString()),
-
-                                       PublicKeyRing != null
-                                           ? new JProperty("publicKeyRing",    PublicKeyRing.GetEncoded().ToHexString())
-                                           : null,
-
-                                       SecretKeyRing != null
-                                           ? new JProperty("secretKeyRing",    SecretKeyRing.GetEncoded().ToHexString())
-                                           : null,
-
-                                       new JProperty("language",               UserLanguage.AsText()),
-
-                                       Telephone.HasValue
-                                           ? new JProperty("telephone",        Telephone.ToString())
-                                           : null,
-
-                                       MobilePhone.HasValue
-                                           ? new JProperty("mobilePhone",      MobilePhone.ToString())
-                                           : null,
-
-                                       Use2AuthFactor != Use2AuthFactor.None
-                                           ? new JProperty("use2AuthFactor",   Use2AuthFactor.ToString())
-                                           : null,
-
-                                       Telegram.IsNotNullOrEmpty()
-                                           ? new JProperty("telegram",         Telegram)
-                                           : null,
-
-                                       Homepage.IsNotNullOrEmpty()
-                                           ? new JProperty("homepage",         Homepage.ToString())
-                                           : null,
-
-                                       PrivacyLevel.ToJSON(),
-
-                                       AcceptedEULA.HasValue
-                                           ? new JProperty("acceptedEULA",     AcceptedEULA.Value.ToIso8601())
-                                           : null,
-
-                                       new JProperty("isAuthenticated",        IsAuthenticated),
-                                       new JProperty("isDisabled",             IsDisabled)
-
-                                       //new JProperty("signatures",           new JArray()),
-
-                                       //ExpandOrganizations.Switch(
-                                       //    () => new JProperty("organizationIds",   Owner.Id.ToString()),
-                                       //    () => new JProperty("organizations",     Owner.ToJSON())),
-
-                                    });
-
-
-            return CustomUserSerializer != null
-                       ? CustomUserSerializer(this, JSON)
-                       : JSON;
-
-        }
-
-        #endregion
-
         #region (static) TryParseJSON(JSONObject, ..., out User, out ErrorResponse, ...)
 
         public static Boolean TryParseJSON(JObject     JSONObject,
@@ -1444,6 +1342,150 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
+        #region ToJSON(Embedded = false, IncludeCryptoHash = false)
+
+        /// <summary>
+        /// Return a JSON representation of this object.
+        /// </summary>
+        /// <param name="Embedded">Whether this data is embedded into another data structure.</param>
+        /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
+        public override JObject ToJSON(Boolean Embedded           = false,
+                                       Boolean IncludeCryptoHash  = false)
+
+            => ToJSON(Embedded,
+                      InfoStatus.Hidden,
+                      InfoStatus.Hidden,
+                      true,
+                      IncludeCryptoHash);
+
+
+        /// <summary>
+        /// Return a JSON representation of this object.
+        /// </summary>
+        /// <param name="Embedded">Whether this data is embedded into another data structure.</param>
+        /// <param name="ExpandOrganizations">Whether to expand the organizations this user is a member of.</param>
+        /// <param name="ExpandGroups">Whether to expand the groups this user is a member of.</param>
+        /// <param name="IncludeLastChange">Whether to include the lastChange timestamp of this object.</param>
+        /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
+        /// <param name="CustomUserSerializer">A delegate to serialize custom user JSON objects.</param>
+        public JObject ToJSON(Boolean                                Embedded               = false,
+                              InfoStatus                             ExpandOrganizations    = InfoStatus.Hidden,
+                              InfoStatus                             ExpandGroups           = InfoStatus.Hidden,
+                              Boolean                                IncludeLastChange      = true,
+                              Boolean                                IncludeCryptoHash      = true,
+                              CustomJObjectSerializerDelegate<User>  CustomUserSerializer   = null)
+
+        {
+
+            var JSON = base.ToJSON(Embedded,
+                                   IncludeLastChange,
+                                   IncludeCryptoHash,
+                                   null,
+                                   new JProperty[] {
+
+                                       new JProperty("name",                   Name),
+
+                                       Description.IsNeitherNullNorEmpty()
+                                           ? new JProperty("description",      Description.ToJSON())
+                                           : null,
+
+                                       new JProperty("email",                  EMail.Address.ToString()),
+
+                                       PublicKeyRing != null
+                                           ? new JProperty("publicKeyRing",    PublicKeyRing.GetEncoded().ToHexString())
+                                           : null,
+
+                                       SecretKeyRing != null
+                                           ? new JProperty("secretKeyRing",    SecretKeyRing.GetEncoded().ToHexString())
+                                           : null,
+
+                                       new JProperty("language",               UserLanguage.AsText()),
+
+                                       Telephone.HasValue
+                                           ? new JProperty("telephone",        Telephone.ToString())
+                                           : null,
+
+                                       MobilePhone.HasValue
+                                           ? new JProperty("mobilePhone",      MobilePhone.ToString())
+                                           : null,
+
+                                       Use2AuthFactor != Use2AuthFactor.None
+                                           ? new JProperty("use2AuthFactor",   Use2AuthFactor.ToString())
+                                           : null,
+
+                                       Telegram.IsNotNullOrEmpty()
+                                           ? new JProperty("telegram",         Telegram)
+                                           : null,
+
+                                       Homepage.IsNotNullOrEmpty()
+                                           ? new JProperty("homepage",         Homepage.ToString())
+                                           : null,
+
+                                       PrivacyLevel.ToJSON(),
+
+                                       AcceptedEULA.HasValue
+                                           ? new JProperty("acceptedEULA",     AcceptedEULA.Value.ToIso8601())
+                                           : null,
+
+                                       new JProperty("isAuthenticated",        IsAuthenticated),
+                                       new JProperty("isDisabled",             IsDisabled)
+
+                                       //new JProperty("signatures",           new JArray()),
+
+                                       //ExpandOrganizations.Switch(
+                                       //    () => new JProperty("organizationIds",   Owner.Id.ToString()),
+                                       //    () => new JProperty("organizations",     Owner.ToJSON())),
+
+                                   });
+
+            return CustomUserSerializer != null
+                       ? CustomUserSerializer(this, JSON)
+                       : JSON;
+
+        }
+
+        #endregion
+
+        #region Clone(NewUserId = null)
+
+        /// <summary>
+        /// Clone this object.
+        /// </summary>
+        /// <param name="NewUserId">An optional new user identification.</param>
+        public User Clone(User_Id? NewUserId = null)
+
+            => new User(NewUserId ?? Id.Clone,
+                        EMail.Address,
+                        Name,
+                        Description?.Clone,
+                        PublicKeyRing,
+                        SecretKeyRing,
+                        UserLanguage,
+                        Telephone?.Clone,
+                        MobilePhone,
+                        Use2AuthFactor,
+                        Telegram,
+                        Homepage,
+                        GeoLocation,
+                        Address,
+                        AcceptedEULA,
+                        IsDisabled,
+                        IsAuthenticated,
+
+                        _NotificationStore,
+
+                        _User2UserEdges,
+                        _User2Group_OutEdges,
+                        _User2Organization_OutEdges,
+
+                        CustomData,
+                        AttachedFiles,
+                        JSONLDContext,
+                        DataSource,
+                        LastChange);
+
+        #endregion
+
 
         #region CopyAllLinkedDataFrom(OldUser)
 
@@ -1666,6 +1708,7 @@ namespace social.OpenData.UsersAPI
         /// Get the hashcode of this object.
         /// </summary>
         public override Int32 GetHashCode()
+
             => Id.GetHashCode();
 
         #endregion
@@ -1676,6 +1719,7 @@ namespace social.OpenData.UsersAPI
         /// Return a text representation of this object.
         /// </summary>
         public override String ToString()
+
             => Id.ToString();
 
         #endregion
@@ -1689,7 +1733,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="NewUserId">An optional new user identification.</param>
         public Builder ToBuilder(User_Id? NewUserId = null)
 
-            => new Builder(NewUserId ?? Id,
+            => new Builder(NewUserId ?? Id.Clone,
                            EMail.Address,
                            Name,
                            Description,
@@ -2234,7 +2278,12 @@ namespace social.OpenData.UsersAPI
             /// <param name="AcceptedEULA">Timestamp when the user accepted the End-User-License-Agreement.</param>
             /// <param name="IsDisabled">The user is disabled.</param>
             /// <param name="IsAuthenticated">The user will not be shown in user listings, as its primary e-mail address is not yet authenticated.</param>
+            /// 
+            /// <param name="CustomData">Custom data to be stored with this user.</param>
+            /// <param name="AttachedFiles">Optional files attached to this user.</param>
+            /// <param name="JSONLDContext">The JSON-LD context of this user.</param>
             /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
+            /// <param name="LastChange">The timestamp of the last changes within this user. Can e.g. be used as a HTTP ETag.</param>
             public Builder(User_Id                             Id,
                            SimpleEMailAddress                  EMail,
                            String                              Name                     = null,
