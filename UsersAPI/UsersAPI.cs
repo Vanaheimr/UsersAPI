@@ -5104,15 +5104,6 @@ namespace social.OpenData.UsersAPI
 
                                               #endregion
 
-                                              #region Verify the realm
-
-                                              loginData.TryGetValue("realm", out String realm);
-
-                                              if (realm.IsNotNullOrEmpty())
-                                                  realm = HTTPTools.URLDecode(realm);
-
-                                              #endregion
-
                                               #region Verify the password
 
                                               if (!loginData.TryGetValue("password", out String password) ||
@@ -5176,11 +5167,9 @@ namespace social.OpenData.UsersAPI
 
                                               var possibleUsers = new HashSet<User>();
 
-                                              if ((realm.IsNotNullOrEmpty()
-                                                       ? User_Id.TryParse(login, realm, out User_Id       _UserId)
-                                                       : User_Id.TryParse(login,        out               _UserId))       &&
-                                                  _Users.         TryGetValue(_UserId,  out User          _User)          &&
-                                                  _LoginPasswords.TryGetValue(_UserId,  out LoginPassword _LoginPassword))
+                                              if (User_Id.       TryParse   (login,    out User_Id       _UserId) &&
+                                                 _Users.         TryGetValue(_UserId,  out User          _User)   &&
+                                                 _LoginPasswords.TryGetValue(_UserId,  out LoginPassword _LoginPassword))
                                               {
                                                   possibleUsers.Add(_User);
                                               }
@@ -7132,33 +7121,6 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
-                                             #region Verify realm
-
-                                             var realm = loginData.GetString("realm");
-
-                                             if (realm.IsNotNullOrEmpty() &&
-                                                 realm.Length < MinRealmLength)
-
-                                             {
-
-                                                 return new HTTPResponse.Builder(Request) {
-                                                            HTTPStatusCode  = HTTPStatusCode.BadRequest,
-                                                            Server          = HTTPServer.DefaultServerName,
-                                                            ContentType     = HTTPContentType.JSON_UTF8,
-                                                            Content         = new JObject(
-                                                                                  new JProperty("@context",     SignInOutContext),
-                                                                                  new JProperty("statuscode",   400),
-                                                                                  new JProperty("property",     "realm"),
-                                                                                  new JProperty("description",  "The realm is too short!")
-                                                                              ).ToString().ToUTF8Bytes(),
-                                                            CacheControl    = "private",
-                                                            Connection      = "close"
-                                                        }.AsImmutable;
-
-                                             }
-
-                                             #endregion
-
                                              #region Verify password
 
                                              var password = loginData.GetString("password");
@@ -7211,11 +7173,9 @@ namespace social.OpenData.UsersAPI
 
                                              var possibleUsers = new HashSet<User>();
 
-                                             if ((realm.IsNotNullOrEmpty()
-                                                      ? User_Id.TryParse(login, realm, out User_Id       _UserId)
-                                                      : User_Id.TryParse(login,        out               _UserId))       &&
-                                                 _Users.         TryGetValue(_UserId,  out User          _User)          &&
-                                                 _LoginPasswords.TryGetValue(_UserId,  out LoginPassword _LoginPassword))
+                                             if (User_Id.       TryParse   (login,    out User_Id       _UserId) &&
+                                                _Users.         TryGetValue(_UserId,  out User          _User)   &&
+                                                _LoginPasswords.TryGetValue(_UserId,  out LoginPassword _LoginPassword))
                                              {
                                                  possibleUsers.Add(_User);
                                              }
@@ -16345,6 +16305,7 @@ namespace social.OpenData.UsersAPI
 
             _Users.Remove(OldUser.Id);
             User.CopyAllLinkedDataFrom(OldUser);
+            _Users.Add(User.Id, User);
 
 
             var OnUserUpdatedLocal = OnUserUpdated;
@@ -16483,6 +16444,7 @@ namespace social.OpenData.UsersAPI
 
             _Users.Remove(User.Id);
             updatedUser.CopyAllLinkedDataFrom(User);
+            _Users.Add(updatedUser.Id, updatedUser);
 
 
             var OnUserUpdatedLocal = OnUserUpdated;
@@ -19330,6 +19292,7 @@ namespace social.OpenData.UsersAPI
 
             _APIKeys.Remove(OldAPIKey.Id);
             //APIKey.CopyAllLinkedDataFrom(OldAPIKey);
+            _APIKeys.Add(APIKey.Id, APIKey);
 
 
             var OnAPIKeyUpdatedLocal = OnAPIKeyUpdated;
@@ -19468,6 +19431,7 @@ namespace social.OpenData.UsersAPI
 
             _APIKeys.Remove(APIKey.Id);
             //updatedAPIKey.CopyAllLinkedDataFrom(APIKey);
+            _APIKeys.Add(updatedAPIKey.Id, updatedAPIKey);
 
 
             var OnAPIKeyUpdatedLocal = OnAPIKeyUpdated;
@@ -25227,6 +25191,7 @@ namespace social.OpenData.UsersAPI
 
             _Organizations.Remove(OldOrganization.Id);
             Organization.CopyAllLinkedDataFrom(OldOrganization);
+            _Organizations.Add(Organization.Id, Organization);
 
 
             var OnOrganizationUpdatedLocal = OnOrganizationUpdated;
@@ -25365,6 +25330,7 @@ namespace social.OpenData.UsersAPI
 
             _Organizations.Remove(Organization.Id);
             updatedOrganization.CopyAllLinkedDataFrom(Organization);
+            _Organizations.Add(updatedOrganization.Id, updatedOrganization);
 
 
             var OnOrganizationUpdatedLocal = OnOrganizationUpdated;
