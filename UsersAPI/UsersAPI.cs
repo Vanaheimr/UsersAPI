@@ -15721,13 +15721,16 @@ namespace social.OpenData.UsersAPI
 
                              ? await _AddUser(User,
                                               async (_user, _eventTrackingId) => {
+
                                                   await _AddToOrganization(_user,
                                                                            AccessRight,
                                                                            Organization,
                                                                            _eventTrackingId,
                                                                            CurrentUserId);
-                                                  OnAdded(_user,
-                                                          _eventTrackingId);
+
+                                                  OnAdded?.Invoke(_user,
+                                                                  _eventTrackingId);
+
                                               },
                                               eventTrackingId ?? EventTracking_Id.New,
                                               CurrentUserId)
@@ -15958,13 +15961,16 @@ namespace social.OpenData.UsersAPI
 
                              ? await _AddUserIfNotExists(User,
                                                          async (_user, _eventTrackingId) => {
+
                                                              await _AddToOrganization(_user,
                                                                                       Membership,
                                                                                       Organization,
                                                                                       _eventTrackingId,
                                                                                       CurrentUserId);
-                                                             OnAdded(_user,
-                                                                     _eventTrackingId);
+
+                                                             OnAdded?.Invoke(_user,
+                                                                             _eventTrackingId);
+
                                                          },
                                                          eventTrackingId,
                                                          CurrentUserId)
@@ -16239,8 +16245,8 @@ namespace social.OpenData.UsersAPI
                                                                                   _eventTrackingId,
                                                                                   CurrentUserId);
 
-                                                         OnAdded(_user,
-                                                                 _eventTrackingId);
+                                                         OnAdded?.Invoke(_user,
+                                                                         _eventTrackingId);
 
                                                      },
                                                      OnUpdated,
@@ -24597,8 +24603,8 @@ namespace social.OpenData.UsersAPI
                                                                                      _eventTrackingId,
                                                                                      CurrentUserId);
 
-                                                            OnAdded(_organization,
-                                                                    _eventTrackingId);
+                                                            OnAdded?.Invoke(_organization,
+                                                                            _eventTrackingId);
 
                                                         },
                                                         eventTrackingId,
@@ -24834,8 +24840,8 @@ namespace social.OpenData.UsersAPI
                                                                                                 _eventTrackingId,
                                                                                                 CurrentUserId);
 
-                                                                       OnAdded(_organization,
-                                                                               _eventTrackingId);
+                                                                       OnAdded?.Invoke(_organization,
+                                                                                       _eventTrackingId);
 
                                                                    },
                                                                    eventTrackingId,
@@ -25114,8 +25120,8 @@ namespace social.OpenData.UsersAPI
                                                                                              _eventTrackingId,
                                                                                              CurrentUserId);
 
-                                                                    OnAdded(_organization,
-                                                                            _eventTrackingId);
+                                                                    OnAdded?.Invoke(_organization,
+                                                                                    _eventTrackingId);
 
                                                                 },
                                                                 OnUpdated,
