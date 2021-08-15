@@ -2492,19 +2492,24 @@ namespace social.OpenData.UsersAPI
         /// <param name="ClientCertificateSelector">An optional delegate to select the SSL/TLS client certificate used for authentication.</param>
         /// <param name="AllowedTLSProtocols">The SSL/TLS protocol(s) allowed for this connection.</param>
         /// 
+        /// <param name="AdminOrganizationId">The admins' organization identification.</param>
+        /// <param name="APIRobotEMailAddress">An e-mail address for this API.</param>
         /// <param name="APIRobotGPGPassphrase">A GPG passphrase for this API.</param>
         /// <param name="APISMTPClient">A SMTP client for sending e-mails.</param>
         /// <param name="SMSAPICredentials">The credentials for the SMS API.</param>
         /// <param name="SMSSenderName">The (default) SMS sender name.</param>
         /// <param name="TelegramBotToken">The Telegram API access token of the bot.</param>
         /// 
+        /// <param name="PasswordQualityCheck">A delegate to ensure a minimal password quality.</param>
         /// <param name="CookieName">The name of the HTTP Cookie for authentication.</param>
         /// <param name="UseSecureCookies">Force the web browser to send cookies only via HTTPS.</param>
+        /// <param name="MaxSignInSessionLifetime">The maximum sign-in session lifetime.</param>
         /// <param name="DefaultLanguage">The default language of the API.</param>
+        /// <param name="MinUserIdLength">The minimal user identification length.</param>
         /// <param name="MinUserNameLength">The minimal user name length.</param>
         /// <param name="MinRealmLength">The minimal realm length.</param>
-        /// <param name="PasswordQualityCheck">A delegate to ensure a minimal password quality.</param>
-        /// <param name="MaxSignInSessionLifetime">The maximum sign-in session lifetime.</param>
+        /// <param name="MinUserGroupIdLength">The minimal user group identification length.</param>
+        /// <param name="MinAPIKeyLength">The minimal API key length.</param>
         /// 
         /// <param name="ServerThreadName">The optional name of the TCP server thread.</param>
         /// <param name="ServerThreadPriority">The optional priority of the TCP server thread.</param>
