@@ -25,18 +25,16 @@ using Newtonsoft.Json.Linq;
 
 using Org.BouncyCastle.Bcpg.OpenPgp;
 
-using social.OpenData.UsersAPI.Notifications;
-
 using org.GraphDefined.Vanaheimr.Aegir;
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod;
 using org.GraphDefined.Vanaheimr.Hermod.Mail;
-
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 using org.GraphDefined.Vanaheimr.Styx.Arrows;
 using org.GraphDefined.Vanaheimr.BouncyCastle;
+
 using social.OpenData.UsersAPI;
-using org.GraphDefined.Vanaheimr.Hermod.JSON;
+using social.OpenData.UsersAPI.Notifications;
 
 #endregion
 

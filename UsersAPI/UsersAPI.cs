@@ -32,7 +32,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Security.Authentication;
-using System.Text.RegularExpressions;
 using System.Security.Cryptography.X509Certificates;
 
 using Newtonsoft.Json.Linq;
@@ -47,6 +46,9 @@ using Org.BouncyCastle.Asn1.Sec;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Asn1.X9;
 using Org.BouncyCastle.Bcpg.OpenPgp;
+
+using com.GraphDefined.SMSApi.API;
+using com.GraphDefined.SMSApi.API.Response;
 
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Styx.Arrows;
@@ -64,9 +66,6 @@ using org.GraphDefined.Vanaheimr.BouncyCastle;
 using social.OpenData.UsersAPI;
 using social.OpenData.UsersAPI.Postings;
 using social.OpenData.UsersAPI.Notifications;
-
-using com.GraphDefined.SMSApi.API;
-using com.GraphDefined.SMSApi.API.Response;
 
 #endregion
 
@@ -1421,7 +1420,6 @@ namespace social.OpenData.UsersAPI
         private   static readonly SemaphoreSlim  SMTPLogSemaphore                = new SemaphoreSlim(1, 1);
         private   static readonly SemaphoreSlim  TelegramLogSemaphore            = new SemaphoreSlim(1, 1);
         private   static readonly SemaphoreSlim  LogFileSemaphore                = new SemaphoreSlim(1, 1);
-        
         private   static readonly SemaphoreSlim  UsersSemaphore                  = new SemaphoreSlim(1, 1);
         private   static readonly SemaphoreSlim  UserGroupsSemaphore             = new SemaphoreSlim(1, 1);
         private   static readonly SemaphoreSlim  APIKeysSemaphore                = new SemaphoreSlim(1, 1);
@@ -1442,7 +1440,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// The default language of the API.
         /// </summary>
-        public  const             Languages                                     DefaultLanguage                         = Languages.en;
+        public  const             Languages                                     DefaultDefaultLanguage                  = Languages.en;
 
         public  const             Byte                                          DefaultMinUserIdLength                  = 4;
         public  const             Byte                                          DefaultMinRealmLength                   = 2;
@@ -1458,7 +1456,7 @@ namespace social.OpenData.UsersAPI
         public  const             Byte                                          DefaultMinFAQIdLength                   = 8;
 
         public  static readonly   PasswordQualityCheckDelegate                  DefaultPasswordQualityCheck             = password => password.Length >= 8 ? 1.0f : 0;
-        public  static readonly   TimeSpan                                      DefaultSignInSessionLifetime            = TimeSpan.FromDays(30);
+        public  static readonly   TimeSpan                                      DefaultMaxSignInSessionLifetime         = TimeSpan.FromDays(30);
 
         protected readonly        Dictionary<User_Id, LoginPassword>            _LoginPasswords;
         protected readonly        Dictionary<VerificationToken, User>           _VerificationTokens;
@@ -1599,12 +1597,14 @@ namespace social.OpenData.UsersAPI
 
 
         /// <summary>
-        /// The main language of this API.
+        /// The default language used within this API.
         /// </summary>
-        public Languages                     Language                           { get; }
+        public Languages                     DefaultLanguage                    { get; }
 
-
-        public TimeSpan                      SignInSessionLifetime              { get; }
+        /// <summary>
+        /// The maximum sign-in session lifetime.
+        /// </summary>
+        public TimeSpan                      MaxSignInSessionLifetime           { get; }
 
         /// <summary>
         /// The minimal user identification length.
@@ -2476,12 +2476,14 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Create a new HTTP server and attach this Open Data HTTP API to it.
         /// </summary>
-        /// <param name="ServiceName">The name of the service.</param>
-        /// <param name="HTTPServerName">The default HTTP servername, used whenever no HTTP Host-header had been given.</param>
-        /// <param name="LocalHostname">The HTTP hostname for all URLs within this API.</param>
-        /// <param name="LocalPort">A TCP port to listen on.</param>
+        /// <param name="HTTPHostname">The HTTP hostname for all URLs within this API.</param>
         /// <param name="ExternalDNSName">The offical URL/DNS name of this service, e.g. for sending e-mails.</param>
+        /// <param name="HTTPPort">A TCP port to listen on.</param>
+        /// <param name="BasePath">When the API is served from an optional subdirectory path.</param>
+        /// <param name="HTTPServerName">The default HTTP servername, used whenever no HTTP Host-header had been given.</param>
+        /// 
         /// <param name="URLPathPrefix">A common prefix for all URLs.</param>
+        /// <param name="ServiceName">The name of the service.</param>
         /// <param name="HTMLTemplate">An optional HTML template.</param>
         /// <param name="APIVersionHashes">The API version hashes (git commit hash values).</param>
         /// 
@@ -2498,11 +2500,11 @@ namespace social.OpenData.UsersAPI
         /// 
         /// <param name="CookieName">The name of the HTTP Cookie for authentication.</param>
         /// <param name="UseSecureCookies">Force the web browser to send cookies only via HTTPS.</param>
-        /// <param name="Language">The main language of the API.</param>
+        /// <param name="DefaultLanguage">The default language of the API.</param>
         /// <param name="MinUserNameLength">The minimal user name length.</param>
         /// <param name="MinRealmLength">The minimal realm length.</param>
         /// <param name="PasswordQualityCheck">A delegate to ensure a minimal password quality.</param>
-        /// <param name="SignInSessionLifetime">The sign-in session lifetime.</param>
+        /// <param name="MaxSignInSessionLifetime">The maximum sign-in session lifetime.</param>
         /// 
         /// <param name="ServerThreadName">The optional name of the TCP server thread.</param>
         /// <param name="ServerThreadPriority">The optional priority of the TCP server thread.</param>
@@ -2514,6 +2516,13 @@ namespace social.OpenData.UsersAPI
         /// <param name="ConnectionTimeout">The TCP client timeout for all incoming client connections in seconds (default: 30 sec).</param>
         /// <param name="MaxClientConnections">The maximum number of concurrent TCP client connections (default: 4096).</param>
         /// 
+        /// <param name="DisableMaintenanceTasks">Disable all maintenance tasks.</param>
+        /// <param name="MaintenanceInitialDelay">The initial delay of the maintenance tasks.</param>
+        /// <param name="MaintenanceEvery">The maintenance intervall.</param>
+        /// <param name="DisableWardenTasks">Disable all warden tasks.</param>
+        /// <param name="WardenInitialDelay">The initial delay of the warden tasks.</param>
+        /// <param name="WardenCheckEvery">The warden intervall.</param>
+        /// 
         /// <param name="SkipURLTemplates">Skip URL templates.</param>
         /// <param name="DisableNotifications">Disable external notifications.</param>
         /// <param name="DisableLogfile">Disable the log file.</param>
@@ -2522,13 +2531,14 @@ namespace social.OpenData.UsersAPI
         /// <param name="LogfileName">The name of the logfile for this API.</param>
         /// <param name="DNSClient">The DNS client of the API.</param>
         /// <param name="Autostart">Whether to start the API automatically.</param>
-        public UsersAPI(String                               ServiceName                        = "GraphDefined Users API",
-                        String                               HTTPServerName                     = "GraphDefined Users API",
-                        HTTPHostname?                        LocalHostname                      = null,
-                        IPPort?                              LocalPort                          = null,
+        public UsersAPI(HTTPHostname?                        HTTPHostname                       = null,
                         String                               ExternalDNSName                    = null,
-                        HTTPPath?                            URLPathPrefix                      = null,
+                        IPPort?                              HTTPPort                           = null,
                         HTTPPath?                            BasePath                           = null,
+                        String                               HTTPServerName                     = "GraphDefined Users API",
+
+                        HTTPPath?                            URLPathPrefix                      = null,
+                        String                               ServiceName                        = "GraphDefined Users API",
                         String                               HTMLTemplate                       = null,
                         JObject                              APIVersionHashes                   = null,
 
@@ -2545,9 +2555,11 @@ namespace social.OpenData.UsersAPI
                         String                               SMSSenderName                      = null,
                         String                               TelegramBotToken                   = null,
 
+                        PasswordQualityCheckDelegate         PasswordQualityCheck               = null,
                         HTTPCookieName?                      CookieName                         = null,
                         Boolean                              UseSecureCookies                   = true,
-                        Languages?                           Language                           = null,
+                        TimeSpan?                            MaxSignInSessionLifetime           = null,
+                        Languages?                           DefaultLanguage                    = null,
                         Byte?                                MinUserIdLength                    = null,
                         Byte?                                MinRealmLength                     = null,
                         Byte?                                MinUserNameLength                  = null,
@@ -2560,8 +2572,6 @@ namespace social.OpenData.UsersAPI
                         Byte?                                MinNewsPostingIdLength             = null,
                         Byte?                                MinNewsBannerIdLength              = null,
                         Byte?                                MinFAQIdLength                     = null,
-                        PasswordQualityCheckDelegate         PasswordQualityCheck               = null,
-                        TimeSpan?                            SignInSessionLifetime              = null,
 
                         String                               ServerThreadName                   = null,
                         ThreadPriority                       ServerThreadPriority               = ThreadPriority.AboveNormal,
@@ -2573,8 +2583,10 @@ namespace social.OpenData.UsersAPI
                         TimeSpan?                            ConnectionTimeout                  = null,
                         UInt32                               MaxClientConnections               = TCPServer.__DefaultMaxClientConnections,
 
-                        TimeSpan?                            MaintenanceEvery                   = null,
                         Boolean                              DisableMaintenanceTasks            = false,
+                        TimeSpan?                            MaintenanceInitialDelay            = null,
+                        TimeSpan?                            MaintenanceEvery                   = null,
+                        Boolean                              DisableWardenTasks                 = false,
                         TimeSpan?                            WardenInitialDelay                 = null,
                         TimeSpan?                            WardenCheckEvery                   = null,
 
@@ -2587,33 +2599,34 @@ namespace social.OpenData.UsersAPI
                         DNSClient                            DNSClient                          = null,
                         Boolean                              Autostart                          = false)
 
-            : this(new HTTPServer(TCPPort:                           LocalPort      ?? IPPort.Parse(2305),
-                                  DefaultServerName:                 HTTPServerName ?? "GraphDefined Users API",
-                                  ServiceName:                       ServiceName,
+            : this(new HTTPServer(HTTPPort       ?? IPPort.Parse(2305),
+                                  HTTPServerName ?? "GraphDefined Users API",
+                                  ServiceName,
 
-                                  ServerCertificateSelector:         ServerCertificateSelector,
-                                  ClientCertificateValidator:        ClientCertificateValidator,
-                                  ClientCertificateSelector:         ClientCertificateSelector,
-                                  AllowedTLSProtocols:               AllowedTLSProtocols,
+                                  ServerCertificateSelector,
+                                  ClientCertificateSelector,
+                                  ClientCertificateValidator,
+                                  AllowedTLSProtocols,
 
-                                  ServerThreadName:                  ServerThreadName,
-                                  ServerThreadPriority:              ServerThreadPriority,
-                                  ServerThreadIsBackground:          ServerThreadIsBackground,
-                                  ConnectionIdBuilder:               ConnectionIdBuilder,
-                                  ConnectionThreadsNameBuilder:      ConnectionThreadsNameBuilder,
-                                  ConnectionThreadsPriorityBuilder:  ConnectionThreadsPriorityBuilder,
-                                  ConnectionThreadsAreBackground:    ConnectionThreadsAreBackground,
-                                  ConnectionTimeout:                 ConnectionTimeout,
-                                  MaxClientConnections:              MaxClientConnections,
+                                  ServerThreadName,
+                                  ServerThreadPriority,
+                                  ServerThreadIsBackground,
+                                  ConnectionIdBuilder,
+                                  ConnectionThreadsNameBuilder,
+                                  ConnectionThreadsPriorityBuilder,
+                                  ConnectionThreadsAreBackground,
+                                  ConnectionTimeout,
+                                  MaxClientConnections,
 
-                                  DNSClient:                         DNSClient,
-                                  Autostart:                         false),
+                                  DNSClient,
+                                  false),
 
-                   LocalHostname,
-                   ServiceName,
+                   HTTPHostname,
                    ExternalDNSName,
-                   URLPathPrefix,
+                   ServiceName,
                    BasePath,
+
+                   URLPathPrefix,
                    HTMLTemplate,
                    APIVersionHashes,
 
@@ -2625,9 +2638,11 @@ namespace social.OpenData.UsersAPI
                    SMSSenderName,
                    TelegramBotToken,
 
+                   PasswordQualityCheck,
                    CookieName,
                    UseSecureCookies,
-                   Language,
+                   MaxSignInSessionLifetime,
+                   DefaultLanguage,
                    MinUserIdLength,
                    MinRealmLength,
                    MinUserNameLength,
@@ -2640,11 +2655,11 @@ namespace social.OpenData.UsersAPI
                    MinNewsPostingIdLength,
                    MinNewsBannerIdLength,
                    MinFAQIdLength,
-                   PasswordQualityCheck,
-                   SignInSessionLifetime,
 
-                   MaintenanceEvery,
                    DisableMaintenanceTasks,
+                   MaintenanceInitialDelay,
+                   MaintenanceEvery,
+                   DisableWardenTasks,
                    WardenInitialDelay,
                    WardenCheckEvery,
 
@@ -2676,6 +2691,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="ServiceName">The name of the service.</param>
         /// <param name="ExternalDNSName">The offical URL/DNS name of this service, e.g. for sending e-mails.</param>
         /// <param name="URLPathPrefix">A common prefix for all URLs.</param>
+        /// <param name="BasePath">When the API is served from an optional subdirectory path.</param>
         /// <param name="HTMLTemplate">An optional HTML template.</param>
         /// <param name="APIVersionHashes">The API version hashes (git commit hash values).</param>
         /// 
@@ -2687,13 +2703,20 @@ namespace social.OpenData.UsersAPI
         /// <param name="SMSSenderName">The (default) SMS sender name.</param>
         /// <param name="TelegramBotToken">The Telegram API access token of the bot.</param>
         /// 
+        /// <param name="PasswordQualityCheck">A delegate to ensure a minimal password quality.</param>
         /// <param name="CookieName">The name of the HTTP Cookie for authentication.</param>
         /// <param name="UseSecureCookies">Force the web browser to send cookies only via HTTPS.</param>
-        /// <param name="Language">The main language of the API.</param>
+        /// <param name="MaxSignInSessionLifetime">The maximum sign-in session lifetime.</param>
+        /// <param name="DefaultLanguage">The default language of the API.</param>
         /// <param name="MinUserNameLength">The minimal user name length.</param>
         /// <param name="MinRealmLength">The minimal realm length.</param>
-        /// <param name="PasswordQualityCheck">A delegate to ensure a minimal password quality.</param>
-        /// <param name="SignInSessionLifetime">The sign-in session lifetime.</param>
+        /// 
+        /// <param name="DisableMaintenanceTasks">Disable all maintenance tasks.</param>
+        /// <param name="MaintenanceInitialDelay">The initial delay of the maintenance tasks.</param>
+        /// <param name="MaintenanceEvery">The maintenance intervall.</param>
+        /// <param name="DisableWardenTasks">Disable all warden tasks.</param>
+        /// <param name="WardenInitialDelay">The initial delay of the warden tasks.</param>
+        /// <param name="WardenCheckEvery">The warden intervall.</param>
         /// 
         /// <param name="SkipURLTemplates">Skip URL templates.</param>
         /// <param name="DisableNotifications">Disable external notifications.</param>
@@ -2703,10 +2726,11 @@ namespace social.OpenData.UsersAPI
         /// <param name="LogfileName">The name of the logfile for this API.</param>
         protected UsersAPI(HTTPServer                    HTTPServer,
                            HTTPHostname?                 HTTPHostname                     = null,
-                           String                        ServiceName                      = "GraphDefined Users API",
                            String                        ExternalDNSName                  = null,
-                           HTTPPath?                     URLPathPrefix                    = null,
+                           String                        ServiceName                      = "GraphDefined Users API",
                            HTTPPath?                     BasePath                         = null,
+
+                           HTTPPath?                     URLPathPrefix                    = null,
                            String                        HTMLTemplate                     = null,
                            JObject                       APIVersionHashes                 = null,
 
@@ -2718,9 +2742,11 @@ namespace social.OpenData.UsersAPI
                            String                        SMSSenderName                    = null,
                            String                        TelegramBotToken                 = null,
 
+                           PasswordQualityCheckDelegate  PasswordQualityCheck             = null,
                            HTTPCookieName?               CookieName                       = null,
                            Boolean                       UseSecureCookies                 = true,
-                           Languages?                    Language                         = null,
+                           TimeSpan?                     MaxSignInSessionLifetime         = null,
+                           Languages?                    DefaultLanguage                  = null,
                            Byte?                         MinUserIdLength                  = null,
                            Byte?                         MinRealmLength                   = null,
                            Byte?                         MinUserNameLength                = null,
@@ -2733,11 +2759,11 @@ namespace social.OpenData.UsersAPI
                            Byte?                         MinNewsPostingIdLength           = null,
                            Byte?                         MinNewsBannerIdLength            = null,
                            Byte?                         MinFAQIdLength                   = null,
-                           PasswordQualityCheckDelegate  PasswordQualityCheck             = null,
-                           TimeSpan?                     SignInSessionLifetime            = null,
 
-                           TimeSpan?                     MaintenanceEvery                 = null,
                            Boolean                       DisableMaintenanceTasks          = false,
+                           TimeSpan?                     MaintenanceInitialDelay          = null,
+                           TimeSpan?                     MaintenanceEvery                 = null,
+                           Boolean                       DisableWardenTasks               = false,
                            TimeSpan?                     WardenInitialDelay               = null,
                            TimeSpan?                     WardenCheckEvery                 = null,
 
@@ -2751,9 +2777,10 @@ namespace social.OpenData.UsersAPI
             : base(HTTPServer,
                    HTTPHostname,
                    ExternalDNSName,
-                   URLPathPrefix,
-                   BasePath,
                    ServiceName,
+                   BasePath,
+
+                   URLPathPrefix,
                    HTMLTemplate,
                    DisableLogfile,
                    LoggingPath)
@@ -2813,7 +2840,7 @@ namespace social.OpenData.UsersAPI
             this.CookieName                      = CookieName                     ?? DefaultCookieName;
             this.SessionCookieName               = this.CookieName + "Session";
             this.UseSecureCookies                = UseSecureCookies;
-            this.Language                        = Language                       ?? DefaultLanguage;
+            this.DefaultLanguage                 = DefaultLanguage                ?? DefaultDefaultLanguage;
 
             this.MinUserIdLength                 = MinUserIdLength                ?? DefaultMinUserIdLength;
             this.MinRealmLength                  = MinRealmLength                 ?? DefaultMinRealmLength;
@@ -2829,7 +2856,7 @@ namespace social.OpenData.UsersAPI
             this.MinFAQIdLength                  = MinFAQIdLength                 ?? DefaultMinFAQIdLength;
 
             this.PasswordQualityCheck            = PasswordQualityCheck           ?? DefaultPasswordQualityCheck;
-            this.SignInSessionLifetime           = SignInSessionLifetime          ?? DefaultSignInSessionLifetime;
+            this.MaxSignInSessionLifetime        = MaxSignInSessionLifetime       ?? DefaultMaxSignInSessionLifetime;
 
             this._DataLicenses                   = new Dictionary<DataLicense_Id,             DataLicense>();
             this._Users                          = new Dictionary<User_Id,                    User>();
@@ -3179,6 +3206,143 @@ namespace social.OpenData.UsersAPI
         }
 
         #endregion
+
+        #endregion
+
+        #region (static) AttachToHTTPAPI(HTTPServer, URLPrefix = "/", ...)
+
+        /// <summary>
+        /// Attach this Open Data HTTP API to the given HTTP server.
+        /// </summary>
+        /// <param name="HTTPServer">An existing HTTP server.</param>
+        /// <param name="HTTPHostname">The HTTP hostname for all URLs within this API.</param>
+        /// <param name="ServiceName">The name of the service.</param>
+        /// <param name="ExternalDNSName">The offical URL/DNS name of this service, e.g. for sending e-mails.</param>
+        /// <param name="URLPathPrefix">A common prefix for all URLs.</param>
+        /// <param name="HTMLTemplate">An optional HTML template.</param>
+        /// <param name="APIVersionHashes">The API version hashes (git commit hash values).</param>
+        /// 
+        /// <param name="AdminOrganizationId">The API admin organization identification.</param>
+        /// <param name="APIRobotEMailAddress">An e-mail address for this API.</param>
+        /// <param name="APIRobotGPGPassphrase">A GPG passphrase for this API.</param>
+        /// <param name="APISMTPClient">A SMTP client for sending e-mails.</param>
+        /// <param name="SMSAPICredentials">The credentials for the SMS API.</param>
+        /// <param name="SMSSenderName">The (default) SMS sender name.</param>
+        /// <param name="TelegramBotToken">The Telegram API access token of the bot.</param>
+        /// 
+        /// <param name="PasswordQualityCheck">A delegate to ensure a minimal password quality.</param>
+        /// <param name="CookieName">The name of the HTTP Cookie for authentication.</param>
+        /// <param name="UseSecureCookies">Force the web browser to send cookies only via HTTPS.</param>
+        /// <param name="MaxSignInSessionLifetime">The maximum sign-in session lifetime.</param>
+        /// <param name="DefaultLanguage">The default language of the API.</param>
+        /// <param name="MinUserNameLength">The minimal user name length.</param>
+        /// <param name="MinRealmLength">The minimal realm length.</param>
+        /// 
+        /// <param name="DisableMaintenanceTasks">Disable all maintenance tasks.</param>
+        /// <param name="MaintenanceInitialDelay">The initial delay of the maintenance tasks.</param>
+        /// <param name="MaintenanceEvery">The maintenance intervall.</param>
+        /// <param name="DisableWardenTasks">Disable all warden tasks.</param>
+        /// <param name="WardenInitialDelay">The initial delay of the warden tasks.</param>
+        /// <param name="WardenCheckEvery">The warden intervall.</param>
+        /// 
+        /// <param name="SkipURLTemplates">Skip URL templates.</param>
+        /// <param name="DisableNotifications">Disable external notifications.</param>
+        /// <param name="DisableLogfile">Disable the log file.</param>
+        /// <param name="LogfileName">The name of the logfile for this API.</param>
+        public static UsersAPI AttachToHTTPAPI(HTTPServer                           HTTPServer,
+                                               HTTPHostname?                        HTTPHostname                     = null,
+                                               String                               ServiceName                      = "GraphDefined Users API",
+                                               String                               ExternalDNSName                  = null,
+                                               HTTPPath?                            URLPathPrefix                    = null,
+                                               HTTPPath?                            BasePath                         = null,
+                                               String                               HTMLTemplate                     = null,
+                                               JObject                              APIVersionHashes                 = null,
+
+                                               Organization_Id?                     AdminOrganizationId              = null,
+                                               EMailAddress                         APIRobotEMailAddress             = null,
+                                               String                               APIRobotGPGPassphrase            = null,
+                                               SMTPClient                           APISMTPClient                    = null,
+                                               Credentials                          SMSAPICredentials                = null,
+                                               String                               SMSSenderName                    = null,
+                                               String                               TelegramBotToken                 = null,
+
+                                               PasswordQualityCheckDelegate         PasswordQualityCheck             = null,
+                                               HTTPCookieName?                      CookieName                       = null,
+                                               Boolean                              UseSecureCookies                 = true,
+                                               TimeSpan?                            MaxSignInSessionLifetime         = null,
+                                               Languages                            DefaultLanguage                  = Languages.en,
+                                               Byte?                                MinUserIdLength                  = null,
+                                               Byte?                                MinRealmLength                   = null,
+                                               Byte?                                MinUserNameLength                = null,
+                                               Byte?                                MinUserGroupIdLength             = null,
+                                               UInt16?                              MinAPIKeyLength                  = null,
+                                               Byte?                                MinMessageIdLength               = null,
+                                               Byte?                                MinOrganizationIdLength          = null,
+                                               Byte?                                MinOrganizationGroupIdLength     = null,
+                                               Byte?                                MinNotificationMessageIdLength   = null,
+                                               Byte?                                MinNewsPostingIdLength           = null,
+                                               Byte?                                MinNewsBannerIdLength            = null,
+                                               Byte?                                MinFAQIdLength                   = null,
+
+                                               Boolean                              DisableMaintenanceTasks          = false,
+                                               TimeSpan?                            MaintenanceInitialDelay          = null,
+                                               TimeSpan?                            MaintenanceEvery                 = null,
+                                               Boolean                              DisableWardenTasks               = false,
+                                               TimeSpan?                            WardenInitialDelay               = null,
+                                               TimeSpan?                            WardenCheckEvery                 = null,
+
+                                               Boolean                              SkipURLTemplates                 = false,
+                                               Boolean                              DisableNotifications             = false,
+                                               Boolean                              DisableLogfile                   = false,
+                                               String                               LogfileName                      = DefaultLogfileName)
+
+
+            => new UsersAPI(HTTPServer,
+                            HTTPHostname,
+                            ServiceName,
+                            ExternalDNSName,
+                            URLPathPrefix,
+                            BasePath,
+                            HTMLTemplate,
+                            APIVersionHashes,
+
+                            AdminOrganizationId,
+                            APIRobotEMailAddress,
+                            APIRobotGPGPassphrase,
+                            APISMTPClient,
+                            SMSAPICredentials,
+                            SMSSenderName,
+                            TelegramBotToken,
+
+                            PasswordQualityCheck,
+                            CookieName,
+                            UseSecureCookies,
+                            MaxSignInSessionLifetime,
+                            DefaultLanguage,
+                            MinUserIdLength,
+                            MinRealmLength,
+                            MinUserNameLength,
+                            MinUserGroupIdLength,
+                            MinAPIKeyLength,
+                            MinMessageIdLength,
+                            MinOrganizationIdLength,
+                            MinOrganizationGroupIdLength,
+                            MinNotificationMessageIdLength,
+                            MinNewsPostingIdLength,
+                            MinNewsBannerIdLength,
+                            MinFAQIdLength,
+
+                            DisableMaintenanceTasks,
+                            MaintenanceInitialDelay,
+                            MaintenanceEvery,
+                            DisableWardenTasks,
+                            WardenInitialDelay,
+                            WardenCheckEvery,
+
+                            SkipURLTemplates,
+                            DisableNotifications,
+                            DisableLogfile,
+                            LogfileName);
 
         #endregion
 
@@ -4032,133 +4196,6 @@ namespace social.OpenData.UsersAPI
         #endregion
 
         #region HTTP URL Templates...
-
-        #region (static) AttachToHTTPAPI(HTTPServer, URLPrefix = "/", ...)
-
-        /// <summary>
-        /// Attach this Open Data HTTP API to the given HTTP server.
-        /// </summary>
-        /// <param name="HTTPServer">An existing HTTP server.</param>
-        /// <param name="HTTPHostname">The HTTP hostname for all URLs within this API.</param>
-        /// <param name="ServiceName">The name of the service.</param>
-        /// <param name="ExternalDNSName">The offical URL/DNS name of this service, e.g. for sending e-mails.</param>
-        /// <param name="URLPathPrefix">A common prefix for all URLs.</param>
-        /// <param name="HTMLTemplate">An optional HTML template.</param>
-        /// <param name="APIVersionHashes">The API version hashes (git commit hash values).</param>
-        /// 
-        /// <param name="APIRobotEMailAddress">An e-mail address for this API.</param>
-        /// <param name="APIRobotGPGPassphrase">A GPG passphrase for this API.</param>
-        /// <param name="APIAdminEMails">A list of admin e-mail addresses.</param>
-        /// <param name="APISMTPClient">A SMTP client for sending e-mails.</param>
-        /// 
-        /// <param name="SMSAPICredentials">The credentials for the SMS API.</param>
-        /// <param name="SMSSenderName">The (default) SMS sender name.</param>
-        /// <param name="APIAdminSMS">A list of admin SMS phonenumbers.</param>
-        /// 
-        /// <param name="CookieName">The name of the HTTP Cookie for authentication.</param>
-        /// <param name="UseSecureCookies">Force the web browser to send cookies only via HTTPS.</param>
-        /// <param name="DefaultLanguage">The default language of the API.</param>
-        /// <param name="MinUserNameLength">The minimal user name length.</param>
-        /// <param name="MinRealmLength">The minimal realm length.</param>
-        /// <param name="SignInSessionLifetime">The sign-in session lifetime.</param>
-        /// 
-        /// <param name="SkipURLTemplates">Skip URL templates.</param>
-        /// <param name="DisableNotifications">Disable external notifications.</param>
-        /// <param name="DisableLogfile">Disable the log file.</param>
-        /// <param name="LogfileName">The name of the logfile for this API.</param>
-        public static UsersAPI AttachToHTTPAPI(HTTPServer                           HTTPServer,
-                                               HTTPHostname?                        HTTPHostname                     = null,
-                                               String                               ServiceName                      = "GraphDefined Users API",
-                                               String                               ExternalDNSName                  = null,
-                                               HTTPPath?                            URLPathPrefix                    = null,
-                                               HTTPPath?                            BasePath                         = null,
-                                               String                               HTMLTemplate                     = null,
-                                               JObject                              APIVersionHashes                 = null,
-
-                                               Organization_Id?                     AdminOrganizationId              = null,
-                                               EMailAddress                         APIRobotEMailAddress             = null,
-                                               String                               APIRobotGPGPassphrase            = null,
-                                               SMTPClient                           APISMTPClient                    = null,
-                                               Credentials                          SMSAPICredentials                = null,
-                                               String                               SMSSenderName                    = null,
-                                               String                               TelegramBotToken                 = null,
-
-                                               HTTPCookieName?                      CookieName                       = null,
-                                               Boolean                              UseSecureCookies                 = true,
-                                               Languages                            DefaultLanguage                  = Languages.en,
-                                               Byte?                                MinUserIdLength                  = null,
-                                               Byte?                                MinRealmLength                   = null,
-                                               Byte?                                MinUserNameLength                = null,
-                                               Byte?                                MinUserGroupIdLength             = null,
-                                               UInt16?                              MinAPIKeyLength                  = null,
-                                               Byte?                                MinMessageIdLength               = null,
-                                               Byte?                                MinOrganizationIdLength          = null,
-                                               Byte?                                MinOrganizationGroupIdLength     = null,
-                                               Byte?                                MinNotificationMessageIdLength   = null,
-                                               Byte?                                MinNewsPostingIdLength           = null,
-                                               Byte?                                MinNewsBannerIdLength            = null,
-                                               Byte?                                MinFAQIdLength                   = null,
-                                               PasswordQualityCheckDelegate         PasswordQualityCheck             = null,
-                                               TimeSpan?                            SignInSessionLifetime            = null,
-
-                                               TimeSpan?                            MaintenanceEvery                 = null,
-                                               Boolean                              DisableMaintenanceTasks          = false,
-                                               TimeSpan?                            WardenInitialDelay               = null,
-                                               TimeSpan?                            WardenCheckEvery                 = null,
-
-                                               Boolean                              SkipURLTemplates                 = false,
-                                               Boolean                              DisableNotifications             = false,
-                                               Boolean                              DisableLogfile                   = false,
-                                               String                               LogfileName                      = DefaultLogfileName)
-
-
-            => new UsersAPI(HTTPServer,
-                            HTTPHostname,
-                            ServiceName,
-                            ExternalDNSName,
-                            URLPathPrefix,
-                            BasePath,
-                            HTMLTemplate,
-                            APIVersionHashes,
-
-                            AdminOrganizationId,
-                            APIRobotEMailAddress,
-                            APIRobotGPGPassphrase,
-                            APISMTPClient,
-                            SMSAPICredentials,
-                            SMSSenderName,
-                            TelegramBotToken,
-
-                            CookieName,
-                            UseSecureCookies,
-                            DefaultLanguage,
-                            MinUserIdLength,
-                            MinRealmLength,
-                            MinUserNameLength,
-                            MinUserGroupIdLength,
-                            MinAPIKeyLength,
-                            MinMessageIdLength,
-                            MinOrganizationIdLength,
-                            MinOrganizationGroupIdLength,
-                            MinNotificationMessageIdLength,
-                            MinNewsPostingIdLength,
-                            MinNewsBannerIdLength,
-                            MinFAQIdLength,
-                            PasswordQualityCheck,
-                            SignInSessionLifetime,
-
-                            MaintenanceEvery,
-                            DisableMaintenanceTasks,
-                            WardenInitialDelay,
-                            WardenCheckEvery,
-
-                            SkipURLTemplates,
-                            DisableNotifications,
-                            DisableLogfile,
-                            LogfileName);
-
-        #endregion
-
 
         #region (private)   GenerateCookieUserData(ValidUser, Astronaut = null)
 
@@ -5227,7 +5264,7 @@ namespace social.OpenData.UsersAPI
                                                                                                 ToUTF8Bytes()
                                                                                             ).ToHexString());
 
-                                              var expires          = DateTime.UtcNow.Add(SignInSessionLifetime);
+                                              var expires          = DateTime.UtcNow.Add(MaxSignInSessionLifetime);
 
                                               lock (_HTTPCookies)
                                               {
@@ -7293,7 +7330,7 @@ namespace social.OpenData.UsersAPI
                                                                                                ToUTF8Bytes()
                                                                                            ).ToHexString());
 
-                                             var expires          = DateTime.UtcNow.Add(SignInSessionLifetime);
+                                             var expires          = DateTime.UtcNow.Add(MaxSignInSessionLifetime);
 
                                              lock (_HTTPCookies)
                                              {
@@ -7441,7 +7478,7 @@ namespace social.OpenData.UsersAPI
                                                                                                ToUTF8Bytes()
                                                                                            ).ToHexString());
 
-                                             var expires          = DateTime.UtcNow.Add(SignInSessionLifetime);
+                                             var expires          = DateTime.UtcNow.Add(MaxSignInSessionLifetime);
 
                                              lock (_HTTPCookies)
                                              {
@@ -7543,7 +7580,7 @@ namespace social.OpenData.UsersAPI
                                                                                                ToUTF8Bytes()
                                                                                            ).ToHexString());
 
-                                             var expires          = DateTime.UtcNow.Add(SignInSessionLifetime);
+                                             var expires          = DateTime.UtcNow.Add(MaxSignInSessionLifetime);
 
                                              lock (_HTTPCookies)
                                              {
@@ -18790,7 +18827,7 @@ namespace social.OpenData.UsersAPI
         public event OnAPIKeyAddedDelegate OnAPIKeyAdded;
 
 
-        #region (protected internal) _AddAPIKey(APIKey,                                OnAdded = null, CurrentUserId = null)
+        #region (protected internal) _AddAPIKey(APIKey, OnAdded = null, CurrentUserId = null)
 
         /// <summary>
         /// Add the given API key to the API.
@@ -18835,7 +18872,7 @@ namespace social.OpenData.UsersAPI
 
 
             await WriteToDatabaseFile(addAPIKey_MessageType,
-                                      APIKey.ToJSON(true),
+                                      APIKey.ToJSON(false),
                                       eventTrackingId,
                                       CurrentUserId);
 
@@ -18865,7 +18902,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddAPIKey             (APIKey,                                OnAdded = null, CurrentUserId = null)
+        #region AddAPIKey                      (APIKey, OnAdded = null, CurrentUserId = null)
 
         /// <summary>
         /// Add the given API key.
@@ -18925,7 +18962,7 @@ namespace social.OpenData.UsersAPI
 
         #region AddAPIKeyIfNotExists(APIKey, OnAdded = null,                   CurrentUserId = null)
 
-        #region (protected internal) _AddAPIKeyIfNotExists(APIKey,                                OnAdded = null, CurrentUserId = null)
+        #region (protected internal) _AddAPIKeyIfNotExists(APIKey, OnAdded = null, CurrentUserId = null)
 
         /// <summary>
         /// When it has not been created before, add the given API key to the API.
@@ -18968,7 +19005,7 @@ namespace social.OpenData.UsersAPI
 
 
             await WriteToDatabaseFile(addAPIKeyIfNotExists_MessageType,
-                                      APIKey.ToJSON(true),
+                                      APIKey.ToJSON(false),
                                       eventTrackingId,
                                       CurrentUserId);
 
@@ -18997,7 +19034,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddAPIKeyIfNotExists             (APIKey,                                OnAdded = null, CurrentUserId = null)
+        #region AddAPIKeyIfNotExists                      (APIKey, OnAdded = null, CurrentUserId = null)
 
         /// <summary>
         /// Add the given API key.
@@ -19057,7 +19094,7 @@ namespace social.OpenData.UsersAPI
 
         #region AddOrUpdateAPIKey   (APIKey, OnAdded = null, OnUpdated = null, CurrentUserId = null)
 
-        #region (protected internal) _AddOrUpdateAPIKey   (APIKey,   OnAdded = null, OnUpdated = null, CurrentUserId = null)
+        #region (protected internal) _AddOrUpdateAPIKey(APIKey, OnAdded = null, OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
         /// Add or update the given API key to/within the API.
@@ -19098,7 +19135,7 @@ namespace social.OpenData.UsersAPI
 
 
             await WriteToDatabaseFile(addOrUpdateAPIKey_MessageType,
-                                      APIKey.ToJSON(true),
+                                      APIKey.ToJSON(false),
                                       eventTrackingId,
                                       CurrentUserId);
 
@@ -19160,7 +19197,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddOrUpdateAPIKey   (APIKey,   OnAdded = null, OnUpdated = null, CurrentUserId = null)
+        #region AddOrUpdateAPIKey                      (APIKey, OnAdded = null, OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
         /// Add or update the given API key to/within the API.
@@ -19243,7 +19280,7 @@ namespace social.OpenData.UsersAPI
         public event OnAPIKeyUpdatedDelegate OnAPIKeyUpdated;
 
 
-        #region (protected internal) _UpdateAPIKey(APIKey, OnUpdated = null, CurrentUserId = null)
+        #region (protected internal) _UpdateAPIKey(APIKey,                 OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
         /// Update the given API key to/within the API.
@@ -19282,7 +19319,7 @@ namespace social.OpenData.UsersAPI
 
 
             await WriteToDatabaseFile(updateAPIKey_MessageType,
-                                      APIKey.ToJSON(),
+                                      APIKey.ToJSON(false),
                                       eventTrackingId,
                                       CurrentUserId);
 
@@ -19314,7 +19351,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region UpdateAPIKey                      (APIKey, OnUpdated = null, CurrentUserId = null)
+        #region UpdateAPIKey                      (APIKey,                 OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
         /// Update the given API key to/within the API.
@@ -19420,7 +19457,7 @@ namespace social.OpenData.UsersAPI
             var updatedAPIKey = builder.ToImmutable;
 
             await WriteToDatabaseFile(updateAPIKey_MessageType,
-                                      updatedAPIKey.ToJSON(),
+                                      updatedAPIKey.ToJSON(false),
                                       eventTrackingId,
                                       CurrentUserId);
 
