@@ -2679,6 +2679,8 @@ namespace social.OpenData.UsersAPI
         /// <param name="HTMLTemplate">An optional HTML template.</param>
         /// <param name="APIVersionHashes">The API version hashes (git commit hash values).</param>
         /// 
+        /// <param name="AdminOrganizationId">The API admin organization identification.</param>
+        /// <param name="APIRobotEMailAddress">An e-mail address for this API.</param>
         /// <param name="APIRobotGPGPassphrase">A GPG passphrase for this API.</param>
         /// <param name="APISMTPClient">A SMTP client for sending e-mails.</param>
         /// <param name="SMSAPICredentials">The credentials for the SMS API.</param>
@@ -2835,7 +2837,7 @@ namespace social.OpenData.UsersAPI
             this._LoginPasswords                 = new Dictionary<User_Id,                    LoginPassword>();
             this._PasswordResets                 = new Dictionary<SecurityToken_Id,           PasswordReset>();
             this._HTTPCookies                    = new Dictionary<SecurityToken_Id,           SecurityToken>();
-            this._APIKeys                        = new Dictionary<APIKey,                     APIKeyInfo>();
+            this._APIKeys                        = new Dictionary<APIKey_Id,                     APIKey>();
             this._Messages                       = new Dictionary<Message_Id,                 Message>();
             this._NotificationMessages           = new Dictionary<NotificationMessage_Id,     NotificationMessage>();
             this._UserGroups                     = new Dictionary<UserGroup_Id,               UserGroup>();
@@ -4311,9 +4313,9 @@ namespace social.OpenData.UsersAPI
 
             #region Get user from API Key...
 
-            if (TryGetValidAPIKey(Request.API_Key, out APIKeyInfo apiKeyInfo))
+            if (TryGetValidAPIKey(Request.API_Key, out APIKey apiKey))
             {
-                User = apiKeyInfo.User;
+                User = apiKey.User;
                 return true;
             }
 
@@ -8665,11 +8667,11 @@ namespace social.OpenData.UsersAPI
                                                  if (!Request.TryParseJObjectRequestBody(out JObject JSONBody, out errorResponse))
                                                      return errorResponse;
 
-                                                 #region Parse APIKeyInfo    [mandatory]
+                                                 #region Parse APIKey    [mandatory]
 
-                                                 if (!APIKeyInfo.TryParseJSON(JSONBody,
+                                                 if (!APIKey.TryParse(JSONBody,
                                                                               _Users.TryGetValue,
-                                                                              out APIKeyInfo  apiKeyInfo,
+                                                                              out APIKey  apiKey,
                                                                               out String      errorString))
                                                  {
 
@@ -8694,7 +8696,7 @@ namespace social.OpenData.UsersAPI
 
                                                  #region Validate user
 
-                                                 if (apiKeyInfo.User != User || (HTTPUser != User && !CanImpersonate(HTTPUser, User)))
+                                                 if (apiKey.User != User || (HTTPUser != User && !CanImpersonate(HTTPUser, User)))
                                                  {
                                                      return new HTTPResponse.Builder(Request) {
                                                                 HTTPStatusCode             = HTTPStatusCode.Forbidden,
@@ -8715,7 +8717,7 @@ namespace social.OpenData.UsersAPI
                                                  #endregion
 
 
-                                                 var result = await AddAPIKey(apiKeyInfo,
+                                                 var result = await AddAPIKey(apiKey,
                                                                               null,
                                                                               Request.EventTrackingId,
                                                                               HTTPUser.Id);
@@ -8730,7 +8732,7 @@ namespace social.OpenData.UsersAPI
                                                                       AccessControlAllowMethods  = "ADD, GET",
                                                                       AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                                       ContentType                = HTTPContentType.JSON_UTF8,
-                                                                      Content                    = apiKeyInfo.ToJSON().ToUTF8Bytes(),
+                                                                      Content                    = apiKey.ToJSON().ToUTF8Bytes(),
                                                                       Connection                 = "close",
                                                                       Vary                       = "Accept"
                                                                   }.AsImmutable
@@ -8831,9 +8833,9 @@ namespace social.OpenData.UsersAPI
                                                             };
                                                  }
 
-                                                 var apiKey = APIKey.TryParse(Request.ParsedURLParameters[0]);
+                                                 var apiKeyId = APIKey_Id.TryParse(Request.ParsedURLParameters[0]);
 
-                                                 if (!apiKey.HasValue)
+                                                 if (!apiKeyId.HasValue || apiKeyId.Value.IsNullOrEmpty)
                                                  {
                                                      return new HTTPResponse.Builder(Request) {
                                                                 HTTPStatusCode  = HTTPStatusCode.BadRequest,
@@ -8851,7 +8853,7 @@ namespace social.OpenData.UsersAPI
                                                             };
                                                  }
 
-                                                 if (!TryGetAPIKey(apiKey.Value, out APIKeyInfo apiKeyInfo))
+                                                 if (!TryGetAPIKey(apiKeyId.Value, out APIKey apiKeyInfo))
                                                  {
                                                      return new HTTPResponse.Builder(Request) {
                                                                 HTTPStatusCode  = HTTPStatusCode.NotFound,
@@ -13112,6 +13114,7 @@ namespace social.OpenData.UsersAPI
             User_Id          userId;
             User             user;
             UserGroup        userGroup;
+            APIKey           apiKey;
             Organization_Id  organizationId;
             Organization     organization;
             NewsPosting      newsPosting;
@@ -13199,6 +13202,7 @@ namespace social.OpenData.UsersAPI
                         }
 
                         _Users.Add(user.Id, user);
+                        user.API = this;
 
                     }
 
@@ -13299,6 +13303,123 @@ namespace social.OpenData.UsersAPI
                 #endregion
 
 
+                #region Add API key
+
+                case "addAPIKey":
+
+                    if (APIKey.TryParse(Data,
+                                        _Users.TryGetValue,
+                                        out apiKey,
+                                        out ErrorResponse))
+                    {
+                        _APIKeys.AddAndReturnValue(apiKey.Id, apiKey);
+                    }
+
+                    else
+                        DebugX.Log(String.Concat(nameof(apiKey), " ", Command, Sender.IsNotNullOrEmpty() ? " via " + Sender : "", LineNumber.HasValue ? ", line " + LineNumber.Value : "", ": ", ErrorResponse));
+
+                    break;
+
+                #endregion
+
+                #region Add API key if not exists
+
+                case "addAPIKeyIfNotExists":
+
+                    if (APIKey.TryParse(Data,
+                                        _Users.TryGetValue,
+                                        out apiKey,
+                                        out ErrorResponse))
+                    {
+
+                        if (!_APIKeys.ContainsKey(apiKey.Id))
+                        {
+                            apiKey.API = this;
+                            _APIKeys.AddAndReturnValue(apiKey.Id, apiKey);
+                        }
+
+                    }
+
+                    else
+                        DebugX.Log(String.Concat(nameof(apiKey), " ", Command, Sender.IsNotNullOrEmpty() ? " via " + Sender : "", LineNumber.HasValue ? ", line " + LineNumber.Value : "", ": ", ErrorResponse));
+
+                    break;
+
+                #endregion
+
+                #region Add or update API key
+
+                case "addOrUpdateAPIKey":
+
+                    if (APIKey.TryParse(Data,
+                                        _Users.TryGetValue,
+                                        out apiKey,
+                                        out ErrorResponse))
+                    {
+
+                        if (_APIKeys.TryGetValue(apiKey.Id, out APIKey OldAPIKey))
+                        {
+                            _APIKeys.Remove(OldAPIKey.Id);
+                        }
+
+                        _APIKeys.Add(apiKey.Id, apiKey);
+                        apiKey.API = this;
+
+                    }
+
+                    else
+                        DebugX.Log(String.Concat(nameof(apiKey), " ", Command, Sender.IsNotNullOrEmpty() ? " via " + Sender : "", LineNumber.HasValue ? ", line " + LineNumber.Value : "", ": ", ErrorResponse));
+
+                    break;
+
+                #endregion
+
+                #region Update API key
+
+                case "updateAPIKey":
+
+                    if (APIKey.TryParse(Data,
+                                        _Users.TryGetValue,
+                                        out apiKey,
+                                        out ErrorResponse))
+                    {
+
+                        if (_APIKeys.TryGetValue(apiKey.Id, out APIKey OldAPIKey))
+                        {
+                            _APIKeys.Remove(OldAPIKey.Id);
+                            apiKey.API = this;
+                            _APIKeys.Add(apiKey.Id, apiKey);
+                        }
+
+                    }
+
+                    else
+                        DebugX.Log(String.Concat(nameof(apiKey), " ", Command, Sender.IsNotNullOrEmpty() ? " via " + Sender : "", LineNumber.HasValue ? ", line " + LineNumber.Value : "", ": ", ErrorResponse));
+
+                    break;
+
+                #endregion
+
+                #region Remove API key
+
+                case "removeAPIKey":
+
+                    if (APIKey.TryParse(Data,
+                                        _Users.TryGetValue,
+                                        out apiKey,
+                                        out ErrorResponse))
+                    {
+                        _APIKeys.Remove(apiKey.Id);
+                    }
+
+                    else
+                        DebugX.Log(String.Concat(nameof(apiKey), " ", Command, Sender.IsNotNullOrEmpty() ? " via " + Sender : "", LineNumber.HasValue ? ", line " + LineNumber.Value : "", ": ", ErrorResponse));
+
+                    break;
+
+                #endregion
+
+
                 #region Add organization
 
                 case "addOrganization":
@@ -13368,6 +13489,7 @@ namespace social.OpenData.UsersAPI
                         }
 
                         _Organizations.Add(organization.Id, organization);
+                        organization.API = this;
 
                     }
 
@@ -14082,45 +14204,6 @@ namespace social.OpenData.UsersAPI
                     else
                         DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given 'remove notification' command!"));
 
-                    break;
-
-                #endregion
-
-
-                #region Add    API key
-
-                case "addAPIKey":
-                    {
-                        if (APIKeyInfo.TryParseJSON(Data,
-                                                    _Users.TryGetValue,
-                                                    out APIKeyInfo apiKey,
-                                                    out ErrorResponse))
-                        {
-                            _APIKeys.Add(apiKey.APIKey, apiKey);
-                        }
-
-                        else
-                            DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, Sender.IsNotNullOrEmpty() ? " via " + Sender : "", LineNumber.HasValue ? ", line " + LineNumber.Value : "", ": ", ErrorResponse));
-                    }
-                    break;
-
-                #endregion
-
-                #region Remove API key
-
-                case "removeAPIKey":
-                    {
-                        if (APIKeyInfo.TryParseJSON(Data,
-                                                    _Users.TryGetValue,
-                                                    out APIKeyInfo apiKey,
-                                                    out ErrorResponse))
-                        {
-                            _APIKeys.Remove(apiKey.APIKey);
-                        }
-
-                        else
-                            DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, Sender.IsNotNullOrEmpty() ? " via " + Sender : "", LineNumber.HasValue ? ", line " + LineNumber.Value : "", ": ", ErrorResponse));
-                    }
                     break;
 
                 #endregion
@@ -18537,12 +18620,12 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An enumeration of all API keys.
         /// </summary>
-        protected internal readonly Dictionary<APIKey, APIKeyInfo> _APIKeys;
+        protected internal readonly Dictionary<APIKey_Id, APIKey> _APIKeys;
 
         /// <summary>
         /// An enumeration of all API keys.
         /// </summary>
-        public IEnumerable<APIKeyInfo> APIKeys
+        public IEnumerable<APIKey> APIKeys
         {
             get
             {
@@ -18550,7 +18633,7 @@ namespace social.OpenData.UsersAPI
                 {
                     return APIKeysSemaphore.Wait(SemaphoreSlimTimeout)
                                ? _APIKeys.Values.ToArray()
-                               : new APIKeyInfo[0];
+                               : new APIKey[0];
                 }
                 finally
                 {
@@ -18567,36 +18650,40 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (protected internal) WriteToDatabaseFileAndNotify(APIKeyInfo, MessageType,  OldAPIKeyInfo = null, CurrentUserId = null)
+        #region (protected internal) WriteToDatabaseFileAndNotify(APIKey, MessageType,  OldAPIKey = null, CurrentUserId = null)
 
         /// <summary>
         /// Write the given API key to the database and send out notifications.
         /// </summary>
-        /// <param name="APIKeyInfo">The API key.</param>
+        /// <param name="APIKey">The API key.</param>
         /// <param name="MessageType">The user notification.</param>
-        /// <param name="OldAPIKeyInfo">The old/updated API key.</param>
+        /// <param name="OldAPIKey">The old/updated API key.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected internal async Task WriteToDatabaseFileAndNotify(APIKeyInfo               APIKeyInfo,
-                                                          NotificationMessageType  MessageType,
-                                                          APIKeyInfo               OldAPIKeyInfo     = null,
-                                                          EventTracking_Id         EventTrackingId   = null,
-                                                          User_Id?                 CurrentUserId     = null)
+        protected internal async Task WriteToDatabaseFileAndNotify(APIKey                   APIKey,
+                                                                   NotificationMessageType  MessageType,
+                                                                   APIKey                   OldAPIKey     = null,
+                                                                   EventTracking_Id         EventTrackingId   = null,
+                                                                   User_Id?                 CurrentUserId     = null)
         {
 
-            if (APIKeyInfo == null)
-                return;
+            if (APIKey is null)
+                throw new ArgumentNullException(nameof(APIKey),   "The given API key must not be null!");
+
+            if (MessageType.IsNullOrEmpty)
+                throw new ArgumentNullException(nameof(MessageType),  "The given message type must not be null or empty!");
+
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             await WriteToDatabaseFile(MessageType,
-                                      APIKeyInfo.ToJSON(true),
+                                      APIKey.ToJSON(true),
                                       eventTrackingId,
                                       CurrentUserId);
 
-            await SendNotifications(APIKeyInfo,
+            await SendNotifications(APIKey,
                                     MessageType,
-                                    OldAPIKeyInfo,
+                                    OldAPIKey,
                                     eventTrackingId,
                                     CurrentUserId);
 
@@ -18604,48 +18691,61 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region (protected internal) SendNotifications           (APIKeyInfo, MessageTypes, OldAPIKeyInfo = null, CurrentUserId = null)
+        #region (protected internal) SendNotifications           (APIKey, MessageTypes, OldAPIKey = null, CurrentUserId = null)
 
         /// <summary>
         /// Send API key notifications.
         /// </summary>
-        /// <param name="APIKeyInfo">The API key.</param>
+        /// <param name="APIKey">The API key.</param>
         /// <param name="MessageType">The API key notification.</param>
-        /// <param name="OldAPIKeyInfo">The old/updated API key.</param>
+        /// <param name="OldAPIKey">The old/updated API key.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected internal Task SendNotifications(APIKeyInfo               APIKeyInfo,
-                                         NotificationMessageType  MessageType,
-                                         APIKeyInfo               OldAPIKeyInfo     = null,
-                                         EventTracking_Id         EventTrackingId   = null,
-                                         User_Id?                 CurrentUserId     = null)
-
-            => SendNotifications(APIKeyInfo,
-                                 new NotificationMessageType[] { MessageType },
-                                 OldAPIKeyInfo,
-                                 EventTrackingId,
-                                 CurrentUserId);
-
-
-        /// <summary>
-        /// Send API key notifications.
-        /// </summary>
-        /// <param name="APIKeyInfo">The API key.</param>
-        /// <param name="MessageTypes">The API key notifications.</param>
-        /// <param name="OldAPIKeyInfo">The old/updated API key.</param>
-        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected internal async Task SendNotifications(APIKeyInfo                            APIKeyInfo,
-                                               IEnumerable<NotificationMessageType>  MessageTypes,
-                                               APIKeyInfo                            OldAPIKeyInfo     = null,
-                                               EventTracking_Id                      EventTrackingId   = null,
-                                               User_Id?                              CurrentUserId     = null)
+        protected internal async Task SendNotifications(APIKey                   APIKey,
+                                                        NotificationMessageType  MessageType,
+                                                        APIKey                   OldAPIKey     = null,
+                                                        EventTracking_Id         EventTrackingId   = null,
+                                                        User_Id?                 CurrentUserId     = null)
         {
 
-            if (APIKeyInfo is null || MessageTypes.IsNullOrEmpty())
-                return;
+            if (APIKey is null)
+                throw new ArgumentNullException(nameof(APIKey),   "The given API key must not be null!");
 
-            var messageTypesHash = new HashSet<NotificationMessageType>(MessageTypes);
+            if (MessageType.IsNullOrEmpty)
+                throw new ArgumentNullException(nameof(MessageType),  "The given message type must not be null or empty!");
+
+
+            await SendNotifications(APIKey,
+                                    new NotificationMessageType[] { MessageType },
+                                    OldAPIKey,
+                                    EventTrackingId,
+                                    CurrentUserId);
+
+        }
+
+
+        /// <summary>
+        /// Send API key notifications.
+        /// </summary>
+        /// <param name="APIKey">The API key.</param>
+        /// <param name="MessageTypes">The API key notifications.</param>
+        /// <param name="OldAPIKey">The old/updated API key.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        protected internal async Task SendNotifications(APIKey                            APIKey,
+                                                        IEnumerable<NotificationMessageType>  MessageTypes,
+                                                        APIKey                            OldAPIKey     = null,
+                                                        EventTracking_Id                      EventTrackingId   = null,
+                                                        User_Id?                              CurrentUserId     = null)
+        {
+
+            if (APIKey is null)
+                throw new ArgumentNullException(nameof(APIKey),    "The given API key must not be null!");
+
+            var messageTypesHash = new HashSet<NotificationMessageType>(MessageTypes.Where(messageType => !messageType.IsNullOrEmpty));
+
+            if (messageTypesHash.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(MessageTypes),  "The given enumeration of message types must not be null or empty!");
 
             //if (messageTypesHash.Contains(addUserIfNotExists_MessageType))
             //    messageTypesHash.Add(addUser_MessageType);
@@ -18670,7 +18770,7 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region AddAPIKey           (APIKey, OnAdded = null,                   CurrentAPIKeyId = null)
+        #region AddAPIKey           (APIKey, OnAdded = null,                   CurrentUserId = null)
 
         /// <summary>
         /// A delegate called whenever a API key was added.
@@ -18680,7 +18780,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public delegate Task OnAPIKeyAddedDelegate(DateTime          Timestamp,
-                                                   APIKeyInfo        APIKey,
+                                                   APIKey            APIKey,
                                                    EventTracking_Id  EventTrackingId   = null,
                                                    User_Id?          CurrentUserId     = null);
 
@@ -18699,39 +18799,47 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnAdded">A delegate run whenever the API key had been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected internal async Task<APIKeyInfo> _AddAPIKey(APIKeyInfo                            APIKey,
-                                                    Action<APIKeyInfo, EventTracking_Id>  OnAdded           = null,
-                                                    EventTracking_Id                      EventTrackingId   = null,
-                                                    User_Id?                              CurrentUserId     = null)
+        protected internal async Task<AddAPIKeyResult> _AddAPIKey(APIKey                            APIKey,
+                                                                  Action<APIKey, EventTracking_Id>  OnAdded           = null,
+                                                                  EventTracking_Id                  EventTrackingId   = null,
+                                                                  User_Id?                          CurrentUserId     = null)
         {
 
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
             if (APIKey is null)
-                throw new ArgumentNullException(nameof(APIKey),
-                                                "The given API key must not be null!");
+                return AddAPIKeyResult.ArgumentError(APIKey,
+                                                     eventTrackingId,
+                                                     nameof(APIKey),
+                                                     "The given API key must not be null!");
 
             if (APIKey.API != null && APIKey.API != this)
-                throw new ArgumentException    ("The given API key is already attached to another API!",
-                                                nameof(APIKey));
+                return AddAPIKeyResult.ArgumentError(APIKey,
+                                                     eventTrackingId,
+                                                     nameof(APIKey),
+                                                     "The given API key is already attached to another API!");
 
-            if (_APIKeys.ContainsKey(APIKey.APIKey))
-                throw new ArgumentException    ("API key '" + APIKey.APIKey + "' already exists!",
-                                                nameof(APIKey));
+            if (_APIKeys.ContainsKey(APIKey.Id))
+                return AddAPIKeyResult.ArgumentError(APIKey,
+                                                     eventTrackingId,
+                                                     nameof(APIKey),
+                                                     "APIKey identification '" + APIKey.Id + "' already exists!");
 
-            if (APIKey.APIKey.Length < MinAPIKeyLength)
-                throw new ArgumentException    ("API key '" + APIKey.APIKey + "' is too short!",
-                                                nameof(APIKey));
+            if (APIKey.Id.Length < MinAPIKeyLength)
+                return AddAPIKeyResult.ArgumentError(APIKey,
+                                                     eventTrackingId,
+                                                     nameof(APIKey),
+                                                     "APIKey identification '" + APIKey.Id + "' is too short!");
 
             APIKey.API = this;
 
-
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             await WriteToDatabaseFile(addAPIKey_MessageType,
                                       APIKey.ToJSON(true),
                                       eventTrackingId,
                                       CurrentUserId);
 
-            _APIKeys.Add(APIKey.APIKey, APIKey);
+            _APIKeys.Add(APIKey.Id, APIKey);
 
 
             var OnAPIKeyAddedLocal = OnAPIKeyAdded;
@@ -18750,7 +18858,8 @@ namespace social.OpenData.UsersAPI
             OnAdded?.Invoke(APIKey,
                             eventTrackingId);
 
-            return APIKey;
+            return AddAPIKeyResult.Success(APIKey,
+                                           eventTrackingId);
 
         }
 
@@ -18765,14 +18874,13 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnAdded">A delegate run whenever the API key had been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<APIKeyInfo> AddAPIKey(APIKeyInfo                            APIKey,
-                                                Action<APIKeyInfo, EventTracking_Id>  OnAdded           = null,
-                                                EventTracking_Id                      EventTrackingId   = null,
-                                                User_Id?                              CurrentUserId     = null)
+        public async Task<AddAPIKeyResult> AddAPIKey(APIKey                            APIKey,
+                                                     Action<APIKey, EventTracking_Id>  OnAdded           = null,
+                                                     EventTracking_Id                  EventTrackingId   = null,
+                                                     User_Id?                          CurrentUserId     = null)
         {
 
-            if (APIKey is null)
-                throw new ArgumentNullException(nameof(APIKey), "The given API key must not be null!");
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             try
             {
@@ -18781,10 +18889,22 @@ namespace social.OpenData.UsersAPI
 
                             ? await _AddAPIKey(APIKey,
                                                OnAdded,
-                                               EventTrackingId,
+                                               eventTrackingId,
                                                CurrentUserId)
 
-                            : null;
+                            : AddAPIKeyResult.Failed(APIKey,
+                                                     eventTrackingId,
+                                                     "Internal locking failed!");
+
+            }
+            catch (Exception e)
+            {
+
+                DebugX.LogException(e);
+
+                return AddAPIKeyResult.Failed(APIKey,
+                                              eventTrackingId,
+                                              e);
 
             }
             finally
@@ -18803,7 +18923,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddAPIKeyIfNotExists(APIKey, OnAdded = null,                   CurrentAPIKeyId = null)
+        #region AddAPIKeyIfNotExists(APIKey, OnAdded = null,                   CurrentUserId = null)
 
         #region (protected internal) _AddAPIKeyIfNotExists(APIKey,                                OnAdded = null, CurrentUserId = null)
 
@@ -18814,45 +18934,52 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnAdded">A delegate run whenever the API key had been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected internal async Task<APIKeyInfo> _AddAPIKeyIfNotExists(APIKeyInfo                            APIKey,
-                                                               Action<APIKeyInfo, EventTracking_Id>  OnAdded           = null,
-                                                               EventTracking_Id                      EventTrackingId   = null,
-                                                               User_Id?                              CurrentUserId     = null)
+        protected internal async Task<AddAPIKeyIfNotExistsResult> _AddAPIKeyIfNotExists(APIKey                            APIKey,
+                                                                                        Action<APIKey, EventTracking_Id>  OnAdded           = null,
+                                                                                        EventTracking_Id                  EventTrackingId   = null,
+                                                                                        User_Id?                          CurrentUserId     = null)
         {
 
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
             if (APIKey is null)
-                throw new ArgumentNullException(nameof(APIKey),
-                                                "The given API key must not be null!");
+                return AddAPIKeyIfNotExistsResult.ArgumentError(APIKey,
+                                                                eventTrackingId,
+                                                                nameof(APIKey),
+                                                                "The given API key must not be null!");
 
-            if (APIKey.API != null && APIKey.API != this)
-                throw new ArgumentException    ("The given API key is already attached to another API!",
-                                                nameof(APIKey));
+            if (APIKey.Id != null && APIKey.API != this)
+                return AddAPIKeyIfNotExistsResult.ArgumentError(APIKey,
+                                                                eventTrackingId,
+                                                                nameof(APIKey),
+                                                                "The given API key is already attached to another API!");
 
-            if (_APIKeys.ContainsKey(APIKey.APIKey))
-                return _APIKeys[APIKey.APIKey];
+            if (_APIKeys.ContainsKey(APIKey.Id))
+                return AddAPIKeyIfNotExistsResult.Success(_APIKeys[APIKey.Id],
+                                                          eventTrackingId);
 
-            if (APIKey.APIKey.Length < MinAPIKeyLength)
-                throw new ArgumentException    ("API key identification '" + APIKey.APIKey + "' is too short!",
-                                                nameof(APIKey));
+            if (APIKey.Id.Length < MinAPIKeyLength)
+                return AddAPIKeyIfNotExistsResult.ArgumentError(APIKey,
+                                                                eventTrackingId,
+                                                                nameof(APIKey),
+                                                                "APIKey identification '" + APIKey.Id + "' is too short!");
 
             APIKey.API = this;
 
-
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             await WriteToDatabaseFile(addAPIKeyIfNotExists_MessageType,
                                       APIKey.ToJSON(true),
                                       eventTrackingId,
                                       CurrentUserId);
 
-            _APIKeys.Add(APIKey.APIKey, APIKey);
+            _APIKeys.Add(APIKey.Id, APIKey);
 
             var OnAPIKeyAddedLocal = OnAPIKeyAdded;
             if (OnAPIKeyAddedLocal != null)
                 await OnAPIKeyAddedLocal?.Invoke(DateTime.UtcNow,
-                                                    APIKey,
-                                                    eventTrackingId,
-                                                    CurrentUserId);
+                                                 APIKey,
+                                                 eventTrackingId,
+                                                 CurrentUserId);
 
             await SendNotifications(APIKey,
                                     addAPIKeyIfNotExists_MessageType,
@@ -18863,7 +18990,8 @@ namespace social.OpenData.UsersAPI
             OnAdded?.Invoke(APIKey,
                             eventTrackingId);
 
-            return APIKey;
+            return AddAPIKeyIfNotExistsResult.Success(APIKey,
+                                                      eventTrackingId);
 
         }
 
@@ -18878,11 +19006,13 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnAdded">A delegate run whenever the API key had been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<APIKeyInfo> AddAPIKeyIfNotExists(APIKeyInfo                            APIKey,
-                                                           Action<APIKeyInfo, EventTracking_Id>  OnAdded           = null,
-                                                           EventTracking_Id                      EventTrackingId   = null,
-                                                           User_Id?                              CurrentUserId     = null)
+        public async Task<AddAPIKeyIfNotExistsResult> AddAPIKeyIfNotExists(APIKey                            APIKey,
+                                                                           Action<APIKey, EventTracking_Id>  OnAdded           = null,
+                                                                           EventTracking_Id                  EventTrackingId   = null,
+                                                                           User_Id?                          CurrentUserId     = null)
         {
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             try
             {
@@ -18891,10 +19021,22 @@ namespace social.OpenData.UsersAPI
 
                             ? await _AddAPIKeyIfNotExists(APIKey,
                                                           OnAdded,
-                                                          EventTrackingId,
+                                                          eventTrackingId,
                                                           CurrentUserId)
 
-                            : null;
+                            : AddAPIKeyIfNotExistsResult.Failed(APIKey,
+                                                                eventTrackingId,
+                                                                "Internal locking failed!");
+
+            }
+            catch (Exception e)
+            {
+
+                DebugX.LogException(e);
+
+                return AddAPIKeyIfNotExistsResult.Failed(APIKey,
+                                                         eventTrackingId,
+                                                         e);
 
             }
             finally
@@ -18925,45 +19067,48 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnUpdated">A delegate run whenever the API key had been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional API key identification initiating this command/request.</param>
-        protected internal async Task<APIKeyInfo> _AddOrUpdateAPIKey(APIKeyInfo                            APIKey,
-                                                            Action<APIKeyInfo, EventTracking_Id>  OnAdded           = null,
-                                                            Action<APIKeyInfo, EventTracking_Id>  OnUpdated         = null,
-                                                            EventTracking_Id                      EventTrackingId   = null,
-                                                            User_Id?                              CurrentUserId     = null)
+        protected internal async Task<AddOrUpdateAPIKeyResult> _AddOrUpdateAPIKey(APIKey                            APIKey,
+                                                                                  Action<APIKey, EventTracking_Id>  OnAdded           = null,
+                                                                                  Action<APIKey, EventTracking_Id>  OnUpdated         = null,
+                                                                                  EventTracking_Id                  EventTrackingId   = null,
+                                                                                  User_Id?                          CurrentUserId     = null)
         {
 
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
             if (APIKey is null)
-                throw new ArgumentNullException(nameof(APIKey),
-                                                "The given API key must not be null!");
+                return AddOrUpdateAPIKeyResult.ArgumentError(APIKey,
+                                                             eventTrackingId,
+                                                             nameof(APIKey),
+                                                             "The given API key must not be null!");
 
             if (APIKey.API != null && APIKey.API != this)
-                throw new ArgumentException    ("The given API key is already attached to another API!",
-                                                nameof(APIKey));
+                return AddOrUpdateAPIKeyResult.ArgumentError(APIKey,
+                                                             eventTrackingId,
+                                                             nameof(APIKey.API),
+                                                             "The given API key is already attached to another API!");
 
-            if (_APIKeys.ContainsKey(APIKey.APIKey))
-                return _APIKeys[APIKey.APIKey];
-
-            if (APIKey.APIKey.Length < MinAPIKeyLength)
-                throw new ArgumentException    ("APIKey identification '" + APIKey.APIKey + "' is too short!",
-                                                nameof(APIKey));
+            if (APIKey.Id.Length < MinAPIKeyLength)
+                return AddOrUpdateAPIKeyResult.ArgumentError(APIKey,
+                                                             eventTrackingId,
+                                                             nameof(APIKey),
+                                                             "The given API key identification '" + APIKey.Id + "' is too short!");
 
             APIKey.API = this;
 
-
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             await WriteToDatabaseFile(addOrUpdateAPIKey_MessageType,
                                       APIKey.ToJSON(true),
                                       eventTrackingId,
                                       CurrentUserId);
 
-            if (_APIKeys.TryGetValue(APIKey.APIKey, out APIKeyInfo OldAPIKey))
+            if (_APIKeys.TryGetValue(APIKey.Id, out APIKey OldAPIKey))
             {
-                _APIKeys.Remove(OldAPIKey.APIKey);
+                _APIKeys.Remove(OldAPIKey.Id);
                 //APIKey.CopyAllLinkedDataFrom(OldAPIKey);
             }
 
-            _APIKeys.Add(APIKey.APIKey, APIKey);
+            _APIKeys.Add(APIKey.Id, APIKey);
 
             if (OldAPIKey != null)
             {
@@ -19007,7 +19152,9 @@ namespace social.OpenData.UsersAPI
 
             }
 
-            return APIKey;
+            return AddOrUpdateAPIKeyResult.Success(APIKey,
+                                                   AddOrUpdate.Update,
+                                                   eventTrackingId);
 
         }
 
@@ -19023,15 +19170,14 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnUpdated">A delegate run whenever the API key had been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional API key identification initiating this command/request.</param>
-        public async Task<APIKeyInfo> AddOrUpdateAPIKey(APIKeyInfo                            APIKey,
-                                                        Action<APIKeyInfo, EventTracking_Id>  OnAdded           = null,
-                                                        Action<APIKeyInfo, EventTracking_Id>  OnUpdated         = null,
-                                                        EventTracking_Id                      EventTrackingId   = null,
-                                                        User_Id?                              CurrentUserId     = null)
+        public async Task<AddOrUpdateAPIKeyResult> AddOrUpdateAPIKey(APIKey                            APIKey,
+                                                                     Action<APIKey, EventTracking_Id>  OnAdded           = null,
+                                                                     Action<APIKey, EventTracking_Id>  OnUpdated         = null,
+                                                                     EventTracking_Id                  EventTrackingId   = null,
+                                                                     User_Id?                          CurrentUserId     = null)
         {
 
-            if (APIKey is null)
-                throw new ArgumentNullException(nameof(APIKey), "The given API key must not be null!");
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             try
             {
@@ -19041,10 +19187,22 @@ namespace social.OpenData.UsersAPI
                             ? await _AddOrUpdateAPIKey(APIKey,
                                                        OnAdded,
                                                        OnUpdated,
-                                                       EventTrackingId,
+                                                       eventTrackingId,
                                                        CurrentUserId)
 
-                            : null;
+                            : AddOrUpdateAPIKeyResult.Failed(APIKey,
+                                                             eventTrackingId,
+                                                             "Internal locking failed!");
+
+            }
+            catch (Exception e)
+            {
+
+                DebugX.LogException(e);
+
+                return AddOrUpdateAPIKeyResult.Failed(APIKey,
+                                                      eventTrackingId,
+                                                      e);
 
             }
             finally
@@ -19074,8 +19232,8 @@ namespace social.OpenData.UsersAPI
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking API key identification</param>
         public delegate Task OnAPIKeyUpdatedDelegate(DateTime          Timestamp,
-                                                     APIKeyInfo        APIKey,
-                                                     APIKeyInfo        OldAPIKey,
+                                                     APIKey            APIKey,
+                                                     APIKey            OldAPIKey,
                                                      EventTracking_Id  EventTrackingId   = null,
                                                      User_Id?          CurrentUserId     = null);
 
@@ -19094,45 +19252,51 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnUpdated">A delegate run whenever the API key had been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional API key identification initiating this command/request.</param>
-        protected internal async Task<APIKeyInfo> _UpdateAPIKey(APIKeyInfo                            APIKey,
-                                                       Action<APIKeyInfo, EventTracking_Id>  OnUpdated         = null,
-                                                       EventTracking_Id                      EventTrackingId   = null,
-                                                       User_Id?                              CurrentUserId     = null)
+        protected internal async Task<UpdateAPIKeyResult> _UpdateAPIKey(APIKey                            APIKey,
+                                                                        Action<APIKey, EventTracking_Id>  OnUpdated         = null,
+                                                                        EventTracking_Id                  EventTrackingId   = null,
+                                                                        User_Id?                          CurrentUserId     = null)
         {
 
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
             if (APIKey is null)
-                throw new ArgumentNullException(nameof(APIKey),
-                                                "The given API key must not be null!");
+                return UpdateAPIKeyResult.ArgumentError(APIKey,
+                                                        eventTrackingId,
+                                                        nameof(APIKey),
+                                                        "The given API key must not be null!");
+
+            if (!_TryGetAPIKey(APIKey.Id, out APIKey OldAPIKey))
+                return UpdateAPIKeyResult.ArgumentError(APIKey,
+                                                        eventTrackingId,
+                                                        nameof(APIKey),
+                                                        "The given API key '" + APIKey.Id + "' does not exists in this API!");
 
             if (APIKey.API != null && APIKey.API != this)
-                throw new ArgumentException    ("The given API key is already attached to another API!",
-                                                nameof(APIKey));
-
-            if (!_APIKeys.TryGetValue(APIKey.APIKey, out APIKeyInfo OldAPIKey))
-                throw new ArgumentException    ("The given API key '" + APIKey.APIKey + "' does not exists in this API!",
-                                                nameof(APIKey));
+                return UpdateAPIKeyResult.ArgumentError(APIKey,
+                                                        eventTrackingId,
+                                                        nameof(APIKey.API),
+                                                        "The given API key is not attached to this API!");
 
             APIKey.API = this;
 
 
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
-
             await WriteToDatabaseFile(updateAPIKey_MessageType,
-                                      APIKey.ToJSON(true),
+                                      APIKey.ToJSON(),
                                       eventTrackingId,
                                       CurrentUserId);
 
-            _APIKeys.Remove(OldAPIKey.APIKey);
+            _APIKeys.Remove(OldAPIKey.Id);
             //APIKey.CopyAllLinkedDataFrom(OldAPIKey);
 
 
             var OnAPIKeyUpdatedLocal = OnAPIKeyUpdated;
             if (OnAPIKeyUpdatedLocal != null)
                 await OnAPIKeyUpdatedLocal?.Invoke(DateTime.UtcNow,
-                                                   APIKey,
-                                                   OldAPIKey,
-                                                   eventTrackingId,
-                                                   CurrentUserId);
+                                                 APIKey,
+                                                 OldAPIKey,
+                                                 eventTrackingId,
+                                                 CurrentUserId);
 
             await SendNotifications(APIKey,
                                     updateAPIKey_MessageType,
@@ -19143,13 +19307,14 @@ namespace social.OpenData.UsersAPI
             OnUpdated?.Invoke(APIKey,
                               eventTrackingId);
 
-            return APIKey;
+            return UpdateAPIKeyResult.Success(APIKey,
+                                              eventTrackingId);
 
         }
 
         #endregion
 
-        #region UpdateAPIKey             (APIKey, OnUpdated = null, CurrentUserId = null)
+        #region UpdateAPIKey                      (APIKey, OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
         /// Update the given API key to/within the API.
@@ -19158,14 +19323,13 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnUpdated">A delegate run whenever the API key had been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional API key identification initiating this command/request.</param>
-        public async Task<APIKeyInfo> UpdateAPIKey(APIKeyInfo                            APIKey,
-                                                   Action<APIKeyInfo, EventTracking_Id>  OnUpdated         = null,
-                                                   EventTracking_Id                      EventTrackingId   = null,
-                                                   User_Id?                              CurrentUserId     = null)
+        public async Task<UpdateAPIKeyResult> UpdateAPIKey(APIKey                            APIKey,
+                                                           Action<APIKey, EventTracking_Id>  OnUpdated         = null,
+                                                           EventTracking_Id                  EventTrackingId   = null,
+                                                           User_Id?                          CurrentUserId     = null)
         {
 
-            if (APIKey is null)
-                throw new ArgumentNullException(nameof(APIKey), "The given API key must not be null!");
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             try
             {
@@ -19177,7 +19341,160 @@ namespace social.OpenData.UsersAPI
                                                   EventTrackingId,
                                                   CurrentUserId)
 
-                            : null;
+                            : UpdateAPIKeyResult.Failed(APIKey,
+                                                        eventTrackingId,
+                                                        "Internal locking failed!");
+
+            }
+            catch (Exception e)
+            {
+
+                DebugX.LogException(e);
+
+                return UpdateAPIKeyResult.Failed(APIKey,
+                                                 eventTrackingId,
+                                                 e);
+
+            }
+            finally
+            {
+                try
+                {
+                    APIKeysSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+        }
+
+        #endregion
+
+
+        #region (protected internal) _UpdateAPIKey(APIKey, UpdateDelegate, OnUpdated = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given API key.
+        /// </summary>
+        /// <param name="APIKey">A API key.</param>
+        /// <param name="UpdateDelegate">A delegate to update the given API key.</param>
+        /// <param name="OnUpdated">A delegate run whenever the API key had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional API key identification initiating this command/request.</param>
+        protected internal async Task<UpdateAPIKeyResult> _UpdateAPIKey(APIKey                            APIKey,
+                                                                        Action<APIKey.Builder>            UpdateDelegate,
+                                                                        Action<APIKey, EventTracking_Id>  OnUpdated         = null,
+                                                                        EventTracking_Id                  EventTrackingId   = null,
+                                                                        User_Id?                          CurrentUserId     = null)
+        {
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            if (APIKey is null)
+                return UpdateAPIKeyResult.ArgumentError(APIKey,
+                                                        eventTrackingId,
+                                                        nameof(APIKey),
+                                                        "The given API key must not be null!");
+
+            if (!_APIKeyExists(APIKey.Id))
+                return UpdateAPIKeyResult.ArgumentError(APIKey,
+                                                        eventTrackingId,
+                                                        nameof(APIKey),
+                                                        "The given API key '" + APIKey.Id + "' does not exists in this API!");
+
+            if (APIKey.API != this)
+                return UpdateAPIKeyResult.ArgumentError(APIKey,
+                                                        eventTrackingId,
+                                                        nameof(APIKey.API),
+                                                        "The given API key is not attached to this API!");
+
+            if (UpdateDelegate is null)
+                return UpdateAPIKeyResult.ArgumentError(APIKey,
+                                                        eventTrackingId,
+                                                        nameof(UpdateDelegate),
+                                                        "The given update delegate must not be null!");
+
+
+            var builder = APIKey.ToBuilder();
+            UpdateDelegate(builder);
+            var updatedAPIKey = builder.ToImmutable;
+
+            await WriteToDatabaseFile(updateAPIKey_MessageType,
+                                      updatedAPIKey.ToJSON(),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            _APIKeys.Remove(APIKey.Id);
+            //updatedAPIKey.CopyAllLinkedDataFrom(APIKey);
+
+
+            var OnAPIKeyUpdatedLocal = OnAPIKeyUpdated;
+            if (OnAPIKeyUpdatedLocal != null)
+                await OnAPIKeyUpdatedLocal?.Invoke(DateTime.UtcNow,
+                                                   updatedAPIKey,
+                                                   APIKey,
+                                                   eventTrackingId,
+                                                   CurrentUserId);
+
+            await SendNotifications(updatedAPIKey,
+                                    updateAPIKey_MessageType,
+                                    APIKey,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+            OnUpdated?.Invoke(updatedAPIKey,
+                              eventTrackingId);
+
+            return UpdateAPIKeyResult.Success(APIKey,
+                                              eventTrackingId);
+
+        }
+
+        #endregion
+
+        #region UpdateAPIKey                      (APIKey, UpdateDelegate, OnUpdated = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given API key.
+        /// </summary>
+        /// <param name="APIKey">A API key.</param>
+        /// <param name="UpdateDelegate">A delegate to update the given API key.</param>
+        /// <param name="OnUpdated">A delegate run whenever the API key had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional API key identification initiating this command/request.</param>
+        public async Task<UpdateAPIKeyResult> UpdateAPIKey(APIKey                            APIKey,
+                                                           Action<APIKey.Builder>            UpdateDelegate,
+                                                           Action<APIKey, EventTracking_Id>  OnUpdated         = null,
+                                                           EventTracking_Id                  EventTrackingId   = null,
+                                                           User_Id?                          CurrentUserId     = null)
+        {
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            try
+            {
+
+                return (await APIKeysSemaphore.WaitAsync(SemaphoreSlimTimeout))
+
+                            ? await _UpdateAPIKey(APIKey,
+                                                  UpdateDelegate,
+                                                  OnUpdated,
+                                                  eventTrackingId,
+                                                  CurrentUserId)
+
+                            : UpdateAPIKeyResult.Failed(APIKey,
+                                                        eventTrackingId,
+                                                        "Internal locking failed!");
+
+            }
+            catch (Exception e)
+            {
+
+                DebugX.LogException(e);
+
+                return UpdateAPIKeyResult.Failed(APIKey,
+                                                 eventTrackingId,
+                                                 e);
 
             }
             finally
@@ -19197,13 +19514,13 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region APIKeyExists       (APIKey)
+        #region APIKeyExists       (APIKeyId)
 
         /// <summary>
         /// Determines whether the given API key identification exists within this API.
         /// </summary>
         /// <param name="APIKey">The unique identification of an API key.</param>
-        protected internal Boolean _APIKeyExists(APIKey APIKey)
+        protected internal Boolean _APIKeyExists(APIKey_Id APIKey)
 
             => !APIKey.IsNullOrEmpty && _APIKeys.ContainsKey(APIKey);
 
@@ -19212,7 +19529,7 @@ namespace social.OpenData.UsersAPI
         /// Determines whether the given API key identification exists within this API.
         /// </summary>
         /// <param name="APIKey">The unique identification of an API key.</param>
-        public Boolean APIKeyExists(APIKey APIKey)
+        public Boolean APIKeyExists(APIKey_Id APIKey)
         {
 
             try
@@ -19240,19 +19557,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region APIKeyIsValid      (APIKey)
-
-        /// <summary>
-        /// Determines whether the given API key is valid within this API.
-        /// </summary>
-        /// <param name="APIKeyInfo">The API key.</param>
-        protected internal Boolean _APIKeyIsValid(APIKeyInfo APIKeyInfo)
-
-            =>   APIKeyInfo != null &&
-               (!APIKeyInfo.NotBefore.HasValue || DateTime.UtcNow >= APIKeyInfo.NotBefore) &&
-               (!APIKeyInfo.NotAfter. HasValue || DateTime.UtcNow <  APIKeyInfo.NotAfter)  &&
-                !APIKeyInfo.IsDisabled;
-
+        #region APIKeyIsValid      (APIKeyId)
 
         /// <summary>
         /// Determines whether the given API key is valid within this API.
@@ -19260,49 +19565,31 @@ namespace social.OpenData.UsersAPI
         /// <param name="APIKey">The API key.</param>
         protected internal Boolean _APIKeyIsValid(APIKey APIKey)
 
-            => TryGetAPIKey(APIKey, out APIKeyInfo apiKeyInfo) &&
-               _APIKeyIsValid(apiKeyInfo);
+            =>   APIKey != null &&
+               (!APIKey.NotBefore.HasValue || DateTime.UtcNow >= APIKey.NotBefore) &&
+               (!APIKey.NotAfter. HasValue || DateTime.UtcNow <  APIKey.NotAfter)  &&
+                !APIKey.IsDisabled;
 
 
         /// <summary>
         /// Determines whether the given API key is valid within this API.
         /// </summary>
         /// <param name="APIKey">The API key.</param>
-        protected internal Boolean _APIKeyIsValid(APIKey? APIKey)
+        protected internal Boolean _APIKeyIsValid(APIKey_Id APIKey)
 
-            => APIKey.HasValue &&
-               _APIKeyIsValid(APIKey.Value);
+            => TryGetAPIKey(APIKey, out APIKey apiKey) &&
+               _APIKeyIsValid(apiKey);
 
 
         /// <summary>
         /// Determines whether the given API key is valid within this API.
         /// </summary>
-        /// <param name="APIKeyInfo">The API key.</param>
-        public Boolean APIKeyIsValid(APIKeyInfo APIKeyInfo)
-        {
+        /// <param name="APIKey">The API key.</param>
+        protected internal Boolean _APIKeyIsValid(APIKey_Id? APIKey)
 
-            try
-            {
+            => APIKey.HasValue &&
+               _APIKeyIsValid(APIKey.Value);
 
-                if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
-                    return _APIKeyIsValid(APIKeyInfo);
-
-            }
-            catch
-            { }
-            finally
-            {
-                try
-                {
-                    APIKeysSemaphore.Release();
-                }
-                catch
-                { }
-            }
-
-            return false;
-
-        }
 
         /// <summary>
         /// Determines whether the given API key is valid within this API.
@@ -19338,7 +19625,37 @@ namespace social.OpenData.UsersAPI
         /// Determines whether the given API key is valid within this API.
         /// </summary>
         /// <param name="APIKey">The API key.</param>
-        public Boolean APIKeyIsValid(APIKey? APIKey)
+        public Boolean APIKeyIsValid(APIKey_Id APIKey)
+        {
+
+            try
+            {
+
+                if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
+                    return _APIKeyIsValid(APIKey);
+
+            }
+            catch
+            { }
+            finally
+            {
+                try
+                {
+                    APIKeysSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+            return false;
+
+        }
+
+        /// <summary>
+        /// Determines whether the given API key is valid within this API.
+        /// </summary>
+        /// <param name="APIKey">The API key.</param>
+        public Boolean APIKeyIsValid(APIKey_Id? APIKey)
         {
 
             try
@@ -19366,16 +19683,16 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region GetAPIKey          (APIKey)
+        #region GetAPIKey          (APIKeyId)
 
         /// <summary>
         /// Get the API key having the given unique identification.
         /// </summary>
         /// <param name="APIKey">The unique identification of an API key.</param>
-        protected internal APIKeyInfo _GetAPIKey(APIKey APIKey)
+        protected internal APIKey _GetAPIKey(APIKey_Id APIKey)
         {
 
-            if (!APIKey.IsNullOrEmpty && _APIKeys.TryGetValue(APIKey, out APIKeyInfo apiKey))
+            if (!APIKey.IsNullOrEmpty && _APIKeys.TryGetValue(APIKey, out APIKey apiKey))
                 return apiKey;
 
             return null;
@@ -19387,7 +19704,7 @@ namespace social.OpenData.UsersAPI
         /// Get the API key having the given unique identification.
         /// </summary>
         /// <param name="APIKey">The unique identification of the API key.</param>
-        public APIKeyInfo GetAPIKey(APIKey APIKey)
+        public APIKey GetAPIKey(APIKey_Id APIKey)
         {
 
             try
@@ -19415,23 +19732,23 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region TryGetAPIKey       (APIKey, out APIKeyInfo)
+        #region TryGetAPIKey       (APIKeyId, out APIKey)
 
         /// <summary>
         /// Try to get the API key having the given unique identification.
         /// </summary>
-        /// <param name="APIKey">The unique identification of an API key.</param>
-        /// <param name="APIKeyInfo">The API key.</param>
-        protected internal Boolean _TryGetAPIKey(APIKey APIKey, out APIKeyInfo APIKeyInfo)
+        /// <param name="APIKeyId">The unique identification of an API key.</param>
+        /// <param name="APIKey">The API key.</param>
+        protected internal Boolean _TryGetAPIKey(APIKey_Id APIKeyId, out APIKey APIKey)
         {
 
-            if (!APIKey.IsNullOrEmpty && _APIKeys.TryGetValue(APIKey, out APIKeyInfo apiKeyInfo))
+            if (!APIKeyId.IsNullOrEmpty && _APIKeys.TryGetValue(APIKeyId, out APIKey apiKey))
             {
-                APIKeyInfo = apiKeyInfo;
+                APIKey = apiKey;
                 return true;
             }
 
-            APIKeyInfo = null;
+            APIKey = null;
             return false;
 
         }
@@ -19440,19 +19757,19 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Try to get the API key having the given unique identification.
         /// </summary>
-        /// <param name="APIKey">The unique identification of an API key.</param>
-        /// <param name="APIKeyInfo">The API key.</param>
-        public Boolean TryGetAPIKey(APIKey          APIKey,
-                                    out APIKeyInfo  APIKeyInfo)
+        /// <param name="APIKeyId">The unique identification of an API key.</param>
+        /// <param name="APIKey">The API key.</param>
+        public Boolean TryGetAPIKey(APIKey_Id   APIKeyId,
+                                    out APIKey  APIKey)
         {
 
             try
             {
 
                 if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout) &&
-                    _TryGetAPIKey(APIKey, out APIKeyInfo apiKeyInfo))
+                    _TryGetAPIKey(APIKeyId, out APIKey apiKey))
                 {
-                    APIKeyInfo = apiKeyInfo;
+                    APIKey = apiKey;
                     return true;
                 }
 
@@ -19469,32 +19786,32 @@ namespace social.OpenData.UsersAPI
                 { }
             }
 
-            APIKeyInfo = null;
+            APIKey = null;
             return false;
 
         }
 
         #endregion
 
-        #region TryGetAPIKeyIfValid(APIKey, out APIKeyInfo)
+        #region TryGetAPIKeyIfValid(APIKeyId, out APIKey)
 
         /// <summary>
         /// Try to get the API key having the given unique identification.
         /// </summary>
-        /// <param name="APIKey">The unique identification of the API key.</param>
-        /// <param name="APIKeyInfo">The API key.</param>
-        protected internal Boolean _TryGetValidAPIKey(APIKey APIKey, out APIKeyInfo APIKeyInfo)
+        /// <param name="APIKeyId">The unique identification of the API key.</param>
+        /// <param name="APIKey">The API key.</param>
+        protected internal Boolean _TryGetValidAPIKey(APIKey_Id APIKeyId, out APIKey APIKey)
 
         {
 
-            if (_APIKeys.TryGetValue(APIKey, out APIKeyInfo apiKeyInfo) &&
-                _APIKeyIsValid(APIKey))
+            if (_APIKeys.TryGetValue(APIKeyId, out APIKey apiKey) &&
+                _APIKeyIsValid(apiKey))
             {
-                APIKeyInfo = apiKeyInfo;
+                APIKey = apiKey;
                 return true;
             }
 
-            APIKeyInfo = null;
+            APIKey = null;
             return false;
 
         }
@@ -19502,21 +19819,21 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Try to get the API key having the given unique identification.
         /// </summary>
-        /// <param name="APIKey">The unique identification of the API key.</param>
-        /// <param name="APIKeyInfo">The API key.</param>
-        protected internal Boolean _TryGetValidAPIKey(APIKey? APIKey, out APIKeyInfo APIKeyInfo)
+        /// <param name="APIKeyId">The unique identification of the API key.</param>
+        /// <param name="APIKey">The API key.</param>
+        protected internal Boolean _TryGetValidAPIKey(APIKey_Id? APIKeyId, out APIKey APIKey)
 
         {
 
-            if (APIKey.HasValue &&
-                _APIKeys.TryGetValue(APIKey.Value, out APIKeyInfo apiKeyInfo) &&
-                _APIKeyIsValid(APIKey))
+            if (APIKeyId.HasValue &&
+                _APIKeys.TryGetValue(APIKeyId.Value, out APIKey apiKey) &&
+                _APIKeyIsValid(apiKey))
             {
-                APIKeyInfo = apiKeyInfo;
+                APIKey = apiKey;
                 return true;
             }
 
-            APIKeyInfo = null;
+            APIKey = null;
             return false;
 
         }
@@ -19525,17 +19842,17 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Try to get the API key having the given unique identification.
         /// </summary>
-        /// <param name="APIKey">The unique identification of the API key.</param>
-        /// <param name="APIKeyInfo">The API key.</param>
-        public Boolean TryGetValidAPIKey(APIKey          APIKey,
-                                         out APIKeyInfo  APIKeyInfo)
+        /// <param name="APIKeyId">The unique identification of the API key.</param>
+        /// <param name="APIKey">The API key.</param>
+        public Boolean TryGetValidAPIKey(APIKey_Id   APIKeyId,
+                                         out APIKey  APIKey)
         {
 
             try
             {
 
                 if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout) &&
-                    _TryGetValidAPIKey(APIKey, out APIKeyInfo))
+                    _TryGetValidAPIKey(APIKeyId, out APIKey))
                 {
                     return true;
                 }
@@ -19553,7 +19870,7 @@ namespace social.OpenData.UsersAPI
                 { }
             }
 
-            APIKeyInfo = null;
+            APIKey = null;
             return false;
 
         }
@@ -19561,17 +19878,17 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Try to get the API key having the given unique identification.
         /// </summary>
-        /// <param name="APIKey">The unique identification of the API key.</param>
-        /// <param name="APIKeyInfo">The API key.</param>
-        public Boolean TryGetValidAPIKey(APIKey?         APIKey,
-                                         out APIKeyInfo  APIKeyInfo)
+        /// <param name="APIKeyId">The unique identification of the API key.</param>
+        /// <param name="APIKey">The API key.</param>
+        public Boolean TryGetValidAPIKey(APIKey_Id?  APIKeyId,
+                                         out APIKey  APIKey)
         {
 
             try
             {
 
                 if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout) &&
-                    _TryGetValidAPIKey(APIKey, out APIKeyInfo))
+                    _TryGetValidAPIKey(APIKeyId, out APIKey))
                 {
                     return true;
                 }
@@ -19589,7 +19906,7 @@ namespace social.OpenData.UsersAPI
                 { }
             }
 
-            APIKeyInfo = null;
+            APIKey = null;
             return false;
 
         }
@@ -19602,8 +19919,8 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Return all API keys for the given user.
         /// </summary>
-        /// <param name="User">An user.</param>
-        protected internal IEnumerable<APIKeyInfo> _GetAPIKeysForUser(User User)
+        /// <param name="User">A user.</param>
+        protected internal IEnumerable<APIKey> _GetAPIKeysForUser(User User)
 
             => _APIKeys.Values.
                         Where(apiKey => apiKey.User == User).
@@ -19613,8 +19930,8 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Return all API keys for the given user.
         /// </summary>
-        /// <param name="User">An user.</param>
-        public IEnumerable<APIKeyInfo> GetAPIKeysForUser(User User)
+        /// <param name="User">A user.</param>
+        public IEnumerable<APIKey> GetAPIKeysForUser(User User)
         {
 
             try
@@ -19636,7 +19953,7 @@ namespace social.OpenData.UsersAPI
                 { }
             }
 
-            return new APIKeyInfo[0];
+            return new APIKey[0];
 
         }
 
@@ -19647,8 +19964,8 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Return all API keys for the given user.
         /// </summary>
-        /// <param name="User">An user.</param>
-        protected internal IEnumerable<APIKeyInfo> _GetValidAPIKeysForUser(User User)
+        /// <param name="User">A user.</param>
+        protected internal IEnumerable<APIKey> _GetValidAPIKeysForUser(User User)
 
             => _APIKeys.Values.
                         Where(apiKey => apiKey.User == User &&
@@ -19659,8 +19976,8 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Return all API keys for the given user.
         /// </summary>
-        /// <param name="User">An user.</param>
-        public IEnumerable<APIKeyInfo> GetValidAPIKeysForUser(User User)
+        /// <param name="User">A user.</param>
+        public IEnumerable<APIKey> GetValidAPIKeysForUser(User User)
         {
 
             try
@@ -19682,7 +19999,7 @@ namespace social.OpenData.UsersAPI
                 { }
             }
 
-            return new APIKeyInfo[0];
+            return new APIKey[0];
 
         }
 
@@ -19695,11 +20012,11 @@ namespace social.OpenData.UsersAPI
         /// A delegate called whenever a API key was removed.
         /// </summary>
         /// <param name="Timestamp">The timestamp when the API key was removed.</param>
-        /// <param name="APIKeyInfo">The removed API key.</param>
+        /// <param name="APIKey">The API key to be removed.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking API key identification</param>
         public delegate Task OnAPIKeyRemovedDelegate(DateTime          Timestamp,
-                                                     APIKeyInfo        APIKeyInfo,
+                                                     APIKey            APIKey,
                                                      EventTracking_Id  EventTrackingId   = null,
                                                      User_Id?          CurrentUserId     = null);
 
@@ -19714,33 +20031,43 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Remove the given API key from the API.
         /// </summary>
-        /// <param name="APIKey">The API key to be removed from this API.</param>
+        /// <param name="APIKey">The API key to be removed.</param>
         /// <param name="OnRemoved">A delegate run whenever the API key had been removed successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional API key identification initiating this command/request.</param>
-        protected internal async Task _RemoveAPIKey(APIKeyInfo                            APIKey,
-                                           Action<APIKeyInfo, EventTracking_Id>  OnRemoved         = null,
-                                           EventTracking_Id                      EventTrackingId   = null,
-                                           User_Id?                              CurrentUserId     = null)
+        protected internal async Task<RemoveAPIKeyResult> _RemoveAPIKey(APIKey                            APIKey,
+                                                                        Action<APIKey, EventTracking_Id>  OnRemoved         = null,
+                                                                        EventTracking_Id                  EventTrackingId   = null,
+                                                                        User_Id?                          CurrentUserId     = null)
         {
-
-            if (APIKey is null)
-                throw new ArgumentNullException(nameof(APIKey),
-                                                "The given API key must not be null!");
-
-            if (APIKey.API != this || !_APIKeys.TryGetValue(APIKey.APIKey, out APIKeyInfo APIKeyToBeRemoved))
-                throw new ArgumentException    ("The given API key '" + APIKey.APIKey + "' does not exists in this API!",
-                                                nameof(APIKey));
-
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
+            if (APIKey is null)
+                return RemoveAPIKeyResult.ArgumentError(APIKey,
+                                                        eventTrackingId,
+                                                        nameof(APIKey),
+                                                        "The given API key must not be null!");
+
+            if (APIKey.API != this)
+                return RemoveAPIKeyResult.ArgumentError(APIKey,
+                                                        eventTrackingId,
+                                                        nameof(APIKey),
+                                                        "The given API key is not attached to this API!");
+
+            if (!_APIKeys.TryGetValue(APIKey.Id, out APIKey APIKeyToBeRemoved))
+                return RemoveAPIKeyResult.ArgumentError(APIKey,
+                                                        eventTrackingId,
+                                                        nameof(APIKey),
+                                                        "The given API key does not exists in this API!");
+
+
             await WriteToDatabaseFile(removeAPIKey_MessageType,
-                                      APIKey.ToJSON(true),
+                                      APIKey.ToJSON(false),
                                       eventTrackingId,
                                       CurrentUserId);
 
-            _APIKeys.Remove(APIKey.APIKey);
+            _APIKeys.Remove(APIKey.Id);
 
 
             var OnAPIKeyRemovedLocal = OnAPIKeyRemoved;
@@ -19759,11 +20086,14 @@ namespace social.OpenData.UsersAPI
             OnRemoved?.Invoke(APIKey,
                               eventTrackingId);
 
+            return RemoveAPIKeyResult.Success(APIKey,
+                                              eventTrackingId);
+
         }
 
         #endregion
 
-        #region RemoveAPIKey             (APIKey, OnRemoved = null, CurrentUserId = null)
+        #region RemoveAPIKey                      (APIKey, OnRemoved = null, CurrentUserId = null)
 
         /// <summary>
         /// Remove the given API key from the API.
@@ -19772,27 +20102,39 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnRemoved">A delegate run whenever the API key had been removed successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional API key identification initiating this command/request.</param>
-        public async Task RemoveAPIKey(APIKeyInfo                            APIKey,
-                                       Action<APIKeyInfo, EventTracking_Id>  OnRemoved         = null,
-                                       EventTracking_Id                      EventTrackingId   = null,
-                                       User_Id?                              CurrentUserId     = null)
+        public async Task<RemoveAPIKeyResult> RemoveAPIKey(APIKey                            APIKey,
+                                                           Action<APIKey, EventTracking_Id>  OnRemoved         = null,
+                                                           EventTracking_Id                  EventTrackingId   = null,
+                                                           User_Id?                          CurrentUserId     = null)
         {
 
-            if (APIKey is null)
-                throw new ArgumentNullException(nameof(APIKey), "The given API key must not be null!");
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             try
             {
 
-                if (await APIKeysSemaphore.WaitAsync(SemaphoreSlimTimeout))
-                    await _RemoveAPIKey(APIKey,
-                                        OnRemoved,
-                                        EventTrackingId,
-                                        CurrentUserId);
+                return (await APIKeysSemaphore.WaitAsync(SemaphoreSlimTimeout))
+
+                            ? await _RemoveAPIKey(APIKey,
+                                                  OnRemoved,
+                                                  eventTrackingId,
+                                                  CurrentUserId)
+
+                            : RemoveAPIKeyResult.Failed(APIKey,
+                                                        eventTrackingId,
+                                                        "Internal locking failed!");
 
             }
-            catch
-            { }
+            catch (Exception e)
+            {
+
+                DebugX.LogException(e);
+
+                return RemoveAPIKeyResult.Failed(APIKey,
+                                                 eventTrackingId,
+                                                 e);
+
+            }
             finally
             {
                 try

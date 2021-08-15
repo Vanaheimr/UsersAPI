@@ -53,6 +53,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommonTypes\ParcelTracking_Id.cs" />
+    <Compile Include="Entities\APIKeys\Results\AddOrUpdateAPIKeyResult.cs" />
+    <Compile Include="Entities\APIKeys\Results\AddAPIKeyIfNotExistsResult.cs" />
+    <Compile Include="Entities\APIKeys\Results\AddAPIKeyResult.cs" />
+    <Compile Include="Entities\APIKeys\Results\RemoveAPIKeyResult.cs" />
+    <Compile Include="Entities\APIKeys\Results\UpdateAPIKeyResult.cs" />
+    <Compile Include="Entities\AResult.cs" />
     <Compile Include="Entities\AttachedFile\AttachedFile_Id.cs" />
     <Compile Include="Entities\Dashboard\Dashboard.cs" />
     <Compile Include="Entities\Dashboard\Dashboard_Id.cs" />
@@ -95,7 +101,6 @@
     <Compile Include="Entities\User\Group\UserGroup_Id.cs" />
     <Compile Include="Entities\User\Results\AddOrUpdateUserResult.cs" />
     <Compile Include="Entities\User\Results\UpdateUserResult.cs" />
-    <Compile Include="Entities\AResult.cs" />
     <Compile Include="Entities\User\Results\AddUserIfNotExistsResult.cs" />
     <Compile Include="Entities\User\Results\RemoveUserResult.cs" />
     <Compile Include="Entities\User\Results\AddUserResult.cs" />
@@ -105,8 +110,8 @@
     <Compile Include="Entities\Notification\NotificationGroup.cs" />
     <Compile Include="Telegram\TelegramStore.cs" />
     <Compile Include="UsersAPILogger.cs" />
-    <Compile Include="CommonTypes\APIKeyRights.cs" />
-    <Compile Include="CommonTypes\APIKeyInfo.cs" />
+    <Compile Include="Entities\APIKeys\APIKeyRights.cs" />
+    <Compile Include="Entities\APIKeys\APIKey.cs" />
     <Compile Include="CommonTypes\LoginPassword.cs" />
     <Compile Include="CommonTypes\MiniEdge.cs" />
     <Compile Include="CommonTypes\PrivacyLevel.cs" />

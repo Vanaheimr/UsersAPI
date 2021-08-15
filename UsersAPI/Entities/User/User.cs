@@ -129,7 +129,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// The default JSON-LD context of users.
         /// </summary>
-        public new readonly static JSONLDContext DefaultJSONLDContext = JSONLDContext.Parse("https://opendata.social/contexts/UsersAPI/user");
+        public readonly static JSONLDContext DefaultJSONLDContext = JSONLDContext.Parse("https://opendata.social/contexts/UsersAPI/user");
 
         #endregion
 
