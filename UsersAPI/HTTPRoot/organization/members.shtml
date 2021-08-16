@@ -50,6 +50,37 @@
 
 </div>
 
+<div id="confirmToRemoveUser" class="fullScreenDialog">
+    <div class="box">
+        <div id="headline">
+            Please confirm!
+        </div>
+        <div id="body">
+            <div id="confirmation">
+                Do you really want to remove this user from the organization?
+            </div>
+            <div id="buttons">
+                <button id="yes">Yes</button>
+                <button id="no">No</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="removalFailed" class="fullScreenDialog">
+    <div class="box withErrors">
+        <div id="headline">
+            Can not remove this user from the organization!
+        </div>
+        <div id="body">
+            <div id="reason"></div>
+            <div id="buttons">
+                <button id="ok">Ok</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script type="text/javascript">
     StartOrganizationMembers();
 </script>

@@ -134,9 +134,12 @@ function StartUser() {
     }
     const pathElements = window.location.pathname.split("/");
     const userId = pathElements[pathElements.length - 1];
-    const userProfile = document.getElementById('userProfile');
-    const impersonateButton = userProfile.querySelector("#impersonateButton");
-    const data = userProfile.querySelector('#data');
+    const userProfileDiv = document.getElementById('userProfile');
+    const headlineDiv = userProfileDiv.querySelector("#headline");
+    const upperButtonsDiv = userProfileDiv.querySelector('#upperButtons');
+    const deleteUserButton = upperButtonsDiv.querySelector('#deleteUserButton');
+    const impersonateButton = upperButtonsDiv.querySelector("#impersonateButton");
+    const data = userProfileDiv.querySelector('#data');
     const login = data.querySelector('#login');
     const username = data.querySelector('#username');
     const eMail = data.querySelector('#eMail');
@@ -153,8 +156,15 @@ function StartUser() {
     const mobilePhoneError = mobilePhone.parentElement.querySelector('.validationError');
     const homepageError = homepage.parentElement.querySelector('.validationError');
     const responseDiv = document.getElementById("response");
-    const lowerButtonsDiv = userProfile.querySelector('#lowerButtons');
+    const lowerButtonsDiv = userProfileDiv.querySelector('#lowerButtons');
     const saveButton = lowerButtonsDiv.querySelector("#saveButton");
+    const confirmToDeleteUserDiv = document.getElementById("confirmToDeleteUser");
+    const yes = confirmToDeleteUserDiv.querySelector('#yes');
+    const no = confirmToDeleteUserDiv.querySelector('#no');
+    const deletionFailedDiv = document.getElementById("deletionFailed");
+    const deletionFailedReason = deletionFailedDiv.querySelector('#reason');
+    const ok = deletionFailedDiv.querySelector('#ok');
+    ok.onclick = () => { deletionFailedDiv.style.display = "none"; };
     login.value = userId;
     function VerifyName() {
         const name = username.value;
@@ -269,11 +279,6 @@ function StartUser() {
                 language.add(new Option(languageKey2Text(UserProfileJSON.language, UILanguage), UserProfileJSON.language, true, true));
             UpdateI18N(description, UserProfileJSON.description);
             if (UserProfileJSON["youCanEdit"]) {
-                impersonateButton.disabled = false;
-                impersonateButton.style.display = "block";
-                impersonateButton.onclick = () => {
-                    ImpersonateUser(userId);
-                };
                 username.readOnly = false;
                 username.oninput = () => { VerifyName(); };
                 eMail.readOnly = false;
@@ -295,6 +300,60 @@ function StartUser() {
                 saveButton.style.display = "block";
                 saveButton.onclick = () => {
                     SaveData();
+                };
+                impersonateButton.disabled = false;
+                impersonateButton.style.display = "block";
+                impersonateButton.onclick = () => {
+                    ImpersonateUser(userId);
+                };
+                deleteUserButton.disabled = false;
+                deleteUserButton.style.display = "block";
+                deleteUserButton.onclick = () => {
+                    confirmToDeleteUserDiv.style.display = "block";
+                    yes.onclick = () => {
+                        HTTPDelete("/users/" + userId, 
+                        // Ok!
+                        (status, response) => {
+                            try {
+                                confirmToDeleteUserDiv.style.display = "none";
+                                responseDiv.innerHTML = "<div class=\"HTTP OK\">Successfully deleted this user.</div>";
+                                // Redirect after 2 seconds!
+                                setTimeout(function () {
+                                    window.location.href = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
+                                }, 2000);
+                            }
+                            catch (exception) {
+                                responseDiv.innerHTML = "<div class=\"HTTP Error\">Deleting this user failed!</div>";
+                            }
+                        }, 
+                        // Failed dependencies, e.g. user still has attached data!
+                        (status, response) => {
+                            try {
+                                const responseJSON = response !== "" ? JSON.parse(response) : {};
+                                confirmToDeleteUserDiv.style.display = "none";
+                                deletionFailedDiv.style.display = "block";
+                                deletionFailedReason.innerHTML = responseJSON.errorDescription.en;
+                            }
+                            catch (exception) {
+                                responseDiv.innerHTML = "<div class=\"HTTP Error\">Deleting this user failed!</div>";
+                            }
+                        }, 
+                        // Some error occured!
+                        (statusCode, status, response) => {
+                            try {
+                                confirmToDeleteUserDiv.style.display = "none";
+                                const responseJSON = response !== "" ? JSON.parse(response) : {};
+                                const info = responseJSON.description != null ? "<br />" + responseJSON.description : "";
+                                responseDiv.innerHTML = "<div class=\"HTTP Error\">Deleting this user failed!<br />" + info + "</div>";
+                            }
+                            catch (exception) {
+                                responseDiv.innerHTML = "<div class=\"HTTP Error\">Deleting this user failed!</div>";
+                            }
+                        });
+                    };
+                    no.onclick = () => {
+                        confirmToDeleteUserDiv.style.display = "none";
+                    };
                 };
             }
         }

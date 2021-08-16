@@ -75,26 +75,112 @@ function StartOrganizationMembers() {
                 ImpersonateUser(member["@id"]);
             }
 
+
+            const removeUserButton = toolsDiv.appendChild(document.createElement('button')) as HTMLButtonElement;
+            removeUserButton.className = "removeUser";
+            removeUserButton.title     = "Remove this user from the organization!"
+            removeUserButton.innerHTML = '<i class="fas fa-trash-alt"></i> Remove</i>';
+            removeUserButton.onclick = (event) => {
+
+                event.stopPropagation();
+                confirmToRemoveUserDiv.style.display = "block";
+
+                yes.onclick = () => {
+
+                    HTTPDelete("members/" + member["@id"],
+
+                                // Ok!
+                                (status, response) => {
+                                    try
+                                    {
+
+                                        confirmToRemoveUserDiv.style.display = "none";
+                                        responseDiv.innerHTML = "<div class=\"HTTP OK\">Successfully removed this user from the organization.</div>";
+
+                                        // Redirect after 2 seconds!
+                                        setTimeout(function () {
+                                            //window.location.href = window.location.href;
+                                            location.reload();
+                                        }, 2000);
+
+                                    }
+                                    catch (exception) {
+                                        responseDiv.innerHTML = "<div class=\"HTTP Error\">Removing this user from the organization failed!</div>";
+                                    }
+                                },
+
+                                // Failed dependencies, e.g. user still has attached data!
+                                (status, response) => {
+                                    try
+                                    {
+                                        const responseJSON = response !== "" ? JSON.parse(response) : {};
+                                        confirmToRemoveUserDiv.style.display = "none";
+                                        removalFailedDiv.style.display  = "block";
+                                        removalFailedReason.innerHTML = responseJSON.errorDescription.en;
+                                    }
+                                    catch (exception)
+                                    {
+                                        responseDiv.innerHTML = "<div class=\"HTTP Error\">Removing this user from the organization failed!</div>";
+                                    }
+                                },
+
+                                // Some error occured!
+                                (statusCode, status, response) => {
+                                    try
+                                    {
+
+                                        confirmToRemoveUserDiv.style.display = "none";
+
+                                        const responseJSON = response !== "" ? JSON.parse(response) : {};
+                                        const info         = responseJSON.description != null ? "<br />" + responseJSON.description : "";
+                                        responseDiv.innerHTML = "<div class=\"HTTP Error\">Removing this user from the organization failed!<br />" + info + "</div>";
+
+                                    }
+                                    catch (exception) {
+                                        responseDiv.innerHTML = "<div class=\"HTTP Error\">Removing this user from the organization failed!</div>";
+                                    }
+                                });
+
+                };
+
+                no.onclick = () => {
+
+                    confirmToRemoveUserDiv.style.display = "none";
+
+                };
+
+            }
+
         }
 
     }
 
 
-    const pathElements         = window.location.pathname.split("/");
-    const organizationId       = pathElements[pathElements.length - 2];
+    const pathElements              = window.location.pathname.split("/");
+    const organizationId            = pathElements[pathElements.length - 2];
 
     FixMenuLinks("organizationMenu", organizationId);
 
-    const organizationDiv      = document.       getElementById("organization")          as HTMLDivElement;
-    const headlineDiv          = organizationDiv.querySelector ("#headline")             as HTMLDivElement;
+    const organizationDiv           = document.              getElementById("organization")          as HTMLDivElement;
+    const headlineDiv               = organizationDiv.       querySelector ("#headline")             as HTMLDivElement;
 
-    const addNewMemberButton   = organizationDiv.querySelector ('#addNewMemberButton')   as HTMLButtonElement;
+    const addNewMemberButton        = organizationDiv.       querySelector ('#addNewMemberButton')   as HTMLButtonElement;
 
-    const adminsDiv            = organizationDiv.querySelector ('#adminsDiv')            as HTMLDivElement;
-    const membersDiv           = organizationDiv.querySelector ('#membersDiv')           as HTMLDivElement;
-    const guestsDiv            = organizationDiv.querySelector ('#guestsDiv')            as HTMLDivElement;
+    const adminsDiv                 = organizationDiv.       querySelector ('#adminsDiv')            as HTMLDivElement;
+    const membersDiv                = organizationDiv.       querySelector ('#membersDiv')           as HTMLDivElement;
+    const guestsDiv                 = organizationDiv.       querySelector ('#guestsDiv')            as HTMLDivElement;
 
-    const responseDiv          = document.       getElementById("response")              as HTMLDivElement;
+    const responseDiv               = document.              getElementById("response")              as HTMLDivElement;
+
+    const confirmToRemoveUserDiv    = document.              getElementById("confirmToRemoveUser")   as HTMLDivElement;
+    const yes                       = confirmToRemoveUserDiv.querySelector ('#yes')                  as HTMLButtonElement;
+    const no                        = confirmToRemoveUserDiv.querySelector ('#no')                   as HTMLButtonElement;
+
+    const removalFailedDiv          = document.              getElementById("removalFailed")         as HTMLDivElement;
+    const removalFailedReason       = removalFailedDiv.      querySelector ('#reason')               as HTMLDivElement;
+    const ok                        = removalFailedDiv.      querySelector ('#ok')                   as HTMLButtonElement;
+
+    ok.onclick                      = () => { removalFailedDiv.style.display  = "none"; }
 
 
     HTTPGet("/organizations/" + organizationId + "?showMgt&expand=members",

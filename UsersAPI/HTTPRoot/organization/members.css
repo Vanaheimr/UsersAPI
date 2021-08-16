@@ -78,9 +78,10 @@ body #page #right #text #organization {
             body #page #right #text #organization #data .row .memberGroup .member .frame .tools button {
               border: 0;
               background: #fd933b;
-              font-size: 80%;
+              font-size: 70%;
               white-space: nowrap;
-              padding: 10px 20px;
+              padding: 8px 14px;
+              margin: 0px 1px;
               border-radius: 6px; }
       body #page #right #text #organization #data .row .memberGroup .member:hover {
         background-color: rgba(255, 115, 0, 0.2); }

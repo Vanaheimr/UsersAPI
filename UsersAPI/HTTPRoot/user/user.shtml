@@ -9,7 +9,7 @@
     </div>
 
     <div id="upperButtons">
-        <button id="removeButton"      class="button" disabled><i class="fas fa-trash-alt"></i> Remove</button>
+        <button id="deleteUserButton"  class="button" disabled><i class="fas fa-trash-alt"></i> Delete</button>
         <button id="impersonateButton" class="button" disabled><i class="fas fa-theater-masks"></i> Impersonate</button>
     </div>
 
@@ -91,6 +91,37 @@
         <button id="saveButton" class="button" disabled>Save changes</button>
     </div>
 
+</div>
+
+<div id="confirmToDeleteUser" class="fullScreenDialog">
+    <div class="box">
+        <div id="headline">
+            Please confirm!
+        </div>
+        <div id="body">
+            <div id="confirmation">
+                Do you really want to delete this user?
+            </div>
+            <div id="buttons">
+                <button id="yes">Yes</button>
+                <button id="no">No</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="deletionFailed" class="fullScreenDialog">
+    <div class="box withErrors">
+        <div id="headline">
+            Can not delete this user!
+        </div>
+        <div id="body">
+            <div id="reason"></div>
+            <div id="buttons">
+                <button id="ok">Ok</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script type="text/javascript">

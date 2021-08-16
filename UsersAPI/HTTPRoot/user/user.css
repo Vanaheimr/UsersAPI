@@ -14,5 +14,7 @@
       width: 150px; }
   #userProfile #impersonateButton {
     display: none; }
+  #userProfile #deleteUserButton {
+    display: none; }
   #userProfile #saveButton {
     display: none; }
