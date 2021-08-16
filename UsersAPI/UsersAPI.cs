@@ -2446,7 +2446,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="ExternalDNSName">The offical URL/DNS name of this service, e.g. for sending e-mails.</param>
         /// <param name="HTTPPort">A TCP port to listen on.</param>
         /// <param name="BasePath">When the API is served from an optional subdirectory path.</param>
-        /// <param name="HTTPServerName">The default HTTP servername, used whenever no HTTP Host-header had been given.</param>
+        /// <param name="HTTPServerName">The default HTTP servername, used whenever no HTTP Host-header has been given.</param>
         /// 
         /// <param name="URLPathPrefix">A common prefix for all URLs.</param>
         /// <param name="ServiceName">The name of the service.</param>
@@ -15044,11 +15044,11 @@ namespace social.OpenData.UsersAPI
         /// <param name="OldUser">The old/updated user.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected internal async Task SendNotifications<TUser>(TUser                    User,
-                                                               NotificationMessageType  MessageType,
-                                                               TUser                    OldUser           = null,
-                                                               EventTracking_Id         EventTrackingId   = null,
-                                                               User_Id?                 CurrentUserId     = null)
+        protected internal async virtual Task SendNotifications<TUser>(TUser                    User,
+                                                                       NotificationMessageType  MessageType,
+                                                                       TUser                    OldUser           = null,
+                                                                       EventTracking_Id         EventTrackingId   = null,
+                                                                       User_Id?                 CurrentUserId     = null)
 
             where TUser : User
 
@@ -15079,11 +15079,11 @@ namespace social.OpenData.UsersAPI
         /// <param name="OldUser">The old/updated user.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected async Task SendNotifications<TUser>(TUser                                 User,
-                                                      IEnumerable<NotificationMessageType>  MessageTypes,
-                                                      TUser                                 OldUser           = null,
-                                                      EventTracking_Id                      EventTrackingId   = null,
-                                                      User_Id?                              CurrentUserId     = null)
+        protected internal async virtual Task SendNotifications<TUser>(TUser                                 User,
+                                                                       IEnumerable<NotificationMessageType>  MessageTypes,
+                                                                       TUser                                 OldUser           = null,
+                                                                       EventTracking_Id                      EventTrackingId   = null,
+                                                                       User_Id?                              CurrentUserId     = null)
 
             where TUser : User
 
@@ -15165,7 +15165,7 @@ namespace social.OpenData.UsersAPI
 
                         if (messageTypes.Contains(updateUser_MessageType))
                         {
-                            await TelegramStore.SendTelegrams(String.Concat("User '", User.Name, "' information has been successfully updated. ",
+                            await TelegramStore.SendTelegrams(String.Concat("User '", User.Name, "' information had been successfully updated. ",
                                                                             "https://", ExternalDNSName, BasePath, "/users/", User.Id),
                                                                             // + {Updated information}
                                                               AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
@@ -15173,7 +15173,7 @@ namespace social.OpenData.UsersAPI
 
                         if (messageTypes.Contains(removeUser_MessageType))
                         {
-                            await TelegramStore.SendTelegrams(String.Concat("User '", User.Name, "' information has been removed. ",
+                            await TelegramStore.SendTelegrams(String.Concat("User '", User.Name, "' information had been removed. ",
                                                                             "If you haven't approved this request, please contact support: support@cardi-link.com"),
                                                               AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
                         }
@@ -15219,7 +15219,7 @@ namespace social.OpenData.UsersAPI
 
                         if (messageTypes.Contains(updateUser_MessageType))
                         {
-                            SendSMS(String.Concat("User '", User.Name, "' information has been successfully updated. ",
+                            SendSMS(String.Concat("User '", User.Name, "' information had been successfully updated. ",
                                                   "https://", ExternalDNSName, BasePath, "/users/", User.Id),
                                                   // + {Updated information}
                                     AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
@@ -15228,7 +15228,7 @@ namespace social.OpenData.UsersAPI
 
                         if (messageTypes.Contains(removeUser_MessageType))
                         {
-                            SendSMS(String.Concat("User '", User.Name, "' information has been removed. ",
+                            SendSMS(String.Concat("User '", User.Name, "' information had been removed. ",
                                                   "If you haven't approved this request, please contact support: support@cardi-link.com"),
                                     AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
                                     SMSSenderName);
@@ -15358,14 +15358,14 @@ namespace social.OpenData.UsersAPI
                                          From           = Robot.EMail,
                                          To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
                                          Passphrase     = APIPassphrase,
-                                         Subject        = String.Concat("User '" + User.Name + "' information has been successfully updated."), // + {Updated information}  + link {User_ID_baseData page}."),
+                                         Subject        = String.Concat("User '" + User.Name + "' information had been successfully updated."), // + {Updated information}  + link {User_ID_baseData page}."),
 
                                          HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                        "User <a href=\"https://", ExternalDNSName, BasePath, "/users/", User.Id, "\">", User.Name, "</a> information has been successfully updated.", // + {Updated information}  + link {User_ID_baseData page}.",
+                                                                        "User <a href=\"https://", ExternalDNSName, BasePath, "/users/", User.Id, "\">", User.Name, "</a> information had been successfully updated.", // + {Updated information}  + link {User_ID_baseData page}.",
                                                                         HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
                                          PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                        "User '" + User.Name + "' information has been successfully updated.\r\n",
+                                                                        "User '" + User.Name + "' information had been successfully updated.\r\n",
                                                                         "https://", ExternalDNSName, BasePath, "/users/", User.Id, "\r\r\r\r",
                                                                         // + {Updated information}
                                                                         TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
@@ -15383,15 +15383,14 @@ namespace social.OpenData.UsersAPI
                                          From           = Robot.EMail,
                                          To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
                                          Passphrase     = APIPassphrase,
-                                         Subject        = String.Concat("User '" + User.Name + "' information has been removed."),
+                                         Subject        = String.Concat("User '" + User.Name + "' information had been removed."),
 
                                          HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                        "User <a href=\"https://", ExternalDNSName, BasePath, "/users/", User.Id, "\">", User.Name, "</a> information has been removed. If you haven't approved this request, please contact support: <a href=\"mailto:support@cardi-link.com\">support@cardi-link.com</a>",
+                                                                        "User <a href=\"https://", ExternalDNSName, BasePath, "/users/", User.Id, "\">", User.Name, "</a> information had been removed.",
                                                                         HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
                                          PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                        "User '" + User.Name + "' information has been removed.\r\n",
-                                                                        "If you haven't approved this request, please contact support: support@cardi-link.com\r\r\r\r",
+                                                                        "User '" + User.Name + "' information had been removed.\r\n",
                                                                         TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
                                          SecurityLevel  = EMailSecurity.sign
@@ -15465,7 +15464,7 @@ namespace social.OpenData.UsersAPI
         /// Add the given user to the API.
         /// </summary>
         /// <param name="User">A new user to be added to this API.</param>
-        /// <param name="OnAdded">A delegate run whenever the user had been added successfully.</param>
+        /// <param name="OnAdded">A delegate run whenever the user has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         protected internal async Task<AddUserResult> _AddUser(User                            User,
@@ -15573,7 +15572,7 @@ namespace social.OpenData.UsersAPI
         /// Add the given user.
         /// </summary>
         /// <param name="User">A new user.</param>
-        /// <param name="OnAdded">A delegate run whenever the user had been added successfully.</param>
+        /// <param name="OnAdded">A delegate run whenever the user has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<AddUserResult> AddUser(User                            User,
@@ -15631,7 +15630,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="User">A new user.</param>
         /// <param name="AccessRight">The organization membership of the new user.</param>
         /// <param name="Organization">The organization of the new user.</param>
-        /// <param name="OnAdded">A delegate run whenever the user had been added successfully.</param>
+        /// <param name="OnAdded">A delegate run whenever the user has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<AddUserResult> AddUser(User                            User,
@@ -15708,7 +15707,7 @@ namespace social.OpenData.UsersAPI
         /// When it has not been created before, add the given user to the API.
         /// </summary>
         /// <param name="User">A new user to be added to this API.</param>
-        /// <param name="OnAdded">A delegate run whenever the user had been added successfully.</param>
+        /// <param name="OnAdded">A delegate run whenever the user has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         protected internal async Task<AddUserIfNotExistsResult> _AddUserIfNotExists(User                            User,
@@ -15813,7 +15812,7 @@ namespace social.OpenData.UsersAPI
         /// Add the given user.
         /// </summary>
         /// <param name="User">A new user.</param>
-        /// <param name="OnAdded">A delegate run whenever the user had been added successfully.</param>
+        /// <param name="OnAdded">A delegate run whenever the user has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<AddUserIfNotExistsResult> AddUserIfNotExists(User                            User,
@@ -15871,7 +15870,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="User">A new user.</param>
         /// <param name="Membership">The organization membership of the new user.</param>
         /// <param name="Organization">The organization of the new user.</param>
-        /// <param name="OnAdded">A delegate run whenever the user had been added successfully.</param>
+        /// <param name="OnAdded">A delegate run whenever the user has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<AddUserIfNotExistsResult> AddUserIfNotExists(User                            User,
@@ -15948,8 +15947,8 @@ namespace social.OpenData.UsersAPI
         /// Add or update the given user to/within the API.
         /// </summary>
         /// <param name="User">A user.</param>
-        /// <param name="OnAdded">A delegate run whenever the user had been added successfully.</param>
-        /// <param name="OnUpdated">A delegate run whenever the user had been updated successfully.</param>
+        /// <param name="OnAdded">A delegate run whenever the user has been added successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the user has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         protected internal async Task<AddOrUpdateUserResult> _AddOrUpdateUser(User                            User,
@@ -16088,8 +16087,8 @@ namespace social.OpenData.UsersAPI
         /// Add or update the given user to/within the API.
         /// </summary>
         /// <param name="User">A user.</param>
-        /// <param name="OnAdded">A delegate run whenever the user had been added successfully.</param>
-        /// <param name="OnUpdated">A delegate run whenever the user had been updated successfully.</param>
+        /// <param name="OnAdded">A delegate run whenever the user has been added successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the user has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<AddOrUpdateUserResult> AddOrUpdateUser(User                            User,
@@ -16149,8 +16148,8 @@ namespace social.OpenData.UsersAPI
         /// <param name="User">A user.</param>
         /// <param name="Membership">The organization membership of the new user.</param>
         /// <param name="Organization">The organization of the new user.</param>
-        /// <param name="OnAdded">A delegate run whenever the user had been added successfully.</param>
-        /// <param name="OnUpdated">A delegate run whenever the user had been updated successfully.</param>
+        /// <param name="OnAdded">A delegate run whenever the user has been added successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the user has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<AddOrUpdateUserResult> AddOrUpdateUser(User                            User,
@@ -16245,7 +16244,7 @@ namespace social.OpenData.UsersAPI
         /// Update the given user to/within the API.
         /// </summary>
         /// <param name="User">A user.</param>
-        /// <param name="OnUpdated">A delegate run whenever the user had been updated successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the user has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         protected internal async Task<UpdateUserResult> _UpdateUser(User                            User,
@@ -16317,7 +16316,7 @@ namespace social.OpenData.UsersAPI
         /// Update the given user to/within the API.
         /// </summary>
         /// <param name="User">A user.</param>
-        /// <param name="OnUpdated">A delegate run whenever the user had been updated successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the user has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<UpdateUserResult> UpdateUser(User                            User,
@@ -16375,7 +16374,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="User">A user.</param>
         /// <param name="UpdateDelegate">A delegate to update the given user.</param>
-        /// <param name="OnUpdated">A delegate run whenever the user had been updated successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the user has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         protected internal async Task<UpdateUserResult> _UpdateUser(User                            User,
@@ -16457,7 +16456,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="User">A user.</param>
         /// <param name="UpdateDelegate">A delegate to update the given user.</param>
-        /// <param name="OnUpdated">A delegate run whenever the user had been updated successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the user has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<UpdateUserResult> UpdateUser(User                            User,
@@ -16820,7 +16819,7 @@ namespace social.OpenData.UsersAPI
         /// Remove the given user from the API.
         /// </summary>
         /// <param name="User">The user to be removed.</param>
-        /// <param name="OnRemoved">A delegate run whenever the user had been removed successfully.</param>
+        /// <param name="OnRemoved">A delegate run whenever the user has been removed successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         protected internal async Task<RemoveUserResult> _RemoveUser(User                            User,
@@ -16899,7 +16898,7 @@ namespace social.OpenData.UsersAPI
         /// Remove the given user from the API.
         /// </summary>
         /// <param name="User">The user to be removed.</param>
-        /// <param name="OnRemoved">A delegate run whenever the user had been removed successfully.</param>
+        /// <param name="OnRemoved">A delegate run whenever the user has been removed successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<RemoveUserResult> RemoveUser(User                            User,
@@ -17168,7 +17167,7 @@ namespace social.OpenData.UsersAPI
         /// Add the given user group to the API.
         /// </summary>
         /// <param name="UserGroup">A new user group to be added to this API.</param>
-        /// <param name="OnAdded">A delegate run whenever the user group had been added successfully.</param>
+        /// <param name="OnAdded">A delegate run whenever the user group has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         protected internal async Task<UserGroup> _AddUserGroup(UserGroup                            UserGroup,
@@ -17234,7 +17233,7 @@ namespace social.OpenData.UsersAPI
         /// Add the given user group.
         /// </summary>
         /// <param name="UserGroup">A new user group.</param>
-        /// <param name="OnAdded">A delegate run whenever the user group had been added successfully.</param>
+        /// <param name="OnAdded">A delegate run whenever the user group has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<UserGroup> AddUserGroup(UserGroup                            UserGroup,
@@ -17283,7 +17282,7 @@ namespace social.OpenData.UsersAPI
         /// When it has not been created before, add the given user group to the API.
         /// </summary>
         /// <param name="UserGroup">A new user group to be added to this API.</param>
-        /// <param name="OnAdded">A delegate run whenever the user group had been added successfully.</param>
+        /// <param name="OnAdded">A delegate run whenever the user group has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         protected internal async Task<UserGroup> _AddUserGroupIfNotExists(UserGroup                            UserGroup,
@@ -17347,7 +17346,7 @@ namespace social.OpenData.UsersAPI
         /// Add the given user group.
         /// </summary>
         /// <param name="UserGroup">A new user group.</param>
-        /// <param name="OnAdded">A delegate run whenever the user group had been added successfully.</param>
+        /// <param name="OnAdded">A delegate run whenever the user group has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<UserGroup> AddUserGroupIfNotExists(UserGroup                            UserGroup,
@@ -17393,8 +17392,8 @@ namespace social.OpenData.UsersAPI
         /// Add or update the given user group to/within the API.
         /// </summary>
         /// <param name="UserGroup">A user group.</param>
-        /// <param name="OnAdded">A delegate run whenever the user group had been added successfully.</param>
-        /// <param name="OnUpdated">A delegate run whenever the user group had been updated successfully.</param>
+        /// <param name="OnAdded">A delegate run whenever the user group has been added successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the user group has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user group identification initiating this command/request.</param>
         protected internal async Task<UserGroup> _AddOrUpdateUserGroup(UserGroup                            UserGroup,
@@ -17491,8 +17490,8 @@ namespace social.OpenData.UsersAPI
         /// Add or update the given user group to/within the API.
         /// </summary>
         /// <param name="UserGroup">A user group.</param>
-        /// <param name="OnAdded">A delegate run whenever the user group had been added successfully.</param>
-        /// <param name="OnUpdated">A delegate run whenever the user group had been updated successfully.</param>
+        /// <param name="OnAdded">A delegate run whenever the user group has been added successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the user group has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user group identification initiating this command/request.</param>
         public async Task<UserGroup> AddOrUpdateUserGroup(UserGroup                            UserGroup,
@@ -17563,7 +17562,7 @@ namespace social.OpenData.UsersAPI
         /// Update the given user group to/within the API.
         /// </summary>
         /// <param name="UserGroup">A user group.</param>
-        /// <param name="OnUpdated">A delegate run whenever the user group had been updated successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the user group has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user group identification initiating this command/request.</param>
         protected internal async Task<UserGroup> _UpdateUserGroup(UserGroup                            UserGroup,
@@ -17627,7 +17626,7 @@ namespace social.OpenData.UsersAPI
         /// Update the given user group to/within the API.
         /// </summary>
         /// <param name="UserGroup">A user group.</param>
-        /// <param name="OnUpdated">A delegate run whenever the user group had been updated successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the user group has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user group identification initiating this command/request.</param>
         public async Task<UserGroup> UpdateUserGroup(UserGroup                            UserGroup,
@@ -17674,7 +17673,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="UserGroupId">An user group identification.</param>
         /// <param name="UpdateDelegate">A delegate to update the given user group.</param>
-        /// <param name="OnUpdated">A delegate run whenever the user group had been updated successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the user group has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user group identification initiating this command/request.</param>
         protected internal async Task<UserGroup> _UpdateUserGroup(UserGroup_Id                         UserGroupId,
@@ -17742,7 +17741,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="UserGroupId">An user group identification.</param>
         /// <param name="UpdateDelegate">A delegate to update the given user group.</param>
-        /// <param name="OnUpdated">A delegate run whenever the user group had been updated successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the user group has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user group identification initiating this command/request.</param>
         public async Task<UserGroup> UpdateUserGroup(UserGroup_Id                         UserGroupId,
@@ -18209,7 +18208,7 @@ namespace social.OpenData.UsersAPI
         /// Remove the given user group from the API.
         /// </summary>
         /// <param name="UserGroup">The user group to be removed from this API.</param>
-        /// <param name="OnRemoved">A delegate run whenever the user group had been removed successfully.</param>
+        /// <param name="OnRemoved">A delegate run whenever the user group has been removed successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user group identification initiating this command/request.</param>
         protected internal async Task<RemoveUserGroupResult> _RemoveUserGroup(UserGroup                            UserGroup,
@@ -18277,7 +18276,7 @@ namespace social.OpenData.UsersAPI
         /// Remove the given user group from the API.
         /// </summary>
         /// <param name="UserGroup">The user group to be removed from this API.</param>
-        /// <param name="OnRemoved">A delegate run whenever the user group had been removed successfully.</param>
+        /// <param name="OnRemoved">A delegate run whenever the user group has been removed successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user group identification initiating this command/request.</param>
         public async Task<RemoveUserGroupResult> RemoveUserGroup(UserGroup                            UserGroup,
@@ -18779,7 +18778,7 @@ namespace social.OpenData.UsersAPI
         /// Add the given API key to the API.
         /// </summary>
         /// <param name="APIKey">A new API key to be added to this API.</param>
-        /// <param name="OnAdded">A delegate run whenever the API key had been added successfully.</param>
+        /// <param name="OnAdded">A delegate run whenever the API key has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         protected internal async Task<AddAPIKeyResult> _AddAPIKey(APIKey                            APIKey,
@@ -18854,7 +18853,7 @@ namespace social.OpenData.UsersAPI
         /// Add the given API key.
         /// </summary>
         /// <param name="APIKey">A new API key.</param>
-        /// <param name="OnAdded">A delegate run whenever the API key had been added successfully.</param>
+        /// <param name="OnAdded">A delegate run whenever the API key has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<AddAPIKeyResult> AddAPIKey(APIKey                            APIKey,
@@ -18914,7 +18913,7 @@ namespace social.OpenData.UsersAPI
         /// When it has not been created before, add the given API key to the API.
         /// </summary>
         /// <param name="APIKey">A new API key to be added to this API.</param>
-        /// <param name="OnAdded">A delegate run whenever the API key had been added successfully.</param>
+        /// <param name="OnAdded">A delegate run whenever the API key has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         protected internal async Task<AddAPIKeyIfNotExistsResult> _AddAPIKeyIfNotExists(APIKey                            APIKey,
@@ -18986,7 +18985,7 @@ namespace social.OpenData.UsersAPI
         /// Add the given API key.
         /// </summary>
         /// <param name="APIKey">A new API key.</param>
-        /// <param name="OnAdded">A delegate run whenever the API key had been added successfully.</param>
+        /// <param name="OnAdded">A delegate run whenever the API key has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<AddAPIKeyIfNotExistsResult> AddAPIKeyIfNotExists(APIKey                            APIKey,
@@ -19046,8 +19045,8 @@ namespace social.OpenData.UsersAPI
         /// Add or update the given API key to/within the API.
         /// </summary>
         /// <param name="APIKey">A API key.</param>
-        /// <param name="OnAdded">A delegate run whenever the API key had been added successfully.</param>
-        /// <param name="OnUpdated">A delegate run whenever the API key had been updated successfully.</param>
+        /// <param name="OnAdded">A delegate run whenever the API key has been added successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the API key has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional API key identification initiating this command/request.</param>
         protected internal async Task<AddOrUpdateAPIKeyResult> _AddOrUpdateAPIKey(APIKey                            APIKey,
@@ -19149,8 +19148,8 @@ namespace social.OpenData.UsersAPI
         /// Add or update the given API key to/within the API.
         /// </summary>
         /// <param name="APIKey">A API key.</param>
-        /// <param name="OnAdded">A delegate run whenever the API key had been added successfully.</param>
-        /// <param name="OnUpdated">A delegate run whenever the API key had been updated successfully.</param>
+        /// <param name="OnAdded">A delegate run whenever the API key has been added successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the API key has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional API key identification initiating this command/request.</param>
         public async Task<AddOrUpdateAPIKeyResult> AddOrUpdateAPIKey(APIKey                            APIKey,
@@ -19232,7 +19231,7 @@ namespace social.OpenData.UsersAPI
         /// Update the given API key to/within the API.
         /// </summary>
         /// <param name="APIKey">A API key.</param>
-        /// <param name="OnUpdated">A delegate run whenever the API key had been updated successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the API key has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional API key identification initiating this command/request.</param>
         protected internal async Task<UpdateAPIKeyResult> _UpdateAPIKey(APIKey                            APIKey,
@@ -19304,7 +19303,7 @@ namespace social.OpenData.UsersAPI
         /// Update the given API key to/within the API.
         /// </summary>
         /// <param name="APIKey">A API key.</param>
-        /// <param name="OnUpdated">A delegate run whenever the API key had been updated successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the API key has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional API key identification initiating this command/request.</param>
         public async Task<UpdateAPIKeyResult> UpdateAPIKey(APIKey                            APIKey,
@@ -19362,7 +19361,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="APIKey">A API key.</param>
         /// <param name="UpdateDelegate">A delegate to update the given API key.</param>
-        /// <param name="OnUpdated">A delegate run whenever the API key had been updated successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the API key has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional API key identification initiating this command/request.</param>
         protected internal async Task<UpdateAPIKeyResult> _UpdateAPIKey(APIKey                            APIKey,
@@ -19444,7 +19443,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="APIKey">A API key.</param>
         /// <param name="UpdateDelegate">A delegate to update the given API key.</param>
-        /// <param name="OnUpdated">A delegate run whenever the API key had been updated successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the API key has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional API key identification initiating this command/request.</param>
         public async Task<UpdateAPIKeyResult> UpdateAPIKey(APIKey                            APIKey,
@@ -20017,7 +20016,7 @@ namespace social.OpenData.UsersAPI
         /// Remove the given API key from the API.
         /// </summary>
         /// <param name="APIKey">The API key to be removed.</param>
-        /// <param name="OnRemoved">A delegate run whenever the API key had been removed successfully.</param>
+        /// <param name="OnRemoved">A delegate run whenever the API key has been removed successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional API key identification initiating this command/request.</param>
         protected internal async Task<RemoveAPIKeyResult> _RemoveAPIKey(APIKey                            APIKey,
@@ -20084,7 +20083,7 @@ namespace social.OpenData.UsersAPI
         /// Remove the given API key from the API.
         /// </summary>
         /// <param name="APIKey">The API key to be removed from this API.</param>
-        /// <param name="OnRemoved">A delegate run whenever the API key had been removed successfully.</param>
+        /// <param name="OnRemoved">A delegate run whenever the API key has been removed successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional API key identification initiating this command/request.</param>
         public async Task<RemoveAPIKeyResult> RemoveAPIKey(APIKey                            APIKey,
@@ -20348,7 +20347,7 @@ namespace social.OpenData.UsersAPI
         /// Add the given message to the API.
         /// </summary>
         /// <param name="Message">A new message to be added to this API.</param>
-        /// <param name="OnAdded">A delegate run whenever the message had been added successfully.</param>
+        /// <param name="OnAdded">A delegate run whenever the message has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         protected internal async Task<Message> _AddMessage(Message                            Message,
@@ -20414,7 +20413,7 @@ namespace social.OpenData.UsersAPI
         /// Add the given message.
         /// </summary>
         /// <param name="Message">A new message.</param>
-        /// <param name="OnAdded">A delegate run whenever the message had been added successfully.</param>
+        /// <param name="OnAdded">A delegate run whenever the message has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<Message> AddMessage(Message                            Message,
@@ -20463,7 +20462,7 @@ namespace social.OpenData.UsersAPI
         /// When it has not been created before, add the given message to the API.
         /// </summary>
         /// <param name="Message">A new message to be added to this API.</param>
-        /// <param name="OnAdded">A delegate run whenever the message had been added successfully.</param>
+        /// <param name="OnAdded">A delegate run whenever the message has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         protected internal async Task<Message> _AddMessageIfNotExists(Message                            Message,
@@ -20527,7 +20526,7 @@ namespace social.OpenData.UsersAPI
         /// Add the given message.
         /// </summary>
         /// <param name="Message">A new message.</param>
-        /// <param name="OnAdded">A delegate run whenever the message had been added successfully.</param>
+        /// <param name="OnAdded">A delegate run whenever the message has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<Message> AddMessageIfNotExists(Message                            Message,
@@ -20573,8 +20572,8 @@ namespace social.OpenData.UsersAPI
         /// Add or update the given message to/within the API.
         /// </summary>
         /// <param name="Message">A message.</param>
-        /// <param name="OnAdded">A delegate run whenever the message had been added successfully.</param>
-        /// <param name="OnUpdated">A delegate run whenever the message had been updated successfully.</param>
+        /// <param name="OnAdded">A delegate run whenever the message has been added successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the message has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional message identification initiating this command/request.</param>
         protected internal async Task<Message> _AddOrUpdateMessage(Message                            Message,
@@ -20671,8 +20670,8 @@ namespace social.OpenData.UsersAPI
         /// Add or update the given message to/within the API.
         /// </summary>
         /// <param name="Message">A message.</param>
-        /// <param name="OnAdded">A delegate run whenever the message had been added successfully.</param>
-        /// <param name="OnUpdated">A delegate run whenever the message had been updated successfully.</param>
+        /// <param name="OnAdded">A delegate run whenever the message has been added successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the message has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional message identification initiating this command/request.</param>
         public async Task<Message> AddOrUpdateMessage(Message                            Message,
@@ -20743,7 +20742,7 @@ namespace social.OpenData.UsersAPI
         /// Update the given message to/within the API.
         /// </summary>
         /// <param name="Message">A message.</param>
-        /// <param name="OnUpdated">A delegate run whenever the message had been updated successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the message has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional message identification initiating this command/request.</param>
         protected internal async Task<Message> _UpdateMessage(Message                            Message,
@@ -20807,7 +20806,7 @@ namespace social.OpenData.UsersAPI
         /// Update the given message to/within the API.
         /// </summary>
         /// <param name="Message">A message.</param>
-        /// <param name="OnUpdated">A delegate run whenever the message had been updated successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the message has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional message identification initiating this command/request.</param>
         public async Task<Message> UpdateMessage(Message                            Message,
@@ -20854,7 +20853,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="MessageId">An message identification.</param>
         /// <param name="UpdateDelegate">A delegate to update the given message.</param>
-        /// <param name="OnUpdated">A delegate run whenever the message had been updated successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the message has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional message identification initiating this command/request.</param>
         protected internal async Task<Message> _UpdateMessage(Message_Id                         MessageId,
@@ -20922,7 +20921,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="MessageId">An message identification.</param>
         /// <param name="UpdateDelegate">A delegate to update the given message.</param>
-        /// <param name="OnUpdated">A delegate run whenever the message had been updated successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the message has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional message identification initiating this command/request.</param>
         public async Task<Message> UpdateMessage(Message_Id                         MessageId,
@@ -21208,7 +21207,7 @@ namespace social.OpenData.UsersAPI
         /// Remove the given message from the API.
         /// </summary>
         /// <param name="Message">The message to be removed from this API.</param>
-        /// <param name="OnRemoved">A delegate run whenever the message had been removed successfully.</param>
+        /// <param name="OnRemoved">A delegate run whenever the message has been removed successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional message identification initiating this command/request.</param>
         protected internal async Task<DeleteMessageResult> _RemoveMessage(Message                            Message,
@@ -21273,7 +21272,7 @@ namespace social.OpenData.UsersAPI
         /// Remove the given message from the API.
         /// </summary>
         /// <param name="Message">The message to be removed from this API.</param>
-        /// <param name="OnRemoved">A delegate run whenever the message had been removed successfully.</param>
+        /// <param name="OnRemoved">A delegate run whenever the message has been removed successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional message identification initiating this command/request.</param>
         public async Task<DeleteMessageResult> RemoveMessage(Message                            Message,
@@ -23959,11 +23958,11 @@ namespace social.OpenData.UsersAPI
         /// <param name="OldOrganization">The old/updated organization.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking organization identification</param>
-        protected internal async Task SendNotifications(Organization             Organization,
-                                                        NotificationMessageType  MessageType,
-                                                        Organization             OldOrganization   = null,
-                                                        EventTracking_Id         EventTrackingId   = null,
-                                                        User_Id?                 CurrentUserId     = null)
+        protected internal async virtual Task SendNotifications(Organization             Organization,
+                                                                NotificationMessageType  MessageType,
+                                                                Organization             OldOrganization   = null,
+                                                                EventTracking_Id         EventTrackingId   = null,
+                                                                User_Id?                 CurrentUserId     = null)
         {
 
             if (Organization is null)
@@ -23990,11 +23989,11 @@ namespace social.OpenData.UsersAPI
         /// <param name="OldOrganization">The old/updated organization.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking organization identification</param>
-        protected async Task SendNotifications(Organization                          Organization,
-                                               IEnumerable<NotificationMessageType>  MessageTypes,
-                                               Organization                          OldOrganization   = null,
-                                               EventTracking_Id                      EventTrackingId   = null,
-                                               User_Id?                              CurrentUserId     = null)
+        protected internal async virtual Task SendNotifications(Organization                          Organization,
+                                                                IEnumerable<NotificationMessageType>  MessageTypes,
+                                                                Organization                          OldOrganization   = null,
+                                                                EventTracking_Id                      EventTrackingId   = null,
+                                                                User_Id?                              CurrentUserId     = null)
         {
 
             if (Organization is null)
@@ -24044,7 +24043,7 @@ namespace social.OpenData.UsersAPI
 
                         if (messageTypes.Contains(updateOrganization_MessageType))
                         {
-                            await TelegramStore.SendTelegrams(String.Concat("Organization '", Organization.Name.FirstText(), "' information has been successfully updated. ",
+                            await TelegramStore.SendTelegrams(String.Concat("Organization '", Organization.Name.FirstText(), "' information had been successfully updated. ",
                                                                             "https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id),
                                                                             // + {Updated information}
                                                               AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
@@ -24093,7 +24092,7 @@ namespace social.OpenData.UsersAPI
 
                         if (messageTypes.Contains(updateOrganization_MessageType))
                         {
-                            SendSMS(String.Concat("Organization '", Organization.Name.FirstText(), "' information has been successfully updated. ",
+                            SendSMS(String.Concat("Organization '", Organization.Name.FirstText(), "' information had been successfully updated. ",
                                                   "https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id),
                                                   // + {Updated information}
                                     AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
@@ -24230,15 +24229,15 @@ namespace social.OpenData.UsersAPI
                                          From           = Robot.EMail,
                                          To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
                                          Passphrase     = APIPassphrase,
-                                         Subject        = String.Concat("Organization '", Organization.Name.FirstText(), "' information has been successfully updated."),
+                                         Subject        = String.Concat("Organization '", Organization.Name.FirstText(), "' information had been successfully updated."),
 
                                          HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                        "Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a> information has been successfully updated.",
+                                                                        "Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a> information had been successfully updated.",
                                                                         // + {Updated information}",
                                                                         HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
                                          PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                        "Organization '", Organization.Name.FirstText(), "' information has been successfully updated.\r\n",
+                                                                        "Organization '", Organization.Name.FirstText(), "' information had been successfully updated.\r\n",
                                                                         "https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\r\r\r\r",
                                                                         // + {Updated information}",
                                                                         TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
@@ -24260,12 +24259,10 @@ namespace social.OpenData.UsersAPI
 
                                          HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
                                                                         "Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a> has been removed.<br />",
-                                                                        "If you haven't approved this request, please contact support: <a href=\"mailto:support@cardi-link.com\">support@cardi-link.com</a>",
                                                                         HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
                                          PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
                                                                         "Organization '", Organization.Name.FirstText(), "' has been removed.\r\n",
-                                                                        "If you haven't approved this request, please contact support: support@cardi-link.com\r\r\r\r",
                                                                         TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
                                          SecurityLevel  = EMailSecurity.sign
@@ -24347,7 +24344,7 @@ namespace social.OpenData.UsersAPI
         /// Add the given organization to the API.
         /// </summary>
         /// <param name="Organization">A new organization to be added to this API.</param>
-        /// <param name="OnAdded">A delegate run whenever the organization had been added successfully.</param>
+        /// <param name="OnAdded">A delegate run whenever the organization has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional organization identification initiating this command/request.</param>
         protected internal async Task<AddOrganizationResult> _AddOrganization(Organization                            Organization,
@@ -24434,7 +24431,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="Organization">A new organization.</param>
         /// <param name="ParentOrganization">The parent organization of the new organization.</param>
-        /// <param name="OnAdded">A delegate run whenever the organization had been added successfully.</param>
+        /// <param name="OnAdded">A delegate run whenever the organization has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional organization identification initiating this command/request.</param>
         public async Task<AddOrganizationResult> AddOrganization(Organization                            Organization,
@@ -24539,7 +24536,7 @@ namespace social.OpenData.UsersAPI
         /// When it has not been created before, add the given organization to the API.
         /// </summary>
         /// <param name="Organization">A new organization to be added to this API.</param>
-        /// <param name="OnAdded">A delegate run whenever the organization had been added successfully.</param>
+        /// <param name="OnAdded">A delegate run whenever the organization has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional organization identification initiating this command/request.</param>
         protected internal async Task<AddOrganizationIfNotExistsResult> _AddOrganizationIfNotExists(Organization                            Organization,
@@ -24624,7 +24621,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="Organization">A new organization.</param>
         /// <param name="ParentOrganization">The parent organization of the new organization.</param>
-        /// <param name="OnAdded">A delegate run whenever the organization had been added successfully.</param>
+        /// <param name="OnAdded">A delegate run whenever the organization has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional organization identification initiating this command/request.</param>
         public async Task<AddOrganizationIfNotExistsResult> AddOrganizationIfNotExists(Organization                            Organization,
@@ -24728,8 +24725,8 @@ namespace social.OpenData.UsersAPI
         /// Add or update the given organization to/within the API.
         /// </summary>
         /// <param name="Organization">A organization.</param>
-        /// <param name="OnAdded">A delegate run whenever the organization had been added successfully.</param>
-        /// <param name="OnUpdated">A delegate run whenever the organization had been updated successfully.</param>
+        /// <param name="OnAdded">A delegate run whenever the organization has been added successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the organization has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional organization identification initiating this command/request.</param>
         protected internal async Task<AddOrUpdateOrganizationResult> _AddOrUpdateOrganization(Organization                            Organization,
@@ -24847,8 +24844,8 @@ namespace social.OpenData.UsersAPI
         /// Add or update the given organization to/within the API.
         /// </summary>
         /// <param name="Organization">A organization.</param>
-        /// <param name="OnAdded">A delegate run whenever the organization had been added successfully.</param>
-        /// <param name="OnUpdated">A delegate run whenever the organization had been updated successfully.</param>
+        /// <param name="OnAdded">A delegate run whenever the organization has been added successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the organization has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional organization identification initiating this command/request.</param>
         public async Task<AddOrUpdateOrganizationResult> AddOrUpdateOrganization(Organization                            Organization,
@@ -24907,8 +24904,8 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="Organization">A organization.</param>
         /// <param name="ParentOrganization">The parent organization of the new organization.</param>
-        /// <param name="OnAdded">A delegate run whenever the organization had been added successfully.</param>
-        /// <param name="OnUpdated">A delegate run whenever the organization had been updated successfully.</param>
+        /// <param name="OnAdded">A delegate run whenever the organization has been added successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the organization has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional organization identification initiating this command/request.</param>
         public async Task<AddOrUpdateOrganizationResult> AddOrUpdateOrganization(Organization                            Organization,
@@ -25036,7 +25033,7 @@ namespace social.OpenData.UsersAPI
         /// Update the given organization to/within the API.
         /// </summary>
         /// <param name="Organization">A organization.</param>
-        /// <param name="OnUpdated">A delegate run whenever the organization had been updated successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the organization has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional organization identification initiating this command/request.</param>
         protected internal async Task<UpdateOrganizationResult> _UpdateOrganization(Organization                            Organization,
@@ -25108,7 +25105,7 @@ namespace social.OpenData.UsersAPI
         /// Update the given organization to/within the API.
         /// </summary>
         /// <param name="Organization">A organization.</param>
-        /// <param name="OnUpdated">A delegate run whenever the organization had been updated successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the organization has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional organization identification initiating this command/request.</param>
         public async Task<UpdateOrganizationResult> UpdateOrganization(Organization                            Organization,
@@ -25166,7 +25163,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="Organization">An organization.</param>
         /// <param name="UpdateDelegate">A delegate to update the given organization.</param>
-        /// <param name="OnUpdated">A delegate run whenever the organization had been updated successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the organization has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional organization identification initiating this command/request.</param>
         protected internal async Task<UpdateOrganizationResult> _UpdateOrganization(Organization                            Organization,
@@ -25248,7 +25245,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="Organization">An organization.</param>
         /// <param name="UpdateDelegate">A delegate to update the given organization.</param>
-        /// <param name="OnUpdated">A delegate run whenever the organization had been updated successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the organization has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional organization identification initiating this command/request.</param>
         public async Task<UpdateOrganizationResult> UpdateOrganization(Organization                            Organization,
@@ -25727,7 +25724,7 @@ namespace social.OpenData.UsersAPI
         /// Remove the given organization from the API.
         /// </summary>
         /// <param name="Organization">The organization to be removed.</param>
-        /// <param name="OnRemoved">A delegate run whenever the organization had been removed successfully.</param>
+        /// <param name="OnRemoved">A delegate run whenever the organization has been removed successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         protected internal async Task<RemoveOrganizationResult> _RemoveOrganization(Organization                            Organization,
@@ -25814,7 +25811,7 @@ namespace social.OpenData.UsersAPI
         /// Remove the given organization from the API.
         /// </summary>
         /// <param name="Organization">The organization to be removed.</param>
-        /// <param name="OnRemoved">A delegate run whenever the organization had been removed successfully.</param>
+        /// <param name="OnRemoved">A delegate run whenever the organization has been removed successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<RemoveOrganizationResult> RemoveOrganization(Organization                            Organization,
@@ -26083,7 +26080,7 @@ namespace social.OpenData.UsersAPI
         /// Add the given organization group to the API.
         /// </summary>
         /// <param name="OrganizationGroup">A new organization group to be added to this API.</param>
-        /// <param name="OnAdded">A delegate run whenever the organization group had been added successfully.</param>
+        /// <param name="OnAdded">A delegate run whenever the organization group has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         protected internal async Task<OrganizationGroup> _AddOrganizationGroup(OrganizationGroup                            OrganizationGroup,
@@ -26149,7 +26146,7 @@ namespace social.OpenData.UsersAPI
         /// Add the given organization group.
         /// </summary>
         /// <param name="OrganizationGroup">A new organization group.</param>
-        /// <param name="OnAdded">A delegate run whenever the organization group had been added successfully.</param>
+        /// <param name="OnAdded">A delegate run whenever the organization group has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<OrganizationGroup> AddOrganizationGroup(OrganizationGroup                            OrganizationGroup,
@@ -26198,7 +26195,7 @@ namespace social.OpenData.UsersAPI
         /// When it has not been created before, add the given organization group to the API.
         /// </summary>
         /// <param name="OrganizationGroup">A new organization group to be added to this API.</param>
-        /// <param name="OnAdded">A delegate run whenever the organization group had been added successfully.</param>
+        /// <param name="OnAdded">A delegate run whenever the organization group has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         protected internal async Task<OrganizationGroup> _AddOrganizationGroupIfNotExists(OrganizationGroup                            OrganizationGroup,
@@ -26262,7 +26259,7 @@ namespace social.OpenData.UsersAPI
         /// Add the given organization group.
         /// </summary>
         /// <param name="OrganizationGroup">A new organization group.</param>
-        /// <param name="OnAdded">A delegate run whenever the organization group had been added successfully.</param>
+        /// <param name="OnAdded">A delegate run whenever the organization group has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<OrganizationGroup> AddOrganizationGroupIfNotExists(OrganizationGroup                            OrganizationGroup,
@@ -26308,8 +26305,8 @@ namespace social.OpenData.UsersAPI
         /// Add or update the given organization group to/within the API.
         /// </summary>
         /// <param name="OrganizationGroup">A organization group.</param>
-        /// <param name="OnAdded">A delegate run whenever the organization group had been added successfully.</param>
-        /// <param name="OnUpdated">A delegate run whenever the organization group had been updated successfully.</param>
+        /// <param name="OnAdded">A delegate run whenever the organization group has been added successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the organization group has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional organization group identification initiating this command/request.</param>
         protected internal async Task<OrganizationGroup> _AddOrUpdateOrganizationGroup(OrganizationGroup                            OrganizationGroup,
@@ -26406,8 +26403,8 @@ namespace social.OpenData.UsersAPI
         /// Add or update the given organization group to/within the API.
         /// </summary>
         /// <param name="OrganizationGroup">A organization group.</param>
-        /// <param name="OnAdded">A delegate run whenever the organization group had been added successfully.</param>
-        /// <param name="OnUpdated">A delegate run whenever the organization group had been updated successfully.</param>
+        /// <param name="OnAdded">A delegate run whenever the organization group has been added successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the organization group has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional organization group identification initiating this command/request.</param>
         public async Task<OrganizationGroup> AddOrUpdateOrganizationGroup(OrganizationGroup                            OrganizationGroup,
@@ -26478,7 +26475,7 @@ namespace social.OpenData.UsersAPI
         /// Update the given organization group to/within the API.
         /// </summary>
         /// <param name="OrganizationGroup">A organization group.</param>
-        /// <param name="OnUpdated">A delegate run whenever the organization group had been updated successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the organization group has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional organization group identification initiating this command/request.</param>
         protected internal async Task<OrganizationGroup> _UpdateOrganizationGroup(OrganizationGroup                            OrganizationGroup,
@@ -26542,7 +26539,7 @@ namespace social.OpenData.UsersAPI
         /// Update the given organization group to/within the API.
         /// </summary>
         /// <param name="OrganizationGroup">A organization group.</param>
-        /// <param name="OnUpdated">A delegate run whenever the organization group had been updated successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the organization group has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional organization group identification initiating this command/request.</param>
         public async Task<OrganizationGroup> UpdateOrganizationGroup(OrganizationGroup                            OrganizationGroup,
@@ -26589,7 +26586,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="OrganizationGroupId">An organization group identification.</param>
         /// <param name="UpdateDelegate">A delegate to update the given organization group.</param>
-        /// <param name="OnUpdated">A delegate run whenever the organization group had been updated successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the organization group has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional organization group identification initiating this command/request.</param>
         protected internal async Task<OrganizationGroup> _UpdateOrganizationGroup(OrganizationGroup_Id                         OrganizationGroupId,
@@ -26657,7 +26654,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="OrganizationGroupId">An organization group identification.</param>
         /// <param name="UpdateDelegate">A delegate to update the given organization group.</param>
-        /// <param name="OnUpdated">A delegate run whenever the organization group had been updated successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the organization group has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional organization group identification initiating this command/request.</param>
         public async Task<OrganizationGroup> UpdateOrganizationGroup(OrganizationGroup_Id                         OrganizationGroupId,
@@ -27024,7 +27021,7 @@ namespace social.OpenData.UsersAPI
         /// Remove the given organization group from the API.
         /// </summary>
         /// <param name="OrganizationGroup">The organization group to be removed from this API.</param>
-        /// <param name="OnRemoved">A delegate run whenever the organization group had been removed successfully.</param>
+        /// <param name="OnRemoved">A delegate run whenever the organization group has been removed successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional organization group identification initiating this command/request.</param>
         protected internal async Task<RemoveOrganizationGroupResult> _RemoveOrganizationGroup(OrganizationGroup                            OrganizationGroup,
@@ -27092,7 +27089,7 @@ namespace social.OpenData.UsersAPI
         /// Remove the given organization group from the API.
         /// </summary>
         /// <param name="OrganizationGroup">The organization group to be removed from this API.</param>
-        /// <param name="OnRemoved">A delegate run whenever the organization group had been removed successfully.</param>
+        /// <param name="OnRemoved">A delegate run whenever the organization group has been removed successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional organization group identification initiating this command/request.</param>
         public async Task<RemoveOrganizationGroupResult> RemoveOrganizationGroup(OrganizationGroup                            OrganizationGroup,
@@ -27284,20 +27281,20 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (protected) SendNotifications      (Organization, User, MessageType, CurrentUserId = null)
+        #region (protected internal) SendNotifications      (Organization, User, MessageType, CurrentUserId = null)
 
-        protected async Task SendNotifications<TOrganization, TUser>(TOrganization            Organization,
-                                                                     TUser                    User,
-                                                                     NotificationMessageType  MessageType,
-                                                                     EventTracking_Id         EventTrackingId   = null,
-                                                                     User_Id?                 CurrentUserId     = null)
+        protected internal async virtual Task SendNotifications<TOrganization, TUser>(TOrganization            Organization,
+                                                                                      TUser                    User,
+                                                                                      NotificationMessageType  MessageType,
+                                                                                      EventTracking_Id         EventTrackingId   = null,
+                                                                                      User_Id?                 CurrentUserId     = null)
 
             where TOrganization : Organization
             where TUser:          User
 
         {
 
-            if (Organization == null || User == null)
+            if (Organization is null || User is null)
                 return;
 
             var _MessageTypes = new HashSet<NotificationMessageType>() { MessageType };
@@ -27354,7 +27351,7 @@ namespace social.OpenData.UsersAPI
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
+                    DebugX.Log(e.Message);
                 }
 
                 #endregion
@@ -27394,7 +27391,7 @@ namespace social.OpenData.UsersAPI
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
+                    DebugX.Log(e.Message);
                 }
 
                 #endregion
@@ -27450,7 +27447,7 @@ namespace social.OpenData.UsersAPI
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
+                    DebugX.Log(e.Message);
                 }
 
                 #endregion
@@ -27482,13 +27479,11 @@ namespace social.OpenData.UsersAPI
                                          Subject        = String.Concat("User '", User.Name, "' was added to organization '", Organization.Name.FirstText(), "'."),
 
                                          HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                        "User <a href=\"https://", this.ExternalDNSName, this.BasePath, "/users/", User.Id, "\">", User.Name, "</a> had been added to organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a>.<br />",
-                                                                        "If you haven't approved this request, please contact support: <a href=\"mailto:support@cardi-link.com\">support@cardi-link.com</a>",
+                                                                        "User <a href=\"https://", this.ExternalDNSName, this.BasePath, "/users/", User.Id, "\">", User.Name, "</a> has been added to organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a>.<br />",
                                                                         HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
                                          PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                        "User '" + User.Name + "' had been added to organization '", Organization.Name.FirstText(), "'.\r\n",
-                                                                        "If you haven't approved this request, please contact support: support@cardi-link.com\r\r\r\r",
+                                                                        "User '" + User.Name + "' has been added to organization '", Organization.Name.FirstText(), "'.\r\n",
                                                                         TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
                                          SecurityLevel  = EMailSecurity.sign
@@ -27507,13 +27502,11 @@ namespace social.OpenData.UsersAPI
                                          Subject        = String.Concat("User '", User.Name, "' was removed from organization '", Organization.Name.FirstText(), "'."),
 
                                          HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                        "User <a href=\"https://", this.ExternalDNSName, this.BasePath, "/users/", User.Id, "\">", User.Name, "</a> had been removed from organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a>.<br />",
-                                                                        "If you haven't approved this request, please contact support: <a href=\"mailto:support@cardi-link.com\">support@cardi-link.com</a>",
+                                                                        "User <a href=\"https://", this.ExternalDNSName, this.BasePath, "/users/", User.Id, "\">", User.Name, "</a> has been removed from organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a>.<br />",
                                                                         HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
                                          PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                        "User '" + User.Name + "' had been removed from organization '", Organization.Name.FirstText(), "'.\r\n",
-                                                                        "If you haven't approved this request, please contact support: support@cardi-link.com\r\r\r\r",
+                                                                        "User '" + User.Name + "' has been removed from organization '", Organization.Name.FirstText(), "'.\r\n",
                                                                         TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
                                          SecurityLevel  = EMailSecurity.sign
@@ -27526,7 +27519,7 @@ namespace social.OpenData.UsersAPI
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
+                    DebugX.Log(e.Message);
                 }
 
                 #endregion
@@ -27695,19 +27688,19 @@ namespace social.OpenData.UsersAPI
 
         #region Organizations <> Organizations
 
-        #region (protected) SendNotifications   (OrganizationOut, OrganizationIn, MessageType, CurrentUserId = null)
+        #region (protected internal) SendNotifications   (OrganizationOut, OrganizationIn, MessageType, CurrentUserId = null)
 
-        protected async Task SendNotifications<TOrganization>(TOrganization            OrganizationOut,
-                                                              TOrganization            OrganizationIn,
-                                                              NotificationMessageType  MessageType,
-                                                              EventTracking_Id         EventTrackingId   = null,
-                                                              User_Id?                 CurrentUserId     = null)
+        protected internal async virtual Task SendNotifications<TOrganization>(TOrganization            OrganizationOut,
+                                                                               TOrganization            OrganizationIn,
+                                                                               NotificationMessageType  MessageType,
+                                                                               EventTracking_Id         EventTrackingId   = null,
+                                                                               User_Id?                 CurrentUserId     = null)
 
             where TOrganization : Organization
 
         {
 
-            if (OrganizationOut == null || OrganizationIn == null)
+            if (OrganizationOut is null || OrganizationIn is null)
                 return;
 
             var _MessageTypes = new HashSet<NotificationMessageType>() { MessageType };
@@ -27757,7 +27750,7 @@ namespace social.OpenData.UsersAPI
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
+                    DebugX.Log(e.Message);
                 }
 
                 #endregion
@@ -27798,7 +27791,7 @@ namespace social.OpenData.UsersAPI
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
+                    DebugX.Log(e.Message);
                 }
 
                 #endregion
@@ -27855,7 +27848,7 @@ namespace social.OpenData.UsersAPI
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
+                    DebugX.Log(e.Message);
                 }
 
                 #endregion
@@ -27931,7 +27924,7 @@ namespace social.OpenData.UsersAPI
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
+                    DebugX.Log(e.Message);
                 }
 
                 #endregion
@@ -28140,42 +28133,104 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region WriteToLogfileAndNotify(ServiceTicket, MessageType, OldServiceTicket = null, EventTrackingId = null, CurrentUserId = null)
+        #region (protected internal) WriteToDatabaseFileAndNotify(ServiceTicket, MessageType, OldServiceTicket = null, EventTrackingId = null, CurrentUserId = null)
 
-        public async Task WriteToLogfileAndNotify<TServiceTicket>(TServiceTicket           ServiceTicket,
-                                                                  NotificationMessageType  MessageType,
-                                                                  TServiceTicket           OldServiceTicket   = null,
-                                                                  EventTracking_Id         EventTrackingId    = null,
-                                                                  User_Id?                 CurrentUserId      = null)
-
-            where TServiceTicket : ServiceTicket
-
+        protected internal async Task WriteToDatabaseFileAndNotify(ServiceTicket            ServiceTicket,
+                                                                   NotificationMessageType  MessageType,
+                                                                   ServiceTicket            OldServiceTicket   = null,
+                                                                   EventTracking_Id         EventTrackingId    = null,
+                                                                   User_Id?                 CurrentUserId      = null)
         {
 
-            if (ServiceTicket == null)
-                return;
+            if (ServiceTicket is null)
+                throw new ArgumentNullException(nameof(ServiceTicket),  "The given service ticket must not be null!");
 
-            await WriteToDatabaseFile(DatabaseFileName,
-                                      MessageType,
-                                      ServiceTicket.ToJSON(),
-                                      EventTrackingId,
+            if (MessageType.IsNullOrEmpty)
+                throw new ArgumentNullException(nameof(MessageType),    "The given message type must not be null or empty!");
+
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            await WriteToDatabaseFile(MessageType,
+                                      ServiceTicket.ToJSON(false, true),
+                                      eventTrackingId,
                                       CurrentUserId);
 
+            await SendNotifications(ServiceTicket,
+                                    MessageType,
+                                    OldServiceTicket,
+                                    eventTrackingId,
+                                    CurrentUserId);
 
-            var _MessageTypes  = new HashSet<NotificationMessageType>() { MessageType };
+        }
 
-            if (MessageType == addServiceTicketIfNotExists_MessageType)
-            {
-                _MessageTypes.Add(addServiceTicket_MessageType);
-            }
+        #endregion
 
-            else if (MessageType == addOrUpdateServiceTicket_MessageType)
-            {
-                _MessageTypes.Add(addServiceTicket_MessageType);
-                _MessageTypes.Add(updateServiceTicket_MessageType);
-            }
+        #region (protected internal) SendNotifications           (ServiceTicket, MessageTypes, OldServiceTicket = null, CurrentUserId = null)
 
-            var MessageTypes   = _MessageTypes.ToArray();
+        /// <summary>
+        /// Send service ticket notifications.
+        /// </summary>
+        /// <param name="ServiceTicket">The service ticket.</param>
+        /// <param name="MessageType">The service ticket notification.</param>
+        /// <param name="OldServiceTicket">The old/updated service ticket.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking service ticket identification</param>
+        protected internal async virtual Task SendNotifications(ServiceTicket            ServiceTicket,
+                                                                NotificationMessageType  MessageType,
+                                                                ServiceTicket            OldServiceTicket   = null,
+                                                                EventTracking_Id         EventTrackingId    = null,
+                                                                User_Id?                 CurrentUserId      = null)
+        {
+
+            if (ServiceTicket is null)
+                throw new ArgumentNullException(nameof(ServiceTicket),  "The given service ticket must not be null or empty!");
+
+            if (MessageType.IsNullOrEmpty)
+                throw new ArgumentNullException(nameof(MessageType),    "The given message type must not be null or empty!");
+
+
+            await SendNotifications(ServiceTicket,
+                                    new NotificationMessageType[] { MessageType },
+                                    OldServiceTicket,
+                                    EventTrackingId,
+                                    CurrentUserId);
+
+        }
+
+
+        /// <summary>
+        /// Send service ticket notifications.
+        /// </summary>
+        /// <param name="ServiceTicket">The service ticket.</param>
+        /// <param name="MessageTypes">The service ticket notifications.</param>
+        /// <param name="OldServiceTicket">The old/updated service ticket.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking service ticket identification</param>
+        protected internal async virtual Task SendNotifications(ServiceTicket                         ServiceTicket,
+                                                                IEnumerable<NotificationMessageType>  MessageTypes,
+                                                                ServiceTicket                         OldServiceTicket   = null,
+                                                                EventTracking_Id                      EventTrackingId    = null,
+                                                                User_Id?                              CurrentUserId      = null)
+        {
+
+            if (ServiceTicket is null)
+                throw new ArgumentNullException(nameof(ServiceTicket),  "The given service ticket must not be null or empty!");
+
+            var messageTypesHash = new HashSet<NotificationMessageType>(MessageTypes.Where(messageType => !messageType.IsNullOrEmpty));
+
+            if (messageTypesHash.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(MessageTypes),   "The given enumeration of message types must not be null or empty!");
+
+            if (messageTypesHash.Contains(addServiceTicketIfNotExists_MessageType))
+                messageTypesHash.Add(addServiceTicket_MessageType);
+
+            if (messageTypesHash.Contains(addOrUpdateServiceTicket_MessageType))
+                messageTypesHash.Add(OldServiceTicket == null
+                                       ? addServiceTicket_MessageType
+                                       : updateServiceTicket_MessageType);
+
+            var messageTypes = messageTypesHash.ToArray();
 
 
             if (!DisableNotifications)
@@ -28186,7 +28241,7 @@ namespace social.OpenData.UsersAPI
                 try
                 {
 
-                    var AllTelegramNotifications = this.GetTelegramNotifications(ServiceTicket.Author, MessageTypes).
+                    var AllTelegramNotifications = this.GetTelegramNotifications(ServiceTicket.Author, messageTypes).
                                                         ToHashSet();
 
                     if (ServiceTicket.Affected != null)
@@ -28195,14 +28250,14 @@ namespace social.OpenData.UsersAPI
                         if (ServiceTicket.Affected.Users.SafeAny())
                         {
                             foreach (var user in ServiceTicket.Affected.Users)
-                                foreach (var notification in this.GetTelegramNotifications(user.Id, MessageTypes))
+                                foreach (var notification in this.GetTelegramNotifications(user.Id, messageTypes))
                                     AllTelegramNotifications.Add(notification);
                         }
 
                         if (ServiceTicket.Affected.Organizations.SafeAny())
                         {
                             foreach (var organization in ServiceTicket.Affected.Organizations)
-                                foreach (var notification in this.GetTelegramNotifications(organization.Id, MessageTypes))
+                                foreach (var notification in this.GetTelegramNotifications(organization.Id, messageTypes))
                                     AllTelegramNotifications.Add(notification);
                         }
 
@@ -28217,15 +28272,15 @@ namespace social.OpenData.UsersAPI
                     if (AllTelegramNotifications.Count > 0)
                     {
 
-                        await TelegramStore.SendTelegrams("ServiceTicket '" + ServiceTicket.Id + "' sent '" + MessageType + "'!",
-                                                          AllTelegramNotifications.Select(telegramNotification => telegramNotification.Username));
+                        //await TelegramStore.SendTelegrams("ServiceTicket '" + ServiceTicket.Id + "' sent '" + MessageType + "'!",
+                        //                                  AllTelegramNotifications.Select(telegramNotification => telegramNotification.Username));
 
                     }
 
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
+                    DebugX.Log(e.Message);
                 }
 
                 #endregion
@@ -28235,7 +28290,7 @@ namespace social.OpenData.UsersAPI
                 try
                 {
 
-                    var AllSMSNotifications = this.GetSMSNotifications(ServiceTicket.Author, MessageTypes).
+                    var AllSMSNotifications = this.GetSMSNotifications(ServiceTicket.Author, messageTypes).
                                                    ToHashSet();
 
                     if (DevMachines.Contains(Environment.MachineName))
@@ -28247,16 +28302,16 @@ namespace social.OpenData.UsersAPI
                     if (AllSMSNotifications.Count > 0)
                     {
 
-                        SendSMS("ServiceTicket '" + ServiceTicket.Id + "' sent '" + MessageType + "'!",
-                                AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
-                                SMSSenderName);
+                        //SendSMS("ServiceTicket '" + ServiceTicket.Id + "' sent '" + MessageType + "'!",
+                        //        AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
+                        //        SMSSenderName);
 
                     }
 
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
+                    DebugX.Log(e.Message);
                 }
 
                 #endregion
@@ -28266,7 +28321,7 @@ namespace social.OpenData.UsersAPI
                 try
                 {
 
-                    var AllHTTPSNotifications = this.GetHTTPSNotifications(ServiceTicket.Author, MessageTypes).
+                    var AllHTTPSNotifications = this.GetHTTPSNotifications(ServiceTicket.Author, messageTypes).
                                                      ToHashSet();
 
                     if (DevMachines.Contains(Environment.MachineName))
@@ -28279,7 +28334,7 @@ namespace social.OpenData.UsersAPI
 
                         JObject JSONNotification = null;
 
-                        if (MessageType == addServiceTicket_MessageType)
+                        if (messageTypes.Contains(addServiceTicket_MessageType))
                             JSONNotification = new JObject(
                                                    new JProperty("addServiceTicket",
                                                        ServiceTicket.ToJSON()
@@ -28287,7 +28342,7 @@ namespace social.OpenData.UsersAPI
                                                    new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
                                                );
 
-                        else if (MessageType == addServiceTicketIfNotExists_MessageType)
+                        else if (messageTypes.Contains(addServiceTicketIfNotExists_MessageType))
                             JSONNotification = new JObject(
                                                    new JProperty("addServiceTicketIfNotExists",
                                                        ServiceTicket.ToJSON()
@@ -28295,7 +28350,7 @@ namespace social.OpenData.UsersAPI
                                                    new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
                                                );
 
-                        else if (MessageType == addOrUpdateServiceTicket_MessageType)
+                        else if (messageTypes.Contains(addOrUpdateServiceTicket_MessageType))
                             JSONNotification = new JObject(
                                                    new JProperty("addOrUpdateServiceTicket",
                                                        ServiceTicket.ToJSON()
@@ -28303,7 +28358,7 @@ namespace social.OpenData.UsersAPI
                                                    new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
                                                );
 
-                        else if (MessageType == updateServiceTicket_MessageType)
+                        else if (messageTypes.Contains(updateServiceTicket_MessageType))
                             JSONNotification = new JObject(
                                                    new JProperty("updateServiceTicket",
                                                        ServiceTicket.ToJSON()
@@ -28311,7 +28366,7 @@ namespace social.OpenData.UsersAPI
                                                    new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
                                                );
 
-                        else if (MessageType == removeServiceTicket_MessageType)
+                        else if (messageTypes.Contains(removeServiceTicket_MessageType))
                             JSONNotification = new JObject(
                                                    new JProperty("removeServiceTicket",
                                                        ServiceTicket.ToJSON()
@@ -28319,7 +28374,7 @@ namespace social.OpenData.UsersAPI
                                                    new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
                                                );
 
-                        else if (MessageType == changeServiceTicketStatus_MessageType)
+                        else if (messageTypes.Contains(changeServiceTicketStatus_MessageType))
                             JSONNotification = new JObject(
                                                    new JProperty("changeServiceTicketStatus",
                                                        ServiceTicket.ToJSON()
@@ -28337,7 +28392,7 @@ namespace social.OpenData.UsersAPI
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
+                    DebugX.Log(e.Message);
                 }
 
                 #endregion
@@ -28350,7 +28405,7 @@ namespace social.OpenData.UsersAPI
                     var AllEMailNotifications = new HashSet<EMailNotification>();
 
                     // Add author
-                    this.GetEMailNotifications(ServiceTicket.Author, MessageTypes).
+                    this.GetEMailNotifications(ServiceTicket.Author, messageTypes).
                          ForEach(notificationemail => AllEMailNotifications.Add(notificationemail));
 
                     // Add defibrillator owners
@@ -28378,7 +28433,7 @@ namespace social.OpenData.UsersAPI
 
                 } catch (Exception e)
                 {
-                    Console.WriteLine(e);
+                    DebugX.Log(e.Message);
                 }
 
                 #endregion
@@ -28421,9 +28476,9 @@ namespace social.OpenData.UsersAPI
                 if (_ServiceTickets.ContainsKey(ServiceTicket.Id))
                     throw new Exception("ServiceTicket '" + ServiceTicket.Id + "' already exists in this API!");
 
-                await WriteToLogfileAndNotify(ServiceTicket,
-                                              addServiceTicket_MessageType,
-                                              CurrentUserId: CurrentUserId);
+                await WriteToDatabaseFileAndNotify(ServiceTicket,
+                                                   addServiceTicket_MessageType,
+                                                   CurrentUserId: CurrentUserId);
 
                 ServiceTicket.API = this;
 
@@ -28475,9 +28530,9 @@ namespace social.OpenData.UsersAPI
                 if (_ServiceTickets.TryGetValue(ServiceTicket.Id, out ServiceTicket OldServiceTicket))
                     return OldServiceTicket as TServiceTicket;
 
-                await WriteToLogfileAndNotify(ServiceTicket,
-                                              addServiceTicketIfNotExists_MessageType,
-                                              CurrentUserId: CurrentUserId);
+                await WriteToDatabaseFileAndNotify(ServiceTicket,
+                                                   addServiceTicketIfNotExists_MessageType,
+                                                   CurrentUserId: CurrentUserId);
 
                 ServiceTicket.API = this;
 
@@ -28551,11 +28606,11 @@ namespace social.OpenData.UsersAPI
 
                 }
 
-                await WriteToLogfileAndNotify(ServiceTicket,
-                                              addOrUpdateServiceTicket_MessageType,
-                                              OldServiceTicket,
-                                              EventTracking_Id.New,
-                                              CurrentUserId);
+                await WriteToDatabaseFileAndNotify(ServiceTicket,
+                                                   addOrUpdateServiceTicket_MessageType,
+                                                   OldServiceTicket,
+                                                   EventTracking_Id.New,
+                                                   CurrentUserId);
 
                 _ServiceTickets.AddOrUpdate(ServiceTicket.Id,
                                             id                     => ServiceTicket,
@@ -28635,11 +28690,11 @@ namespace social.OpenData.UsersAPI
                 if (!_ServiceTickets.TryGetValue(ServiceTicket.Id, out OldServiceTicket))
                     throw new Exception("ServiceTicket '" + ServiceTicket.Id + "' does not exists in this API!");
 
-                await WriteToLogfileAndNotify(ServiceTicket,
-                                              updateServiceTicket_MessageType,
-                                              OldServiceTicket,
-                                              EventTracking_Id.New,
-                                              CurrentUserId);
+                await WriteToDatabaseFileAndNotify(ServiceTicket,
+                                                   updateServiceTicket_MessageType,
+                                                   OldServiceTicket,
+                                                   EventTracking_Id.New,
+                                                   CurrentUserId);
 
                 //if (ServiceTicket.API == null)
                     ServiceTicket.API = this;
@@ -28733,11 +28788,11 @@ namespace social.OpenData.UsersAPI
                 ServiceTicket = UpdateDelegate(castedOldServiceTicket);
                 ServiceTicket.API = this;
 
-                await WriteToLogfileAndNotify(ServiceTicket,
-                                              updateServiceTicket_MessageType,
-                                              castedOldServiceTicket,
-                                              EventTracking_Id.New,
-                                              CurrentUserId);
+                await WriteToDatabaseFileAndNotify(ServiceTicket,
+                                                   updateServiceTicket_MessageType,
+                                                   castedOldServiceTicket,
+                                                   EventTracking_Id.New,
+                                                   CurrentUserId);
 
                 _ServiceTickets.TryRemove(OldServiceTicket.Id, out ServiceTicket RemovedServiceTicket);
                 //OldServiceTicket.CopyAllEdgesTo(ServiceTicket);
@@ -28807,9 +28862,9 @@ namespace social.OpenData.UsersAPI
                 if (_ServiceTickets.TryGetValue(ServiceTicketId, out ServiceTicket ServiceTicket))
                 {
 
-                    await WriteToLogfileAndNotify(ServiceTicket,
-                                                  removeServiceTicket_MessageType,
-                                                  CurrentUserId: CurrentUserId);
+                    await WriteToDatabaseFileAndNotify(ServiceTicket,
+                                                       removeServiceTicket_MessageType,
+                                                       CurrentUserId: CurrentUserId);
 
                     _ServiceTickets.TryRemove(ServiceTicketId, out ServiceTicket RemovedServiceTicket);
 
