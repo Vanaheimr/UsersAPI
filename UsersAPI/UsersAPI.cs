@@ -1287,38 +1287,21 @@ namespace social.OpenData.UsersAPI
                                                                   User_Id?                  CurrentUserId        = null)
         {
 
-            var addOrganizationResult = ParentOrganization != null
-
-                                            ? await UsersAPI.AddOrganization(new Organization(Id,
-                                                                                              Name,
-                                                                                              Description,
-                                                                                              Website,
-                                                                                              EMail,
-                                                                                              Telephone,
-                                                                                              Address,
-                                                                                              GeoLocation,
-                                                                                              Tags,
-                                                                                              IsDisabled,
-                                                                                              DataSource: DataSource),
-                                                                             ParentOrganization,
-                                                                             null,
-                                                                             EventTrackingId,
-                                                                             CurrentUserId)
-
-                                            : await UsersAPI.AddOrganization(new Organization(Id,
-                                                                                              Name,
-                                                                                              Description,
-                                                                                              Website,
-                                                                                              EMail,
-                                                                                              Telephone,
-                                                                                              Address,
-                                                                                              GeoLocation,
-                                                                                              Tags,
-                                                                                              IsDisabled,
-                                                                                              DataSource: DataSource),
-                                                                             null,
-                                                                             EventTrackingId,
-                                                                             CurrentUserId);
+            var addOrganizationResult = await UsersAPI.AddOrganization(new Organization(Id,
+                                                                                        Name,
+                                                                                        Description,
+                                                                                        Website,
+                                                                                        EMail,
+                                                                                        Telephone,
+                                                                                        Address,
+                                                                                        GeoLocation,
+                                                                                        Tags,
+                                                                                        IsDisabled,
+                                                                                        DataSource: DataSource),
+                                                                       ParentOrganization ?? UsersAPI.NoOwner,
+                                                                       null,
+                                                                       EventTrackingId,
+                                                                       CurrentUserId);
 
             return addOrganizationResult.Organization;
 
@@ -1348,38 +1331,21 @@ namespace social.OpenData.UsersAPI
                                                                              User_Id?                  CurrentUserId        = null)
         {
 
-            var addOrganizationResult = ParentOrganization != null
-
-                                            ? await UsersAPI.AddOrganizationIfNotExists(new Organization(Id,
-                                                                                                         Name,
-                                                                                                         Description,
-                                                                                                         Website,
-                                                                                                         EMail,
-                                                                                                         Telephone,
-                                                                                                         Address,
-                                                                                                         GeoLocation,
-                                                                                                         Tags,
-                                                                                                         IsDisabled,
-                                                                                                         DataSource: DataSource),
-                                                                                        ParentOrganization,
-                                                                                        null,
-                                                                                        EventTrackingId,
-                                                                                        CurrentUserId)
-
-                                            : await UsersAPI.AddOrganizationIfNotExists(new Organization(Id,
-                                                                                                         Name,
-                                                                                                         Description,
-                                                                                                         Website,
-                                                                                                         EMail,
-                                                                                                         Telephone,
-                                                                                                         Address,
-                                                                                                         GeoLocation,
-                                                                                                         Tags,
-                                                                                                         IsDisabled,
-                                                                                                         DataSource: DataSource),
-                                                                                        null,
-                                                                                        EventTrackingId,
-                                                                                        CurrentUserId);
+            var addOrganizationResult = await UsersAPI.AddOrganizationIfNotExists(new Organization(Id,
+                                                                                                   Name,
+                                                                                                   Description,
+                                                                                                   Website,
+                                                                                                   EMail,
+                                                                                                   Telephone,
+                                                                                                   Address,
+                                                                                                   GeoLocation,
+                                                                                                   Tags,
+                                                                                                   IsDisabled,
+                                                                                                   DataSource: DataSource),
+                                                                                  ParentOrganization ?? UsersAPI.NoOwner,
+                                                                                  null,
+                                                                                  EventTrackingId,
+                                                                                  CurrentUserId);
 
             return addOrganizationResult.Organization;
 
@@ -24461,61 +24427,6 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddOrganization                      (Organization,                     OnAdded = null, CurrentUserId = null)
-
-        /// <summary>
-        /// Add the given organization.
-        /// </summary>
-        /// <param name="Organization">A new organization.</param>
-        /// <param name="OnAdded">A delegate run whenever the organization had been added successfully.</param>
-        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
-        /// <param name="CurrentUserId">An optional organization identification initiating this command/request.</param>
-        public async Task<AddOrganizationResult> AddOrganization(Organization                            Organization,
-                                                                 Action<Organization, EventTracking_Id>  OnAdded           = null,
-                                                                 EventTracking_Id                        EventTrackingId   = null,
-                                                                 User_Id?                                CurrentUserId     = null)
-        {
-
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
-
-            try
-            {
-
-                return (await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout))
-
-                            ? await _AddOrganization(Organization,
-                                                     OnAdded,
-                                                     eventTrackingId,
-                                                     CurrentUserId)
-
-                            : AddOrganizationResult.Failed(Organization,
-                                                           eventTrackingId,
-                                                           "Internal locking failed!");
-
-            }
-            catch (Exception e)
-            {
-
-                DebugX.LogException(e);
-
-                return AddOrganizationResult.Failed(Organization,
-                                                    eventTrackingId,
-                                                    e);
-            }
-            finally
-            {
-                try
-                {
-                    OrganizationsSemaphore.Release();
-                }
-                catch
-                { }
-            }
-
-        }
-
-        #endregion
-
         #region AddOrganization                      (Organization, ParentOrganization, OnAdded = null, CurrentUserId = null)
 
         /// <summary>
@@ -24538,7 +24449,7 @@ namespace social.OpenData.UsersAPI
             if (ParentOrganization is null)
                 ParentOrganization = NoOwner;
 
-            else if (!_Organizations.ContainsKey(ParentOrganization.Id))
+            if (!_Organizations.ContainsKey(ParentOrganization.Id))
                 return AddOrganizationResult.ArgumentError(Organization,
                                                            eventTrackingId,
                                                            nameof(ParentOrganization),
@@ -24706,62 +24617,6 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddOrganizationIfNotExists                      (Organization,                     OnAdded = null, CurrentUserId = null)
-
-        /// <summary>
-        /// Add the given organization.
-        /// </summary>
-        /// <param name="Organization">A new organization.</param>
-        /// <param name="OnAdded">A delegate run whenever the organization had been added successfully.</param>
-        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
-        /// <param name="CurrentUserId">An optional organization identification initiating this command/request.</param>
-        public async Task<AddOrganizationIfNotExistsResult> AddOrganizationIfNotExists(Organization                            Organization,
-                                                                                       Action<Organization, EventTracking_Id>  OnAdded           = null,
-                                                                                       EventTracking_Id                        EventTrackingId   = null,
-                                                                                       User_Id?                                CurrentUserId     = null)
-        {
-
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
-
-            try
-            {
-
-                return (await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout))
-
-                            ? await _AddOrganizationIfNotExists(Organization,
-                                                                OnAdded,
-                                                                EventTrackingId,
-                                                                CurrentUserId)
-
-                            : AddOrganizationIfNotExistsResult.Failed(Organization,
-                                                                      eventTrackingId,
-                                                                      "Internal locking failed!");
-
-            }
-            catch (Exception e)
-            {
-
-                DebugX.LogException(e);
-
-                return AddOrganizationIfNotExistsResult.Failed(Organization,
-                                                               eventTrackingId,
-                                                               e);
-
-            }
-            finally
-            {
-                try
-                {
-                    OrganizationsSemaphore.Release();
-                }
-                catch
-                { }
-            }
-
-        }
-
-        #endregion
-
         #region AddOrganizationIfNotExists                      (Organization, ParentOrganization, OnAdded = null, CurrentUserId = null)
 
         /// <summary>
@@ -24780,6 +24635,15 @@ namespace social.OpenData.UsersAPI
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            if (ParentOrganization is null)
+                ParentOrganization = NoOwner;
+
+            if (!_Organizations.ContainsKey(ParentOrganization.Id))
+                return AddOrganizationIfNotExistsResult.ArgumentError(Organization,
+                                                                      eventTrackingId,
+                                                                      nameof(ParentOrganization),
+                                                                      "Parent organization '" + ParentOrganization.Id + "' does not exists in this API!");
 
             try
             {
@@ -24858,7 +24722,7 @@ namespace social.OpenData.UsersAPI
 
         #region AddOrUpdateOrganization   (Organization, (ParentOrganization), OnAdded = null, OnUpdated = null, CurrentUserId = null)
 
-        #region (protected internal) _AddOrUpdateOrganization(Organization,                           OnAdded = null, OnUpdated = null, CurrentUserId = null)
+        #region (protected internal) _AddOrUpdateOrganization(Organization,                     OnAdded = null, OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
         /// Add or update the given organization to/within the API.
@@ -24977,7 +24841,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddOrUpdateOrganization                      (Organization,                           OnAdded = null, OnUpdated = null, CurrentUserId = null)
+        #region AddOrUpdateOrganization                      (Organization,                     OnAdded = null, OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
         /// Add or update the given organization to/within the API.
@@ -25036,20 +24900,18 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddOrUpdateOrganization                      (Organization, Membership, Organization, OnAdded = null, OnUpdated = null, CurrentUserId = null)
+        #region AddOrUpdateOrganization                      (Organization, ParentOrganization, OnAdded = null, OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
         /// Add or update the given organization to/within the API.
         /// </summary>
         /// <param name="Organization">A organization.</param>
-        /// <param name="Membership">The organization membership of the new organization.</param>
         /// <param name="ParentOrganization">The parent organization of the new organization.</param>
         /// <param name="OnAdded">A delegate run whenever the organization had been added successfully.</param>
         /// <param name="OnUpdated">A delegate run whenever the organization had been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional organization identification initiating this command/request.</param>
         public async Task<AddOrUpdateOrganizationResult> AddOrUpdateOrganization(Organization                            Organization,
-                                                                                 Organization2OrganizationEdgeTypes      Membership,
                                                                                  Organization                            ParentOrganization,
                                                                                  Action<Organization, EventTracking_Id>  OnAdded           = null,
                                                                                  Action<Organization, EventTracking_Id>  OnUpdated         = null,
@@ -25058,6 +24920,15 @@ namespace social.OpenData.UsersAPI
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            if (ParentOrganization is null)
+                ParentOrganization = NoOwner;
+
+            if (!_Organizations.ContainsKey(ParentOrganization.Id))
+                return AddOrUpdateOrganizationResult.ArgumentError(Organization,
+                                                                   eventTrackingId,
+                                                                   nameof(ParentOrganization),
+                                                                   "Parent organization '" + ParentOrganization.Id + "' does not exists in this API!");
 
             try
             {
@@ -25159,7 +25030,7 @@ namespace social.OpenData.UsersAPI
         public event OnOrganizationUpdatedDelegate OnOrganizationUpdated;
 
 
-        #region (protected internal) _UpdateOrganization(Organization, OnUpdated = null, CurrentUserId = null)
+        #region (protected internal) _UpdateOrganization(Organization,                 OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
         /// Update the given organization to/within the API.
@@ -25231,7 +25102,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region UpdateOrganization                      (Organization, OnUpdated = null, CurrentUserId = null)
+        #region UpdateOrganization                      (Organization,                 OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
         /// Update the given organization to/within the API.
