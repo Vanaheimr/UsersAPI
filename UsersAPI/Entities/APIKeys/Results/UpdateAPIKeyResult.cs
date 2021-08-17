@@ -33,7 +33,7 @@ namespace social.OpenData.UsersAPI
             => Object;
 
 
-        public UpdateAPIKeyResult(APIKey        APIKey,
+        public UpdateAPIKeyResult(APIKey            APIKey,
                                   EventTracking_Id  EventTrackingId,
                                   Boolean           IsSuccess,
                                   String            Argument          = null,
@@ -48,7 +48,7 @@ namespace social.OpenData.UsersAPI
         { }
 
 
-        public static UpdateAPIKeyResult Success(APIKey        APIKey,
+        public static UpdateAPIKeyResult Success(APIKey            APIKey,
                                                  EventTracking_Id  EventTrackingId)
 
             => new UpdateAPIKeyResult(APIKey,
@@ -58,7 +58,7 @@ namespace social.OpenData.UsersAPI
                                       null);
 
 
-        public static UpdateAPIKeyResult ArgumentError(APIKey        APIKey,
+        public static UpdateAPIKeyResult ArgumentError(APIKey            APIKey,
                                                        EventTracking_Id  EventTrackingId,
                                                        String            Argument,
                                                        String            Description)
@@ -70,7 +70,7 @@ namespace social.OpenData.UsersAPI
                                       I18NString.Create(Languages.en,
                                                         Description));
 
-        public static UpdateAPIKeyResult ArgumentError(APIKey        APIKey,
+        public static UpdateAPIKeyResult ArgumentError(APIKey            APIKey,
                                                        EventTracking_Id  EventTrackingId,
                                                        String            Argument,
                                                        I18NString        Description)
@@ -82,7 +82,7 @@ namespace social.OpenData.UsersAPI
                                       Description);
 
 
-        public static UpdateAPIKeyResult Failed(APIKey        APIKey,
+        public static UpdateAPIKeyResult Failed(APIKey            APIKey,
                                                 EventTracking_Id  EventTrackingId,
                                                 String            Description)
 
@@ -93,7 +93,7 @@ namespace social.OpenData.UsersAPI
                                       I18NString.Create(Languages.en,
                                                         Description));
 
-        public static UpdateAPIKeyResult Failed(APIKey        APIKey,
+        public static UpdateAPIKeyResult Failed(APIKey            APIKey,
                                                 EventTracking_Id  EventTrackingId,
                                                 I18NString        Description)
 
@@ -103,7 +103,7 @@ namespace social.OpenData.UsersAPI
                                     null,
                                     Description);
 
-        public static UpdateAPIKeyResult Failed(APIKey        APIKey,
+        public static UpdateAPIKeyResult Failed(APIKey            APIKey,
                                                 EventTracking_Id  EventTrackingId,
                                                 Exception         Exception)
 

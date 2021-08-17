@@ -29,7 +29,7 @@ namespace social.OpenData.UsersAPI
     public class RemoveAPIKeyResult : AResult<APIKey>
     {
 
-        private RemoveAPIKeyResult(APIKey        APIKey,
+        private RemoveAPIKeyResult(APIKey            APIKey,
                                    EventTracking_Id  EventTrackingId,
                                    Boolean           IsSuccess,
                                    String            Argument          = null,
@@ -44,7 +44,7 @@ namespace social.OpenData.UsersAPI
         { }
 
 
-        public static RemoveAPIKeyResult Success(APIKey        APIKey,
+        public static RemoveAPIKeyResult Success(APIKey            APIKey,
                                                  EventTracking_Id  EventTrackingId)
 
             => new RemoveAPIKeyResult(APIKey,
@@ -52,7 +52,7 @@ namespace social.OpenData.UsersAPI
                                       true);
 
 
-        public static RemoveAPIKeyResult ArgumentError(APIKey        APIKey,
+        public static RemoveAPIKeyResult ArgumentError(APIKey            APIKey,
                                                        EventTracking_Id  EventTrackingId,
                                                        String            Argument,
                                                        String            Description)
@@ -64,7 +64,7 @@ namespace social.OpenData.UsersAPI
                                       I18NString.Create(Languages.en,
                                                         Description));
 
-        public static RemoveAPIKeyResult ArgumentError(APIKey        APIKey,
+        public static RemoveAPIKeyResult ArgumentError(APIKey            APIKey,
                                                        EventTracking_Id  EventTrackingId,
                                                        String            Argument,
                                                        I18NString        Description)
@@ -76,7 +76,7 @@ namespace social.OpenData.UsersAPI
                                       Description);
 
 
-        public static RemoveAPIKeyResult Failed(APIKey        APIKey,
+        public static RemoveAPIKeyResult Failed(APIKey            APIKey,
                                                 EventTracking_Id  EventTrackingId,
                                                 String            Description)
 
@@ -87,7 +87,7 @@ namespace social.OpenData.UsersAPI
                                       I18NString.Create(Languages.en,
                                                         Description));
 
-        public static RemoveAPIKeyResult Failed(APIKey        APIKey,
+        public static RemoveAPIKeyResult Failed(APIKey            APIKey,
                                                 EventTracking_Id  EventTrackingId,
                                                 I18NString        Description)
 
@@ -97,7 +97,7 @@ namespace social.OpenData.UsersAPI
                                       null,
                                       Description);
 
-        public static RemoveAPIKeyResult Failed(APIKey        APIKey,
+        public static RemoveAPIKeyResult Failed(APIKey            APIKey,
                                                 EventTracking_Id  EventTrackingId,
                                                 Exception         Exception)
 

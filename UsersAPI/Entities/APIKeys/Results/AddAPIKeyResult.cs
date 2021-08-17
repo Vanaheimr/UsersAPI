@@ -35,7 +35,7 @@ namespace social.OpenData.UsersAPI
         public Organization  Organization   { get; internal set; }
 
 
-        public AddAPIKeyResult(APIKey        APIKey,
+        public AddAPIKeyResult(APIKey            APIKey,
                                EventTracking_Id  EventTrackingId,
                                Boolean           IsSuccess,
                                String            Argument           = null,
@@ -55,7 +55,7 @@ namespace social.OpenData.UsersAPI
         }
 
 
-        public static AddAPIKeyResult Success(APIKey        APIKey,
+        public static AddAPIKeyResult Success(APIKey            APIKey,
                                               EventTracking_Id  EventTrackingId,
                                               Organization      Organization = null)
 
@@ -67,7 +67,7 @@ namespace social.OpenData.UsersAPI
                                    Organization);
 
 
-        public static AddAPIKeyResult ArgumentError(APIKey        APIKey,
+        public static AddAPIKeyResult ArgumentError(APIKey            APIKey,
                                                     EventTracking_Id  EventTrackingId,
                                                     String            Argument,
                                                     String            Description)
@@ -79,7 +79,7 @@ namespace social.OpenData.UsersAPI
                                    I18NString.Create(Languages.en,
                                                      Description));
 
-        public static AddAPIKeyResult ArgumentError(APIKey        APIKey,
+        public static AddAPIKeyResult ArgumentError(APIKey            APIKey,
                                                     EventTracking_Id  EventTrackingId,
                                                     String            Argument,
                                                     I18NString        Description)
@@ -91,7 +91,7 @@ namespace social.OpenData.UsersAPI
                                    Description);
 
 
-        public static AddAPIKeyResult Failed(APIKey        APIKey,
+        public static AddAPIKeyResult Failed(APIKey            APIKey,
                                              EventTracking_Id  EventTrackingId,
                                              String            Description,
                                              Organization      Organization  = null)
@@ -104,7 +104,7 @@ namespace social.OpenData.UsersAPI
                                                      Description),
                                    Organization);
 
-        public static AddAPIKeyResult Failed(APIKey        APIKey,
+        public static AddAPIKeyResult Failed(APIKey            APIKey,
                                              EventTracking_Id  EventTrackingId,
                                              I18NString        Description,
                                              Organization      Organization  = null)
@@ -116,7 +116,7 @@ namespace social.OpenData.UsersAPI
                                    Description,
                                    Organization);
 
-        public static AddAPIKeyResult Failed(APIKey        APIKey,
+        public static AddAPIKeyResult Failed(APIKey            APIKey,
                                              EventTracking_Id  EventTrackingId,
                                              Exception         Exception,
                                              Organization      Organization  = null)

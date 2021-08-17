@@ -17,55 +17,49 @@
 
 #region Usings
 
-using System;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Diagnostics;
-using System.Net.Security;
-using System.Globalization;
-using System.Threading.Tasks;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Security.Cryptography;
-using System.Security.Authentication;
-using System.Security.Cryptography.X509Certificates;
-
-using Newtonsoft.Json.Linq;
-
-using Telegram.Bot;
-
-using Org.BouncyCastle.Security;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.X509;
-using Org.BouncyCastle.Asn1.Sec;
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Asn1.X9;
-using Org.BouncyCastle.Bcpg.OpenPgp;
-
 using com.GraphDefined.SMSApi.API;
 using com.GraphDefined.SMSApi.API.Response;
-
-using org.GraphDefined.Vanaheimr.Illias;
-using org.GraphDefined.Vanaheimr.Styx.Arrows;
+using Newtonsoft.Json.Linq;
+using org.GraphDefined.Vanaheimr.Aegir;
+using org.GraphDefined.Vanaheimr.BouncyCastle;
 using org.GraphDefined.Vanaheimr.Hermod;
-using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 using org.GraphDefined.Vanaheimr.Hermod.DNS;
+using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 using org.GraphDefined.Vanaheimr.Hermod.Mail;
 using org.GraphDefined.Vanaheimr.Hermod.SMTP;
-using org.GraphDefined.Vanaheimr.Hermod.Sockets.TCP;
 using org.GraphDefined.Vanaheimr.Hermod.Sockets;
-using org.GraphDefined.Vanaheimr.Aegir;
+using org.GraphDefined.Vanaheimr.Hermod.Sockets.TCP;
+using org.GraphDefined.Vanaheimr.Illias;
+using org.GraphDefined.Vanaheimr.Styx.Arrows;
 using org.GraphDefined.Vanaheimr.Warden;
-using org.GraphDefined.Vanaheimr.BouncyCastle;
-
+using Org.BouncyCastle.Asn1.Sec;
+using Org.BouncyCastle.Asn1.X9;
+using Org.BouncyCastle.Bcpg.OpenPgp;
+using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Math;
+using Org.BouncyCastle.Security;
+using Org.BouncyCastle.X509;
 using social.OpenData.UsersAPI;
-using social.OpenData.UsersAPI.Postings;
 using social.OpenData.UsersAPI.Notifications;
+using social.OpenData.UsersAPI.Postings;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Net.Security;
+using System.Security.Authentication;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using Telegram.Bot;
 
 #endregion
 
@@ -15365,53 +15359,56 @@ namespace social.OpenData.UsersAPI
 
                 #region Telegram Notifications
 
-                try
+                if (TelegramStore != null)
                 {
-
-                    var AllTelegramNotifications  = this.GetTelegramNotifications(User, messageTypes).
-                                                         ToHashSet();
-
-                    foreach (var telegramNotification in allHisOrganizations.SelectMany(org => this.GetTelegramNotifications(org, messageTypes)))
-                        AllTelegramNotifications.Add(telegramNotification);
-
-
-                    if (DevMachines.Contains(Environment.MachineName))
-                    {
-                        AllTelegramNotifications.Clear();
-                    }
-
-                    if (AllTelegramNotifications.Count > 0)
+                    try
                     {
 
-                        if (messageTypes.Contains(addUser_MessageType))
+                        var AllTelegramNotifications  = this.GetTelegramNotifications(User, messageTypes).
+                                                             ToHashSet();
+
+                        foreach (var telegramNotification in allHisOrganizations.SelectMany(org => this.GetTelegramNotifications(org, messageTypes)))
+                            AllTelegramNotifications.Add(telegramNotification);
+
+
+                        if (DevMachines.Contains(Environment.MachineName))
                         {
-                            await TelegramStore.SendTelegrams(String.Concat("User '", User.Name, "' was successfully added. ",
-                                                                            "https://", ExternalDNSName, BasePath, "/users/", User.Id),
-                                                                            // to Organization {Org_Name}.",
-                                                              AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
+                            AllTelegramNotifications.Clear();
                         }
 
-                        if (messageTypes.Contains(updateUser_MessageType))
+                        if (AllTelegramNotifications.Count > 0)
                         {
-                            await TelegramStore.SendTelegrams(String.Concat("User '", User.Name, "' information had been successfully updated. ",
-                                                                            "https://", ExternalDNSName, BasePath, "/users/", User.Id),
-                                                                            // + {Updated information}
-                                                              AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
-                        }
 
-                        if (messageTypes.Contains(deleteUser_MessageType))
-                        {
-                            await TelegramStore.SendTelegrams(String.Concat("User '", User.Name, "' information had been removed. ",
-                                                                            "If you haven't approved this request, please contact support: support@cardi-link.com"),
-                                                              AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
+                            if (messageTypes.Contains(addUser_MessageType))
+                            {
+                                await TelegramStore.SendTelegrams(String.Concat("User '", User.Name, "' was successfully added. ",
+                                                                                "https://", ExternalDNSName, BasePath, "/users/", User.Id),
+                                                                                // to Organization {Org_Name}.",
+                                                                  AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
+                            }
+
+                            if (messageTypes.Contains(updateUser_MessageType))
+                            {
+                                await TelegramStore.SendTelegrams(String.Concat("User '", User.Name, "' information had been successfully updated. ",
+                                                                                "https://", ExternalDNSName, BasePath, "/users/", User.Id),
+                                                                                // + {Updated information}
+                                                                  AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
+                            }
+
+                            if (messageTypes.Contains(deleteUser_MessageType))
+                            {
+                                await TelegramStore.SendTelegrams(String.Concat("User '", User.Name, "' information had been removed. ",
+                                                                                "If you haven't approved this request, please contact support: support@cardi-link.com"),
+                                                                  AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
+                            }
+
                         }
 
                     }
-
-                }
-                catch (Exception e)
-                {
-                    DebugX.Log(e.Message);
+                    catch (Exception e)
+                    {
+                        DebugX.Log(e.Message);
+                    }
                 }
 
                 #endregion
@@ -15535,103 +15532,106 @@ namespace social.OpenData.UsersAPI
 
                 #region E-Mail Notifications
 
-                try
+                if (APISMTPClient != null)
                 {
-
-                    var AllEMailNotifications  = this.GetEMailNotifications(User, messageTypes).
-                                                      ToHashSet();
-
-                    foreach (var eMailNotification in allHisOrganizations.SelectMany(org => this.GetEMailNotifications(org, messageTypes)))
-                        AllEMailNotifications.Add(eMailNotification);
-
-
-                    if (DevMachines.Contains(Environment.MachineName))
-                    {
-                        AllEMailNotifications.Clear();
-                    }
-
-                    if (AllEMailNotifications.Count > 0)
+                    try
                     {
 
-                        if (messageTypes.Contains(addUser_MessageType))
+                        var AllEMailNotifications  = this.GetEMailNotifications(User, messageTypes).
+                                                          ToHashSet();
+
+                        foreach (var eMailNotification in allHisOrganizations.SelectMany(org => this.GetEMailNotifications(org, messageTypes)))
+                            AllEMailNotifications.Add(eMailNotification);
+
+
+                        if (DevMachines.Contains(Environment.MachineName))
                         {
-                            await APISMTPClient.Send(
-                                     new HTMLEMailBuilder() {
-
-                                         From           = Robot.EMail,
-                                         To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
-                                         Passphrase     = APIPassphrase,
-                                         Subject        = String.Concat("User '" + User.Name + "' was successfully created."), // to Organization {Org_Name}."),
-
-                                         HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                        "User <a href=\"https://", ExternalDNSName, BasePath, "/users/", User.Id, "\">", User.Name, "</a> was successfully created.",
-                                                                        HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
-
-                                         PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                        "User '" + User.Name + "' was successfully created.\r\n",
-                                                                        "https://", ExternalDNSName, BasePath, "/users/", User.Id, "\r\r\r\r",
-                                                                        // to Organization {Org_Name}.\r\r\r\r",
-                                                                        TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
-
-                                         SecurityLevel  = EMailSecurity.sign
-
-                                     });
+                            AllEMailNotifications.Clear();
                         }
 
-                        if (messageTypes.Contains(updateUser_MessageType))
+                        if (AllEMailNotifications.Count > 0)
                         {
-                            await APISMTPClient.Send(
-                                     new HTMLEMailBuilder() {
 
-                                         From           = Robot.EMail,
-                                         To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
-                                         Passphrase     = APIPassphrase,
-                                         Subject        = String.Concat("User '" + User.Name + "' information had been successfully updated."), // + {Updated information}  + link {User_ID_baseData page}."),
+                            if (messageTypes.Contains(addUser_MessageType))
+                            {
+                                await APISMTPClient.Send(
+                                         new HTMLEMailBuilder() {
 
-                                         HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                        "User <a href=\"https://", ExternalDNSName, BasePath, "/users/", User.Id, "\">", User.Name, "</a> information had been successfully updated.", // + {Updated information}  + link {User_ID_baseData page}.",
-                                                                        HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
+                                             From           = Robot.EMail,
+                                             To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
+                                             Passphrase     = APIPassphrase,
+                                             Subject        = String.Concat("User '" + User.Name + "' was successfully created."), // to Organization {Org_Name}."),
 
-                                         PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                        "User '" + User.Name + "' information had been successfully updated.\r\n",
-                                                                        "https://", ExternalDNSName, BasePath, "/users/", User.Id, "\r\r\r\r",
-                                                                        // + {Updated information}
-                                                                        TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
+                                             HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
+                                                                            "User <a href=\"https://", ExternalDNSName, BasePath, "/users/", User.Id, "\">", User.Name, "</a> was successfully created.",
+                                                                            HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
-                                         SecurityLevel  = EMailSecurity.sign
+                                             PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
+                                                                            "User '" + User.Name + "' was successfully created.\r\n",
+                                                                            "https://", ExternalDNSName, BasePath, "/users/", User.Id, "\r\r\r\r",
+                                                                            // to Organization {Org_Name}.\r\r\r\r",
+                                                                            TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
-                                     });
-                        }
+                                             SecurityLevel  = EMailSecurity.sign
 
-                        if (messageTypes.Contains(deleteUser_MessageType))
-                        {
-                            await APISMTPClient.Send(
-                                     new HTMLEMailBuilder() {
+                                         });
+                            }
 
-                                         From           = Robot.EMail,
-                                         To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
-                                         Passphrase     = APIPassphrase,
-                                         Subject        = String.Concat("User '" + User.Name + "' information had been removed."),
+                            if (messageTypes.Contains(updateUser_MessageType))
+                            {
+                                await APISMTPClient.Send(
+                                         new HTMLEMailBuilder() {
 
-                                         HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                        "User <a href=\"https://", ExternalDNSName, BasePath, "/users/", User.Id, "\">", User.Name, "</a> information had been removed.",
-                                                                        HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
+                                             From           = Robot.EMail,
+                                             To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
+                                             Passphrase     = APIPassphrase,
+                                             Subject        = String.Concat("User '" + User.Name + "' information had been successfully updated."), // + {Updated information}  + link {User_ID_baseData page}."),
 
-                                         PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                        "User '" + User.Name + "' information had been removed.\r\n",
-                                                                        TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
+                                             HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
+                                                                            "User <a href=\"https://", ExternalDNSName, BasePath, "/users/", User.Id, "\">", User.Name, "</a> information had been successfully updated.", // + {Updated information}  + link {User_ID_baseData page}.",
+                                                                            HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
-                                         SecurityLevel  = EMailSecurity.sign
+                                             PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
+                                                                            "User '" + User.Name + "' information had been successfully updated.\r\n",
+                                                                            "https://", ExternalDNSName, BasePath, "/users/", User.Id, "\r\r\r\r",
+                                                                            // + {Updated information}
+                                                                            TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
-                                     });
+                                             SecurityLevel  = EMailSecurity.sign
+
+                                         });
+                            }
+
+                            if (messageTypes.Contains(deleteUser_MessageType))
+                            {
+                                await APISMTPClient.Send(
+                                         new HTMLEMailBuilder() {
+
+                                             From           = Robot.EMail,
+                                             To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
+                                             Passphrase     = APIPassphrase,
+                                             Subject        = String.Concat("User '" + User.Name + "' information had been removed."),
+
+                                             HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
+                                                                            "User <a href=\"https://", ExternalDNSName, BasePath, "/users/", User.Id, "\">", User.Name, "</a> information had been removed.",
+                                                                            HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
+
+                                             PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
+                                                                            "User '" + User.Name + "' information had been removed.\r\n",
+                                                                            TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
+
+                                             SecurityLevel  = EMailSecurity.sign
+
+                                         });
+                            }
+
                         }
 
                     }
-
-                }
-                catch (Exception e)
-                {
-                    DebugX.Log(e.Message);
+                    catch (Exception e)
+                    {
+                        DebugX.Log(e.Message);
+                    }
                 }
 
                 #endregion
@@ -15771,6 +15771,9 @@ namespace social.OpenData.UsersAPI
             #endregion
 
 
+            OnAdded?.Invoke(User,
+                            eventTrackingId);
+
             var OnUserAddedLocal = OnUserAdded;
             if (OnUserAddedLocal != null)
                 await OnUserAddedLocal?.Invoke(DateTime.UtcNow,
@@ -15783,9 +15786,6 @@ namespace social.OpenData.UsersAPI
                                     null,
                                     eventTrackingId,
                                     CurrentUserId);
-
-            OnAdded?.Invoke(User,
-                            eventTrackingId);
 
             return AddUserResult.Success(User,
                                          eventTrackingId);
@@ -15876,28 +15876,38 @@ namespace social.OpenData.UsersAPI
 
                 // The new user does not yet have an organization,
                 // therefore organization notifications do not work here yet!
-                return ((await UsersSemaphore.        WaitAsync(SemaphoreSlimTimeout)) &&
-                        (await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout)))
+                var result = ((await UsersSemaphore.        WaitAsync(SemaphoreSlimTimeout)) &&
+                              (await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout)))
 
-                             ? await _AddUser(User,
-                                              async (_user, _eventTrackingId) => {
+                                   ? await _AddUser(User,
+                                                    async (_user, _eventTrackingId) => {
 
-                                                  await _AddUserToOrganization(_user,
-                                                                               AccessRight,
-                                                                               Organization,
-                                                                               _eventTrackingId,
-                                                                               CurrentUserId);
+                                                        await _AddUserToOrganization(_user,
+                                                                                     AccessRight,
+                                                                                     Organization,
+                                                                                     _eventTrackingId,
+                                                                                     SuppressNotifications:  true,
+                                                                                     CurrentUserId:          CurrentUserId);
 
-                                                  OnAdded?.Invoke(_user,
-                                                                  _eventTrackingId);
+                                                        OnAdded?.Invoke(_user,
+                                                                        _eventTrackingId);
 
-                                              },
-                                              eventTrackingId ?? EventTracking_Id.New,
-                                              CurrentUserId)
+                                                    },
+                                                    eventTrackingId ?? EventTracking_Id.New,
+                                                    CurrentUserId)
 
-                             : AddUserResult.Failed(User,
-                                                    eventTrackingId,
-                                                    "Internal locking failed!");
+                                   : AddUserResult.Failed(User,
+                                                          eventTrackingId,
+                                                          "Internal locking failed!");
+
+                if (result?.IsSuccess == true)
+                    await SendNotifications(Organization,
+                                            User,
+                                            addUserToOrganization_MessageType,
+                                            eventTrackingId,
+                                            CurrentUserId);
+
+                return result;
 
             }
             catch (Exception e)
@@ -15966,6 +15976,7 @@ namespace social.OpenData.UsersAPI
 
             if (_Users.ContainsKey(User.Id))
                 return AddUserIfNotExistsResult.Success(_Users[User.Id],
+                                                        AddedOrIgnored.Ignored,
                                                         eventTrackingId);
 
             if (User.Id.Length < MinUserIdLength)
@@ -16017,6 +16028,9 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
+            OnAdded?.Invoke(User,
+                            eventTrackingId);
+
             var OnUserAddedLocal = OnUserAdded;
             if (OnUserAddedLocal != null)
                 await OnUserAddedLocal?.Invoke(DateTime.UtcNow,
@@ -16030,10 +16044,8 @@ namespace social.OpenData.UsersAPI
                                     eventTrackingId,
                                     CurrentUserId);
 
-            OnAdded?.Invoke(User,
-                            eventTrackingId);
-
             return AddUserIfNotExistsResult.Success(User,
+                                                    AddedOrIgnored.Added,
                                                     eventTrackingId);
 
         }
@@ -16122,28 +16134,38 @@ namespace social.OpenData.UsersAPI
 
                 // The new user does not yet have an organization,
                 // therefore organization notifications do not work here yet!
-                return ((await UsersSemaphore.        WaitAsync(SemaphoreSlimTimeout)) &&
-                        (await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout)))
+                var result = ((await UsersSemaphore.        WaitAsync(SemaphoreSlimTimeout)) &&
+                              (await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout)))
 
-                             ? await _AddUserIfNotExists(User,
-                                                         async (_user, _eventTrackingId) => {
+                                   ? await _AddUserIfNotExists(User,
+                                                               async (_user, _eventTrackingId) => {
 
-                                                             await _AddUserToOrganization(_user,
-                                                                                          Membership,
-                                                                                          Organization,
-                                                                                          _eventTrackingId,
-                                                                                          CurrentUserId);
+                                                                   await _AddUserToOrganization(_user,
+                                                                                                Membership,
+                                                                                                Organization,
+                                                                                                _eventTrackingId,
+                                                                                                SuppressNotifications:  true,
+                                                                                                CurrentUserId:          CurrentUserId);
 
-                                                             OnAdded?.Invoke(_user,
-                                                                             _eventTrackingId);
+                                                                   OnAdded?.Invoke(_user,
+                                                                                   _eventTrackingId);
 
-                                                         },
-                                                         eventTrackingId,
-                                                         CurrentUserId)
-
-                             : AddUserIfNotExistsResult.Failed(User,
+                                                               },
                                                                eventTrackingId,
-                                                               "Internal locking failed!");
+                                                               CurrentUserId)
+
+                                   : AddUserIfNotExistsResult.Failed(User,
+                                                                     eventTrackingId,
+                                                                     "Internal locking failed!");
+
+                if (result?.IsSuccess == true)
+                    await SendNotifications(Organization,
+                                            User,
+                                            addUserToOrganization_MessageType,
+                                            eventTrackingId,
+                                            CurrentUserId);
+
+                return result;
 
             }
             catch (Exception e)
@@ -16264,6 +16286,9 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
+                OnAdded?.Invoke(User,
+                                eventTrackingId);
+
                 var OnUserAddedLocal = OnUserAdded;
                 if (OnUserAddedLocal != null)
                     await OnUserAddedLocal?.Invoke(DateTime.UtcNow,
@@ -16277,16 +16302,16 @@ namespace social.OpenData.UsersAPI
                                         eventTrackingId,
                                         CurrentUserId);
 
-                OnAdded?.Invoke(User,
-                                eventTrackingId);
-
                 return AddOrUpdateUserResult.Success(User,
-                                                     AddOrUpdate.Add,
+                                                     AddedOrUpdated.Add,
                                                      eventTrackingId);
 
             }
             else
             {
+
+                OnUpdated?.Invoke(User,
+                                  eventTrackingId);
 
                 var OnUserUpdatedLocal = OnUserUpdated;
                 if (OnUserUpdatedLocal != null)
@@ -16302,11 +16327,8 @@ namespace social.OpenData.UsersAPI
                                         eventTrackingId,
                                         CurrentUserId);
 
-                OnUpdated?.Invoke(User,
-                                  eventTrackingId);
-
                 return AddOrUpdateUserResult.Success(User,
-                                                     AddOrUpdate.Update,
+                                                     AddedOrUpdated.Update,
                                                      eventTrackingId);
 
             }
@@ -16400,28 +16422,38 @@ namespace social.OpenData.UsersAPI
             try
             {
 
-                return (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout))
+                var result = (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout))
 
-                            ? await _AddOrUpdateUser(User,
-                                                     async (_user, _eventTrackingId) => {
+                                  ? await _AddOrUpdateUser(User,
+                                                           async (_user, _eventTrackingId) => {
 
-                                                         await _AddUserToOrganization(_user,
-                                                                                      Membership,
-                                                                                      Organization,
-                                                                                      _eventTrackingId,
-                                                                                      CurrentUserId);
+                                                               await _AddUserToOrganization(_user,
+                                                                                            Membership,
+                                                                                            Organization,
+                                                                                            _eventTrackingId,
+                                                                                            SuppressNotifications:  true,
+                                                                                            CurrentUserId:          CurrentUserId);
 
-                                                         OnAdded?.Invoke(_user,
-                                                                         _eventTrackingId);
+                                                               OnAdded?.Invoke(_user,
+                                                                               _eventTrackingId);
 
-                                                     },
-                                                     OnUpdated,
-                                                     eventTrackingId,
-                                                     CurrentUserId)
-
-                            : AddOrUpdateUserResult.Failed(User,
+                                                           },
+                                                           OnUpdated,
                                                            eventTrackingId,
-                                                           "Internal locking failed!");
+                                                           CurrentUserId)
+
+                                  : AddOrUpdateUserResult.Failed(User,
+                                                                 eventTrackingId,
+                                                                 "Internal locking failed!");
+
+                if (result?.IsSuccess == true)
+                    await SendNotifications(Organization,
+                                            User,
+                                            addUserToOrganization_MessageType,
+                                            eventTrackingId,
+                                            CurrentUserId);
+
+                return result;
 
             }
             catch (Exception e)
@@ -16519,6 +16551,8 @@ namespace social.OpenData.UsersAPI
             User.CopyAllLinkedDataFrom(OldUser);
             _Users.Add(User.Id, User);
 
+            OnUpdated?.Invoke(User,
+                              eventTrackingId);
 
             var OnUserUpdatedLocal = OnUserUpdated;
             if (OnUserUpdatedLocal != null)
@@ -16533,9 +16567,6 @@ namespace social.OpenData.UsersAPI
                                     OldUser,
                                     eventTrackingId,
                                     CurrentUserId);
-
-            OnUpdated?.Invoke(User,
-                              eventTrackingId);
 
             return UpdateUserResult.Success(User,
                                             eventTrackingId);
@@ -16658,6 +16689,8 @@ namespace social.OpenData.UsersAPI
             updatedUser.CopyAllLinkedDataFrom(User);
             _Users.Add(updatedUser.Id, updatedUser);
 
+            OnUpdated?.Invoke(updatedUser,
+                              eventTrackingId);
 
             var OnUserUpdatedLocal = OnUserUpdated;
             if (OnUserUpdatedLocal != null)
@@ -16672,9 +16705,6 @@ namespace social.OpenData.UsersAPI
                                     User,
                                     eventTrackingId,
                                     CurrentUserId);
-
-            OnUpdated?.Invoke(updatedUser,
-                              eventTrackingId);
 
             return UpdateUserResult.Success(User,
                                             eventTrackingId);
@@ -17102,6 +17132,8 @@ namespace social.OpenData.UsersAPI
 
             _Users.Remove(User.Id);
 
+            OnDeleted?.Invoke(User,
+                              eventTrackingId);
 
             var OnUserDeletedLocal = OnUserDeleted;
             if (OnUserDeletedLocal != null)
@@ -17115,9 +17147,6 @@ namespace social.OpenData.UsersAPI
                                     null,
                                     eventTrackingId,
                                     CurrentUserId);
-
-            OnDeleted?.Invoke(User,
-                              eventTrackingId);
 
             return DeleteUserResult.Success(User,
                                             eventTrackingId);
@@ -19057,6 +19086,8 @@ namespace social.OpenData.UsersAPI
 
             _APIKeys.Add(APIKey.Id, APIKey);
 
+            OnAdded?.Invoke(APIKey,
+                            eventTrackingId);
 
             var OnAPIKeyAddedLocal = OnAPIKeyAdded;
             if (OnAPIKeyAddedLocal != null)
@@ -19070,9 +19101,6 @@ namespace social.OpenData.UsersAPI
                                     null,
                                     eventTrackingId,
                                     CurrentUserId);
-
-            OnAdded?.Invoke(APIKey,
-                            eventTrackingId);
 
             return AddAPIKeyResult.Success(APIKey,
                                            eventTrackingId);
@@ -19172,6 +19200,7 @@ namespace social.OpenData.UsersAPI
 
             if (_APIKeys.ContainsKey(APIKey.Id))
                 return AddAPIKeyIfNotExistsResult.Success(_APIKeys[APIKey.Id],
+                                                          AddedOrIgnored.Ignored,
                                                           eventTrackingId);
 
             if (APIKey.Id.Length < MinAPIKeyLength)
@@ -19190,6 +19219,9 @@ namespace social.OpenData.UsersAPI
 
             _APIKeys.Add(APIKey.Id, APIKey);
 
+            OnAdded?.Invoke(APIKey,
+                            eventTrackingId);
+
             var OnAPIKeyAddedLocal = OnAPIKeyAdded;
             if (OnAPIKeyAddedLocal != null)
                 await OnAPIKeyAddedLocal?.Invoke(DateTime.UtcNow,
@@ -19203,10 +19235,8 @@ namespace social.OpenData.UsersAPI
                                     eventTrackingId,
                                     CurrentUserId);
 
-            OnAdded?.Invoke(APIKey,
-                            eventTrackingId);
-
             return AddAPIKeyIfNotExistsResult.Success(APIKey,
+                                                      AddedOrIgnored.Added,
                                                       eventTrackingId);
 
         }
@@ -19329,6 +19359,9 @@ namespace social.OpenData.UsersAPI
             if (OldAPIKey != null)
             {
 
+                OnUpdated?.Invoke(APIKey,
+                                  eventTrackingId);
+
                 var OnAPIKeyUpdatedLocal = OnAPIKeyUpdated;
                 if (OnAPIKeyUpdatedLocal != null)
                     await OnAPIKeyUpdatedLocal?.Invoke(DateTime.UtcNow,
@@ -19343,12 +19376,12 @@ namespace social.OpenData.UsersAPI
                                         eventTrackingId,
                                         CurrentUserId);
 
-                OnUpdated?.Invoke(APIKey,
-                                  eventTrackingId);
-
             }
             else
             {
+
+                OnAdded?.Invoke(APIKey,
+                                eventTrackingId);
 
                 var OnAPIKeyAddedLocal = OnAPIKeyAdded;
                 if (OnAPIKeyAddedLocal != null)
@@ -19363,13 +19396,10 @@ namespace social.OpenData.UsersAPI
                                         eventTrackingId,
                                         CurrentUserId);
 
-                OnAdded?.Invoke(APIKey,
-                                eventTrackingId);
-
             }
 
             return AddOrUpdateAPIKeyResult.Success(APIKey,
-                                                   AddOrUpdate.Update,
+                                                   AddedOrUpdated.Update,
                                                    eventTrackingId);
 
         }
@@ -19506,6 +19536,8 @@ namespace social.OpenData.UsersAPI
             //APIKey.CopyAllLinkedDataFrom(OldAPIKey);
             _APIKeys.Add(APIKey.Id, APIKey);
 
+            OnUpdated?.Invoke(APIKey,
+                              eventTrackingId);
 
             var OnAPIKeyUpdatedLocal = OnAPIKeyUpdated;
             if (OnAPIKeyUpdatedLocal != null)
@@ -19520,9 +19552,6 @@ namespace social.OpenData.UsersAPI
                                     OldAPIKey,
                                     eventTrackingId,
                                     CurrentUserId);
-
-            OnUpdated?.Invoke(APIKey,
-                              eventTrackingId);
 
             return UpdateAPIKeyResult.Success(APIKey,
                                               eventTrackingId);
@@ -19645,6 +19674,8 @@ namespace social.OpenData.UsersAPI
             //updatedAPIKey.CopyAllLinkedDataFrom(APIKey);
             _APIKeys.Add(updatedAPIKey.Id, updatedAPIKey);
 
+            OnUpdated?.Invoke(updatedAPIKey,
+                              eventTrackingId);
 
             var OnAPIKeyUpdatedLocal = OnAPIKeyUpdated;
             if (OnAPIKeyUpdatedLocal != null)
@@ -19659,9 +19690,6 @@ namespace social.OpenData.UsersAPI
                                     APIKey,
                                     eventTrackingId,
                                     CurrentUserId);
-
-            OnUpdated?.Invoke(updatedAPIKey,
-                              eventTrackingId);
 
             return UpdateAPIKeyResult.Success(APIKey,
                                               eventTrackingId);
@@ -20287,6 +20315,8 @@ namespace social.OpenData.UsersAPI
 
             _APIKeys.Remove(APIKey.Id);
 
+            OnRemoved?.Invoke(APIKey,
+                              eventTrackingId);
 
             var OnAPIKeyRemovedLocal = OnAPIKeyRemoved;
             if (OnAPIKeyRemovedLocal != null)
@@ -20300,9 +20330,6 @@ namespace social.OpenData.UsersAPI
                                     null,
                                     eventTrackingId,
                                     CurrentUserId);
-
-            OnRemoved?.Invoke(APIKey,
-                              eventTrackingId);
 
             return RemoveAPIKeyResult.Success(APIKey,
                                               eventTrackingId);
@@ -24254,48 +24281,51 @@ namespace social.OpenData.UsersAPI
 
                 #region Telegram Notifications
 
-                try
+                if (TelegramStore != null)
                 {
-
-                    var AllTelegramNotifications  = this.GetTelegramNotifications(Organization, messageTypes).
-                                                         ToHashSet();
-
-                    if (DevMachines.Contains(Environment.MachineName))
-                    {
-                        AllTelegramNotifications.Clear();
-                    }
-
-                    if (AllTelegramNotifications.Count > 0)
+                    try
                     {
 
-                        if (messageTypes.Contains(addOrganization_MessageType))
+                        var AllTelegramNotifications  = this.GetTelegramNotifications(Organization, messageTypes).
+                                                             ToHashSet();
+
+                        if (DevMachines.Contains(Environment.MachineName))
                         {
-                            await TelegramStore.SendTelegrams(String.Concat("Organization '", Organization.Name.FirstText(), "' was successfully created. ",
-                                                                            "https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id),
-                                                              AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
+                            AllTelegramNotifications.Clear();
                         }
 
-                        if (messageTypes.Contains(updateOrganization_MessageType))
+                        if (AllTelegramNotifications.Count > 0)
                         {
-                            await TelegramStore.SendTelegrams(String.Concat("Organization '", Organization.Name.FirstText(), "' information had been successfully updated. ",
-                                                                            "https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id),
-                                                                            // + {Updated information}
-                                                              AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
-                        }
 
-                        if (messageTypes.Contains(deleteOrganization_MessageType))
-                        {
-                            await TelegramStore.SendTelegrams(String.Concat("Organization '", Organization.Name.FirstText(), "' has been removed. ",
-                                                                            "If you haven't approved this request, please contact support: support@cardi-link.com"),
-                                                              AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
+                            if (messageTypes.Contains(addOrganization_MessageType))
+                            {
+                                await TelegramStore.SendTelegrams(String.Concat("Organization '", Organization.Name.FirstText(), "' was successfully created. ",
+                                                                                "https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id),
+                                                                  AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
+                            }
+
+                            if (messageTypes.Contains(updateOrganization_MessageType))
+                            {
+                                await TelegramStore.SendTelegrams(String.Concat("Organization '", Organization.Name.FirstText(), "' information had been successfully updated. ",
+                                                                                "https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id),
+                                                                                // + {Updated information}
+                                                                  AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
+                            }
+
+                            if (messageTypes.Contains(deleteOrganization_MessageType))
+                            {
+                                await TelegramStore.SendTelegrams(String.Concat("Organization '", Organization.Name.FirstText(), "' has been removed. ",
+                                                                                "If you haven't approved this request, please contact support: support@cardi-link.com"),
+                                                                  AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
+                            }
+
                         }
 
                     }
-
-                }
-                catch (Exception e)
-                {
-                    DebugX.Log(e.Message);
+                    catch (Exception e)
+                    {
+                        DebugX.Log(e.Message);
+                    }
                 }
 
                 #endregion
@@ -24415,101 +24445,104 @@ namespace social.OpenData.UsersAPI
 
                 #region EMailNotifications
 
-                try
+                if (APISMTPClient != null)
                 {
-
-                    var AllEMailNotifications  = this.GetEMailNotifications(Organization, messageTypes).
-                                                      ToHashSet();
-
-                    if (DevMachines.Contains(Environment.MachineName))
-                    {
-                        AllEMailNotifications.Clear();
-                    }
-
-                    if (AllEMailNotifications.Count > 0)
+                    try
                     {
 
-                        if (messageTypes.Contains(addOrganization_MessageType))
+                        var AllEMailNotifications  = this.GetEMailNotifications(Organization, messageTypes).
+                                                          ToHashSet();
+
+                        if (DevMachines.Contains(Environment.MachineName))
                         {
-
-                            await APISMTPClient.Send(
-                                     new HTMLEMailBuilder() {
-
-                                         From           = Robot.EMail,
-                                         To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
-                                         Passphrase     = APIPassphrase,
-                                         Subject        = String.Concat("Organization '", Organization.Name.FirstText(), "' was successfully created."),
-
-                                         HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                        "Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a> was successfully created.",
-                                                                        HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
-
-                                         PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                        "Organization '", Organization.Name.FirstText(), "' was successfully created.\r\n",
-                                                                        "https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\r\r\r\r",
-                                                                        TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
-
-                                         SecurityLevel  = EMailSecurity.sign
-
-                                     });
-
+                            AllEMailNotifications.Clear();
                         }
 
-                        if (messageTypes.Contains(updateOrganization_MessageType))
+                        if (AllEMailNotifications.Count > 0)
                         {
-                            await APISMTPClient.Send(
-                                     new HTMLEMailBuilder() {
 
-                                         From           = Robot.EMail,
-                                         To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
-                                         Passphrase     = APIPassphrase,
-                                         Subject        = String.Concat("Organization '", Organization.Name.FirstText(), "' information had been successfully updated."),
+                            if (messageTypes.Contains(addOrganization_MessageType))
+                            {
 
-                                         HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                        "Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a> information had been successfully updated.",
-                                                                        // + {Updated information}",
-                                                                        HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
+                                await APISMTPClient.Send(
+                                         new HTMLEMailBuilder() {
 
-                                         PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                        "Organization '", Organization.Name.FirstText(), "' information had been successfully updated.\r\n",
-                                                                        "https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\r\r\r\r",
-                                                                        // + {Updated information}",
-                                                                        TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
+                                             From           = Robot.EMail,
+                                             To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
+                                             Passphrase     = APIPassphrase,
+                                             Subject        = String.Concat("Organization '", Organization.Name.FirstText(), "' was successfully created."),
 
-                                         SecurityLevel  = EMailSecurity.sign
+                                             HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
+                                                                            "Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a> was successfully created.",
+                                                                            HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
-                                     });
-                        }
+                                             PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
+                                                                            "Organization '", Organization.Name.FirstText(), "' was successfully created.\r\n",
+                                                                            "https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\r\r\r\r",
+                                                                            TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
-                        if (messageTypes.Contains(deleteOrganization_MessageType))
-                        {
-                            await APISMTPClient.Send(
-                                     new HTMLEMailBuilder() {
+                                             SecurityLevel  = EMailSecurity.sign
 
-                                         From           = Robot.EMail,
-                                         To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
-                                         Passphrase     = APIPassphrase,
-                                         Subject        = String.Concat("Organization '", Organization.Name.FirstText(), "' has been removed."),
+                                         });
 
-                                         HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                        "Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a> has been removed.<br />",
-                                                                        HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
+                            }
 
-                                         PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                        "Organization '", Organization.Name.FirstText(), "' has been removed.\r\n",
-                                                                        TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
+                            if (messageTypes.Contains(updateOrganization_MessageType))
+                            {
+                                await APISMTPClient.Send(
+                                         new HTMLEMailBuilder() {
 
-                                         SecurityLevel  = EMailSecurity.sign
+                                             From           = Robot.EMail,
+                                             To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
+                                             Passphrase     = APIPassphrase,
+                                             Subject        = String.Concat("Organization '", Organization.Name.FirstText(), "' information had been successfully updated."),
 
-                                     });
+                                             HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
+                                                                            "Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a> information had been successfully updated.",
+                                                                            // + {Updated information}",
+                                                                            HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
+
+                                             PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
+                                                                            "Organization '", Organization.Name.FirstText(), "' information had been successfully updated.\r\n",
+                                                                            "https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\r\r\r\r",
+                                                                            // + {Updated information}",
+                                                                            TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
+
+                                             SecurityLevel  = EMailSecurity.sign
+
+                                         });
+                            }
+
+                            if (messageTypes.Contains(deleteOrganization_MessageType))
+                            {
+                                await APISMTPClient.Send(
+                                         new HTMLEMailBuilder() {
+
+                                             From           = Robot.EMail,
+                                             To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
+                                             Passphrase     = APIPassphrase,
+                                             Subject        = String.Concat("Organization '", Organization.Name.FirstText(), "' has been removed."),
+
+                                             HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
+                                                                            "Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a> has been removed.<br />",
+                                                                            HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
+
+                                             PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
+                                                                            "Organization '", Organization.Name.FirstText(), "' has been removed.\r\n",
+                                                                            TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
+
+                                             SecurityLevel  = EMailSecurity.sign
+
+                                         });
+                            }
+
                         }
 
                     }
-
-                }
-                catch (Exception e)
-                {
-                    DebugX.Log(e.Message);
+                    catch (Exception e)
+                    {
+                        DebugX.Log(e.Message);
+                    }
                 }
 
                 #endregion
@@ -24634,6 +24667,8 @@ namespace social.OpenData.UsersAPI
 
             _Organizations.Add(Organization.Id, Organization);
 
+            OnAdded?.Invoke(Organization,
+                            eventTrackingId);
 
             var OnOrganizationAddedLocal = OnOrganizationAdded;
             if (OnOrganizationAddedLocal != null)
@@ -24647,9 +24682,6 @@ namespace social.OpenData.UsersAPI
                                     null,
                                     eventTrackingId,
                                     CurrentUserId);
-
-            OnAdded?.Invoke(Organization,
-                            eventTrackingId);
 
             return AddOrganizationResult.Success(Organization,
                                                  eventTrackingId);
@@ -24714,7 +24746,8 @@ namespace social.OpenData.UsersAPI
                                                                                      Organization2OrganizationEdgeTypes.IsChildOf,
                                                                                      ParentOrganization,
                                                                                      _eventTrackingId,
-                                                                                     CurrentUserId);
+                                                                                     SuppressNotifications:  true,
+                                                                                     CurrentUserId:          CurrentUserId);
 
                                                             OnAdded?.Invoke(_organization,
                                                                             _eventTrackingId);
@@ -24723,7 +24756,19 @@ namespace social.OpenData.UsersAPI
                                                         eventTrackingId,
                                                         CurrentUserId);
 
-                    result.ParentOrganization = ParentOrganization;
+                    if (result?.IsSuccess == true)
+                    {
+
+                        result.ParentOrganization = ParentOrganization;
+
+                        await SendNotifications(Organization,
+                                                Organization2OrganizationEdgeTypes.IsChildOf,
+                                                ParentOrganization,
+                                                linkOrganizations_MessageType,
+                                                eventTrackingId,
+                                                CurrentUserId);
+
+                    }
 
                     return result;
 
@@ -24795,6 +24840,7 @@ namespace social.OpenData.UsersAPI
 
             if (_Organizations.ContainsKey(Organization.Id))
                 return AddOrganizationIfNotExistsResult.Success(_Organizations[Organization.Id],
+                                                                AddedOrIgnored.Ignored,
                                                                 eventTrackingId);
 
             if (Organization.Id.Length < MinOrganizationIdLength)
@@ -24824,6 +24870,8 @@ namespace social.OpenData.UsersAPI
 
             _Organizations.Add(Organization.Id, Organization);
 
+            OnAdded?.Invoke(Organization,
+                            eventTrackingId);
 
             var OnOrganizationAddedLocal = OnOrganizationAdded;
             if (OnOrganizationAddedLocal != null)
@@ -24838,10 +24886,8 @@ namespace social.OpenData.UsersAPI
                                     eventTrackingId,
                                     CurrentUserId);
 
-            OnAdded?.Invoke(Organization,
-                            eventTrackingId);
-
             return AddOrganizationIfNotExistsResult.Success(Organization,
+                                                            AddedOrIgnored.Added,
                                                             eventTrackingId);
 
         }
@@ -24904,7 +24950,8 @@ namespace social.OpenData.UsersAPI
                                                                                                 Organization2OrganizationEdgeTypes.IsChildOf,
                                                                                                 ParentOrganization,
                                                                                                 _eventTrackingId,
-                                                                                                CurrentUserId);
+                                                                                                SuppressNotifications:  true,
+                                                                                                CurrentUserId:          CurrentUserId);
 
                                                                        OnAdded?.Invoke(_organization,
                                                                                        _eventTrackingId);
@@ -24913,7 +24960,20 @@ namespace social.OpenData.UsersAPI
                                                                    eventTrackingId,
                                                                    CurrentUserId);
 
-                    result.ParentOrganization = ParentOrganization;
+                    if (result?.IsSuccess == true)
+                    {
+
+                        result.ParentOrganization = ParentOrganization;
+
+                        if (result?.AddedOrIgnored == AddedOrIgnored.Added)
+                            await SendNotifications(Organization,
+                                                    Organization2OrganizationEdgeTypes.IsChildOf,
+                                                    ParentOrganization,
+                                                    linkOrganizations_MessageType,
+                                                    eventTrackingId,
+                                                    CurrentUserId);
+
+                    }
 
                     return result;
 
@@ -25021,6 +25081,9 @@ namespace social.OpenData.UsersAPI
             if (OldOrganization is null)
             {
 
+                OnAdded?.Invoke(Organization,
+                                eventTrackingId);
+
                 var OnOrganizationAddedLocal = OnOrganizationAdded;
                 if (OnOrganizationAddedLocal != null)
                     await OnOrganizationAddedLocal?.Invoke(DateTime.UtcNow,
@@ -25034,16 +25097,16 @@ namespace social.OpenData.UsersAPI
                                         eventTrackingId,
                                         CurrentUserId);
 
-                OnAdded?.Invoke(Organization,
-                                eventTrackingId);
-
                 return AddOrUpdateOrganizationResult.Success(Organization,
-                                                             AddOrUpdate.Add,
+                                                             AddedOrUpdated.Add,
                                                              eventTrackingId);
 
             }
             else
             {
+
+                OnAdded?.Invoke(Organization,
+                                eventTrackingId);
 
                 var OnOrganizationUpdatedLocal = OnOrganizationUpdated;
                 if (OnOrganizationUpdatedLocal != null)
@@ -25059,11 +25122,8 @@ namespace social.OpenData.UsersAPI
                                         eventTrackingId,
                                         CurrentUserId);
 
-                OnUpdated?.Invoke(Organization,
-                                  eventTrackingId);
-
                 return AddOrUpdateOrganizationResult.Success(Organization,
-                                                             AddOrUpdate.Update,
+                                                             AddedOrUpdated.Update,
                                                              eventTrackingId);
 
             }
@@ -25191,7 +25251,8 @@ namespace social.OpenData.UsersAPI
                                                                                              Organization2OrganizationEdgeTypes.IsChildOf,
                                                                                              ParentOrganization,
                                                                                              _eventTrackingId,
-                                                                                             CurrentUserId);
+                                                                                             SuppressNotifications:  true,
+                                                                                             CurrentUserId:          CurrentUserId);
 
                                                                     OnAdded?.Invoke(_organization,
                                                                                     _eventTrackingId);
@@ -25201,7 +25262,20 @@ namespace social.OpenData.UsersAPI
                                                                 eventTrackingId,
                                                                 CurrentUserId);
 
-                    result.ParentOrganization = ParentOrganization;
+                    if (result?.IsSuccess == true)
+                    {
+
+                        result.ParentOrganization = ParentOrganization;
+
+                        if (result?.AddedOrUpdated == AddedOrUpdated.Add)
+                            await SendNotifications(Organization,
+                                                    Organization2OrganizationEdgeTypes.IsChildOf,
+                                                    ParentOrganization,
+                                                    linkOrganizations_MessageType,
+                                                    eventTrackingId,
+                                                    CurrentUserId);
+
+                    }
 
                     return result;
 
@@ -25308,6 +25382,8 @@ namespace social.OpenData.UsersAPI
             Organization.CopyAllLinkedDataFrom(OldOrganization);
             _Organizations.Add(Organization.Id, Organization);
 
+            OnUpdated?.Invoke(Organization,
+                              eventTrackingId);
 
             var OnOrganizationUpdatedLocal = OnOrganizationUpdated;
             if (OnOrganizationUpdatedLocal != null)
@@ -25322,9 +25398,6 @@ namespace social.OpenData.UsersAPI
                                     OldOrganization,
                                     eventTrackingId,
                                     CurrentUserId);
-
-            OnUpdated?.Invoke(Organization,
-                              eventTrackingId);
 
             return UpdateOrganizationResult.Success(Organization,
                                                     eventTrackingId);
@@ -25447,6 +25520,8 @@ namespace social.OpenData.UsersAPI
             updatedOrganization.CopyAllLinkedDataFrom(Organization);
             _Organizations.Add(updatedOrganization.Id, updatedOrganization);
 
+            OnUpdated?.Invoke(updatedOrganization,
+                              eventTrackingId);
 
             var OnOrganizationUpdatedLocal = OnOrganizationUpdated;
             if (OnOrganizationUpdatedLocal != null)
@@ -25461,9 +25536,6 @@ namespace social.OpenData.UsersAPI
                                     Organization,
                                     eventTrackingId,
                                     CurrentUserId);
-
-            OnUpdated?.Invoke(updatedOrganization,
-                              eventTrackingId);
 
             return UpdateOrganizationResult.Success(Organization,
                                                     eventTrackingId);
@@ -26015,6 +26087,8 @@ namespace social.OpenData.UsersAPI
 
             _Organizations.Remove(Organization.Id);
 
+            OnDeleted?.Invoke(Organization,
+                              eventTrackingId);
 
             var OnOrganizationDeletedLocal = OnOrganizationDeleted;
             if (OnOrganizationDeletedLocal != null)
@@ -26028,9 +26102,6 @@ namespace social.OpenData.UsersAPI
                                     null,
                                     eventTrackingId,
                                     CurrentUserId);
-
-            OnDeleted?.Invoke(Organization,
-                                eventTrackingId);
 
             return DeleteOrganizationResult.Success(Organization,
                                                     eventTrackingId);
@@ -27554,38 +27625,41 @@ namespace social.OpenData.UsersAPI
 
                 #region Telegram Notifications
 
-                try
+                if (TelegramStore != null)
                 {
-
-                    var AllTelegramNotifications  = this.GetTelegramNotifications(Organization, MessageTypes).
-                                                         ToHashSet();
-
-                    if (DevMachines.Contains(Environment.MachineName))
-                    {
-                        AllTelegramNotifications.Clear();
-                    }
-
-                    if (AllTelegramNotifications.Count > 0)
+                    try
                     {
 
-                        if (_MessageTypes.Contains(addUserToOrganization_MessageType))
+                        var AllTelegramNotifications  = this.GetTelegramNotifications(Organization, MessageTypes).
+                                                             ToHashSet();
+
+                        if (DevMachines.Contains(Environment.MachineName))
                         {
-                            await TelegramStore.SendTelegrams(String.Concat("User '", User.Name, "' was added to organization '", Organization.Name.FirstText(), "'."),
-                                                              AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
+                            AllTelegramNotifications.Clear();
                         }
 
-                        if (_MessageTypes.Contains(removeUserFromOrganization_MessageType))
+                        if (AllTelegramNotifications.Count > 0)
                         {
-                            await TelegramStore.SendTelegrams(String.Concat("User '", User.Name, "' was removed from organization '", Organization.Name.FirstText(), "'."),
-                                                              AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
+
+                            if (_MessageTypes.Contains(addUserToOrganization_MessageType))
+                            {
+                                await TelegramStore.SendTelegrams(String.Concat("User '", User.Name, "' was added to organization '", Organization.Name.FirstText(), "'."),
+                                                                  AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
+                            }
+
+                            if (_MessageTypes.Contains(removeUserFromOrganization_MessageType))
+                            {
+                                await TelegramStore.SendTelegrams(String.Concat("User '", User.Name, "' was removed from organization '", Organization.Name.FirstText(), "'."),
+                                                                  AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
+                            }
+
                         }
 
                     }
-
-                }
-                catch (Exception e)
-                {
-                    DebugX.Log(e.Message);
+                    catch (Exception e)
+                    {
+                        DebugX.Log(e.Message);
+                    }
                 }
 
                 #endregion
@@ -27765,13 +27839,14 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (protected) _AddUserToOrganization     (User, EdgeLabel, Organization, CurrentUserId  = null)
+        #region (protected) _AddUserToOrganization     (User, EdgeLabel, Organization, SuppressNotifications = false, CurrentUserId  = null)
 
         protected async Task<Boolean> _AddUserToOrganization(User                        User,
                                                              User2OrganizationEdgeTypes  EdgeLabel,
                                                              Organization                Organization,
-                                                             EventTracking_Id            EventTrackingId   = null,
-                                                             User_Id?                    CurrentUserId     = null)
+                                                             EventTracking_Id            EventTrackingId         = null,
+                                                             Boolean                     SuppressNotifications   = false,
+                                                             User_Id?                    CurrentUserId           = null)
         {
 
             if (!User.EdgeLabels(Organization).Any(edge => edge == EdgeLabel))
@@ -27795,11 +27870,12 @@ namespace social.OpenData.UsersAPI
                     Organization.LinkUser(edge);
 
 
-                await SendNotifications(Organization,
-                                        User,
-                                        addUserToOrganization_MessageType,
-                                        eventTrackingId,
-                                        CurrentUserId);
+                if (!SuppressNotifications)
+                    await SendNotifications(Organization,
+                                            User,
+                                            addUserToOrganization_MessageType,
+                                            eventTrackingId,
+                                            CurrentUserId);
 
                 return true;
 
@@ -27830,7 +27906,8 @@ namespace social.OpenData.UsersAPI
                                                     Edge,
                                                     Organization,
                                                     EventTrackingId,
-                                                    CurrentUserId);
+                                                    SuppressNotifications:  false,
+                                                    CurrentUserId:          CurrentUserId);
 
             }
             finally
@@ -28012,13 +28089,14 @@ namespace social.OpenData.UsersAPI
 
         #region Organizations <> Organizations
 
-        #region (protected internal) SendNotifications   (OrganizationOut, OrganizationIn, MessageType, CurrentUserId = null)
+        #region (protected internal) SendNotifications(OrganizationOut, EdgeLabel, OrganizationIn, MessageType, CurrentUserId = null)
 
-        protected internal async virtual Task SendNotifications<TOrganization>(TOrganization            OrganizationOut,
-                                                                               TOrganization            OrganizationIn,
-                                                                               NotificationMessageType  MessageType,
-                                                                               EventTracking_Id         EventTrackingId   = null,
-                                                                               User_Id?                 CurrentUserId     = null)
+        protected internal async virtual Task SendNotifications<TOrganization>(TOrganization                       OrganizationOut,
+                                                                               Organization2OrganizationEdgeTypes  EdgeLabel,
+                                                                               TOrganization                       OrganizationIn,
+                                                                               NotificationMessageType             MessageType,
+                                                                               EventTracking_Id                    EventTrackingId   = null,
+                                                                               User_Id?                            CurrentUserId     = null)
 
             where TOrganization : Organization
 
@@ -28042,39 +28120,42 @@ namespace social.OpenData.UsersAPI
 
                 #region Telegram Notifications
 
-                try
+                if (TelegramStore != null)
                 {
-
-                    var AllTelegramNotifications  = this.GetTelegramNotifications(OrganizationIn,  MessageTypes).Concat(
-                                                    this.GetTelegramNotifications(OrganizationOut, MessageTypes)).
-                                                    ToHashSet();
-
-                    if (DevMachines.Contains(Environment.MachineName))
-                    {
-                        AllTelegramNotifications.Clear();
-                    }
-
-                    if (AllTelegramNotifications.Count > 0)
+                    try
                     {
 
-                        if (_MessageTypes.Contains(linkOrganizations_MessageType))
+                        var AllTelegramNotifications  = this.GetTelegramNotifications(OrganizationIn,  MessageTypes).Concat(
+                                                        this.GetTelegramNotifications(OrganizationOut, MessageTypes)).
+                                                        ToHashSet();
+
+                        if (DevMachines.Contains(Environment.MachineName))
                         {
-                            await TelegramStore.SendTelegrams(String.Concat("Organization '", OrganizationOut.Name.FirstText(), "' was linked to organization '", OrganizationIn.Name.FirstText(), "'."),
-                                                              AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
+                            AllTelegramNotifications.Clear();
                         }
 
-                        if (_MessageTypes.Contains(unlinkOrganizations_MessageType))
+                        if (AllTelegramNotifications.Count > 0)
                         {
-                            await TelegramStore.SendTelegrams(String.Concat("Organization '", OrganizationOut.Name.FirstText(), "' was unlinked from organization '", OrganizationIn.Name.FirstText(), "'."),
-                                                              AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
+
+                            if (_MessageTypes.Contains(linkOrganizations_MessageType))
+                            {
+                                await TelegramStore.SendTelegrams(String.Concat("Organization '", OrganizationOut.Name.FirstText(), "' was linked to organization '", OrganizationIn.Name.FirstText(), "'."),
+                                                                  AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
+                            }
+
+                            if (_MessageTypes.Contains(unlinkOrganizations_MessageType))
+                            {
+                                await TelegramStore.SendTelegrams(String.Concat("Organization '", OrganizationOut.Name.FirstText(), "' was unlinked from organization '", OrganizationIn.Name.FirstText(), "'."),
+                                                                  AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
+                            }
+
                         }
 
                     }
-
-                }
-                catch (Exception e)
-                {
-                    DebugX.Log(e.Message);
+                    catch (Exception e)
+                    {
+                        DebugX.Log(e.Message);
+                    }
                 }
 
                 #endregion
@@ -28179,76 +28260,76 @@ namespace social.OpenData.UsersAPI
 
                 #region EMailNotifications
 
-                try
+                if (APISMTPClient != null)
                 {
-
-                    var AllEMailNotifications  = this.GetEMailNotifications(OrganizationIn,  MessageTypes).Concat(
-                                                 this.GetEMailNotifications(OrganizationOut, MessageTypes)).
-                                                 ToHashSet();
-
-                    if (DevMachines.Contains(Environment.MachineName))
-                    {
-                        AllEMailNotifications.Clear();
-                    }
-
-                    if (AllEMailNotifications.Count > 0)
+                    try
                     {
 
-                        if (_MessageTypes.Contains(linkOrganizations_MessageType))
+                        var AllEMailNotifications  = this.GetEMailNotifications(OrganizationIn,  MessageTypes).Concat(
+                                                     this.GetEMailNotifications(OrganizationOut, MessageTypes)).
+                                                     ToHashSet();
+
+                        if (DevMachines.Contains(Environment.MachineName))
                         {
-                            await APISMTPClient.Send(
-                                     new HTMLEMailBuilder() {
-
-                                         From           = Robot.EMail,
-                                         To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
-                                         Passphrase     = APIPassphrase,
-                                         Subject        = String.Concat("Organization '", OrganizationOut.Name.FirstText(), "' was linked to organization '", OrganizationIn.Name.FirstText(), "'."),
-
-                                         HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                        "Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", OrganizationOut.Id, "\">", OrganizationOut.Name.FirstText(), "</a> had been linked to organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", OrganizationIn.Id, "\">", OrganizationIn.Name.FirstText(), "</a>.<br />",
-                                                                        "If you haven't approved this request, please contact support: <a href=\"mailto:support@cardi-link.com\">support@cardi-link.com</a>",
-                                                                        HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
-
-                                         PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                        "Organization '" + OrganizationOut.Name.FirstText() + "' had been linked to organization '", OrganizationIn.Name.FirstText(), "'.\r\r\r\r",
-                                                                        TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
-
-                                         SecurityLevel  = EMailSecurity.sign
-
-                                     });
+                            AllEMailNotifications.Clear();
                         }
 
-                        if (_MessageTypes.Contains(unlinkOrganizations_MessageType))
+                        if (AllEMailNotifications.Count > 0)
                         {
-                            await APISMTPClient.Send(
-                                     new HTMLEMailBuilder() {
 
-                                         From           = Robot.EMail,
-                                         To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
-                                         Passphrase     = APIPassphrase,
-                                         Subject        = String.Concat("Organization '", OrganizationOut.Name.FirstText(), "' was unlinked from organization '", OrganizationIn.Name.FirstText(), "'."),
+                            if (_MessageTypes.Contains(linkOrganizations_MessageType))
+                            {
+                                await APISMTPClient.Send(
+                                         new HTMLEMailBuilder() {
 
-                                         HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                        "Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", OrganizationOut.Id, "\">", OrganizationOut.Name.FirstText(), "</a> had been unlinked from organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", OrganizationIn.Id, "\">", OrganizationIn.Name.FirstText(), "</a>.<br />",
-                                                                        "If you haven't approved this request, please contact support: <a href=\"mailto:support@cardi-link.com\">support@cardi-link.com</a>",
-                                                                        HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
+                                             From           = Robot.EMail,
+                                             To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
+                                             Passphrase     = APIPassphrase,
+                                             Subject        = String.Concat("Organization '", OrganizationOut.Name.FirstText(), "' was linked to organization '", OrganizationIn.Name.FirstText(), "'."),
 
-                                         PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                        "Organization '" + OrganizationOut.Name.FirstText() + "' had been unlinked from organization '", OrganizationIn.Name.FirstText(), "'.\r\n",
-                                                                        "If you haven't approved this request, please contact support: support@cardi-link.com\r\r\r\r",
-                                                                        TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
+                                             HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
+                                                                            "Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", OrganizationOut.Id, "\">", OrganizationOut.Name.FirstText(), "</a> had been linked to organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", OrganizationIn.Id, "\">", OrganizationIn.Name.FirstText(), "</a>.<br />",
+                                                                            HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
-                                         SecurityLevel  = EMailSecurity.sign
+                                             PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
+                                                                            "Organization '" + OrganizationOut.Name.FirstText() + "' had been linked to organization '", OrganizationIn.Name.FirstText(), "'.\r\r\r\r",
+                                                                            TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
-                                     });
+                                             SecurityLevel  = EMailSecurity.sign
+
+                                         });
+                            }
+
+                            if (_MessageTypes.Contains(unlinkOrganizations_MessageType))
+                            {
+                                await APISMTPClient.Send(
+                                         new HTMLEMailBuilder() {
+
+                                             From           = Robot.EMail,
+                                             To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
+                                             Passphrase     = APIPassphrase,
+                                             Subject        = String.Concat("Organization '", OrganizationOut.Name.FirstText(), "' was unlinked from organization '", OrganizationIn.Name.FirstText(), "'."),
+
+                                             HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
+                                                                            "Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", OrganizationOut.Id, "\">", OrganizationOut.Name.FirstText(), "</a> had been unlinked from organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", OrganizationIn.Id, "\">", OrganizationIn.Name.FirstText(), "</a>.<br />",
+                                                                            HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
+
+                                             PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
+                                                                            "Organization '" + OrganizationOut.Name.FirstText() + "' had been unlinked from organization '", OrganizationIn.Name.FirstText(), "'.\r\r\r\r",
+                                                                            TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
+
+                                             SecurityLevel  = EMailSecurity.sign
+
+                                         });
+                            }
+
                         }
 
                     }
-
-                }
-                catch (Exception e)
-                {
-                    DebugX.Log(e.Message);
+                    catch (Exception e)
+                    {
+                        DebugX.Log(e.Message);
+                    }
                 }
 
                 #endregion
@@ -28260,13 +28341,14 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (protected) _LinkOrganizations  (OrganizationOut, EdgeLabel, OrganizationIn, EventTrackingId = null, CurrentUserId = null)
+        #region (protected) _LinkOrganizations  (OrganizationOut, EdgeLabel, OrganizationIn, EventTrackingId = null, SuppressNotifications = false, CurrentUserId = null)
 
         protected async Task<Boolean> _LinkOrganizations(Organization                        OrganizationOut,
                                                          Organization2OrganizationEdgeTypes  EdgeLabel,
                                                          Organization                        OrganizationIn,
-                                                         EventTracking_Id                    EventTrackingId   = null,
-                                                         User_Id?                            CurrentUserId     = null)
+                                                         EventTracking_Id                    EventTrackingId         = null,
+                                                         Boolean                             SuppressNotifications   = false,
+                                                         User_Id?                            CurrentUserId           = null)
         {
 
                 if (!OrganizationOut.
@@ -28296,11 +28378,13 @@ namespace social.OpenData.UsersAPI
                         OrganizationIn.AddInEdge(EdgeLabel, OrganizationOut);
                     }
 
-                    await SendNotifications(OrganizationOut,
-                                            OrganizationIn,
-                                            linkOrganizations_MessageType,
-                                            eventTrackingId,
-                                            CurrentUserId);
+                    if (!SuppressNotifications)
+                        await SendNotifications(OrganizationOut,
+                                                EdgeLabel,
+                                                OrganizationIn,
+                                                linkOrganizations_MessageType,
+                                                eventTrackingId,
+                                                CurrentUserId);
 
                     return true;
 
@@ -28312,7 +28396,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region LinkOrganizations               (OrganizationOut, EdgeLabel, OrganizationIn, EventTrackingId = null, CurrentUserId = null)
+        #region LinkOrganizations               (OrganizationOut, EdgeLabel, OrganizationIn, EventTrackingId = null,                                CurrentUserId = null)
 
         public async Task<Boolean> LinkOrganizations(Organization                        OrganizationOut,
                                                      Organization2OrganizationEdgeTypes  EdgeLabel,
@@ -28330,7 +28414,8 @@ namespace social.OpenData.UsersAPI
                                                 EdgeLabel,
                                                 OrganizationIn,
                                                 EventTrackingId,
-                                                CurrentUserId);
+                                                SuppressNotifications:  false,
+                                                CurrentUserId:          CurrentUserId);
 
             }
             finally
@@ -28343,13 +28428,14 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (protected) _UnlinkOrganizations(OrganizationOut, EdgeLabel, OrganizationIn, CurrentUserId = null)
+        #region (protected) _UnlinkOrganizations(OrganizationOut, EdgeLabel, OrganizationIn, SuppressNotifications = false, CurrentUserId = null)
 
         protected async Task<Boolean> _UnlinkOrganizations(Organization                        OrganizationOut,
                                                            Organization2OrganizationEdgeTypes  EdgeLabel,
                                                            Organization                        OrganizationIn,
-                                                           EventTracking_Id                    EventTrackingId   = null,
-                                                           User_Id?                            CurrentUserId     = null)
+                                                           EventTracking_Id                    EventTrackingId         = null,
+                                                           Boolean                             SuppressNotifications   = false,
+                                                           User_Id?                            CurrentUserId           = null)
         {
 
             if (OrganizationOut.
@@ -28379,11 +28465,13 @@ namespace social.OpenData.UsersAPI
                     OrganizationIn.RemoveInEdges(EdgeLabel, OrganizationOut);
                 }
 
-                await SendNotifications(OrganizationOut,
-                                        OrganizationIn,
-                                        unlinkOrganizations_MessageType,
-                                        eventTrackingId,
-                                        CurrentUserId);
+                if (!SuppressNotifications)
+                    await SendNotifications(OrganizationOut,
+                                            EdgeLabel,
+                                            OrganizationIn,
+                                            unlinkOrganizations_MessageType,
+                                            eventTrackingId,
+                                            CurrentUserId);
 
                 return true;
 
@@ -28395,7 +28483,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region UnlinkOrganizations             (OrganizationOut, EdgeLabel, OrganizationIn, CurrentUserId = null)
+        #region UnlinkOrganizations             (OrganizationOut, EdgeLabel, OrganizationIn,                                CurrentUserId = null)
 
         public async Task<Boolean> UnlinkOrganizations(Organization                        OrganizationOut,
                                                        Organization2OrganizationEdgeTypes  EdgeLabel,
@@ -28413,7 +28501,8 @@ namespace social.OpenData.UsersAPI
                                                   EdgeLabel,
                                                   OrganizationIn,
                                                   EventTrackingId,
-                                                  CurrentUserId);
+                                                  SuppressNotifications:  false,
+                                                  CurrentUserId:          CurrentUserId);
 
             }
             finally
@@ -28562,49 +28651,52 @@ namespace social.OpenData.UsersAPI
 
                 #region Telegram Notifications
 
-                try
+                if (TelegramStore != null)
                 {
-
-                    var AllTelegramNotifications = this.GetTelegramNotifications(ServiceTicket.Author, messageTypes).
-                                                        ToHashSet();
-
-                    if (ServiceTicket.Affected != null)
+                    try
                     {
 
-                        if (ServiceTicket.Affected.Users.SafeAny())
+                        var AllTelegramNotifications = this.GetTelegramNotifications(ServiceTicket.Author, messageTypes).
+                                                            ToHashSet();
+
+                        if (ServiceTicket.Affected != null)
                         {
-                            foreach (var user in ServiceTicket.Affected.Users)
-                                foreach (var notification in this.GetTelegramNotifications(user.Id, messageTypes))
-                                    AllTelegramNotifications.Add(notification);
+
+                            if (ServiceTicket.Affected.Users.SafeAny())
+                            {
+                                foreach (var user in ServiceTicket.Affected.Users)
+                                    foreach (var notification in this.GetTelegramNotifications(user.Id, messageTypes))
+                                        AllTelegramNotifications.Add(notification);
+                            }
+
+                            if (ServiceTicket.Affected.Organizations.SafeAny())
+                            {
+                                foreach (var organization in ServiceTicket.Affected.Organizations)
+                                    foreach (var notification in this.GetTelegramNotifications(organization.Id, messageTypes))
+                                        AllTelegramNotifications.Add(notification);
+                            }
+
                         }
 
-                        if (ServiceTicket.Affected.Organizations.SafeAny())
+                        if (DevMachines.Contains(Environment.MachineName))
                         {
-                            foreach (var organization in ServiceTicket.Affected.Organizations)
-                                foreach (var notification in this.GetTelegramNotifications(organization.Id, messageTypes))
-                                    AllTelegramNotifications.Add(notification);
+                            AllTelegramNotifications.Clear();
+                            //AllTelegramNotifications.Add(PhoneNumber.Parse("+491728930852"));
+                        }
+
+                        if (AllTelegramNotifications.Count > 0)
+                        {
+
+                            //await TelegramStore.SendTelegrams("ServiceTicket '" + ServiceTicket.Id + "' sent '" + MessageType + "'!",
+                            //                                  AllTelegramNotifications.Select(telegramNotification => telegramNotification.Username));
+
                         }
 
                     }
-
-                    if (DevMachines.Contains(Environment.MachineName))
+                    catch (Exception e)
                     {
-                        AllTelegramNotifications.Clear();
-                        //AllTelegramNotifications.Add(PhoneNumber.Parse("+491728930852"));
+                        DebugX.Log(e.Message);
                     }
-
-                    if (AllTelegramNotifications.Count > 0)
-                    {
-
-                        //await TelegramStore.SendTelegrams("ServiceTicket '" + ServiceTicket.Id + "' sent '" + MessageType + "'!",
-                        //                                  AllTelegramNotifications.Select(telegramNotification => telegramNotification.Username));
-
-                    }
-
-                }
-                catch (Exception e)
-                {
-                    DebugX.Log(e.Message);
                 }
 
                 #endregion
@@ -28723,41 +28815,44 @@ namespace social.OpenData.UsersAPI
 
                 #region EMailNotifications
 
-                try
+                if (APISMTPClient != null)
                 {
-
-                    var AllEMailNotifications = new HashSet<EMailNotification>();
-
-                    // Add author
-                    this.GetEMailNotifications(ServiceTicket.Author, messageTypes).
-                         ForEach(notificationemail => AllEMailNotifications.Add(notificationemail));
-
-                    // Add defibrillator owners
-
-                    // Add communicator owners
-
-
-                    if (DevMachines.Contains(Environment.MachineName))
-                    {
-                        AllEMailNotifications.Clear();
-                        AllEMailNotifications.Add(new EMailNotification(EMailAddress.Parse("cardilogs@graphdefined.com")));
-                    }
-
-                    if (AllEMailNotifications.Count > 0)
+                    try
                     {
 
-                        //await APISMTPClient.Send(__ServiceTicketChangedEMailDelegate(ExternalDNSName, Robot.EMail, APIPassphrase)
-                        //                         (ServiceTicket,
-                        //                          MessageType,
-                        //                          MessageTypes,
-                        //                          EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))
-                        //                         ));
+                        var AllEMailNotifications = new HashSet<EMailNotification>();
 
+                        // Add author
+                        this.GetEMailNotifications(ServiceTicket.Author, messageTypes).
+                             ForEach(notificationemail => AllEMailNotifications.Add(notificationemail));
+
+                        // Add defibrillator owners
+
+                        // Add communicator owners
+
+
+                        if (DevMachines.Contains(Environment.MachineName))
+                        {
+                            AllEMailNotifications.Clear();
+                            AllEMailNotifications.Add(new EMailNotification(EMailAddress.Parse("cardilogs@graphdefined.com")));
+                        }
+
+                        if (AllEMailNotifications.Count > 0)
+                        {
+
+                            //await APISMTPClient.Send(__ServiceTicketChangedEMailDelegate(ExternalDNSName, Robot.EMail, APIPassphrase)
+                            //                         (ServiceTicket,
+                            //                          MessageType,
+                            //                          MessageTypes,
+                            //                          EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))
+                            //                         ));
+
+                        }
+
+                    } catch (Exception e)
+                    {
+                        DebugX.Log(e.Message);
                     }
-
-                } catch (Exception e)
-                {
-                    DebugX.Log(e.Message);
                 }
 
                 #endregion

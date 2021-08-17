@@ -32,7 +32,9 @@ namespace social.OpenData.UsersAPI
         public Organization  Organization
             => Object;
 
-        public Organization  ParentOrganization   { get; internal set; }
+        public Organization     ParentOrganization   { get; internal set; }
+
+        public AddedOrIgnored?  AddedOrIgnored       { get; internal set; }
 
 
         public AddOrganizationIfNotExistsResult(Organization      Organization,
@@ -40,7 +42,8 @@ namespace social.OpenData.UsersAPI
                                                 Boolean           IsSuccess,
                                                 String            Argument             = null,
                                                 I18NString        ErrorDescription     = null,
-                                                Organization      ParentOrganization   = null)
+                                                Organization      ParentOrganization   = null,
+                                                AddedOrIgnored?   AddedOrIgnored       = null)
 
             : base(Organization,
                    EventTrackingId,
@@ -50,12 +53,14 @@ namespace social.OpenData.UsersAPI
 
         {
 
-            this.ParentOrganization = ParentOrganization;
+            this.ParentOrganization  = ParentOrganization;
+            this.AddedOrIgnored      = AddedOrIgnored;
 
         }
 
 
         public static AddOrganizationIfNotExistsResult Success(Organization      Organization,
+                                                               AddedOrIgnored    AddedOrIgnored,
                                                                EventTracking_Id  EventTrackingId,
                                                                Organization      ParentOrganization  = null)
 
@@ -64,7 +69,8 @@ namespace social.OpenData.UsersAPI
                                                     true,
                                                     null,
                                                     null,
-                                                    ParentOrganization);
+                                                    ParentOrganization,
+                                                    AddedOrIgnored);
 
 
         public static AddOrganizationIfNotExistsResult ArgumentError(Organization      Organization,

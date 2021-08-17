@@ -32,7 +32,9 @@ namespace social.OpenData.UsersAPI
         public User User
             => Object;
 
-        public Organization  Organization   { get; internal set; }
+        public Organization     Organization      { get; internal set; }
+
+        public AddedOrIgnored?  AddedOrIgnored    { get; internal set; }
 
 
         public AddUserIfNotExistsResult(User              User,
@@ -40,7 +42,8 @@ namespace social.OpenData.UsersAPI
                                         Boolean           IsSuccess,
                                         String            Argument           = null,
                                         I18NString        ErrorDescription   = null,
-                                        Organization      Organization       = null)
+                                        Organization      Organization       = null,
+                                        AddedOrIgnored?   AddedOrIgnored     = null)
 
             : base(User,
                    EventTrackingId,
@@ -50,12 +53,14 @@ namespace social.OpenData.UsersAPI
 
         {
 
-            this.Organization = Organization;
+            this.Organization    = Organization;
+            this.AddedOrIgnored  = AddedOrIgnored;
 
         }
 
 
         public static AddUserIfNotExistsResult Success(User              User,
+                                                       AddedOrIgnored    AddedOrIgnored,
                                                        EventTracking_Id  EventTrackingId,
                                                        Organization      Organization = null)
 
@@ -64,7 +69,8 @@ namespace social.OpenData.UsersAPI
                                             true,
                                             null,
                                             null,
-                                            Organization);
+                                            Organization,
+                                            AddedOrIgnored);
 
 
         public static AddUserIfNotExistsResult ArgumentError(User              User,

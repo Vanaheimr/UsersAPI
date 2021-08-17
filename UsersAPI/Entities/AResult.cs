@@ -27,7 +27,13 @@ using org.GraphDefined.Vanaheimr.Illias;
 namespace social.OpenData.UsersAPI
 {
 
-    public enum AddOrUpdate
+    public enum AddedOrIgnored
+    {
+        Added,
+        Ignored
+    }
+
+    public enum AddedOrUpdated
     {
         Add,
         Update

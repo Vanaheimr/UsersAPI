@@ -32,9 +32,9 @@ namespace social.OpenData.UsersAPI
         public Organization Organization
             => Object;
 
-        public Organization  ParentOrganization   { get; internal set; }
+        public Organization     ParentOrganization    { get; internal set; }
 
-        public AddOrUpdate?  AddOrUpdate          { get; internal set; }
+        public AddedOrUpdated?  AddedOrUpdated        { get; internal set; }
 
 
         public AddOrUpdateOrganizationResult(Organization      Organization,
@@ -43,7 +43,7 @@ namespace social.OpenData.UsersAPI
                                              String            Argument             = null,
                                              I18NString        ErrorDescription     = null,
                                              Organization      ParentOrganization   = null,
-                                             AddOrUpdate?      AddOrUpdate          = null)
+                                             AddedOrUpdated?   AddedOrUpdated       = null)
 
             : base(Organization,
                    EventTrackingId,
@@ -54,13 +54,13 @@ namespace social.OpenData.UsersAPI
         {
 
             this.ParentOrganization  = ParentOrganization;
-            this.AddOrUpdate         = AddOrUpdate;
+            this.AddedOrUpdated      = AddedOrUpdated;
 
         }
 
 
         public static AddOrUpdateOrganizationResult Success(Organization      Organization,
-                                                            AddOrUpdate       AddOrUpdate,
+                                                            AddedOrUpdated    AddedOrUpdated,
                                                             EventTracking_Id  EventTrackingId,
                                                             Organization      ParentOrganization = null)
 
@@ -70,7 +70,7 @@ namespace social.OpenData.UsersAPI
                                                  null,
                                                  null,
                                                  ParentOrganization,
-                                                 AddOrUpdate);
+                                                 AddedOrUpdated);
 
 
         public static AddOrUpdateOrganizationResult ArgumentError(Organization      Organization,
