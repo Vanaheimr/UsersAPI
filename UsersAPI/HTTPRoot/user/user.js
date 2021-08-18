@@ -306,55 +306,59 @@ function StartUser() {
                 impersonateButton.onclick = () => {
                     ImpersonateUser(userId);
                 };
-                deleteUserButton.disabled = false;
-                deleteUserButton.style.display = "block";
-                deleteUserButton.onclick = () => {
-                    confirmToDeleteUserDiv.style.display = "block";
-                    yes.onclick = () => {
-                        HTTPDelete("/users/" + userId, 
-                        // Ok!
-                        (status, response) => {
-                            try {
-                                confirmToDeleteUserDiv.style.display = "none";
-                                responseDiv.innerHTML = "<div class=\"HTTP OK\">Successfully deleted this user.</div>";
-                                // Redirect after 2 seconds!
-                                setTimeout(function () {
-                                    window.location.href = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
-                                }, 2000);
-                            }
-                            catch (exception) {
-                                responseDiv.innerHTML = "<div class=\"HTTP Error\">Deleting this user failed!</div>";
-                            }
-                        }, 
-                        // Failed dependencies, e.g. user still has attached data!
-                        (status, response) => {
-                            try {
-                                const responseJSON = response !== "" ? JSON.parse(response) : {};
-                                confirmToDeleteUserDiv.style.display = "none";
-                                deletionFailedDiv.style.display = "block";
-                                deletionFailedReason.innerHTML = responseJSON.errorDescription.en;
-                            }
-                            catch (exception) {
-                                responseDiv.innerHTML = "<div class=\"HTTP Error\">Deleting this user failed!</div>";
-                            }
-                        }, 
-                        // Some error occured!
-                        (statusCode, status, response) => {
-                            try {
-                                confirmToDeleteUserDiv.style.display = "none";
-                                const responseJSON = response !== "" ? JSON.parse(response) : {};
-                                const info = responseJSON.description != null ? "<br />" + responseJSON.description : "";
-                                responseDiv.innerHTML = "<div class=\"HTTP Error\">Deleting this user failed!<br />" + info + "</div>";
-                            }
-                            catch (exception) {
-                                responseDiv.innerHTML = "<div class=\"HTTP Error\">Deleting this user failed!</div>";
-                            }
-                        });
-                    };
-                    no.onclick = () => {
-                        confirmToDeleteUserDiv.style.display = "none";
-                    };
-                };
+                //deleteUserButton.disabled        = false;
+                //deleteUserButton.style.display   = "block";
+                //deleteUserButton.onclick         = () => {
+                //    confirmToDeleteUserDiv.style.display = "block";
+                //    yes.onclick = () => {
+                //        HTTPDelete("/users/" + userId,
+                //                   // Ok!
+                //                   (status, response) => {
+                //                       try
+                //                       {
+                //                           confirmToDeleteUserDiv.style.display = "none";
+                //                           responseDiv.innerHTML = "<div class=\"HTTP OK\">Successfully deleted this user.</div>";
+                //                           // Redirect after 2 seconds!
+                //                           setTimeout(function () {
+                //                               window.location.href = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
+                //                           }, 2000);
+                //                       }
+                //                       catch (exception) {
+                //                           responseDiv.innerHTML = "<div class=\"HTTP Error\">Deleting this user failed!</div>";
+                //                       }
+                //                   },
+                //                   // Failed dependencies, e.g. user still has attached data!
+                //                   (status, response) => {
+                //                       try
+                //                       {
+                //                           const responseJSON = response !== "" ? JSON.parse(response) : {};
+                //                           confirmToDeleteUserDiv.style.display = "none";
+                //                           deletionFailedDiv.style.display  = "block";
+                //                           deletionFailedReason.innerHTML = responseJSON.errorDescription.en;
+                //                       }
+                //                       catch (exception)
+                //                       {
+                //                           responseDiv.innerHTML = "<div class=\"HTTP Error\">Deleting this user failed!</div>";
+                //                       }
+                //                   },
+                //                   // Some error occured!
+                //                   (statusCode, status, response) => {
+                //                       try
+                //                       {
+                //                           confirmToDeleteUserDiv.style.display = "none";
+                //                           const responseJSON = response !== "" ? JSON.parse(response) : {};
+                //                           const info         = responseJSON.description != null ? "<br />" + responseJSON.description : "";
+                //                           responseDiv.innerHTML = "<div class=\"HTTP Error\">Deleting this user failed!<br />" + info + "</div>";
+                //                       }
+                //                       catch (exception) {
+                //                           responseDiv.innerHTML = "<div class=\"HTTP Error\">Deleting this user failed!</div>";
+                //                       }
+                //                   });
+                //    };
+                //    no.onclick = () => {
+                //        confirmToDeleteUserDiv.style.display = "none";
+                //    };
+                //};
             }
         }
         catch (exception) {

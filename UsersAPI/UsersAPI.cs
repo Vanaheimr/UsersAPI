@@ -4989,263 +4989,281 @@ namespace social.OpenData.UsersAPI
                                          HTTPContentType.XWWWFormUrlEncoded,
                                          HTTPDelegate: Request => {
 
-                                              //Note: Add LoginRequest event!
+                                             //Note: Add LoginRequest event!
 
-                                              #region Check UTF8 text body...
+                                             #region Check UTF8 text body...
 
-                                              if (!Request.TryParseUTF8StringRequestBody(HTTPContentType.XWWWFormUrlEncoded,
-                                                                                         out String       LoginText,
-                                                                                         out HTTPResponse _HTTPResponse,
-                                                                                         AllowEmptyHTTPBody: false))
-                                              {
-                                                  return Task.FromResult(_HTTPResponse);
-                                              }
+                                             if (!Request.TryParseUTF8StringRequestBody(HTTPContentType.XWWWFormUrlEncoded,
+                                                                                        out String       LoginText,
+                                                                                        out HTTPResponse _HTTPResponse,
+                                                                                        AllowEmptyHTTPBody: false))
+                                             {
+                                                 return Task.FromResult(_HTTPResponse);
+                                             }
 
-                                              #endregion
+                                             #endregion
 
-                                              var loginData = LoginText.DoubleSplit('&', '=');
+                                             var loginData = LoginText.DoubleSplit('&', '=');
 
-                                              #region Verify the login
+                                             #region Verify the login
 
-                                              if (!loginData.TryGetValue("login", out String login) ||
-                                                   login.    IsNullOrEmpty())
-                                              {
-
-                                                  return Task.FromResult(
-                                                      new HTTPResponse.Builder(Request) {
-                                                          HTTPStatusCode  = HTTPStatusCode.BadRequest,
-                                                          Server          = HTTPServer.DefaultServerName,
-                                                          ContentType     = HTTPContentType.JSON_UTF8,
-                                                          Content         = new JObject(
-                                                                                new JProperty("@context",     SignInOutContext),
-                                                                                new JProperty("statuscode",   400),
-                                                                                new JProperty("property",     "login"),
-                                                                                new JProperty("description",  "The login must not be empty!")
-                                                                            ).ToString().ToUTF8Bytes(),
-                                                          CacheControl     = "private",
-                                                          Connection       = "close"
-                                                      }.AsImmutable);
-
-                                              }
-
-                                              login = HTTPTools.URLDecode(login);
-
-                                              if (login.Length < MinUserIdLength)
-                                              {
-
-                                                  return Task.FromResult(
-                                                      new HTTPResponse.Builder(Request) {
-                                                          HTTPStatusCode  = HTTPStatusCode.BadRequest,
-                                                          Server          = HTTPServer.DefaultServerName,
-                                                          ContentType     = HTTPContentType.JSON_UTF8,
-                                                          Content         = new JObject(
-                                                                                new JProperty("@context",     SignInOutContext),
-                                                                                new JProperty("statuscode",   400),
-                                                                                new JProperty("property",     "login"),
-                                                                                new JProperty("description",  "The login is too short!")
-                                                                            ).ToString().ToUTF8Bytes(),
-                                                          CacheControl    = "private",
-                                                          Connection      = "close"
-                                                      }.AsImmutable);
-
-                                              }
-
-                                              #endregion
-
-                                              #region Verify the password
-
-                                              if (!loginData.TryGetValue("password", out String password) ||
-                                                  password.  IsNullOrEmpty())
-                                              {
+                                             if (!loginData.TryGetValue("login", out String login) ||
+                                                  login.    IsNullOrEmpty())
+                                             {
 
                                                  return Task.FromResult(
-                                                      new HTTPResponse.Builder(Request) {
-                                                          HTTPStatusCode  = HTTPStatusCode.BadRequest,
-                                                          Server          = HTTPServer.DefaultServerName,
-                                                          ContentType     = HTTPContentType.JSON_UTF8,
-                                                          Content         = new JObject(
-                                                                                new JProperty("@context",     SignInOutContext),
-                                                                                new JProperty("statuscode",   400),
-                                                                                new JProperty("property",     "password"),
-                                                                                new JProperty("description",  "The password must not be empty!")
+                                                     new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                                                         Server          = HTTPServer.DefaultServerName,
+                                                         ContentType     = HTTPContentType.JSON_UTF8,
+                                                         Content         = new JObject(
+                                                                               new JProperty("@context",     SignInOutContext),
+                                                                               new JProperty("statuscode",   400),
+                                                                               new JProperty("property",     "login"),
+                                                                               new JProperty("description",  "The login must not be empty!")
                                                                            ).ToString().ToUTF8Bytes(),
-                                                          CacheControl    = "private",
-                                                          Connection      = "close"
-                                                      }.AsImmutable);
+                                                         CacheControl     = "private",
+                                                         Connection       = "close"
+                                                     }.AsImmutable);
 
-                                              }
+                                             }
 
-                                              password = HTTPTools.URLDecode(password);
+                                             login = HTTPTools.URLDecode(login);
 
-                                              if (PasswordQualityCheck(password) < 1.0)
-                                              {
+                                             if (login.Length < MinUserIdLength)
+                                             {
 
-                                                  return Task.FromResult(
-                                                      new HTTPResponse.Builder(Request) {
-                                                          HTTPStatusCode  = HTTPStatusCode.BadRequest,
-                                                          Server          = HTTPServer.DefaultServerName,
-                                                          ContentType     = HTTPContentType.JSON_UTF8,
-                                                          Content         = new JObject(
-                                                                                new JProperty("@context",     SignInOutContext),
-                                                                                new JProperty("statuscode",   400),
-                                                                                new JProperty("property",     "password"),
-                                                                                new JProperty("description",  "The password does not match the password quality criteria!")
+                                                 return Task.FromResult(
+                                                     new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                                                         Server          = HTTPServer.DefaultServerName,
+                                                         ContentType     = HTTPContentType.JSON_UTF8,
+                                                         Content         = new JObject(
+                                                                               new JProperty("@context",     SignInOutContext),
+                                                                               new JProperty("statuscode",   400),
+                                                                               new JProperty("property",     "login"),
+                                                                               new JProperty("description",  "The login is too short!")
                                                                            ).ToString().ToUTF8Bytes(),
-                                                          CacheControl    = "private",
-                                                          Connection      = "close"
-                                                      }.AsImmutable);
+                                                         CacheControl    = "private",
+                                                         Connection      = "close"
+                                                     }.AsImmutable);
 
-                                              }
+                                             }
 
-                                              #endregion
+                                             #endregion
 
-                                              #region Get RedirectURL
+                                             #region Verify the password
 
-                                              loginData.TryGetValue("redirect", out String redirectURL);
+                                             if (!loginData.TryGetValue("password", out String password) ||
+                                                 password.  IsNullOrEmpty())
+                                             {
 
-                                              if (redirectURL.IsNotNullOrEmpty())
-                                                 redirectURL = HTTPTools.URLDecode(redirectURL);
+                                                return Task.FromResult(
+                                                     new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                                                         Server          = HTTPServer.DefaultServerName,
+                                                         ContentType     = HTTPContentType.JSON_UTF8,
+                                                         Content         = new JObject(
+                                                                               new JProperty("@context",     SignInOutContext),
+                                                                               new JProperty("statuscode",   400),
+                                                                               new JProperty("property",     "password"),
+                                                                               new JProperty("description",  "The password must not be empty!")
+                                                                          ).ToString().ToUTF8Bytes(),
+                                                         CacheControl    = "private",
+                                                         Connection      = "close"
+                                                     }.AsImmutable);
 
-                                              else
-                                                 redirectURL = "/";
+                                             }
 
-                                              #endregion
+                                             password = HTTPTools.URLDecode(password);
 
-                                              #region Check login or e-mail address and password(s)
+                                             if (PasswordQualityCheck(password) < 1.0)
+                                             {
 
-                                              var possibleUsers = new HashSet<User>();
+                                                 return Task.FromResult(
+                                                     new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                                                         Server          = HTTPServer.DefaultServerName,
+                                                         ContentType     = HTTPContentType.JSON_UTF8,
+                                                         Content         = new JObject(
+                                                                               new JProperty("@context",     SignInOutContext),
+                                                                               new JProperty("statuscode",   400),
+                                                                               new JProperty("property",     "password"),
+                                                                               new JProperty("description",  "The password does not match the password quality criteria!")
+                                                                          ).ToString().ToUTF8Bytes(),
+                                                         CacheControl    = "private",
+                                                         Connection      = "close"
+                                                     }.AsImmutable);
 
-                                              if (User_Id.       TryParse   (login,    out User_Id       _UserId) &&
-                                                 _Users.         TryGetValue(_UserId,  out User          _User)   &&
-                                                 _LoginPasswords.TryGetValue(_UserId,  out LoginPassword _LoginPassword))
-                                              {
-                                                  possibleUsers.Add(_User);
-                                              }
+                                             }
 
-                                              if (possibleUsers.Count == 0)
-                                              {
-                                                  foreach (var user in _Users.Values)
-                                                  {
-                                                      if (String.Equals(login,
-                                                                        user.EMail.Address.ToString(),
-                                                                        StringComparison.OrdinalIgnoreCase))
-                                                      {
-                                                          possibleUsers.Add(user);
-                                                      }
-                                                  }
-                                              }
+                                             #endregion
 
-                                              if (possibleUsers.Count == 0)
-                                                  return Task.FromResult(
-                                                      new HTTPResponse.Builder(Request) {
-                                                          HTTPStatusCode  = HTTPStatusCode.NotFound,
-                                                          Server          = HTTPServer.DefaultServerName,
-                                                          ContentType     = HTTPContentType.JSON_UTF8,
-                                                          Content         = new JObject(
-                                                                                new JProperty("@context",     SignInOutContext),
-                                                                                new JProperty("property",     "login"),
-                                                                                new JProperty("description",  "Unknown login!")
-                                                                            ).ToString().ToUTF8Bytes(),
-                                                          CacheControl    = "private",
-                                                          Connection      = "close"
-                                                      }.AsImmutable);
+                                             #region Get RedirectURL
 
+                                             loginData.TryGetValue("redirect", out String redirectURL);
 
-                                              var validUsers = new HashSet<User>();
+                                             if (redirectURL.IsNotNullOrEmpty())
+                                                redirectURL = HTTPTools.URLDecode(redirectURL);
 
-                                              foreach (var possibleUser in possibleUsers)
-                                              {
-                                                  if (_LoginPasswords.TryGetValue(possibleUser.Id, out LoginPassword loginPassword) &&
-                                                      loginPassword.VerifyPassword(password))
-                                                  {
-                                                      validUsers.Add(possibleUser);
-                                                  }
-                                              }
+                                             else
+                                                redirectURL = "/";
 
-                                              if (validUsers.Count == 0)
-                                                  return Task.FromResult(
-                                                      new HTTPResponse.Builder(Request) {
-                                                          HTTPStatusCode  = HTTPStatusCode.Unauthorized,
-                                                          Server          = HTTPServer.DefaultServerName,
-                                                          ContentType     = HTTPContentType.JSON_UTF8,
-                                                          Content         = new JObject(
-                                                                                new JProperty("@context",     SignInOutContext),
-                                                                                new JProperty("property",     "login"),
-                                                                                new JProperty("description",  "Invalid password!")
-                                                                            ).ToString().ToUTF8Bytes(),
-                                                          CacheControl    = "private",
-                                                          Connection      = "close"
-                                                      }.AsImmutable);
+                                             #endregion
 
+                                             #region Check login or e-mail address and password(s)
 
-                                              if (validUsers.Count > 1)
-                                                  return Task.FromResult(
-                                                      new HTTPResponse.Builder(Request) {
-                                                          HTTPStatusCode  = HTTPStatusCode.MultipleChoices,
-                                                          Server          = HTTPServer.DefaultServerName,
-                                                          ContentType     = HTTPContentType.JSON_UTF8,
-                                                          Content         = new JObject(
-                                                                                new JProperty("@context",     SignInOutContext),
-                                                                                new JProperty("property",     "login"),
-                                                                                new JProperty("description",  "Multiple matching user accounts found: Please use your login name!")
-                                                                            ).ToString().ToUTF8Bytes(),
-                                                          CacheControl    = "private",
-                                                          Connection      = "close"
-                                                      }.AsImmutable);
+                                             var possibleUsers = new HashSet<User>();
 
-                                              #endregion
+                                             if (User_Id.       TryParse   (login,    out User_Id       _UserId) &&
+                                                _Users.         TryGetValue(_UserId,  out User          _User)   &&
+                                                _LoginPasswords.TryGetValue(_UserId,  out LoginPassword _LoginPassword))
+                                             {
+                                                 possibleUsers.Add(_User);
+                                             }
 
+                                             if (possibleUsers.Count == 0)
+                                             {
+                                                 foreach (var user in _Users.Values)
+                                                 {
+                                                     if (String.Equals(login,
+                                                                       user.EMail.Address.ToString(),
+                                                                       StringComparison.OrdinalIgnoreCase))
+                                                     {
+                                                         possibleUsers.Add(user);
+                                                     }
+                                                 }
+                                             }
 
-                                              #region Register security token
-
-                                              var validUser        = possibleUsers.First();
-                                              var SHA256Hash       = new SHA256Managed();
-                                              var securityTokenId  = SecurityToken_Id.Parse(SHA256Hash.ComputeHash(
-                                                                                                String.Concat(Guid.NewGuid().ToString(),
-                                                                                                              validUser.Id).
-                                                                                                ToUTF8Bytes()
-                                                                                            ).ToHexString());
-
-                                              var expires          = DateTime.UtcNow.Add(MaxSignInSessionLifetime);
-
-                                              lock (_HTTPCookies)
-                                              {
-
-                                                  _HTTPCookies.Add(securityTokenId,
-                                                                   new SecurityToken(validUser.Id,
-                                                                                     expires));
-
-                                                  File.AppendAllText(UsersAPIPath + DefaultHTTPCookiesFile,
-                                                                     securityTokenId + ";" + validUser.Id + ";" + expires.ToIso8601() + Environment.NewLine);
-
-                                              }
-
-                                              #endregion
+                                             if (possibleUsers.Count == 0)
+                                                 return Task.FromResult(
+                                                     new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode  = HTTPStatusCode.NotFound,
+                                                         Server          = HTTPServer.DefaultServerName,
+                                                         ContentType     = HTTPContentType.JSON_UTF8,
+                                                         Content         = new JObject(
+                                                                               new JProperty("@context",     SignInOutContext),
+                                                                               new JProperty("property",     "login"),
+                                                                               new JProperty("description",  "Unknown login!")
+                                                                           ).ToString().ToUTF8Bytes(),
+                                                         CacheControl    = "private",
+                                                         Connection      = "close"
+                                                     }.AsImmutable);
 
 
-                                              //Note: Add LoginResponse event!
+                                             var validUsers = new HashSet<User>();
 
-                                              return Task.FromResult(
-                                                  new HTTPResponse.Builder(Request) {
-                                                      HTTPStatusCode  = HTTPStatusCode.Created,
-                                                      ContentType     = HTTPContentType.HTML_UTF8,
-                                                      Content         = String.Concat(
-                                                                            "<!DOCTYPE html>", Environment.NewLine,
-                                                                            @"<html><head><meta http-equiv=""refresh"" content=""0; url=" + redirectURL + @""" /></head></html>",
-                                                                            Environment.NewLine
-                                                                        ).ToUTF8Bytes(),
-                                                      CacheControl    = "private",
-                                                      SetCookies      = new String[] {
-                                                                            String.Concat(CookieName,
-                                                                                          GenerateCookieUserData(validUser),
-                                                                                          GenerateCookieSettings(expires)),
-                                                                            String.Concat(SessionCookieName, "=", securityTokenId.ToString(),
-                                                                                          GenerateCookieSettings(expires),
-                                                                                          "; HttpOnly")
-                                                                        },
-                                                      Connection      = "close",
-                                                      X_FrameOptions  = "DENY"
-                                                  }.AsImmutable);
+                                             foreach (var possibleUser in possibleUsers)
+                                             {
+                                                 if (_LoginPasswords.TryGetValue(possibleUser.Id, out LoginPassword loginPassword) &&
+                                                     loginPassword.VerifyPassword(password))
+                                                 {
+                                                     validUsers.Add(possibleUser);
+                                                 }
+                                             }
+
+                                             if (validUsers.Count == 0)
+                                                 return Task.FromResult(
+                                                     new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode  = HTTPStatusCode.Unauthorized,
+                                                         Server          = HTTPServer.DefaultServerName,
+                                                         ContentType     = HTTPContentType.JSON_UTF8,
+                                                         Content         = new JObject(
+                                                                               new JProperty("@context",     SignInOutContext),
+                                                                               new JProperty("property",     "login"),
+                                                                               new JProperty("description",  "Invalid password!")
+                                                                           ).ToString().ToUTF8Bytes(),
+                                                         CacheControl    = "private",
+                                                         Connection      = "close"
+                                                     }.AsImmutable);
+
+
+                                             if (validUsers.Count > 1)
+                                                 return Task.FromResult(
+                                                     new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode  = HTTPStatusCode.MultipleChoices,
+                                                         Server          = HTTPServer.DefaultServerName,
+                                                         ContentType     = HTTPContentType.JSON_UTF8,
+                                                         Content         = new JObject(
+                                                                               new JProperty("@context",     SignInOutContext),
+                                                                               new JProperty("property",     "login"),
+                                                                               new JProperty("description",  "Multiple matching user accounts found: Please use your login name!")
+                                                                           ).ToString().ToUTF8Bytes(),
+                                                         CacheControl    = "private",
+                                                         Connection      = "close"
+                                                     }.AsImmutable);
+
+                                             #endregion
+
+                                             #region Check whether the user has access to at least one organization
+
+                                             if (!possibleUsers.First().Organizations(Access_Levels.ReadOnly).Any())
+                                                 return Task.FromResult(
+                                                     new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode  = HTTPStatusCode.Unauthorized,
+                                                         Server          = HTTPServer.DefaultServerName,
+                                                         ContentType     = HTTPContentType.JSON_UTF8,
+                                                         Content         = new JObject(
+                                                                               new JProperty("@context",    SignInOutContext),
+                                                                               new JProperty("description", "You do not have access to any organization!")
+                                                                           ).ToString().ToUTF8Bytes(),
+                                                         CacheControl    = "private",
+                                                         Connection      = "close"
+                                                     }.AsImmutable);
+
+                                             #endregion
+
+
+                                             #region Register security token
+
+                                             var validUser        = possibleUsers.First();
+                                             var SHA256Hash       = new SHA256Managed();
+                                             var securityTokenId  = SecurityToken_Id.Parse(SHA256Hash.ComputeHash(
+                                                                                               String.Concat(Guid.NewGuid().ToString(),
+                                                                                                             validUser.Id).
+                                                                                               ToUTF8Bytes()
+                                                                                           ).ToHexString());
+
+                                             var expires          = DateTime.UtcNow.Add(MaxSignInSessionLifetime);
+
+                                             lock (_HTTPCookies)
+                                             {
+
+                                                 _HTTPCookies.Add(securityTokenId,
+                                                                  new SecurityToken(validUser.Id,
+                                                                                    expires));
+
+                                                 File.AppendAllText(UsersAPIPath + DefaultHTTPCookiesFile,
+                                                                    securityTokenId + ";" + validUser.Id + ";" + expires.ToIso8601() + Environment.NewLine);
+
+                                             }
+
+                                             #endregion
+
+
+                                             //Note: Add LoginResponse event!
+
+                                             return Task.FromResult(
+                                                 new HTTPResponse.Builder(Request) {
+                                                     HTTPStatusCode  = HTTPStatusCode.Created,
+                                                     ContentType     = HTTPContentType.HTML_UTF8,
+                                                     Content         = String.Concat(
+                                                                           "<!DOCTYPE html>", Environment.NewLine,
+                                                                           @"<html><head><meta http-equiv=""refresh"" content=""0; url=" + redirectURL + @""" /></head></html>",
+                                                                           Environment.NewLine
+                                                                       ).ToUTF8Bytes(),
+                                                     CacheControl    = "private",
+                                                     SetCookies      = new String[] {
+                                                                           String.Concat(CookieName,
+                                                                                         GenerateCookieUserData(validUser),
+                                                                                         GenerateCookieSettings(expires)),
+                                                                           String.Concat(SessionCookieName, "=", securityTokenId.ToString(),
+                                                                                         GenerateCookieSettings(expires),
+                                                                                         "; HttpOnly")
+                                                                       },
+                                                     Connection      = "close",
+                                                     X_FrameOptions  = "DENY"
+                                                 }.AsImmutable);
 
                                           });
 
@@ -7108,6 +7126,23 @@ namespace social.OpenData.UsersAPI
                                                          CacheControl    = "private",
                                                          Connection      = "close"
                                                      }.AsImmutable;
+
+                                             #endregion
+
+                                             #region Check whether the user has access to at least one organization
+
+                                             if (!possibleUsers.First().Organizations(Access_Levels.ReadOnly).Any())
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode  = HTTPStatusCode.Unauthorized,
+                                                            Server          = HTTPServer.DefaultServerName,
+                                                            ContentType     = HTTPContentType.JSON_UTF8,
+                                                            Content         = new JObject(
+                                                                                  new JProperty("@context",    SignInOutContext),
+                                                                                  new JProperty("description", "You do not have access to any organization!")
+                                                                              ).ToString().ToUTF8Bytes(),
+                                                            CacheControl    = "private",
+                                                            Connection      = "close"
+                                                        }.AsImmutable;
 
                                              #endregion
 
@@ -22426,35 +22461,32 @@ namespace social.OpenData.UsersAPI
         //protected readonly Dictionary<NotificationGroup_Id, NotificationGroup> _NotificationGroups;
         protected readonly Dictionary<Int32, NotificationGroup> _NotificationGroups = new Dictionary<Int32, NotificationGroup>();
 
-        ///// <summary>
-        ///// An enumeration of all messages.
-        ///// </summary>
-        //public IEnumerable<Message> NotificationGroups
-        //{
-        //    get
-        //    {
-        //        try
-        //        {
-        //            return MessagesSemaphore.Wait(SemaphoreSlimTimeout)
-        //                       ? _Messages.Values.ToArray()
-        //                       : new Message[0];
-        //        }
-        //        finally
-        //        {
-        //            try
-        //            {
-        //                MessagesSemaphore.Release();
-        //            }
-        //            catch
-        //            { }
-        //        }
-        //    }
-        //}
+        /// <summary>
+        /// An enumeration of all notification groups.
+        /// </summary>
+        public IEnumerable<NotificationGroup> NotificationGroups
+        {
+            get
+            {
+                try
+                {
+                    return UsersSemaphore.Wait(SemaphoreSlimTimeout)
+                               ? _NotificationGroups.Values.ToArray()
+                               : new NotificationGroup[0];
+                }
+                finally
+                {
+                    try
+                    {
+                        UsersSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
+            }
+        }
 
         #endregion
-
-
-        //private readonly List<NotificationGroup> _NotificationGroups = new List<NotificationGroup>();
 
 
         public async Task<NotificationGroup> AddNotificationGroup(NotificationGroup NotificationGroup)
