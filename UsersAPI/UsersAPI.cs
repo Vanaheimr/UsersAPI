@@ -5372,7 +5372,7 @@ namespace social.OpenData.UsersAPI
                                                                                         Users.All(user => user.Use2AuthFactor == Use2AuthFactor.MobilePhoneSMS &&
                                                                                                           user.MobilePhone.HasValue)
                                                                                             ? SecurityToken_Id.Parse(_Random.RandomString(5) + "-" + _Random.RandomString(5))
-                                                                                            : null);
+                                                                                            : new SecurityToken_Id?());
 
                                              var MailSentResults  = new List<MailSentStatus>();
                                              var SMSSentResults   = new List<SMSAPIResponseStatus>();
@@ -6114,7 +6114,7 @@ namespace social.OpenData.UsersAPI
                                                                                               newUser.Use2AuthFactor == Use2AuthFactor.MobilePhoneSMS &&
                                                                                               newUser.MobilePhone.HasValue
                                                                                                   ? SecurityToken_Id.Parse(_Random.RandomString(5) + "-" + _Random.RandomString(5))
-                                                                                                  : null);
+                                                                                                  : new SecurityToken_Id?());
 
                                                  #endregion
 
