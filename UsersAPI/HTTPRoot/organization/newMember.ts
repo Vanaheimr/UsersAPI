@@ -11,8 +11,8 @@ function StartNewMember() {
         "homepage":     ""
     };
 
-    const pathElements         = window.location.pathname.split("/");
-    const organizationId       = pathElements[pathElements.length - 2];
+    const pathElements      = window.location.pathname.split("/");
+    const organizationId    = pathElements[pathElements.length - 2];
 
     FixMenuLinks("organizationMenu", organizationId);
 

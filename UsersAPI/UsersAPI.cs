@@ -3554,7 +3554,7 @@ namespace social.OpenData.UsersAPI
                                "<body style=\"background-color: #ececec\">\r\n",
                                  "<div style=\"width: 600px\">\r\n",
                                    "<div style=\"border-bottom: 1px solid #AAAAAA; margin-bottom: 20px\">\r\n",
-                                       "<img src=\"", ExternalDNSName, (BasePath?.ToString() ?? ""), "\" style=\"width: 250px; padding-right: 10px\" alt=\"CardiLink\">\r\n",
+                                       "<img src=\"", ExternalDNSName, (BasePath?.ToString() ?? ""), "\" style=\"width: 250px; padding-right: 10px\" alt=\"Organization\">\r\n",
                                    "</div>\r\n",
                                    "<div style=\"border-bottom: 1px solid #AAAAAA; padding-left: 6px; padding-bottom: 40px; margin-bottom: 10px;\">\r\n");
 
@@ -6098,11 +6098,11 @@ namespace social.OpenData.UsersAPI
                                                      foreach (var accessRight in accessRights.Skip(1))
                                                      {
 
-                                                         var success = await _AddUserToOrganization(newUser,
-                                                                                                    accessRight.Item1,
-                                                                                                    accessRight.Item2);
+                                                         var result = await _AddUserToOrganization(newUser,
+                                                                                                   accessRight.Item1,
+                                                                                                   accessRight.Item2);
 
-                                                         if (!success)
+                                                         if (!result.IsSuccess)
                                                          {
 
                                                              return new HTTPResponse.Builder(Request) {
@@ -6517,11 +6517,11 @@ namespace social.OpenData.UsersAPI
                                                     foreach (var accessRight in accessRights.Skip(1))
                                                     {
 
-                                                        var success = await _AddUserToOrganization(newUser,
-                                                                                                accessRight.Item1,
-                                                                                                accessRight.Item2);
+                                                        var resultX = await _AddUserToOrganization(newUser,
+                                                                                                  accessRight.Item1,
+                                                                                                  accessRight.Item2);
 
-                                                        if (!success)
+                                                        if (!resultX.IsSuccess)
                                                         {
 
                                                             return new HTTPResponse.Builder(Request) {
@@ -6731,7 +6731,7 @@ namespace social.OpenData.UsersAPI
             #region HTML
 
             // ------------------------------------------------------------------------------
-            // curl -v -H "Accept: text/html" http://127.0.0.1:2100/users/CardiLink
+            // curl -v -H "Accept: text/html" http://127.0.0.1:2100/users/Organization
             // ------------------------------------------------------------------------------
             HTTPServer.AddMethodCallback(Hostname,
                                          HTTPMethod.GET,
@@ -6811,7 +6811,7 @@ namespace social.OpenData.UsersAPI
             //              \"@context\" :        \"https://opendata.social/contexts/usersAPI/user+json\", \
             //              \"description\" :     { \"deu\" : \"Test AED in Erlangen Raum Yavin 4\" },\
             //              \"dataLicenseIds\" :  [ \"ODbL\" ],\
-            //              \"ownerId\" :         \"CardiLink\", \
+            //              \"ownerId\" :         \"Organization\", \
             //              \"address\" :         { \
             //                                      \"country\" :      \"Germany\",
             //                                      \"postalCode\" :   \"91052\",
@@ -9658,7 +9658,7 @@ namespace social.OpenData.UsersAPI
             #region HTML
 
             // ------------------------------------------------------------------------------
-            // curl -v -H "Accept: text/html" http://127.0.0.1:3001/organizations/CardiLink
+            // curl -v -H "Accept: text/html" http://127.0.0.1:3001/organizations/GraphDefined
             // ------------------------------------------------------------------------------
             HTTPServer.AddMethodCallback(Hostname,
                                          HTTPMethod.GET,
@@ -9788,7 +9788,7 @@ namespace social.OpenData.UsersAPI
             //              \"@context\" :        \"https://opendata.social/contexts/usersAPI/user+json\", \
             //              \"description\" :     { \"deu\" : \"Test AED in Erlangen Raum Yavin 4\" },\
             //              \"dataLicenseIds\" :  [ \"ODbL\" ],\
-            //              \"ownerId\" :         \"CardiLink\", \
+            //              \"ownerId\" :         \"Organization\", \
             //              \"address\" :         { \
             //                                      \"country\" :      \"Germany\",
             //                                      \"postalCode\" :   \"91052\",
@@ -10307,7 +10307,7 @@ namespace social.OpenData.UsersAPI
             #region GET         ~/organizations/{OrganizationId}/address
 
             // --------------------------------------------------------------------------------------
-            // curl -v -H "Accept: text/html" http://127.0.0.1:3001/organizations/CardiLink/address
+            // curl -v -H "Accept: text/html" http://127.0.0.1:3001/organizations/GraphDefined/address
             // --------------------------------------------------------------------------------------
             HTTPServer.AddMethodCallback(Hostname,
                                          HTTPMethod.GET,
@@ -10379,7 +10379,7 @@ namespace social.OpenData.UsersAPI
             #region GET         ~/organizations/{OrganizationId}/members
 
             // -----------------------------------------------------------------------------------------------
-            // curl -v -H "Accept: text/html" http://127.0.0.1:3001/organizations/CardiLink/members
+            // curl -v -H "Accept: text/html" http://127.0.0.1:3001/organizations/GraphDefined/members
             // -----------------------------------------------------------------------------------------------
             HTTPServer.AddMethodCallback(Hostname,
                                          HTTPMethod.GET,
@@ -10448,11 +10448,112 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
+            #region ADD         ~/organizations/{OrganizationId}/admins/{UserId}
+
+            // -----------------------------------------------------------------------------------------------------------
+            // curl -v -X ADD -H "Accept: application/json" http://127.0.0.1:3001/organizations/GraphDefined/admins/ahzf
+            // -----------------------------------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.ADD,
+                                         URLPathPrefix + "organizations/{OrganizationId}/admins/{UserId}",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: async Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse.Builder   Response,
+                                                                 AccessLevel:               Access_Levels.Admin,
+                                                                 Recursive:                 true))
+                                             {
+                                                 return Response.AsImmutable;
+                                             }
+
+                                             #endregion
+
+                                             #region Check OrganizationId URL parameter
+
+                                             if (!Request.ParseOrganization(this,
+                                                                            out Organization_Id?      OrganizationId,
+                                                                            out Organization          Organization,
+                                                                            out HTTPResponse.Builder  HTTPResponse))
+                                             {
+                                                 return HTTPResponse.AsImmutable;
+                                             }
+
+                                             #endregion
+
+                                             #region Get UserId URL parameter
+
+                                             if (Request.ParsedURLParameters.Length < 2)
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                                                            Server          = HTTPServer.DefaultServerName,
+                                                            Date            = DateTime.UtcNow,
+                                                            Connection      = "close"
+                                                        }.AsImmutable;
+
+                                             var userId = User_Id.TryParse(Request.ParsedURLParameters[1]);
+
+                                             if (!userId.HasValue)
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                                                            Server          = HTTPServer.DefaultServerName,
+                                                            Date            = DateTime.UtcNow,
+                                                            Connection      = "close"
+                                                        }.AsImmutable;
+
+                                             if (!TryGetUser(userId.Value, out User user))
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode  = HTTPStatusCode.NotFound,
+                                                            Server          = HTTPServer.DefaultServerName,
+                                                            Date            = DateTime.UtcNow,
+                                                            Connection      = "close"
+                                                        }.AsImmutable;
+
+                                             #endregion
+
+
+                                             var result = await AddUserToOrganization(user,
+                                                                                      User2OrganizationEdgeTypes.IsAdmin,
+                                                                                      Organization);
+
+
+                                             return result?.IsSuccess == true
+
+                                                        ? new HTTPResponse.Builder(Request) {
+                                                              HTTPStatusCode              = HTTPStatusCode.OK,
+                                                              Server                      = HTTPServer.DefaultServerName,
+                                                              Date                        = DateTime.UtcNow,
+                                                              AccessControlAllowOrigin    = "*",
+                                                              AccessControlAllowMethods   = "ADD, DELETE",
+                                                              AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                              Connection                  = "close",
+                                                              Vary                        = "Accept"
+                                                          }.AsImmutable
+
+                                                        : new HTTPResponse.Builder(Request) {
+                                                              HTTPStatusCode              = HTTPStatusCode.Unauthorized,
+                                                              Server                      = HTTPServer.DefaultServerName,
+                                                              Date                        = DateTime.UtcNow,
+                                                              AccessControlAllowOrigin    = "*",
+                                                              AccessControlAllowMethods   = "ADD, DELETE",
+                                                              AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                              Connection                  = "close"
+                                                          }.AsImmutable;
+
+                                         });
+
+            #endregion
+
             #region ADD         ~/organizations/{OrganizationId}/members/{UserId}
 
-            // -------------------------------------------------------------------------------------------
-            // curl -v -H "Accept: text/html" http://127.0.0.1:3001/organizations/CardiLink/members/ahzf
-            // -------------------------------------------------------------------------------------------
+            // ------------------------------------------------------------------------------------------------------------
+            // curl -v -X ADD -H "Accept: application/json" http://127.0.0.1:3001/organizations/GraphDefined/members/ahzf
+            // ------------------------------------------------------------------------------------------------------------
             HTTPServer.AddMethodCallback(Hostname,
                                          HTTPMethod.ADD,
                                          URLPathPrefix + "organizations/{OrganizationId}/members/{UserId}",
@@ -10517,34 +10618,335 @@ namespace social.OpenData.UsersAPI
                                              #endregion
 
 
-                                             //if (Organization != null && HTTPOrganizations.Contains(Organization))
-                                             //{
+                                             var result = await AddUserToOrganization(user,
+                                                                                      User2OrganizationEdgeTypes.IsMember,
+                                                                                      Organization);
 
-                                             //    return Task.FromResult(
-                                             //        new HTTPResponse.Builder(Request) {
-                                             //            HTTPStatusCode              = HTTPStatusCode.OK,
-                                             //            Server                      = HTTPServer.DefaultServerName,
-                                             //            Date                        = DateTime.UtcNow,
-                                             //            AccessControlAllowOrigin    = "*",
-                                             //            AccessControlAllowMethods   = "GET",
-                                             //            AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
-                                             //            ContentType                 = HTTPContentType.HTML_UTF8,
-                                             //            Content                     = MixWithHTMLTemplate("organization.members.shtml").ToUTF8Bytes(),
-                                             //            Connection                  = "close",
-                                             //            Vary                        = "Accept"
-                                             //        }.AsImmutable);
 
-                                             //}
+                                             return result?.IsSuccess == true
 
-                                             return new HTTPResponse.Builder(Request) {
-                                                        HTTPStatusCode              = HTTPStatusCode.Unauthorized,
-                                                        Server                      = HTTPServer.DefaultServerName,
-                                                        Date                        = DateTime.UtcNow,
-                                                        AccessControlAllowOrigin    = "*",
-                                                        AccessControlAllowMethods   = "GET",
-                                                        AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
-                                                        Connection                  = "close"
-                                                    }.AsImmutable;
+                                                        ? new HTTPResponse.Builder(Request) {
+                                                              HTTPStatusCode              = HTTPStatusCode.OK,
+                                                              Server                      = HTTPServer.DefaultServerName,
+                                                              Date                        = DateTime.UtcNow,
+                                                              AccessControlAllowOrigin    = "*",
+                                                              AccessControlAllowMethods   = "ADD, DELETE",
+                                                              AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                              Connection                  = "close",
+                                                              Vary                        = "Accept"
+                                                          }.AsImmutable
+
+                                                        : new HTTPResponse.Builder(Request) {
+                                                              HTTPStatusCode              = HTTPStatusCode.Unauthorized,
+                                                              Server                      = HTTPServer.DefaultServerName,
+                                                              Date                        = DateTime.UtcNow,
+                                                              AccessControlAllowOrigin    = "*",
+                                                              AccessControlAllowMethods   = "ADD, DELETE",
+                                                              AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                              Connection                  = "close"
+                                                          }.AsImmutable;
+
+                                         });
+
+            #endregion
+
+            #region ADD         ~/organizations/{OrganizationId}/guests/{UserId}
+
+            // -----------------------------------------------------------------------------------------------------------
+            // curl -v -X ADD -H "Accept: application/json" http://127.0.0.1:3001/organizations/GraphDefined/guests/ahzf
+            // -----------------------------------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.ADD,
+                                         URLPathPrefix + "organizations/{OrganizationId}/guests/{UserId}",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: async Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse.Builder   Response,
+                                                                 AccessLevel:               Access_Levels.Admin,
+                                                                 Recursive:                 true))
+                                             {
+                                                 return Response.AsImmutable;
+                                             }
+
+                                             #endregion
+
+                                             #region Check OrganizationId URL parameter
+
+                                             if (!Request.ParseOrganization(this,
+                                                                            out Organization_Id?      OrganizationId,
+                                                                            out Organization          Organization,
+                                                                            out HTTPResponse.Builder  HTTPResponse))
+                                             {
+                                                 return HTTPResponse.AsImmutable;
+                                             }
+
+                                             #endregion
+
+                                             #region Get UserId URL parameter
+
+                                             if (Request.ParsedURLParameters.Length < 2)
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                                                            Server          = HTTPServer.DefaultServerName,
+                                                            Date            = DateTime.UtcNow,
+                                                            Connection      = "close"
+                                                        }.AsImmutable;
+
+                                             var userId = User_Id.TryParse(Request.ParsedURLParameters[1]);
+
+                                             if (!userId.HasValue)
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                                                            Server          = HTTPServer.DefaultServerName,
+                                                            Date            = DateTime.UtcNow,
+                                                            Connection      = "close"
+                                                        }.AsImmutable;
+
+                                             if (!TryGetUser(userId.Value, out User user))
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode  = HTTPStatusCode.NotFound,
+                                                            Server          = HTTPServer.DefaultServerName,
+                                                            Date            = DateTime.UtcNow,
+                                                            Connection      = "close"
+                                                        }.AsImmutable;
+
+                                             #endregion
+
+
+                                             var result = await AddUserToOrganization(user,
+                                                                                      User2OrganizationEdgeTypes.IsGuest,
+                                                                                      Organization);
+
+
+                                             return result?.IsSuccess == true
+
+                                                        ? new HTTPResponse.Builder(Request) {
+                                                              HTTPStatusCode              = HTTPStatusCode.OK,
+                                                              Server                      = HTTPServer.DefaultServerName,
+                                                              Date                        = DateTime.UtcNow,
+                                                              AccessControlAllowOrigin    = "*",
+                                                              AccessControlAllowMethods   = "ADD, DELETE",
+                                                              AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                              Connection                  = "close",
+                                                              Vary                        = "Accept"
+                                                          }.AsImmutable
+
+                                                        : new HTTPResponse.Builder(Request) {
+                                                              HTTPStatusCode              = HTTPStatusCode.Unauthorized,
+                                                              Server                      = HTTPServer.DefaultServerName,
+                                                              Date                        = DateTime.UtcNow,
+                                                              AccessControlAllowOrigin    = "*",
+                                                              AccessControlAllowMethods   = "ADD, DELETE",
+                                                              AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                              Connection                  = "close"
+                                                          }.AsImmutable;
+
+                                         });
+
+            #endregion
+
+            #region DELETE      ~/organizations/{OrganizationId}/_all/{UserId}
+
+            // ------------------------------------------------------------------------------------------------------------
+            // curl -v -X DELETE -H "Accept: application/json" http://127.0.0.1:3001/organizations/GraphDefined/_all/ahzf
+            // ------------------------------------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.DELETE,
+                                         URLPathPrefix + "organizations/{OrganizationId}/_all/{UserId}",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: async Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse.Builder   Response,
+                                                                 AccessLevel:               Access_Levels.Admin,
+                                                                 Recursive:                 true))
+                                             {
+                                                 return Response.AsImmutable;
+                                             }
+
+                                             #endregion
+
+                                             #region Check OrganizationId URL parameter
+
+                                             if (!Request.ParseOrganization(this,
+                                                                            out Organization_Id?      OrganizationId,
+                                                                            out Organization          Organization,
+                                                                            out HTTPResponse.Builder  HTTPResponse))
+                                             {
+                                                 return HTTPResponse.AsImmutable;
+                                             }
+
+                                             #endregion
+
+                                             #region Get UserId URL parameter
+
+                                             if (Request.ParsedURLParameters.Length < 2)
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                                                            Server          = HTTPServer.DefaultServerName,
+                                                            Date            = DateTime.UtcNow,
+                                                            Connection      = "close"
+                                                        }.AsImmutable;
+
+                                             var userId = User_Id.TryParse(Request.ParsedURLParameters[1]);
+
+                                             if (!userId.HasValue)
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                                                            Server          = HTTPServer.DefaultServerName,
+                                                            Date            = DateTime.UtcNow,
+                                                            Connection      = "close"
+                                                        }.AsImmutable;
+
+                                             if (!TryGetUser(userId.Value, out User user))
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode  = HTTPStatusCode.NotFound,
+                                                            Server          = HTTPServer.DefaultServerName,
+                                                            Date            = DateTime.UtcNow,
+                                                            Connection      = "close"
+                                                        }.AsImmutable;
+
+                                             #endregion
+
+
+                                             var result = await RemoveUserFromOrganization(user,
+                                                                                           Organization);
+
+
+                                             return result?.IsSuccess == true
+
+                                                        ? new HTTPResponse.Builder(Request) {
+                                                              HTTPStatusCode              = HTTPStatusCode.OK,
+                                                              Server                      = HTTPServer.DefaultServerName,
+                                                              Date                        = DateTime.UtcNow,
+                                                              AccessControlAllowOrigin    = "*",
+                                                              AccessControlAllowMethods   = "ADD, DELETE",
+                                                              AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                              Connection                  = "close",
+                                                              Vary                        = "Accept"
+                                                          }.AsImmutable
+
+                                                        : new HTTPResponse.Builder(Request) {
+                                                              HTTPStatusCode              = HTTPStatusCode.Unauthorized,
+                                                              Server                      = HTTPServer.DefaultServerName,
+                                                              Date                        = DateTime.UtcNow,
+                                                              AccessControlAllowOrigin    = "*",
+                                                              AccessControlAllowMethods   = "ADD, DELETE",
+                                                              AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                              Connection                  = "close"
+                                                          }.AsImmutable;
+
+                                         });
+
+            #endregion
+
+            #region DELETE      ~/organizations/{OrganizationId}/admins/{UserId}
+
+            // --------------------------------------------------------------------------------------------------------------
+            // curl -v -X DELETE -H "Accept: application/json" http://127.0.0.1:3001/organizations/GraphDefined/admins/ahzf
+            // --------------------------------------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.DELETE,
+                                         URLPathPrefix + "organizations/{OrganizationId}/admins/{UserId}",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: async Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse.Builder   Response,
+                                                                 AccessLevel:               Access_Levels.Admin,
+                                                                 Recursive:                 true))
+                                             {
+                                                 return Response.AsImmutable;
+                                             }
+
+                                             #endregion
+
+                                             #region Check OrganizationId URL parameter
+
+                                             if (!Request.ParseOrganization(this,
+                                                                            out Organization_Id?      OrganizationId,
+                                                                            out Organization          Organization,
+                                                                            out HTTPResponse.Builder  HTTPResponse))
+                                             {
+                                                 return HTTPResponse.AsImmutable;
+                                             }
+
+                                             #endregion
+
+                                             #region Get UserId URL parameter
+
+                                             if (Request.ParsedURLParameters.Length < 2)
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                                                            Server          = HTTPServer.DefaultServerName,
+                                                            Date            = DateTime.UtcNow,
+                                                            Connection      = "close"
+                                                        }.AsImmutable;
+
+                                             var userId = User_Id.TryParse(Request.ParsedURLParameters[1]);
+
+                                             if (!userId.HasValue)
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                                                            Server          = HTTPServer.DefaultServerName,
+                                                            Date            = DateTime.UtcNow,
+                                                            Connection      = "close"
+                                                        }.AsImmutable;
+
+                                             if (!TryGetUser(userId.Value, out User user))
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode  = HTTPStatusCode.NotFound,
+                                                            Server          = HTTPServer.DefaultServerName,
+                                                            Date            = DateTime.UtcNow,
+                                                            Connection      = "close"
+                                                        }.AsImmutable;
+
+                                             #endregion
+
+
+                                             var result = await RemoveUserFromOrganization(user,
+                                                                                           User2OrganizationEdgeTypes.IsAdmin,
+                                                                                           Organization);
+
+
+                                             return result?.IsSuccess == true
+
+                                                        ? new HTTPResponse.Builder(Request) {
+                                                              HTTPStatusCode              = HTTPStatusCode.OK,
+                                                              Server                      = HTTPServer.DefaultServerName,
+                                                              Date                        = DateTime.UtcNow,
+                                                              AccessControlAllowOrigin    = "*",
+                                                              AccessControlAllowMethods   = "ADD, DELETE",
+                                                              AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                              Connection                  = "close",
+                                                              Vary                        = "Accept"
+                                                          }.AsImmutable
+
+                                                        : new HTTPResponse.Builder(Request) {
+                                                              HTTPStatusCode              = HTTPStatusCode.Unauthorized,
+                                                              Server                      = HTTPServer.DefaultServerName,
+                                                              Date                        = DateTime.UtcNow,
+                                                              AccessControlAllowOrigin    = "*",
+                                                              AccessControlAllowMethods   = "ADD, DELETE",
+                                                              AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                              Connection                  = "close"
+                                                          }.AsImmutable;
 
                                          });
 
@@ -10552,9 +10954,9 @@ namespace social.OpenData.UsersAPI
 
             #region DELETE      ~/organizations/{OrganizationId}/members/{UserId}
 
-            // -------------------------------------------------------------------------------------------
-            // curl -v -H "Accept: text/html" http://127.0.0.1:3001/organizations/CardiLink/members/ahzf
-            // -------------------------------------------------------------------------------------------
+            // ---------------------------------------------------------------------------------------------------------------
+            // curl -v -X DELETE -H "Accept: application/json" http://127.0.0.1:3001/organizations/GraphDefined/members/ahzf
+            // ---------------------------------------------------------------------------------------------------------------
             HTTPServer.AddMethodCallback(Hostname,
                                          HTTPMethod.DELETE,
                                          URLPathPrefix + "organizations/{OrganizationId}/members/{UserId}",
@@ -10620,16 +11022,18 @@ namespace social.OpenData.UsersAPI
 
 
                                              var result = await RemoveUserFromOrganization(user,
+                                                                                           User2OrganizationEdgeTypes.IsMember,
                                                                                            Organization);
 
-                                             return result == true
+
+                                             return result?.IsSuccess == true
 
                                                         ? new HTTPResponse.Builder(Request) {
                                                               HTTPStatusCode              = HTTPStatusCode.OK,
                                                               Server                      = HTTPServer.DefaultServerName,
                                                               Date                        = DateTime.UtcNow,
                                                               AccessControlAllowOrigin    = "*",
-                                                              AccessControlAllowMethods   = "GET",
+                                                              AccessControlAllowMethods   = "ADD, DELETE",
                                                               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                               Connection                  = "close",
                                                               Vary                        = "Accept"
@@ -10640,7 +11044,108 @@ namespace social.OpenData.UsersAPI
                                                               Server                      = HTTPServer.DefaultServerName,
                                                               Date                        = DateTime.UtcNow,
                                                               AccessControlAllowOrigin    = "*",
-                                                              AccessControlAllowMethods   = "GET",
+                                                              AccessControlAllowMethods   = "ADD, DELETE",
+                                                              AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                              Connection                  = "close"
+                                                          }.AsImmutable;
+
+                                         });
+
+            #endregion
+
+            #region DELETE      ~/organizations/{OrganizationId}/guests/{UserId}
+
+            // --------------------------------------------------------------------------------------------------------------
+            // curl -v -X DELETE -H "Accept: application/json" http://127.0.0.1:3001/organizations/GraphDefined/guests/ahzf
+            // --------------------------------------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.DELETE,
+                                         URLPathPrefix + "organizations/{OrganizationId}/guests/{UserId}",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: async Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse.Builder   Response,
+                                                                 AccessLevel:               Access_Levels.Admin,
+                                                                 Recursive:                 true))
+                                             {
+                                                 return Response.AsImmutable;
+                                             }
+
+                                             #endregion
+
+                                             #region Check OrganizationId URL parameter
+
+                                             if (!Request.ParseOrganization(this,
+                                                                            out Organization_Id?      OrganizationId,
+                                                                            out Organization          Organization,
+                                                                            out HTTPResponse.Builder  HTTPResponse))
+                                             {
+                                                 return HTTPResponse.AsImmutable;
+                                             }
+
+                                             #endregion
+
+                                             #region Get UserId URL parameter
+
+                                             if (Request.ParsedURLParameters.Length < 2)
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                                                            Server          = HTTPServer.DefaultServerName,
+                                                            Date            = DateTime.UtcNow,
+                                                            Connection      = "close"
+                                                        }.AsImmutable;
+
+                                             var userId = User_Id.TryParse(Request.ParsedURLParameters[1]);
+
+                                             if (!userId.HasValue)
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                                                            Server          = HTTPServer.DefaultServerName,
+                                                            Date            = DateTime.UtcNow,
+                                                            Connection      = "close"
+                                                        }.AsImmutable;
+
+                                             if (!TryGetUser(userId.Value, out User user))
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode  = HTTPStatusCode.NotFound,
+                                                            Server          = HTTPServer.DefaultServerName,
+                                                            Date            = DateTime.UtcNow,
+                                                            Connection      = "close"
+                                                        }.AsImmutable;
+
+                                             #endregion
+
+
+                                             var result = await RemoveUserFromOrganization(user,
+                                                                                           User2OrganizationEdgeTypes.IsGuest,
+                                                                                           Organization);
+
+
+                                             return result?.IsSuccess == true
+
+                                                        ? new HTTPResponse.Builder(Request) {
+                                                              HTTPStatusCode              = HTTPStatusCode.OK,
+                                                              Server                      = HTTPServer.DefaultServerName,
+                                                              Date                        = DateTime.UtcNow,
+                                                              AccessControlAllowOrigin    = "*",
+                                                              AccessControlAllowMethods   = "ADD, DELETE",
+                                                              AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                              Connection                  = "close",
+                                                              Vary                        = "Accept"
+                                                          }.AsImmutable
+
+                                                        : new HTTPResponse.Builder(Request) {
+                                                              HTTPStatusCode              = HTTPStatusCode.Unauthorized,
+                                                              Server                      = HTTPServer.DefaultServerName,
+                                                              Date                        = DateTime.UtcNow,
+                                                              AccessControlAllowOrigin    = "*",
+                                                              AccessControlAllowMethods   = "ADD, DELETE",
                                                               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                               Connection                  = "close"
                                                           }.AsImmutable;
@@ -10652,7 +11157,7 @@ namespace social.OpenData.UsersAPI
             #region GET         ~/organizations/{OrganizationId}/newMember
 
             // -----------------------------------------------------------------------------------------------
-            // curl -v -H "Accept: text/html" http://127.0.0.1:3001/organizations/CardiLink/newMember
+            // curl -v -H "Accept: text/html" http://127.0.0.1:3001/organizations/GraphDefined/newMember
             // -----------------------------------------------------------------------------------------------
             HTTPServer.AddMethodCallback(Hostname,
                                          HTTPMethod.GET,
@@ -10721,7 +11226,7 @@ namespace social.OpenData.UsersAPI
             #region GET         ~/organizations/{OrganizationId}/subOrganizations
 
             // -----------------------------------------------------------------------------------------------
-            // curl -v -H "Accept: text/html" http://127.0.0.1:3001/organizations/CardiLink/subOrganizations
+            // curl -v -H "Accept: text/html" http://127.0.0.1:3001/organizations/GraphDefined/subOrganizations
             // -----------------------------------------------------------------------------------------------
             HTTPServer.AddMethodCallback(Hostname,
                                          HTTPMethod.GET,
@@ -10793,7 +11298,7 @@ namespace social.OpenData.UsersAPI
             #region GET         ~/organizations/{OrganizationId}/newSubOrganization
 
             // -----------------------------------------------------------------------------------------------
-            // curl -v -H "Accept: text/html" http://127.0.0.1:3001/organizations/CardiLink/newSubOrganization
+            // curl -v -H "Accept: text/html" http://127.0.0.1:3001/organizations/GraphDefined/newSubOrganization
             // -----------------------------------------------------------------------------------------------
             HTTPServer.AddMethodCallback(Hostname,
                                          HTTPMethod.GET,
@@ -15149,9 +15654,12 @@ namespace social.OpenData.UsersAPI
         {
             get
             {
+
+                var lockTaken = UsersSemaphore.Wait(SemaphoreSlimTimeout);
+
                 try
                 {
-                    return UsersSemaphore.Wait(SemaphoreSlimTimeout)
+                    return lockTaken
                                ? _Users.Values.ToArray()
                                : new User[0];
                 }
@@ -15159,11 +15667,13 @@ namespace social.OpenData.UsersAPI
                 {
                     try
                     {
-                        UsersSemaphore.Release();
+                        if (lockTaken)
+                            UsersSemaphore.Release();
                     }
                     catch
                     { }
                 }
+
             }
         }
 
@@ -15936,8 +16446,9 @@ namespace social.OpenData.UsersAPI
                                                           "Internal locking failed!");
 
                 if (result?.IsSuccess == true)
-                    await SendNotifications(Organization,
-                                            User,
+                    await SendNotifications(User,
+                                            AccessRight,
+                                            Organization,
                                             addUserToOrganization_MessageType,
                                             eventTrackingId,
                                             CurrentUserId);
@@ -15982,7 +16493,7 @@ namespace social.OpenData.UsersAPI
 
         #region AddUserIfNotExists(User, (Membership, Organization), OnAdded = null,                   CurrentUserId = null)
 
-        #region (protected internal) _AddUserIfNotExists(User,                           OnAdded = null, CurrentUserId = null)
+        #region (protected internal) _AddUserIfNotExists(User,                            OnAdded = null, CurrentUserId = null)
 
         /// <summary>
         /// When it has not been created before, add the given user to the API.
@@ -16089,7 +16600,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddUserIfNotExists                      (User,                           OnAdded = null, CurrentUserId = null)
+        #region AddUserIfNotExists                      (User,                            OnAdded = null, CurrentUserId = null)
 
         /// <summary>
         /// Add the given user.
@@ -16146,19 +16657,19 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddUserIfNotExists                      (User, Membership, Organization, OnAdded = null, CurrentUserId = null)
+        #region AddUserIfNotExists                      (User, AccessRight, Organization, OnAdded = null, CurrentUserId = null)
 
         /// <summary>
         /// Add the given user and add him/her to the given organization.
         /// </summary>
         /// <param name="User">A new user.</param>
-        /// <param name="Membership">The organization membership of the new user.</param>
+        /// <param name="AccessRight">The organization membership of the new user.</param>
         /// <param name="Organization">The organization of the new user.</param>
         /// <param name="OnAdded">A delegate run whenever the user has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<AddUserIfNotExistsResult> AddUserIfNotExists(User                            User,
-                                                                       User2OrganizationEdgeTypes      Membership,
+                                                                       User2OrganizationEdgeTypes      AccessRight,
                                                                        Organization                    Organization,
                                                                        Action<User, EventTracking_Id>  OnAdded           = null,
                                                                        EventTracking_Id                EventTrackingId   = null,
@@ -16180,7 +16691,7 @@ namespace social.OpenData.UsersAPI
                                                              async (_user, _eventTrackingId) => {
 
                                                                  await _AddUserToOrganization(_user,
-                                                                                              Membership,
+                                                                                              AccessRight,
                                                                                               Organization,
                                                                                               _eventTrackingId,
                                                                                               SuppressNotifications:  true,
@@ -16198,8 +16709,9 @@ namespace social.OpenData.UsersAPI
                                                                    "Internal locking failed!");
 
                 if (result?.IsSuccess == true)
-                    await SendNotifications(Organization,
-                                            User,
+                    await SendNotifications(User,
+                                            AccessRight,
+                                            Organization,
                                             addUserToOrganization_MessageType,
                                             eventTrackingId,
                                             CurrentUserId);
@@ -16244,7 +16756,7 @@ namespace social.OpenData.UsersAPI
 
         #region AddOrUpdateUser   (User, (Membership, Organization), OnAdded = null, OnUpdated = null, CurrentUserId = null)
 
-        #region (protected internal) _AddOrUpdateUser(User,                           OnAdded = null, OnUpdated = null, CurrentUserId = null)
+        #region (protected internal) _AddOrUpdateUser(User,                            OnAdded = null, OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
         /// Add or update the given user to/within the API.
@@ -16384,7 +16896,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddOrUpdateUser                      (User,                           OnAdded = null, OnUpdated = null, CurrentUserId = null)
+        #region AddOrUpdateUser                      (User,                            OnAdded = null, OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
         /// Add or update the given user to/within the API.
@@ -16443,20 +16955,20 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddOrUpdateUser                      (User, Membership, Organization, OnAdded = null, OnUpdated = null, CurrentUserId = null)
+        #region AddOrUpdateUser                      (User, AccessRight, Organization, OnAdded = null, OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
         /// Add or update the given user to/within the API.
         /// </summary>
         /// <param name="User">A user.</param>
-        /// <param name="Membership">The organization membership of the new user.</param>
+        /// <param name="AccessRight">The organization membership of the new user.</param>
         /// <param name="Organization">The organization of the new user.</param>
         /// <param name="OnAdded">A delegate run whenever the user has been added successfully.</param>
         /// <param name="OnUpdated">A delegate run whenever the user has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<AddOrUpdateUserResult> AddOrUpdateUser(User                            User,
-                                                                 User2OrganizationEdgeTypes      Membership,
+                                                                 User2OrganizationEdgeTypes      AccessRight,
                                                                  Organization                    Organization,
                                                                  Action<User, EventTracking_Id>  OnAdded           = null,
                                                                  Action<User, EventTracking_Id>  OnUpdated         = null,
@@ -16476,7 +16988,7 @@ namespace social.OpenData.UsersAPI
                                                           async (_user, _eventTrackingId) => {
 
                                                               await _AddUserToOrganization(_user,
-                                                                                           Membership,
+                                                                                           AccessRight,
                                                                                            Organization,
                                                                                            _eventTrackingId,
                                                                                            SuppressNotifications:  true,
@@ -16495,8 +17007,9 @@ namespace social.OpenData.UsersAPI
                                                                 "Internal locking failed!");
 
                 if (result?.IsSuccess == true)
-                    await SendNotifications(Organization,
-                                            User,
+                    await SendNotifications(User,
+                                            AccessRight,
+                                            Organization,
                                             addUserToOrganization_MessageType,
                                             eventTrackingId,
                                             CurrentUserId);
@@ -16834,26 +17347,61 @@ namespace social.OpenData.UsersAPI
         /// <param name="UserId">The unique identification of an user.</param>
         protected internal Boolean _UserExists(User_Id UserId)
 
-            => !UserId.IsNullOrEmpty && _Users.ContainsKey(UserId);
+            => UserId.IsNotNullOrEmpty && _Users.ContainsKey(UserId);
+
+        /// <summary>
+        /// Determines whether the given user identification exists within this API.
+        /// </summary>
+        /// <param name="UserId">The unique identification of an user.</param>
+        protected internal Boolean _UserExists(User_Id? UserId)
+
+            => UserId.IsNotNullOrEmpty() && _Users.ContainsKey(UserId.Value);
 
 
         /// <summary>
         /// Determines whether the given user identification exists within this API.
         /// </summary>
         /// <param name="UserId">The unique identification of an user.</param>
-        public Boolean UserExists(User_Id  UserId)
+        public Boolean UserExists(User_Id UserId)
         {
 
             var lockTaken = UsersSemaphore.Wait(SemaphoreSlimTimeout);
 
             try
             {
-
                 if (lockTaken && _UserExists(UserId))
-                {
                     return true;
+            }
+            catch
+            { }
+            finally
+            {
+                try
+                {
+                    if (lockTaken)
+                        UsersSemaphore.Release();
                 }
+                catch
+                { }
+            }
 
+            return false;
+
+        }
+
+        /// <summary>
+        /// Determines whether the given user identification exists within this API.
+        /// </summary>
+        /// <param name="UserId">The unique identification of an user.</param>
+        public Boolean UserExists(User_Id? UserId)
+        {
+
+            var lockTaken = UsersSemaphore.Wait(SemaphoreSlimTimeout);
+
+            try
+            {
+                if (lockTaken && _UserExists(UserId))
+                    return true;
             }
             catch
             { }
@@ -16890,6 +17438,20 @@ namespace social.OpenData.UsersAPI
 
         }
 
+        /// <summary>
+        /// Get the user having the given unique identification.
+        /// </summary>
+        /// <param name="UserId">The unique identification of an user.</param>
+        protected internal User _GetUser(User_Id? UserId)
+        {
+
+            if (UserId.IsNotNullOrEmpty() && _Users.TryGetValue(UserId.Value, out User user))
+                return user;
+
+            return null;
+
+        }
+
 
         /// <summary>
         /// Get the user having the given unique identification.
@@ -16902,10 +17464,39 @@ namespace social.OpenData.UsersAPI
 
             try
             {
-
                 if (lockTaken)
                     return _GetUser(UserId);
+            }
+            catch
+            { }
+            finally
+            {
+                try
+                {
+                    if (lockTaken)
+                        UsersSemaphore.Release();
+                }
+                catch
+                { }
+            }
 
+            return null;
+
+        }
+
+        /// <summary>
+        /// Get the user having the given unique identification.
+        /// </summary>
+        /// <param name="UserId">The unique identification of an user.</param>
+        public User GetUser(User_Id? UserId)
+        {
+
+            var lockTaken = UsersSemaphore.Wait(SemaphoreSlimTimeout);
+
+            try
+            {
+                if (lockTaken)
+                    return _GetUser(UserId);
             }
             catch
             { }
@@ -16933,10 +17524,33 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="UserId">The unique identification of an user.</param>
         /// <param name="User">The user.</param>
-        protected internal Boolean _TryGetUser(User_Id UserId, out User User)
+        protected internal Boolean _TryGetUser(User_Id   UserId,
+                                               out User  User)
         {
 
-            if (!UserId.IsNullOrEmpty && _Users.TryGetValue(UserId, out User user))
+            if (!UserId.IsNullOrEmpty &&
+                _Users.TryGetValue(UserId, out User user))
+            {
+                User = user;
+                return true;
+            }
+
+            User = null;
+            return false;
+
+        }
+
+        /// <summary>
+        /// Try to get the user having the given unique identification.
+        /// </summary>
+        /// <param name="UserId">The unique identification of an user.</param>
+        /// <param name="User">The user.</param>
+        protected internal Boolean _TryGetUser(User_Id?  UserId,
+                                               out User  User)
+        {
+
+            if (UserId.IsNotNullOrEmpty() &&
+               _Users.TryGetValue(UserId.Value, out User user))
             {
                 User = user;
                 return true;
@@ -16961,13 +17575,48 @@ namespace social.OpenData.UsersAPI
 
             try
             {
-
                 if (lockTaken && _TryGetUser(UserId, out User user))
                 {
                     User = user;
                     return true;
                 }
+            }
+            catch
+            { }
+            finally
+            {
+                try
+                {
+                    if (lockTaken)
+                        UsersSemaphore.Release();
+                }
+                catch
+                { }
+            }
 
+            User = null;
+            return false;
+
+        }
+
+        /// <summary>
+        /// Try to get the user having the given unique identification.
+        /// </summary>
+        /// <param name="UserId">The unique identification of an user.</param>
+        /// <param name="User">The user.</param>
+        public Boolean TryGetUser(User_Id?  UserId,
+                                  out User  User)
+        {
+
+            var lockTaken = UsersSemaphore.Wait(SemaphoreSlimTimeout);
+
+            try
+            {
+                if (lockTaken && _TryGetUser(UserId, out User user))
+                {
+                    User = user;
+                    return true;
+                }
             }
             catch
             { }
@@ -17233,9 +17882,8 @@ namespace social.OpenData.UsersAPI
                                                        User_Id?                        CurrentUserId     = null)
         {
 
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
-
-            var lockTaken = await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout);
+            var lockTaken        = await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout);
+            var eventTrackingId  = EventTrackingId ?? EventTracking_Id.New;
 
             try
             {
@@ -18939,9 +19587,12 @@ namespace social.OpenData.UsersAPI
         {
             get
             {
+
+                var lockTaken = APIKeysSemaphore.Wait(SemaphoreSlimTimeout);
+
                 try
                 {
-                    return APIKeysSemaphore.Wait(SemaphoreSlimTimeout)
+                    return lockTaken
                                ? _APIKeys.Values.ToArray()
                                : new APIKey[0];
                 }
@@ -18949,7 +19600,8 @@ namespace social.OpenData.UsersAPI
                 {
                     try
                     {
-                        APIKeysSemaphore.Release();
+                        if (lockTaken)
+                            APIKeysSemaphore.Release();
                     }
                     catch
                     { }
@@ -19189,21 +19841,21 @@ namespace social.OpenData.UsersAPI
                                                      User_Id?                          CurrentUserId     = null)
         {
 
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+            var lockTaken        = await APIKeysSemaphore.WaitAsync(SemaphoreSlimTimeout);
+            var eventTrackingId  = EventTrackingId ?? EventTracking_Id.New;
 
             try
             {
 
-                return (await APIKeysSemaphore.WaitAsync(SemaphoreSlimTimeout))
+                if (lockTaken)
+                    return await _AddAPIKey(APIKey,
+                                            OnAdded,
+                                            eventTrackingId,
+                                            CurrentUserId);
 
-                            ? await _AddAPIKey(APIKey,
-                                               OnAdded,
-                                               eventTrackingId,
-                                               CurrentUserId)
-
-                            : AddAPIKeyResult.Failed(APIKey,
-                                                     eventTrackingId,
-                                                     "Internal locking failed!");
+                return AddAPIKeyResult.Failed(APIKey,
+                                              eventTrackingId,
+                                              "Internal locking failed!");
 
             }
             catch (Exception e)
@@ -19220,7 +19872,8 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    APIKeysSemaphore.Release();
+                    if (lockTaken)
+                        APIKeysSemaphore.Release();
                 }
                 catch
                 { }
@@ -19323,21 +19976,21 @@ namespace social.OpenData.UsersAPI
                                                                            User_Id?                          CurrentUserId     = null)
         {
 
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+            var lockTaken        = await APIKeysSemaphore.WaitAsync(SemaphoreSlimTimeout);
+            var eventTrackingId  = EventTrackingId ?? EventTracking_Id.New;
 
             try
             {
 
-                return (await APIKeysSemaphore.WaitAsync(SemaphoreSlimTimeout))
+                if (lockTaken)
+                    return await _AddAPIKeyIfNotExists(APIKey,
+                                                       OnAdded,
+                                                       eventTrackingId,
+                                                       CurrentUserId);
 
-                            ? await _AddAPIKeyIfNotExists(APIKey,
-                                                          OnAdded,
-                                                          eventTrackingId,
-                                                          CurrentUserId)
-
-                            : AddAPIKeyIfNotExistsResult.Failed(APIKey,
-                                                                eventTrackingId,
-                                                                "Internal locking failed!");
+                return AddAPIKeyIfNotExistsResult.Failed(APIKey,
+                                                         eventTrackingId,
+                                                         "Internal locking failed!");
 
             }
             catch (Exception e)
@@ -19354,7 +20007,8 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    APIKeysSemaphore.Release();
+                    if (lockTaken)
+                        APIKeysSemaphore.Release();
                 }
                 catch
                 { }
@@ -19488,22 +20142,22 @@ namespace social.OpenData.UsersAPI
                                                                      User_Id?                          CurrentUserId     = null)
         {
 
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+            var lockTaken        = await APIKeysSemaphore.WaitAsync(SemaphoreSlimTimeout);
+            var eventTrackingId  = EventTrackingId ?? EventTracking_Id.New;
 
             try
             {
 
-                return (await APIKeysSemaphore.WaitAsync(SemaphoreSlimTimeout))
+                if (lockTaken)
+                    return await _AddOrUpdateAPIKey(APIKey,
+                                                    OnAdded,
+                                                    OnUpdated,
+                                                    eventTrackingId,
+                                                    CurrentUserId);
 
-                            ? await _AddOrUpdateAPIKey(APIKey,
-                                                       OnAdded,
-                                                       OnUpdated,
-                                                       eventTrackingId,
-                                                       CurrentUserId)
-
-                            : AddOrUpdateAPIKeyResult.Failed(APIKey,
-                                                             eventTrackingId,
-                                                             "Internal locking failed!");
+                return AddOrUpdateAPIKeyResult.Failed(APIKey,
+                                                      eventTrackingId,
+                                                      "Internal locking failed!");
 
             }
             catch (Exception e)
@@ -19520,7 +20174,8 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    APIKeysSemaphore.Release();
+                    if (lockTaken)
+                        APIKeysSemaphore.Release();
                 }
                 catch
                 { }
@@ -19640,21 +20295,21 @@ namespace social.OpenData.UsersAPI
                                                            User_Id?                          CurrentUserId     = null)
         {
 
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+            var lockTaken        = await APIKeysSemaphore.WaitAsync(SemaphoreSlimTimeout);
+            var eventTrackingId  = EventTrackingId ?? EventTracking_Id.New;
 
             try
             {
 
-                return (await APIKeysSemaphore.WaitAsync(SemaphoreSlimTimeout))
+                if (lockTaken)
+                    return await _UpdateAPIKey(APIKey,
+                                               OnUpdated,
+                                               EventTrackingId,
+                                               CurrentUserId);
 
-                            ? await _UpdateAPIKey(APIKey,
-                                                  OnUpdated,
-                                                  EventTrackingId,
-                                                  CurrentUserId)
-
-                            : UpdateAPIKeyResult.Failed(APIKey,
-                                                        eventTrackingId,
-                                                        "Internal locking failed!");
+                return UpdateAPIKeyResult.Failed(APIKey,
+                                                 eventTrackingId,
+                                                 "Internal locking failed!");
 
             }
             catch (Exception e)
@@ -19671,7 +20326,8 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    APIKeysSemaphore.Release();
+                    if (lockTaken)
+                        APIKeysSemaphore.Release();
                 }
                 catch
                 { }
@@ -19780,22 +20436,22 @@ namespace social.OpenData.UsersAPI
                                                            User_Id?                          CurrentUserId     = null)
         {
 
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+            var lockTaken        = await APIKeysSemaphore.WaitAsync(SemaphoreSlimTimeout);
+            var eventTrackingId  = EventTrackingId ?? EventTracking_Id.New;
 
             try
             {
 
-                return (await APIKeysSemaphore.WaitAsync(SemaphoreSlimTimeout))
+                if (lockTaken)
+                    return await _UpdateAPIKey(APIKey,
+                                               UpdateDelegate,
+                                               OnUpdated,
+                                               eventTrackingId,
+                                               CurrentUserId);
 
-                            ? await _UpdateAPIKey(APIKey,
-                                                  UpdateDelegate,
-                                                  OnUpdated,
-                                                  eventTrackingId,
-                                                  CurrentUserId)
-
-                            : UpdateAPIKeyResult.Failed(APIKey,
-                                                        eventTrackingId,
-                                                        "Internal locking failed!");
+                return UpdateAPIKeyResult.Failed(APIKey,
+                                                 eventTrackingId,
+                                                 "Internal locking failed!");
 
             }
             catch (Exception e)
@@ -19812,7 +20468,8 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    APIKeysSemaphore.Release();
+                    if (lockTaken)
+                        APIKeysSemaphore.Release();
                 }
                 catch
                 { }
@@ -19833,7 +20490,15 @@ namespace social.OpenData.UsersAPI
         /// <param name="APIKey">The unique identification of an API key.</param>
         protected internal Boolean _APIKeyExists(APIKey_Id APIKey)
 
-            => !APIKey.IsNullOrEmpty && _APIKeys.ContainsKey(APIKey);
+            => APIKey.IsNotNullOrEmpty && _APIKeys.ContainsKey(APIKey);
+
+        /// <summary>
+        /// Determines whether the given API key identification exists within this API.
+        /// </summary>
+        /// <param name="APIKey">The unique identification of an API key.</param>
+        protected internal Boolean _APIKeyExists(APIKey_Id? APIKey)
+
+            => APIKey.IsNotNullOrEmpty() && _APIKeys.ContainsKey(APIKey.Value);
 
 
         /// <summary>
@@ -19843,12 +20508,12 @@ namespace social.OpenData.UsersAPI
         public Boolean APIKeyExists(APIKey_Id APIKey)
         {
 
+            var lockTaken = APIKeysSemaphore.Wait(SemaphoreSlimTimeout);
+
             try
             {
-
-                if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
-                    return _APIKeyExists(APIKey);
-
+                if (lockTaken && _APIKeyExists(APIKey))
+                    return true;
             }
             catch
             { }
@@ -19856,7 +20521,39 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    APIKeysSemaphore.Release();
+                    if (lockTaken)
+                        APIKeysSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+            return false;
+
+        }
+
+        /// <summary>
+        /// Determines whether the given API key identification exists within this API.
+        /// </summary>
+        /// <param name="APIKey">The unique identification of an API key.</param>
+        public Boolean APIKeyExists(APIKey_Id? APIKey)
+        {
+
+            var lockTaken = APIKeysSemaphore.Wait(SemaphoreSlimTimeout);
+
+            try
+            {
+                if (lockTaken && _APIKeyExists(APIKey))
+                    return true;
+            }
+            catch
+            { }
+            finally
+            {
+                try
+                {
+                    if (lockTaken)
+                        APIKeysSemaphore.Release();
                 }
                 catch
                 { }
@@ -19891,7 +20588,6 @@ namespace social.OpenData.UsersAPI
             => _TryGetAPIKey(APIKey, out APIKey apiKey) &&
                _APIKeyIsValid(apiKey);
 
-
         /// <summary>
         /// Determines whether the given API key is valid within this API.
         /// </summary>
@@ -19909,12 +20605,11 @@ namespace social.OpenData.UsersAPI
         public Boolean APIKeyIsValid(APIKey APIKey)
         {
 
+            var lockTaken = APIKeysSemaphore.Wait(SemaphoreSlimTimeout);
+
             try
             {
-
-                if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
-                    return _APIKeyIsValid(APIKey);
-
+                return lockTaken && _APIKeyIsValid(APIKey);
             }
             catch
             { }
@@ -19922,7 +20617,8 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    APIKeysSemaphore.Release();
+                    if (lockTaken)
+                        APIKeysSemaphore.Release();
                 }
                 catch
                 { }
@@ -20018,12 +20714,12 @@ namespace social.OpenData.UsersAPI
         public APIKey GetAPIKey(APIKey_Id APIKey)
         {
 
+            var lockTaken = APIKeysSemaphore.Wait(SemaphoreSlimTimeout);
+
             try
             {
-
-                if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
+                if (lockTaken)
                     return _GetAPIKey(APIKey);
-
             }
             catch
             { }
@@ -20031,7 +20727,8 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    APIKeysSemaphore.Release();
+                    if (lockTaken)
+                        APIKeysSemaphore.Release();
                 }
                 catch
                 { }
@@ -20053,7 +20750,28 @@ namespace social.OpenData.UsersAPI
         protected internal Boolean _TryGetAPIKey(APIKey_Id APIKeyId, out APIKey APIKey)
         {
 
-            if (!APIKeyId.IsNullOrEmpty && _APIKeys.TryGetValue(APIKeyId, out APIKey apiKey))
+            if (!APIKeyId.IsNullOrEmpty &&
+                _APIKeys.TryGetValue(APIKeyId, out APIKey apiKey))
+            {
+                APIKey = apiKey;
+                return true;
+            }
+
+            APIKey = null;
+            return false;
+
+        }
+
+        /// <summary>
+        /// Try to get the API key having the given unique identification.
+        /// </summary>
+        /// <param name="APIKeyId">The unique identification of an API key.</param>
+        /// <param name="APIKey">The API key.</param>
+        protected internal Boolean _TryGetAPIKey(APIKey_Id? APIKeyId, out APIKey APIKey)
+        {
+
+            if (APIKeyId.IsNotNullOrEmpty() &&
+               _APIKeys. TryGetValue(APIKeyId.Value, out APIKey apiKey))
             {
                 APIKey = apiKey;
                 return true;
@@ -20074,16 +20792,15 @@ namespace social.OpenData.UsersAPI
                                     out APIKey  APIKey)
         {
 
+            var lockTaken = APIKeysSemaphore.Wait(SemaphoreSlimTimeout);
+
             try
             {
-
-                if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout) &&
-                    _TryGetAPIKey(APIKeyId, out APIKey apiKey))
+                if (lockTaken && _TryGetAPIKey(APIKeyId, out APIKey apiKey))
                 {
                     APIKey = apiKey;
                     return true;
                 }
-
             }
             catch
             { }
@@ -20091,7 +20808,45 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    APIKeysSemaphore.Release();
+                    if (lockTaken)
+                        APIKeysSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+            APIKey = null;
+            return false;
+
+        }
+
+        /// <summary>
+        /// Try to get the API key having the given unique identification.
+        /// </summary>
+        /// <param name="APIKeyId">The unique identification of an API key.</param>
+        /// <param name="APIKey">The API key.</param>
+        public Boolean TryGetAPIKey(APIKey_Id?  APIKeyId,
+                                    out APIKey  APIKey)
+        {
+
+            var lockTaken = APIKeysSemaphore.Wait(SemaphoreSlimTimeout);
+
+            try
+            {
+                if (lockTaken && _TryGetAPIKey(APIKeyId, out APIKey apiKey))
+                {
+                    APIKey = apiKey;
+                    return true;
+                }
+            }
+            catch
+            { }
+            finally
+            {
+                try
+                {
+                    if (lockTaken)
+                        APIKeysSemaphore.Release();
                 }
                 catch
                 { }
@@ -20111,7 +20866,8 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="APIKeyId">The unique identification of the API key.</param>
         /// <param name="APIKey">The API key.</param>
-        protected internal Boolean _TryGetValidAPIKey(APIKey_Id APIKeyId, out APIKey APIKey)
+        protected internal Boolean _TryGetValidAPIKey(APIKey_Id   APIKeyId,
+                                                      out APIKey  APIKey)
 
         {
 
@@ -20132,11 +20888,12 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="APIKeyId">The unique identification of the API key.</param>
         /// <param name="APIKey">The API key.</param>
-        protected internal Boolean _TryGetValidAPIKey(APIKey_Id? APIKeyId, out APIKey APIKey)
+        protected internal Boolean _TryGetValidAPIKey(APIKey_Id?  APIKeyId,
+                                                      out APIKey  APIKey)
 
         {
 
-            if (APIKeyId.HasValue &&
+            if (APIKeyId.IsNotNullOrEmpty() &&
                 _APIKeys.TryGetValue(APIKeyId.Value, out APIKey apiKey) &&
                 _APIKeyIsValid(apiKey))
             {
@@ -20159,15 +20916,12 @@ namespace social.OpenData.UsersAPI
                                          out APIKey  APIKey)
         {
 
+            var lockTaken = APIKeysSemaphore.Wait(SemaphoreSlimTimeout);
+
             try
             {
-
-                if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout) &&
-                    _TryGetValidAPIKey(APIKeyId, out APIKey))
-                {
+                if (lockTaken && _TryGetValidAPIKey(APIKeyId, out APIKey))
                     return true;
-                }
-
             }
             catch
             { }
@@ -20175,7 +20929,8 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    APIKeysSemaphore.Release();
+                    if (lockTaken)
+                        APIKeysSemaphore.Release();
                 }
                 catch
                 { }
@@ -20195,15 +20950,12 @@ namespace social.OpenData.UsersAPI
                                          out APIKey  APIKey)
         {
 
+            var lockTaken = APIKeysSemaphore.Wait(SemaphoreSlimTimeout);
+
             try
             {
-
-                if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout) &&
-                    _TryGetValidAPIKey(APIKeyId, out APIKey))
-                {
+                if (lockTaken && _TryGetValidAPIKey(APIKeyId, out APIKey))
                     return true;
-                }
-
             }
             catch
             { }
@@ -20211,7 +20963,8 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    APIKeysSemaphore.Release();
+                    if (lockTaken)
+                        APIKeysSemaphore.Release();
                 }
                 catch
                 { }
@@ -20245,10 +20998,12 @@ namespace social.OpenData.UsersAPI
         public IEnumerable<APIKey> GetAPIKeysForUser(User User)
         {
 
+            var lockTaken = APIKeysSemaphore.Wait(SemaphoreSlimTimeout);
+
             try
             {
 
-                if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
+                if (lockTaken)
                     return _GetAPIKeysForUser(User);
 
             }
@@ -20258,7 +21013,8 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    APIKeysSemaphore.Release();
+                    if (lockTaken)
+                        APIKeysSemaphore.Release();
                 }
                 catch
                 { }
@@ -20291,10 +21047,12 @@ namespace social.OpenData.UsersAPI
         public IEnumerable<APIKey> GetValidAPIKeysForUser(User User)
         {
 
+            var lockTaken = APIKeysSemaphore.Wait(SemaphoreSlimTimeout);
+
             try
             {
 
-                if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
+                if (lockTaken)
                     return _GetValidAPIKeysForUser(User);
 
             }
@@ -20304,7 +21062,8 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    APIKeysSemaphore.Release();
+                    if (lockTaken)
+                        APIKeysSemaphore.Release();
                 }
                 catch
                 { }
@@ -20418,21 +21177,21 @@ namespace social.OpenData.UsersAPI
                                                            User_Id?                          CurrentUserId     = null)
         {
 
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+            var lockTaken        = await APIKeysSemaphore.WaitAsync(SemaphoreSlimTimeout);
+            var eventTrackingId  = EventTrackingId ?? EventTracking_Id.New;
 
             try
             {
 
-                return (await APIKeysSemaphore.WaitAsync(SemaphoreSlimTimeout))
+                if (lockTaken)
+                    return await _RemoveAPIKey(APIKey,
+                                               OnRemoved,
+                                               eventTrackingId,
+                                               CurrentUserId);
 
-                            ? await _RemoveAPIKey(APIKey,
-                                                  OnRemoved,
-                                                  eventTrackingId,
-                                                  CurrentUserId)
-
-                            : RemoveAPIKeyResult.Failed(APIKey,
-                                                        eventTrackingId,
-                                                        "Internal locking failed!");
+                return RemoveAPIKeyResult.Failed(APIKey,
+                                                 eventTrackingId,
+                                                 "Internal locking failed!");
 
             }
             catch (Exception e)
@@ -20449,7 +21208,8 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    APIKeysSemaphore.Release();
+                    if (lockTaken)
+                        APIKeysSemaphore.Release();
                 }
                 catch
                 { }
@@ -24209,9 +24969,12 @@ namespace social.OpenData.UsersAPI
         {
             get
             {
+
+                var lockTaken = OrganizationsSemaphore.Wait(SemaphoreSlimTimeout);
+
                 try
                 {
-                    return OrganizationsSemaphore.Wait(SemaphoreSlimTimeout)
+                    return lockTaken
                                ? _Organizations.Values.ToArray()
                                : new Organization[0];
                 }
@@ -24219,11 +24982,13 @@ namespace social.OpenData.UsersAPI
                 {
                     try
                     {
-                        OrganizationsSemaphore.Release();
+                        if (lockTaken)
+                            OrganizationsSemaphore.Release();
                     }
                     catch
                     { }
                 }
+
             }
         }
 
@@ -24769,22 +25534,24 @@ namespace social.OpenData.UsersAPI
                                                                  User_Id?                                CurrentUserId        = null)
         {
 
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
-
-            if (ParentOrganization is null)
-                ParentOrganization = NoOwner;
-
-            if (!_Organizations.ContainsKey(ParentOrganization.Id))
-                return AddOrganizationResult.ArgumentError(Organization,
-                                                           eventTrackingId,
-                                                           nameof(ParentOrganization),
-                                                           "Parent organization '" + ParentOrganization.Id + "' does not exists in this API!");
+            var lockTaken        = await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout);
+            var eventTrackingId  = EventTrackingId ?? EventTracking_Id.New;
 
             try
             {
 
-                if (await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout))
+                if (lockTaken)
                 {
+
+                    if (ParentOrganization is null)
+                        ParentOrganization = NoOwner;
+
+                    if (!_Organizations.ContainsKey(ParentOrganization.Id))
+                        return AddOrganizationResult.ArgumentError(Organization,
+                                                                   eventTrackingId,
+                                                                   nameof(ParentOrganization),
+                                                                   "Parent organization '" + ParentOrganization.Id + "' does not exists in this API!");
+
 
                     #region Check if the user is allowed to create and link the given organizations!
 
@@ -24800,6 +25567,7 @@ namespace social.OpenData.UsersAPI
                     }
 
                     #endregion
+
 
                     var result = await _AddOrganization(Organization,
                                                         async (_organization, _eventTrackingId) => {
@@ -24857,7 +25625,8 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    OrganizationsSemaphore.Release();
+                    if (lockTaken)
+                        OrganizationsSemaphore.Release();
                 }
                 catch
                 { }
@@ -24973,22 +25742,24 @@ namespace social.OpenData.UsersAPI
                                                                                        User_Id?                                CurrentUserId     = null)
         {
 
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
-
-            if (ParentOrganization is null)
-                ParentOrganization = NoOwner;
-
-            if (!_Organizations.ContainsKey(ParentOrganization.Id))
-                return AddOrganizationIfNotExistsResult.ArgumentError(Organization,
-                                                                      eventTrackingId,
-                                                                      nameof(ParentOrganization),
-                                                                      "Parent organization '" + ParentOrganization.Id + "' does not exists in this API!");
+            var lockTaken        = await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout);
+            var eventTrackingId  = EventTrackingId ?? EventTracking_Id.New;
 
             try
             {
 
-                if (await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout))
+                if (lockTaken)
                 {
+
+                    if (ParentOrganization is null)
+                        ParentOrganization = NoOwner;
+
+                    if (!_Organizations.ContainsKey(ParentOrganization.Id))
+                        return AddOrganizationIfNotExistsResult.ArgumentError(Organization,
+                                                                              eventTrackingId,
+                                                                              nameof(ParentOrganization),
+                                                                              "Parent organization '" + ParentOrganization.Id + "' does not exists in this API!");
+
 
                     #region Check if the user is allowed to create and link the given organizations!
 
@@ -25004,6 +25775,7 @@ namespace social.OpenData.UsersAPI
                     }
 
                     #endregion
+
 
                     var result = await _AddOrganizationIfNotExists(Organization,
                                                                    async (_organization, _eventTrackingId) => {
@@ -25061,7 +25833,8 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    OrganizationsSemaphore.Release();
+                    if (lockTaken)
+                        OrganizationsSemaphore.Release();
                 }
                 catch
                 { }
@@ -25211,22 +25984,22 @@ namespace social.OpenData.UsersAPI
                                                                                  User_Id?                                CurrentUserId     = null)
         {
 
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+            var lockTaken        = await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout);
+            var eventTrackingId  = EventTrackingId ?? EventTracking_Id.New;
 
             try
             {
 
-                return (await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout))
+                if (lockTaken)
+                    return await _AddOrUpdateOrganization(Organization,
+                                                          OnAdded,
+                                                          OnUpdated,
+                                                          eventTrackingId,
+                                                          CurrentUserId);
 
-                            ? await _AddOrUpdateOrganization(Organization,
-                                                             OnAdded,
-                                                             OnUpdated,
-                                                             eventTrackingId,
-                                                             CurrentUserId)
-
-                            : AddOrUpdateOrganizationResult.Failed(Organization,
-                                                                   eventTrackingId,
-                                                                   "Internal locking failed!");
+                return AddOrUpdateOrganizationResult.Failed(Organization,
+                                                            eventTrackingId,
+                                                            "Internal locking failed!");
 
             }
             catch (Exception e)
@@ -25243,7 +26016,8 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    OrganizationsSemaphore.Release();
+                    if (lockTaken)
+                        OrganizationsSemaphore.Release();
                 }
                 catch
                 { }
@@ -25272,22 +26046,24 @@ namespace social.OpenData.UsersAPI
                                                                                  User_Id?                                CurrentUserId     = null)
         {
 
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
-
-            if (ParentOrganization is null)
-                ParentOrganization = NoOwner;
-
-            if (!_Organizations.ContainsKey(ParentOrganization.Id))
-                return AddOrUpdateOrganizationResult.ArgumentError(Organization,
-                                                                   eventTrackingId,
-                                                                   nameof(ParentOrganization),
-                                                                   "Parent organization '" + ParentOrganization.Id + "' does not exists in this API!");
+            var lockTaken        = await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout);
+            var eventTrackingId  = EventTrackingId ?? EventTracking_Id.New;
 
             try
             {
 
-                if (await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout))
+                if (lockTaken)
                 {
+
+                    if (ParentOrganization is null)
+                        ParentOrganization = NoOwner;
+
+                    if (!_Organizations.ContainsKey(ParentOrganization.Id))
+                        return AddOrUpdateOrganizationResult.ArgumentError(Organization,
+                                                                           eventTrackingId,
+                                                                           nameof(ParentOrganization),
+                                                                           "Parent organization '" + ParentOrganization.Id + "' does not exists in this API!");
+
 
                     #region Check if the user is allowed to create and link the given organizations!
 
@@ -25305,6 +26081,7 @@ namespace social.OpenData.UsersAPI
                     }
 
                     #endregion
+
 
                     var result = await _AddOrUpdateOrganization(Organization,
                                                                 async (_organization, _eventTrackingId) => {
@@ -25363,7 +26140,8 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    OrganizationsSemaphore.Release();
+                    if (lockTaken)
+                        OrganizationsSemaphore.Release();
                 }
                 catch
                 { }
@@ -25483,21 +26261,21 @@ namespace social.OpenData.UsersAPI
                                                                        User_Id?                                CurrentUserId     = null)
         {
 
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+            var lockTaken        = await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout);
+            var eventTrackingId  = EventTrackingId ?? EventTracking_Id.New;
 
             try
             {
 
-                return (await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout))
+                if (lockTaken)
+                    return await _UpdateOrganization(Organization,
+                                                     OnUpdated,
+                                                     eventTrackingId,
+                                                     CurrentUserId);
 
-                            ? await _UpdateOrganization(Organization,
-                                                        OnUpdated,
-                                                        eventTrackingId,
-                                                        CurrentUserId)
-
-                            : UpdateOrganizationResult.Failed(Organization,
-                                                              eventTrackingId,
-                                                              "Internal locking failed!");
+                return UpdateOrganizationResult.Failed(Organization,
+                                                       eventTrackingId,
+                                                       "Internal locking failed!");
 
             }
             catch (Exception e)
@@ -25514,7 +26292,8 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    OrganizationsSemaphore.Release();
+                    if (lockTaken)
+                        OrganizationsSemaphore.Release();
                 }
                 catch
                 { }
@@ -25623,22 +26402,22 @@ namespace social.OpenData.UsersAPI
                                                                        User_Id?                                CurrentUserId     = null)
         {
 
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+            var lockTaken        = await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout);
+            var eventTrackingId  = EventTrackingId ?? EventTracking_Id.New;
 
             try
             {
 
-                return (await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout))
+                if (lockTaken)
+                    return await _UpdateOrganization(Organization,
+                                                     UpdateDelegate,
+                                                     OnUpdated,
+                                                     eventTrackingId,
+                                                     CurrentUserId);
 
-                            ? await _UpdateOrganization(Organization,
-                                                        UpdateDelegate,
-                                                        OnUpdated,
-                                                        eventTrackingId,
-                                                        CurrentUserId)
-
-                            : UpdateOrganizationResult.Failed(Organization,
-                                                              eventTrackingId,
-                                                              "Internal locking failed!");
+                return UpdateOrganizationResult.Failed(Organization,
+                                                       eventTrackingId,
+                                                       "Internal locking failed!");
 
             }
             catch (Exception e)
@@ -25655,7 +26434,8 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    OrganizationsSemaphore.Release();
+                    if (lockTaken)
+                        OrganizationsSemaphore.Release();
                 }
                 catch
                 { }
@@ -25674,27 +26454,32 @@ namespace social.OpenData.UsersAPI
         /// Determines whether the given organization identification exists within this API.
         /// </summary>
         /// <param name="OrganizationId">The unique identification of an organization.</param>
-        protected internal Boolean _OrganizationExists(Organization_Id  OrganizationId)
+        protected internal Boolean _OrganizationExists(Organization_Id OrganizationId)
 
-            => !OrganizationId.IsNullOrEmpty && _Organizations.ContainsKey(OrganizationId);
+            => OrganizationId.IsNotNullOrEmpty && _Organizations.ContainsKey(OrganizationId);
+
+        /// <summary>
+        /// Determines whether the given organization identification exists within this API.
+        /// </summary>
+        /// <param name="OrganizationId">The unique identification of an organization.</param>
+        protected internal Boolean _OrganizationExists(Organization_Id? OrganizationId)
+
+            => OrganizationId.IsNotNullOrEmpty() && _Organizations.ContainsKey(OrganizationId.Value);
 
 
         /// <summary>
         /// Determines whether the given organization identification exists within this API.
         /// </summary>
         /// <param name="OrganizationId">The unique identification of an organization.</param>
-        public Boolean OrganizationExists(Organization_Id  OrganizationId)
+        public Boolean OrganizationExists(Organization_Id OrganizationId)
         {
+
+            var lockTaken = OrganizationsSemaphore.Wait(SemaphoreSlimTimeout);
 
             try
             {
-
-                if (OrganizationsSemaphore.Wait(SemaphoreSlimTimeout) &&
-                    _OrganizationExists(OrganizationId))
-                {
+                if (lockTaken && _OrganizationExists(OrganizationId))
                     return true;
-                }
-
             }
             catch
             { }
@@ -25702,7 +26487,39 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    OrganizationsSemaphore.Release();
+                    if (lockTaken)
+                        OrganizationsSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+            return false;
+
+        }
+
+        /// <summary>
+        /// Determines whether the given organization identification exists within this API.
+        /// </summary>
+        /// <param name="OrganizationId">The unique identification of an organization.</param>
+        public Boolean OrganizationExists(Organization_Id? OrganizationId)
+        {
+
+            var lockTaken = OrganizationsSemaphore.Wait(SemaphoreSlimTimeout);
+
+            try
+            {
+                if (lockTaken && _OrganizationExists(OrganizationId))
+                    return true;
+            }
+            catch
+            { }
+            finally
+            {
+                try
+                {
+                    if (lockTaken)
+                        OrganizationsSemaphore.Release();
                 }
                 catch
                 { }
@@ -25723,7 +26540,21 @@ namespace social.OpenData.UsersAPI
         protected internal Organization _GetOrganization(Organization_Id OrganizationId)
         {
 
-            if (!OrganizationId.IsNullOrEmpty && _Organizations.TryGetValue(OrganizationId, out Organization organization))
+            if (OrganizationId.IsNotNullOrEmpty && _Organizations.TryGetValue(OrganizationId, out Organization organization))
+                return organization;
+
+            return null;
+
+        }
+
+        /// <summary>
+        /// Get the organization having the given unique identification.
+        /// </summary>
+        /// <param name="OrganizationId">The unique identification of an organization.</param>
+        protected internal Organization _GetOrganization(Organization_Id? OrganizationId)
+        {
+
+            if (OrganizationId.IsNotNullOrEmpty() && _Organizations.TryGetValue(OrganizationId.Value, out Organization organization))
                 return organization;
 
             return null;
@@ -25735,15 +26566,15 @@ namespace social.OpenData.UsersAPI
         /// Get the organization having the given unique identification.
         /// </summary>
         /// <param name="OrganizationId">The unique identification of an organization.</param>
-        public Organization GetOrganization(Organization_Id  OrganizationId)
+        public Organization GetOrganization(Organization_Id OrganizationId)
         {
+
+            var lockTaken = OrganizationsSemaphore.Wait(SemaphoreSlimTimeout);
 
             try
             {
-
-                if (OrganizationsSemaphore.Wait(SemaphoreSlimTimeout))
+                if (lockTaken)
                     return _GetOrganization(OrganizationId);
-
             }
             catch
             { }
@@ -25751,7 +26582,39 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    OrganizationsSemaphore.Release();
+                    if (lockTaken)
+                        OrganizationsSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+            return null;
+
+        }
+
+        /// <summary>
+        /// Get the organization having the given unique identification.
+        /// </summary>
+        /// <param name="OrganizationId">The unique identification of an organization.</param>
+        public Organization GetOrganization(Organization_Id? OrganizationId)
+        {
+
+            var lockTaken = OrganizationsSemaphore.Wait(SemaphoreSlimTimeout);
+
+            try
+            {
+                if (lockTaken)
+                    return _GetOrganization(OrganizationId);
+            }
+            catch
+            { }
+            finally
+            {
+                try
+                {
+                    if (lockTaken)
+                        OrganizationsSemaphore.Release();
                 }
                 catch
                 { }
@@ -25774,7 +26637,27 @@ namespace social.OpenData.UsersAPI
                                                        out Organization  Organization)
         {
 
-            if (!OrganizationId.IsNullOrEmpty && _Organizations.TryGetValue(OrganizationId, out Organization organization))
+            if (OrganizationId.IsNotNullOrEmpty && _Organizations.TryGetValue(OrganizationId, out Organization organization))
+            {
+                Organization = organization;
+                return true;
+            }
+
+            Organization = null;
+            return false;
+
+        }
+
+        /// <summary>
+        /// Try to get the organization having the given unique identification.
+        /// </summary>
+        /// <param name="OrganizationId">The unique identification of an organization.</param>
+        /// <param name="Organization">The organization.</param>
+        protected internal Boolean _TryGetOrganization(Organization_Id?  OrganizationId,
+                                                       out Organization  Organization)
+        {
+
+            if (OrganizationId.IsNotNullOrEmpty() && _Organizations.TryGetValue(OrganizationId.Value, out Organization organization))
             {
                 Organization = organization;
                 return true;
@@ -25795,11 +26678,49 @@ namespace social.OpenData.UsersAPI
                                           out Organization  Organization)
         {
 
+            var lockTaken = OrganizationsSemaphore.Wait(SemaphoreSlimTimeout);
+
+            try
+            {
+                if (lockTaken && _TryGetOrganization(OrganizationId, out Organization organization))
+                {
+                    Organization = organization;
+                    return true;
+                }
+            }
+            catch
+            { }
+            finally
+            {
+                try
+                {
+                    if (lockTaken)
+                        OrganizationsSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+            Organization = null;
+            return false;
+
+        }
+
+        /// <summary>
+        /// Try to get the organization having the given unique identification.
+        /// </summary>
+        /// <param name="OrganizationId">The unique identification of an organization.</param>
+        /// <param name="Organization">The organization.</param>
+        public Boolean TryGetOrganization(Organization_Id?  OrganizationId,
+                                          out Organization  Organization)
+        {
+
+            var lockTaken = OrganizationsSemaphore.Wait(SemaphoreSlimTimeout);
+
             try
             {
 
-                if (OrganizationsSemaphore.Wait(SemaphoreSlimTimeout) &&
-                    _TryGetOrganization(OrganizationId, out Organization organization))
+                if (lockTaken && _TryGetOrganization(OrganizationId, out Organization organization))
                 {
                     Organization = organization;
                     return true;
@@ -25812,7 +26733,8 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    OrganizationsSemaphore.Release();
+                    if (lockTaken)
+                        OrganizationsSemaphore.Release();
                 }
                 catch
                 { }
@@ -25859,12 +26781,12 @@ namespace social.OpenData.UsersAPI
         public IEnumerable<Organization> SearchOrganizationsByName(I18NString OrganizationName)
         {
 
+            var lockTaken = OrganizationsSemaphore.Wait(SemaphoreSlimTimeout);
+
             try
             {
-
-                if (OrganizationsSemaphore.Wait(SemaphoreSlimTimeout))
+                if (lockTaken)
                     return _SearchOrganizationsByName(OrganizationName);
-
             }
             catch
             { }
@@ -25872,7 +26794,8 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    OrganizationsSemaphore.Release();
+                    if (lockTaken)
+                        OrganizationsSemaphore.Release();
                 }
                 catch
                 { }
@@ -25891,13 +26814,13 @@ namespace social.OpenData.UsersAPI
                                                                    Boolean  IgnoreCase = false)
         {
 
+            var lockTaken = OrganizationsSemaphore.Wait(SemaphoreSlimTimeout);
+
             try
             {
-
-                if (OrganizationsSemaphore.Wait(SemaphoreSlimTimeout))
+                if (lockTaken)
                     return _SearchOrganizationsByName(OrganizationName,
                                                       IgnoreCase);
-
             }
             catch
             { }
@@ -25905,7 +26828,8 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    OrganizationsSemaphore.Release();
+                    if (lockTaken)
+                        OrganizationsSemaphore.Release();
                 }
                 catch
                 { }
@@ -26187,21 +27111,21 @@ namespace social.OpenData.UsersAPI
                                                                        User_Id?                                CurrentUserId     = null)
         {
 
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+            var lockTaken        = await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout);
+            var eventTrackingId  = EventTrackingId ?? EventTracking_Id.New;
 
             try
             {
 
-                return (await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout))
+                if (lockTaken)
+                    return await _DeleteOrganization(Organization,
+                                                     OnDeleted,
+                                                     eventTrackingId,
+                                                     CurrentUserId);
 
-                            ? await _DeleteOrganization(Organization,
-                                                        OnDeleted,
-                                                        eventTrackingId,
-                                                        CurrentUserId)
-
-                            : DeleteOrganizationResult.Failed(Organization,
-                                                              eventTrackingId,
-                                                              "Internal locking failed!");
+                return DeleteOrganizationResult.Failed(Organization,
+                                                       eventTrackingId,
+                                                       "Internal locking failed!");
 
             }
             catch (Exception e)
@@ -26218,7 +27142,8 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    OrganizationsSemaphore.Release();
+                    if (lockTaken)
+                        OrganizationsSemaphore.Release();
                 }
                 catch
                 { }
@@ -27648,17 +28573,14 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (protected internal) SendNotifications      (Organization, User, MessageType, CurrentUserId = null)
+        #region (protected internal) SendNotifications      (User, EdgeLabel, Organization, MessageType, EventTrackingId = null, CurrentUserId = null)
 
-        protected internal async virtual Task SendNotifications<TOrganization, TUser>(TOrganization            Organization,
-                                                                                      TUser                    User,
-                                                                                      NotificationMessageType  MessageType,
-                                                                                      EventTracking_Id         EventTrackingId   = null,
-                                                                                      User_Id?                 CurrentUserId     = null)
-
-            where TOrganization : Organization
-            where TUser:          User
-
+        protected internal async virtual Task SendNotifications(User                        User,
+                                                                User2OrganizationEdgeTypes  EdgeLabel,
+                                                                Organization                Organization,
+                                                                NotificationMessageType     MessageType,
+                                                                EventTracking_Id            EventTrackingId   = null,
+                                                                User_Id?                    CurrentUserId     = null)
         {
 
             if (Organization is null || User is null)
@@ -27903,18 +28825,78 @@ namespace social.OpenData.UsersAPI
 
         #region (protected) _AddUserToOrganization     (User, EdgeLabel, Organization, SuppressNotifications = false, CurrentUserId  = null)
 
-        protected async Task<Boolean> _AddUserToOrganization(User                        User,
-                                                             User2OrganizationEdgeTypes  EdgeLabel,
-                                                             Organization                Organization,
-                                                             EventTracking_Id            EventTrackingId         = null,
-                                                             Boolean                     SuppressNotifications   = false,
-                                                             User_Id?                    CurrentUserId           = null)
+        protected async Task<AddUserToOrganizationResult> _AddUserToOrganization(User                        User,
+                                                                                 User2OrganizationEdgeTypes  EdgeLabel,
+                                                                                 Organization                Organization,
+                                                                                 EventTracking_Id            EventTrackingId         = null,
+                                                                                 Boolean                     SuppressNotifications   = false,
+                                                                                 User_Id?                    CurrentUserId           = null)
         {
 
-            if (!User.EdgeLabels(Organization).Any(edge => edge == EdgeLabel))
-            {
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
-                var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+            if (User is null)
+                return AddUserToOrganizationResult.ArgumentError(User,
+                                                                 EdgeLabel,
+                                                                 Organization,
+                                                                 eventTrackingId,
+                                                                 nameof(User),
+                                                                 "The given user must not be null!");
+
+            if (User.API != null && User.API != this)
+                return AddUserToOrganizationResult.ArgumentError(User,
+                                                                 EdgeLabel,
+                                                                 Organization,
+                                                                 eventTrackingId,
+                                                                 nameof(User),
+                                                                 "The given user is not attached to this API!");
+
+            if (!_Users.ContainsKey(User.Id))
+                return AddUserToOrganizationResult.ArgumentError(User,
+                                                                 EdgeLabel,
+                                                                 Organization,
+                                                                 eventTrackingId,
+                                                                 nameof(User),
+                                                                 "The given user '" + User.Id + "' does not exists within this API!");
+
+
+            //if (EdgeLabel.IsNullOrEmpty())
+            //    return AddUserToOrganizationResult.ArgumentError(User,
+            //                                                     EdgeLabel,
+            //                                                     Organization,
+            //                                                     eventTrackingId,
+            //                                                     nameof(EdgeLabel),
+            //                                                     "The given edge label must not be null or empty!");
+
+
+            if (Organization is null)
+                return AddUserToOrganizationResult.ArgumentError(User,
+                                                                 EdgeLabel,
+                                                                 Organization,
+                                                                 eventTrackingId,
+                                                                 nameof(Organization),
+                                                                 "The given organization must not be null!");
+
+            if (Organization.API != null && Organization.API != this)
+                return AddUserToOrganizationResult.ArgumentError(User,
+                                                                 EdgeLabel,
+                                                                 Organization,
+                                                                 eventTrackingId,
+                                                                 nameof(Organization),
+                                                                 "The given organization is not attached to this API!");
+
+            if (!_Organizations.ContainsKey(Organization.Id))
+                return AddUserToOrganizationResult.ArgumentError(User,
+                                                                 EdgeLabel,
+                                                                 Organization,
+                                                                 eventTrackingId,
+                                                                 nameof(Organization),
+                                                                 "The given organization '" + Organization.Id + "' does not exists within this API!");
+
+
+            if (!User.        EdgeLabels                   (Organization).Any(edgelabel => edgelabel == EdgeLabel) &&
+                !Organization.User2OrganizationInEdgeLabels(User).        Any(edgelabel => edgelabel == EdgeLabel))
+            {
 
                 await WriteToDatabaseFile(addUserToOrganization_MessageType,
                                           new JObject(
@@ -27927,63 +28909,92 @@ namespace social.OpenData.UsersAPI
 
 
                 var edge = User.AddOutgoingEdge(EdgeLabel, Organization);
-
-                if (!Organization.User2OrganizationInEdgeLabels(User).Any(edgelabel => edgelabel == EdgeLabel))
-                    Organization.LinkUser(edge);
+                Organization.LinkUser(edge);
 
 
                 if (!SuppressNotifications)
-                    await SendNotifications(Organization,
-                                            User,
+                    await SendNotifications(User,
+                                            EdgeLabel,
+                                            Organization,
                                             addUserToOrganization_MessageType,
                                             eventTrackingId,
                                             CurrentUserId);
 
-                return true;
+
+                return AddUserToOrganizationResult.Success(User,
+                                                           EdgeLabel,
+                                                           Organization,
+                                                           eventTrackingId);
 
             }
 
-            return false;
+            return AddUserToOrganizationResult.Failed(User,
+                                                      EdgeLabel,
+                                                      Organization,
+                                                      eventTrackingId,
+                                                      "The given edge already exists!");
 
         }
 
         #endregion
 
-        #region AddUserToOrganization                  (User, EdgeLabel, Organization, CurrentUserId  = null)
+        #region AddUserToOrganization                  (User, EdgeLabel, Organization,                                CurrentUserId  = null)
 
-        public async Task<Boolean> AddUserToOrganization(User                        User,
-                                                         User2OrganizationEdgeTypes  Edge,
-                                                         Organization                Organization,
-                                                         EventTracking_Id            EventTrackingId   = null,
-                                                         User_Id?                    CurrentUserId     = null)
+        public async Task<AddUserToOrganizationResult> AddUserToOrganization(User                        User,
+                                                                             User2OrganizationEdgeTypes  EdgeLabel,
+                                                                             Organization                Organization,
+                                                                             EventTracking_Id            EventTrackingId   = null,
+                                                                             User_Id?                    CurrentUserId     = null)
         {
+
+            var usersLockTaken          = await UsersSemaphore.        WaitAsync(SemaphoreSlimTimeout);
+            var organizationsLockTaken  = await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout);
+            var eventTrackingId         = EventTrackingId ?? EventTracking_Id.New;
 
             try
             {
 
-                await UsersSemaphore.        WaitAsync();
-                await OrganizationsSemaphore.WaitAsync();
+                if (usersLockTaken && organizationsLockTaken)
+                    return await _AddUserToOrganization(User,
+                                                        EdgeLabel,
+                                                        Organization,
+                                                        eventTrackingId,
+                                                        SuppressNotifications:  false,
+                                                        CurrentUserId:          CurrentUserId);
 
-                return await _AddUserToOrganization(User,
-                                                    Edge,
-                                                    Organization,
-                                                    EventTrackingId,
-                                                    SuppressNotifications:  false,
-                                                    CurrentUserId:          CurrentUserId);
+                return AddUserToOrganizationResult.Failed(User,
+                                                          EdgeLabel,
+                                                          Organization,
+                                                          eventTrackingId,
+                                                          "Internal locking failed!");
+
+            }
+            catch (Exception e)
+            {
+
+                DebugX.LogException(e);
+
+                return AddUserToOrganizationResult.Failed(User,
+                                                          EdgeLabel,
+                                                          Organization,
+                                                          eventTrackingId,
+                                                          e);
 
             }
             finally
             {
                 try
                 {
-                    OrganizationsSemaphore.Release();
+                    if (usersLockTaken)
+                        OrganizationsSemaphore.Release();
                 }
                 catch
                 { }
 
                 try
                 {
-                    UsersSemaphore.Release();
+                    if (organizationsLockTaken)
+                        UsersSemaphore.Release();
                 }
                 catch
                 { }
@@ -27994,150 +29005,351 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (protected) _RemoveUserFromOrganization(User, EdgeLabel, Organization, CurrentUserId = null)
+        #region (protected) _RemoveUserFromOrganization(User, EdgeLabel, Organization, SuppressNotifications = false, CurrentUserId = null)
 
-        protected async Task<Boolean> _RemoveUserFromOrganization(User                        User,
-                                                                  User2OrganizationEdgeTypes  EdgeLabel,
-                                                                  Organization                Organization,
-                                                                  EventTracking_Id            EventTrackingId   = null,
-                                                                  User_Id?                    CurrentUserId     = null)
+        protected async Task<RemoveUserFromOrganizationResult> _RemoveUserFromOrganization(User                        User,
+                                                                                           User2OrganizationEdgeTypes  EdgeLabel,
+                                                                                           Organization                Organization,
+                                                                                           EventTracking_Id            EventTrackingId         = null,
+                                                                                           Boolean                     SuppressNotifications   = false,
+                                                                                           User_Id?                    CurrentUserId           = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
-            await WriteToDatabaseFile(removeUserFromOrganization_MessageType,
-                                      new JObject(
-                                          new JProperty("user",         User.        Id.ToString()),
-                                          new JProperty("edge",         EdgeLabel.      ToString()),
-                                          new JProperty("organization", Organization.Id.ToString())
-                                      ),
-                                      eventTrackingId,
-                                      CurrentUserId);
+            if (User is null)
+                return RemoveUserFromOrganizationResult.ArgumentError(User,
+                                                                      EdgeLabel,
+                                                                      Organization,
+                                                                      eventTrackingId,
+                                                                      nameof(User),
+                                                                      "The given user must not be null!");
+
+            if (User.API != null && User.API != this)
+                return RemoveUserFromOrganizationResult.ArgumentError(User,
+                                                                      EdgeLabel,
+                                                                      Organization,
+                                                                      eventTrackingId,
+                                                                      nameof(User),
+                                                                      "The given user is not attached to this API!");
+
+            if (!_Users.ContainsKey(User.Id))
+                return RemoveUserFromOrganizationResult.ArgumentError(User,
+                                                                      EdgeLabel,
+                                                                      Organization,
+                                                                      eventTrackingId,
+                                                                      nameof(User),
+                                                                      "The given user '" + User.Id + "' does not exists within this API!");
 
 
-            var edges = new List<User2OrganizationEdgeTypes>();
+            //if (EdgeLabel.IsNullOrEmpty())
+            //    return AddUserToOrganizationResult.ArgumentError(User,
+            //                                                     EdgeLabel,
+            //                                                     Organization,
+            //                                                     eventTrackingId,
+            //                                                     nameof(EdgeLabel),
+            //                                                     "The given edge label must not be null or empty!");
 
-            foreach (var edge in User.Edges(Organization).Where(_edge => _edge.EdgeLabel == EdgeLabel).ToArray())
-                User.RemoveOutEdge(edge);
 
-            foreach (var edge in Organization.User2OrganizationInEdges(User).Where(_edge => _edge.EdgeLabel == EdgeLabel).ToArray())
-                Organization.UnlinkUser(edge.EdgeLabel, User);
+            if (Organization is null)
+                return RemoveUserFromOrganizationResult.ArgumentError(User,
+                                                                      EdgeLabel,
+                                                                      Organization,
+                                                                      eventTrackingId,
+                                                                      nameof(Organization),
+                                                                      "The given organization must not be null!");
+
+            if (Organization.API != null && Organization.API != this)
+                return RemoveUserFromOrganizationResult.ArgumentError(User,
+                                                                      EdgeLabel,
+                                                                      Organization,
+                                                                      eventTrackingId,
+                                                                      nameof(Organization),
+                                                                      "The given organization is not attached to this API!");
+
+            if (!_Organizations.ContainsKey(Organization.Id))
+                return RemoveUserFromOrganizationResult.ArgumentError(User,
+                                                                      EdgeLabel,
+                                                                      Organization,
+                                                                      eventTrackingId,
+                                                                      nameof(Organization),
+                                                                      "The given organization '" + Organization.Id + "' does not exists within this API!");
+
+            var edges = new HashSet<User2OrganizationEdge>();
+
+            foreach (var edge in User.Edges(Organization).Where(_edge => _edge.EdgeLabel == EdgeLabel))
+                edges.Add(edge);
+
+            foreach (var edge in Organization.User2OrganizationInEdges(User).Where(_edge => _edge.EdgeLabel == EdgeLabel))
+                edges.Add(edge);
 
 
-            await SendNotifications(Organization,
-                                    User,
-                                    removeUserFromOrganization_MessageType,
-                                    eventTrackingId,
-                                    CurrentUserId);
+            foreach (var edge in edges)
+            {
 
-            return true;
+                User.        RemoveOutEdge(edge);
+                Organization.UnlinkUser   (edge.EdgeLabel, User);
+
+                await WriteToDatabaseFile(removeUserFromOrganization_MessageType,
+                                          new JObject(
+                                              new JProperty("user",         User.        Id.ToString()),
+                                              new JProperty("edge",         EdgeLabel.      ToString()),
+                                              new JProperty("organization", Organization.Id.ToString())
+                                          ),
+                                          eventTrackingId,
+                                          CurrentUserId);
+
+                if (!SuppressNotifications)
+                    await SendNotifications(User,
+                                            EdgeLabel,
+                                            Organization,
+                                            removeUserFromOrganization_MessageType,
+                                            eventTrackingId,
+                                            CurrentUserId);
+
+            }
+
+
+            return edges.Any()
+
+                       ? RemoveUserFromOrganizationResult.Success(User,
+                                                                  EdgeLabel,
+                                                                  Organization,
+                                                                  eventTrackingId)
+
+                       : RemoveUserFromOrganizationResult.Failed(User,
+                                                                 EdgeLabel,
+                                                                 Organization,
+                                                                 eventTrackingId,
+                                                                 "The requested edge was not found!");
 
         }
 
         #endregion
 
-        #region RemoveUserFromOrganization             (User,            Organization, CurrentUserId = null)
+        #region RemoveUserFromOrganization             (User, EdgeLabel, Organization,                                CurrentUserId = null)
 
-        public async Task<Boolean> RemoveUserFromOrganization(User              User,
-                                                              Organization      Organization,
-                                                              EventTracking_Id  EventTrackingId   = null,
-                                                              User_Id?          CurrentUserId     = null)
+        public async Task<RemoveUserFromOrganizationResult> RemoveUserFromOrganization(User                        User,
+                                                                                       User2OrganizationEdgeTypes  EdgeLabel,
+                                                                                       Organization                Organization,
+                                                                                       EventTracking_Id            EventTrackingId   = null,
+                                                                                       User_Id?                    CurrentUserId     = null)
         {
+
+            var usersLockTaken          = await UsersSemaphore.        WaitAsync(SemaphoreSlimTimeout);
+            var organizationsLockTaken  = await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout);
+            var eventTrackingId         = EventTrackingId ?? EventTracking_Id.New;
 
             try
             {
 
-                if ((await UsersSemaphore.        WaitAsync(SemaphoreSlimTimeout)) &&
-                    (await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout)))
-                {
-
-                    foreach (var edge in User.Edges(Organization).ToArray())
-                    {
-                        if (!await _RemoveUserFromOrganization(User,
-                                                               edge.EdgeLabel,
-                                                               Organization,
-                                                               EventTrackingId,
-                                                               CurrentUserId))
-                        {
-                            return false;
-                        }
-                    }
-
-                    return true;
-
-                }
-
-                return false;
-
-            }
-            catch (Exception e)
-            {
-                return false;
-            }
-            finally
-            {
-                try
-                {
-                    OrganizationsSemaphore.Release();
-                }
-                catch
-                { }
-
-                try
-                {
-                    UsersSemaphore.Release();
-                }
-                catch
-                { }
-            }
-
-        }
-
-        #endregion
-
-        #region RemoveUserFromOrganization             (User, EdgeLabel, Organization, CurrentUserId = null)
-
-        public async Task<Boolean> RemoveUserFromOrganization(User                        User,
-                                                              User2OrganizationEdgeTypes  Edge,
-                                                              Organization                Organization,
-                                                              EventTracking_Id            EventTrackingId   = null,
-                                                              User_Id?                    CurrentUserId     = null)
-        {
-
-            try
-            {
-
-                if ((await UsersSemaphore.        WaitAsync(SemaphoreSlimTimeout)) &&
-                    (await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout)))
-                {
-
+                if (usersLockTaken && organizationsLockTaken)
                     return await _RemoveUserFromOrganization(User,
-                                                             Edge,
+                                                             EdgeLabel,
                                                              Organization,
                                                              EventTrackingId,
-                                                             CurrentUserId);
+                                                             SuppressNotifications:  false,
+                                                             CurrentUserId:          CurrentUserId);
 
-                }
-
-                return false;
+                return RemoveUserFromOrganizationResult.Failed(User,
+                                                               EdgeLabel,
+                                                               Organization,
+                                                               eventTrackingId,
+                                                               "Internal locking failed!");
 
             }
             catch (Exception e)
             {
-                return false;
+
+                DebugX.LogException(e);
+
+                return RemoveUserFromOrganizationResult.Failed(User,
+                                                               EdgeLabel,
+                                                               Organization,
+                                                               eventTrackingId,
+                                                               e);
+
             }
             finally
             {
                 try
                 {
-                    OrganizationsSemaphore.Release();
+                    if (usersLockTaken)
+                        OrganizationsSemaphore.Release();
                 }
                 catch
                 { }
 
                 try
                 {
-                    UsersSemaphore.Release();
+                    if (organizationsLockTaken)
+                        UsersSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+        }
+
+        #endregion
+
+
+        #region (protected) _RemoveUserFromOrganization(User,            Organization, SuppressNotifications = false, CurrentUserId = null)
+
+        protected async Task<RemoveUserFromOrganizationResult> _RemoveUserFromOrganization(User              User,
+                                                                                           Organization      Organization,
+                                                                                           EventTracking_Id  EventTrackingId         = null,
+                                                                                           Boolean           SuppressNotifications   = false,
+                                                                                           User_Id?          CurrentUserId           = null)
+        {
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            if (User is null)
+                return RemoveUserFromOrganizationResult.ArgumentError(User,
+                                                                      Organization,
+                                                                      eventTrackingId,
+                                                                      nameof(User),
+                                                                      "The given user must not be null!");
+
+            if (User.API != null && User.API != this)
+                return RemoveUserFromOrganizationResult.ArgumentError(User,
+                                                                      Organization,
+                                                                      eventTrackingId,
+                                                                      nameof(User),
+                                                                      "The given user is not attached to this API!");
+
+            if (!_Users.ContainsKey(User.Id))
+                return RemoveUserFromOrganizationResult.ArgumentError(User,
+                                                                      Organization,
+                                                                      eventTrackingId,
+                                                                      nameof(User),
+                                                                      "The given user '" + User.Id + "' does not exists within this API!");
+
+            if (Organization is null)
+                return RemoveUserFromOrganizationResult.ArgumentError(User,
+                                                                      Organization,
+                                                                      eventTrackingId,
+                                                                      nameof(Organization),
+                                                                      "The given organization must not be null!");
+
+            if (Organization.API != null && Organization.API != this)
+                return RemoveUserFromOrganizationResult.ArgumentError(User,
+                                                                      Organization,
+                                                                      eventTrackingId,
+                                                                      nameof(Organization),
+                                                                      "The given organization is not attached to this API!");
+
+            if (!_Organizations.ContainsKey(Organization.Id))
+                return RemoveUserFromOrganizationResult.ArgumentError(User,
+                                                                      Organization,
+                                                                      eventTrackingId,
+                                                                      nameof(Organization),
+                                                                      "The given organization '" + Organization.Id + "' does not exists within this API!");
+
+            var edges = new HashSet<User2OrganizationEdge>();
+
+            foreach (var edge in User.Edges(Organization))
+                edges.Add(edge);
+
+            foreach (var edge in Organization.User2OrganizationInEdges(User))
+                edges.Add(edge);
+
+
+            foreach (var edge in edges)
+            {
+
+                User.        RemoveOutEdge(edge);
+                Organization.UnlinkUser   (edge.EdgeLabel, User);
+
+                await WriteToDatabaseFile(removeUserFromOrganization_MessageType,
+                                          new JObject(
+                                              new JProperty("user",          User.        Id.       ToString()),
+                                              new JProperty("edge",          edge.        EdgeLabel.ToString()),
+                                              new JProperty("organization",  Organization.Id.       ToString())
+                                          ),
+                                          eventTrackingId,
+                                          CurrentUserId);
+
+                if (!SuppressNotifications)
+                    await SendNotifications(User,
+                                            edge.EdgeLabel,
+                                            Organization,
+                                            removeUserFromOrganization_MessageType,
+                                            eventTrackingId,
+                                            CurrentUserId);
+
+            }
+
+
+            return edges.Any()
+
+                       ? RemoveUserFromOrganizationResult.Success(User,
+                                                                  Organization,
+                                                                  eventTrackingId)
+
+                       : RemoveUserFromOrganizationResult.Failed(User,
+                                                                 Organization,
+                                                                 eventTrackingId,
+                                                                 "No edges had been found!");
+
+        }
+
+        #endregion
+
+        #region RemoveUserFromOrganization             (User,            Organization,                                CurrentUserId = null)
+
+        public async Task<RemoveUserFromOrganizationResult> RemoveUserFromOrganization(User              User,
+                                                                                       Organization      Organization,
+                                                                                       EventTracking_Id  EventTrackingId   = null,
+                                                                                       User_Id?          CurrentUserId     = null)
+        {
+
+            var usersLockTaken          = await UsersSemaphore.        WaitAsync(SemaphoreSlimTimeout);
+            var organizationsLockTaken  = await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout);
+            var eventTrackingId         = EventTrackingId ?? EventTracking_Id.New;
+
+            try
+            {
+
+                if (usersLockTaken && organizationsLockTaken)
+                    return await _RemoveUserFromOrganization(User,
+                                                             Organization,
+                                                             EventTrackingId,
+                                                             SuppressNotifications:  false,
+                                                             CurrentUserId:          CurrentUserId);
+
+                return RemoveUserFromOrganizationResult.Failed(User,
+                                                               Organization,
+                                                               eventTrackingId,
+                                                               "Internal locking failed!");
+
+            }
+            catch (Exception e)
+            {
+
+                DebugX.LogException(e);
+
+                return RemoveUserFromOrganizationResult.Failed(User,
+                                                               Organization,
+                                                               eventTrackingId,
+                                                               e);
+
+            }
+            finally
+            {
+                try
+                {
+                    if (usersLockTaken)
+                        OrganizationsSemaphore.Release();
+                }
+                catch
+                { }
+
+                try
+                {
+                    if (organizationsLockTaken)
+                        UsersSemaphore.Release();
                 }
                 catch
                 { }

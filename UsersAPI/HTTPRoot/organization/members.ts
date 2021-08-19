@@ -87,7 +87,7 @@ function StartOrganizationMembers() {
 
                 yes.onclick = () => {
 
-                    HTTPDelete("members/" + member["@id"],
+                    HTTPDelete("_all/" + member["@id"],
 
                                 // Ok!
                                 (status, response) => {
@@ -115,8 +115,8 @@ function StartOrganizationMembers() {
                                     {
                                         const responseJSON = response !== "" ? JSON.parse(response) : {};
                                         confirmToRemoveUserDiv.style.display = "none";
-                                        removalFailedDiv.style.display  = "block";
-                                        removalFailedReason.innerHTML = responseJSON.errorDescription.en;
+                                        removalFailedDiv.style.display       = "block";
+                                        removalFailedReason.innerHTML        = responseJSON.errorDescription.en;
                                     }
                                     catch (exception)
                                     {
@@ -131,8 +131,8 @@ function StartOrganizationMembers() {
 
                                         confirmToRemoveUserDiv.style.display = "none";
 
-                                        const responseJSON = response !== "" ? JSON.parse(response) : {};
-                                        const info         = responseJSON.description != null ? "<br />" + responseJSON.description : "";
+                                        const responseJSON    = response !== "" ? JSON.parse(response) : {};
+                                        const info            = responseJSON.description != null ? "<br />" + responseJSON.description : "";
                                         responseDiv.innerHTML = "<div class=\"HTTP Error\">Removing this user from the organization failed!<br />" + info + "</div>";
 
                                     }

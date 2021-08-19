@@ -27,6 +27,29 @@ namespace social.OpenData.UsersAPI
 {
 
     /// <summary>
+    /// Extention methods for user identifications.
+    /// </summary>
+    public static class UserIdExtentions
+    {
+
+        /// <summary>
+        /// Indicates whether this user identification is null or empty.
+        /// </summary>
+        /// <param name="UserId">An user identification.</param>
+        public static Boolean IsNullOrEmpty(this User_Id? UserId)
+            => !UserId.HasValue || UserId.Value.IsNullOrEmpty;
+
+        /// <summary>
+        /// Indicates whether this user identification is null or empty.
+        /// </summary>
+        /// <param name="UserId">An user identification.</param>
+        public static Boolean IsNotNullOrEmpty(this User_Id? UserId)
+            => UserId.HasValue && UserId.Value.IsNotNullOrEmpty;
+
+    }
+
+
+    /// <summary>
     /// The unique identification of an user.
     /// </summary>
     public readonly struct User_Id : IId,
@@ -55,6 +78,12 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         public Boolean IsNullOrEmpty
             => InternalId.IsNullOrEmpty();
+
+        /// <summary>
+        /// Indicates whether this identification is NOT null or empty.
+        /// </summary>
+        public Boolean IsNotNullOrEmpty
+            => InternalId.IsNotNullOrEmpty();
 
         /// <summary>
         /// The length of the user identificator.

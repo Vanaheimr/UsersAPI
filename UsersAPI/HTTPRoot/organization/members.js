@@ -53,7 +53,7 @@ function StartOrganizationMembers() {
                 event.stopPropagation();
                 confirmToRemoveUserDiv.style.display = "block";
                 yes.onclick = () => {
-                    HTTPDelete("members/" + member["@id"], 
+                    HTTPDelete("_all/" + member["@id"], 
                     // Ok!
                     (status, response) => {
                         try {

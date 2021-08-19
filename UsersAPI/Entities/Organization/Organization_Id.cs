@@ -27,6 +27,29 @@ namespace social.OpenData.UsersAPI
 {
 
     /// <summary>
+    /// Extention methods for organization identifications.
+    /// </summary>
+    public static class OrganizationIdExtentions
+    {
+
+        /// <summary>
+        /// Indicates whether this organization identification is null or empty.
+        /// </summary>
+        /// <param name="OrganizationId">An organization identification.</param>
+        public static Boolean IsNullOrEmpty(this Organization_Id? OrganizationId)
+            => !OrganizationId.HasValue || OrganizationId.Value.IsNullOrEmpty;
+
+        /// <summary>
+        /// Indicates whether this organization identification is NOT null or empty.
+        /// </summary>
+        /// <param name="OrganizationId">An organization identification.</param>
+        public static Boolean IsNotNullOrEmpty(this Organization_Id? OrganizationId)
+            => OrganizationId.HasValue && OrganizationId.Value.IsNotNullOrEmpty;
+
+    }
+
+
+    /// <summary>
     /// The unique identification of an organization.
     /// </summary>
     public struct Organization_Id : IId,
@@ -55,6 +78,12 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         public Boolean IsNullOrEmpty
             => InternalId.IsNullOrEmpty();
+
+        /// <summary>
+        /// Indicates whether this identification is NOT null or empty.
+        /// </summary>
+        public Boolean IsNotNullOrEmpty
+            => InternalId.IsNotNullOrEmpty();
 
         /// <summary>
         /// The length of the organization identificator.

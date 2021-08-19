@@ -118,4 +118,91 @@ namespace social.OpenData.UsersAPI
 
     }
 
+    /// <summary>
+    /// An abstract result.
+    /// </summary>
+    /// <typeparam name="T1">The type of the result.</typeparam>
+    /// <typeparam name="T2">The type of the result.</typeparam>
+    public abstract class AResult<T1, T2>
+    {
+
+        #region Properties
+
+        /// <summary>
+        /// The object of the operation.
+        /// </summary>
+        protected T1                Object1             { get; }
+
+        /// <summary>
+        /// The object of the operation.
+        /// </summary>
+        protected T2                Object2             { get; }
+
+        /// <summary>
+        /// The unique event tracking identification for correlating this request with other events.
+        /// </summary>
+        public    EventTracking_Id  EventTrackingId     { get; }
+
+        /// <summary>
+        /// Whether the operation was successful, or not.
+        /// </summary>
+        public    Boolean           IsSuccess           { get; }
+
+        public    String            Argument            { get; }
+
+        public    I18NString        ErrorDescription    { get; }
+
+        #endregion
+
+        #region Constructor(s)
+
+        /// <summary>
+        /// Create a new abstract result.
+        /// </summary>
+        /// <param name="Object1">The object of the operation.</param>
+        /// <param name="Object2">The object of the operation.</param>
+        /// <param name="EventTrackingId">The unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="IsSuccess">Whether the operation was successful, or not.</param>
+        /// <param name="Argument"></param>
+        /// <param name="ErrorDescription"></param>
+        public AResult(T1                Object1,
+                       T2                Object2,
+                       EventTracking_Id  EventTrackingId,
+                       Boolean           IsSuccess,
+                       String            Argument          = null,
+                       I18NString        ErrorDescription  = null)
+        {
+
+            this.Object1           = Object1;
+            this.Object2           = Object2;
+            this.EventTrackingId   = EventTrackingId;
+            this.IsSuccess         = IsSuccess;
+            this.Argument          = Argument;
+            this.ErrorDescription  = ErrorDescription;
+
+        }
+
+        #endregion
+
+
+
+        public JObject ToJSON()
+
+            => JSONObject.Create(
+                   ErrorDescription.Count == 1
+                       ? new JProperty("description",  ErrorDescription.FirstText())
+                       : new JProperty("description",  ErrorDescription.ToJSON())
+               );
+
+
+        public override String ToString()
+
+            => IsSuccess
+                    ? "Success"
+                    : "Failed" + (ErrorDescription.IsNullOrEmpty()
+                                        ? ": " + ErrorDescription.FirstText()
+                                        : "!");
+
+    }
+
 }
