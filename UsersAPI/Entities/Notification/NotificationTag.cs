@@ -33,6 +33,7 @@ namespace social.OpenData.UsersAPI.Notifications
 
     public enum NotificationTag
     {
+        None,
         NewUserDefault
     }
 

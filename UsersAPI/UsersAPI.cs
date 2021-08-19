@@ -15844,21 +15844,21 @@ namespace social.OpenData.UsersAPI
                                                  User_Id?                        CurrentUserId     = null)
         {
 
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+            var lockTaken        = await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout);
+            var eventTrackingId  = EventTrackingId ?? EventTracking_Id.New;
 
             try
             {
 
-                return (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout))
+                if (lockTaken)
+                    return await _AddUser(User,
+                                          OnAdded,
+                                          eventTrackingId,
+                                          CurrentUserId);
 
-                            ? await _AddUser(User,
-                                             OnAdded,
-                                             eventTrackingId,
-                                             CurrentUserId)
-
-                            : AddUserResult.Failed(User,
-                                                   eventTrackingId,
-                                                   "Internal locking failed!");
+                return AddUserResult.Failed(User,
+                                            eventTrackingId,
+                                            "Internal locking failed!");
 
             }
             catch (Exception e)
@@ -15875,7 +15875,8 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    UsersSemaphore.Release();
+                    if (lockTaken)
+                        UsersSemaphore.Release();
                 }
                 catch
                 { }
@@ -15904,15 +15905,14 @@ namespace social.OpenData.UsersAPI
                                                  User_Id?                        CurrentUserId     = null)
         {
 
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+            var usersLockTaken          = await UsersSemaphore.        WaitAsync(SemaphoreSlimTimeout);
+            var organizationsLockTaken  = await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout);
+            var eventTrackingId         = EventTrackingId ?? EventTracking_Id.New;
 
             try
             {
 
-                // The new user does not yet have an organization,
-                // therefore organization notifications do not work here yet!
-                var result = ((await UsersSemaphore.        WaitAsync(SemaphoreSlimTimeout)) &&
-                              (await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout)))
+                var result = usersLockTaken && organizationsLockTaken
 
                                    ? await _AddUser(User,
                                                     async (_user, _eventTrackingId) => {
@@ -15959,14 +15959,16 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    OrganizationsSemaphore.Release();
+                    if (organizationsLockTaken)
+                        OrganizationsSemaphore.Release();
                 }
                 catch
                 { }
 
                 try
                 {
-                    UsersSemaphore.Release();
+                    if (usersLockTaken)
+                        UsersSemaphore.Release();
                 }
                 catch
                 { }
@@ -16102,21 +16104,21 @@ namespace social.OpenData.UsersAPI
                                                                        User_Id?                        CurrentUserId     = null)
         {
 
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+            var lockTaken        = await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout);
+            var eventTrackingId  = EventTrackingId ?? EventTracking_Id.New;
 
             try
             {
 
-                return (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout))
+                if (lockTaken)
+                    return await _AddUserIfNotExists(User,
+                                                     OnAdded,
+                                                     eventTrackingId,
+                                                     CurrentUserId);
 
-                            ? await _AddUserIfNotExists(User,
-                                                        OnAdded,
-                                                        eventTrackingId,
-                                                        CurrentUserId)
-
-                            : AddUserIfNotExistsResult.Failed(User,
-                                                              eventTrackingId,
-                                                              "Internal locking failed!");
+                return AddUserIfNotExistsResult.Failed(User,
+                                                       eventTrackingId,
+                                                       "Internal locking failed!");
 
             }
             catch (Exception e)
@@ -16133,7 +16135,8 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    UsersSemaphore.Release();
+                    if (lockTaken)
+                        UsersSemaphore.Release();
                 }
                 catch
                 { }
@@ -16162,36 +16165,37 @@ namespace social.OpenData.UsersAPI
                                                                        User_Id?                        CurrentUserId     = null)
         {
 
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+            var usersLockTaken          = await UsersSemaphore.        WaitAsync(SemaphoreSlimTimeout);
+            var organizationsLockTaken  = await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout);
+            var eventTrackingId         = EventTrackingId ?? EventTracking_Id.New;
 
             try
             {
 
                 // The new user does not yet have an organization,
                 // therefore organization notifications do not work here yet!
-                var result = ((await UsersSemaphore.        WaitAsync(SemaphoreSlimTimeout)) &&
-                              (await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout)))
+                var result = usersLockTaken && organizationsLockTaken
 
-                                   ? await _AddUserIfNotExists(User,
-                                                               async (_user, _eventTrackingId) => {
+                                 ? await _AddUserIfNotExists(User,
+                                                             async (_user, _eventTrackingId) => {
 
-                                                                   await _AddUserToOrganization(_user,
-                                                                                                Membership,
-                                                                                                Organization,
-                                                                                                _eventTrackingId,
-                                                                                                SuppressNotifications:  true,
-                                                                                                CurrentUserId:          CurrentUserId);
+                                                                 await _AddUserToOrganization(_user,
+                                                                                              Membership,
+                                                                                              Organization,
+                                                                                              _eventTrackingId,
+                                                                                              SuppressNotifications:  true,
+                                                                                              CurrentUserId:          CurrentUserId);
 
-                                                                   OnAdded?.Invoke(_user,
-                                                                                   _eventTrackingId);
+                                                                 OnAdded?.Invoke(_user,
+                                                                                 _eventTrackingId);
 
-                                                               },
-                                                               eventTrackingId,
-                                                               CurrentUserId)
+                                                             },
+                                                             eventTrackingId,
+                                                             CurrentUserId)
 
-                                   : AddUserIfNotExistsResult.Failed(User,
-                                                                     eventTrackingId,
-                                                                     "Internal locking failed!");
+                                 : AddUserIfNotExistsResult.Failed(User,
+                                                                   eventTrackingId,
+                                                                   "Internal locking failed!");
 
                 if (result?.IsSuccess == true)
                     await SendNotifications(Organization,
@@ -16217,8 +16221,16 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    OrganizationsSemaphore.Release();
-                    UsersSemaphore.        Release();
+                    if (organizationsLockTaken)
+                        OrganizationsSemaphore.Release();
+                }
+                catch
+                { }
+
+                try
+                {
+                    if (usersLockTaken)
+                        UsersSemaphore.Release();
                 }
                 catch
                 { }
@@ -16452,34 +16464,35 @@ namespace social.OpenData.UsersAPI
                                                                  User_Id?                        CurrentUserId     = null)
         {
 
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+            var lockTaken        = await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout);
+            var eventTrackingId  = EventTrackingId ?? EventTracking_Id.New;
 
             try
             {
 
-                var result = (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout))
+                var result = lockTaken
 
-                                  ? await _AddOrUpdateUser(User,
-                                                           async (_user, _eventTrackingId) => {
+                                 ? await _AddOrUpdateUser(User,
+                                                          async (_user, _eventTrackingId) => {
 
-                                                               await _AddUserToOrganization(_user,
-                                                                                            Membership,
-                                                                                            Organization,
-                                                                                            _eventTrackingId,
-                                                                                            SuppressNotifications:  true,
-                                                                                            CurrentUserId:          CurrentUserId);
+                                                              await _AddUserToOrganization(_user,
+                                                                                           Membership,
+                                                                                           Organization,
+                                                                                           _eventTrackingId,
+                                                                                           SuppressNotifications:  true,
+                                                                                           CurrentUserId:          CurrentUserId);
 
-                                                               OnAdded?.Invoke(_user,
-                                                                               _eventTrackingId);
+                                                              OnAdded?.Invoke(_user,
+                                                                              _eventTrackingId);
 
-                                                           },
-                                                           OnUpdated,
-                                                           eventTrackingId,
-                                                           CurrentUserId)
+                                                          },
+                                                          OnUpdated,
+                                                          eventTrackingId,
+                                                          CurrentUserId)
 
-                                  : AddOrUpdateUserResult.Failed(User,
-                                                                 eventTrackingId,
-                                                                 "Internal locking failed!");
+                                 : AddOrUpdateUserResult.Failed(User,
+                                                                eventTrackingId,
+                                                                "Internal locking failed!");
 
                 if (result?.IsSuccess == true)
                     await SendNotifications(Organization,
@@ -16505,7 +16518,8 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    UsersSemaphore.Release();
+                    if (lockTaken)
+                        UsersSemaphore.Release();
                 }
                 catch
                 { }
@@ -16625,21 +16639,21 @@ namespace social.OpenData.UsersAPI
                                                        User_Id?                        CurrentUserId     = null)
         {
 
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+            var lockTaken        = await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout);
+            var eventTrackingId  = EventTrackingId ?? EventTracking_Id.New;
 
             try
             {
 
-                return (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout))
+                if (lockTaken)
+                    await _UpdateUser(User,
+                                      OnUpdated,
+                                      EventTrackingId,
+                                      CurrentUserId);
 
-                            ? await _UpdateUser(User,
-                                                OnUpdated,
-                                                EventTrackingId,
-                                                CurrentUserId)
-
-                            : UpdateUserResult.Failed(User,
-                                                      eventTrackingId,
-                                                      "Internal locking failed!");
+                return UpdateUserResult.Failed(User,
+                                               eventTrackingId,
+                                               "Internal locking failed!");
 
             }
             catch (Exception e)
@@ -16656,7 +16670,8 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    UsersSemaphore.Release();
+                    if (lockTaken)
+                        UsersSemaphore.Release();
                 }
                 catch
                 { }
@@ -16765,22 +16780,22 @@ namespace social.OpenData.UsersAPI
                                                        User_Id?                        CurrentUserId     = null)
         {
 
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+            var lockTaken        = await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout);
+            var eventTrackingId  = EventTrackingId ?? EventTracking_Id.New;
 
             try
             {
 
-                return (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout))
+                if (lockTaken)
+                    return await _UpdateUser(User,
+                                             UpdateDelegate,
+                                             OnUpdated,
+                                             eventTrackingId,
+                                             CurrentUserId);
 
-                            ? await _UpdateUser(User,
-                                                UpdateDelegate,
-                                                OnUpdated,
-                                                eventTrackingId,
-                                                CurrentUserId)
-
-                            : UpdateUserResult.Failed(User,
-                                                      eventTrackingId,
-                                                      "Internal locking failed!");
+                return UpdateUserResult.Failed(User,
+                                               eventTrackingId,
+                                               "Internal locking failed!");
 
             }
             catch (Exception e)
@@ -16797,7 +16812,8 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    UsersSemaphore.Release();
+                    if (lockTaken)
+                        UsersSemaphore.Release();
                 }
                 catch
                 { }
@@ -16828,11 +16844,12 @@ namespace social.OpenData.UsersAPI
         public Boolean UserExists(User_Id  UserId)
         {
 
+            var lockTaken = UsersSemaphore.Wait(SemaphoreSlimTimeout);
+
             try
             {
 
-                if (UsersSemaphore.Wait(SemaphoreSlimTimeout) &&
-                    _UserExists(UserId))
+                if (lockTaken && _UserExists(UserId))
                 {
                     return true;
                 }
@@ -16844,7 +16861,8 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    UsersSemaphore.Release();
+                    if (lockTaken)
+                        UsersSemaphore.Release();
                 }
                 catch
                 { }
@@ -16880,10 +16898,12 @@ namespace social.OpenData.UsersAPI
         public User GetUser(User_Id  UserId)
         {
 
+            var lockTaken = UsersSemaphore.Wait(SemaphoreSlimTimeout);
+
             try
             {
 
-                if (UsersSemaphore.Wait(SemaphoreSlimTimeout))
+                if (lockTaken)
                     return _GetUser(UserId);
 
             }
@@ -16893,7 +16913,8 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    UsersSemaphore.Release();
+                    if (lockTaken)
+                        UsersSemaphore.Release();
                 }
                 catch
                 { }
@@ -16936,11 +16957,12 @@ namespace social.OpenData.UsersAPI
                                   out User  User)
         {
 
+            var lockTaken = UsersSemaphore.Wait(SemaphoreSlimTimeout);
+
             try
             {
 
-                if (UsersSemaphore.Wait(SemaphoreSlimTimeout) &&
-                    _TryGetUser(UserId, out User user))
+                if (lockTaken && _TryGetUser(UserId, out User user))
                 {
                     User = user;
                     return true;
@@ -16953,7 +16975,8 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    UsersSemaphore.Release();
+                    if (lockTaken)
+                        UsersSemaphore.Release();
                 }
                 catch
                 { }
@@ -16987,10 +17010,12 @@ namespace social.OpenData.UsersAPI
         public IEnumerable<User> SearchUsersByName(String Username)
         {
 
+            var lockTaken = UsersSemaphore.Wait(SemaphoreSlimTimeout);
+
             try
             {
 
-                if (UsersSemaphore.Wait(SemaphoreSlimTimeout))
+                if (lockTaken)
                     return _SearchUsersByName(Username);
 
             }
@@ -17000,7 +17025,8 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    UsersSemaphore.Release();
+                    if (lockTaken)
+                        UsersSemaphore.Release();
                 }
                 catch
                 { }
@@ -17043,11 +17069,12 @@ namespace social.OpenData.UsersAPI
         public Boolean TrySearchUsersByName(String Username, out IEnumerable<User> Users)
         {
 
+            var lockTaken = UsersSemaphore.Wait(SemaphoreSlimTimeout);
+
             try
             {
 
-                if (UsersSemaphore.Wait(SemaphoreSlimTimeout) &&
-                    _TrySearchUsersByName(Username, out IEnumerable<User> users))
+                if (lockTaken && _TrySearchUsersByName(Username, out IEnumerable<User> users))
                 {
                     Users = users;
                     return true;
@@ -17060,7 +17087,8 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    UsersSemaphore.Release();
+                    if (lockTaken)
+                        UsersSemaphore.Release();
                 }
                 catch
                 { }
@@ -17207,19 +17235,20 @@ namespace social.OpenData.UsersAPI
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
+            var lockTaken = await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout);
+
             try
             {
 
-                return (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout))
+                if (lockTaken)
+                    return await _DeleteUser(User,
+                                             OnDeleted,
+                                             eventTrackingId,
+                                             CurrentUserId);
 
-                            ? await _DeleteUser(User,
-                                                OnDeleted,
-                                                eventTrackingId,
-                                                CurrentUserId)
-
-                            : DeleteUserResult.Failed(User,
-                                                      eventTrackingId,
-                                                      "Internal locking failed!");
+                return DeleteUserResult.Failed(User,
+                                               eventTrackingId,
+                                               "Internal locking failed!");
 
             }
             catch (Exception e)
@@ -17236,7 +17265,8 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    UsersSemaphore.Release();
+                    if (lockTaken)
+                        UsersSemaphore.Release();
                 }
                 catch
                 { }
