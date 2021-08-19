@@ -27,7 +27,7 @@ namespace social.OpenData.UsersAPI
 {
 
     /// <summary>
-    /// A UsersAPI logger.
+    /// The Users API logger.
     /// </summary>
     public class UsersAPILogger : HTTPServerLogger
     {
