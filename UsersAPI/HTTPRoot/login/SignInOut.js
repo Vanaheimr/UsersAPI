@@ -298,6 +298,7 @@ function SetPassword() {
                     responseDiv.classList.add("responseOk");
                     setPasswordInput.disabled = true;
                     setPasswordButton.style.display = 'none';
+                    gotoLoginInput.disabled = false;
                     gotoLoginButton.style.display = 'block';
                     return;
                 }

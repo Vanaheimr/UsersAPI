@@ -443,13 +443,14 @@ function SetPassword() {
                         var responseJSON = JSON.parse(ResponseText);
 
                         if (responseJSON.numberOfAccountsFound != null) {
-                            responseDiv.style.display       = 'block';
-                            responseDiv.innerHTML           = "<i class='fas fa-user-check  fa-2x menuicons'></i> Succssfully resetted your password!";
+                            responseDiv.style.display        = 'block';
+                            responseDiv.innerHTML            = "<i class='fas fa-user-check  fa-2x menuicons'></i> Succssfully resetted your password!";
                             responseDiv.classList.remove("responseError");
                             responseDiv.classList.add   ("responseOk");
-                            setPasswordInput.disabled       = true;
-                            setPasswordButton.style.display = 'none';
-                            gotoLoginButton.style.display   = 'block';
+                            setPasswordInput.disabled        = true;
+                            setPasswordButton.style.display  = 'none';
+                            gotoLoginInput.disabled          = false;
+                            gotoLoginButton.style.display    = 'block';
                             return;
                         }
 

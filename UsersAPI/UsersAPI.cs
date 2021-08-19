@@ -19888,7 +19888,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="APIKey">The API key.</param>
         protected internal Boolean _APIKeyIsValid(APIKey_Id APIKey)
 
-            => TryGetAPIKey(APIKey, out APIKey apiKey) &&
+            => _TryGetAPIKey(APIKey, out APIKey apiKey) &&
                _APIKeyIsValid(apiKey);
 
 
