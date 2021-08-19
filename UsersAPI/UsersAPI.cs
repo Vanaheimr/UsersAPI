@@ -10202,102 +10202,80 @@ namespace social.OpenData.UsersAPI
                                          HTTPResponseLogger: DeleteOrganizationHTTPResponse,
                                          HTTPDelegate:       async Request => {
 
-                                             try
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse.Builder   Response,
+                                                                 AccessLevel:               Access_Levels.Admin,
+                                                                 Recursive:                 true))
                                              {
-
-                                                 #region Get HTTP user and its organizations
-
-                                                 // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
-                                                 if (!TryGetHTTPUser(Request,
-                                                                     out User                   HTTPUser,
-                                                                     out HashSet<Organization>  HTTPOrganizations,
-                                                                     out HTTPResponse.Builder   Response,
-                                                                     AccessLevel:               Access_Levels.ReadWrite,
-                                                                     Recursive:                 true))
-                                                 {
-                                                     return Response;
-                                                 }
-
-                                                 #endregion
-
-                                                 #region Check Organization
-
-                                                 if (!Request.ParseOrganization(this,
-                                                                                out Organization_Id?      OrganizationIdURL,
-                                                                                out Organization          Organization,
-                                                                                out HTTPResponse.Builder  HTTPResponse))
-                                                 {
-                                                     return HTTPResponse;
-                                                 }
-
-                                                 #endregion
-
-                                                 //ToDo: Check admin!
-
-                                                 if (!HTTPOrganizations.Contains(Organization))
-                                                     return new HTTPResponse.Builder(Request) {
-                                                                    HTTPStatusCode             = HTTPStatusCode.Unauthorized,
-                                                                    Server                     = HTTPServer.DefaultServerName,
-                                                                    Date                       = DateTime.UtcNow,
-                                                                    AccessControlAllowOrigin   = "*",
-                                                                    AccessControlAllowMethods  = "GET, SET, DELETE",
-                                                                    AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                    ContentType                = HTTPContentType.JSON_UTF8,
-                                                                    Content                    = JSONObject.Create(
-                                                                                                     new JProperty("description",  "Unknown parent organization!")
-                                                                                                 ).ToUTF8Bytes()
-                                                                }.AsImmutable;
-
-
-                                                 var result = await DeleteOrganization(Organization,
-                                                                                       null,
-                                                                                       Request.EventTrackingId,
-                                                                                       HTTPUser.Id);
-
-                                                 return result?.IsSuccess == true
-
-                                                            ? new HTTPResponse.Builder(Request) {
-                                                                  HTTPStatusCode              = HTTPStatusCode.OK,
-                                                                  Server                      = HTTPServer.DefaultServerName,
-                                                                  Date                        = DateTime.UtcNow,
-                                                                  AccessControlAllowOrigin    = "*",
-                                                                  AccessControlAllowMethods   = "GET, SET",
-                                                                  AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
-                                                                  Connection                  = "close"
-                                                              }.AsImmutable
-
-                                                            : new HTTPResponse.Builder(Request) {
-                                                                  HTTPStatusCode              = HTTPStatusCode.FailedDependency,
-                                                                  Server                      = HTTPServer.DefaultServerName,
-                                                                  Date                        = DateTime.UtcNow,
-                                                                  AccessControlAllowOrigin    = "*",
-                                                                  AccessControlAllowMethods   = "GET, SET",
-                                                                  AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
-                                                                  ContentType                 = HTTPContentType.JSON_UTF8,
-                                                                  Content                     = JSONObject.Create(
-                                                                                                    new JProperty("errorDescription",  result.ErrorDescription.ToJSON())
-                                                                                                ).ToUTF8Bytes(),
-                                                                  Connection                  = "close"
-                                                              }.AsImmutable;
-
+                                                 return Response;
                                              }
-                                             catch (Exception e)
-                                             {
 
+                                             #endregion
+
+                                             #region Check Organization
+
+                                             if (!Request.ParseOrganization(this,
+                                                                            out Organization_Id?      OrganizationIdURL,
+                                                                            out Organization          Organization,
+                                                                            out HTTPResponse.Builder  HTTPResponse))
+                                             {
+                                                 return HTTPResponse;
+                                             }
+
+                                             #endregion
+
+                                             //ToDo: Check admin!
+
+                                             if (!HTTPOrganizations.Contains(Organization))
                                                  return new HTTPResponse.Builder(Request) {
-                                                         HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                         Server                     = HTTPServer.DefaultServerName,
-                                                         Date                       = DateTime.UtcNow,
-                                                         AccessControlAllowOrigin   = "*",
-                                                         AccessControlAllowMethods  = "GET, SET",
-                                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                         ContentType                = HTTPContentType.JSON_UTF8,
-                                                         Content                    = JSONObject.Create(
-                                                                                             new JProperty("description",  "Could not delete the given organization! " + e.Message)
-                                                                                         ).ToUTF8Bytes()
-                                                     }.AsImmutable;
+                                                                HTTPStatusCode             = HTTPStatusCode.Unauthorized,
+                                                                Server                     = HTTPServer.DefaultServerName,
+                                                                Date                       = DateTime.UtcNow,
+                                                                AccessControlAllowOrigin   = "*",
+                                                                AccessControlAllowMethods  = "GET, SET, DELETE",
+                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                ContentType                = HTTPContentType.JSON_UTF8,
+                                                                Content                    = JSONObject.Create(
+                                                                                                 new JProperty("description",  "Unknown parent organization!")
+                                                                                             ).ToUTF8Bytes()
+                                                            }.AsImmutable;
 
-                                             }
+
+                                             var result = await DeleteOrganization(Organization,
+                                                                                   null,
+                                                                                   Request.EventTrackingId,
+                                                                                   HTTPUser.Id);
+
+                                             return result?.IsSuccess == true
+
+                                                        ? new HTTPResponse.Builder(Request) {
+                                                              HTTPStatusCode              = HTTPStatusCode.OK,
+                                                              Server                      = HTTPServer.DefaultServerName,
+                                                              Date                        = DateTime.UtcNow,
+                                                              AccessControlAllowOrigin    = "*",
+                                                              AccessControlAllowMethods   = "GET, SET",
+                                                              AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                              Connection                  = "close"
+                                                          }.AsImmutable
+
+                                                        : new HTTPResponse.Builder(Request) {
+                                                              HTTPStatusCode              = HTTPStatusCode.FailedDependency,
+                                                              Server                      = HTTPServer.DefaultServerName,
+                                                              Date                        = DateTime.UtcNow,
+                                                              AccessControlAllowOrigin    = "*",
+                                                              AccessControlAllowMethods   = "GET, SET",
+                                                              AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                              ContentType                 = HTTPContentType.JSON_UTF8,
+                                                              Content                     = JSONObject.Create(
+                                                                                                new JProperty("errorDescription",  result.ErrorDescription.ToJSON())
+                                                                                            ).ToUTF8Bytes(),
+                                                              Connection                  = "close"
+                                                          }.AsImmutable;
 
                                      });
 
@@ -10322,6 +10300,7 @@ namespace social.OpenData.UsersAPI
                                                                  out User                   HTTPUser,
                                                                  out HashSet<Organization>  HTTPOrganizations,
                                                                  out HTTPResponse.Builder   Response,
+                                                                 AccessLevel:               Access_Levels.ReadOnly,
                                                                  Recursive:                 true))
                                              {
                                                  return Task.FromResult(Response.AsImmutable);
@@ -10394,6 +10373,7 @@ namespace social.OpenData.UsersAPI
                                                                  out User                   HTTPUser,
                                                                  out HashSet<Organization>  HTTPOrganizations,
                                                                  out HTTPResponse.Builder   Response,
+                                                                 AccessLevel:               Access_Levels.ReadOnly,
                                                                  Recursive:                 true))
                                              {
                                                  return Task.FromResult(Response.AsImmutable);
@@ -11172,6 +11152,7 @@ namespace social.OpenData.UsersAPI
                                                                  out User                   HTTPUser,
                                                                  out HashSet<Organization>  HTTPOrganizations,
                                                                  out HTTPResponse.Builder   Response,
+                                                                 AccessLevel:               Access_Levels.Admin,
                                                                  Recursive:                 true))
                                              {
                                                  return Task.FromResult(Response.AsImmutable);
@@ -11241,6 +11222,7 @@ namespace social.OpenData.UsersAPI
                                                                  out User                   HTTPUser,
                                                                  out HashSet<Organization>  HTTPOrganizations,
                                                                  out HTTPResponse.Builder   Response,
+                                                                 AccessLevel:               Access_Levels.ReadOnly
                                                                  Recursive:                 true))
                                              {
                                                  return Task.FromResult(Response.AsImmutable);
@@ -11313,6 +11295,7 @@ namespace social.OpenData.UsersAPI
                                                                  out User                   HTTPUser,
                                                                  out HashSet<Organization>  HTTPOrganizations,
                                                                  out HTTPResponse.Builder   Response,
+                                                                 AccessLevel:               Access_Levels.Admin,
                                                                  Recursive:                 true))
                                              {
                                                  return Task.FromResult(Response.AsImmutable);
