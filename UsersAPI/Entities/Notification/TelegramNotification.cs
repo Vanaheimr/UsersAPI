@@ -1,6 +1,6 @@
 ﻿/*
- * Copyright (c) 2014-2021, Achim 'ahzf' Friedland <achim@graphdefined.org>
- * This file is part of OpenDataAPI <http://www.github.com/GraphDefined/OpenDataAPI>
+ * Copyright (c) 2014-2021, Achim Friedland <achim.friedland@graphdefined.com>
+ * This file is part of UsersAPI <https://www.github.com/Vanaheimr/UsersAPI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,35 +40,43 @@ namespace social.OpenData.UsersAPI.Notifications
 
         #region AddTelegramNotification(this UsersAPI, User,                             Username, TextTemplate = null)
 
-        public static Task AddTelegramNotification(this UsersAPI  UsersAPI,
-                                                   User           User,
-                                                   String         Username,
-                                                   Int32?         ChatId         = null,
-                                                   String         SharedSecret   = null,
-                                                   String         TextTemplate   = null)
+        public static Task AddTelegramNotification(this UsersAPI     UsersAPI,
+                                                   User              User,
+                                                   String            Username,
+                                                   Int32?            ChatId            = null,
+                                                   String            SharedSecret      = null,
+                                                   String            TextTemplate      = null,
+                                                   EventTracking_Id  EventTrackingId   = null,
+                                                   User_Id?          CurrentUserId     = null)
 
             => UsersAPI.AddNotification(User,
                                         new TelegramNotification(Username,
                                                                  ChatId,
                                                                  SharedSecret,
-                                                                 TextTemplate));
+                                                                 TextTemplate),
+                                        EventTrackingId,
+                                        CurrentUserId);
 
         #endregion
 
         #region AddTelegramNotification(this UsersAPI, UserId,                           Username, TextTemplate = null)
 
-        public static Task AddTelegramNotification(this UsersAPI  UsersAPI,
-                                                   User_Id        UserId,
-                                                   String         Username,
-                                                   Int32?         ChatId         = null,
-                                                   String         SharedSecret   = null,
-                                                   String         TextTemplate   = null)
+        public static Task AddTelegramNotification(this UsersAPI     UsersAPI,
+                                                   User_Id           UserId,
+                                                   String            Username,
+                                                   Int32?            ChatId            = null,
+                                                   String            SharedSecret      = null,
+                                                   String            TextTemplate      = null,
+                                                   EventTracking_Id  EventTrackingId   = null,
+                                                   User_Id?          CurrentUserId     = null)
 
             => UsersAPI.AddNotification(UserId,
                                         new TelegramNotification(Username,
                                                                  ChatId,
                                                                  SharedSecret,
-                                                                 TextTemplate));
+                                                                 TextTemplate),
+                                        EventTrackingId,
+                                        CurrentUserId);
 
         #endregion
 
@@ -78,16 +86,20 @@ namespace social.OpenData.UsersAPI.Notifications
                                                    User                     User,
                                                    NotificationMessageType  NotificationMessageType,
                                                    String                   Username,
-                                                   Int32?                   ChatId         = null,
-                                                   String                   SharedSecret   = null,
-                                                   String                   TextTemplate   = null)
+                                                   Int32?                   ChatId            = null,
+                                                   String                   SharedSecret      = null,
+                                                   String                   TextTemplate      = null,
+                                                   EventTracking_Id         EventTrackingId   = null,
+                                                   User_Id?                 CurrentUserId     = null)
 
             => UsersAPI.AddNotification(User,
                                         new TelegramNotification(Username,
                                                                  ChatId,
                                                                  SharedSecret,
                                                                  TextTemplate),
-                                        NotificationMessageType);
+                                        NotificationMessageType,
+                                        EventTrackingId,
+                                        CurrentUserId);
 
         #endregion
 
@@ -97,16 +109,20 @@ namespace social.OpenData.UsersAPI.Notifications
                                                    User_Id                  UserId,
                                                    NotificationMessageType  NotificationMessageType,
                                                    String                   Username,
-                                                   Int32?                   ChatId         = null,
-                                                   String                   SharedSecret   = null,
-                                                   String                   TextTemplate   = null)
+                                                   Int32?                   ChatId            = null,
+                                                   String                   SharedSecret      = null,
+                                                   String                   TextTemplate      = null,
+                                                   EventTracking_Id         EventTrackingId   = null,
+                                                   User_Id?                 CurrentUserId     = null)
 
             => UsersAPI.AddNotification(UserId,
                                         new TelegramNotification(Username,
                                                                  ChatId,
                                                                  SharedSecret,
                                                                  TextTemplate),
-                                        NotificationMessageType);
+                                        NotificationMessageType,
+                                        EventTrackingId,
+                                        CurrentUserId);
 
         #endregion
 
@@ -116,16 +132,20 @@ namespace social.OpenData.UsersAPI.Notifications
                                                    User                                  User,
                                                    IEnumerable<NotificationMessageType>  NotificationMessageTypes,
                                                    String                                Username,
-                                                   Int32?                                ChatId         = null,
-                                                   String                                SharedSecret   = null,
-                                                   String                                TextTemplate   = null)
+                                                   Int32?                                ChatId            = null,
+                                                   String                                SharedSecret      = null,
+                                                   String                                TextTemplate      = null,
+                                                   EventTracking_Id                      EventTrackingId   = null,
+                                                   User_Id?                              CurrentUserId     = null)
 
             => UsersAPI.AddNotification(User,
                                         new TelegramNotification(Username,
                                                                  ChatId,
                                                                  SharedSecret,
                                                                  TextTemplate),
-                                        NotificationMessageTypes);
+                                        NotificationMessageTypes,
+                                        EventTrackingId,
+                                        CurrentUserId);
 
         #endregion
 
@@ -135,16 +155,20 @@ namespace social.OpenData.UsersAPI.Notifications
                                                    User_Id                               UserId,
                                                    IEnumerable<NotificationMessageType>  NotificationMessageTypes,
                                                    String                                Username,
-                                                   Int32?                                ChatId         = null,
-                                                   String                                SharedSecret   = null,
-                                                   String                                TextTemplate   = null)
+                                                   Int32?                                ChatId            = null,
+                                                   String                                SharedSecret      = null,
+                                                   String                                TextTemplate      = null,
+                                                   EventTracking_Id                      EventTrackingId   = null,
+                                                   User_Id?                              CurrentUserId     = null)
 
             => UsersAPI.AddNotification(UserId,
                                         new TelegramNotification(Username,
                                                                  ChatId,
                                                                  SharedSecret,
                                                                  TextTemplate),
-                                        NotificationMessageTypes);
+                                        NotificationMessageTypes,
+                                        EventTrackingId,
+                                        CurrentUserId);
 
         #endregion
 

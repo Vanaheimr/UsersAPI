@@ -1,6 +1,6 @@
 ﻿/*
- * Copyright (c) 2014-2021, Achim 'ahzf' Friedland <achim@graphdefined.org>
- * This file is part of OpenDataAPI <http://www.github.com/GraphDefined/OpenDataAPI>
+ * Copyright (c) 2014-2021, Achim Friedland <achim.friedland@graphdefined.com>
+ * This file is part of UsersAPI <https://www.github.com/Vanaheimr/UsersAPI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,27 +40,35 @@ namespace social.OpenData.UsersAPI.Notifications
 
         #region AddSMSNotification(this UsersAPI, User,                             Phonenumber, TextTemplate = null)
 
-        public static Task AddSMSNotification(this UsersAPI  UsersAPI,
-                                              User           User,
-                                              PhoneNumber    Phonenumber,
-                                              String         TextTemplate  = null)
+        public static Task AddSMSNotification(this UsersAPI     UsersAPI,
+                                              User              User,
+                                              PhoneNumber       Phonenumber,
+                                              String            TextTemplate      = null,
+                                              EventTracking_Id  EventTrackingId   = null,
+                                              User_Id?          CurrentUserId     = null)
 
             => UsersAPI.AddNotification(User,
                                         new SMSNotification(Phonenumber,
-                                                            TextTemplate));
+                                                            TextTemplate),
+                                        EventTrackingId,
+                                        CurrentUserId);
 
         #endregion
 
         #region AddSMSNotification(this UsersAPI, UserId,                           Phonenumber, TextTemplate = null)
 
-        public static Task AddSMSNotification(this UsersAPI  UsersAPI,
-                                              User_Id        UserId,
-                                              PhoneNumber    Phonenumber,
-                                              String         TextTemplate  = null)
+        public static Task AddSMSNotification(this UsersAPI     UsersAPI,
+                                              User_Id           UserId,
+                                              PhoneNumber       Phonenumber,
+                                              String            TextTemplate      = null,
+                                              EventTracking_Id  EventTrackingId   = null,
+                                              User_Id?          CurrentUserId     = null)
 
             => UsersAPI.AddNotification(UserId,
                                         new SMSNotification(Phonenumber,
-                                                            TextTemplate));
+                                                            TextTemplate),
+                                        EventTrackingId,
+                                        CurrentUserId);
 
         #endregion
 
@@ -70,12 +78,16 @@ namespace social.OpenData.UsersAPI.Notifications
                                               User                     User,
                                               NotificationMessageType  NotificationMessageType,
                                               PhoneNumber              Phonenumber,
-                                              String                   TextTemplate  = null)
+                                              String                   TextTemplate      = null,
+                                              EventTracking_Id         EventTrackingId   = null,
+                                              User_Id?                 CurrentUserId     = null)
 
             => UsersAPI.AddNotification(User,
                                         new SMSNotification(Phonenumber,
                                                             TextTemplate),
-                                        NotificationMessageType);
+                                        NotificationMessageType,
+                                        EventTrackingId,
+                                        CurrentUserId);
 
         #endregion
 
@@ -85,12 +97,16 @@ namespace social.OpenData.UsersAPI.Notifications
                                               User_Id                  UserId,
                                               NotificationMessageType  NotificationMessageType,
                                               PhoneNumber              Phonenumber,
-                                              String                   TextTemplate  = null)
+                                              String                   TextTemplate      = null,
+                                              EventTracking_Id         EventTrackingId   = null,
+                                              User_Id?                 CurrentUserId     = null)
 
             => UsersAPI.AddNotification(UserId,
                                         new SMSNotification(Phonenumber,
                                                             TextTemplate),
-                                        NotificationMessageType);
+                                        NotificationMessageType,
+                                        EventTrackingId,
+                                        CurrentUserId);
 
         #endregion
 
@@ -100,12 +116,16 @@ namespace social.OpenData.UsersAPI.Notifications
                                               User                                  User,
                                               IEnumerable<NotificationMessageType>  NotificationMessageTypes,
                                               PhoneNumber                           Phonenumber,
-                                              String                                TextTemplate  = null)
+                                              String                                TextTemplate      = null,
+                                              EventTracking_Id                      EventTrackingId   = null,
+                                              User_Id?                              CurrentUserId     = null)
 
             => UsersAPI.AddNotification(User,
                                         new SMSNotification(Phonenumber,
                                                             TextTemplate),
-                                        NotificationMessageTypes);
+                                        NotificationMessageTypes,
+                                        EventTrackingId,
+                                        CurrentUserId);
 
         #endregion
 
@@ -115,12 +135,16 @@ namespace social.OpenData.UsersAPI.Notifications
                                               User_Id                               UserId,
                                               IEnumerable<NotificationMessageType>  NotificationMessageTypes,
                                               PhoneNumber                           Phonenumber,
-                                              String                                TextTemplate  = null)
+                                              String                                TextTemplate      = null,
+                                              EventTracking_Id                      EventTrackingId   = null,
+                                              User_Id?                              CurrentUserId     = null)
 
             => UsersAPI.AddNotification(UserId,
                                         new SMSNotification(Phonenumber,
                                                             TextTemplate),
-                                        NotificationMessageTypes);
+                                        NotificationMessageTypes,
+                                        EventTrackingId,
+                                        CurrentUserId);
 
         #endregion
 

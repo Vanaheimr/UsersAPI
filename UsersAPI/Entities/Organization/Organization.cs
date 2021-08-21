@@ -1,6 +1,6 @@
 ﻿/*
- * Copyright (c) 2014-2021, Achim 'ahzf' Friedland <achim@graphdefined.org>
- * This file is part of OpenDataAPI <http://www.github.com/GraphDefined/OpenDataAPI>
+ * Copyright (c) 2014-2021, Achim Friedland <achim.friedland@graphdefined.com>
+ * This file is part of UsersAPI <https://www.github.com/Vanaheimr/UsersAPI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -365,7 +365,7 @@ namespace social.OpenData.UsersAPI
                                   Organization SourceOrganization)
         {
 
-            var edges = _Organization2Organization_OutEdges.
+            var edges = _Organization2Organization_InEdges.
                             Where(edge => edge.EdgeLabel == EdgeLabel &&
                                           edge.Source == SourceOrganization).
                             ToArray();
@@ -1064,7 +1064,10 @@ namespace social.OpenData.UsersAPI
         private void _GetAllParents(ref HashSet<Organization> Parents)
         {
 
-            var parents = _Organization2Organization_OutEdges.Where(edge => edge.Source == this && edge.EdgeLabel == Organization2OrganizationEdgeTypes.IsChildOf).Select(edge => edge.Target).ToArray();
+            var parents = _Organization2Organization_OutEdges.
+                              Where  (edge => edge.Source == this && edge.EdgeLabel == Organization2OrganizationEdgeTypes.IsChildOf).
+                              Select (edge => edge.Target).
+                              ToArray();
 
             foreach (var parent in parents)
             {
@@ -1139,7 +1142,7 @@ namespace social.OpenData.UsersAPI
         /// A relationship between two organizations where the first includes the second, e.g., as a subsidiary. See also: the more specific 'department' property.
         /// </summary>
         public IEnumerable<Organization> SubOrganizations
-            => _Organization2Organization_InEdges.Where(edge => edge.Source == this && edge.EdgeLabel == Organization2OrganizationEdgeTypes.IsChildOf).Select(edge => edge.Source).ToArray();
+            => _Organization2Organization_InEdges.Where(edge => edge.Target == this && edge.EdgeLabel == Organization2OrganizationEdgeTypes.IsChildOf).Select(edge => edge.Source).ToArray();
 
 
         #region Operator overloading

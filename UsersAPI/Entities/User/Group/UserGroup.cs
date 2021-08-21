@@ -1,6 +1,6 @@
 ﻿/*
- * Copyright (c) 2014-2021, Achim 'ahzf' Friedland <achim@graphdefined.org>
- * This file is part of OpenDataAPI <http://www.github.com/GraphDefined/OpenDataAPI>
+ * Copyright (c) 2014-2021, Achim Friedland <achim.friedland@graphdefined.com>
+ * This file is part of UsersAPI <https://www.github.com/Vanaheimr/UsersAPI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -230,8 +230,8 @@ namespace social.OpenData.UsersAPI
                                        ? new JProperty("description",    Description.ToJSON())
                                        : null,
 
-                                   _User2GroupEdges.Where(edge => edge.EdgeLabel == User2GroupEdgeTypes.IsMember).SafeAny()
-                                       ? new JProperty("isMember", new JArray(_User2GroupEdges.Where(edge => edge.EdgeLabel == User2GroupEdgeTypes.IsMember).Select(edge => edge.Source.Id.ToString())))
+                                   _User2GroupEdges.Where(edge => edge.EdgeLabel == User2UserGroupEdgeTypes.IsMember).SafeAny()
+                                       ? new JProperty("isMember", new JArray(_User2GroupEdges.Where(edge => edge.EdgeLabel == User2UserGroupEdgeTypes.IsMember).Select(edge => edge.Source.Id.ToString())))
                                        : null,
 
                                    Members.SafeAny() && ExpandUsers != InfoStatus.Hidden
@@ -510,7 +510,7 @@ namespace social.OpenData.UsersAPI
         #region User  -> Group edges
 
         public User2GroupEdge AddIncomingEdge(User                 Source,
-                                              User2GroupEdgeTypes  EdgeLabel,
+                                              User2UserGroupEdgeTypes  EdgeLabel,
                                               PrivacyLevel         PrivacyLevel = PrivacyLevel.Private)
 
             => _User2GroupEdges.
@@ -526,7 +526,7 @@ namespace social.OpenData.UsersAPI
                    AddAndReturnElement(Edge);
 
 
-        public IEnumerable<User2GroupEdge> User2GroupInEdges(Func<User2GroupEdgeTypes, Boolean> User2GroupEdgeFilter)
+        public IEnumerable<User2GroupEdge> User2GroupInEdges(Func<User2UserGroupEdgeTypes, Boolean> User2GroupEdgeFilter)
             => _User2GroupEdges.Where(edge => User2GroupEdgeFilter(edge.EdgeLabel));
 
 
@@ -535,14 +535,14 @@ namespace social.OpenData.UsersAPI
         /// filtered by the given edge label.
         /// </summary>
         /// <param name="User">Just return edges with the given user.</param>
-        public IEnumerable<User2GroupEdgeTypes> InEdges(User User)
+        public IEnumerable<User2UserGroupEdgeTypes> InEdges(User User)
 
             => _User2GroupEdges.
                    Where (edge => edge.Source == User).
                    Select(edge => edge.EdgeLabel);
 
 
-        public Boolean HasEdge(User2GroupEdgeTypes  EdgeLabel,
+        public Boolean HasEdge(User2UserGroupEdgeTypes  EdgeLabel,
                                User                 User)
 
             => _User2GroupEdges.

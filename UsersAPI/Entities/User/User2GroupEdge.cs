@@ -1,6 +1,6 @@
 ﻿/*
- * Copyright (c) 2014-2021, Achim 'ahzf' Friedland <achim@graphdefined.org>
- * This file is part of OpenDataAPI <http://www.github.com/GraphDefined/OpenDataAPI>
+ * Copyright (c) 2014-2021, Achim Friedland <achim.friedland@graphdefined.com>
+ * This file is part of UsersAPI <https://www.github.com/Vanaheimr/UsersAPI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ namespace social.OpenData.UsersAPI
 {
 
     [Flags]
-    public enum User2GroupEdgeTypes
+    public enum User2UserGroupEdgeTypes
     {
         IsRoot,
         IsAdmin_ReadOnly,
@@ -35,7 +35,7 @@ namespace social.OpenData.UsersAPI
         IsVisitor
     }
 
-    public class User2GroupEdge : MiniEdge<User, User2GroupEdgeTypes, UserGroup>
+    public class User2GroupEdge : MiniEdge<User, User2UserGroupEdgeTypes, UserGroup>
     {
 
         /// <summary>
@@ -47,7 +47,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="PrivacyLevel">The level of privacy of this edge.</param>
         /// <param name="Created">The creation timestamp of the miniedge.</param>
         public User2GroupEdge(User                 User,
-                              User2GroupEdgeTypes  EdgeLabel,
+                              User2UserGroupEdgeTypes  EdgeLabel,
                               UserGroup            Group,
                               PrivacyLevel         PrivacyLevel  = PrivacyLevel.Private,
                               DateTime?            Created       = null)

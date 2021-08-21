@@ -1,6 +1,6 @@
 ﻿/*
- * Copyright (c) 2014-2021, Achim 'ahzf' Friedland <achim@graphdefined.org>
- * This file is part of OpenDataAPI <http://www.github.com/GraphDefined/OpenDataAPI>
+ * Copyright (c) 2014-2021, Achim Friedland <achim.friedland@graphdefined.com>
+ * This file is part of UsersAPI <https://www.github.com/Vanaheimr/UsersAPI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -910,8 +910,8 @@ namespace social.OpenData.UsersAPI
         {
 
             var addUserResult = await UsersAPI.AddUser(new User(Id,
-                                                                EMail,
                                                                 Name,
+                                                                EMail,
                                                                 Description,
                                                                 PublicKeyRing,
                                                                 SecretKeyRing,
@@ -1011,8 +1011,8 @@ namespace social.OpenData.UsersAPI
         {
 
             var addUserResult = await UsersAPI.AddUser(new User(Id,
-                                                                EMail,
                                                                 Name,
+                                                                EMail,
                                                                 Description,
                                                                 PublicKeyRing,
                                                                 SecretKeyRing,
@@ -1111,8 +1111,8 @@ namespace social.OpenData.UsersAPI
         {
 
             var addUserResult = await UsersAPI.AddUserIfNotExists(new User(Id,
-                                                                           EMail,
                                                                            Name,
+                                                                           EMail,
                                                                            Description,
                                                                            PublicKeyRing,
                                                                            SecretKeyRing,
@@ -1212,8 +1212,8 @@ namespace social.OpenData.UsersAPI
         {
 
             var addUserResult = await UsersAPI.AddUserIfNotExists(new User(Id,
-                                                                           EMail,
                                                                            Name,
+                                                                           EMail,
                                                                            Description,
                                                                            PublicKeyRing,
                                                                            SecretKeyRing,
@@ -1514,14 +1514,14 @@ namespace social.OpenData.UsersAPI
         public User                          Robot                              { get; }
 
         /// <summary>
-        /// The passphrase of the PGP/GPG secret key of the Open Data API.
+        /// The passphrase of the PGP/GPG secret key of the API.
         /// </summary>
         public String                        APIPassphrase                      { get; }
 
         /// <summary>
-        /// A SMTP client to be used by the Open Data API.
+        /// A SMTP client to be used by the API.
         /// </summary>
-        public SMTPClient                    APISMTPClient                      { get; }
+        public ISMTPClient                   APISMTPClient                      { get; }
 
         /// <summary>
         /// The (default) SMS sender name.
@@ -2515,7 +2515,7 @@ namespace social.OpenData.UsersAPI
                         Organization_Id?                     AdminOrganizationId                = null,
                         EMailAddress                         APIRobotEMailAddress               = null,
                         String                               APIRobotGPGPassphrase              = null,
-                        SMTPClient                           APISMTPClient                      = null,
+                        ISMTPClient                          APISMTPClient                      = null,
                         Credentials                          SMSAPICredentials                  = null,
                         String                               SMSSenderName                      = null,
                         String                               TelegramBotToken                   = null,
@@ -2702,7 +2702,7 @@ namespace social.OpenData.UsersAPI
                            Organization_Id?              AdminOrganizationId              = null,
                            EMailAddress                  APIRobotEMailAddress             = null,
                            String                        APIRobotGPGPassphrase            = null,
-                           SMTPClient                    APISMTPClient                    = null,
+                           ISMTPClient                   APISMTPClient                    = null,
                            Credentials                   SMSAPICredentials                = null,
                            String                        SMSSenderName                    = null,
                            String                        TelegramBotToken                 = null,
@@ -2799,7 +2799,7 @@ namespace social.OpenData.UsersAPI
             CurrentAsyncLocalUserId.Value        = Robot.Id;
 
             this.AdminOrganizationId             = AdminOrganizationId            ?? DefaultAdminOrganizationId;
-            this.APIPassphrase                   = APIRobotGPGPassphrase          ?? throw new ArgumentNullException(nameof(APIRobotGPGPassphrase),  "The given API passphrase must not be null!");
+            this.APIPassphrase                   = APIRobotGPGPassphrase;
             this.APISMTPClient                   = APISMTPClient                  ?? throw new ArgumentNullException(nameof(APISMTPClient),          "The given API SMTP client must not be null!");
 
             this.CookieName                      = CookieName                     ?? DefaultCookieName;
@@ -2921,7 +2921,7 @@ namespace social.OpenData.UsersAPI
                         }
                         catch (Exception e)
                         {
-                            DebugX.Log(e.Message);
+                            DebugX.LogException(e);
                         }
                         finally
                         {
@@ -2977,7 +2977,7 @@ namespace social.OpenData.UsersAPI
                         }
                         catch (Exception e)
                         {
-                            DebugX.Log(e.Message);
+                            DebugX.LogException(e);
                         }
                         finally
                         {
@@ -3044,7 +3044,7 @@ namespace social.OpenData.UsersAPI
                             }
                             catch (Exception e)
                             {
-                                DebugX.Log(e.Message);
+                                DebugX.LogException(e);
                             }
                             finally
                             {
@@ -3148,7 +3148,7 @@ namespace social.OpenData.UsersAPI
                                                                                          Subject        = this.ServiceName + " is low on disc (<" + HDPercentageFree + "%, " + MBytesFree + " MB free)",
                                                                                          HTMLText       = this.ServiceName + " is low on disc (<" + HDPercentageFree + "%, " + MBytesFree + " MB free)" + Environment.NewLine + Environment.NewLine,
                                                                                          PlainText      = this.ServiceName + " is low on disc (<" + HDPercentageFree + "%, " + MBytesFree + " MB free)" + Environment.NewLine + Environment.NewLine,
-                                                                                         SecurityLevel  = EMailSecurity.sign
+                                                                                         SecurityLevel  = EMailSecurity.auto
                                                                                      }).ConfigureAwait(false);
 
                                         }
@@ -3226,7 +3226,7 @@ namespace social.OpenData.UsersAPI
                                                Organization_Id?                     AdminOrganizationId              = null,
                                                EMailAddress                         APIRobotEMailAddress             = null,
                                                String                               APIRobotGPGPassphrase            = null,
-                                               SMTPClient                           APISMTPClient                    = null,
+                                               ISMTPClient                          APISMTPClient                    = null,
                                                Credentials                          SMSAPICredentials                = null,
                                                String                               SMSSenderName                    = null,
                                                String                               TelegramBotToken                 = null,
@@ -3645,7 +3645,7 @@ namespace social.OpenData.UsersAPI
                                          TextEMailFooter(ExternalDNSName, BasePath, EMailType.System)
                                     ),
 
-                    SecurityLevel  = EMailSecurity.sign
+                    SecurityLevel  = EMailSecurity.auto
 
                 }.AsImmutable;
 
@@ -3683,7 +3683,7 @@ namespace social.OpenData.UsersAPI
                                         TextEMailFooter(ExternalDNSName, BasePath, EMailType.System)
                                     ),
 
-                   SecurityLevel  = EMailSecurity.sign
+                   SecurityLevel  = EMailSecurity.auto
 
                }.//AddAttachment("Hi there!".ToUTF8Bytes(), "welcome.txt", MailContentTypes.text_plain).
                  AsImmutable;
@@ -3726,7 +3726,7 @@ namespace social.OpenData.UsersAPI
                                         TextEMailFooter(ExternalDNSName, BasePath, EMailType.System)
                                     ),
 
-                   SecurityLevel  = EMailSecurity.sign
+                   SecurityLevel  = EMailSecurity.auto
 
                }.AsImmutable;
 
@@ -3764,7 +3764,7 @@ namespace social.OpenData.UsersAPI
                                         TextEMailFooter(ExternalDNSName, BasePath, EMailType.System)
                                     ),
 
-                   SecurityLevel  = EMailSecurity.sign
+                   SecurityLevel  = EMailSecurity.auto
 
                }.AsImmutable;
 
@@ -3851,7 +3851,7 @@ namespace social.OpenData.UsersAPI
         //                                               " to '", NewStatus.Value, "'!\r\r\r\r",
         //                                               TextEMailFooter),
 
-        //                SecurityLevel  = EMailSecurity.sign
+        //                SecurityLevel  = EMailSecurity.auto
 
         //            };
 
@@ -3895,7 +3895,7 @@ namespace social.OpenData.UsersAPI
         //                                               "') was changed!\r\r\r\r",
         //                                               TextEMailFooter),
 
-        //                SecurityLevel  = EMailSecurity.sign
+        //                SecurityLevel  = EMailSecurity.auto
 
         //            };
 
@@ -14604,7 +14604,7 @@ namespace social.OpenData.UsersAPI
                     }
 
 
-                    if (!Enum.TryParse(Data["edge"].Value<String>(), out User2GroupEdgeTypes U2G_EdgeLabel))
+                    if (!Enum.TryParse(Data["edge"].Value<String>(), out User2UserGroupEdgeTypes U2G_EdgeLabel))
                     {
                         DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Unknown edge label '" + Data["edge"].Value<String>() + "'!"));
                         break;
@@ -15638,24 +15638,26 @@ namespace social.OpenData.UsersAPI
             get
             {
 
-                var lockTaken = UsersSemaphore.Wait(SemaphoreSlimTimeout);
-
-                try
-                {
-                    return lockTaken
-                               ? _Users.Values.ToArray()
-                               : new User[0];
-                }
-                finally
+                if (UsersSemaphore.Wait(SemaphoreSlimTimeout))
                 {
                     try
                     {
-                        if (lockTaken)
-                            UsersSemaphore.Release();
+
+                        return _Users.Values.ToArray();
+
                     }
-                    catch
-                    { }
+                    finally
+                    {
+                        try
+                        {
+                            UsersSemaphore.Release();
+                        }
+                        catch
+                        { }
+                    }
                 }
+
+                return new User[0];
 
             }
         }
@@ -15898,13 +15900,7 @@ namespace social.OpenData.UsersAPI
                         foreach (var telegramNotification in allHisOrganizations.SelectMany(org => this.GetTelegramNotifications(org, messageTypes)))
                             AllTelegramNotifications.Add(telegramNotification);
 
-
-                        if (DevMachines.Contains(Environment.MachineName))
-                        {
-                            AllTelegramNotifications.Clear();
-                        }
-
-                        if (AllTelegramNotifications.Count > 0)
+                        if (AllTelegramNotifications.SafeAny())
                         {
 
                             if (messageTypes.Contains(addUser_MessageType))
@@ -15935,7 +15931,7 @@ namespace social.OpenData.UsersAPI
                     }
                     catch (Exception e)
                     {
-                        DebugX.Log(e.Message);
+                        DebugX.LogException(e);
                     }
                 }
 
@@ -15952,13 +15948,7 @@ namespace social.OpenData.UsersAPI
                     foreach (var SMSNotification in allHisOrganizations.SelectMany(org => this.GetSMSNotifications(org, messageTypes)))
                         AllSMSNotifications.Add(SMSNotification);
 
-
-                    if (DevMachines.Contains(Environment.MachineName))
-                    {
-                        AllSMSNotifications.Clear();
-                    }
-
-                    if (AllSMSNotifications.Count > 0)
+                    if (AllSMSNotifications.SafeAny())
                     {
 
                         if (messageTypes.Contains(addUser_MessageType))
@@ -15992,7 +15982,7 @@ namespace social.OpenData.UsersAPI
                 }
                 catch (Exception e)
                 {
-                    DebugX.Log(e.Message);
+                    DebugX.LogException(e);
                 }
 
                 #endregion
@@ -16008,11 +15998,7 @@ namespace social.OpenData.UsersAPI
                     foreach (var HTTPSNotification in allHisOrganizations.SelectMany(org => this.GetHTTPSNotifications(org, messageTypes)))
                         AllHTTPSNotifications.Add(HTTPSNotification);
 
-
-                    if (DevMachines.Contains(Environment.MachineName))
-                        AllHTTPSNotifications.Clear();
-
-                    if (AllHTTPSNotifications.Count > 0)
+                    if (AllHTTPSNotifications.SafeAny())
                     {
 
                         if (messageTypes.Contains(addUser_MessageType))
@@ -16053,7 +16039,7 @@ namespace social.OpenData.UsersAPI
                 }
                 catch (Exception e)
                 {
-                    DebugX.Log(e.Message);
+                    DebugX.LogException(e);
                 }
 
                 #endregion
@@ -16071,13 +16057,7 @@ namespace social.OpenData.UsersAPI
                         foreach (var eMailNotification in allHisOrganizations.SelectMany(org => this.GetEMailNotifications(org, messageTypes)))
                             AllEMailNotifications.Add(eMailNotification);
 
-
-                        if (DevMachines.Contains(Environment.MachineName))
-                        {
-                            AllEMailNotifications.Clear();
-                        }
-
-                        if (AllEMailNotifications.Count > 0)
+                        if (AllEMailNotifications.SafeAny())
                         {
 
                             if (messageTypes.Contains(addUser_MessageType))
@@ -16100,7 +16080,7 @@ namespace social.OpenData.UsersAPI
                                                                             // to Organization {Org_Name}.\r\r\r\r",
                                                                             TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
-                                             SecurityLevel  = EMailSecurity.sign
+                                             SecurityLevel  = EMailSecurity.auto
 
                                          });
                             }
@@ -16125,7 +16105,7 @@ namespace social.OpenData.UsersAPI
                                                                             // + {Updated information}
                                                                             TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
-                                             SecurityLevel  = EMailSecurity.sign
+                                             SecurityLevel  = EMailSecurity.auto
 
                                          });
                             }
@@ -16148,7 +16128,7 @@ namespace social.OpenData.UsersAPI
                                                                             "User '" + User.Name + "' information had been removed.\r\n",
                                                                             TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
-                                             SecurityLevel  = EMailSecurity.sign
+                                             SecurityLevel  = EMailSecurity.auto
 
                                          });
                             }
@@ -16158,7 +16138,7 @@ namespace social.OpenData.UsersAPI
                     }
                     catch (Exception e)
                     {
-                        DebugX.Log(e.Message);
+                        DebugX.LogException(e);
                     }
                 }
 
@@ -16337,43 +16317,43 @@ namespace social.OpenData.UsersAPI
                                                  User_Id?                        CurrentUserId     = null)
         {
 
-            var lockTaken        = await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout);
-            var eventTrackingId  = EventTrackingId ?? EventTracking_Id.New;
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
-            try
+            if (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout))
             {
+                try
+                {
 
-                if (lockTaken)
                     return await _AddUser(User,
                                           OnAdded,
                                           eventTrackingId,
                                           CurrentUserId);
 
-                return AddUserResult.Failed(User,
-                                            eventTrackingId,
-                                            "Internal locking failed!");
-
-            }
-            catch (Exception e)
-            {
-
-                DebugX.LogException(e);
-
-                return AddUserResult.Failed(User,
-                                            eventTrackingId,
-                                            e);
-
-            }
-            finally
-            {
-                try
-                {
-                    if (lockTaken)
-                        UsersSemaphore.Release();
                 }
-                catch
-                { }
+                catch (Exception e)
+                {
+
+                    DebugX.LogException(e);
+
+                    return AddUserResult.Failed(User,
+                                                eventTrackingId,
+                                                e);
+
+                }
+                finally
+                {
+                    try
+                    {
+                        UsersSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
+
+            return AddUserResult.Failed(User,
+                                        eventTrackingId,
+                                        "Internal locking failed!");
 
         }
 
@@ -16398,16 +16378,16 @@ namespace social.OpenData.UsersAPI
                                                  User_Id?                        CurrentUserId     = null)
         {
 
-            var usersLockTaken          = await UsersSemaphore.        WaitAsync(SemaphoreSlimTimeout);
-            var organizationsLockTaken  = await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout);
-            var eventTrackingId         = EventTrackingId ?? EventTracking_Id.New;
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
-            try
+            if (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout))
             {
+                if (await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout))
+                {
+                    try
+                    {
 
-                var result = usersLockTaken && organizationsLockTaken
-
-                                   ? await _AddUser(User,
+                        var result = await _AddUser(User,
                                                     async (_user, _eventTrackingId) => {
 
                                                         await _AddUserToOrganization(_user,
@@ -16422,51 +16402,55 @@ namespace social.OpenData.UsersAPI
 
                                                     },
                                                     eventTrackingId ?? EventTracking_Id.New,
-                                                    CurrentUserId)
+                                                    CurrentUserId);
 
-                                   : AddUserResult.Failed(User,
-                                                          eventTrackingId,
-                                                          "Internal locking failed!");
+                        result.Organization = Organization;
 
-                if (result?.IsSuccess == true)
-                    await SendNotifications(User,
-                                            AccessRight,
-                                            Organization,
-                                            addUserToOrganization_MessageType,
-                                            eventTrackingId,
-                                            CurrentUserId);
+                        if (result?.IsSuccess == true)
+                            await SendNotifications(User,
+                                                    AccessRight,
+                                                    Organization,
+                                                    addUserToOrganization_MessageType,
+                                                    eventTrackingId,
+                                                    CurrentUserId);
 
-                return result;
+                        return result;
 
-            }
-            catch (Exception e)
-            {
+                    }
+                    catch (Exception e)
+                    {
 
-                DebugX.LogException(e);
+                        DebugX.LogException(e);
 
-                return AddUserResult.Failed(User,
-                                            eventTrackingId,
-                                            e);
+                        return AddUserResult.Failed(User,
+                                                    eventTrackingId,
+                                                    e);
 
-            }
-            finally
-            {
-                try
-                {
-                    if (organizationsLockTaken)
-                        OrganizationsSemaphore.Release();
+                    }
+                    finally
+                    {
+                        try
+                        {
+                            OrganizationsSemaphore.Release();
+                        }
+                        catch
+                        { }
+
+                        try
+                        {
+                            UsersSemaphore.Release();
+                        }
+                        catch
+                        { }
+                    }
                 }
-                catch
-                { }
-
-                try
-                {
-                    if (usersLockTaken)
-                        UsersSemaphore.Release();
-                }
-                catch
-                { }
+                else
+                    UsersSemaphore.Release();
             }
+
+            return AddUserResult.Failed(User,
+                                        eventTrackingId,
+                                        "Internal locking failed!");
 
         }
 
@@ -16598,43 +16582,43 @@ namespace social.OpenData.UsersAPI
                                                                        User_Id?                        CurrentUserId     = null)
         {
 
-            var lockTaken        = await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout);
-            var eventTrackingId  = EventTrackingId ?? EventTracking_Id.New;
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
-            try
+            if (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout))
             {
+                try
+                {
 
-                if (lockTaken)
                     return await _AddUserIfNotExists(User,
                                                      OnAdded,
                                                      eventTrackingId,
                                                      CurrentUserId);
 
-                return AddUserIfNotExistsResult.Failed(User,
-                                                       eventTrackingId,
-                                                       "Internal locking failed!");
-
-            }
-            catch (Exception e)
-            {
-
-                DebugX.LogException(e);
-
-                return AddUserIfNotExistsResult.Failed(User,
-                                                       eventTrackingId,
-                                                       e);
-
-            }
-            finally
-            {
-                try
-                {
-                    if (lockTaken)
-                        UsersSemaphore.Release();
                 }
-                catch
-                { }
+                catch (Exception e)
+                {
+
+                    DebugX.LogException(e);
+
+                    return AddUserIfNotExistsResult.Failed(User,
+                                                           eventTrackingId,
+                                                           e);
+
+                }
+                finally
+                {
+                    try
+                    {
+                        UsersSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
+
+            return AddUserIfNotExistsResult.Failed(User,
+                                                   eventTrackingId,
+                                                   "Internal locking failed!");
 
         }
 
@@ -16659,77 +16643,80 @@ namespace social.OpenData.UsersAPI
                                                                        User_Id?                        CurrentUserId     = null)
         {
 
-            var usersLockTaken          = await UsersSemaphore.        WaitAsync(SemaphoreSlimTimeout);
-            var organizationsLockTaken  = await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout);
-            var eventTrackingId         = EventTrackingId ?? EventTracking_Id.New;
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
-            try
+            if (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout))
             {
-
-                // The new user does not yet have an organization,
-                // therefore organization notifications do not work here yet!
-                var result = usersLockTaken && organizationsLockTaken
-
-                                 ? await _AddUserIfNotExists(User,
-                                                             async (_user, _eventTrackingId) => {
-
-                                                                 await _AddUserToOrganization(_user,
-                                                                                              AccessRight,
-                                                                                              Organization,
-                                                                                              _eventTrackingId,
-                                                                                              SuppressNotifications:  true,
-                                                                                              CurrentUserId:          CurrentUserId);
-
-                                                                 OnAdded?.Invoke(_user,
-                                                                                 _eventTrackingId);
-
-                                                             },
-                                                             eventTrackingId,
-                                                             CurrentUserId)
-
-                                 : AddUserIfNotExistsResult.Failed(User,
-                                                                   eventTrackingId,
-                                                                   "Internal locking failed!");
-
-                if (result?.IsSuccess == true)
-                    await SendNotifications(User,
-                                            AccessRight,
-                                            Organization,
-                                            addUserToOrganization_MessageType,
-                                            eventTrackingId,
-                                            CurrentUserId);
-
-                return result;
-
-            }
-            catch (Exception e)
-            {
-
-                DebugX.LogException(e);
-
-                return AddUserIfNotExistsResult.Failed(User,
-                                                       eventTrackingId,
-                                                       e);
-
-            }
-            finally
-            {
-                try
+                if (await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout))
                 {
-                    if (organizationsLockTaken)
-                        OrganizationsSemaphore.Release();
-                }
-                catch
-                { }
 
-                try
-                {
-                    if (usersLockTaken)
-                        UsersSemaphore.Release();
+                    try
+                    {
+
+                        var result = await _AddUserIfNotExists(User,
+                                                               async (_user, _eventTrackingId) => {
+
+                                                                   await _AddUserToOrganization(_user,
+                                                                                               AccessRight,
+                                                                                               Organization,
+                                                                                               _eventTrackingId,
+                                                                                               SuppressNotifications:  true,
+                                                                                               CurrentUserId:          CurrentUserId);
+
+                                                                   OnAdded?.Invoke(_user,
+                                                                                   _eventTrackingId);
+
+                                                               },
+                                                               eventTrackingId,
+                                                               CurrentUserId);
+
+                        result.Organization = Organization;
+
+                        if (result?.IsSuccess == true)
+                            await SendNotifications(User,
+                                                    AccessRight,
+                                                    Organization,
+                                                    addUserToOrganization_MessageType,
+                                                    eventTrackingId,
+                                                    CurrentUserId);
+
+                        return result;
+
+                    }
+                    catch (Exception e)
+                    {
+
+                        DebugX.LogException(e);
+
+                        return AddUserIfNotExistsResult.Failed(User,
+                                                               eventTrackingId,
+                                                               e);
+
+                    }
+                    finally
+                    {
+                        try
+                        {
+                            OrganizationsSemaphore.Release();
+                        }
+                        catch
+                        { }
+
+                        try
+                        {
+                            UsersSemaphore.Release();
+                        }
+                        catch
+                        { }
+                    }
                 }
-                catch
-                { }
+                else
+                    UsersSemaphore.Release();
             }
+
+            return AddUserIfNotExistsResult.Failed(User,
+                                                   eventTrackingId,
+                                                   "Internal locking failed!");
 
         }
 
@@ -16898,41 +16885,42 @@ namespace social.OpenData.UsersAPI
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
-            try
-            {
-
-                return (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout))
-
-                            ? await _AddOrUpdateUser(User,
-                                                     OnAdded,
-                                                     OnUpdated,
-                                                     eventTrackingId,
-                                                     CurrentUserId)
-
-                            : AddOrUpdateUserResult.Failed(User,
-                                                           eventTrackingId,
-                                                           "Internal locking failed!");
-
-            }
-            catch (Exception e)
-            {
-
-                DebugX.LogException(e);
-
-                return AddOrUpdateUserResult.Failed(User,
-                                                    eventTrackingId,
-                                                    e);
-
-            }
-            finally
+            if (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout))
             {
                 try
                 {
-                    UsersSemaphore.Release();
+
+                    return await _AddOrUpdateUser(User,
+                                                  OnAdded,
+                                                  OnUpdated,
+                                                  eventTrackingId,
+                                                  CurrentUserId);
+
                 }
-                catch
-                { }
+                catch (Exception e)
+                {
+
+                    DebugX.LogException(e);
+
+                    return AddOrUpdateUserResult.Failed(User,
+                                                        eventTrackingId,
+                                                        e);
+
+                }
+                finally
+                {
+                    try
+                    {
+                        UsersSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
+
+            return AddOrUpdateUserResult.Failed(User,
+                                                eventTrackingId,
+                                                "Internal locking failed!");
 
         }
 
@@ -16959,67 +16947,80 @@ namespace social.OpenData.UsersAPI
                                                                  User_Id?                        CurrentUserId     = null)
         {
 
-            var lockTaken        = await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout);
-            var eventTrackingId  = EventTrackingId ?? EventTracking_Id.New;
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
-            try
+            if (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout))
             {
-
-                var result = lockTaken
-
-                                 ? await _AddOrUpdateUser(User,
-                                                          async (_user, _eventTrackingId) => {
-
-                                                              await _AddUserToOrganization(_user,
-                                                                                           AccessRight,
-                                                                                           Organization,
-                                                                                           _eventTrackingId,
-                                                                                           SuppressNotifications:  true,
-                                                                                           CurrentUserId:          CurrentUserId);
-
-                                                              OnAdded?.Invoke(_user,
-                                                                              _eventTrackingId);
-
-                                                          },
-                                                          OnUpdated,
-                                                          eventTrackingId,
-                                                          CurrentUserId)
-
-                                 : AddOrUpdateUserResult.Failed(User,
-                                                                eventTrackingId,
-                                                                "Internal locking failed!");
-
-                if (result?.IsSuccess == true)
-                    await SendNotifications(User,
-                                            AccessRight,
-                                            Organization,
-                                            addUserToOrganization_MessageType,
-                                            eventTrackingId,
-                                            CurrentUserId);
-
-                return result;
-
-            }
-            catch (Exception e)
-            {
-
-                DebugX.LogException(e);
-
-                return AddOrUpdateUserResult.Failed(User,
-                                                    eventTrackingId,
-                                                    e);
-
-            }
-            finally
-            {
-                try
+                if (await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout))
                 {
-                    if (lockTaken)
-                        UsersSemaphore.Release();
+                    try
+                    {
+
+                        var result = await _AddOrUpdateUser(User,
+                                                            async (_user, _eventTrackingId) => {
+
+                                                                await _AddUserToOrganization(_user,
+                                                                                             AccessRight,
+                                                                                             Organization,
+                                                                                             _eventTrackingId,
+                                                                                             SuppressNotifications:  true,
+                                                                                             CurrentUserId:          CurrentUserId);
+
+                                                                OnAdded?.Invoke(_user,
+                                                                                _eventTrackingId);
+
+                                                            },
+                                                            OnUpdated,
+                                                            eventTrackingId,
+                                                            CurrentUserId);
+
+                        result.Organization = Organization;
+
+                        if (result?.IsSuccess == true)
+                            await SendNotifications(User,
+                                                    AccessRight,
+                                                    Organization,
+                                                    addUserToOrganization_MessageType,
+                                                    eventTrackingId,
+                                                    CurrentUserId);
+
+                        return result;
+
+                    }
+                    catch (Exception e)
+                    {
+
+                        DebugX.LogException(e);
+
+                        return AddOrUpdateUserResult.Failed(User,
+                                                            eventTrackingId,
+                                                            e);
+
+                    }
+                    finally
+                    {
+                        try
+                        {
+                            OrganizationsSemaphore.Release();
+                        }
+                        catch
+                        { }
+
+                        try
+                        {
+                            UsersSemaphore.Release();
+                        }
+                        catch
+                        { }
+                    }
                 }
-                catch
-                { }
+                else
+                    UsersSemaphore.Release();
             }
+
+            return AddOrUpdateUserResult.Failed(User,
+                                                eventTrackingId,
+                                                "Internal locking failed!");
 
         }
 
@@ -17049,7 +17050,7 @@ namespace social.OpenData.UsersAPI
         public event OnUserUpdatedDelegate OnUserUpdated;
 
 
-        #region (protected internal) _UpdateUser(User, OnUpdated = null, CurrentUserId = null)
+        #region (protected internal) _UpdateUser(User,                 OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
         /// Update the given user to/within the API.
@@ -17120,7 +17121,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region UpdateUser                      (User, OnUpdated = null, CurrentUserId = null)
+        #region UpdateUser                      (User,                 OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
         /// Update the given user to/within the API.
@@ -17135,43 +17136,43 @@ namespace social.OpenData.UsersAPI
                                                        User_Id?                        CurrentUserId     = null)
         {
 
-            var lockTaken        = await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout);
-            var eventTrackingId  = EventTrackingId ?? EventTracking_Id.New;
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
-            try
-            {
-
-                if (lockTaken)
-                    await _UpdateUser(User,
-                                      OnUpdated,
-                                      EventTrackingId,
-                                      CurrentUserId);
-
-                return UpdateUserResult.Failed(User,
-                                               eventTrackingId,
-                                               "Internal locking failed!");
-
-            }
-            catch (Exception e)
-            {
-
-                DebugX.LogException(e);
-
-                return UpdateUserResult.Failed(User,
-                                               eventTrackingId,
-                                               e);
-
-            }
-            finally
+            if (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout))
             {
                 try
                 {
-                    if (lockTaken)
-                        UsersSemaphore.Release();
+
+                    return await _UpdateUser(User,
+                                             OnUpdated,
+                                             EventTrackingId,
+                                             CurrentUserId);
+
                 }
-                catch
-                { }
+                catch (Exception e)
+                {
+
+                    DebugX.LogException(e);
+
+                    return UpdateUserResult.Failed(User,
+                                                   eventTrackingId,
+                                                   e);
+
+                }
+                finally
+                {
+                    try
+                    {
+                        UsersSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
+
+            return UpdateUserResult.Failed(User,
+                                           eventTrackingId,
+                                           "Internal locking failed!");
 
         }
 
@@ -17276,44 +17277,44 @@ namespace social.OpenData.UsersAPI
                                                        User_Id?                        CurrentUserId     = null)
         {
 
-            var lockTaken        = await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout);
-            var eventTrackingId  = EventTrackingId ?? EventTracking_Id.New;
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
-            try
+            if (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout))
             {
+                try
+                {
 
-                if (lockTaken)
                     return await _UpdateUser(User,
                                              UpdateDelegate,
                                              OnUpdated,
                                              eventTrackingId,
                                              CurrentUserId);
 
-                return UpdateUserResult.Failed(User,
-                                               eventTrackingId,
-                                               "Internal locking failed!");
-
-            }
-            catch (Exception e)
-            {
-
-                DebugX.LogException(e);
-
-                return UpdateUserResult.Failed(User,
-                                               eventTrackingId,
-                                               e);
-
-            }
-            finally
-            {
-                try
-                {
-                    if (lockTaken)
-                        UsersSemaphore.Release();
                 }
-                catch
-                { }
+                catch (Exception e)
+                {
+
+                    DebugX.LogException(e);
+
+                    return UpdateUserResult.Failed(User,
+                                                   eventTrackingId,
+                                                   e);
+
+                }
+                finally
+                {
+                    try
+                    {
+                        UsersSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
+
+            return UpdateUserResult.Failed(User,
+                                           eventTrackingId,
+                                           "Internal locking failed!");
 
         }
 
@@ -17348,24 +17349,25 @@ namespace social.OpenData.UsersAPI
         public Boolean UserExists(User_Id UserId)
         {
 
-            var lockTaken = UsersSemaphore.Wait(SemaphoreSlimTimeout);
-
-            try
-            {
-                if (lockTaken && _UserExists(UserId))
-                    return true;
-            }
-            catch
-            { }
-            finally
+            if (UsersSemaphore.Wait(SemaphoreSlimTimeout))
             {
                 try
                 {
-                    if (lockTaken)
-                        UsersSemaphore.Release();
+
+                    return _UserExists(UserId);
+
                 }
                 catch
                 { }
+                finally
+                {
+                    try
+                    {
+                        UsersSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
 
             return false;
@@ -17379,24 +17381,25 @@ namespace social.OpenData.UsersAPI
         public Boolean UserExists(User_Id? UserId)
         {
 
-            var lockTaken = UsersSemaphore.Wait(SemaphoreSlimTimeout);
-
-            try
-            {
-                if (lockTaken && _UserExists(UserId))
-                    return true;
-            }
-            catch
-            { }
-            finally
+            if (UsersSemaphore.Wait(SemaphoreSlimTimeout))
             {
                 try
                 {
-                    if (lockTaken)
-                        UsersSemaphore.Release();
+
+                    return _UserExists(UserId);
+
                 }
                 catch
                 { }
+                finally
+                {
+                    try
+                    {
+                        UsersSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
 
             return false;
@@ -17443,24 +17446,25 @@ namespace social.OpenData.UsersAPI
         public User GetUser(User_Id  UserId)
         {
 
-            var lockTaken = UsersSemaphore.Wait(SemaphoreSlimTimeout);
-
-            try
-            {
-                if (lockTaken)
-                    return _GetUser(UserId);
-            }
-            catch
-            { }
-            finally
+            if (UsersSemaphore.Wait(SemaphoreSlimTimeout))
             {
                 try
                 {
-                    if (lockTaken)
-                        UsersSemaphore.Release();
+
+                    return _GetUser(UserId);
+
                 }
                 catch
                 { }
+                finally
+                {
+                    try
+                    {
+                        UsersSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
 
             return null;
@@ -17474,24 +17478,25 @@ namespace social.OpenData.UsersAPI
         public User GetUser(User_Id? UserId)
         {
 
-            var lockTaken = UsersSemaphore.Wait(SemaphoreSlimTimeout);
-
-            try
-            {
-                if (lockTaken)
-                    return _GetUser(UserId);
-            }
-            catch
-            { }
-            finally
+            if (UsersSemaphore.Wait(SemaphoreSlimTimeout))
             {
                 try
                 {
-                    if (lockTaken)
-                        UsersSemaphore.Release();
+
+                    return _GetUser(UserId);
+
                 }
                 catch
                 { }
+                finally
+                {
+                    try
+                    {
+                        UsersSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
 
             return null;
@@ -17554,27 +17559,25 @@ namespace social.OpenData.UsersAPI
                                   out User  User)
         {
 
-            var lockTaken = UsersSemaphore.Wait(SemaphoreSlimTimeout);
-
-            try
-            {
-                if (lockTaken && _TryGetUser(UserId, out User user))
-                {
-                    User = user;
-                    return true;
-                }
-            }
-            catch
-            { }
-            finally
+            if (UsersSemaphore.Wait(SemaphoreSlimTimeout))
             {
                 try
                 {
-                    if (lockTaken)
-                        UsersSemaphore.Release();
+
+                    return _TryGetUser(UserId, out User);
+
                 }
                 catch
                 { }
+                finally
+                {
+                    try
+                    {
+                        UsersSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
 
             User = null;
@@ -17591,27 +17594,25 @@ namespace social.OpenData.UsersAPI
                                   out User  User)
         {
 
-            var lockTaken = UsersSemaphore.Wait(SemaphoreSlimTimeout);
-
-            try
-            {
-                if (lockTaken && _TryGetUser(UserId, out User user))
-                {
-                    User = user;
-                    return true;
-                }
-            }
-            catch
-            { }
-            finally
+            if (UsersSemaphore.Wait(SemaphoreSlimTimeout))
             {
                 try
                 {
-                    if (lockTaken)
-                        UsersSemaphore.Release();
+
+                    return _TryGetUser(UserId, out User);
+
                 }
                 catch
                 { }
+                finally
+                {
+                    try
+                    {
+                        UsersSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
 
             User = null;
@@ -17642,26 +17643,25 @@ namespace social.OpenData.UsersAPI
         public IEnumerable<User> SearchUsersByName(String Username)
         {
 
-            var lockTaken = UsersSemaphore.Wait(SemaphoreSlimTimeout);
-
-            try
-            {
-
-                if (lockTaken)
-                    return _SearchUsersByName(Username);
-
-            }
-            catch
-            { }
-            finally
+            if (UsersSemaphore.Wait(SemaphoreSlimTimeout))
             {
                 try
                 {
-                    if (lockTaken)
-                        UsersSemaphore.Release();
+
+                    return _SearchUsersByName(Username);
+
                 }
                 catch
                 { }
+                finally
+                {
+                    try
+                    {
+                        UsersSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
 
             return new User[0];
@@ -17701,29 +17701,25 @@ namespace social.OpenData.UsersAPI
         public Boolean TrySearchUsersByName(String Username, out IEnumerable<User> Users)
         {
 
-            var lockTaken = UsersSemaphore.Wait(SemaphoreSlimTimeout);
-
-            try
-            {
-
-                if (lockTaken && _TrySearchUsersByName(Username, out IEnumerable<User> users))
-                {
-                    Users = users;
-                    return true;
-                }
-
-            }
-            catch
-            { }
-            finally
+            if (UsersSemaphore.Wait(SemaphoreSlimTimeout))
             {
                 try
                 {
-                    if (lockTaken)
-                        UsersSemaphore.Release();
+
+                    return _TrySearchUsersByName(Username, out Users);
+
                 }
                 catch
                 { }
+                finally
+                {
+                    try
+                    {
+                        UsersSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
 
             Users = null;
@@ -17865,43 +17861,44 @@ namespace social.OpenData.UsersAPI
                                                        User_Id?                        CurrentUserId     = null)
         {
 
-            var lockTaken        = await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout);
-            var eventTrackingId  = EventTrackingId ?? EventTracking_Id.New;
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
-            try
+            if (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout))
             {
+                try
+                {
 
-                if (lockTaken)
                     return await _DeleteUser(User,
                                              OnDeleted,
                                              eventTrackingId,
                                              CurrentUserId);
 
-                return DeleteUserResult.Failed(User,
-                                               eventTrackingId,
-                                               "Internal locking failed!");
-
-            }
-            catch (Exception e)
-            {
-
-                DebugX.LogException(e);
-
-                return DeleteUserResult.Failed(User,
-                                               eventTrackingId,
-                                               e);
-
-            }
-            finally
-            {
-                try
-                {
-                    if (lockTaken)
-                        UsersSemaphore.Release();
                 }
-                catch
-                { }
+                catch (Exception e)
+                {
+
+                    DebugX.LogException(e);
+
+                    return DeleteUserResult.Failed(User,
+                                                   eventTrackingId,
+                                                   e);
+
+                }
+                finally
+                {
+                    try
+                    {
+                        UsersSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
+
+            return DeleteUserResult.Failed(User,
+                                           eventTrackingId,
+                                           "Internal locking failed!");
+
 
         }
 
@@ -19028,60 +19025,6 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region AddToUserGroup(User, Edge, UserGroup)
-
-        public async Task<Boolean> AddToUserGroup(User                 User,
-                                                  User2GroupEdgeTypes  EdgeLabel,
-                                                  UserGroup            UserGroup,
-                                                  EventTracking_Id     EventTrackingId   = null,
-                                                  User_Id?             CurrentUserId     = null)
-
-        {
-
-            try
-            {
-
-                await UsersSemaphore.WaitAsync();
-                await UserGroupsSemaphore.WaitAsync();
-
-                var updated = false;
-
-                if (!User.OutEdges(UserGroup).Any(edgeLabel => edgeLabel == EdgeLabel))
-                {
-                    User.AddOutgoingEdge(EdgeLabel, UserGroup);
-                    updated = true;
-                }
-
-                if (!UserGroup.InEdges(User).Any(edgeLabel => edgeLabel == EdgeLabel))
-                {
-                    UserGroup.AddIncomingEdge(User, EdgeLabel);
-                    updated = true;
-                }
-
-                if (updated)
-                    await WriteToDatabaseFile(addUserToUserGroup_MessageType,
-                                              new JObject(
-                                                  new JProperty("user",   User.Id.  ToString()),
-                                                  new JProperty("edge",   EdgeLabel.ToString()),
-                                                  new JProperty("group",  UserGroup.ToString())
-                                              ),
-                                              EventTrackingId,
-                                              CurrentUserId);
-
-                return updated;
-
-            }
-            finally
-            {
-                UsersSemaphore.Release();
-                UserGroupsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-
         #region IsAdmin(User)
 
         /// <summary>
@@ -19571,24 +19514,27 @@ namespace social.OpenData.UsersAPI
             get
             {
 
-                var lockTaken = APIKeysSemaphore.Wait(SemaphoreSlimTimeout);
-
-                try
-                {
-                    return lockTaken
-                               ? _APIKeys.Values.ToArray()
-                               : new APIKey[0];
-                }
-                finally
+                if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
                 {
                     try
                     {
-                        if (lockTaken)
-                            APIKeysSemaphore.Release();
+
+                        return _APIKeys.Values.ToArray();
+
                     }
-                    catch
-                    { }
+                    finally
+                    {
+                        try
+                        {
+                            APIKeysSemaphore.Release();
+                        }
+                        catch
+                        { }
+                    }
                 }
+
+                return new APIKey[0];
+
             }
         }
 
@@ -19824,43 +19770,43 @@ namespace social.OpenData.UsersAPI
                                                      User_Id?                          CurrentUserId     = null)
         {
 
-            var lockTaken        = await APIKeysSemaphore.WaitAsync(SemaphoreSlimTimeout);
-            var eventTrackingId  = EventTrackingId ?? EventTracking_Id.New;
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
-            try
+            if (await APIKeysSemaphore.WaitAsync(SemaphoreSlimTimeout))
             {
+                try
+                {
 
-                if (lockTaken)
                     return await _AddAPIKey(APIKey,
                                             OnAdded,
                                             eventTrackingId,
                                             CurrentUserId);
 
-                return AddAPIKeyResult.Failed(APIKey,
-                                              eventTrackingId,
-                                              "Internal locking failed!");
-
-            }
-            catch (Exception e)
-            {
-
-                DebugX.LogException(e);
-
-                return AddAPIKeyResult.Failed(APIKey,
-                                              eventTrackingId,
-                                              e);
-
-            }
-            finally
-            {
-                try
-                {
-                    if (lockTaken)
-                        APIKeysSemaphore.Release();
                 }
-                catch
-                { }
+                catch (Exception e)
+                {
+
+                    DebugX.LogException(e);
+
+                    return AddAPIKeyResult.Failed(APIKey,
+                                                  eventTrackingId,
+                                                  e);
+
+                }
+                finally
+                {
+                    try
+                    {
+                        APIKeysSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
+
+            return AddAPIKeyResult.Failed(APIKey,
+                                          eventTrackingId,
+                                          "Internal locking failed!");
 
         }
 
@@ -19959,43 +19905,43 @@ namespace social.OpenData.UsersAPI
                                                                            User_Id?                          CurrentUserId     = null)
         {
 
-            var lockTaken        = await APIKeysSemaphore.WaitAsync(SemaphoreSlimTimeout);
-            var eventTrackingId  = EventTrackingId ?? EventTracking_Id.New;
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
-            try
+            if (await APIKeysSemaphore.WaitAsync(SemaphoreSlimTimeout))
             {
+                try
+                {
 
-                if (lockTaken)
                     return await _AddAPIKeyIfNotExists(APIKey,
                                                        OnAdded,
                                                        eventTrackingId,
                                                        CurrentUserId);
 
-                return AddAPIKeyIfNotExistsResult.Failed(APIKey,
-                                                         eventTrackingId,
-                                                         "Internal locking failed!");
-
-            }
-            catch (Exception e)
-            {
-
-                DebugX.LogException(e);
-
-                return AddAPIKeyIfNotExistsResult.Failed(APIKey,
-                                                         eventTrackingId,
-                                                         e);
-
-            }
-            finally
-            {
-                try
-                {
-                    if (lockTaken)
-                        APIKeysSemaphore.Release();
                 }
-                catch
-                { }
+                catch (Exception e)
+                {
+
+                    DebugX.LogException(e);
+
+                    return AddAPIKeyIfNotExistsResult.Failed(APIKey,
+                                                             eventTrackingId,
+                                                             e);
+
+                }
+                finally
+                {
+                    try
+                    {
+                        APIKeysSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
+
+            return AddAPIKeyIfNotExistsResult.Failed(APIKey,
+                                                     eventTrackingId,
+                                                     "Internal locking failed!");
 
         }
 
@@ -20125,44 +20071,44 @@ namespace social.OpenData.UsersAPI
                                                                      User_Id?                          CurrentUserId     = null)
         {
 
-            var lockTaken        = await APIKeysSemaphore.WaitAsync(SemaphoreSlimTimeout);
-            var eventTrackingId  = EventTrackingId ?? EventTracking_Id.New;
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
-            try
+            if (await APIKeysSemaphore.WaitAsync(SemaphoreSlimTimeout))
             {
+                try
+                {
 
-                if (lockTaken)
                     return await _AddOrUpdateAPIKey(APIKey,
                                                     OnAdded,
                                                     OnUpdated,
                                                     eventTrackingId,
                                                     CurrentUserId);
 
-                return AddOrUpdateAPIKeyResult.Failed(APIKey,
-                                                      eventTrackingId,
-                                                      "Internal locking failed!");
-
-            }
-            catch (Exception e)
-            {
-
-                DebugX.LogException(e);
-
-                return AddOrUpdateAPIKeyResult.Failed(APIKey,
-                                                      eventTrackingId,
-                                                      e);
-
-            }
-            finally
-            {
-                try
-                {
-                    if (lockTaken)
-                        APIKeysSemaphore.Release();
                 }
-                catch
-                { }
+                catch (Exception e)
+                {
+
+                    DebugX.LogException(e);
+
+                    return AddOrUpdateAPIKeyResult.Failed(APIKey,
+                                                          eventTrackingId,
+                                                          e);
+
+                }
+                finally
+                {
+                    try
+                    {
+                        APIKeysSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
+
+            return AddOrUpdateAPIKeyResult.Failed(APIKey,
+                                                  eventTrackingId,
+                                                  "Internal locking failed!");
 
         }
 
@@ -20278,43 +20224,43 @@ namespace social.OpenData.UsersAPI
                                                            User_Id?                          CurrentUserId     = null)
         {
 
-            var lockTaken        = await APIKeysSemaphore.WaitAsync(SemaphoreSlimTimeout);
-            var eventTrackingId  = EventTrackingId ?? EventTracking_Id.New;
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
-            try
+            if (await APIKeysSemaphore.WaitAsync(SemaphoreSlimTimeout))
             {
+                try
+                {
 
-                if (lockTaken)
                     return await _UpdateAPIKey(APIKey,
                                                OnUpdated,
                                                EventTrackingId,
                                                CurrentUserId);
 
-                return UpdateAPIKeyResult.Failed(APIKey,
-                                                 eventTrackingId,
-                                                 "Internal locking failed!");
-
-            }
-            catch (Exception e)
-            {
-
-                DebugX.LogException(e);
-
-                return UpdateAPIKeyResult.Failed(APIKey,
-                                                 eventTrackingId,
-                                                 e);
-
-            }
-            finally
-            {
-                try
-                {
-                    if (lockTaken)
-                        APIKeysSemaphore.Release();
                 }
-                catch
-                { }
+                catch (Exception e)
+                {
+
+                    DebugX.LogException(e);
+
+                    return UpdateAPIKeyResult.Failed(APIKey,
+                                                     eventTrackingId,
+                                                     e);
+
+                }
+                finally
+                {
+                    try
+                    {
+                        APIKeysSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
+
+            return UpdateAPIKeyResult.Failed(APIKey,
+                                             eventTrackingId,
+                                             "Internal locking failed!");
 
         }
 
@@ -20419,44 +20365,44 @@ namespace social.OpenData.UsersAPI
                                                            User_Id?                          CurrentUserId     = null)
         {
 
-            var lockTaken        = await APIKeysSemaphore.WaitAsync(SemaphoreSlimTimeout);
-            var eventTrackingId  = EventTrackingId ?? EventTracking_Id.New;
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
-            try
+            if (await APIKeysSemaphore.WaitAsync(SemaphoreSlimTimeout))
             {
+                try
+                {
 
-                if (lockTaken)
                     return await _UpdateAPIKey(APIKey,
                                                UpdateDelegate,
                                                OnUpdated,
                                                eventTrackingId,
                                                CurrentUserId);
 
-                return UpdateAPIKeyResult.Failed(APIKey,
-                                                 eventTrackingId,
-                                                 "Internal locking failed!");
-
-            }
-            catch (Exception e)
-            {
-
-                DebugX.LogException(e);
-
-                return UpdateAPIKeyResult.Failed(APIKey,
-                                                 eventTrackingId,
-                                                 e);
-
-            }
-            finally
-            {
-                try
-                {
-                    if (lockTaken)
-                        APIKeysSemaphore.Release();
                 }
-                catch
-                { }
+                catch (Exception e)
+                {
+
+                    DebugX.LogException(e);
+
+                    return UpdateAPIKeyResult.Failed(APIKey,
+                                                     eventTrackingId,
+                                                     e);
+
+                }
+                finally
+                {
+                    try
+                    {
+                        APIKeysSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
+
+            return UpdateAPIKeyResult.Failed(APIKey,
+                                             eventTrackingId,
+                                             "Internal locking failed!");
 
         }
 
@@ -20491,24 +20437,25 @@ namespace social.OpenData.UsersAPI
         public Boolean APIKeyExists(APIKey_Id APIKey)
         {
 
-            var lockTaken = APIKeysSemaphore.Wait(SemaphoreSlimTimeout);
-
-            try
-            {
-                if (lockTaken && _APIKeyExists(APIKey))
-                    return true;
-            }
-            catch
-            { }
-            finally
+            if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
             {
                 try
                 {
-                    if (lockTaken)
-                        APIKeysSemaphore.Release();
+
+                    return _APIKeyExists(APIKey);
+
                 }
                 catch
                 { }
+                finally
+                {
+                    try
+                    {
+                        APIKeysSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
 
             return false;
@@ -20522,24 +20469,25 @@ namespace social.OpenData.UsersAPI
         public Boolean APIKeyExists(APIKey_Id? APIKey)
         {
 
-            var lockTaken = APIKeysSemaphore.Wait(SemaphoreSlimTimeout);
-
-            try
-            {
-                if (lockTaken && _APIKeyExists(APIKey))
-                    return true;
-            }
-            catch
-            { }
-            finally
+            if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
             {
                 try
                 {
-                    if (lockTaken)
-                        APIKeysSemaphore.Release();
+
+                    return _APIKeyExists(APIKey);
+
                 }
                 catch
                 { }
+                finally
+                {
+                    try
+                    {
+                        APIKeysSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
 
             return false;
@@ -20588,23 +20536,25 @@ namespace social.OpenData.UsersAPI
         public Boolean APIKeyIsValid(APIKey APIKey)
         {
 
-            var lockTaken = APIKeysSemaphore.Wait(SemaphoreSlimTimeout);
-
-            try
-            {
-                return lockTaken && _APIKeyIsValid(APIKey);
-            }
-            catch
-            { }
-            finally
+            if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
             {
                 try
                 {
-                    if (lockTaken)
-                        APIKeysSemaphore.Release();
+
+                    return _APIKeyIsValid(APIKey);
+
                 }
                 catch
                 { }
+                finally
+                {
+                    try
+                    {
+                        APIKeysSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
 
             return false;
@@ -20618,23 +20568,25 @@ namespace social.OpenData.UsersAPI
         public Boolean APIKeyIsValid(APIKey_Id APIKey)
         {
 
-            try
-            {
-
-                if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
-                    return _APIKeyIsValid(APIKey);
-
-            }
-            catch
-            { }
-            finally
+            if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
             {
                 try
                 {
-                    APIKeysSemaphore.Release();
+
+                    return _APIKeyIsValid(APIKey);
+
                 }
                 catch
                 { }
+                finally
+                {
+                    try
+                    {
+                        APIKeysSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
 
             return false;
@@ -20648,23 +20600,25 @@ namespace social.OpenData.UsersAPI
         public Boolean APIKeyIsValid(APIKey_Id? APIKey)
         {
 
-            try
-            {
-
-                if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
-                    return _APIKeyIsValid(APIKey);
-
-            }
-            catch
-            { }
-            finally
+            if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
             {
                 try
                 {
-                    APIKeysSemaphore.Release();
+
+                    return _APIKeyIsValid(APIKey);
+
                 }
                 catch
                 { }
+                finally
+                {
+                    try
+                    {
+                        APIKeysSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
 
             return false;
@@ -20697,24 +20651,25 @@ namespace social.OpenData.UsersAPI
         public APIKey GetAPIKey(APIKey_Id APIKey)
         {
 
-            var lockTaken = APIKeysSemaphore.Wait(SemaphoreSlimTimeout);
-
-            try
-            {
-                if (lockTaken)
-                    return _GetAPIKey(APIKey);
-            }
-            catch
-            { }
-            finally
+            if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
             {
                 try
                 {
-                    if (lockTaken)
-                        APIKeysSemaphore.Release();
+
+                    return _GetAPIKey(APIKey);
+
                 }
                 catch
                 { }
+                finally
+                {
+                    try
+                    {
+                        APIKeysSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
 
             return null;
@@ -20775,27 +20730,25 @@ namespace social.OpenData.UsersAPI
                                     out APIKey  APIKey)
         {
 
-            var lockTaken = APIKeysSemaphore.Wait(SemaphoreSlimTimeout);
-
-            try
-            {
-                if (lockTaken && _TryGetAPIKey(APIKeyId, out APIKey apiKey))
-                {
-                    APIKey = apiKey;
-                    return true;
-                }
-            }
-            catch
-            { }
-            finally
+            if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
             {
                 try
                 {
-                    if (lockTaken)
-                        APIKeysSemaphore.Release();
+
+                    return _TryGetAPIKey(APIKeyId, out APIKey);
+
                 }
                 catch
                 { }
+                finally
+                {
+                    try
+                    {
+                        APIKeysSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
 
             APIKey = null;
@@ -20812,27 +20765,25 @@ namespace social.OpenData.UsersAPI
                                     out APIKey  APIKey)
         {
 
-            var lockTaken = APIKeysSemaphore.Wait(SemaphoreSlimTimeout);
-
-            try
-            {
-                if (lockTaken && _TryGetAPIKey(APIKeyId, out APIKey apiKey))
-                {
-                    APIKey = apiKey;
-                    return true;
-                }
-            }
-            catch
-            { }
-            finally
+            if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
             {
                 try
                 {
-                    if (lockTaken)
-                        APIKeysSemaphore.Release();
+
+                    return _TryGetAPIKey(APIKeyId, out APIKey);
+
                 }
                 catch
                 { }
+                finally
+                {
+                    try
+                    {
+                        APIKeysSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
 
             APIKey = null;
@@ -20899,24 +20850,25 @@ namespace social.OpenData.UsersAPI
                                          out APIKey  APIKey)
         {
 
-            var lockTaken = APIKeysSemaphore.Wait(SemaphoreSlimTimeout);
-
-            try
-            {
-                if (lockTaken && _TryGetValidAPIKey(APIKeyId, out APIKey))
-                    return true;
-            }
-            catch
-            { }
-            finally
+            if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
             {
                 try
                 {
-                    if (lockTaken)
-                        APIKeysSemaphore.Release();
+
+                    return _TryGetValidAPIKey(APIKeyId, out APIKey);
+
                 }
                 catch
                 { }
+                finally
+                {
+                    try
+                    {
+                        APIKeysSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
 
             APIKey = null;
@@ -20933,24 +20885,25 @@ namespace social.OpenData.UsersAPI
                                          out APIKey  APIKey)
         {
 
-            var lockTaken = APIKeysSemaphore.Wait(SemaphoreSlimTimeout);
-
-            try
-            {
-                if (lockTaken && _TryGetValidAPIKey(APIKeyId, out APIKey))
-                    return true;
-            }
-            catch
-            { }
-            finally
+            if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
             {
                 try
                 {
-                    if (lockTaken)
-                        APIKeysSemaphore.Release();
+
+                    return _TryGetValidAPIKey(APIKeyId, out APIKey);
+
                 }
                 catch
                 { }
+                finally
+                {
+                    try
+                    {
+                        APIKeysSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
 
             APIKey = null;
@@ -20981,26 +20934,25 @@ namespace social.OpenData.UsersAPI
         public IEnumerable<APIKey> GetAPIKeysForUser(User User)
         {
 
-            var lockTaken = APIKeysSemaphore.Wait(SemaphoreSlimTimeout);
-
-            try
-            {
-
-                if (lockTaken)
-                    return _GetAPIKeysForUser(User);
-
-            }
-            catch
-            { }
-            finally
+            if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
             {
                 try
                 {
-                    if (lockTaken)
-                        APIKeysSemaphore.Release();
+
+                    return _GetAPIKeysForUser(User);
+
                 }
                 catch
                 { }
+                finally
+                {
+                    try
+                    {
+                        APIKeysSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
 
             return new APIKey[0];
@@ -21030,26 +20982,25 @@ namespace social.OpenData.UsersAPI
         public IEnumerable<APIKey> GetValidAPIKeysForUser(User User)
         {
 
-            var lockTaken = APIKeysSemaphore.Wait(SemaphoreSlimTimeout);
-
-            try
-            {
-
-                if (lockTaken)
-                    return _GetValidAPIKeysForUser(User);
-
-            }
-            catch
-            { }
-            finally
+            if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
             {
                 try
                 {
-                    if (lockTaken)
-                        APIKeysSemaphore.Release();
+
+                    return _GetValidAPIKeysForUser(User);
+
                 }
                 catch
                 { }
+                finally
+                {
+                    try
+                    {
+                        APIKeysSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
 
             return new APIKey[0];
@@ -21160,43 +21111,44 @@ namespace social.OpenData.UsersAPI
                                                            User_Id?                          CurrentUserId     = null)
         {
 
-            var lockTaken        = await APIKeysSemaphore.WaitAsync(SemaphoreSlimTimeout);
-            var eventTrackingId  = EventTrackingId ?? EventTracking_Id.New;
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
-            try
+            if (await APIKeysSemaphore.WaitAsync(SemaphoreSlimTimeout))
             {
+                try
+                {
 
-                if (lockTaken)
                     return await _RemoveAPIKey(APIKey,
                                                OnRemoved,
                                                eventTrackingId,
                                                CurrentUserId);
 
-                return RemoveAPIKeyResult.Failed(APIKey,
-                                                 eventTrackingId,
-                                                 "Internal locking failed!");
-
-            }
-            catch (Exception e)
-            {
-
-                DebugX.LogException(e);
-
-                return RemoveAPIKeyResult.Failed(APIKey,
-                                                 eventTrackingId,
-                                                 e);
-
-            }
-            finally
-            {
-                try
-                {
-                    if (lockTaken)
-                        APIKeysSemaphore.Release();
                 }
-                catch
-                { }
+                catch (Exception e)
+                {
+
+                    DebugX.LogException(e);
+
+                    return RemoveAPIKeyResult.Failed(APIKey,
+                                                     eventTrackingId,
+                                                     e);
+
+                }
+                finally
+                {
+                    try
+                    {
+                        APIKeysSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
+
+
+            return RemoveAPIKeyResult.Failed(APIKey,
+                                             eventTrackingId,
+                                             "Internal locking failed!");
 
         }
 
@@ -24953,24 +24905,26 @@ namespace social.OpenData.UsersAPI
             get
             {
 
-                var lockTaken = OrganizationsSemaphore.Wait(SemaphoreSlimTimeout);
-
-                try
-                {
-                    return lockTaken
-                               ? _Organizations.Values.ToArray()
-                               : new Organization[0];
-                }
-                finally
+                if (OrganizationsSemaphore.Wait(SemaphoreSlimTimeout))
                 {
                     try
                     {
-                        if (lockTaken)
-                            OrganizationsSemaphore.Release();
+
+                        return _Organizations.Values.ToArray();
+
                     }
-                    catch
-                    { }
+                    finally
+                    {
+                        try
+                        {
+                            OrganizationsSemaphore.Release();
+                        }
+                        catch
+                        { }
+                    }
                 }
+
+                return new Organization[0];
 
             }
         }
@@ -25099,12 +25053,7 @@ namespace social.OpenData.UsersAPI
                         var AllTelegramNotifications  = this.GetTelegramNotifications(Organization, messageTypes).
                                                              ToHashSet();
 
-                        if (DevMachines.Contains(Environment.MachineName))
-                        {
-                            AllTelegramNotifications.Clear();
-                        }
-
-                        if (AllTelegramNotifications.Count > 0)
+                        if (AllTelegramNotifications.SafeAny())
                         {
 
                             if (messageTypes.Contains(addOrganization_MessageType))
@@ -25122,19 +25071,14 @@ namespace social.OpenData.UsersAPI
                                                                   AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
                             }
 
-                            if (messageTypes.Contains(deleteOrganization_MessageType))
-                            {
-                                await TelegramStore.SendTelegrams(String.Concat("Organization '", Organization.Name.FirstText(), "' has been removed. ",
-                                                                                "If you haven't approved this request, please contact support: support@cardi-link.com"),
-                                                                  AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
-                            }
+                            // deleteOrganization_MessageType
 
                         }
 
                     }
                     catch (Exception e)
                     {
-                        DebugX.Log(e.Message);
+                        DebugX.LogException(e);
                     }
                 }
 
@@ -25148,12 +25092,7 @@ namespace social.OpenData.UsersAPI
                     var AllSMSNotifications  = this.GetSMSNotifications(Organization, messageTypes).
                                                     ToHashSet();
 
-                    if (DevMachines.Contains(Environment.MachineName))
-                    {
-                        AllSMSNotifications.Clear();
-                    }
-
-                    if (AllSMSNotifications.Count > 0)
+                    if (AllSMSNotifications.SafeAny())
                     {
 
                         if (messageTypes.Contains(addOrganization_MessageType))
@@ -25173,19 +25112,14 @@ namespace social.OpenData.UsersAPI
                                     SMSSenderName);
                         }
 
-                        if (messageTypes.Contains(deleteOrganization_MessageType))
-                        {
-                            SendSMS(String.Concat("Organization '", Organization.Name.FirstText(), "' has been removed."),
-                                    AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
-                                    SMSSenderName);
-                        }
+                        // deleteOrganization_MessageType
 
                     }
 
                 }
                 catch (Exception e)
                 {
-                    DebugX.Log(e.Message);
+                    DebugX.LogException(e);
                 }
 
                 #endregion
@@ -25198,10 +25132,7 @@ namespace social.OpenData.UsersAPI
                     var AllHTTPSNotifications  = this.GetHTTPSNotifications(Organization, messageTypes).
                                                       ToHashSet();
 
-                    if (DevMachines.Contains(Environment.MachineName))
-                        AllHTTPSNotifications.Clear();
-
-                    if (AllHTTPSNotifications.Count > 0)
+                    if (AllHTTPSNotifications.SafeAny())
                     {
 
                         if (messageTypes.Contains(addOrganization_MessageType))
@@ -25230,25 +25161,14 @@ namespace social.OpenData.UsersAPI
 
                         }
 
-                        if (messageTypes.Contains(deleteOrganization_MessageType))
-                        {
-
-                            await SendHTTPSNotifications(AllHTTPSNotifications,
-                                                         new JObject(
-                                                             new JProperty("organizationRemoved",
-                                                                 Organization.ToJSON()
-                                                             ),
-                                                             new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
-                                                         ));
-
-                        }
+                        // deleteOrganization_MessageType
 
                     }
 
                 }
                 catch (Exception e)
                 {
-                    DebugX.Log(e.Message);
+                    DebugX.LogException(e);
                 }
 
                 #endregion
@@ -25263,12 +25183,7 @@ namespace social.OpenData.UsersAPI
                         var AllEMailNotifications  = this.GetEMailNotifications(Organization, messageTypes).
                                                           ToHashSet();
 
-                        if (DevMachines.Contains(Environment.MachineName))
-                        {
-                            AllEMailNotifications.Clear();
-                        }
-
-                        if (AllEMailNotifications.Count > 0)
+                        if (AllEMailNotifications.SafeAny())
                         {
 
                             if (messageTypes.Contains(addOrganization_MessageType))
@@ -25291,7 +25206,7 @@ namespace social.OpenData.UsersAPI
                                                                             "https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\r\r\r\r",
                                                                             TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
-                                             SecurityLevel  = EMailSecurity.sign
+                                             SecurityLevel  = EMailSecurity.auto
 
                                          });
 
@@ -25318,40 +25233,19 @@ namespace social.OpenData.UsersAPI
                                                                             // + {Updated information}",
                                                                             TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
-                                             SecurityLevel  = EMailSecurity.sign
+                                             SecurityLevel  = EMailSecurity.auto
 
                                          });
                             }
 
-                            if (messageTypes.Contains(deleteOrganization_MessageType))
-                            {
-                                await APISMTPClient.Send(
-                                         new HTMLEMailBuilder() {
-
-                                             From           = Robot.EMail,
-                                             To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
-                                             Passphrase     = APIPassphrase,
-                                             Subject        = String.Concat("Organization '", Organization.Name.FirstText(), "' has been removed."),
-
-                                             HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                            "Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a> has been removed.<br />",
-                                                                            HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
-
-                                             PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                            "Organization '", Organization.Name.FirstText(), "' has been removed.\r\n",
-                                                                            TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
-
-                                             SecurityLevel  = EMailSecurity.sign
-
-                                         });
-                            }
+                            // deleteOrganization_MessageType
 
                         }
 
                     }
                     catch (Exception e)
                     {
-                        DebugX.Log(e.Message);
+                        DebugX.LogException(e);
                     }
                 }
 
@@ -25415,7 +25309,7 @@ namespace social.OpenData.UsersAPI
         public event OnOrganizationAddedDelegate OnOrganizationAdded;
 
 
-        #region (protected internal) _AddOrganization(Organization,                     OnAdded = null, CurrentUserId = null)
+        #region (protected internal) _AddOrganization(Organization,                            OnAdded = null, CurrentUserId = null)
 
         /// <summary>
         /// Add the given organization to the API.
@@ -25500,7 +25394,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddOrganization                      (Organization, ParentOrganization, OnAdded = null, CurrentUserId = null)
+        #region AddOrganization                      (Organization, ParentOrganization = null, OnAdded = null, CurrentUserId = null)
 
         /// <summary>
         /// Add the given organization and add him/her to the given organization.
@@ -25511,19 +25405,17 @@ namespace social.OpenData.UsersAPI
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional organization identification initiating this command/request.</param>
         public async Task<AddOrganizationResult> AddOrganization(Organization                            Organization,
-                                                                 Organization                            ParentOrganization,
+                                                                 Organization                            ParentOrganization   = null,
                                                                  Action<Organization, EventTracking_Id>  OnAdded              = null,
                                                                  EventTracking_Id                        EventTrackingId      = null,
                                                                  User_Id?                                CurrentUserId        = null)
         {
 
-            var lockTaken        = await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout);
-            var eventTrackingId  = EventTrackingId ?? EventTracking_Id.New;
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
-            try
+            if (await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout))
             {
-
-                if (lockTaken)
+                try
                 {
 
                     if (ParentOrganization is null)
@@ -25586,34 +25478,33 @@ namespace social.OpenData.UsersAPI
                     return result;
 
                 }
-
-                return AddOrganizationResult.Failed(Organization,
-                                                    eventTrackingId,
-                                                    "Internal locking failed!",
-                                                    ParentOrganization);
-
-            }
-            catch (Exception e)
-            {
-
-                DebugX.LogException(e);
-
-                return AddOrganizationResult.Failed(Organization,
-                                                    eventTrackingId,
-                                                    e,
-                                                    ParentOrganization);
-
-            }
-            finally
-            {
-                try
+                catch (Exception e)
                 {
-                    if (lockTaken)
-                        OrganizationsSemaphore.Release();
+
+                    DebugX.LogException(e);
+
+                    return AddOrganizationResult.Failed(Organization,
+                                                        eventTrackingId,
+                                                        e,
+                                                        ParentOrganization);
+
                 }
-                catch
-                { }
+                finally
+                {
+                    try
+                    {
+                        OrganizationsSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
+
             }
+
+            return AddOrganizationResult.Failed(Organization,
+                                                eventTrackingId,
+                                                "Internal locking failed!",
+                                                ParentOrganization);
 
         }
 
@@ -25725,13 +25616,11 @@ namespace social.OpenData.UsersAPI
                                                                                        User_Id?                                CurrentUserId     = null)
         {
 
-            var lockTaken        = await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout);
-            var eventTrackingId  = EventTrackingId ?? EventTracking_Id.New;
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
-            try
+            if (await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout))
             {
-
-                if (lockTaken)
+                try
                 {
 
                     if (ParentOrganization is null)
@@ -25795,33 +25684,32 @@ namespace social.OpenData.UsersAPI
                     return result;
 
                 }
-
-                return AddOrganizationIfNotExistsResult.Failed(Organization,
-                                                               eventTrackingId,
-                                                               "Internal locking failed!",
-                                                               ParentOrganization);
-
-            }
-            catch (Exception e)
-            {
-
-                DebugX.LogException(e);
-
-                return AddOrganizationIfNotExistsResult.Failed(Organization,
-                                                               eventTrackingId,
-                                                               e);
-
-            }
-            finally
-            {
-                try
+                catch (Exception e)
                 {
-                    if (lockTaken)
-                        OrganizationsSemaphore.Release();
+
+                    DebugX.LogException(e);
+
+                    return AddOrganizationIfNotExistsResult.Failed(Organization,
+                                                                   eventTrackingId,
+                                                                   e);
+
                 }
-                catch
-                { }
+                finally
+                {
+                    try
+                    {
+                        OrganizationsSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
+
             }
+
+            return AddOrganizationIfNotExistsResult.Failed(Organization,
+                                                           eventTrackingId,
+                                                           "Internal locking failed!",
+                                                           ParentOrganization);
 
         }
 
@@ -25967,44 +25855,44 @@ namespace social.OpenData.UsersAPI
                                                                                  User_Id?                                CurrentUserId     = null)
         {
 
-            var lockTaken        = await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout);
-            var eventTrackingId  = EventTrackingId ?? EventTracking_Id.New;
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
-            try
+            if (await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout))
             {
+                try
+                {
 
-                if (lockTaken)
                     return await _AddOrUpdateOrganization(Organization,
                                                           OnAdded,
                                                           OnUpdated,
                                                           eventTrackingId,
                                                           CurrentUserId);
 
-                return AddOrUpdateOrganizationResult.Failed(Organization,
-                                                            eventTrackingId,
-                                                            "Internal locking failed!");
-
-            }
-            catch (Exception e)
-            {
-
-                DebugX.LogException(e);
-
-                return AddOrUpdateOrganizationResult.Failed(Organization,
-                                                            eventTrackingId,
-                                                            e);
-
-            }
-            finally
-            {
-                try
-                {
-                    if (lockTaken)
-                        OrganizationsSemaphore.Release();
                 }
-                catch
-                { }
+                catch (Exception e)
+                {
+
+                    DebugX.LogException(e);
+
+                    return AddOrUpdateOrganizationResult.Failed(Organization,
+                                                                eventTrackingId,
+                                                                e);
+
+                }
+                finally
+                {
+                    try
+                    {
+                        OrganizationsSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
+
+            return AddOrUpdateOrganizationResult.Failed(Organization,
+                                                        eventTrackingId,
+                                                        "Internal locking failed!");
 
         }
 
@@ -26029,13 +25917,11 @@ namespace social.OpenData.UsersAPI
                                                                                  User_Id?                                CurrentUserId     = null)
         {
 
-            var lockTaken        = await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout);
-            var eventTrackingId  = EventTrackingId ?? EventTracking_Id.New;
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
-            try
+            if (await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout))
             {
-
-                if (lockTaken)
+                try
                 {
 
                     if (ParentOrganization is null)
@@ -26102,33 +25988,32 @@ namespace social.OpenData.UsersAPI
                     return result;
 
                 }
-
-                return AddOrUpdateOrganizationResult.Failed(Organization,
-                                                            eventTrackingId,
-                                                            "Internal locking failed!",
-                                                            ParentOrganization);
-
-            }
-            catch (Exception e)
-            {
-
-                DebugX.LogException(e);
-
-                return AddOrUpdateOrganizationResult.Failed(Organization,
-                                                            eventTrackingId,
-                                                            e);
-
-            }
-            finally
-            {
-                try
+                catch (Exception e)
                 {
-                    if (lockTaken)
-                        OrganizationsSemaphore.Release();
+
+                    DebugX.LogException(e);
+
+                    return AddOrUpdateOrganizationResult.Failed(Organization,
+                                                                eventTrackingId,
+                                                                e);
+
                 }
-                catch
-                { }
+                finally
+                {
+                    try
+                    {
+                        OrganizationsSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
+
             }
+
+            return AddOrUpdateOrganizationResult.Failed(Organization,
+                                                        eventTrackingId,
+                                                        "Internal locking failed!",
+                                                        ParentOrganization);
 
         }
 
@@ -26244,43 +26129,43 @@ namespace social.OpenData.UsersAPI
                                                                        User_Id?                                CurrentUserId     = null)
         {
 
-            var lockTaken        = await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout);
-            var eventTrackingId  = EventTrackingId ?? EventTracking_Id.New;
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
-            try
+            if (await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout))
             {
+                try
+                {
 
-                if (lockTaken)
                     return await _UpdateOrganization(Organization,
                                                      OnUpdated,
                                                      eventTrackingId,
                                                      CurrentUserId);
 
-                return UpdateOrganizationResult.Failed(Organization,
-                                                       eventTrackingId,
-                                                       "Internal locking failed!");
-
-            }
-            catch (Exception e)
-            {
-
-                DebugX.LogException(e);
-
-                return UpdateOrganizationResult.Failed(Organization,
-                                                       eventTrackingId,
-                                                       e);
-
-            }
-            finally
-            {
-                try
-                {
-                    if (lockTaken)
-                        OrganizationsSemaphore.Release();
                 }
-                catch
-                { }
+                catch (Exception e)
+                {
+
+                    DebugX.LogException(e);
+
+                    return UpdateOrganizationResult.Failed(Organization,
+                                                           eventTrackingId,
+                                                           e);
+
+                }
+                finally
+                {
+                    try
+                    {
+                        OrganizationsSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
+
+            return UpdateOrganizationResult.Failed(Organization,
+                                                   eventTrackingId,
+                                                   "Internal locking failed!");
 
         }
 
@@ -26385,44 +26270,44 @@ namespace social.OpenData.UsersAPI
                                                                        User_Id?                                CurrentUserId     = null)
         {
 
-            var lockTaken        = await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout);
-            var eventTrackingId  = EventTrackingId ?? EventTracking_Id.New;
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
-            try
+            if (await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout))
             {
+                try
+                {
 
-                if (lockTaken)
                     return await _UpdateOrganization(Organization,
                                                      UpdateDelegate,
                                                      OnUpdated,
                                                      eventTrackingId,
                                                      CurrentUserId);
 
-                return UpdateOrganizationResult.Failed(Organization,
-                                                       eventTrackingId,
-                                                       "Internal locking failed!");
-
-            }
-            catch (Exception e)
-            {
-
-                DebugX.LogException(e);
-
-                return UpdateOrganizationResult.Failed(Organization,
-                                                       eventTrackingId,
-                                                       e);
-
-            }
-            finally
-            {
-                try
-                {
-                    if (lockTaken)
-                        OrganizationsSemaphore.Release();
                 }
-                catch
-                { }
+                catch (Exception e)
+                {
+
+                    DebugX.LogException(e);
+
+                    return UpdateOrganizationResult.Failed(Organization,
+                                                           eventTrackingId,
+                                                           e);
+
+                }
+                finally
+                {
+                    try
+                    {
+                        OrganizationsSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
+
+            return UpdateOrganizationResult.Failed(Organization,
+                                                   eventTrackingId,
+                                                   "Internal locking failed!");
 
         }
 
@@ -26457,24 +26342,25 @@ namespace social.OpenData.UsersAPI
         public Boolean OrganizationExists(Organization_Id OrganizationId)
         {
 
-            var lockTaken = OrganizationsSemaphore.Wait(SemaphoreSlimTimeout);
-
-            try
-            {
-                if (lockTaken && _OrganizationExists(OrganizationId))
-                    return true;
-            }
-            catch
-            { }
-            finally
+            if (OrganizationsSemaphore.Wait(SemaphoreSlimTimeout))
             {
                 try
                 {
-                    if (lockTaken)
-                        OrganizationsSemaphore.Release();
+
+                    return _OrganizationExists(OrganizationId);
+
                 }
                 catch
                 { }
+                finally
+                {
+                    try
+                    {
+                        OrganizationsSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
 
             return false;
@@ -26488,24 +26374,25 @@ namespace social.OpenData.UsersAPI
         public Boolean OrganizationExists(Organization_Id? OrganizationId)
         {
 
-            var lockTaken = OrganizationsSemaphore.Wait(SemaphoreSlimTimeout);
-
-            try
-            {
-                if (lockTaken && _OrganizationExists(OrganizationId))
-                    return true;
-            }
-            catch
-            { }
-            finally
+            if (OrganizationsSemaphore.Wait(SemaphoreSlimTimeout))
             {
                 try
                 {
-                    if (lockTaken)
-                        OrganizationsSemaphore.Release();
+
+                    return _OrganizationExists(OrganizationId);
+
                 }
                 catch
                 { }
+                finally
+                {
+                    try
+                    {
+                        OrganizationsSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
 
             return false;
@@ -26552,24 +26439,25 @@ namespace social.OpenData.UsersAPI
         public Organization GetOrganization(Organization_Id OrganizationId)
         {
 
-            var lockTaken = OrganizationsSemaphore.Wait(SemaphoreSlimTimeout);
-
-            try
-            {
-                if (lockTaken)
-                    return _GetOrganization(OrganizationId);
-            }
-            catch
-            { }
-            finally
+            if (OrganizationsSemaphore.Wait(SemaphoreSlimTimeout))
             {
                 try
                 {
-                    if (lockTaken)
-                        OrganizationsSemaphore.Release();
+
+                    return _GetOrganization(OrganizationId);
+
                 }
                 catch
                 { }
+                finally
+                {
+                    try
+                    {
+                        OrganizationsSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
 
             return null;
@@ -26583,24 +26471,25 @@ namespace social.OpenData.UsersAPI
         public Organization GetOrganization(Organization_Id? OrganizationId)
         {
 
-            var lockTaken = OrganizationsSemaphore.Wait(SemaphoreSlimTimeout);
-
-            try
-            {
-                if (lockTaken)
-                    return _GetOrganization(OrganizationId);
-            }
-            catch
-            { }
-            finally
+            if (OrganizationsSemaphore.Wait(SemaphoreSlimTimeout))
             {
                 try
                 {
-                    if (lockTaken)
-                        OrganizationsSemaphore.Release();
+
+                    return _GetOrganization(OrganizationId);
+
                 }
                 catch
                 { }
+                finally
+                {
+                    try
+                    {
+                        OrganizationsSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
 
             return null;
@@ -26661,27 +26550,25 @@ namespace social.OpenData.UsersAPI
                                           out Organization  Organization)
         {
 
-            var lockTaken = OrganizationsSemaphore.Wait(SemaphoreSlimTimeout);
-
-            try
-            {
-                if (lockTaken && _TryGetOrganization(OrganizationId, out Organization organization))
-                {
-                    Organization = organization;
-                    return true;
-                }
-            }
-            catch
-            { }
-            finally
+            if (OrganizationsSemaphore.Wait(SemaphoreSlimTimeout))
             {
                 try
                 {
-                    if (lockTaken)
-                        OrganizationsSemaphore.Release();
+
+                    return _TryGetOrganization(OrganizationId, out Organization);
+
                 }
                 catch
                 { }
+                finally
+                {
+                    try
+                    {
+                        OrganizationsSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
 
             Organization = null;
@@ -26698,29 +26585,25 @@ namespace social.OpenData.UsersAPI
                                           out Organization  Organization)
         {
 
-            var lockTaken = OrganizationsSemaphore.Wait(SemaphoreSlimTimeout);
-
-            try
-            {
-
-                if (lockTaken && _TryGetOrganization(OrganizationId, out Organization organization))
-                {
-                    Organization = organization;
-                    return true;
-                }
-
-            }
-            catch
-            { }
-            finally
+            if (OrganizationsSemaphore.Wait(SemaphoreSlimTimeout))
             {
                 try
                 {
-                    if (lockTaken)
-                        OrganizationsSemaphore.Release();
+
+                    return _TryGetOrganization(OrganizationId, out Organization);
+
                 }
                 catch
                 { }
+                finally
+                {
+                    try
+                    {
+                        OrganizationsSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
 
             Organization = null;
@@ -26764,24 +26647,25 @@ namespace social.OpenData.UsersAPI
         public IEnumerable<Organization> SearchOrganizationsByName(I18NString OrganizationName)
         {
 
-            var lockTaken = OrganizationsSemaphore.Wait(SemaphoreSlimTimeout);
-
-            try
-            {
-                if (lockTaken)
-                    return _SearchOrganizationsByName(OrganizationName);
-            }
-            catch
-            { }
-            finally
+            if (OrganizationsSemaphore.Wait(SemaphoreSlimTimeout))
             {
                 try
                 {
-                    if (lockTaken)
-                        OrganizationsSemaphore.Release();
+
+                    return _SearchOrganizationsByName(OrganizationName);
+
                 }
                 catch
                 { }
+                finally
+                {
+                    try
+                    {
+                        OrganizationsSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
 
             return new Organization[0];
@@ -26797,25 +26681,26 @@ namespace social.OpenData.UsersAPI
                                                                    Boolean  IgnoreCase = false)
         {
 
-            var lockTaken = OrganizationsSemaphore.Wait(SemaphoreSlimTimeout);
-
-            try
-            {
-                if (lockTaken)
-                    return _SearchOrganizationsByName(OrganizationName,
-                                                      IgnoreCase);
-            }
-            catch
-            { }
-            finally
+            if (OrganizationsSemaphore.Wait(SemaphoreSlimTimeout))
             {
                 try
                 {
-                    if (lockTaken)
-                        OrganizationsSemaphore.Release();
+
+                    return _SearchOrganizationsByName(OrganizationName,
+                                                      IgnoreCase);
+
                 }
                 catch
                 { }
+                finally
+                {
+                    try
+                    {
+                        OrganizationsSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
 
             return new Organization[0];
@@ -26880,28 +26765,25 @@ namespace social.OpenData.UsersAPI
                                                     out IEnumerable<Organization>  Organizations)
         {
 
-            try
-            {
-
-                if (OrganizationsSemaphore.Wait(SemaphoreSlimTimeout) &&
-                    _TrySearchOrganizationsByName(OrganizationName,
-                                                  out IEnumerable<Organization> organizations))
-                {
-                    Organizations = organizations;
-                    return true;
-                }
-
-            }
-            catch
-            { }
-            finally
+            if (OrganizationsSemaphore.Wait(SemaphoreSlimTimeout))
             {
                 try
                 {
-                    OrganizationsSemaphore.Release();
+
+                    return _TrySearchOrganizationsByName(OrganizationName, out Organizations);
+
                 }
                 catch
                 { }
+                finally
+                {
+                    try
+                    {
+                        OrganizationsSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
 
             Organizations = null;
@@ -26919,29 +26801,27 @@ namespace social.OpenData.UsersAPI
                                                     Boolean                        IgnoreCase = false)
         {
 
-            try
-            {
-
-                if (OrganizationsSemaphore.Wait(SemaphoreSlimTimeout) &&
-                    _TrySearchOrganizationsByName(OrganizationName,
-                                                  out IEnumerable<Organization> organizations,
-                                                  IgnoreCase))
-                {
-                    Organizations = organizations;
-                    return true;
-                }
-
-            }
-            catch
-            { }
-            finally
+            if (OrganizationsSemaphore.Wait(SemaphoreSlimTimeout))
             {
                 try
                 {
-                    OrganizationsSemaphore.Release();
+
+                    return _TrySearchOrganizationsByName(OrganizationName,
+                                                         out Organizations,
+                                                         IgnoreCase);
+
                 }
                 catch
                 { }
+                finally
+                {
+                    try
+                    {
+                        OrganizationsSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
 
             Organizations = null;
@@ -27037,22 +26917,35 @@ namespace social.OpenData.UsersAPI
                                                        result);
 
 
+            // Get all parent organizations now, because later
+            // the --isChildOf--> edge will no longer be available!
+            var parentOrganizations = Organization.GetAllParents(parent => parent != NoOwner).
+                                                   ToArray();
+
+
+            // Remove all: this --edge--> other_organization
+            foreach (var edge in Organization.Organization2OrganizationOutEdges.ToArray())
+                await _UnlinkOrganizations(edge.Source,
+                                           edge.EdgeLabel,
+                                           edge.Target,
+                                           EventTrackingId,
+                                           SuppressNotifications:  false,
+                                           CurrentUserId:          CurrentUserId);
+
+            // Remove all: this <--edge-- other_organization
+            foreach (var edge in Organization.Organization2OrganizationInEdges.ToArray())
+                await _UnlinkOrganizations(edge.Target,
+                                           edge.EdgeLabel,
+                                           edge.Source,
+                                           EventTrackingId,
+                                           SuppressNotifications:  false,
+                                           CurrentUserId:          CurrentUserId);
+
+
             await WriteToDatabaseFile(deleteOrganization_MessageType,
                                       Organization.ToJSON(false, true),
                                       eventTrackingId,
                                       CurrentUserId);
-
-            // this --edge--> other_organization
-            foreach (var edge in Organization.Organization2OrganizationOutEdges)
-                edge.Target.RemoveInEdge(edge);
-
-            // this <--edge-- other_organization
-            foreach (var edge in Organization.Organization2OrganizationInEdges)
-                edge.Source.RemoveOutEdge(edge);
-
-            // this <--edge-- user
-            foreach (var edge in Organization.User2OrganizationEdges)
-                edge.Source.RemoveOutEdge(edge);
 
             _Organizations.Remove(Organization.Id);
 
@@ -27066,11 +26959,130 @@ namespace social.OpenData.UsersAPI
                                                          eventTrackingId,
                                                          CurrentUserId);
 
-            await SendNotifications(Organization,
-                                    deleteOrganization_MessageType,
-                                    null,
-                                    eventTrackingId,
-                                    CurrentUserId);
+
+            // Special handling of the 'deleteOrganization' notifications...
+            if (!DisableNotifications)
+            {
+
+                #region Telegram Notifications
+
+                if (TelegramStore != null)
+                {
+                    try
+                    {
+
+                        var AllTelegramNotifications  = parentOrganizations.
+                                                            SelectMany(parent => parent.User2OrganizationEdges).
+                                                            SelectMany(edge   => _GetNotificationsOf<TelegramNotification>(edge.Source.Id, deleteOrganization_MessageType)).
+                                                            ToHashSet();
+
+                        if (AllTelegramNotifications.SafeAny())
+                            await TelegramStore.SendTelegrams(String.Concat("Organization '", Organization.Name.FirstText(), "' has been removed. ",
+                                                                            "If you haven't approved this request, please contact support: support@cardi-link.com"),
+                                                              AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
+
+                    }
+                    catch (Exception e)
+                    {
+                        DebugX.LogException(e);
+                    }
+                }
+
+                #endregion
+
+                #region SMS Notifications
+
+                try
+                {
+
+                    var AllSMSNotifications = parentOrganizations.
+                                                  SelectMany(parent => parent.User2OrganizationEdges).
+                                                  SelectMany(edge   => _GetNotificationsOf<SMSNotification>(edge.Source.Id, deleteOrganization_MessageType)).
+                                                  ToHashSet();
+
+                    if (AllSMSNotifications.SafeAny())
+                        SendSMS(String.Concat("Organization '", Organization.Name.FirstText(), "' has been removed."),
+                                AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
+                                SMSSenderName);
+
+                }
+                catch (Exception e)
+                {
+                    DebugX.LogException(e);
+                }
+
+                #endregion
+
+                #region HTTPS Notifications
+
+                try
+                {
+
+                    var AllHTTPSNotifications = parentOrganizations.
+                                                    SelectMany(parent => parent.User2OrganizationEdges).
+                                                    SelectMany(edge   => _GetNotificationsOf<HTTPSNotification>(edge.Source.Id, deleteOrganization_MessageType)).
+                                                    ToHashSet();
+
+                    if (AllHTTPSNotifications.SafeAny())
+                        await SendHTTPSNotifications(AllHTTPSNotifications,
+                                                     new JObject(
+                                                         new JProperty("organizationRemoved",
+                                                             Organization.ToJSON()
+                                                         ),
+                                                         new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                                                     ));
+
+                }
+                catch (Exception e)
+                {
+                    DebugX.LogException(e);
+                }
+
+                #endregion
+
+                #region EMailNotifications
+
+                if (APISMTPClient != null)
+                {
+                    try
+                    {
+
+                        var AllEMailNotifications = parentOrganizations.
+                                                    SelectMany(parent => parent.User2OrganizationEdges).
+                                                    SelectMany(edge   => _GetNotificationsOf<EMailNotification>(edge.Source.Id, deleteOrganization_MessageType)).
+                                                    ToHashSet();
+
+                        if (AllEMailNotifications.SafeAny())
+                            await APISMTPClient.Send(
+                                     new HTMLEMailBuilder() {
+
+                                         From           = Robot.EMail,
+                                         To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
+                                         Passphrase     = APIPassphrase,
+                                         Subject        = String.Concat("Organization '", Organization.Name.FirstText(), "' has been removed."),
+
+                                         HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
+                                                                        "Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a> has been removed.<br />",
+                                                                        HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
+
+                                         PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
+                                                                        "Organization '", Organization.Name.FirstText(), "' has been removed.\r\n",
+                                                                        TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
+
+                                         SecurityLevel  = EMailSecurity.auto
+
+                                     });
+
+                    }
+                    catch (Exception e)
+                    {
+                        DebugX.LogException(e);
+                    }
+                }
+
+                #endregion
+
+            }
 
             return DeleteOrganizationResult.Success(Organization,
                                                     eventTrackingId);
@@ -27094,43 +27106,44 @@ namespace social.OpenData.UsersAPI
                                                                        User_Id?                                CurrentUserId     = null)
         {
 
-            var lockTaken        = await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout);
-            var eventTrackingId  = EventTrackingId ?? EventTracking_Id.New;
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
-            try
+            if (await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout))
             {
+                try
+                {
 
-                if (lockTaken)
                     return await _DeleteOrganization(Organization,
                                                      OnDeleted,
                                                      eventTrackingId,
                                                      CurrentUserId);
 
-                return DeleteOrganizationResult.Failed(Organization,
-                                                       eventTrackingId,
-                                                       "Internal locking failed!");
-
-            }
-            catch (Exception e)
-            {
-
-                DebugX.LogException(e);
-
-                return DeleteOrganizationResult.Failed(Organization,
-                                                       eventTrackingId,
-                                                       e);
-
-            }
-            finally
-            {
-                try
-                {
-                    if (lockTaken)
-                        OrganizationsSemaphore.Release();
                 }
-                catch
-                { }
+                catch (Exception e)
+                {
+
+                    DebugX.LogException(e);
+
+                    return DeleteOrganizationResult.Failed(Organization,
+                                                           eventTrackingId,
+                                                           e);
+
+                }
+                finally
+                {
+                    try
+                    {
+                        OrganizationsSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
+
             }
+
+            return DeleteOrganizationResult.Failed(Organization,
+                                                   eventTrackingId,
+                                                   "Internal locking failed!");
 
         }
 
@@ -28414,6 +28427,102 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
+        #region Users         <> UserGroups
+
+        #region AddUserToUserGroup(User, Edge, UserGroup, EventTrackingId = null, CurrentUserId = null)
+
+        public async Task<AddUserToUserGroupResult> AddUserToUserGroup(User                     User,
+                                                                       User2UserGroupEdgeTypes  EdgeLabel,
+                                                                       UserGroup                UserGroup,
+                                                                       EventTracking_Id         EventTrackingId   = null,
+                                                                       User_Id?                 CurrentUserId     = null)
+
+        {
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            if (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout))
+            {
+                if (await UserGroupsSemaphore.WaitAsync(SemaphoreSlimTimeout))
+                {
+                    try
+                    {
+
+                        var updated = false;
+
+                        if (!User.OutEdges(UserGroup).Any(edgeLabel => edgeLabel == EdgeLabel))
+                        {
+                            User.AddOutgoingEdge(EdgeLabel, UserGroup);
+                            updated = true;
+                        }
+
+                        if (!UserGroup.InEdges(User).Any(edgeLabel => edgeLabel == EdgeLabel))
+                        {
+                            UserGroup.AddIncomingEdge(User, EdgeLabel);
+                            updated = true;
+                        }
+
+                        if (updated)
+                            await WriteToDatabaseFile(addUserToUserGroup_MessageType,
+                                                      new JObject(
+                                                          new JProperty("user",  User.Id.  ToString()),
+                                                          new JProperty("edge",  EdgeLabel.ToString()),
+                                                          new JProperty("group", UserGroup.ToString())
+                                                      ),
+                                                      eventTrackingId,
+                                                      CurrentUserId);
+
+                        return AddUserToUserGroupResult.Success(User,
+                                                                EdgeLabel,
+                                                                UserGroup,
+                                                                eventTrackingId);
+
+                    }
+                    catch (Exception e)
+                    {
+
+                        DebugX.LogException(e);
+
+                        return AddUserToUserGroupResult.Failed(User,
+                                                               EdgeLabel,
+                                                               UserGroup,
+                                                               eventTrackingId,
+                                                               e);
+
+                    }
+                    finally
+                    {
+                        try
+                        {
+                            UserGroupsSemaphore.Release();
+                        }
+                        catch
+                        { }
+
+                        try
+                        {
+                            UsersSemaphore.Release();
+                        }
+                        catch
+                        { }
+                    }
+                }
+                else
+                    UsersSemaphore.Release();
+            }
+
+            return AddUserToUserGroupResult.Failed(User,
+                                                   EdgeLabel,
+                                                   UserGroup,
+                                                   eventTrackingId,
+                                                   "Internal locking failed!");
+
+        }
+
+        #endregion
+
+        #endregion
+
         #region Users         <> Organizations
 
         #region (private) CheckImpersonate(currentOrg, Astronaut, AstronautFound, Member, VetoUsers)
@@ -28556,39 +28665,45 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (protected internal) SendNotifications      (User, EdgeLabel, Organization, MessageType, EventTrackingId = null, CurrentUserId = null)
+        #region (protected internal) SendNotifications      (User, EdgeLabel, Organization, MessageType(s), EventTrackingId = null, CurrentUserId = null)
 
-        protected internal async virtual Task SendNotifications(User                        User,
-                                                                User2OrganizationEdgeTypes  EdgeLabel,
-                                                                Organization                Organization,
-                                                                NotificationMessageType     MessageType,
-                                                                EventTracking_Id            EventTrackingId   = null,
-                                                                User_Id?                    CurrentUserId     = null)
+        protected internal virtual Task SendNotifications(User                        User,
+                                                          User2OrganizationEdgeTypes  EdgeLabel,
+                                                          Organization                Organization,
+                                                          NotificationMessageType     MessageType,
+                                                          EventTracking_Id            EventTrackingId   = null,
+                                                          User_Id?                    CurrentUserId     = null)
+
+            => SendNotifications(User,
+                                 EdgeLabel,
+                                 Organization,
+                                 new NotificationMessageType[] { MessageType },
+                                 EventTrackingId,
+                                 CurrentUserId);
+
+
+        protected internal async virtual Task SendNotifications(User                                  User,
+                                                                User2OrganizationEdgeTypes            EdgeLabel,
+                                                                Organization                          Organization,
+                                                                IEnumerable<NotificationMessageType>  MessageTypes,
+                                                                EventTracking_Id                      EventTrackingId   = null,
+                                                                User_Id?                              CurrentUserId     = null)
         {
 
-            if (Organization is null || User is null)
+            if (User is null || Organization is null || MessageTypes is null || !MessageTypes.Any())
                 return;
 
-            var _MessageTypes = new HashSet<NotificationMessageType>() { MessageType };
-
-            //if (MessageType == addOrganizationIfNotExists_MessageType)
-            //{
-            //    _MessageTypes.Add(addOrganization_MessageType);
-            //}
-
-            //else if (MessageType == addOrUpdateOrganization_MessageType)
-            //{
-            //    if (OldOrganization == null)
-            //        _MessageTypes.Add(addOrganization_MessageType);
-            //    else
-            //        _MessageTypes.Add(updateOrganization_MessageType);
-            //}
-
-            var MessageTypes = _MessageTypes.ToArray();
-
+            var messageTypes = MessageTypes.ToArray();
 
             if (!DisableNotifications)
             {
+
+                var membership = EdgeLabel switch {
+                    User2OrganizationEdgeTypes.IsAdmin  => " as admin",
+                    User2OrganizationEdgeTypes.IsMember => " as member",
+                    User2OrganizationEdgeTypes.IsGuest  => " as guest",
+                    _                                   => ""
+                };
 
                 #region Telegram Notifications
 
@@ -28597,35 +28712,26 @@ namespace social.OpenData.UsersAPI
                     try
                     {
 
-                        var AllTelegramNotifications  = this.GetTelegramNotifications(Organization, MessageTypes).
+                        var AllTelegramNotifications  = this.GetTelegramNotifications(Organization, messageTypes).
                                                              ToHashSet();
 
-                        if (DevMachines.Contains(Environment.MachineName))
-                        {
-                            AllTelegramNotifications.Clear();
-                        }
-
-                        if (AllTelegramNotifications.Count > 0)
+                        if (AllTelegramNotifications.SafeAny())
                         {
 
-                            if (_MessageTypes.Contains(addUserToOrganization_MessageType))
-                            {
-                                await TelegramStore.SendTelegrams(String.Concat("User '", User.Name, "' was added to organization '", Organization.Name.FirstText(), "'."),
+                            if (MessageTypes.Contains(addUserToOrganization_MessageType))
+                                await TelegramStore.SendTelegrams(String.Concat("User '", User.Name, "' was added to organization '", Organization.Name.FirstText(), "'" + membership + "."),
                                                                   AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
-                            }
 
-                            if (_MessageTypes.Contains(removeUserFromOrganization_MessageType))
-                            {
+                            if (MessageTypes.Contains(removeUserFromOrganization_MessageType))
                                 await TelegramStore.SendTelegrams(String.Concat("User '", User.Name, "' was removed from organization '", Organization.Name.FirstText(), "'."),
                                                                   AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
-                            }
 
                         }
 
                     }
                     catch (Exception e)
                     {
-                        DebugX.Log(e.Message);
+                        DebugX.LogException(e);
                     }
                 }
 
@@ -28636,37 +28742,28 @@ namespace social.OpenData.UsersAPI
                 try
                 {
 
-                    var AllSMSNotifications  = this.GetSMSNotifications(Organization, MessageTypes).
+                    var AllSMSNotifications  = this.GetSMSNotifications(Organization, messageTypes).
                                                     ToHashSet();
 
-                    if (DevMachines.Contains(Environment.MachineName))
-                    {
-                        AllSMSNotifications.Clear();
-                    }
-
-                    if (AllSMSNotifications.Count > 0)
+                    if (AllSMSNotifications.SafeAny())
                     {
 
-                        if (_MessageTypes.Contains(addUserToOrganization_MessageType))
-                        {
-                            SendSMS(String.Concat("User '", User.Name, "' was added to organization '", Organization.Name.FirstText(), "'."),
+                        if (MessageTypes.Contains(addUserToOrganization_MessageType))
+                            SendSMS(String.Concat("User '", User.Name, "' was added to organization '", Organization.Name.FirstText(), "'" + membership + "."),
                                     AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
                                     SMSSenderName);
-                        }
 
-                        if (_MessageTypes.Contains(removeUserFromOrganization_MessageType))
-                        {
+                        if (MessageTypes.Contains(removeUserFromOrganization_MessageType))
                             SendSMS(String.Concat("User '", User.Name, "' was removed from organization '", Organization.Name.FirstText(), "'."),
                                     AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
                                     SMSSenderName);
-                        }
 
                     }
 
                 }
                 catch (Exception e)
                 {
-                    DebugX.Log(e.Message);
+                    DebugX.LogException(e);
                 }
 
                 #endregion
@@ -28676,18 +28773,13 @@ namespace social.OpenData.UsersAPI
                 try
                 {
 
-                    var AllHTTPSNotifications  = this.GetHTTPSNotifications(Organization, MessageTypes).
+                    var AllHTTPSNotifications  = this.GetHTTPSNotifications(Organization, messageTypes).
                                                       ToHashSet();
 
-                    if (DevMachines.Contains(Environment.MachineName))
-                        AllHTTPSNotifications.Clear();
-
-                    if (AllHTTPSNotifications.Count > 0)
+                    if (AllHTTPSNotifications.SafeAny())
                     {
 
-                        if (_MessageTypes.Contains(addUserToOrganization_MessageType))
-                        {
-
+                        if (MessageTypes.Contains(addUserToOrganization_MessageType))
                             await SendHTTPSNotifications(AllHTTPSNotifications,
                                                          new JObject(
                                                              new JProperty("addUserToOrganization",
@@ -28699,11 +28791,7 @@ namespace social.OpenData.UsersAPI
                                                              new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
                                                          ));
 
-                        }
-
-                        if (_MessageTypes.Contains(removeUserFromOrganization_MessageType))
-                        {
-
+                        if (MessageTypes.Contains(removeUserFromOrganization_MessageType))
                             await SendHTTPSNotifications(AllHTTPSNotifications,
                                                          new JObject(
                                                              new JProperty("removeUserFromOrganization",
@@ -28715,14 +28803,12 @@ namespace social.OpenData.UsersAPI
                                                              new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
                                                          ));
 
-                        }
-
                     }
 
                 }
                 catch (Exception e)
                 {
-                    DebugX.Log(e.Message);
+                    DebugX.LogException(e);
                 }
 
                 #endregion
@@ -28732,26 +28818,20 @@ namespace social.OpenData.UsersAPI
                 try
                 {
 
-                    var AllEMailNotifications  = this.GetEMailNotifications(Organization, MessageTypes).
+                    var AllEMailNotifications  = this.GetEMailNotifications(Organization, messageTypes).
                                                       ToHashSet();
 
-                    if (DevMachines.Contains(Environment.MachineName))
-                    {
-                        AllEMailNotifications.Clear();
-                    }
-
-                    if (AllEMailNotifications.Count > 0)
+                    if (AllEMailNotifications.SafeAny())
                     {
 
-                        if (_MessageTypes.Contains(addUserToOrganization_MessageType))
-                        {
+                        if (MessageTypes.Contains(addUserToOrganization_MessageType))
                             await APISMTPClient.Send(
                                      new HTMLEMailBuilder() {
 
                                          From           = Robot.EMail,
                                          To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
                                          Passphrase     = APIPassphrase,
-                                         Subject        = String.Concat("User '", User.Name, "' was added to organization '", Organization.Name.FirstText(), "'."),
+                                         Subject        = String.Concat("User '", User.Name, "' was added to organization '", Organization.Name.FirstText(), "'" + membership + "."),
 
                                          HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
                                                                         "User <a href=\"https://", this.ExternalDNSName, this.BasePath, "/users/", User.Id, "\">", User.Name, "</a> has been added to organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a>.<br />",
@@ -28761,13 +28841,11 @@ namespace social.OpenData.UsersAPI
                                                                         "User '" + User.Name + "' has been added to organization '", Organization.Name.FirstText(), "'.\r\n",
                                                                         TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
-                                         SecurityLevel  = EMailSecurity.sign
+                                         SecurityLevel  = EMailSecurity.auto
 
                                      });
-                        }
 
-                        if (_MessageTypes.Contains(removeUserFromOrganization_MessageType))
-                        {
+                        if (MessageTypes.Contains(removeUserFromOrganization_MessageType))
                             await APISMTPClient.Send(
                                      new HTMLEMailBuilder() {
 
@@ -28784,17 +28862,16 @@ namespace social.OpenData.UsersAPI
                                                                         "User '" + User.Name + "' has been removed from organization '", Organization.Name.FirstText(), "'.\r\n",
                                                                         TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
-                                         SecurityLevel  = EMailSecurity.sign
+                                         SecurityLevel  = EMailSecurity.auto
 
                                      });
-                        }
 
                     }
 
                 }
                 catch (Exception e)
                 {
-                    DebugX.Log(e.Message);
+                    DebugX.LogException(e);
                 }
 
                 #endregion
@@ -28930,58 +29007,61 @@ namespace social.OpenData.UsersAPI
                                                                              User_Id?                    CurrentUserId     = null)
         {
 
-            var usersLockTaken          = await UsersSemaphore.        WaitAsync(SemaphoreSlimTimeout);
-            var organizationsLockTaken  = await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout);
-            var eventTrackingId         = EventTrackingId ?? EventTracking_Id.New;
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
-            try
+            if (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout))
             {
-
-                if (usersLockTaken && organizationsLockTaken)
-                    return await _AddUserToOrganization(User,
-                                                        EdgeLabel,
-                                                        Organization,
-                                                        eventTrackingId,
-                                                        SuppressNotifications:  false,
-                                                        CurrentUserId:          CurrentUserId);
-
-                return AddUserToOrganizationResult.Failed(User,
-                                                          EdgeLabel,
-                                                          Organization,
-                                                          eventTrackingId,
-                                                          "Internal locking failed!");
-
-            }
-            catch (Exception e)
-            {
-
-                DebugX.LogException(e);
-
-                return AddUserToOrganizationResult.Failed(User,
-                                                          EdgeLabel,
-                                                          Organization,
-                                                          eventTrackingId,
-                                                          e);
-
-            }
-            finally
-            {
-                try
+                if (await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout))
                 {
-                    if (usersLockTaken)
-                        OrganizationsSemaphore.Release();
-                }
-                catch
-                { }
+                    try
+                    {
 
-                try
-                {
-                    if (organizationsLockTaken)
-                        UsersSemaphore.Release();
+                        return await _AddUserToOrganization(User,
+                                                            EdgeLabel,
+                                                            Organization,
+                                                            eventTrackingId,
+                                                            SuppressNotifications:  false,
+                                                            CurrentUserId:          CurrentUserId);
+
+                    }
+                    catch (Exception e)
+                    {
+
+                        DebugX.LogException(e);
+
+                        return AddUserToOrganizationResult.Failed(User,
+                                                                  EdgeLabel,
+                                                                  Organization,
+                                                                  eventTrackingId,
+                                                                  e);
+
+                    }
+                    finally
+                    {
+                        try
+                        {
+                            OrganizationsSemaphore.Release();
+                        }
+                        catch
+                        { }
+
+                        try
+                        {
+                            UsersSemaphore.Release();
+                        }
+                        catch
+                        { }
+                    }
                 }
-                catch
-                { }
+                else
+                    UsersSemaphore.Release();
             }
+
+            return AddUserToOrganizationResult.Failed(User,
+                                                      EdgeLabel,
+                                                      Organization,
+                                                      eventTrackingId,
+                                                      "Internal locking failed!");
 
         }
 
@@ -29119,58 +29199,61 @@ namespace social.OpenData.UsersAPI
                                                                                        User_Id?                    CurrentUserId     = null)
         {
 
-            var usersLockTaken          = await UsersSemaphore.        WaitAsync(SemaphoreSlimTimeout);
-            var organizationsLockTaken  = await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout);
-            var eventTrackingId         = EventTrackingId ?? EventTracking_Id.New;
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
-            try
+            if (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout))
             {
-
-                if (usersLockTaken && organizationsLockTaken)
-                    return await _RemoveUserFromOrganization(User,
-                                                             EdgeLabel,
-                                                             Organization,
-                                                             EventTrackingId,
-                                                             SuppressNotifications:  false,
-                                                             CurrentUserId:          CurrentUserId);
-
-                return RemoveUserFromOrganizationResult.Failed(User,
-                                                               EdgeLabel,
-                                                               Organization,
-                                                               eventTrackingId,
-                                                               "Internal locking failed!");
-
-            }
-            catch (Exception e)
-            {
-
-                DebugX.LogException(e);
-
-                return RemoveUserFromOrganizationResult.Failed(User,
-                                                               EdgeLabel,
-                                                               Organization,
-                                                               eventTrackingId,
-                                                               e);
-
-            }
-            finally
-            {
-                try
+                if (await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout))
                 {
-                    if (usersLockTaken)
-                        OrganizationsSemaphore.Release();
-                }
-                catch
-                { }
+                    try
+                    {
 
-                try
-                {
-                    if (organizationsLockTaken)
-                        UsersSemaphore.Release();
+                        return await _RemoveUserFromOrganization(User,
+                                                                 EdgeLabel,
+                                                                 Organization,
+                                                                 EventTrackingId,
+                                                                 SuppressNotifications:  false,
+                                                                 CurrentUserId:          CurrentUserId);
+
+                    }
+                    catch (Exception e)
+                    {
+
+                        DebugX.LogException(e);
+
+                        return RemoveUserFromOrganizationResult.Failed(User,
+                                                                       EdgeLabel,
+                                                                       Organization,
+                                                                       eventTrackingId,
+                                                                       e);
+
+                    }
+                    finally
+                    {
+                        try
+                        {
+                            OrganizationsSemaphore.Release();
+                        }
+                        catch
+                        { }
+
+                        try
+                        {
+                            UsersSemaphore.Release();
+                        }
+                        catch
+                        { }
+                    }
                 }
-                catch
-                { }
+                else
+                    UsersSemaphore.Release();
             }
+
+            return RemoveUserFromOrganizationResult.Failed(User,
+                                                           EdgeLabel,
+                                                           Organization,
+                                                           eventTrackingId,
+                                                           "Internal locking failed!");
 
         }
 
@@ -29288,55 +29371,58 @@ namespace social.OpenData.UsersAPI
                                                                                        User_Id?          CurrentUserId     = null)
         {
 
-            var usersLockTaken          = await UsersSemaphore.        WaitAsync(SemaphoreSlimTimeout);
-            var organizationsLockTaken  = await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout);
-            var eventTrackingId         = EventTrackingId ?? EventTracking_Id.New;
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
-            try
+            if (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout))
             {
-
-                if (usersLockTaken && organizationsLockTaken)
-                    return await _RemoveUserFromOrganization(User,
-                                                             Organization,
-                                                             EventTrackingId,
-                                                             SuppressNotifications:  false,
-                                                             CurrentUserId:          CurrentUserId);
-
-                return RemoveUserFromOrganizationResult.Failed(User,
-                                                               Organization,
-                                                               eventTrackingId,
-                                                               "Internal locking failed!");
-
-            }
-            catch (Exception e)
-            {
-
-                DebugX.LogException(e);
-
-                return RemoveUserFromOrganizationResult.Failed(User,
-                                                               Organization,
-                                                               eventTrackingId,
-                                                               e);
-
-            }
-            finally
-            {
-                try
+                if (await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout))
                 {
-                    if (usersLockTaken)
-                        OrganizationsSemaphore.Release();
-                }
-                catch
-                { }
+                    try
+                    {
 
-                try
-                {
-                    if (organizationsLockTaken)
-                        UsersSemaphore.Release();
+                        return await _RemoveUserFromOrganization(User,
+                                                                 Organization,
+                                                                 EventTrackingId,
+                                                                 SuppressNotifications:  false,
+                                                                 CurrentUserId:          CurrentUserId);
+
+                    }
+                    catch (Exception e)
+                    {
+
+                        DebugX.LogException(e);
+
+                        return RemoveUserFromOrganizationResult.Failed(User,
+                                                                       Organization,
+                                                                       eventTrackingId,
+                                                                       e);
+
+                    }
+                    finally
+                    {
+                        try
+                        {
+                            OrganizationsSemaphore.Release();
+                        }
+                        catch
+                        { }
+
+                        try
+                        {
+                            UsersSemaphore.Release();
+                        }
+                        catch
+                        { }
+                    }
                 }
-                catch
-                { }
+                else
+                    UsersSemaphore.Release();
             }
+
+            return RemoveUserFromOrganizationResult.Failed(User,
+                                                           Organization,
+                                                           eventTrackingId,
+                                                           "Internal locking failed!");
 
         }
 
@@ -29386,12 +29472,7 @@ namespace social.OpenData.UsersAPI
                                                         this.GetTelegramNotifications(OrganizationOut, MessageTypes)).
                                                         ToHashSet();
 
-                        if (DevMachines.Contains(Environment.MachineName))
-                        {
-                            AllTelegramNotifications.Clear();
-                        }
-
-                        if (AllTelegramNotifications.Count > 0)
+                        if (AllTelegramNotifications.SafeAny())
                         {
 
                             if (_MessageTypes.Contains(linkOrganizations_MessageType))
@@ -29411,7 +29492,7 @@ namespace social.OpenData.UsersAPI
                     }
                     catch (Exception e)
                     {
-                        DebugX.Log(e.Message);
+                        DebugX.LogException(e);
                     }
                 }
 
@@ -29426,12 +29507,7 @@ namespace social.OpenData.UsersAPI
                                                this.GetSMSNotifications(OrganizationOut, MessageTypes)).
                                                ToHashSet();
 
-                    if (DevMachines.Contains(Environment.MachineName))
-                    {
-                        AllSMSNotifications.Clear();
-                    }
-
-                    if (AllSMSNotifications.Count > 0)
+                    if (AllSMSNotifications.SafeAny())
                     {
 
                         if (_MessageTypes.Contains(linkOrganizations_MessageType))
@@ -29453,7 +29529,7 @@ namespace social.OpenData.UsersAPI
                 }
                 catch (Exception e)
                 {
-                    DebugX.Log(e.Message);
+                    DebugX.LogException(e);
                 }
 
                 #endregion
@@ -29467,10 +29543,7 @@ namespace social.OpenData.UsersAPI
                                                  this.GetHTTPSNotifications(OrganizationOut, MessageTypes)).
                                                  ToHashSet();
 
-                    if (DevMachines.Contains(Environment.MachineName))
-                        AllHTTPSNotifications.Clear();
-
-                    if (AllHTTPSNotifications.Count > 0)
+                    if (AllHTTPSNotifications.SafeAny())
                     {
 
                         if (_MessageTypes.Contains(linkOrganizations_MessageType))
@@ -29510,7 +29583,7 @@ namespace social.OpenData.UsersAPI
                 }
                 catch (Exception e)
                 {
-                    DebugX.Log(e.Message);
+                    DebugX.LogException(e);
                 }
 
                 #endregion
@@ -29526,12 +29599,7 @@ namespace social.OpenData.UsersAPI
                                                      this.GetEMailNotifications(OrganizationOut, MessageTypes)).
                                                      ToHashSet();
 
-                        if (DevMachines.Contains(Environment.MachineName))
-                        {
-                            AllEMailNotifications.Clear();
-                        }
-
-                        if (AllEMailNotifications.Count > 0)
+                        if (AllEMailNotifications.SafeAny())
                         {
 
                             if (_MessageTypes.Contains(linkOrganizations_MessageType))
@@ -29552,7 +29620,7 @@ namespace social.OpenData.UsersAPI
                                                                             "Organization '" + OrganizationOut.Name.FirstText() + "' had been linked to organization '", OrganizationIn.Name.FirstText(), "'.\r\r\r\r",
                                                                             TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
-                                             SecurityLevel  = EMailSecurity.sign
+                                             SecurityLevel  = EMailSecurity.auto
 
                                          });
                             }
@@ -29575,7 +29643,7 @@ namespace social.OpenData.UsersAPI
                                                                             "Organization '" + OrganizationOut.Name.FirstText() + "' had been unlinked from organization '", OrganizationIn.Name.FirstText(), "'.\r\r\r\r",
                                                                             TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
-                                             SecurityLevel  = EMailSecurity.sign
+                                             SecurityLevel  = EMailSecurity.auto
 
                                          });
                             }
@@ -29585,7 +29653,7 @@ namespace social.OpenData.UsersAPI
                     }
                     catch (Exception e)
                     {
-                        DebugX.Log(e.Message);
+                        DebugX.LogException(e);
                     }
                 }
 
@@ -29600,12 +29668,12 @@ namespace social.OpenData.UsersAPI
 
         #region (protected) _LinkOrganizations  (OrganizationOut, EdgeLabel, OrganizationIn, EventTrackingId = null, SuppressNotifications = false, CurrentUserId = null)
 
-        protected async Task<Boolean> _LinkOrganizations(Organization                        OrganizationOut,
-                                                         Organization2OrganizationEdgeTypes  EdgeLabel,
-                                                         Organization                        OrganizationIn,
-                                                         EventTracking_Id                    EventTrackingId         = null,
-                                                         Boolean                             SuppressNotifications   = false,
-                                                         User_Id?                            CurrentUserId           = null)
+        protected async Task<LinkOrganizationsResult> _LinkOrganizations(Organization                        OrganizationOut,
+                                                                         Organization2OrganizationEdgeTypes  EdgeLabel,
+                                                                         Organization                        OrganizationIn,
+                                                                         EventTracking_Id                    EventTrackingId         = null,
+                                                                         Boolean                             SuppressNotifications   = false,
+                                                                         User_Id?                            CurrentUserId           = null)
         {
 
                 if (!OrganizationOut.
@@ -29643,11 +29711,18 @@ namespace social.OpenData.UsersAPI
                                                 eventTrackingId,
                                                 CurrentUserId);
 
-                    return true;
+                    return LinkOrganizationsResult.Success(OrganizationOut,
+                                                           EdgeLabel,
+                                                           OrganizationIn,
+                                                           EventTrackingId);
 
                 }
 
-                return false;
+                return LinkOrganizationsResult.Failed(OrganizationOut,
+                                                      EdgeLabel,
+                                                      OrganizationIn,
+                                                      EventTrackingId,
+                                                      "!");
 
         }
 
@@ -29655,30 +29730,56 @@ namespace social.OpenData.UsersAPI
 
         #region LinkOrganizations               (OrganizationOut, EdgeLabel, OrganizationIn, EventTrackingId = null,                                CurrentUserId = null)
 
-        public async Task<Boolean> LinkOrganizations(Organization                        OrganizationOut,
-                                                     Organization2OrganizationEdgeTypes  EdgeLabel,
-                                                     Organization                        OrganizationIn,
-                                                     EventTracking_Id                    EventTrackingId   = null,
-                                                     User_Id?                            CurrentUserId     = null)
+        public async Task<LinkOrganizationsResult> LinkOrganizations(Organization                        OrganizationOut,
+                                                                     Organization2OrganizationEdgeTypes  EdgeLabel,
+                                                                     Organization                        OrganizationIn,
+                                                                     EventTracking_Id                    EventTrackingId   = null,
+                                                                     User_Id?                            CurrentUserId     = null)
         {
 
-            try
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            if (await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout))
             {
+                try
+                {
 
-                await OrganizationsSemaphore.WaitAsync();
+                    return await _LinkOrganizations(OrganizationOut,
+                                                    EdgeLabel,
+                                                    OrganizationIn,
+                                                    eventTrackingId,
+                                                    SuppressNotifications:  false,
+                                                    CurrentUserId:          CurrentUserId);
 
-                return await _LinkOrganizations(OrganizationOut,
-                                                EdgeLabel,
-                                                OrganizationIn,
-                                                EventTrackingId,
-                                                SuppressNotifications:  false,
-                                                CurrentUserId:          CurrentUserId);
+                }
+                catch (Exception e)
+                {
 
+                    DebugX.LogException(e);
+
+                    return LinkOrganizationsResult.Failed(OrganizationOut,
+                                                          EdgeLabel,
+                                                          OrganizationIn,
+                                                          eventTrackingId,
+                                                          e);
+
+                }
+                finally
+                {
+                    try
+                    {
+                        OrganizationsSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
-            finally
-            {
-                OrganizationsSemaphore.Release();
-            }
+
+            return LinkOrganizationsResult.Failed(OrganizationOut,
+                                                  EdgeLabel,
+                                                  OrganizationIn,
+                                                  eventTrackingId,
+                                                  "Internal locking failed!");
 
         }
 
@@ -29687,12 +29788,12 @@ namespace social.OpenData.UsersAPI
 
         #region (protected) _UnlinkOrganizations(OrganizationOut, EdgeLabel, OrganizationIn, SuppressNotifications = false, CurrentUserId = null)
 
-        protected async Task<Boolean> _UnlinkOrganizations(Organization                        OrganizationOut,
-                                                           Organization2OrganizationEdgeTypes  EdgeLabel,
-                                                           Organization                        OrganizationIn,
-                                                           EventTracking_Id                    EventTrackingId         = null,
-                                                           Boolean                             SuppressNotifications   = false,
-                                                           User_Id?                            CurrentUserId           = null)
+        protected async Task<UnlinkOrganizationsResult> _UnlinkOrganizations(Organization                        OrganizationOut,
+                                                                             Organization2OrganizationEdgeTypes  EdgeLabel,
+                                                                             Organization                        OrganizationIn,
+                                                                             EventTracking_Id                    EventTrackingId         = null,
+                                                                             Boolean                             SuppressNotifications   = false,
+                                                                             User_Id?                            CurrentUserId           = null)
         {
 
             if (OrganizationOut.
@@ -29730,11 +29831,18 @@ namespace social.OpenData.UsersAPI
                                             eventTrackingId,
                                             CurrentUserId);
 
-                return true;
+                return UnlinkOrganizationsResult.Success(OrganizationOut,
+                                                         EdgeLabel,
+                                                         OrganizationIn,
+                                                         EventTrackingId);
 
             }
 
-            return false;
+            return UnlinkOrganizationsResult.Failed(OrganizationOut,
+                                                    EdgeLabel,
+                                                    OrganizationIn,
+                                                    EventTrackingId,
+                                                    "!");
 
         }
 
@@ -29742,30 +29850,56 @@ namespace social.OpenData.UsersAPI
 
         #region UnlinkOrganizations             (OrganizationOut, EdgeLabel, OrganizationIn,                                CurrentUserId = null)
 
-        public async Task<Boolean> UnlinkOrganizations(Organization                        OrganizationOut,
-                                                       Organization2OrganizationEdgeTypes  EdgeLabel,
-                                                       Organization                        OrganizationIn,
-                                                       EventTracking_Id                    EventTrackingId   = null,
-                                                       User_Id?                            CurrentUserId     = null)
+        public async Task<UnlinkOrganizationsResult> UnlinkOrganizations(Organization                        OrganizationOut,
+                                                                         Organization2OrganizationEdgeTypes  EdgeLabel,
+                                                                         Organization                        OrganizationIn,
+                                                                         EventTracking_Id                    EventTrackingId   = null,
+                                                                         User_Id?                            CurrentUserId     = null)
         {
 
-            try
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            if (await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout))
             {
+                try
+                {
 
-                await OrganizationsSemaphore.WaitAsync();
+                    return await _UnlinkOrganizations(OrganizationOut,
+                                                      EdgeLabel,
+                                                      OrganizationIn,
+                                                      eventTrackingId,
+                                                      SuppressNotifications:  false,
+                                                      CurrentUserId:          CurrentUserId);
 
-                return await _UnlinkOrganizations(OrganizationOut,
-                                                  EdgeLabel,
-                                                  OrganizationIn,
-                                                  EventTrackingId,
-                                                  SuppressNotifications:  false,
-                                                  CurrentUserId:          CurrentUserId);
+                }
+                catch (Exception e)
+                {
 
+                    DebugX.LogException(e);
+
+                    return UnlinkOrganizationsResult.Failed(OrganizationOut,
+                                                            EdgeLabel,
+                                                            OrganizationIn,
+                                                            eventTrackingId,
+                                                            e);
+
+                }
+                finally
+                {
+                    try
+                    {
+                        OrganizationsSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
-            finally
-            {
-                OrganizationsSemaphore.Release();
-            }
+
+            return UnlinkOrganizationsResult.Failed(OrganizationOut,
+                                                    EdgeLabel,
+                                                    OrganizationIn,
+                                                    eventTrackingId,
+                                                    "Internal locking failed!");
 
         }
 
@@ -29935,13 +30069,7 @@ namespace social.OpenData.UsersAPI
 
                         }
 
-                        if (DevMachines.Contains(Environment.MachineName))
-                        {
-                            AllTelegramNotifications.Clear();
-                            //AllTelegramNotifications.Add(PhoneNumber.Parse("+491728930852"));
-                        }
-
-                        if (AllTelegramNotifications.Count > 0)
+                        if (AllTelegramNotifications.SafeAny())
                         {
 
                             //await TelegramStore.SendTelegrams("ServiceTicket '" + ServiceTicket.Id + "' sent '" + MessageType + "'!",
@@ -29952,7 +30080,7 @@ namespace social.OpenData.UsersAPI
                     }
                     catch (Exception e)
                     {
-                        DebugX.Log(e.Message);
+                        DebugX.LogException(e);
                     }
                 }
 
@@ -29966,13 +30094,7 @@ namespace social.OpenData.UsersAPI
                     var AllSMSNotifications = this.GetSMSNotifications(ServiceTicket.Author, messageTypes).
                                                    ToHashSet();
 
-                    if (DevMachines.Contains(Environment.MachineName))
-                    {
-                        AllSMSNotifications.Clear();
-                        //AllNotificationSMSPhoneNumbers.Add(PhoneNumber.Parse("+491728930852"));
-                    }
-
-                    if (AllSMSNotifications.Count > 0)
+                    if (AllSMSNotifications.SafeAny())
                     {
 
                         //SendSMS("ServiceTicket '" + ServiceTicket.Id + "' sent '" + MessageType + "'!",
@@ -29984,7 +30106,7 @@ namespace social.OpenData.UsersAPI
                 }
                 catch (Exception e)
                 {
-                    DebugX.Log(e.Message);
+                    DebugX.LogException(e);
                 }
 
                 #endregion
@@ -29997,10 +30119,7 @@ namespace social.OpenData.UsersAPI
                     var AllHTTPSNotifications = this.GetHTTPSNotifications(ServiceTicket.Author, messageTypes).
                                                      ToHashSet();
 
-                    if (DevMachines.Contains(Environment.MachineName))
-                        AllHTTPSNotifications.Clear();
-
-                    if (AllHTTPSNotifications.Count > 0)
+                    if (AllHTTPSNotifications.SafeAny())
                     {
 
                         #region Create JSON...
@@ -30065,7 +30184,7 @@ namespace social.OpenData.UsersAPI
                 }
                 catch (Exception e)
                 {
-                    DebugX.Log(e.Message);
+                    DebugX.LogException(e);
                 }
 
                 #endregion
@@ -30083,18 +30202,9 @@ namespace social.OpenData.UsersAPI
                         this.GetEMailNotifications(ServiceTicket.Author, messageTypes).
                              ForEach(notificationemail => AllEMailNotifications.Add(notificationemail));
 
-                        // Add defibrillator owners
+                        // Add device owners
 
-                        // Add communicator owners
-
-
-                        if (DevMachines.Contains(Environment.MachineName))
-                        {
-                            AllEMailNotifications.Clear();
-                            AllEMailNotifications.Add(new EMailNotification(EMailAddress.Parse("cardilogs@graphdefined.com")));
-                        }
-
-                        if (AllEMailNotifications.Count > 0)
+                        if (AllEMailNotifications.SafeAny())
                         {
 
                             //await APISMTPClient.Send(__ServiceTicketChangedEMailDelegate(ExternalDNSName, Robot.EMail, APIPassphrase)
@@ -30108,7 +30218,7 @@ namespace social.OpenData.UsersAPI
 
                     } catch (Exception e)
                     {
-                        DebugX.Log(e.Message);
+                        DebugX.LogException(e);
                     }
                 }
 

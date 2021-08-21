@@ -1,6 +1,6 @@
 ﻿/*
- * Copyright (c) 2014-2021, Achim 'ahzf' Friedland <achim@graphdefined.org>
- * This file is part of OpenDataAPI <http://www.github.com/GraphDefined/OpenDataAPI>
+ * Copyright (c) 2014-2021, Achim Friedland <achim.friedland@graphdefined.com>
+ * This file is part of UsersAPI <https://www.github.com/Vanaheimr/UsersAPI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -111,7 +111,7 @@ namespace social.OpenData.UsersAPI
 
 
     /// <summary>
-    /// An Open Data user.
+    /// A user.
     /// </summary>
     public class User : AEntity<User_Id,
                                 User>
@@ -381,14 +381,14 @@ namespace social.OpenData.UsersAPI
 
         public User2GroupEdge
 
-            AddOutgoingEdge(User2GroupEdgeTypes  EdgeLabel,
+            AddOutgoingEdge(User2UserGroupEdgeTypes  EdgeLabel,
                             UserGroup            Target,
                             PrivacyLevel         PrivacyLevel = PrivacyLevel.World)
 
             => _User2Group_OutEdges.AddAndReturnElement(new User2GroupEdge(this, EdgeLabel, Target, PrivacyLevel));
 
 
-        public IEnumerable<User2GroupEdge> User2GroupOutEdges(Func<User2GroupEdgeTypes, Boolean> User2GroupEdgeFilter)
+        public IEnumerable<User2GroupEdge> User2GroupOutEdges(Func<User2UserGroupEdgeTypes, Boolean> User2GroupEdgeFilter)
             => _User2Group_OutEdges.Where(edge => User2GroupEdgeFilter(edge.EdgeLabel));
 
 
@@ -534,15 +534,15 @@ namespace social.OpenData.UsersAPI
             var _Groups = RequireReadWriteAccess
 
                                      ? _User2Group_OutEdges.
-                                           Where (edge => edge.EdgeLabel == User2GroupEdgeTypes.IsAdmin ||
-                                                          edge.EdgeLabel == User2GroupEdgeTypes.IsMember).
+                                           Where (edge => edge.EdgeLabel == User2UserGroupEdgeTypes.IsAdmin ||
+                                                          edge.EdgeLabel == User2UserGroupEdgeTypes.IsMember).
                                            Select(edge => edge.Target).
                                            ToList()
 
                                      : _User2Group_OutEdges.
-                                           Where (edge => edge.EdgeLabel == User2GroupEdgeTypes.IsAdmin  ||
-                                                          edge.EdgeLabel == User2GroupEdgeTypes.IsMember ||
-                                                          edge.EdgeLabel == User2GroupEdgeTypes.IsVisitor).
+                                           Where (edge => edge.EdgeLabel == User2UserGroupEdgeTypes.IsAdmin  ||
+                                                          edge.EdgeLabel == User2UserGroupEdgeTypes.IsMember ||
+                                                          edge.EdgeLabel == User2UserGroupEdgeTypes.IsVisitor).
                                            Select(edge => edge.Target).
                                            ToList();
 
@@ -648,7 +648,7 @@ namespace social.OpenData.UsersAPI
         /// All groups this user belongs to,
         /// filtered by the given edge label.
         /// </summary>
-        public IEnumerable<UserGroup> Groups(User2GroupEdgeTypes EdgeFilter)
+        public IEnumerable<UserGroup> Groups(User2UserGroupEdgeTypes EdgeFilter)
             => _User2Group_OutEdges.
                    Where (edge => edge.EdgeLabel == EdgeFilter).
                    Select(edge => edge.Target);
@@ -661,7 +661,7 @@ namespace social.OpenData.UsersAPI
         /// All groups this user belongs to,
         /// filtered by the given edge label.
         /// </summary>
-        public IEnumerable<User2GroupEdgeTypes> OutEdges(UserGroup Group)
+        public IEnumerable<User2UserGroupEdgeTypes> OutEdges(UserGroup Group)
             => _User2Group_OutEdges.
                    Where (edge => edge.Target == Group).
                    Select(edge => edge.EdgeLabel);
@@ -702,12 +702,12 @@ namespace social.OpenData.UsersAPI
         #region Constructor(s)
 
         /// <summary>
-        /// Create a new Open Data user.
+        /// Create a new user.
         /// </summary>
         /// <param name="Id">The unique identification of the user.</param>
-        /// 
-        /// <param name="EMail">The primary e-mail of the user.</param>
         /// <param name="Name">An offical (multi-language) name of the user.</param>
+        /// <param name="EMail">The primary e-mail of the user.</param>
+        /// 
         /// <param name="Description">An optional (multi-language) description of the user.</param>
         /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the user.</param>
         /// <param name="SecretKeyRing">An optional PGP/GPG secret keyring of the user.</param>
@@ -728,36 +728,36 @@ namespace social.OpenData.UsersAPI
         /// <param name="JSONLDContext">The JSON-LD context of this user.</param>
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
         /// <param name="LastChange">The timestamp of the last changes within this user. Can e.g. be used as a HTTP ETag.</param>
-        internal User(User_Id                             Id,
+        public User(User_Id                             Id,
+                    String                              Name,
+                    SimpleEMailAddress                  EMail,
 
-                      SimpleEMailAddress                  EMail,
-                      String                              Name                     = null,
-                      I18NString                          Description              = null,
-                      PgpPublicKeyRing                    PublicKeyRing            = null,
-                      PgpSecretKeyRing                    SecretKeyRing            = null,
-                      Languages                           UserLanguage             = Languages.en,
-                      PhoneNumber?                        Telephone                = null,
-                      PhoneNumber?                        MobilePhone              = null,
-                      Use2AuthFactor                      Use2AuthFactor           = Use2AuthFactor.None,
-                      String                              Telegram                 = null,
-                      String                              Homepage                 = null,
-                      GeoCoordinate?                      GeoLocation              = null,
-                      Address                             Address                  = null,
-                      DateTime?                           AcceptedEULA             = null,
-                      Boolean                             IsDisabled               = false,
-                      Boolean                             IsAuthenticated          = false,
+                    I18NString                          Description              = null,
+                    PgpPublicKeyRing                    PublicKeyRing            = null,
+                    PgpSecretKeyRing                    SecretKeyRing            = null,
+                    Languages                           UserLanguage             = Languages.en,
+                    PhoneNumber?                        Telephone                = null,
+                    PhoneNumber?                        MobilePhone              = null,
+                    Use2AuthFactor                      Use2AuthFactor           = Use2AuthFactor.None,
+                    String                              Telegram                 = null,
+                    String                              Homepage                 = null,
+                    GeoCoordinate?                      GeoLocation              = null,
+                    Address                             Address                  = null,
+                    DateTime?                           AcceptedEULA             = null,
+                    Boolean                             IsDisabled               = false,
+                    Boolean                             IsAuthenticated          = false,
 
-                      IEnumerable<ANotification>          Notifications            = null,
+                    IEnumerable<ANotification>          Notifications            = null,
 
-                      IEnumerable<User2UserEdge>          User2UserEdges           = null,
-                      IEnumerable<User2GroupEdge>         User2GroupEdges          = null,
-                      IEnumerable<User2OrganizationEdge>  User2OrganizationEdges   = null,
+                    IEnumerable<User2UserEdge>          User2UserEdges           = null,
+                    IEnumerable<User2GroupEdge>         User2GroupEdges          = null,
+                    IEnumerable<User2OrganizationEdge>  User2OrganizationEdges   = null,
 
-                      JObject                             CustomData               = default,
-                      IEnumerable<AttachedFile>           AttachedFiles            = default,
-                      JSONLDContext?                      JSONLDContext            = default,
-                      String                              DataSource               = default,
-                      DateTime?                           LastChange               = default)
+                    JObject                             CustomData               = default,
+                    IEnumerable<AttachedFile>           AttachedFiles            = default,
+                    JSONLDContext?                      JSONLDContext            = default,
+                    String                              DataSource               = default,
+                    DateTime?                           LastChange               = default)
 
             : base(Id,
                    JSONLDContext ?? DefaultJSONLDContext,
@@ -1064,6 +1064,19 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
+                #region Parse E-Mail           [mandatory]
+
+                if (!JSONObject.ParseMandatory("email",
+                                               "E-Mail",
+                                               SimpleEMailAddress.TryParse,
+                                               out SimpleEMailAddress EMail,
+                                               out ErrorResponse))
+                {
+                    return false;
+                }
+
+                #endregion
+
                 #region Parse Description      [optional]
 
                 if (JSONObject.ParseOptional("description",
@@ -1075,19 +1088,6 @@ namespace social.OpenData.UsersAPI
                     if (ErrorResponse != null)
                         return false;
 
-                }
-
-                #endregion
-
-                #region Parse E-Mail           [mandatory]
-
-                if (!JSONObject.ParseMandatory("email",
-                                               "E-Mail",
-                                               SimpleEMailAddress.TryParse,
-                                               out SimpleEMailAddress EMail,
-                                               out ErrorResponse))
-                {
-                    return false;
                 }
 
                 #endregion
@@ -1297,8 +1297,8 @@ namespace social.OpenData.UsersAPI
 
 
                 User = new User(userId,
-                                EMail,
                                 Name,
+                                EMail,
                                 Description,
                                 PublicKeyRing,
                                 SecretKeyRing,
@@ -1453,8 +1453,8 @@ namespace social.OpenData.UsersAPI
         public User Clone(User_Id? NewUserId = null)
 
             => new User(NewUserId ?? Id.Clone,
-                        EMail.Address,
                         Name,
+                        EMail.Address,
                         Description?.Clone,
                         PublicKeyRing,
                         SecretKeyRing,
@@ -1984,14 +1984,14 @@ namespace social.OpenData.UsersAPI
 
             public User2GroupEdge
 
-                AddOutgoingEdge(User2GroupEdgeTypes EdgeLabel,
+                AddOutgoingEdge(User2UserGroupEdgeTypes EdgeLabel,
                                 UserGroup           Target,
                                 PrivacyLevel    PrivacyLevel = PrivacyLevel.World)
 
                 => _User2Group_OutEdges.AddAndReturnElement(new User2GroupEdge(this, EdgeLabel, Target, PrivacyLevel));
 
 
-            public IEnumerable<User2GroupEdge> User2GroupOutEdges(Func<User2GroupEdgeTypes, Boolean> User2GroupEdgeFilter)
+            public IEnumerable<User2GroupEdge> User2GroupOutEdges(Func<User2UserGroupEdgeTypes, Boolean> User2GroupEdgeFilter)
                 => _User2Group_OutEdges.Where(edge => User2GroupEdgeFilter(edge.EdgeLabel));
 
 
@@ -2105,15 +2105,15 @@ namespace social.OpenData.UsersAPI
                 var _Groups = RequireReadWriteAccess
 
                                          ? _User2Group_OutEdges.
-                                               Where (edge => edge.EdgeLabel == User2GroupEdgeTypes.IsAdmin ||
-                                                              edge.EdgeLabel == User2GroupEdgeTypes.IsMember).
+                                               Where (edge => edge.EdgeLabel == User2UserGroupEdgeTypes.IsAdmin ||
+                                                              edge.EdgeLabel == User2UserGroupEdgeTypes.IsMember).
                                                Select(edge => edge.Target).
                                                ToList()
 
                                          : _User2Group_OutEdges.
-                                               Where (edge => edge.EdgeLabel == User2GroupEdgeTypes.IsAdmin  ||
-                                                              edge.EdgeLabel == User2GroupEdgeTypes.IsMember ||
-                                                              edge.EdgeLabel == User2GroupEdgeTypes.IsVisitor).
+                                               Where (edge => edge.EdgeLabel == User2UserGroupEdgeTypes.IsAdmin  ||
+                                                              edge.EdgeLabel == User2UserGroupEdgeTypes.IsMember ||
+                                                              edge.EdgeLabel == User2UserGroupEdgeTypes.IsVisitor).
                                                Select(edge => edge.Target).
                                                ToList();
 
@@ -2219,7 +2219,7 @@ namespace social.OpenData.UsersAPI
             /// All groups this user belongs to,
             /// filtered by the given edge label.
             /// </summary>
-            public IEnumerable<UserGroup> Groups(User2GroupEdgeTypes EdgeFilter)
+            public IEnumerable<UserGroup> Groups(User2UserGroupEdgeTypes EdgeFilter)
                 => _User2Group_OutEdges.
                        Where (edge => edge.EdgeLabel == EdgeFilter).
                        Select(edge => edge.Target);
@@ -2232,7 +2232,7 @@ namespace social.OpenData.UsersAPI
             /// All groups this user belongs to,
             /// filtered by the given edge label.
             /// </summary>
-            public IEnumerable<User2GroupEdgeTypes> OutEdges(UserGroup Group)
+            public IEnumerable<User2UserGroupEdgeTypes> OutEdges(UserGroup Group)
                 => _User2Group_OutEdges.
                        Where (edge => edge.Target == Group).
                        Select(edge => edge.EdgeLabel);
@@ -2588,8 +2588,8 @@ namespace social.OpenData.UsersAPI
                     //    throw new ArgumentNullException(nameof(Branch), "The given branch must not be null or empty!");
 
                     return new User(Id,
-                                    EMail.Address,
                                     Name,
+                                    EMail.Address,
                                     Description,
                                     PublicKeyRing,
                                     SecretKeyRing,
