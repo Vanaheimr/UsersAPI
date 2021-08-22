@@ -201,93 +201,93 @@ namespace social.OpenData.UsersAPI
 
         #region Operator overloading
 
-        #region Operator == (UserIdId1, UserIdId2)
+        #region Operator == (UserId1, UserId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="UserIdId1">An user identification.</param>
-        /// <param name="UserIdId2">Another user identification.</param>
+        /// <param name="UserId1">An user identification.</param>
+        /// <param name="UserId2">Another user identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator == (User_Id UserIdId1,
-                                           User_Id UserIdId2)
+        public static Boolean operator == (User_Id UserId1,
+                                           User_Id UserId2)
 
-            => UserIdId1.Equals(UserIdId2);
+            => UserId1.Equals(UserId2);
 
         #endregion
 
-        #region Operator != (UserIdId1, UserIdId2)
+        #region Operator != (UserId1, UserId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="UserIdId1">An user identification.</param>
-        /// <param name="UserIdId2">Another user identification.</param>
+        /// <param name="UserId1">An user identification.</param>
+        /// <param name="UserId2">Another user identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator != (User_Id UserIdId1,
-                                           User_Id UserIdId2)
+        public static Boolean operator != (User_Id UserId1,
+                                           User_Id UserId2)
 
-            => !UserIdId1.Equals(UserIdId2);
+            => !UserId1.Equals(UserId2);
 
         #endregion
 
-        #region Operator <  (UserIdId1, UserIdId2)
+        #region Operator <  (UserId1, UserId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="UserIdId1">An user identification.</param>
-        /// <param name="UserIdId2">Another user identification.</param>
+        /// <param name="UserId1">An user identification.</param>
+        /// <param name="UserId2">Another user identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator < (User_Id UserIdId1,
-                                          User_Id UserIdId2)
+        public static Boolean operator < (User_Id UserId1,
+                                          User_Id UserId2)
 
-            => UserIdId1.CompareTo(UserIdId2) < 0;
+            => UserId1.CompareTo(UserId2) < 0;
 
         #endregion
 
-        #region Operator <= (UserIdId1, UserIdId2)
+        #region Operator <= (UserId1, UserId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="UserIdId1">An user identification.</param>
-        /// <param name="UserIdId2">Another user identification.</param>
+        /// <param name="UserId1">An user identification.</param>
+        /// <param name="UserId2">Another user identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator <= (User_Id UserIdId1,
-                                           User_Id UserIdId2)
+        public static Boolean operator <= (User_Id UserId1,
+                                           User_Id UserId2)
 
-            => UserIdId1.CompareTo(UserIdId2) <= 0;
+            => UserId1.CompareTo(UserId2) <= 0;
 
         #endregion
 
-        #region Operator >  (UserIdId1, UserIdId2)
+        #region Operator >  (UserId1, UserId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="UserIdId1">An user identification.</param>
-        /// <param name="UserIdId2">Another user identification.</param>
+        /// <param name="UserId1">An user identification.</param>
+        /// <param name="UserId2">Another user identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator > (User_Id UserIdId1,
-                                          User_Id UserIdId2)
+        public static Boolean operator > (User_Id UserId1,
+                                          User_Id UserId2)
 
-            => UserIdId1.CompareTo(UserIdId2) > 0;
+            => UserId1.CompareTo(UserId2) > 0;
 
         #endregion
 
-        #region Operator >= (UserIdId1, UserIdId2)
+        #region Operator >= (UserId1, UserId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="UserIdId1">An user identification.</param>
-        /// <param name="UserIdId2">Another user identification.</param>
+        /// <param name="UserId1">An user identification.</param>
+        /// <param name="UserId2">Another user identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator >= (User_Id UserIdId1,
-                                           User_Id UserIdId2)
+        public static Boolean operator >= (User_Id UserId1,
+                                           User_Id UserId2)
 
-            => UserIdId1.CompareTo(UserIdId2) >= 0;
+            => UserId1.CompareTo(UserId2) >= 0;
 
         #endregion
 

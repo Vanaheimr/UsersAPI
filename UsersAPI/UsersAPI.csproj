@@ -120,6 +120,7 @@
     <Compile Include="Entities\Notification\NotificationVisibility.cs" />
     <Compile Include="Entities\Notification\NotificationTag.cs" />
     <Compile Include="Entities\Notification\NotificationGroup.cs" />
+    <Compile Include="SMS\NullSMSAPI.cs" />
     <Compile Include="Telegram\TelegramStore.cs" />
     <Compile Include="UsersAPILogger.cs" />
     <Compile Include="CommonTypes\LoginPassword.cs" />

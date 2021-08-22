@@ -1449,11 +1449,6 @@ namespace social.OpenData.UsersAPI
         protected readonly        PerformanceCounter                            totalCPU_PerformanceCounter;
 
         /// <summary>
-        /// The SMSAPI.
-        /// </summary>
-        protected readonly        SMSAPI                                        _SMSAPI;
-
-        /// <summary>
         /// All HTTP cookies.
         /// </summary>
         protected readonly        Dictionary<SecurityToken_Id, SecurityToken>   _HTTPCookies;
@@ -1527,7 +1522,12 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// A SMTP client to be used by the API.
         /// </summary>
-        public ISMTPClient                   APISMTPClient                      { get; }
+        public ISMTPClient                   SMTPClient                         { get; }
+
+        /// <summary>
+        /// The SMSAPI.
+        /// </summary>
+        public ISMSClient                    SMSClient                          { get; }
 
         /// <summary>
         /// The (default) SMS sender name.
@@ -2461,8 +2461,8 @@ namespace social.OpenData.UsersAPI
         /// <param name="AdminOrganizationId">The admins' organization identification.</param>
         /// <param name="APIRobotEMailAddress">An e-mail address for this API.</param>
         /// <param name="APIRobotGPGPassphrase">A GPG passphrase for this API.</param>
-        /// <param name="APISMTPClient">A SMTP client for sending e-mails.</param>
-        /// <param name="SMSAPICredentials">The credentials for the SMS API.</param>
+        /// <param name="SMTPClient">A SMTP client for sending e-mails.</param>
+        /// <param name="SMSClient">A SMS client for sending SMS.</param>
         /// <param name="SMSSenderName">The (default) SMS sender name.</param>
         /// <param name="TelegramBotToken">The Telegram API access token of the bot.</param>
         /// 
@@ -2521,8 +2521,8 @@ namespace social.OpenData.UsersAPI
                         Organization_Id?                     AdminOrganizationId                = null,
                         EMailAddress                         APIRobotEMailAddress               = null,
                         String                               APIRobotGPGPassphrase              = null,
-                        ISMTPClient                          APISMTPClient                      = null,
-                        Credentials                          SMSAPICredentials                  = null,
+                        ISMTPClient                          SMTPClient                         = null,
+                        ISMSClient                           SMSClient                          = null,
                         String                               SMSSenderName                      = null,
                         String                               TelegramBotToken                   = null,
 
@@ -2604,8 +2604,8 @@ namespace social.OpenData.UsersAPI
                    AdminOrganizationId,
                    APIRobotEMailAddress,
                    APIRobotGPGPassphrase,
-                   APISMTPClient,
-                   SMSAPICredentials,
+                   SMTPClient,
+                   SMSClient,
                    SMSSenderName,
                    TelegramBotToken,
 
@@ -2669,8 +2669,8 @@ namespace social.OpenData.UsersAPI
         /// <param name="AdminOrganizationId">The API admin organization identification.</param>
         /// <param name="APIRobotEMailAddress">An e-mail address for this API.</param>
         /// <param name="APIRobotGPGPassphrase">A GPG passphrase for this API.</param>
-        /// <param name="APISMTPClient">A SMTP client for sending e-mails.</param>
-        /// <param name="SMSAPICredentials">The credentials for the SMS API.</param>
+        /// <param name="SMTPClient">A SMTP client for sending e-mails.</param>
+        /// <param name="SMSClient">A SMS client for sending SMS.</param>
         /// <param name="SMSSenderName">The (default) SMS sender name.</param>
         /// <param name="TelegramBotToken">The Telegram API access token of the bot.</param>
         /// 
@@ -2708,8 +2708,8 @@ namespace social.OpenData.UsersAPI
                            Organization_Id?              AdminOrganizationId              = null,
                            EMailAddress                  APIRobotEMailAddress             = null,
                            String                        APIRobotGPGPassphrase            = null,
-                           ISMTPClient                   APISMTPClient                    = null,
-                           Credentials                   SMSAPICredentials                = null,
+                           ISMTPClient                   SMTPClient                       = null,
+                           ISMSClient                    SMSClient                        = null,
                            String                        SMSSenderName                    = null,
                            String                        TelegramBotToken                 = null,
 
@@ -2806,7 +2806,7 @@ namespace social.OpenData.UsersAPI
 
             this.AdminOrganizationId             = AdminOrganizationId            ?? DefaultAdminOrganizationId;
             this.APIPassphrase                   = APIRobotGPGPassphrase;
-            this.APISMTPClient                   = APISMTPClient                  ?? throw new ArgumentNullException(nameof(APISMTPClient),          "The given API SMTP client must not be null!");
+            this.SMTPClient                      = SMTPClient                     ?? throw new ArgumentNullException(nameof(SMTPClient), "The given API SMTP client must not be null!");
 
             this.CookieName                      = CookieName                     ?? DefaultCookieName;
             this.SessionCookieName               = this.CookieName + "Session";
@@ -2882,23 +2882,26 @@ namespace social.OpenData.UsersAPI
 
             #region Setup SMSAPI
 
-            if (SMSAPICredentials != null)
-            {
-                this._SMSAPI                     = new SMSAPI(Credentials: SMSAPICredentials);
-                this.SMSSenderName               = SMSSenderName;
-            }
+            this.SMSClient      = SMSClient;
+            this.SMSSenderName  = SMSSenderName ?? "GraphDefined";
 
-            if (SMSAPICredentials != null && !DisableLogfile)
+            //if (SMSAPICredentials != null)
+            //{
+            //    this._SMSAPI                     = new SMSAPI(Credentials: SMSAPICredentials);
+            //    this.SMSSenderName               = SMSSenderName;
+            //}
+
+            if (SMSClient != null && !DisableLogfile)
             {
 
-                _SMSAPI.OnSendSMSAPIResponse += async (LogTimestamp,
-                                                       Sender,
-                                                       EventTrackingId,
-                                                       Command,
-                                                       Data,
-                                                       RequestTimeout,
-                                                       Result,
-                                                       Runtime) =>
+                SMSClient.OnSendSMSAPIResponse += async (LogTimestamp,
+                                                         Sender,
+                                                         EventTrackingId,
+                                                         Command,
+                                                         Data,
+                                                         RequestTimeout,
+                                                         Result,
+                                                         Runtime) =>
                 {
 
                     var success = await SMTPLogSemaphore.WaitAsync(TimeSpan.FromSeconds(60));
@@ -2945,10 +2948,10 @@ namespace social.OpenData.UsersAPI
 
             #region Setup SMTP logging
 
-            if (this.APISMTPClient != null && !DisableLogfile)
+            if (this.SMTPClient != null && !DisableLogfile)
             {
 
-                APISMTPClient.OnSendEMailResponse += async (LogTimestamp,
+                SMTPClient.OnSendEMailResponse += async (LogTimestamp,
                                                             Sender,
                                                             EventTrackingId,
                                                             EMailEnvelop,
@@ -3147,7 +3150,7 @@ namespace social.OpenData.UsersAPI
 
                                             //lowStorage_MessageType
 
-                                            var EMailTask = await APISMTPClient.Send(new HTMLEMailBuilder {
+                                            var EMailTask = await SMTPClient.Send(new HTMLEMailBuilder {
                                                                                          From           = Robot.EMail,
                                                                                          To             = EMailAddressList.Create(adminOrganization.Admins.Select(admin => admin.EMail)),
                                                                                          Passphrase     = APIRobotGPGPassphrase,
@@ -3196,8 +3199,8 @@ namespace social.OpenData.UsersAPI
         /// <param name="AdminOrganizationId">The API admin organization identification.</param>
         /// <param name="APIRobotEMailAddress">An e-mail address for this API.</param>
         /// <param name="APIRobotGPGPassphrase">A GPG passphrase for this API.</param>
-        /// <param name="APISMTPClient">A SMTP client for sending e-mails.</param>
-        /// <param name="SMSAPICredentials">The credentials for the SMS API.</param>
+        /// <param name="SMTPClient">A SMTP client for sending e-mails.</param>
+        /// <param name="SMSClient">A SMS client for sending SMS.</param>
         /// <param name="SMSSenderName">The (default) SMS sender name.</param>
         /// <param name="TelegramBotToken">The Telegram API access token of the bot.</param>
         /// 
@@ -3232,8 +3235,8 @@ namespace social.OpenData.UsersAPI
                                                Organization_Id?                     AdminOrganizationId              = null,
                                                EMailAddress                         APIRobotEMailAddress             = null,
                                                String                               APIRobotGPGPassphrase            = null,
-                                               ISMTPClient                          APISMTPClient                    = null,
-                                               Credentials                          SMSAPICredentials                = null,
+                                               ISMTPClient                          SMTPClient                       = null,
+                                               ISMSClient                           SMSClient                        = null,
                                                String                               SMSSenderName                    = null,
                                                String                               TelegramBotToken                 = null,
 
@@ -3280,8 +3283,8 @@ namespace social.OpenData.UsersAPI
                             AdminOrganizationId,
                             APIRobotEMailAddress,
                             APIRobotGPGPassphrase,
-                            APISMTPClient,
-                            SMSAPICredentials,
+                            SMTPClient,
+                            SMSClient,
                             SMSSenderName,
                             TelegramBotToken,
 
@@ -3922,11 +3925,15 @@ namespace social.OpenData.UsersAPI
                                                        String  Sender  = null)
         {
 
-            if (_SMSAPI != null)
-                return _SMSAPI.Send(Text,
-                                    To).
-                               SetSender(Sender ?? SMSSenderName).
-                               Execute();
+            if (SMSClient != null)
+            {
+
+                var smsSend = SMSClient.Send(Text, To);
+
+                if (smsSend != null)
+                    return smsSend.SetSender(Sender ?? SMSSenderName).Execute();
+
+            }
 
             return SMSAPIResponseStatus.Failed("No SMSAPI defined!");
 
@@ -3943,11 +3950,15 @@ namespace social.OpenData.UsersAPI
                                                String    Sender  = null)
         {
 
-            if (_SMSAPI != null)
-                return _SMSAPI.Send(Text,
-                                    To).
-                               SetSender(Sender ?? SMSSenderName).
-                               Execute();
+            if (SMSClient != null)
+            {
+
+                var smsSend = SMSClient.Send(Text, To);
+
+                if (smsSend != null)
+                    return smsSend.SetSender(Sender ?? SMSSenderName).Execute();
+
+            }
 
             return SMSAPIResponseStatus.Failed("No SMSAPI defined!");
 
@@ -5409,7 +5420,7 @@ namespace social.OpenData.UsersAPI
 
                                                      #region Send e-mail...
 
-                                                     var MailResultTask = APISMTPClient.Send(ResetPasswordEMailCreator(user,
+                                                     var MailResultTask = SMTPClient.Send(ResetPasswordEMailCreator(user,
                                                                                                                        user.EMail,
                                                                                                                        PasswordReset.SecurityToken1,
                                                                                                                        user.Use2AuthFactor == Use2AuthFactor.MobilePhoneSMS && user.MobilePhone.HasValue,
@@ -5422,13 +5433,13 @@ namespace social.OpenData.UsersAPI
 
                                                      #region Send SMS...
 
-                                                     if (_SMSAPI != null && PasswordReset.SecurityToken2.HasValue)
+                                                     if (SMSClient != null && PasswordReset.SecurityToken2.HasValue)
                                                      {
 
-                                                         SMSSentResults.Add(_SMSAPI.Send("Dear '" + user.Name + "' your 2nd security token for resetting your password is '" + PasswordReset.SecurityToken2 + "'!",
-                                                                                         user.MobilePhone.Value.ToString()).
-                                                                                    SetSender(SMSSenderName).
-                                                                                    Execute());
+                                                         SMSSentResults.Add(SMSClient.Send("Dear '" + user.Name + "' your 2nd security token for resetting your password is '" + PasswordReset.SecurityToken2 + "'!",
+                                                                                           user.MobilePhone.Value.ToString()).
+                                                                                      SetSender(SMSSenderName).
+                                                                                      Execute());
 
                                                      }
 
@@ -5668,7 +5679,7 @@ namespace social.OpenData.UsersAPI
                                                  var MailSentResult = MailSentStatus.failed;
                                                  var user           = GetUser(userId);
 
-                                                 var MailResultTask = APISMTPClient.Send(PasswordChangedEMailCreator(user,
+                                                 var MailResultTask = SMTPClient.Send(PasswordChangedEMailCreator(user,
                                                                                                                      user.EMail,
                                                                                                                      //"https://" + Request.Host.SimpleString,
                                                                                                                      DefaultLanguage));
@@ -6150,7 +6161,7 @@ namespace social.OpenData.UsersAPI
                                                  try
                                                  {
 
-                                                     var MailResultTask = APISMTPClient.Send(NewUserSignUpEMailCreator(newUser,
+                                                     var MailResultTask = SMTPClient.Send(NewUserSignUpEMailCreator(newUser,
                                                                                                                        newUser.EMail,
                                                                                                                        SetPasswordRequest.SecurityToken1,
                                                                                                                        newUser.MobilePhone.HasValue,
@@ -6569,7 +6580,7 @@ namespace social.OpenData.UsersAPI
                                                 try
                                                 {
 
-                                                    var MailResultTask = APISMTPClient.Send(NewUserSignUpEMailCreator(newUser,
+                                                    var MailResultTask = SMTPClient.Send(NewUserSignUpEMailCreator(newUser,
                                                                                                                     newUser.EMail,
                                                                                                                     SetPasswordRequest.SecurityToken1,
                                                                                                                     newUser.MobilePhone.HasValue,
@@ -7705,7 +7716,7 @@ namespace social.OpenData.UsersAPI
                                                                    HTTPUser.Id).Result)
                                              {
 
-                                                 var MailSentResult = await APISMTPClient.Send(PasswordChangedEMailCreator(HTTPUser,
+                                                 var MailSentResult = await SMTPClient.Send(PasswordChangedEMailCreator(HTTPUser,
                                                                                                                            HTTPUser.EMail,
                                                                                                                            //"https://" + Request.Host.SimpleString,
                                                                                                                            DefaultLanguage));
@@ -16033,7 +16044,7 @@ namespace social.OpenData.UsersAPI
 
                 #region E-Mail Notifications
 
-                if (APISMTPClient != null)
+                if (SMTPClient != null)
                 {
                     try
                     {
@@ -16049,7 +16060,7 @@ namespace social.OpenData.UsersAPI
 
                             if (messageTypes.Contains(addUser_MessageType))
                             {
-                                await APISMTPClient.Send(
+                                await SMTPClient.Send(
                                          new HTMLEMailBuilder() {
 
                                              From           = Robot.EMail,
@@ -16074,7 +16085,7 @@ namespace social.OpenData.UsersAPI
 
                             if (messageTypes.Contains(updateUser_MessageType))
                             {
-                                await APISMTPClient.Send(
+                                await SMTPClient.Send(
                                          new HTMLEMailBuilder() {
 
                                              From           = Robot.EMail,
@@ -16292,7 +16303,7 @@ namespace social.OpenData.UsersAPI
 
                 #region EMailNotifications
 
-                if (APISMTPClient != null)
+                if (SMTPClient != null)
                 {
                     try
                     {
@@ -16306,7 +16317,7 @@ namespace social.OpenData.UsersAPI
                         {
 
                             if (messageTypes.Contains(deleteUser_MessageType))
-                                await APISMTPClient.Send(
+                                await SMTPClient.Send(
                                      new HTMLEMailBuilder() {
 
                                          From           = Robot.EMail,
@@ -18416,7 +18427,7 @@ namespace social.OpenData.UsersAPI
 
                 #region EMailNotifications
 
-                if (APISMTPClient != null)
+                if (SMTPClient != null)
                 {
                     try
                     {
@@ -18430,7 +18441,7 @@ namespace social.OpenData.UsersAPI
                         {
 
                             if (messageTypes.Contains(deleteUserGroup_MessageType))
-                                await APISMTPClient.Send(
+                                await SMTPClient.Send(
                                      new HTMLEMailBuilder() {
 
                                          From           = Robot.EMail,
@@ -26029,7 +26040,7 @@ namespace social.OpenData.UsersAPI
 
                 #region EMailNotifications
 
-                if (APISMTPClient != null)
+                if (SMTPClient != null)
                 {
                     try
                     {
@@ -26041,7 +26052,7 @@ namespace social.OpenData.UsersAPI
                         {
 
                             if (messageTypes.Contains(addOrganization_MessageType))
-                                await APISMTPClient.Send(
+                                await SMTPClient.Send(
                                          new HTMLEMailBuilder() {
 
                                              From           = Robot.EMail,
@@ -26063,7 +26074,7 @@ namespace social.OpenData.UsersAPI
                                          });
 
                             if (messageTypes.Contains(updateOrganization_MessageType))
-                                await APISMTPClient.Send(
+                                await SMTPClient.Send(
                                          new HTMLEMailBuilder() {
 
                                              From           = Robot.EMail,
@@ -26258,7 +26269,7 @@ namespace social.OpenData.UsersAPI
 
                 #region EMailNotifications
 
-                if (APISMTPClient != null)
+                if (SMTPClient != null)
                 {
                     try
                     {
@@ -26272,7 +26283,7 @@ namespace social.OpenData.UsersAPI
                         {
 
                             if (messageTypes.Contains(deleteOrganization_MessageType))
-                                await APISMTPClient.Send(
+                                await SMTPClient.Send(
                                      new HTMLEMailBuilder() {
 
                                          From           = Robot.EMail,
@@ -30662,7 +30673,7 @@ namespace social.OpenData.UsersAPI
                     {
 
                         if (MessageTypes.Contains(addUserToOrganization_MessageType))
-                            await APISMTPClient.Send(
+                            await SMTPClient.Send(
                                      new HTMLEMailBuilder() {
 
                                          From           = Robot.EMail,
@@ -30683,7 +30694,7 @@ namespace social.OpenData.UsersAPI
                                      });
 
                         if (MessageTypes.Contains(removeUserFromOrganization_MessageType))
-                            await APISMTPClient.Send(
+                            await SMTPClient.Send(
                                      new HTMLEMailBuilder() {
 
                                          From           = Robot.EMail,
@@ -31470,7 +31481,7 @@ namespace social.OpenData.UsersAPI
 
                 #region EMailNotifications
 
-                if (APISMTPClient != null)
+                if (SMTPClient != null)
                 {
                     try
                     {
@@ -31484,7 +31495,7 @@ namespace social.OpenData.UsersAPI
 
                             if (messageTypes.Contains(linkOrganizations_MessageType))
                             {
-                                await APISMTPClient.Send(
+                                await SMTPClient.Send(
                                          new HTMLEMailBuilder() {
 
                                              From           = Robot.EMail,
@@ -31507,7 +31518,7 @@ namespace social.OpenData.UsersAPI
 
                             if (messageTypes.Contains(unlinkOrganizations_MessageType))
                             {
-                                await APISMTPClient.Send(
+                                await SMTPClient.Send(
                                          new HTMLEMailBuilder() {
 
                                              From           = Robot.EMail,
@@ -32064,7 +32075,7 @@ namespace social.OpenData.UsersAPI
 
                 #region EMailNotifications
 
-                if (APISMTPClient != null)
+                if (SMTPClient != null)
                 {
                     try
                     {

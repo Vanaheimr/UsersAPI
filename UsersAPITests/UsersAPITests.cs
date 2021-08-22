@@ -46,6 +46,7 @@ namespace social.OpenData.UsersAPI.tests
 
         private UsersAPI    usersAPI;
         private NullMailer  nullMailer;
+        private NullSMSAPI  nullSMSClient;
 
         [OneTimeSetUp]
         public void SetupOnce()
@@ -58,17 +59,20 @@ namespace social.OpenData.UsersAPI.tests
         {
 
             usersAPI = new UsersAPI(
+                           ExternalDNSName:        "example.cloud",
                            HTTPPort:               IPPort.Parse(81),
                            APIRobotEMailAddress:   new EMailAddress(
                                                        "Users API Unit Tests",
                                                        SimpleEMailAddress.Parse("robot@opendata.social")
                                                    ),
                            AdminOrganizationId:    Organization_Id.Parse("admins"),
-                           APISMTPClient:          new NullMailer(),
+                           SMTPClient:             new NullMailer(),
+                           SMSClient:              new NullSMSAPI(),
                            Autostart:              true
-                       );
+                       );;
 
-            nullMailer = usersAPI.APISMTPClient as NullMailer;
+            nullMailer     = usersAPI.SMTPClient as NullMailer;
+            nullSMSClient  = usersAPI.SMSClient  as NullSMSAPI;
 
             usersAPI.AddOrganization(new Organization(
                                          Organization_Id.Parse ("admins"),
@@ -128,7 +132,8 @@ namespace social.OpenData.UsersAPI.tests
             var result01a = await usersAPI.AddUser(new User(
                                                        User_Id.Parse("apiAdmin01"),
                                                        "API Admin 01",
-                                                       SimpleEMailAddress.Parse("apiAdmin01@test.local")
+                                                       SimpleEMailAddress.Parse("apiAdmin01@test.local"),
+                                                       MobilePhone: PhoneNumber.Parse("+49 170 111111")
                                                    ),
                                                    User2OrganizationEdgeTypes.IsAdmin,
                                                    usersAPI.GetOrganization(Organization_Id.Parse("admins")));
@@ -138,6 +143,23 @@ namespace social.OpenData.UsersAPI.tests
             Assert.AreEqual (1, usersAPI.Users.Count());
 
             await usersAPI.AddEMailNotification(result01a.User,
+                                                new NotificationMessageType[] {
+                                                    UsersAPI.addUser_MessageType,
+                                                    UsersAPI.updateUser_MessageType,
+                                                    UsersAPI.deleteUser_MessageType,
+
+                                                    UsersAPI.addUserToOrganization_MessageType,
+                                                    UsersAPI.removeUserFromOrganization_MessageType,
+
+                                                    UsersAPI.addOrganization_MessageType,
+                                                    UsersAPI.updateOrganization_MessageType,
+                                                    UsersAPI.deleteOrganization_MessageType,
+
+                                                    UsersAPI.linkOrganizations_MessageType,
+                                                    UsersAPI.unlinkOrganizations_MessageType
+                                                });
+
+            await usersAPI.AddSMSNotification  (result01a.User,
                                                 new NotificationMessageType[] {
                                                     UsersAPI.addUser_MessageType,
                                                     UsersAPI.updateUser_MessageType,
@@ -171,7 +193,8 @@ namespace social.OpenData.UsersAPI.tests
             var result01c = await usersAPI.AddUser(new User(
                                                        User_Id.Parse("apiMember01"),
                                                        "API Member 01",
-                                                       SimpleEMailAddress.Parse("apiMember01@test.local")
+                                                       SimpleEMailAddress.Parse("apiMember01@test.local"),
+                                                       MobilePhone: PhoneNumber.Parse("+49 170 222222")
                                                    ),
                                                    User2OrganizationEdgeTypes.IsMember,
                                                    usersAPI.GetOrganization(Organization_Id.Parse("admins")));
@@ -181,6 +204,23 @@ namespace social.OpenData.UsersAPI.tests
             Assert.AreEqual (3, usersAPI.Users.Count());
 
             await usersAPI.AddEMailNotification(result01c.User,
+                                                new NotificationMessageType[] {
+                                                    UsersAPI.addUser_MessageType,
+                                                    UsersAPI.updateUser_MessageType,
+                                                    UsersAPI.deleteUser_MessageType,
+
+                                                    UsersAPI.addUserToOrganization_MessageType,
+                                                    UsersAPI.removeUserFromOrganization_MessageType,
+
+                                                    UsersAPI.addOrganization_MessageType,
+                                                    UsersAPI.updateOrganization_MessageType,
+                                                    UsersAPI.deleteOrganization_MessageType,
+
+                                                    UsersAPI.linkOrganizations_MessageType,
+                                                    UsersAPI.unlinkOrganizations_MessageType
+                                                });
+
+            await usersAPI.AddSMSNotification  (result01c.User,
                                                 new NotificationMessageType[] {
                                                     UsersAPI.addUser_MessageType,
                                                     UsersAPI.updateUser_MessageType,
@@ -232,7 +272,8 @@ namespace social.OpenData.UsersAPI.tests
             var result04a = await usersAPI.AddUser(new User(
                                                        User_Id.Parse("firstOrgAdmin01"),
                                                        "First Org Admin 01",
-                                                       SimpleEMailAddress.Parse("firstOrgAdmin01@test.local")
+                                                       SimpleEMailAddress.Parse("firstOrgAdmin01@test.local"),
+                                                       MobilePhone: PhoneNumber.Parse("+49 170 333333")
                                                    ),
                                                    User2OrganizationEdgeTypes.IsAdmin,
                                                    result03.Organization);
@@ -242,6 +283,23 @@ namespace social.OpenData.UsersAPI.tests
             Assert.AreEqual (5, usersAPI.Users.Count());
 
             await usersAPI.AddEMailNotification(result04a.User,
+                                                new NotificationMessageType[] {
+                                                    UsersAPI.addUser_MessageType,
+                                                    UsersAPI.updateUser_MessageType,
+                                                    UsersAPI.deleteUser_MessageType,
+
+                                                    UsersAPI.addUserToOrganization_MessageType,
+                                                    UsersAPI.removeUserFromOrganization_MessageType,
+
+                                                    UsersAPI.addOrganization_MessageType,
+                                                    UsersAPI.updateOrganization_MessageType,
+                                                    UsersAPI.deleteOrganization_MessageType,
+
+                                                    UsersAPI.linkOrganizations_MessageType,
+                                                    UsersAPI.unlinkOrganizations_MessageType
+                                                });
+
+            await usersAPI.AddSMSNotification  (result04a.User,
                                                 new NotificationMessageType[] {
                                                     UsersAPI.addUser_MessageType,
                                                     UsersAPI.updateUser_MessageType,
@@ -275,7 +333,8 @@ namespace social.OpenData.UsersAPI.tests
             var result04c = await usersAPI.AddUser(new User(
                                                        User_Id.Parse("firstOrgMember01"),
                                                        "First Org Member 01",
-                                                       SimpleEMailAddress.Parse("firstOrgMember01@test.local")
+                                                       SimpleEMailAddress.Parse("firstOrgMember01@test.local"),
+                                                       MobilePhone: PhoneNumber.Parse("+49 170 444444")
                                                    ),
                                                    User2OrganizationEdgeTypes.IsMember,
                                                    result03.Organization);
@@ -286,6 +345,23 @@ namespace social.OpenData.UsersAPI.tests
             Assert.AreEqual (7, usersAPI.Users.Count());
 
             await usersAPI.AddEMailNotification(result04c.User,
+                                                new NotificationMessageType[] {
+                                                    UsersAPI.addUser_MessageType,
+                                                    UsersAPI.updateUser_MessageType,
+                                                    UsersAPI.deleteUser_MessageType,
+
+                                                    UsersAPI.addUserToOrganization_MessageType,
+                                                    UsersAPI.removeUserFromOrganization_MessageType,
+
+                                                    UsersAPI.addOrganization_MessageType,
+                                                    UsersAPI.updateOrganization_MessageType,
+                                                    UsersAPI.deleteOrganization_MessageType,
+
+                                                    UsersAPI.linkOrganizations_MessageType,
+                                                    UsersAPI.unlinkOrganizations_MessageType
+                                                });
+
+            await usersAPI.AddSMSNotification  (result04c.User,
                                                 new NotificationMessageType[] {
                                                     UsersAPI.addUser_MessageType,
                                                     UsersAPI.updateUser_MessageType,
@@ -338,7 +414,8 @@ namespace social.OpenData.UsersAPI.tests
             var result14a = await usersAPI.AddUser(new User(
                                                        User_Id.Parse("secondOrgAdmin01"),
                                                        "Second Org Admin 01",
-                                                       SimpleEMailAddress.Parse("secondOrgAdmin01@test.local")
+                                                       SimpleEMailAddress.Parse("secondOrgAdmin01@test.local"),
+                                                       MobilePhone: PhoneNumber.Parse("+49 170 555555")
                                                    ),
                                                    User2OrganizationEdgeTypes.IsAdmin,
                                                    result13.Organization);
@@ -348,6 +425,23 @@ namespace social.OpenData.UsersAPI.tests
             Assert.AreEqual (9, usersAPI.Users.Count());
 
             await usersAPI.AddEMailNotification(result14a.User,
+                                                new NotificationMessageType[] {
+                                                    UsersAPI.addUser_MessageType,
+                                                    UsersAPI.updateUser_MessageType,
+                                                    UsersAPI.deleteUser_MessageType,
+
+                                                    UsersAPI.addUserToOrganization_MessageType,
+                                                    UsersAPI.removeUserFromOrganization_MessageType,
+
+                                                    UsersAPI.addOrganization_MessageType,
+                                                    UsersAPI.updateOrganization_MessageType,
+                                                    UsersAPI.deleteOrganization_MessageType,
+
+                                                    UsersAPI.linkOrganizations_MessageType,
+                                                    UsersAPI.unlinkOrganizations_MessageType
+                                                });
+
+            await usersAPI.AddSMSNotification  (result14a.User,
                                                 new NotificationMessageType[] {
                                                     UsersAPI.addUser_MessageType,
                                                     UsersAPI.updateUser_MessageType,
@@ -381,7 +475,8 @@ namespace social.OpenData.UsersAPI.tests
             var result14c = await usersAPI.AddUser(new User(
                                                        User_Id.Parse("secondOrgMember01"),
                                                        "Second Org Member 01",
-                                                       SimpleEMailAddress.Parse("secondOrgMember01@test.local")
+                                                       SimpleEMailAddress.Parse("secondOrgMember01@test.local"),
+                                                       MobilePhone: PhoneNumber.Parse("+49 170 666666")
                                                    ),
                                                    User2OrganizationEdgeTypes.IsMember,
                                                    result13.Organization);
@@ -392,6 +487,23 @@ namespace social.OpenData.UsersAPI.tests
             Assert.AreEqual (11, usersAPI.Users.Count());
 
             await usersAPI.AddEMailNotification(result14c.User,
+                                                new NotificationMessageType[] {
+                                                    UsersAPI.addUser_MessageType,
+                                                    UsersAPI.updateUser_MessageType,
+                                                    UsersAPI.deleteUser_MessageType,
+
+                                                    UsersAPI.addUserToOrganization_MessageType,
+                                                    UsersAPI.removeUserFromOrganization_MessageType,
+
+                                                    UsersAPI.addOrganization_MessageType,
+                                                    UsersAPI.updateOrganization_MessageType,
+                                                    UsersAPI.deleteOrganization_MessageType,
+
+                                                    UsersAPI.linkOrganizations_MessageType,
+                                                    UsersAPI.unlinkOrganizations_MessageType
+                                                });
+
+            await usersAPI.AddSMSNotification  (result14c.User,
                                                 new NotificationMessageType[] {
                                                     UsersAPI.addUser_MessageType,
                                                     UsersAPI.updateUser_MessageType,
@@ -427,7 +539,7 @@ namespace social.OpenData.UsersAPI.tests
             Assert.IsTrue(nullMailer.EMails.Any(), "Not a single notification e-mail was sent!");
 
             var maxEMailSubjectLength  = nullMailer.EMails.Max   (emailEnvelope => emailEnvelope.Mail.Subject.Length);
-            var allEMailNotifications  = nullMailer.EMails.Select(emailEnvelope => emailEnvelope.Mail.Subject.PadRight(maxEMailSubjectLength + 2) + " => " + emailEnvelope.RcptTo.Select(email => email.Address).AggregateWith(", ")).ToArray();
+            var allEMailNotifications  = nullMailer.EMails.Select(emailEnvelope => emailEnvelope.Mail.Subject.PadRight(maxEMailSubjectLength + 2) + " => " + emailEnvelope.RcptTo.Select(email => email.Address).OrderBy(_ => _).AggregateWith(", ")).ToArray();
             var eMailOverview          = allEMailNotifications.AggregateWith(Environment.NewLine);
 
             // User 'API Admin 02' was successfully created.                                            => apiAdmin01@test.local
@@ -458,6 +570,42 @@ namespace social.OpenData.UsersAPI.tests
             // User 'Second Org Member 01' was added to organization 'Second Organization' as member.   => secondOrgAdmin01@test.local, firstOrgAdmin01@test.local, firstOrgMember01@test.local, apiAdmin01@test.local, apiMember01@test.local
             // User 'Second Org Member 02' was successfully created.                                    => secondOrgAdmin01@test.local, secondOrgMember01@test.local, firstOrgAdmin01@test.local, firstOrgMember01@test.local, apiAdmin01@test.local, apiMember01@test.local
             // User 'Second Org Member 02' was added to organization 'Second Organization' as member.   => secondOrgAdmin01@test.local, secondOrgMember01@test.local, firstOrgAdmin01@test.local, firstOrgMember01@test.local, apiAdmin01@test.local, apiMember01@test.local
+
+
+            Assert.IsTrue(nullSMSClient.SMSs.Any(), "Not a single notification SMS was sent!");
+
+            var maxSMSMessageLength  = nullSMSClient.SMSs.Max   (sms => sms.Text.Length);
+            var allSMSNotifications  = nullSMSClient.SMSs.Select(sms => sms.Text.PadRight(maxSMSMessageLength + 2) + " => " + sms.Receivers.OrderBy(_ =>_).AggregateWith(", ")).ToArray();
+            var smsOverview          = allSMSNotifications.AggregateWith(Environment.NewLine);
+
+            // User 'API Admin 02' was successfully added. https://example.cloud/users/apiAdmin02                           => +49 170 111111
+            // User 'API Admin 02' was added to organization 'Admins' as admin.                                             => +49 170 111111
+            // User 'API Member 01' was successfully added. https://example.cloud/users/apiMember01                         => +49 170 111111
+            // User 'API Member 01' was added to organization 'Admins' as member.                                           => +49 170 111111
+            // User 'API Member 02' was successfully added. https://example.cloud/users/apiMember02                         => +49 170 111111, +49 170 222222
+            // User 'API Member 02' was added to organization 'Admins' as member.                                           => +49 170 111111, +49 170 222222
+            //
+            // Organization 'First Organization' was successfully created. https://example.cloud/organizations/firstOrg     => +49 170 111111, +49 170 222222
+            // Organization 'First Organization' was linked to organization 'Admins'.                                       => +49 170 111111, +49 170 222222
+            // User 'First Org Admin 01' was successfully added. https://example.cloud/users/firstOrgAdmin01                => +49 170 111111, +49 170 222222
+            // User 'First Org Admin 01' was added to organization 'First Organization' as admin.                           => +49 170 111111, +49 170 222222
+            // User 'First Org Admin 02' was successfully added. https://example.cloud/users/firstOrgAdmin02                => +49 170 111111, +49 170 222222, +49 170 333333
+            // User 'First Org Admin 02' was added to organization 'First Organization' as admin.                           => +49 170 111111, +49 170 222222, +49 170 333333
+            // User 'First Org Member 01' was successfully added. https://example.cloud/users/firstOrgMember01              => +49 170 111111, +49 170 222222, +49 170 333333
+            // User 'First Org Member 01' was added to organization 'First Organization' as member.                         => +49 170 111111, +49 170 222222, +49 170 333333
+            // User 'First Org Member 02' was successfully added. https://example.cloud/users/firstOrgMember02              => +49 170 111111, +49 170 222222, +49 170 333333, +49 170 444444
+            // User 'First Org Member 02' was added to organization 'First Organization' as member.                         => +49 170 111111, +49 170 222222, +49 170 333333, +49 170 444444
+            //
+            // Organization 'Second Organization' was successfully created. https://example.cloud/organizations/secondOrg   => +49 170 111111, +49 170 222222, +49 170 333333, +49 170 444444
+            // Organization 'Second Organization' was linked to organization 'First Organization'.                          => +49 170 111111, +49 170 222222, +49 170 333333, +49 170 444444
+            // User 'Second Org Admin 01' was successfully added. https://example.cloud/users/secondOrgAdmin01              => +49 170 111111, +49 170 222222, +49 170 333333, +49 170 444444
+            // User 'Second Org Admin 01' was added to organization 'Second Organization' as admin.                         => +49 170 111111, +49 170 222222, +49 170 333333, +49 170 444444
+            // User 'Second Org Admin 02' was successfully added. https://example.cloud/users/secondOrgAdmin02              => +49 170 111111, +49 170 222222, +49 170 333333, +49 170 444444, +49 170 555555
+            // User 'Second Org Admin 02' was added to organization 'Second Organization' as admin.                         => +49 170 111111, +49 170 222222, +49 170 333333, +49 170 444444, +49 170 555555
+            // User 'Second Org Member 01' was successfully added. https://example.cloud/users/secondOrgMember01            => +49 170 111111, +49 170 222222, +49 170 333333, +49 170 444444, +49 170 555555
+            // User 'Second Org Member 01' was added to organization 'Second Organization' as member.                       => +49 170 111111, +49 170 222222, +49 170 333333, +49 170 444444, +49 170 555555
+            // User 'Second Org Member 02' was successfully added. https://example.cloud/users/secondOrgMember02            => +49 170 111111, +49 170 222222, +49 170 333333, +49 170 444444, +49 170 555555, +49 170 666666
+            // User 'Second Org Member 02' was added to organization 'Second Organization' as member.                       => +49 170 111111, +49 170 222222, +49 170 333333, +49 170 444444, +49 170 555555, +49 170 666666
 
         }
 
