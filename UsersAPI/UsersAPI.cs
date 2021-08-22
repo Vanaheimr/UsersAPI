@@ -17,9 +17,37 @@
 
 #region Usings
 
-using com.GraphDefined.SMSApi.API;
-using com.GraphDefined.SMSApi.API.Response;
+using System;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.Globalization;
+using System.Net.Security;
+using System.Security.Authentication;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+
 using Newtonsoft.Json.Linq;
+
+using Org.BouncyCastle.Asn1.Sec;
+using Org.BouncyCastle.Asn1.X9;
+using Org.BouncyCastle.Bcpg.OpenPgp;
+using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Math;
+using Org.BouncyCastle.Security;
+using Org.BouncyCastle.X509;
+
+using org.GraphDefined.Vanaheimr.Illias;
+using org.GraphDefined.Vanaheimr.Styx.Arrows;
+using org.GraphDefined.Vanaheimr.Warden;
 using org.GraphDefined.Vanaheimr.Aegir;
 using org.GraphDefined.Vanaheimr.BouncyCastle;
 using org.GraphDefined.Vanaheimr.Hermod;
@@ -29,36 +57,14 @@ using org.GraphDefined.Vanaheimr.Hermod.Mail;
 using org.GraphDefined.Vanaheimr.Hermod.SMTP;
 using org.GraphDefined.Vanaheimr.Hermod.Sockets;
 using org.GraphDefined.Vanaheimr.Hermod.Sockets.TCP;
-using org.GraphDefined.Vanaheimr.Illias;
-using org.GraphDefined.Vanaheimr.Styx.Arrows;
-using org.GraphDefined.Vanaheimr.Warden;
-using Org.BouncyCastle.Asn1.Sec;
-using Org.BouncyCastle.Asn1.X9;
-using Org.BouncyCastle.Bcpg.OpenPgp;
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Security;
-using Org.BouncyCastle.X509;
+
+using com.GraphDefined.SMSApi.API;
+using com.GraphDefined.SMSApi.API.Response;
+
 using social.OpenData.UsersAPI;
 using social.OpenData.UsersAPI.Notifications;
 using social.OpenData.UsersAPI.Postings;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Net.Security;
-using System.Security.Authentication;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+
 using Telegram.Bot;
 
 #endregion
@@ -1351,7 +1357,7 @@ namespace social.OpenData.UsersAPI
 
 
     /// <summary>
-    /// Managing users and organizations within a HTTP API.
+    /// Managing users and organizations et.al within a HTTP API.
     /// </summary>
     public class UsersAPI : HTTPAPI
     {
@@ -3394,7 +3400,7 @@ namespace social.OpenData.UsersAPI
         public static NotificationMessageType addUserGroupIfNotExists_MessageType             = NotificationMessageType.Parse("addUserGroupIfNotExists");
         public static NotificationMessageType addOrUpdateUserGroup_MessageType                = NotificationMessageType.Parse("addOrUpdateUserGroup");
         public static NotificationMessageType updateUserGroup_MessageType                     = NotificationMessageType.Parse("updateUserGroup");
-        public static NotificationMessageType removeUserGroup_MessageType                     = NotificationMessageType.Parse("removeUserGroup");
+        public static NotificationMessageType deleteUserGroup_MessageType                     = NotificationMessageType.Parse("deleteUserGroup");
 
         public static NotificationMessageType addUserToUserGroup_MessageType                  = NotificationMessageType.Parse("addUserToUserGroup");
         public static NotificationMessageType removeUserFromUserGroup_MessageType             = NotificationMessageType.Parse("removeUserFromUserGroup");
@@ -13976,7 +13982,7 @@ namespace social.OpenData.UsersAPI
 
                             // this --edge--> organization
                             foreach (var edge in __User.User2Organization_OutEdges.ToArray())
-                                edge.Target.RemoveInEdge(edge);
+                                edge.Target.RemoveUser(edge);
 
                         }
 
@@ -14363,7 +14369,7 @@ namespace social.OpenData.UsersAPI
                     }
 
 
-                    U2O_Organization.LinkUser(U2O_User.AddOutgoingEdge(U2O_EdgeLabel,
+                    U2O_Organization.AddUser(U2O_User.AddOutgoingEdge(U2O_EdgeLabel,
                                                                        U2O_Organization));
 
                     break;
@@ -14410,7 +14416,7 @@ namespace social.OpenData.UsersAPI
                         U2O_User.RemoveOutEdge(edge);
 
                     foreach (var edge in U2O_Organization.User2OrganizationInEdges(U2O_User).Where(_edge => _edge.EdgeLabel == U2O_EdgeLabel).ToArray())
-                        U2O_Organization.UnlinkUser(edge.EdgeLabel, U2O_User);
+                        U2O_Organization.RemoveUser(edge.EdgeLabel, U2O_User);
 
                     break;
 
@@ -14446,15 +14452,15 @@ namespace social.OpenData.UsersAPI
                     }
 
 
-                    if (!Enum.TryParse(Data["edge"].Value<String>(), out Organization2OrganizationEdgeTypes O2O_EdgeLabel))
+                    if (!Enum.TryParse(Data["edge"].Value<String>(), out Organization2OrganizationEdgeLabel O2O_EdgeLabel))
                     {
                         DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Unknown edge label '" + Data["edge"].Value<String>() + "'!"));
                         break;
                     }
 
 
-                    O2O_OrganizationIn.AddInEdge(O2O_OrganizationOut.AddOutEdge(O2O_EdgeLabel,
-                                                                                O2O_OrganizationIn));
+                    O2O_OrganizationIn.AddEdge(O2O_OrganizationOut.AddOutEdge(O2O_EdgeLabel,
+                                                                              O2O_OrganizationIn));
 
                     break;
 
@@ -14611,8 +14617,8 @@ namespace social.OpenData.UsersAPI
                     }
 
 
-                    U2G_Group.AddIncomingEdge(U2G_User.AddOutgoingEdge(U2G_EdgeLabel,
-                                                                       U2G_Group));
+                    U2G_Group.AddUser(U2G_User.AddToUserGroup(U2G_EdgeLabel,
+                                                              U2G_Group));
 
                     break;
 
@@ -15790,55 +15796,37 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Send user notifications.
         /// </summary>
-        /// <typeparam name="TUser">The type of the user.</typeparam>
         /// <param name="User">The user.</param>
         /// <param name="MessageType">The user notification.</param>
         /// <param name="OldUser">The old/updated user.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected internal async virtual Task SendNotifications<TUser>(TUser                    User,
-                                                                       NotificationMessageType  MessageType,
-                                                                       TUser                    OldUser           = null,
-                                                                       EventTracking_Id         EventTrackingId   = null,
-                                                                       User_Id?                 CurrentUserId     = null)
+        protected internal virtual Task SendNotifications(User                     User,
+                                                          NotificationMessageType  MessageType,
+                                                          User                     OldUser           = null,
+                                                          EventTracking_Id         EventTrackingId   = null,
+                                                          User_Id?                 CurrentUserId     = null)
 
-            where TUser : User
-
-        {
-
-            if (User is null)
-                throw new ArgumentNullException(nameof(User),         "The given user must not be null!");
-
-            if (MessageType.IsNullOrEmpty)
-                throw new ArgumentNullException(nameof(MessageType),  "The given message type must not be null or empty!");
-
-
-            await SendNotifications(User,
-                                    new NotificationMessageType[] { MessageType },
-                                    OldUser,
-                                    EventTrackingId,
-                                    CurrentUserId);
-
-        }
+            => SendNotifications(User,
+                                 new NotificationMessageType[] { MessageType },
+                                 OldUser,
+                                 EventTrackingId,
+                                 CurrentUserId);
 
 
         /// <summary>
         /// Send user notifications.
         /// </summary>
-        /// <typeparam name="TUser">The type of the user.</typeparam>
         /// <param name="User">The user.</param>
         /// <param name="MessageTypes">The user notifications.</param>
         /// <param name="OldUser">The old/updated user.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected internal async virtual Task SendNotifications<TUser>(TUser                                 User,
-                                                                       IEnumerable<NotificationMessageType>  MessageTypes,
-                                                                       TUser                                 OldUser           = null,
-                                                                       EventTracking_Id                      EventTrackingId   = null,
-                                                                       User_Id?                              CurrentUserId     = null)
-
-            where TUser : User
-
+        protected internal async virtual Task SendNotifications(User                                  User,
+                                                                IEnumerable<NotificationMessageType>  MessageTypes,
+                                                                User                                  OldUser           = null,
+                                                                EventTracking_Id                      EventTrackingId   = null,
+                                                                User_Id?                              CurrentUserId     = null)
         {
 
             if (User is null)
@@ -15873,7 +15861,7 @@ namespace social.OpenData.UsersAPI
             {
                 foreach (var higherLevelOrganization in allHisOrganizations.ToArray().
                                                                             SelectMany(org => org.Organization2OrganizationOutEdges.
-                                                                                                  Where (edge => edge.EdgeLabel == Organization2OrganizationEdgeTypes.IsChildOf).
+                                                                                                  Where (edge => edge.EdgeLabel == Organization2OrganizationEdgeLabel.IsChildOf).
                                                                                                   Select(edge => edge.Target)))
                 {
                     if (higherLevelOrganization != NoOwner)
@@ -16227,13 +16215,13 @@ namespace social.OpenData.UsersAPI
                 return AddUserResult.ArgumentError(User,
                                                    eventTrackingId,
                                                    nameof(User),
-                                                   "User identification '" + User.Id + "' already exists!");
+                                                   "The given user identification '" + User.Id + "' already exists!");
 
             if (User.Id.Length < MinUserIdLength)
                 return AddUserResult.ArgumentError(User,
                                                    eventTrackingId,
                                                    nameof(User),
-                                                   "User identification '" + User.Id + "' is too short!");
+                                                   "The given user identification '" + User.Id + "' is too short!");
 
             if (User.Name.IsNullOrEmpty() || User.Name.Trim().IsNullOrEmpty())
                 return AddUserResult.ArgumentError(User,
@@ -16245,7 +16233,7 @@ namespace social.OpenData.UsersAPI
                 return AddUserResult.ArgumentError(User,
                                                    eventTrackingId,
                                                    nameof(User),
-                                                   "User name '" + User.Name + "' is too short!");
+                                                   "The given user name '" + User.Name + "' is too short!");
 
             User.API = this;
 
@@ -16498,7 +16486,7 @@ namespace social.OpenData.UsersAPI
                 return AddUserIfNotExistsResult.ArgumentError(User,
                                                               eventTrackingId,
                                                               nameof(User),
-                                                              "User identification '" + User.Id + "' is too short!");
+                                                              "The given user identification '" + User.Id + "' is too short!");
 
             if (User.Name.IsNullOrEmpty() || User.Name.Trim().IsNullOrEmpty())
                 return AddUserIfNotExistsResult.ArgumentError(User,
@@ -16510,7 +16498,7 @@ namespace social.OpenData.UsersAPI
                 return AddUserIfNotExistsResult.ArgumentError(User,
                                                               eventTrackingId,
                                                               nameof(User),
-                                                              "User name '" + User.Name + "' is too short!");
+                                                              "The given user name '" + User.Name + "' is too short!");
 
             User.API = this;
 
@@ -16773,7 +16761,7 @@ namespace social.OpenData.UsersAPI
                 return AddOrUpdateUserResult.ArgumentError(User,
                                                            eventTrackingId,
                                                            nameof(User),
-                                                           "User name '" + User.Name + "' is too short!");
+                                                           "The given user name '" + User.Name + "' is too short!");
 
             User.API = this;
 
@@ -17750,13 +17738,13 @@ namespace social.OpenData.UsersAPI
         public event OnUserDeletedDelegate OnUserDeleted;
 
 
-        #region (protected internal virtual) CanDeleteUser(User)
+        #region (protected internal virtual) _CanDeleteUser(User)
 
         /// <summary>
         /// Determines whether the user can safely be deleted from the API.
         /// </summary>
         /// <param name="User">The user to be deleted.</param>
-        protected internal virtual I18NString CanDeleteUser(User User)
+        protected internal virtual I18NString _CanDeleteUser(User User)
         {
 
             if (User.User2Organization_OutEdges.Any())
@@ -17771,7 +17759,7 @@ namespace social.OpenData.UsersAPI
         #region (protected internal) _DeleteUser(User, OnDeleted = null, CurrentUserId = null)
 
         /// <summary>
-        /// Delete the given user from the API.
+        /// Delete the given user.
         /// </summary>
         /// <param name="User">The user to be deleted.</param>
         /// <param name="OnDeleted">A delegate run whenever the user has been deleted successfully.</param>
@@ -17804,7 +17792,7 @@ namespace social.OpenData.UsersAPI
                                                       "The given user does not exists in this API!");
 
 
-            var result = CanDeleteUser(User);
+            var result = _CanDeleteUser(User);
 
             if (result != null)
                 return DeleteUserResult.Failed(User,
@@ -17849,7 +17837,7 @@ namespace social.OpenData.UsersAPI
         #region DeleteUser                      (User, OnDeleted = null, CurrentUserId = null)
 
         /// <summary>
-        /// Delete the given user from the API.
+        /// Delete the given user.
         /// </summary>
         /// <param name="User">The user to be deleted.</param>
         /// <param name="OnDeleted">A delegate run whenever the user has been deleted successfully.</param>
@@ -17924,21 +17912,28 @@ namespace social.OpenData.UsersAPI
         {
             get
             {
-                try
-                {
-                    return UserGroupsSemaphore.Wait(SemaphoreSlimTimeout)
-                               ? _UserGroups.Values.ToArray()
-                               : new UserGroup[0];
-                }
-                finally
+
+                if (UserGroupsSemaphore.Wait(SemaphoreSlimTimeout))
                 {
                     try
                     {
-                        UserGroupsSemaphore.Release();
+
+                        return _UserGroups.Values.ToArray();
+
                     }
-                    catch
-                    { }
+                    finally
+                    {
+                        try
+                        {
+                            UserGroupsSemaphore.Release();
+                        }
+                        catch
+                        { }
+                    }
                 }
+
+                return new UserGroup[0];
+
             }
         }
 
@@ -18097,7 +18092,7 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region AddUserGroup           (UserGroup, OnAdded = null,                   CurrentUserId = null)
+        #region AddUserGroup           (UserGroup, OnAdded = null,                   EventTrackingId = null, CurrentUserId = null)
 
         /// <summary>
         /// A delegate called whenever a user group was added.
@@ -18117,7 +18112,7 @@ namespace social.OpenData.UsersAPI
         public event OnUserGroupAddedDelegate OnUserGroupAdded;
 
 
-        #region (protected internal) _AddUserGroup(UserGroup,                                OnAdded = null, CurrentUserId = null)
+        #region (protected internal) _AddUserGroup(UserGroup, OnAdded = null, EventTrackingId = null, CurrentUserId = null)
 
         /// <summary>
         /// Add the given user group to the API.
@@ -18126,32 +18121,52 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnAdded">A delegate run whenever the user group has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected internal async Task<UserGroup> _AddUserGroup(UserGroup                            UserGroup,
-                                                               Action<UserGroup, EventTracking_Id>  OnAdded           = null,
-                                                               EventTracking_Id                     EventTrackingId   = null,
-                                                               User_Id?                             CurrentUserId     = null)
+        protected internal async Task<AddUserGroupResult> _AddUserGroup(UserGroup                            UserGroup,
+                                                                        Action<UserGroup, EventTracking_Id>  OnAdded           = null,
+                                                                        EventTracking_Id                     EventTrackingId   = null,
+                                                                        User_Id?                             CurrentUserId     = null)
         {
 
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
             if (UserGroup is null)
-                throw new ArgumentNullException(nameof(UserGroup),
-                                                "The given user group must not be null!");
+                return AddUserGroupResult.ArgumentError(UserGroup,
+                                                        eventTrackingId,
+                                                        nameof(UserGroup),
+                                                        "The given user group must not be null!");
 
             if (UserGroup.API != null && UserGroup.API != this)
-                throw new ArgumentException    ("The given user group is already attached to another API!",
-                                                nameof(UserGroup));
+                return AddUserGroupResult.ArgumentError(UserGroup,
+                                                        eventTrackingId,
+                                                        nameof(UserGroup),
+                                                        "The given user group is already attached to another API!");
 
             if (_UserGroups.ContainsKey(UserGroup.Id))
-                throw new ArgumentException    ("User group identification '" + UserGroup.Id + "' already exists!",
-                                                nameof(UserGroup));
+                return AddUserGroupResult.ArgumentError(UserGroup,
+                                                        eventTrackingId,
+                                                        nameof(UserGroup),
+                                                        "The given user group identification '" + UserGroup.Id + "' already exists!");
 
             if (UserGroup.Id.Length < MinUserGroupIdLength)
-                throw new ArgumentException    ("User group identification '" + UserGroup.Id + "' is too short!",
-                                                nameof(UserGroup));
+                return AddUserGroupResult.ArgumentError(UserGroup,
+                                                        eventTrackingId,
+                                                        nameof(UserGroup),
+                                                        "UserGroup identification '" + UserGroup.Id + "' is too short!");
+
+            //if (UserGroup.Name.IsNullOrEmpty() || UserGroup.Name.Trim().IsNullOrEmpty())
+            //    return AddUserGroupResult.ArgumentError(UserGroup,
+            //                                            eventTrackingId,
+            //                                            nameof(UserGroup),
+            //                                            "The given user name must not be null!");
+
+            //if (UserGroup.Name.Length < MinUserGroupNameLength)
+            //    return AddUserGroupResult.ArgumentError(UserGroup,
+            //                                            eventTrackingId,
+            //                                            nameof(UserGroup),
+            //                                            "UserGroup name '" + UserGroup.Name + "' is too short!");
 
             UserGroup.API = this;
 
-
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             await WriteToDatabaseFile(addUserGroup_MessageType,
                                       UserGroup.ToJSON(false, true),
@@ -18161,6 +18176,9 @@ namespace social.OpenData.UsersAPI
             _UserGroups.Add(UserGroup.Id, UserGroup);
 
 
+            OnAdded?.Invoke(UserGroup,
+                            eventTrackingId);
+
             var OnUserGroupAddedLocal = OnUserGroupAdded;
             if (OnUserGroupAddedLocal != null)
                 await OnUserGroupAddedLocal?.Invoke(DateTime.UtcNow,
@@ -18169,21 +18187,19 @@ namespace social.OpenData.UsersAPI
                                                     CurrentUserId);
 
             await SendNotifications(UserGroup,
-                                    addUser_MessageType,
+                                    addUserGroup_MessageType,
                                     null,
                                     eventTrackingId,
                                     CurrentUserId);
 
-            OnAdded?.Invoke(UserGroup,
-                            eventTrackingId);
-
-            return UserGroup;
+            return AddUserGroupResult.Success(UserGroup,
+                                              eventTrackingId);
 
         }
 
         #endregion
 
-        #region AddUserGroup             (UserGroup,                                OnAdded = null, CurrentUserId = null)
+        #region AddUserGroup                      (UserGroup, OnAdded = null, EventTrackingId = null, CurrentUserId = null)
 
         /// <summary>
         /// Add the given user group.
@@ -18192,37 +18208,49 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnAdded">A delegate run whenever the user group has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<UserGroup> AddUserGroup(UserGroup                            UserGroup,
-                                                  Action<UserGroup, EventTracking_Id>  OnAdded           = null,
-                                                  EventTracking_Id                     EventTrackingId   = null,
-                                                  User_Id?                             CurrentUserId     = null)
+        public async Task<AddUserGroupResult> AddUserGroup(UserGroup                            UserGroup,
+                                                           Action<UserGroup, EventTracking_Id>  OnAdded           = null,
+                                                           EventTracking_Id                     EventTrackingId   = null,
+                                                           User_Id?                             CurrentUserId     = null)
         {
 
-            if (UserGroup is null)
-                throw new ArgumentNullException(nameof(UserGroup), "The given user group must not be null!");
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
-            try
-            {
-
-                return (await UserGroupsSemaphore.WaitAsync(SemaphoreSlimTimeout))
-
-                            ? await _AddUserGroup(UserGroup,
-                                                  OnAdded,
-                                                  EventTrackingId,
-                                                  CurrentUserId)
-
-                            : null;
-
-            }
-            finally
+            if (await UserGroupsSemaphore.WaitAsync(SemaphoreSlimTimeout))
             {
                 try
                 {
-                    UserGroupsSemaphore.Release();
+
+                    return await _AddUserGroup(UserGroup,
+                                               OnAdded,
+                                               eventTrackingId,
+                                               CurrentUserId);
+
                 }
-                catch
-                { }
+                catch (Exception e)
+                {
+
+                    DebugX.LogException(e);
+
+                    return AddUserGroupResult.Failed(UserGroup,
+                                                     eventTrackingId,
+                                                     e);
+
+                }
+                finally
+                {
+                    try
+                    {
+                        UserGroupsSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
+
+            return AddUserGroupResult.Failed(UserGroup,
+                                             eventTrackingId,
+                                             "Internal locking failed!");
 
         }
 
@@ -19071,155 +19099,308 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region RemoveUserGroup(UserGroup, OnRemoved = null, CurrentUserId = null)
+        #region DeleteUserGroup(UserGroup, OnDeleted = null, CurrentUserId = null)
 
         /// <summary>
-        /// A delegate called whenever a user group was removed.
+        /// A delegate called whenever a user group was deleted.
         /// </summary>
-        /// <param name="Timestamp">The timestamp when the user group was removed.</param>
-        /// <param name="UserGroup">The removed user group.</param>
+        /// <param name="Timestamp">The timestamp when the user group was deleted.</param>
+        /// <param name="UserGroup">The deleted user group.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking user group identification</param>
-        public delegate Task OnUserGroupRemovedDelegate(DateTime          Timestamp,
+        public delegate Task OnUserGroupDeletedDelegate(DateTime          Timestamp,
                                                         UserGroup         UserGroup,
                                                         EventTracking_Id  EventTrackingId   = null,
                                                         User_Id?          CurrentUserId     = null);
 
         /// <summary>
-        /// An event fired whenever a user group was removed.
+        /// An event fired whenever a user group was deleted.
         /// </summary>
-        public event OnUserGroupRemovedDelegate OnUserGroupRemoved;
+        public event OnUserGroupDeletedDelegate OnUserGroupDeleted;
 
 
-        #region (protected internal virtual) CanDeleteUserGroup(UserGroup)
+        #region (protected internal virtual) _CanDeleteUserGroup(UserGroup)
 
         /// <summary>
         /// Determines whether the user group can safely be removed from the API.
         /// </summary>
-        /// <param name="UserGroup">The user group to be removed.</param>
-        protected internal virtual I18NString CanDeleteUserGroup(UserGroup UserGroup)
+        /// <param name="UserGroup">The user group to be deleted.</param>
+        protected internal virtual I18NString _CanDeleteUserGroup(UserGroup UserGroup)
         {
             return new I18NString(Languages.en, "Currently not possible!");
         }
 
         #endregion
 
-        #region (protected internal) _RemoveUserGroup(UserGroup, OnRemoved = null, CurrentUserId = null)
+        #region (protected internal) _DeleteUserGroup(UserGroup, OnDeleted = null, CurrentUserId = null)
 
         /// <summary>
-        /// Remove the given user group from the API.
+        /// Delete the given user group.
         /// </summary>
-        /// <param name="UserGroup">The user group to be removed from this API.</param>
-        /// <param name="OnRemoved">A delegate run whenever the user group has been removed successfully.</param>
+        /// <param name="UserGroup">The user group to be deleted.</param>
+        /// <param name="OnDeleted">A delegate run whenever the user group has been deleted successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user group identification initiating this command/request.</param>
-        protected internal async Task<RemoveUserGroupResult> _RemoveUserGroup(UserGroup                            UserGroup,
-                                                                              Action<UserGroup, EventTracking_Id>  OnRemoved         = null,
+        protected internal async Task<DeleteUserGroupResult> _DeleteUserGroup(UserGroup                            UserGroup,
+                                                                              Action<UserGroup, EventTracking_Id>  OnDeleted         = null,
                                                                               EventTracking_Id                     EventTrackingId   = null,
                                                                               User_Id?                             CurrentUserId     = null)
         {
 
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
             if (UserGroup is null)
-                throw new ArgumentNullException(nameof(UserGroup),
-                                                "The given user group must not be null!");
+                return DeleteUserGroupResult.ArgumentError(UserGroup,
+                                                           eventTrackingId,
+                                                           nameof(UserGroup),
+                                                           "The given user group must not be null!");
 
-            if (UserGroup.API != this || !_UserGroups.TryGetValue(UserGroup.Id, out UserGroup UserGroupToBeRemoved))
-                throw new ArgumentException    ("The given user group '" + UserGroup.Id + "' does not exists in this API!",
-                                                nameof(UserGroup));
+            if (UserGroup.API != this)
+                return DeleteUserGroupResult.ArgumentError(UserGroup,
+                                                           eventTrackingId,
+                                                           nameof(UserGroup),
+                                                           "The given user group is not attached to this API!");
+
+            if (!_UserGroups.TryGetValue(UserGroup.Id, out UserGroup UserGroupToBeDeleted))
+                return DeleteUserGroupResult.ArgumentError(UserGroup,
+                                                           eventTrackingId,
+                                                           nameof(UserGroup),
+                                                           "The given user group does not exists in this API!");
 
 
-            var result = CanDeleteUserGroup(UserGroup);
+            var result = _CanDeleteUserGroup(UserGroup);
 
-            if (result == null)
+            if (result != null)
+                return DeleteUserGroupResult.Failed(UserGroup,
+                                                    eventTrackingId,
+                                                    result);
+
+
+            // Get all parent user groups now, because later
+            // the --isSubGroupOf--> edge will no longer be available!
+            var parentUserGroups = UserGroup.GetAllParents().
+                                             ToArray();
+
+            //// Remove all: this --edge--> other user group
+            //foreach (var edge in UserGroup.UserGroup2UserGroupOutEdges.ToArray())
+            //    await _UnlinkUserGroups(edge.Source,
+            //                            edge.EdgeLabel,
+            //                            edge.Target,
+            //                            EventTrackingId,
+            //                            SuppressNotifications:  false,
+            //                            CurrentUserId:          CurrentUserId);
+
+            //// Remove all: this <--edge-- other user group
+            //foreach (var edge in UserGroup.UserGroup2UserGroupInEdges.ToArray())
+            //    await _UnlinkUserGroups(edge.Target,
+            //                            edge.EdgeLabel,
+            //                            edge.Source,
+            //                            EventTrackingId,
+            //                            SuppressNotifications:  false,
+            //                            CurrentUserId:          CurrentUserId);
+
+
+            await WriteToDatabaseFile(deleteUserGroup_MessageType,
+                                      UserGroup.ToJSON(false, true),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            _UserGroups.Remove(UserGroup.Id);
+
+            OnDeleted?.Invoke(UserGroup,
+                              eventTrackingId);
+
+            var OnUserGroupDeletedLocal = OnUserGroupDeleted;
+            if (OnUserGroupDeletedLocal != null)
+                await OnUserGroupDeletedLocal?.Invoke(DateTime.UtcNow,
+                                                      UserGroup,
+                                                      eventTrackingId,
+                                                      CurrentUserId);
+
+            // Special handling of the 'deleteUserGroup' notifications...
+            if (!DisableNotifications)
             {
 
-                var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+                #region Telegram Notifications
 
-                await WriteToDatabaseFile(removeUserGroup_MessageType,
-                                          UserGroup.ToJSON(false, true),
-                                          eventTrackingId,
-                                          CurrentUserId);
+                if (TelegramStore != null)
+                {
+                    try
+                    {
 
-                _UserGroups.Remove(UserGroup.Id);
+                        var AllTelegramNotifications  = parentUserGroups.
+                                                            SelectMany(parent => parent.User2UserGroupEdges).
+                                                            SelectMany(edge   => edge.Source.GetNotificationsOf<TelegramNotification>(deleteUserGroup_MessageType)).
+                                                            ToHashSet();
 
+                        if (AllTelegramNotifications.SafeAny())
+                            await TelegramStore.SendTelegrams(String.Concat("User group '", UserGroup.Name.FirstText(), "' has been deleted. "),
+                                                              AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
 
-                var OnUserGroupRemovedLocal = OnUserGroupRemoved;
-                if (OnUserGroupRemovedLocal != null)
-                    await OnUserGroupRemovedLocal?.Invoke(DateTime.UtcNow,
-                                                          UserGroup,
-                                                          eventTrackingId,
-                                                          CurrentUserId);
+                    }
+                    catch (Exception e)
+                    {
+                        DebugX.LogException(e);
+                    }
+                }
 
-                await SendNotifications(UserGroup,
-                                        removeUserGroup_MessageType,
-                                        null,
-                                        eventTrackingId,
-                                        CurrentUserId);
+                #endregion
 
-                OnRemoved?.Invoke(UserGroup,
-                                  eventTrackingId);
+                #region SMS Notifications
 
-                return RemoveUserGroupResult.Success(UserGroup,
-                                                     EventTrackingId);
+                try
+                {
+
+                    var AllSMSNotifications = parentUserGroups.
+                                                  SelectMany(parent => parent.User2UserGroupEdges).
+                                                  SelectMany(edge   => edge.Source.GetNotificationsOf<SMSNotification>(deleteUserGroup_MessageType)).
+                                                  ToHashSet();
+
+                    if (AllSMSNotifications.SafeAny())
+                        SendSMS(String.Concat("User group '", UserGroup.Name.FirstText(), "' has been deleted."),
+                                AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
+                                SMSSenderName);
+
+                }
+                catch (Exception e)
+                {
+                    DebugX.LogException(e);
+                }
+
+                #endregion
+
+                #region HTTPS Notifications
+
+                try
+                {
+
+                    var AllHTTPSNotifications = parentUserGroups.
+                                                    SelectMany(parent => parent.User2UserGroupEdges).
+                                                    SelectMany(edge   => edge.Source.GetNotificationsOf<HTTPSNotification>(deleteUserGroup_MessageType)).
+                                                    ToHashSet();
+
+                    if (AllHTTPSNotifications.SafeAny())
+                        await SendHTTPSNotifications(AllHTTPSNotifications,
+                                                     new JObject(
+                                                         new JProperty("userGroupDeleted",
+                                                             UserGroup.ToJSON()
+                                                         ),
+                                                         new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                                                     ));
+
+                }
+                catch (Exception e)
+                {
+                    DebugX.LogException(e);
+                }
+
+                #endregion
+
+                #region EMailNotifications
+
+                if (APISMTPClient != null)
+                {
+                    try
+                    {
+
+                        var AllEMailNotifications = parentUserGroups.
+                                                        SelectMany(parent => parent.User2UserGroupEdges).
+                                                        SelectMany(edge   => edge.Source.GetNotificationsOf<EMailNotification>(deleteUserGroup_MessageType)).
+                                                        ToHashSet();
+
+                        if (AllEMailNotifications.SafeAny())
+                            await APISMTPClient.Send(
+                                     new HTMLEMailBuilder() {
+
+                                         From           = Robot.EMail,
+                                         To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
+                                         Passphrase     = APIPassphrase,
+                                         Subject        = String.Concat("User group '", UserGroup.Name.FirstText(), "' has been deleted."),
+
+                                         HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
+                                                                        "User group <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", UserGroup.Id, "\">", UserGroup.Name.FirstText(), "</a> has been deleted.<br />",
+                                                                        HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
+
+                                         PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
+                                                                        "User group '", UserGroup.Name.FirstText(), "' has been deleted.\r\n",
+                                                                        TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
+
+                                         SecurityLevel  = EMailSecurity.auto
+
+                                     });
+
+                    }
+                    catch (Exception e)
+                    {
+                        DebugX.LogException(e);
+                    }
+                }
+
+                #endregion
 
             }
-            else
-                return RemoveUserGroupResult.Failed(UserGroup,
-                                                    EventTrackingId,
-                                                    result);
+
+            return DeleteUserGroupResult.Success(UserGroup,
+                                                 eventTrackingId);
+
 
         }
 
         #endregion
 
-        #region RemoveUserGroup                      (UserGroup, OnRemoved = null, CurrentUserId = null)
+        #region DeleteUserGroup                      (UserGroup, OnDeleted = null, CurrentUserId = null)
 
         /// <summary>
-        /// Remove the given user group from the API.
+        /// Delete the given user group.
         /// </summary>
-        /// <param name="UserGroup">The user group to be removed from this API.</param>
-        /// <param name="OnRemoved">A delegate run whenever the user group has been removed successfully.</param>
+        /// <param name="UserGroup">The user group to be deleted.</param>
+        /// <param name="OnDeleted">A delegate run whenever the user group has been deleted successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user group identification initiating this command/request.</param>
-        public async Task<RemoveUserGroupResult> RemoveUserGroup(UserGroup                            UserGroup,
-                                                                 Action<UserGroup, EventTracking_Id>  OnRemoved         = null,
+        public async Task<DeleteUserGroupResult> DeleteUserGroup(UserGroup                            UserGroup,
+                                                                 Action<UserGroup, EventTracking_Id>  OnDeleted         = null,
                                                                  EventTracking_Id                     EventTrackingId   = null,
                                                                  User_Id?                             CurrentUserId     = null)
         {
 
-            if (UserGroup is null)
-                throw new ArgumentNullException(nameof(UserGroup), "The given user group must not be null!");
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
-            try
-            {
-
-                return (await UserGroupsSemaphore.WaitAsync(SemaphoreSlimTimeout))
-
-                            ? await _RemoveUserGroup(UserGroup,
-                                                     OnRemoved,
-                                                     EventTrackingId,
-                                                     CurrentUserId)
-
-                            : RemoveUserGroupResult.Failed(UserGroup,
-                                                           EventTrackingId,
-                                                           "Internal locking failed!");
-
-            }
-            catch (Exception e)
-            {
-                return RemoveUserGroupResult.Failed(UserGroup,
-                                                    EventTrackingId,
-                                                    e);
-            }
-            finally
+            if (await UserGroupsSemaphore.WaitAsync(SemaphoreSlimTimeout))
             {
                 try
                 {
-                    UserGroupsSemaphore.Release();
+
+                    return await _DeleteUserGroup(UserGroup,
+                                                  OnDeleted,
+                                                  eventTrackingId,
+                                                  CurrentUserId);
+
                 }
-                catch
-                { }
+                catch (Exception e)
+                {
+
+                    DebugX.LogException(e);
+
+                    return DeleteUserGroupResult.Failed(UserGroup,
+                                                        eventTrackingId,
+                                                        e);
+
+                }
+                finally
+                {
+                    try
+                    {
+                        UserGroupsSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
+
             }
+
+            return DeleteUserGroupResult.Failed(UserGroup,
+                                                eventTrackingId,
+                                                "Internal locking failed!");
 
         }
 
@@ -22858,100 +23039,195 @@ namespace social.OpenData.UsersAPI
 
 
 
-        #region GetNotifications  (User,   NotificationMessageType = null)
+        #region GetNotifications  (User,           NotificationMessageType = null)
 
         public IEnumerable<ANotification> GetNotifications(User                      User,
                                                            NotificationMessageType?  NotificationMessageType = null)
+        {
 
-            => User.GetNotifications(NotificationMessageType);
+            if (UsersSemaphore.Wait(SemaphoreSlimTimeout))
+            {
+                try
+                {
+
+                    return User.GetNotifications(NotificationMessageType);
+
+                }
+                catch
+                { }
+                finally
+                {
+                    try
+                    {
+                        UsersSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
+            }
+
+            return new ANotification[0];
+
+        }
 
         #endregion
 
-        #region GetNotifications  (UserId, NotificationMessageType = null)
+        #region GetNotifications  (UserId,         NotificationMessageType = null)
 
         public IEnumerable<ANotification> GetNotifications(User_Id                   UserId,
                                                            NotificationMessageType?  NotificationMessageType = null)
         {
 
-            try
+            if (UsersSemaphore.Wait(SemaphoreSlimTimeout))
             {
+                try
+                {
 
-                UsersSemaphore.Wait();
+                    if (_Users.TryGetValue(UserId, out User user))
+                        return user.GetNotifications(NotificationMessageType);
 
-                return _GetNotifications(UserId, NotificationMessageType);
-
+                }
+                catch
+                { }
+                finally
+                {
+                    try
+                    {
+                        UsersSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
-            finally
-            {
-                UsersSemaphore.Release();
-            }
+
+            return new ANotification[0];
 
         }
 
-        private IEnumerable<ANotification> _GetNotifications(User_Id                   UserId,
-                                                             NotificationMessageType?  NotificationMessageType = null)
-
-            => _Users.TryGetValue(UserId, out User User)
-                   ? User.GetNotifications(NotificationMessageType)
-                   : new ANotification[0];
-
         #endregion
 
-        #region GetNotificationsOf(User,   params NotificationMessageTypes)
+
+        #region GetNotificationsOf(User,           params NotificationMessageTypes)
 
         public IEnumerable<T> GetNotificationsOf<T>(User                              User,
                                                     params NotificationMessageType[]  NotificationMessageTypes)
 
             where T : ANotification
 
-            => User.GetNotificationsOf<T>(NotificationMessageTypes);
-
-        #endregion
-
-        #region GetNotificationsOf(UserId, params NotificationMessageTypes)
-
-        public IEnumerable<T> GetNotificationsOf<T>(User_Id                           UserId,
-                                                    params NotificationMessageType[]  NotificationMessageTypes)
-            where T : ANotification
         {
 
-            try
+            if (UsersSemaphore.Wait(SemaphoreSlimTimeout))
             {
+                try
+                {
 
-                UsersSemaphore.Wait();
+                    return User.GetNotificationsOf<T>(NotificationMessageTypes);
 
-                return _GetNotificationsOf<T>(UserId, NotificationMessageTypes);
-
+                }
+                catch
+                { }
+                finally
+                {
+                    try
+                    {
+                        UsersSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
             }
-            finally
-            {
-                UsersSemaphore.Release();
-            }
+
+            return new T[0];
 
         }
 
-        private IEnumerable<T> _GetNotificationsOf<T>(User_Id                           UserId,
-                                                      params NotificationMessageType[]  NotificationMessageTypes)
+        #endregion
+
+        #region GetNotificationsOf(UserId,         params NotificationMessageTypes)
+
+        public IEnumerable<T> GetNotificationsOf<T>(User_Id                           UserId,
+                                                    params NotificationMessageType[]  NotificationMessageTypes)
 
             where T : ANotification
 
-            => _Users.TryGetValue(UserId, out User User)
-                   ? User.GetNotificationsOf<T>(NotificationMessageTypes)
-                   : new T[0];
+        {
+
+            if (UsersSemaphore.Wait(SemaphoreSlimTimeout))
+            {
+                try
+                {
+
+                    if (_Users.TryGetValue(UserId, out User user))
+                        return user.GetNotificationsOf<T>(NotificationMessageTypes);
+
+                }
+                catch
+                { }
+                finally
+                {
+                    try
+                    {
+                        UsersSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
+            }
+
+            return new T[0];
+
+        }
 
         #endregion
-
 
         #region GetNotificationsOf(Organization,   params NotificationMessageTypes)
 
         public IEnumerable<T> GetNotificationsOf<T>(Organization                      Organization,
                                                     params NotificationMessageType[]  NotificationMessageTypes)
+
             where T : ANotification
 
-            => Organization.
-                   GetMeAndAllMyParents(parent => parent != NoOwner).
-                   SelectMany          (parent => parent.User2OrganizationEdges).
-                   SelectMany          (edge   => _GetNotificationsOf<T>(edge.Source.Id, NotificationMessageTypes));
+        {
+
+            if (UsersSemaphore.Wait(SemaphoreSlimTimeout))
+            {
+                if (OrganizationsSemaphore.Wait(SemaphoreSlimTimeout))
+                {
+                    try
+                    {
+
+                        return Organization.
+                                   GetMeAndAllMyParents(parent => parent != NoOwner).
+                                   SelectMany          (parent => parent.User2OrganizationEdges).
+                                   SelectMany          (edge   => edge.Source.GetNotificationsOf<T>(NotificationMessageTypes));
+
+                    }
+                    catch
+                    { }
+                    finally
+                    {
+                        try
+                        {
+                            UsersSemaphore.Release();
+                        }
+                        catch
+                        { }
+
+                        try
+                        {
+                            OrganizationsSemaphore.Release();
+                        }
+                        catch
+                        { }
+                    }
+                }
+                else
+                    UsersSemaphore.Release();
+            }
+
+            return new T[0];
+
+        }
 
         #endregion
 
@@ -22959,34 +23235,157 @@ namespace social.OpenData.UsersAPI
 
         public IEnumerable<T> GetNotificationsOf<T>(Organization_Id                   OrganizationId,
                                                     params NotificationMessageType[]  NotificationMessageTypes)
+
             where T : ANotification
+
         {
 
-            try
+            if (UsersSemaphore.Wait(SemaphoreSlimTimeout))
             {
+                if (OrganizationsSemaphore.Wait(SemaphoreSlimTimeout))
+                {
+                    try
+                    {
 
-                //OrganizationsSemaphore.Wait();
+                        if (_Organizations.TryGetValue(OrganizationId, out Organization organization))
+                            return organization.
+                                       GetMeAndAllMyParents(parent => parent != NoOwner).
+                                       SelectMany          (parent => parent.User2OrganizationEdges).
+                                       SelectMany          (edge   => edge.Source.GetNotificationsOf<T>(NotificationMessageTypes));
 
-                return _GetNotificationsOf<T>(OrganizationId, NotificationMessageTypes);
+                    }
+                    catch
+                    { }
+                    finally
+                    {
+                        try
+                        {
+                            UsersSemaphore.Release();
+                        }
+                        catch
+                        { }
 
+                        try
+                        {
+                            OrganizationsSemaphore.Release();
+                        }
+                        catch
+                        { }
+                    }
+                }
+                else
+                    UsersSemaphore.Release();
             }
-            finally
-            {
-                //OrganizationsSemaphore.Release();
-            }
+
+            return new T[0];
 
         }
 
-        private IEnumerable<T> _GetNotificationsOf<T>(Organization_Id                   OrganizationId,
-                                                      params NotificationMessageType[]  NotificationMessageTypes)
+        #endregion
+
+        #region GetNotificationsOf(UserGroup,      params NotificationMessageTypes)
+
+        public IEnumerable<T> GetNotificationsOf<T>(UserGroup                         UserGroup,
+                                                    params NotificationMessageType[]  NotificationMessageTypes)
 
             where T : ANotification
 
-            => _Organizations.TryGetValue(OrganizationId, out Organization Organization)
-                   ? GetNotificationsOf<T>(Organization, NotificationMessageTypes)
-                   : new T[0];
+        {
+
+            if (UsersSemaphore.Wait(SemaphoreSlimTimeout))
+            {
+                if (UserGroupsSemaphore.Wait(SemaphoreSlimTimeout))
+                {
+                    try
+                    {
+
+                        return UserGroup.
+                                   GetMeAndAllMyParents().
+                                   SelectMany(parent => parent.User2UserGroupEdges).
+                                   SelectMany(edge   => edge.Source.GetNotificationsOf<T>(NotificationMessageTypes));
+
+                    }
+                    catch
+                    { }
+                    finally
+                    {
+                        try
+                        {
+                            UsersSemaphore.Release();
+                        }
+                        catch
+                        { }
+
+                        try
+                        {
+                            UserGroupsSemaphore.Release();
+                        }
+                        catch
+                        { }
+                    }
+                }
+                else
+                    UsersSemaphore.Release();
+            }
+
+            return new T[0];
+
+        }
 
         #endregion
+
+        #region GetNotificationsOf(UserGroupId,    params NotificationMessageTypes)
+
+        public IEnumerable<T> GetNotificationsOf<T>(UserGroup_Id                      UserGroupId,
+                                                    params NotificationMessageType[]  NotificationMessageTypes)
+
+            where T : ANotification
+
+        {
+
+            if (UsersSemaphore.Wait(SemaphoreSlimTimeout))
+            {
+                if (UserGroupsSemaphore.Wait(SemaphoreSlimTimeout))
+                {
+                    try
+                    {
+
+                        if (_UserGroups.TryGetValue(UserGroupId, out UserGroup userGroup))
+                            return userGroup.
+                                       GetMeAndAllMyParents().
+                                       SelectMany(parent => parent.User2UserGroupEdges).
+                                       SelectMany(edge   => edge.Source.GetNotificationsOf<T>(NotificationMessageTypes));
+
+                    }
+                    catch
+                    { }
+                    finally
+                    {
+                        try
+                        {
+                            UsersSemaphore.Release();
+                        }
+                        catch
+                        { }
+
+                        try
+                        {
+                            UserGroupsSemaphore.Release();
+                        }
+                        catch
+                        { }
+                    }
+                }
+                else
+                    UsersSemaphore.Release();
+            }
+
+            return new T[0];
+
+        }
+
+        #endregion
+
 
 
         #region GetNotifications  (User,   NotificationMessageTypeFilter)
@@ -24983,27 +25382,17 @@ namespace social.OpenData.UsersAPI
         /// <param name="OldOrganization">The old/updated organization.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking organization identification</param>
-        protected internal async virtual Task SendNotifications(Organization             Organization,
-                                                                NotificationMessageType  MessageType,
-                                                                Organization             OldOrganization   = null,
-                                                                EventTracking_Id         EventTrackingId   = null,
-                                                                User_Id?                 CurrentUserId     = null)
-        {
+        protected internal virtual Task SendNotifications(Organization             Organization,
+                                                          NotificationMessageType  MessageType,
+                                                          Organization             OldOrganization   = null,
+                                                          EventTracking_Id         EventTrackingId   = null,
+                                                          User_Id?                 CurrentUserId     = null)
 
-            if (Organization is null)
-                throw new ArgumentNullException(nameof(Organization),  "The given organization must not be null or empty!");
-
-            if (MessageType.IsNullOrEmpty)
-                throw new ArgumentNullException(nameof(MessageType),   "The given message type must not be null or empty!");
-
-
-            await SendNotifications(Organization,
-                                    new NotificationMessageType[] { MessageType },
-                                    OldOrganization,
-                                    EventTrackingId,
-                                    CurrentUserId);
-
-        }
+            => SendNotifications(Organization,
+                                 new NotificationMessageType[] { MessageType },
+                                 OldOrganization,
+                                 EventTrackingId,
+                                 CurrentUserId);
 
 
         /// <summary>
@@ -25448,7 +25837,7 @@ namespace social.OpenData.UsersAPI
                                                         async (_organization, _eventTrackingId) => {
 
                                                             await _LinkOrganizations(_organization,
-                                                                                     Organization2OrganizationEdgeTypes.IsChildOf,
+                                                                                     Organization2OrganizationEdgeLabel.IsChildOf,
                                                                                      ParentOrganization,
                                                                                      _eventTrackingId,
                                                                                      SuppressNotifications:  true,
@@ -25467,7 +25856,7 @@ namespace social.OpenData.UsersAPI
                         result.ParentOrganization = ParentOrganization;
 
                         await SendNotifications(Organization,
-                                                Organization2OrganizationEdgeTypes.IsChildOf,
+                                                Organization2OrganizationEdgeLabel.IsChildOf,
                                                 ParentOrganization,
                                                 linkOrganizations_MessageType,
                                                 eventTrackingId,
@@ -25653,7 +26042,7 @@ namespace social.OpenData.UsersAPI
                                                                    async (_organization, _eventTrackingId) => {
 
                                                                        await _LinkOrganizations(_organization,
-                                                                                                Organization2OrganizationEdgeTypes.IsChildOf,
+                                                                                                Organization2OrganizationEdgeLabel.IsChildOf,
                                                                                                 ParentOrganization,
                                                                                                 _eventTrackingId,
                                                                                                 SuppressNotifications:  true,
@@ -25673,7 +26062,7 @@ namespace social.OpenData.UsersAPI
 
                         if (result?.AddedOrIgnored == AddedOrIgnored.Added)
                             await SendNotifications(Organization,
-                                                    Organization2OrganizationEdgeTypes.IsChildOf,
+                                                    Organization2OrganizationEdgeLabel.IsChildOf,
                                                     ParentOrganization,
                                                     linkOrganizations_MessageType,
                                                     eventTrackingId,
@@ -25956,7 +26345,7 @@ namespace social.OpenData.UsersAPI
                                                                 async (_organization, _eventTrackingId) => {
 
                                                                     await _LinkOrganizations(_organization,
-                                                                                             Organization2OrganizationEdgeTypes.IsChildOf,
+                                                                                             Organization2OrganizationEdgeLabel.IsChildOf,
                                                                                              ParentOrganization,
                                                                                              _eventTrackingId,
                                                                                              SuppressNotifications:  true,
@@ -25977,7 +26366,7 @@ namespace social.OpenData.UsersAPI
 
                         if (result?.AddedOrUpdated == AddedOrUpdated.Add)
                             await SendNotifications(Organization,
-                                                    Organization2OrganizationEdgeTypes.IsChildOf,
+                                                    Organization2OrganizationEdgeLabel.IsChildOf,
                                                     ParentOrganization,
                                                     linkOrganizations_MessageType,
                                                     eventTrackingId,
@@ -26852,7 +27241,7 @@ namespace social.OpenData.UsersAPI
         public event OnOrganizationDeletedDelegate OnOrganizationDeleted;
 
 
-        #region (protected internal virtual) CanDeleteOrganization(Organization)
+        #region (protected internal virtual) _CanDeleteOrganization(Organization)
 
         /// <summary>
         /// Determines whether the organization can safely be deleted from the API.
@@ -26876,7 +27265,7 @@ namespace social.OpenData.UsersAPI
         #region (protected internal) _DeleteOrganization(Organization, OnDeleted = null, CurrentUserId = null)
 
         /// <summary>
-        /// Delete the given organization from the API.
+        /// Delete the given organization.
         /// </summary>
         /// <param name="Organization">The organization to be deleted.</param>
         /// <param name="OnDeleted">A delegate run whenever the organization has been deleted successfully.</param>
@@ -26959,7 +27348,6 @@ namespace social.OpenData.UsersAPI
                                                          eventTrackingId,
                                                          CurrentUserId);
 
-
             // Special handling of the 'deleteOrganization' notifications...
             if (!DisableNotifications)
             {
@@ -26973,12 +27361,11 @@ namespace social.OpenData.UsersAPI
 
                         var AllTelegramNotifications  = parentOrganizations.
                                                             SelectMany(parent => parent.User2OrganizationEdges).
-                                                            SelectMany(edge   => _GetNotificationsOf<TelegramNotification>(edge.Source.Id, deleteOrganization_MessageType)).
+                                                            SelectMany(edge   => edge.Source.GetNotificationsOf<TelegramNotification>(deleteOrganization_MessageType)).
                                                             ToHashSet();
 
                         if (AllTelegramNotifications.SafeAny())
-                            await TelegramStore.SendTelegrams(String.Concat("Organization '", Organization.Name.FirstText(), "' has been removed. ",
-                                                                            "If you haven't approved this request, please contact support: support@cardi-link.com"),
+                            await TelegramStore.SendTelegrams(String.Concat("Organization '", Organization.Name.FirstText(), "' has been deleted. "),
                                                               AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
 
                     }
@@ -26997,11 +27384,11 @@ namespace social.OpenData.UsersAPI
 
                     var AllSMSNotifications = parentOrganizations.
                                                   SelectMany(parent => parent.User2OrganizationEdges).
-                                                  SelectMany(edge   => _GetNotificationsOf<SMSNotification>(edge.Source.Id, deleteOrganization_MessageType)).
+                                                  SelectMany(edge   => edge.Source.GetNotificationsOf<SMSNotification>(deleteOrganization_MessageType)).
                                                   ToHashSet();
 
                     if (AllSMSNotifications.SafeAny())
-                        SendSMS(String.Concat("Organization '", Organization.Name.FirstText(), "' has been removed."),
+                        SendSMS(String.Concat("Organization '", Organization.Name.FirstText(), "' has been deleted."),
                                 AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
                                 SMSSenderName);
 
@@ -27020,13 +27407,13 @@ namespace social.OpenData.UsersAPI
 
                     var AllHTTPSNotifications = parentOrganizations.
                                                     SelectMany(parent => parent.User2OrganizationEdges).
-                                                    SelectMany(edge   => _GetNotificationsOf<HTTPSNotification>(edge.Source.Id, deleteOrganization_MessageType)).
+                                                    SelectMany(edge   => edge.Source.GetNotificationsOf<HTTPSNotification>(deleteOrganization_MessageType)).
                                                     ToHashSet();
 
                     if (AllHTTPSNotifications.SafeAny())
                         await SendHTTPSNotifications(AllHTTPSNotifications,
                                                      new JObject(
-                                                         new JProperty("organizationRemoved",
+                                                         new JProperty("organizationDeleted",
                                                              Organization.ToJSON()
                                                          ),
                                                          new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
@@ -27048,9 +27435,9 @@ namespace social.OpenData.UsersAPI
                     {
 
                         var AllEMailNotifications = parentOrganizations.
-                                                    SelectMany(parent => parent.User2OrganizationEdges).
-                                                    SelectMany(edge   => _GetNotificationsOf<EMailNotification>(edge.Source.Id, deleteOrganization_MessageType)).
-                                                    ToHashSet();
+                                                        SelectMany(parent => parent.User2OrganizationEdges).
+                                                        SelectMany(edge   => edge.Source.GetNotificationsOf<EMailNotification>(deleteOrganization_MessageType)).
+                                                        ToHashSet();
 
                         if (AllEMailNotifications.SafeAny())
                             await APISMTPClient.Send(
@@ -27059,14 +27446,14 @@ namespace social.OpenData.UsersAPI
                                          From           = Robot.EMail,
                                          To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
                                          Passphrase     = APIPassphrase,
-                                         Subject        = String.Concat("Organization '", Organization.Name.FirstText(), "' has been removed."),
+                                         Subject        = String.Concat("Organization '", Organization.Name.FirstText(), "' has been deleted."),
 
                                          HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                        "Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a> has been removed.<br />",
+                                                                        "Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a> has been deleted.<br />",
                                                                         HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
                                          PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                        "Organization '", Organization.Name.FirstText(), "' has been removed.\r\n",
+                                                                        "Organization '", Organization.Name.FirstText(), "' has been deleted.\r\n",
                                                                         TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
                                          SecurityLevel  = EMailSecurity.auto
@@ -27094,7 +27481,7 @@ namespace social.OpenData.UsersAPI
         #region DeleteOrganization                      (Organization, OnDeleted = null, CurrentUserId = null)
 
         /// <summary>
-        /// Delete the given organization from the API.
+        /// Delete the given organization.
         /// </summary>
         /// <param name="Organization">The organization to be deleted.</param>
         /// <param name="OnDeleted">A delegate run whenever the organization has been deleted successfully.</param>
@@ -28429,13 +28816,843 @@ namespace social.OpenData.UsersAPI
 
         #region Users         <> UserGroups
 
-        #region AddUserToUserGroup(User, Edge, UserGroup, EventTrackingId = null, CurrentUserId = null)
+        #region (protected internal) SendNotifications      (User, EdgeLabel, UserGroup, MessageType(s), EventTrackingId = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Send user &lt;-- edge --&gt; user group notifications.
+        /// </summary>
+        /// <param name="User">The user.</param>
+        /// <param name="EdgeLabel">The edge label.</param>
+        /// <param name="UserGroup">The user group.</param>
+        /// <param name="MessageType">The notification.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking user identification</param>
+        protected internal virtual Task SendNotifications(User                     User,
+                                                          User2UserGroupEdgeTypes  EdgeLabel,
+                                                          UserGroup                UserGroup,
+                                                          NotificationMessageType  MessageType,
+                                                          EventTracking_Id         EventTrackingId    = null,
+                                                          User_Id?                 CurrentUserId      = null)
+
+            => SendNotifications(User,
+                                 EdgeLabel,
+                                 UserGroup,
+                                 new NotificationMessageType[] { MessageType },
+                                 EventTrackingId,
+                                 CurrentUserId);
+
+
+        /// <summary>
+        /// Send user &lt;-- edge --&gt; user group notifications.
+        /// </summary>
+        /// <param name="User">The user.</param>
+        /// <param name="EdgeLabel">The edge label.</param>
+        /// <param name="UserGroup">The user group.</param>
+        /// <param name="MessageTypes">The notifications.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking user identification.</param>
+        protected internal async virtual Task SendNotifications(User                                  User,
+                                                                User2UserGroupEdgeTypes               EdgeLabel,
+                                                                UserGroup                             UserGroup,
+                                                                IEnumerable<NotificationMessageType>  MessageTypes,
+                                                                EventTracking_Id                      EventTrackingId   = null,
+                                                                User_Id?                              CurrentUserId     = null)
+        {
+
+            if (User is null)
+                throw new ArgumentNullException(nameof(User),          "The given User must not be null or empty!");
+
+            if (UserGroup is null)
+                throw new ArgumentNullException(nameof(UserGroup),     "The given user group must not be null or empty!");
+
+
+            var messageTypesHash = new HashSet<NotificationMessageType>(MessageTypes.Where(messageType => !messageType.IsNullOrEmpty));
+
+            if (messageTypesHash.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(MessageTypes),  "The given enumeration of message types must not be null or empty!");
+
+            var messageTypes = messageTypesHash.ToArray();
+
+            if (!DisableNotifications)
+            {
+
+                var membership = EdgeLabel switch {
+                    User2UserGroupEdgeTypes.IsAdmin  => " as admin",
+                    User2UserGroupEdgeTypes.IsMember => " as member",
+                    User2UserGroupEdgeTypes.IsGuest  => " as guest",
+                    _                                => ""
+                };
+
+                #region Telegram Notifications
+
+                if (TelegramStore != null)
+                {
+                    try
+                    {
+
+                        var AllTelegramNotifications  = this.GetTelegramNotifications(UserGroup, messageTypes).
+                                                             ToHashSet();
+
+                        if (AllTelegramNotifications.SafeAny())
+                        {
+
+                            if (MessageTypes.Contains(addUserToUserGroup_MessageType))
+                                await TelegramStore.SendTelegrams(String.Concat("User '", User.Name, "' was added to user group '", UserGroup.Name.FirstText(), "'" + membership + "."),
+                                                                  AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
+
+                            if (MessageTypes.Contains(removeUserFromUserGroup_MessageType))
+                                await TelegramStore.SendTelegrams(String.Concat("User '", User.Name, "' was removed from user group '", UserGroup.Name.FirstText(), "'."),
+                                                                  AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
+
+                        }
+
+                    }
+                    catch (Exception e)
+                    {
+                        DebugX.LogException(e);
+                    }
+                }
+
+                #endregion
+
+                #region SMS Notifications
+
+                try
+                {
+
+                    var AllSMSNotifications  = this.GetSMSNotifications(UserGroup, messageTypes).
+                                                    ToHashSet();
+
+                    if (AllSMSNotifications.SafeAny())
+                    {
+
+                        if (MessageTypes.Contains(addUserToUserGroup_MessageType))
+                            SendSMS(String.Concat("User '", User.Name, "' was added to user group '", UserGroup.Name.FirstText(), "'" + membership + "."),
+                                    AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
+                                    SMSSenderName);
+
+                        if (MessageTypes.Contains(removeUserFromUserGroup_MessageType))
+                            SendSMS(String.Concat("User '", User.Name, "' was removed from user group '", UserGroup.Name.FirstText(), "'."),
+                                    AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
+                                    SMSSenderName);
+
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    DebugX.LogException(e);
+                }
+
+                #endregion
+
+                #region HTTPS Notifications
+
+                try
+                {
+
+                    var AllHTTPSNotifications  = this.GetHTTPSNotifications(UserGroup, messageTypes).
+                                                      ToHashSet();
+
+                    if (AllHTTPSNotifications.SafeAny())
+                    {
+
+                        if (MessageTypes.Contains(addUserToUserGroup_MessageType))
+                            await SendHTTPSNotifications(AllHTTPSNotifications,
+                                                         new JObject(
+                                                             new JProperty("addUserToUserGroup",
+                                                                 new JObject(
+                                                                     new JProperty("userGroup", UserGroup.ToJSON()),
+                                                                     new JProperty("user",      User.     ToJSON())
+                                                                 )
+                                                             ),
+                                                             new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                                                         ));
+
+                        if (MessageTypes.Contains(removeUserFromUserGroup_MessageType))
+                            await SendHTTPSNotifications(AllHTTPSNotifications,
+                                                         new JObject(
+                                                             new JProperty("removeUserFromUserGroup",
+                                                                 new JObject(
+                                                                     new JProperty("userGroup", UserGroup.ToJSON()),
+                                                                     new JProperty("user",      User.     ToJSON())
+                                                                 )
+                                                             ),
+                                                             new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                                                         ));
+
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    DebugX.LogException(e);
+                }
+
+                #endregion
+
+                #region EMailNotifications
+
+                try
+                {
+
+                    var AllEMailNotifications  = this.GetEMailNotifications(UserGroup, messageTypes).
+                                                      ToHashSet();
+
+                    if (AllEMailNotifications.SafeAny())
+                    {
+
+                        if (MessageTypes.Contains(addUserToUserGroup_MessageType))
+                            await APISMTPClient.Send(
+                                     new HTMLEMailBuilder() {
+
+                                         From           = Robot.EMail,
+                                         To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
+                                         Passphrase     = APIPassphrase,
+                                         Subject        = String.Concat("User '", User.Name, "' was added to user group '", UserGroup.Name.FirstText(), "'" + membership + "."),
+
+                                         HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
+                                                                        "User <a href=\"https://", this.ExternalDNSName, this.BasePath, "/users/", User.Id, "\">", User.Name, "</a> has been added to user group <a href=\"https://", ExternalDNSName, BasePath, "/user groups/", UserGroup.Id, "\">", UserGroup.Name.FirstText(), "</a>.<br />",
+                                                                        HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
+
+                                         PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
+                                                                        "User '" + User.Name + "' has been added to user group '", UserGroup.Name.FirstText(), "'.\r\n",
+                                                                        TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
+
+                                         SecurityLevel  = EMailSecurity.auto
+
+                                     });
+
+                        if (MessageTypes.Contains(removeUserFromUserGroup_MessageType))
+                            await APISMTPClient.Send(
+                                     new HTMLEMailBuilder() {
+
+                                         From           = Robot.EMail,
+                                         To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
+                                         Passphrase     = APIPassphrase,
+                                         Subject        = String.Concat("User '", User.Name, "' was removed from user group '", UserGroup.Name.FirstText(), "'."),
+
+                                         HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
+                                                                        "User <a href=\"https://", this.ExternalDNSName, this.BasePath, "/users/", User.Id, "\">", User.Name, "</a> has been removed from user group <a href=\"https://", ExternalDNSName, BasePath, "/user groups/", UserGroup.Id, "\">", UserGroup.Name.FirstText(), "</a>.<br />",
+                                                                        HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
+
+                                         PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
+                                                                        "User '" + User.Name + "' has been removed from user group '", UserGroup.Name.FirstText(), "'.\r\n",
+                                                                        TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
+
+                                         SecurityLevel  = EMailSecurity.auto
+
+                                     });
+
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    DebugX.LogException(e);
+                }
+
+                #endregion
+
+            }
+
+        }
+
+        #endregion
+
+
+
+        #region (protected) _AddUserToUserGroup     (User, EdgeLabel, UserGroup, SuppressNotifications = false, CurrentUserId  = null)
+
+        protected async Task<AddUserToUserGroupResult> _AddUserToUserGroup(User                     User,
+                                                                           User2UserGroupEdgeTypes  EdgeLabel,
+                                                                           UserGroup                UserGroup,
+                                                                           EventTracking_Id         EventTrackingId         = null,
+                                                                           Boolean                  SuppressNotifications   = false,
+                                                                           User_Id?                 CurrentUserId           = null)
+        {
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            if (User is null)
+                return AddUserToUserGroupResult.ArgumentError(User,
+                                                                 EdgeLabel,
+                                                                 UserGroup,
+                                                                 eventTrackingId,
+                                                                 nameof(User),
+                                                                 "The given user must not be null!");
+
+            if (User.API != null && User.API != this)
+                return AddUserToUserGroupResult.ArgumentError(User,
+                                                                 EdgeLabel,
+                                                                 UserGroup,
+                                                                 eventTrackingId,
+                                                                 nameof(User),
+                                                                 "The given user is not attached to this API!");
+
+            if (!_Users.ContainsKey(User.Id))
+                return AddUserToUserGroupResult.ArgumentError(User,
+                                                                 EdgeLabel,
+                                                                 UserGroup,
+                                                                 eventTrackingId,
+                                                                 nameof(User),
+                                                                 "The given user '" + User.Id + "' does not exists within this API!");
+
+
+            //if (EdgeLabel.IsNullOrEmpty())
+            //    return AddUserToUserGroupResult.ArgumentError(User,
+            //                                                     EdgeLabel,
+            //                                                     UserGroup,
+            //                                                     eventTrackingId,
+            //                                                     nameof(EdgeLabel),
+            //                                                     "The given edge label must not be null or empty!");
+
+
+            if (UserGroup is null)
+                return AddUserToUserGroupResult.ArgumentError(User,
+                                                              EdgeLabel,
+                                                              UserGroup,
+                                                              eventTrackingId,
+                                                              nameof(UserGroup),
+                                                              "The given user group must not be null!");
+
+            if (UserGroup.API != null && UserGroup.API != this)
+                return AddUserToUserGroupResult.ArgumentError(User,
+                                                              EdgeLabel,
+                                                              UserGroup,
+                                                              eventTrackingId,
+                                                              nameof(UserGroup),
+                                                              "The given user group is not attached to this API!");
+
+            if (!_UserGroups.ContainsKey(UserGroup.Id))
+                return AddUserToUserGroupResult.ArgumentError(User,
+                                                              EdgeLabel,
+                                                              UserGroup,
+                                                              eventTrackingId,
+                                                              nameof(UserGroup),
+                                                              "The given user group '" + UserGroup.Id + "' does not exists within this API!");
+
+
+                        //var updated = false;
+
+                        //if (!User.OutEdges(UserGroup).Any(edgeLabel => edgeLabel == EdgeLabel))
+                        //{
+                        //    User.AddOutgoingEdge(EdgeLabel, UserGroup);
+                        //    updated = true;
+                        //}
+
+                        //if (!UserGroup.InEdgeLabels(User).Any(edgeLabel => edgeLabel == EdgeLabel))
+                        //{
+                        //    UserGroup.AddIncomingEdge(User, EdgeLabel);
+                        //    updated = true;
+                        //}
+
+                        //if (updated)
+                        //    await WriteToDatabaseFile(addUserToUserGroup_MessageType,
+                        //                              new JObject(
+                        //                                  new JProperty("user",  User.Id.  ToString()),
+                        //                                  new JProperty("edge",  EdgeLabel.ToString()),
+                        //                                  new JProperty("group", UserGroup.ToString())
+                        //                              ),
+                        //                              eventTrackingId,
+                        //                              CurrentUserId);
+
+
+
+
+
+
+
+
+
+            if (!User.     EdgeLabels(UserGroup).Any(edgelabel => edgelabel == EdgeLabel) &&
+                !UserGroup.EdgeLabels(User).     Any(edgelabel => edgelabel == EdgeLabel))
+            {
+
+                await WriteToDatabaseFile(addUserToUserGroup_MessageType,
+                                          new JObject(
+                                              new JProperty("user",         User.        Id.ToString()),
+                                              new JProperty("edge",         EdgeLabel.      ToString()),
+                                              new JProperty("user group", UserGroup.Id.ToString())
+                                          ),
+                                          eventTrackingId,
+                                          CurrentUserId);
+
+
+                var edge = User.AddToUserGroup(EdgeLabel, UserGroup);
+                UserGroup.AddUser(edge);
+
+
+                if (!SuppressNotifications)
+                    await SendNotifications(User,
+                                            EdgeLabel,
+                                            UserGroup,
+                                            addUserToUserGroup_MessageType,
+                                            eventTrackingId,
+                                            CurrentUserId);
+
+
+                return AddUserToUserGroupResult.Success(User,
+                                                           EdgeLabel,
+                                                           UserGroup,
+                                                           eventTrackingId);
+
+            }
+
+            return AddUserToUserGroupResult.Failed(User,
+                                                      EdgeLabel,
+                                                      UserGroup,
+                                                      eventTrackingId,
+                                                      "The given edge already exists!");
+
+        }
+
+        #endregion
+
+        #region AddUserToUserGroup                  (User, EdgeLabel, UserGroup,                                CurrentUserId  = null)
 
         public async Task<AddUserToUserGroupResult> AddUserToUserGroup(User                     User,
                                                                        User2UserGroupEdgeTypes  EdgeLabel,
                                                                        UserGroup                UserGroup,
                                                                        EventTracking_Id         EventTrackingId   = null,
                                                                        User_Id?                 CurrentUserId     = null)
+        {
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            if (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout))
+            {
+                if (await UserGroupsSemaphore.WaitAsync(SemaphoreSlimTimeout))
+                {
+                    try
+                    {
+
+                        return await _AddUserToUserGroup(User,
+                                                         EdgeLabel,
+                                                         UserGroup,
+                                                         eventTrackingId,
+                                                         SuppressNotifications:  false,
+                                                         CurrentUserId:          CurrentUserId);
+
+                    }
+                    catch (Exception e)
+                    {
+
+                        DebugX.LogException(e);
+
+                        return AddUserToUserGroupResult.Failed(User,
+                                                               EdgeLabel,
+                                                               UserGroup,
+                                                               eventTrackingId,
+                                                               e);
+
+                    }
+                    finally
+                    {
+                        try
+                        {
+                            UserGroupsSemaphore.Release();
+                        }
+                        catch
+                        { }
+
+                        try
+                        {
+                            UsersSemaphore.Release();
+                        }
+                        catch
+                        { }
+                    }
+                }
+                else
+                    UsersSemaphore.Release();
+            }
+
+            return AddUserToUserGroupResult.Failed(User,
+                                                   EdgeLabel,
+                                                   UserGroup,
+                                                   eventTrackingId,
+                                                   "Internal locking failed!");
+
+        }
+
+        #endregion
+
+
+        #region (protected) _RemoveUserFromUserGroup(User, EdgeLabel, UserGroup, SuppressNotifications = false, CurrentUserId = null)
+
+        protected async Task<RemoveUserFromUserGroupResult> _RemoveUserFromUserGroup(User                     User,
+                                                                                     User2UserGroupEdgeTypes  EdgeLabel,
+                                                                                     UserGroup                UserGroup,
+                                                                                     EventTracking_Id         EventTrackingId         = null,
+                                                                                     Boolean                  SuppressNotifications   = false,
+                                                                                     User_Id?                 CurrentUserId           = null)
+        {
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            if (User is null)
+                return RemoveUserFromUserGroupResult.ArgumentError(User,
+                                                                   EdgeLabel,
+                                                                   UserGroup,
+                                                                   eventTrackingId,
+                                                                   nameof(User),
+                                                                   "The given user must not be null!");
+
+            if (User.API != null && User.API != this)
+                return RemoveUserFromUserGroupResult.ArgumentError(User,
+                                                                   EdgeLabel,
+                                                                   UserGroup,
+                                                                   eventTrackingId,
+                                                                   nameof(User),
+                                                                   "The given user is not attached to this API!");
+
+            if (!_Users.ContainsKey(User.Id))
+                return RemoveUserFromUserGroupResult.ArgumentError(User,
+                                                                   EdgeLabel,
+                                                                   UserGroup,
+                                                                   eventTrackingId,
+                                                                   nameof(User),
+                                                                   "The given user '" + User.Id + "' does not exists within this API!");
+
+
+            //if (EdgeLabel.IsNullOrEmpty())
+            //    return AddUserToUserGroupResult.ArgumentError(User,
+            //                                                     EdgeLabel,
+            //                                                     UserGroup,
+            //                                                     eventTrackingId,
+            //                                                     nameof(EdgeLabel),
+            //                                                     "The given edge label must not be null or empty!");
+
+
+            if (UserGroup is null)
+                return RemoveUserFromUserGroupResult.ArgumentError(User,
+                                                                   EdgeLabel,
+                                                                   UserGroup,
+                                                                   eventTrackingId,
+                                                                   nameof(UserGroup),
+                                                                   "The given user group must not be null!");
+
+            if (UserGroup.API != null && UserGroup.API != this)
+                return RemoveUserFromUserGroupResult.ArgumentError(User,
+                                                                   EdgeLabel,
+                                                                   UserGroup,
+                                                                   eventTrackingId,
+                                                                   nameof(UserGroup),
+                                                                   "The given user group is not attached to this API!");
+
+            if (!_UserGroups.ContainsKey(UserGroup.Id))
+                return RemoveUserFromUserGroupResult.ArgumentError(User,
+                                                                   EdgeLabel,
+                                                                   UserGroup,
+                                                                   eventTrackingId,
+                                                                   nameof(UserGroup),
+                                                                   "The given user group '" + UserGroup.Id + "' does not exists within this API!");
+
+            var edges = new HashSet<User2UserGroupEdge>();
+
+            foreach (var edge in User.     Edges(EdgeLabel, UserGroup))
+                edges.Add(edge);
+
+            foreach (var edge in UserGroup.Edges(EdgeLabel, User))
+                edges.Add(edge);
+
+
+            foreach (var edge in edges)
+            {
+
+                User.     RemoveOutEdge(edge);
+                UserGroup.AddUser      (edge.EdgeLabel, User);
+
+                await WriteToDatabaseFile(removeUserFromUserGroup_MessageType,
+                                          new JObject(
+                                              new JProperty("user",      User.     Id.ToString()),
+                                              new JProperty("edge",      EdgeLabel.   ToString()),
+                                              new JProperty("userGroup", UserGroup.Id.ToString())
+                                          ),
+                                          eventTrackingId,
+                                          CurrentUserId);
+
+                if (!SuppressNotifications)
+                    await SendNotifications(User,
+                                            EdgeLabel,
+                                            UserGroup,
+                                            removeUserFromUserGroup_MessageType,
+                                            eventTrackingId,
+                                            CurrentUserId);
+
+            }
+
+
+            return edges.Any()
+
+                       ? RemoveUserFromUserGroupResult.Success(User,
+                                                               EdgeLabel,
+                                                               UserGroup,
+                                                               eventTrackingId)
+
+                       : RemoveUserFromUserGroupResult.Failed(User,
+                                                              EdgeLabel,
+                                                              UserGroup,
+                                                              eventTrackingId,
+                                                              "The requested edge was not found!");
+
+        }
+
+        #endregion
+
+        #region RemoveUserFromUserGroup             (User, EdgeLabel, UserGroup,                                CurrentUserId = null)
+
+        public async Task<RemoveUserFromUserGroupResult> RemoveUserFromUserGroup(User                     User,
+                                                                                 User2UserGroupEdgeTypes  EdgeLabel,
+                                                                                 UserGroup                UserGroup,
+                                                                                 EventTracking_Id         EventTrackingId   = null,
+                                                                                 User_Id?                 CurrentUserId     = null)
+        {
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            if (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout))
+            {
+                if (await UserGroupsSemaphore.WaitAsync(SemaphoreSlimTimeout))
+                {
+                    try
+                    {
+
+                        return await _RemoveUserFromUserGroup(User,
+                                                              EdgeLabel,
+                                                              UserGroup,
+                                                              EventTrackingId,
+                                                              SuppressNotifications:  false,
+                                                              CurrentUserId:          CurrentUserId);
+
+                    }
+                    catch (Exception e)
+                    {
+
+                        DebugX.LogException(e);
+
+                        return RemoveUserFromUserGroupResult.Failed(User,
+                                                                    EdgeLabel,
+                                                                    UserGroup,
+                                                                    eventTrackingId,
+                                                                    e);
+
+                    }
+                    finally
+                    {
+                        try
+                        {
+                            UserGroupsSemaphore.Release();
+                        }
+                        catch
+                        { }
+
+                        try
+                        {
+                            UsersSemaphore.Release();
+                        }
+                        catch
+                        { }
+                    }
+                }
+                else
+                    UsersSemaphore.Release();
+            }
+
+            return RemoveUserFromUserGroupResult.Failed(User,
+                                                        EdgeLabel,
+                                                        UserGroup,
+                                                        eventTrackingId,
+                                                        "Internal locking failed!");
+
+        }
+
+        #endregion
+
+
+        #region (protected) _RemoveUserFromUserGroup(User,            UserGroup, SuppressNotifications = false, CurrentUserId = null)
+
+        protected async Task<RemoveUserFromUserGroupResult> _RemoveUserFromUserGroup(User              User,
+                                                                                     UserGroup         UserGroup,
+                                                                                     EventTracking_Id  EventTrackingId         = null,
+                                                                                     Boolean           SuppressNotifications   = false,
+                                                                                     User_Id?          CurrentUserId           = null)
+        {
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            if (User is null)
+                return RemoveUserFromUserGroupResult.ArgumentError(User,
+                                                                   UserGroup,
+                                                                   eventTrackingId,
+                                                                   nameof(User),
+                                                                   "The given user must not be null!");
+
+            if (User.API != null && User.API != this)
+                return RemoveUserFromUserGroupResult.ArgumentError(User,
+                                                                   UserGroup,
+                                                                   eventTrackingId,
+                                                                   nameof(User),
+                                                                   "The given user is not attached to this API!");
+
+            if (!_Users.ContainsKey(User.Id))
+                return RemoveUserFromUserGroupResult.ArgumentError(User,
+                                                                   UserGroup,
+                                                                   eventTrackingId,
+                                                                   nameof(User),
+                                                                   "The given user '" + User.Id + "' does not exists within this API!");
+
+            if (UserGroup is null)
+                return RemoveUserFromUserGroupResult.ArgumentError(User,
+                                                                   UserGroup,
+                                                                   eventTrackingId,
+                                                                   nameof(UserGroup),
+                                                                   "The given user group must not be null!");
+
+            if (UserGroup.API != null && UserGroup.API != this)
+                return RemoveUserFromUserGroupResult.ArgumentError(User,
+                                                                   UserGroup,
+                                                                   eventTrackingId,
+                                                                   nameof(UserGroup),
+                                                                   "The given user group is not attached to this API!");
+
+            if (!_UserGroups.ContainsKey(UserGroup.Id))
+                return RemoveUserFromUserGroupResult.ArgumentError(User,
+                                                                   UserGroup,
+                                                                   eventTrackingId,
+                                                                   nameof(UserGroup),
+                                                                   "The given user group '" + UserGroup.Id + "' does not exists within this API!");
+
+            var edges = new HashSet<User2UserGroupEdge>();
+
+            foreach (var edge in User.     Edges(UserGroup))
+                edges.Add(edge);
+
+            foreach (var edge in UserGroup.Edges(User))
+                edges.Add(edge);
+
+
+            foreach (var edge in edges)
+            {
+
+                User.     RemoveOutEdge(edge);
+                UserGroup.AddUser      (edge.EdgeLabel, User);
+
+                await WriteToDatabaseFile(removeUserFromUserGroup_MessageType,
+                                          new JObject(
+                                              new JProperty("user",       User.     Id.       ToString()),
+                                              new JProperty("edge",       edge.     EdgeLabel.ToString()),
+                                              new JProperty("userGroup",  UserGroup.Id.       ToString())
+                                          ),
+                                          eventTrackingId,
+                                          CurrentUserId);
+
+                if (!SuppressNotifications)
+                    await SendNotifications(User,
+                                            edge.EdgeLabel,
+                                            UserGroup,
+                                            removeUserFromUserGroup_MessageType,
+                                            eventTrackingId,
+                                            CurrentUserId);
+
+            }
+
+
+            return edges.Any()
+
+                       ? RemoveUserFromUserGroupResult.Success(User,
+                                                               UserGroup,
+                                                               eventTrackingId)
+
+                       : RemoveUserFromUserGroupResult.Failed(User,
+                                                              UserGroup,
+                                                              eventTrackingId,
+                                                              "No edges had been found!");
+
+        }
+
+        #endregion
+
+        #region RemoveUserFromUserGroup             (User,            UserGroup,                                CurrentUserId = null)
+
+        public async Task<RemoveUserFromUserGroupResult> RemoveUserFromUserGroup(User              User,
+                                                                                 UserGroup         UserGroup,
+                                                                                 EventTracking_Id  EventTrackingId   = null,
+                                                                                 User_Id?          CurrentUserId     = null)
+        {
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            if (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout))
+            {
+                if (await UserGroupsSemaphore.WaitAsync(SemaphoreSlimTimeout))
+                {
+                    try
+                    {
+
+                        return await _RemoveUserFromUserGroup(User,
+                                                              UserGroup,
+                                                              EventTrackingId,
+                                                              SuppressNotifications:  false,
+                                                              CurrentUserId:          CurrentUserId);
+
+                    }
+                    catch (Exception e)
+                    {
+
+                        DebugX.LogException(e);
+
+                        return RemoveUserFromUserGroupResult.Failed(User,
+                                                                    UserGroup,
+                                                                    eventTrackingId,
+                                                                    e);
+
+                    }
+                    finally
+                    {
+                        try
+                        {
+                            UserGroupsSemaphore.Release();
+                        }
+                        catch
+                        { }
+
+                        try
+                        {
+                            UsersSemaphore.Release();
+                        }
+                        catch
+                        { }
+                    }
+                }
+                else
+                    UsersSemaphore.Release();
+            }
+
+            return RemoveUserFromUserGroupResult.Failed(User,
+                                                        UserGroup,
+                                                        eventTrackingId,
+                                                        "Internal locking failed!");
+
+        }
+
+        #endregion
+
+
+
+
+
+
+
+
+        #region AddUserToUserGroup(User, Edge, UserGroup, EventTrackingId = null, CurrentUserId = null)
+
+        public async Task<AddUserToUserGroupResult> AddUserToUserGroup_old(User                     User,
+                                                                           User2UserGroupEdgeTypes  EdgeLabel,
+                                                                           UserGroup                UserGroup,
+                                                                           EventTracking_Id         EventTrackingId   = null,
+                                                                           User_Id?                 CurrentUserId     = null)
 
         {
 
@@ -28450,15 +29667,15 @@ namespace social.OpenData.UsersAPI
 
                         var updated = false;
 
-                        if (!User.OutEdges(UserGroup).Any(edgeLabel => edgeLabel == EdgeLabel))
+                        if (!User.     HasEdge(EdgeLabel, UserGroup))
                         {
-                            User.AddOutgoingEdge(EdgeLabel, UserGroup);
+                            User.AddToUserGroup(EdgeLabel, UserGroup);
                             updated = true;
                         }
 
-                        if (!UserGroup.InEdges(User).Any(edgeLabel => edgeLabel == EdgeLabel))
+                        if (!UserGroup.HasEdge(EdgeLabel, User))
                         {
-                            UserGroup.AddIncomingEdge(User, EdgeLabel);
+                            UserGroup.AddUser(EdgeLabel, User);
                             updated = true;
                         }
 
@@ -28566,7 +29783,7 @@ namespace social.OpenData.UsersAPI
 
 
 
-            var childResults = currentOrg.Organization2OrganizationInEdges.Where(edge => edge.EdgeLabel == Organization2OrganizationEdgeTypes.IsChildOf).
+            var childResults = currentOrg.Organization2OrganizationInEdges.Where(edge => edge.EdgeLabel == Organization2OrganizationEdgeLabel.IsChildOf).
                                           Select(edge => CheckImpersonate(edge.Source, Astronaut, AstronautFound, Member, new HashSet<User>(VetoUsers))).ToArray();
 
             return childResults.Any(result => result == true);
@@ -28605,7 +29822,7 @@ namespace social.OpenData.UsersAPI
             var VetoUsers             = new HashSet<User>();
             var AstronautFound        = false;
             var CurrentOrganizations  = new HashSet<Organization>(Organizations.Where(org => !org.Organization2OrganizationOutEdges.
-                                                                                                  Any(edge => edge.EdgeLabel == Organization2OrganizationEdgeTypes.IsChildOf)));
+                                                                                                  Any(edge => edge.EdgeLabel == Organization2OrganizationEdgeLabel.IsChildOf)));
 
             var childResults = CurrentOrganizations.Select(org => CheckImpersonate(org, Astronaut, AstronautFound, Member, VetoUsers)).ToArray();
 
@@ -28667,12 +29884,21 @@ namespace social.OpenData.UsersAPI
 
         #region (protected internal) SendNotifications      (User, EdgeLabel, Organization, MessageType(s), EventTrackingId = null, CurrentUserId = null)
 
+        /// <summary>
+        /// Send user &lt;-- edge --&gt; organization notifications.
+        /// </summary>
+        /// <param name="User">The user.</param>
+        /// <param name="EdgeLabel">The edge label.</param>
+        /// <param name="Organization">The organization.</param>
+        /// <param name="MessageType">The notification.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking user identification</param>
         protected internal virtual Task SendNotifications(User                        User,
                                                           User2OrganizationEdgeTypes  EdgeLabel,
                                                           Organization                Organization,
                                                           NotificationMessageType     MessageType,
-                                                          EventTracking_Id            EventTrackingId   = null,
-                                                          User_Id?                    CurrentUserId     = null)
+                                                          EventTracking_Id            EventTrackingId    = null,
+                                                          User_Id?                    CurrentUserId      = null)
 
             => SendNotifications(User,
                                  EdgeLabel,
@@ -28682,6 +29908,15 @@ namespace social.OpenData.UsersAPI
                                  CurrentUserId);
 
 
+        /// <summary>
+        /// Send user &lt;-- edge --&gt; organization notifications.
+        /// </summary>
+        /// <param name="User">The user.</param>
+        /// <param name="EdgeLabel">The edge label.</param>
+        /// <param name="Organization">The organization.</param>
+        /// <param name="MessageTypes">The notifications.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking user identification.</param>
         protected internal async virtual Task SendNotifications(User                                  User,
                                                                 User2OrganizationEdgeTypes            EdgeLabel,
                                                                 Organization                          Organization,
@@ -28690,10 +29925,19 @@ namespace social.OpenData.UsersAPI
                                                                 User_Id?                              CurrentUserId     = null)
         {
 
-            if (User is null || Organization is null || MessageTypes is null || !MessageTypes.Any())
-                return;
+            if (User is null)
+                throw new ArgumentNullException(nameof(User),          "The given user must not be null or empty!");
 
-            var messageTypes = MessageTypes.ToArray();
+            if (Organization is null)
+                throw new ArgumentNullException(nameof(Organization),  "The given organization must not be null or empty!");
+
+
+            var messageTypesHash = new HashSet<NotificationMessageType>(MessageTypes.Where(messageType => !messageType.IsNullOrEmpty));
+
+            if (messageTypesHash.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(MessageTypes),  "The given enumeration of message types must not be null or empty!");
+
+            var messageTypes = messageTypesHash.ToArray();
 
             if (!DisableNotifications)
             {
@@ -28969,7 +30213,7 @@ namespace social.OpenData.UsersAPI
 
 
                 var edge = User.AddOutgoingEdge(EdgeLabel, Organization);
-                Organization.LinkUser(edge);
+                Organization.AddUser(edge);
 
 
                 if (!SuppressNotifications)
@@ -29151,7 +30395,7 @@ namespace social.OpenData.UsersAPI
             {
 
                 User.        RemoveOutEdge(edge);
-                Organization.UnlinkUser   (edge.EdgeLabel, User);
+                Organization.RemoveUser   (edge.EdgeLabel, User);
 
                 await WriteToDatabaseFile(removeUserFromOrganization_MessageType,
                                           new JObject(
@@ -29326,7 +30570,7 @@ namespace social.OpenData.UsersAPI
             {
 
                 User.        RemoveOutEdge(edge);
-                Organization.UnlinkUser   (edge.EdgeLabel, User);
+                Organization.RemoveUser   (edge.EdgeLabel, User);
 
                 await WriteToDatabaseFile(removeUserFromOrganization_MessageType,
                                           new JObject(
@@ -29434,28 +30678,71 @@ namespace social.OpenData.UsersAPI
 
         #region (protected internal) SendNotifications(OrganizationOut, EdgeLabel, OrganizationIn, MessageType, CurrentUserId = null)
 
-        protected internal async virtual Task SendNotifications<TOrganization>(TOrganization                       OrganizationOut,
-                                                                               Organization2OrganizationEdgeTypes  EdgeLabel,
-                                                                               TOrganization                       OrganizationIn,
-                                                                               NotificationMessageType             MessageType,
-                                                                               EventTracking_Id                    EventTrackingId   = null,
-                                                                               User_Id?                            CurrentUserId     = null)
+        /// <summary>
+        /// Send organization &lt;-- edge --&gt; organization notifications.
+        /// </summary>
+        /// <param name="OrganizationOut">The outgoing organization.</param>
+        /// <param name="EdgeLabel">The edge label.</param>
+        /// <param name="OrganizationIn">The incoming organization.</param>
+        /// <param name="MessageType">The notification.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking user identification</param>
+        protected internal virtual Task SendNotifications(Organization                        OrganizationOut,
+                                                          Organization2OrganizationEdgeLabel  EdgeLabel,
+                                                          Organization                        OrganizationIn,
+                                                          NotificationMessageType             MessageType,
+                                                          EventTracking_Id                    EventTrackingId    = null,
+                                                          User_Id?                            CurrentUserId      = null)
 
-            where TOrganization : Organization
+            => SendNotifications(OrganizationOut,
+                                 EdgeLabel,
+                                 OrganizationIn,
+                                 new NotificationMessageType[] { MessageType },
+                                 EventTrackingId,
+                                 CurrentUserId);
 
+
+        /// <summary>
+        /// Send organization &lt;-- edge --&gt; organization notifications.
+        /// </summary>
+        /// <param name="OrganizationOut">The outgoing organization.</param>
+        /// <param name="EdgeLabel">The edge label.</param>
+        /// <param name="OrganizationIn">The incoming organization.</param>
+        /// <param name="MessageTypes">The notifications.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking user identification.</param>
+        protected internal async virtual Task SendNotifications(Organization                          OrganizationOut,
+                                                                Organization2OrganizationEdgeLabel    EdgeLabel,
+                                                                Organization                          OrganizationIn,
+                                                                IEnumerable<NotificationMessageType>  MessageTypes,
+                                                                EventTracking_Id                      EventTrackingId   = null,
+                                                                User_Id?                              CurrentUserId     = null)
         {
 
-            if (OrganizationOut is null || OrganizationIn is null)
-                return;
+            if (OrganizationOut is null)
+                throw new ArgumentNullException(nameof(OrganizationOut),  "The given OrganizationOut must not be null or empty!");
 
-            var _MessageTypes = new HashSet<NotificationMessageType>() { MessageType };
+            if (OrganizationIn is null)
+                throw new ArgumentNullException(nameof(OrganizationIn),   "The given OrganizationIn must not be null or empty!");
 
-            //if (MessageType == addOrganizationIfNotExists_MessageType)
-            //{
-            //    _MessageTypes.Add(addOrganization_MessageType);
-            //}
+            //if (EdgeLabel.IsNullOrEmpty)
+            //    throw new ArgumentNullException(nameof(EdgeLabel),        "The given EdgeLabel must not be null or empty!");
 
-            var MessageTypes = _MessageTypes.ToArray();
+
+            var messageTypesHash = new HashSet<NotificationMessageType>(MessageTypes.Where(messageType => !messageType.IsNullOrEmpty));
+
+            if (messageTypesHash.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(MessageTypes),   "The given enumeration of message types must not be null or empty!");
+
+            //if (messageTypesHash.Contains(addServiceTicketIfNotExists_MessageType))
+            //    messageTypesHash.Add(addServiceTicket_MessageType);
+
+            //if (messageTypesHash.Contains(addOrUpdateServiceTicket_MessageType))
+            //    messageTypesHash.Add(OldServiceTicket == null
+            //                           ? addServiceTicket_MessageType
+            //                           : updateServiceTicket_MessageType);
+
+            var messageTypes = messageTypesHash.ToArray();
 
 
             if (!DisableNotifications)
@@ -29468,20 +30755,20 @@ namespace social.OpenData.UsersAPI
                     try
                     {
 
-                        var AllTelegramNotifications  = this.GetTelegramNotifications(OrganizationIn,  MessageTypes).Concat(
-                                                        this.GetTelegramNotifications(OrganizationOut, MessageTypes)).
+                        var AllTelegramNotifications  = this.GetTelegramNotifications(OrganizationIn,  messageTypes).Concat(
+                                                        this.GetTelegramNotifications(OrganizationOut, messageTypes)).
                                                         ToHashSet();
 
                         if (AllTelegramNotifications.SafeAny())
                         {
 
-                            if (_MessageTypes.Contains(linkOrganizations_MessageType))
+                            if (messageTypes.Contains(linkOrganizations_MessageType))
                             {
                                 await TelegramStore.SendTelegrams(String.Concat("Organization '", OrganizationOut.Name.FirstText(), "' was linked to organization '", OrganizationIn.Name.FirstText(), "'."),
                                                                   AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
                             }
 
-                            if (_MessageTypes.Contains(unlinkOrganizations_MessageType))
+                            if (messageTypes.Contains(unlinkOrganizations_MessageType))
                             {
                                 await TelegramStore.SendTelegrams(String.Concat("Organization '", OrganizationOut.Name.FirstText(), "' was unlinked from organization '", OrganizationIn.Name.FirstText(), "'."),
                                                                   AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
@@ -29503,21 +30790,21 @@ namespace social.OpenData.UsersAPI
                 try
                 {
 
-                    var AllSMSNotifications  = this.GetSMSNotifications(OrganizationIn,  MessageTypes).Concat(
-                                               this.GetSMSNotifications(OrganizationOut, MessageTypes)).
+                    var AllSMSNotifications  = this.GetSMSNotifications(OrganizationIn,  messageTypes).Concat(
+                                               this.GetSMSNotifications(OrganizationOut, messageTypes)).
                                                ToHashSet();
 
                     if (AllSMSNotifications.SafeAny())
                     {
 
-                        if (_MessageTypes.Contains(linkOrganizations_MessageType))
+                        if (messageTypes.Contains(linkOrganizations_MessageType))
                         {
                             SendSMS(String.Concat("Organization '", OrganizationOut.Name.FirstText(), "' was linked to organization '", OrganizationIn.Name.FirstText(), "'."),
                                     AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
                                     SMSSenderName);
                         }
 
-                        if (_MessageTypes.Contains(unlinkOrganizations_MessageType))
+                        if (messageTypes.Contains(unlinkOrganizations_MessageType))
                         {
                             SendSMS(String.Concat("Organization '", OrganizationOut.Name.FirstText(), "' was unlinked from organization '", OrganizationIn.Name.FirstText(), "'."),
                                     AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
@@ -29539,14 +30826,14 @@ namespace social.OpenData.UsersAPI
                 try
                 {
 
-                    var AllHTTPSNotifications  = this.GetHTTPSNotifications(OrganizationIn,  MessageTypes).Concat(
-                                                 this.GetHTTPSNotifications(OrganizationOut, MessageTypes)).
+                    var AllHTTPSNotifications  = this.GetHTTPSNotifications(OrganizationIn,  messageTypes).Concat(
+                                                 this.GetHTTPSNotifications(OrganizationOut, messageTypes)).
                                                  ToHashSet();
 
                     if (AllHTTPSNotifications.SafeAny())
                     {
 
-                        if (_MessageTypes.Contains(linkOrganizations_MessageType))
+                        if (messageTypes.Contains(linkOrganizations_MessageType))
                         {
 
                             await SendHTTPSNotifications(AllHTTPSNotifications,
@@ -29562,7 +30849,7 @@ namespace social.OpenData.UsersAPI
 
                         }
 
-                        if (_MessageTypes.Contains(unlinkOrganizations_MessageType))
+                        if (messageTypes.Contains(unlinkOrganizations_MessageType))
                         {
 
                             await SendHTTPSNotifications(AllHTTPSNotifications,
@@ -29595,14 +30882,14 @@ namespace social.OpenData.UsersAPI
                     try
                     {
 
-                        var AllEMailNotifications  = this.GetEMailNotifications(OrganizationIn,  MessageTypes).Concat(
-                                                     this.GetEMailNotifications(OrganizationOut, MessageTypes)).
+                        var AllEMailNotifications  = this.GetEMailNotifications(OrganizationIn,  messageTypes).Concat(
+                                                     this.GetEMailNotifications(OrganizationOut, messageTypes)).
                                                      ToHashSet();
 
                         if (AllEMailNotifications.SafeAny())
                         {
 
-                            if (_MessageTypes.Contains(linkOrganizations_MessageType))
+                            if (messageTypes.Contains(linkOrganizations_MessageType))
                             {
                                 await APISMTPClient.Send(
                                          new HTMLEMailBuilder() {
@@ -29625,7 +30912,7 @@ namespace social.OpenData.UsersAPI
                                          });
                             }
 
-                            if (_MessageTypes.Contains(unlinkOrganizations_MessageType))
+                            if (messageTypes.Contains(unlinkOrganizations_MessageType))
                             {
                                 await APISMTPClient.Send(
                                          new HTMLEMailBuilder() {
@@ -29669,7 +30956,7 @@ namespace social.OpenData.UsersAPI
         #region (protected) _LinkOrganizations  (OrganizationOut, EdgeLabel, OrganizationIn, EventTrackingId = null, SuppressNotifications = false, CurrentUserId = null)
 
         protected async Task<LinkOrganizationsResult> _LinkOrganizations(Organization                        OrganizationOut,
-                                                                         Organization2OrganizationEdgeTypes  EdgeLabel,
+                                                                         Organization2OrganizationEdgeLabel  EdgeLabel,
                                                                          Organization                        OrganizationIn,
                                                                          EventTracking_Id                    EventTrackingId         = null,
                                                                          Boolean                             SuppressNotifications   = false,
@@ -29731,7 +31018,7 @@ namespace social.OpenData.UsersAPI
         #region LinkOrganizations               (OrganizationOut, EdgeLabel, OrganizationIn, EventTrackingId = null,                                CurrentUserId = null)
 
         public async Task<LinkOrganizationsResult> LinkOrganizations(Organization                        OrganizationOut,
-                                                                     Organization2OrganizationEdgeTypes  EdgeLabel,
+                                                                     Organization2OrganizationEdgeLabel  EdgeLabel,
                                                                      Organization                        OrganizationIn,
                                                                      EventTracking_Id                    EventTrackingId   = null,
                                                                      User_Id?                            CurrentUserId     = null)
@@ -29789,7 +31076,7 @@ namespace social.OpenData.UsersAPI
         #region (protected) _UnlinkOrganizations(OrganizationOut, EdgeLabel, OrganizationIn, SuppressNotifications = false, CurrentUserId = null)
 
         protected async Task<UnlinkOrganizationsResult> _UnlinkOrganizations(Organization                        OrganizationOut,
-                                                                             Organization2OrganizationEdgeTypes  EdgeLabel,
+                                                                             Organization2OrganizationEdgeLabel  EdgeLabel,
                                                                              Organization                        OrganizationIn,
                                                                              EventTracking_Id                    EventTrackingId         = null,
                                                                              Boolean                             SuppressNotifications   = false,
@@ -29851,7 +31138,7 @@ namespace social.OpenData.UsersAPI
         #region UnlinkOrganizations             (OrganizationOut, EdgeLabel, OrganizationIn,                                CurrentUserId = null)
 
         public async Task<UnlinkOrganizationsResult> UnlinkOrganizations(Organization                        OrganizationOut,
-                                                                         Organization2OrganizationEdgeTypes  EdgeLabel,
+                                                                         Organization2OrganizationEdgeLabel  EdgeLabel,
                                                                          Organization                        OrganizationIn,
                                                                          EventTracking_Id                    EventTrackingId   = null,
                                                                          User_Id?                            CurrentUserId     = null)
@@ -29979,28 +31266,18 @@ namespace social.OpenData.UsersAPI
         /// <param name="MessageType">The service ticket notification.</param>
         /// <param name="OldServiceTicket">The old/updated service ticket.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
-        /// <param name="CurrentUserId">The invoking service ticket identification</param>
-        protected internal async virtual Task SendNotifications(ServiceTicket            ServiceTicket,
-                                                                NotificationMessageType  MessageType,
-                                                                ServiceTicket            OldServiceTicket   = null,
-                                                                EventTracking_Id         EventTrackingId    = null,
-                                                                User_Id?                 CurrentUserId      = null)
-        {
+        /// <param name="CurrentUserId">The invoking user identification.</param>
+        protected internal virtual Task SendNotifications(ServiceTicket            ServiceTicket,
+                                                          NotificationMessageType  MessageType,
+                                                          ServiceTicket            OldServiceTicket   = null,
+                                                          EventTracking_Id         EventTrackingId    = null,
+                                                          User_Id?                 CurrentUserId      = null)
 
-            if (ServiceTicket is null)
-                throw new ArgumentNullException(nameof(ServiceTicket),  "The given service ticket must not be null or empty!");
-
-            if (MessageType.IsNullOrEmpty)
-                throw new ArgumentNullException(nameof(MessageType),    "The given message type must not be null or empty!");
-
-
-            await SendNotifications(ServiceTicket,
-                                    new NotificationMessageType[] { MessageType },
-                                    OldServiceTicket,
-                                    EventTrackingId,
-                                    CurrentUserId);
-
-        }
+            => SendNotifications(ServiceTicket,
+                                 new NotificationMessageType[] { MessageType },
+                                 OldServiceTicket,
+                                 EventTrackingId,
+                                 CurrentUserId);
 
 
         /// <summary>
@@ -30010,7 +31287,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="MessageTypes">The service ticket notifications.</param>
         /// <param name="OldServiceTicket">The old/updated service ticket.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
-        /// <param name="CurrentUserId">The invoking service ticket identification</param>
+        /// <param name="CurrentUserId">The invoking user identification.</param>
         protected internal async virtual Task SendNotifications(ServiceTicket                         ServiceTicket,
                                                                 IEnumerable<NotificationMessageType>  MessageTypes,
                                                                 ServiceTicket                         OldServiceTicket   = null,

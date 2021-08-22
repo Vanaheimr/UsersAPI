@@ -126,7 +126,7 @@ namespace social.OpenData.UsersAPI
                                    ref Boolean  _YouCanCreateChildOrganizationsRecursion)
             {
 
-                foreach (var parent in OOORg.Parents)
+                foreach (var parent in OOORg.ParentOrganizations)
                 {
                     CheckAccessRights(parent,
                                       ref _YouAreMemberRecursion,
@@ -167,7 +167,7 @@ namespace social.OpenData.UsersAPI
                                                     Boolean       YouCanCreateChildOrganizationsRecursion)
 
                 => Org.Organization2OrganizationInEdges.
-                       Where     (edge => edge.EdgeLabel == Organization2OrganizationEdgeTypes.IsChildOf).
+                       Where     (edge => edge.EdgeLabel == Organization2OrganizationEdgeLabel.IsChildOf).
                        SafeSelect(edge => new OrganizationInfo(edge.Source,
                                                                You,
                                                                YouAreMemberRecursion,

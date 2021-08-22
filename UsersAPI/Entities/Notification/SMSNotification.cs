@@ -197,6 +197,30 @@ namespace social.OpenData.UsersAPI.Notifications
 
         #endregion
 
+        #region GetSMSNotifications(this UsersAPI, UserGroup,      params NotificationMessageTypes)
+
+        public static IEnumerable<SMSNotification> GetSMSNotifications(this UsersAPI                     UsersAPI,
+                                                                       UserGroup                         UserGroup,
+                                                                       params NotificationMessageType[]  NotificationMessageTypes)
+
+
+            => UsersAPI.GetNotificationsOf<SMSNotification>(UserGroup,
+                                                            NotificationMessageTypes);
+
+        #endregion
+
+        #region GetSMSNotifications(this UsersAPI, UserGroupId,    params NotificationMessageTypes)
+
+        public static IEnumerable<SMSNotification> GetSMSNotifications(this UsersAPI                     UsersAPI,
+                                                                       UserGroup_Id                      UserGroupId,
+                                                                       params NotificationMessageType[]  NotificationMessageTypes)
+
+
+            => UsersAPI.GetNotificationsOf<SMSNotification>(UserGroupId,
+                                                            NotificationMessageTypes);
+
+        #endregion
+
 
         //public static Notifications UnregisterSMSNotification(this UsersAPI  UsersAPI,
         //                                                      User           User,

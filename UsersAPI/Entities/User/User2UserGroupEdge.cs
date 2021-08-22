@@ -18,7 +18,6 @@
 #region Usings
 
 using System;
-using social.OpenData.UsersAPI;
 
 #endregion
 
@@ -32,10 +31,10 @@ namespace social.OpenData.UsersAPI
         IsAdmin_ReadOnly,
         IsAdmin,
         IsMember,
-        IsVisitor
+        IsGuest
     }
 
-    public class User2GroupEdge : MiniEdge<User, User2UserGroupEdgeTypes, UserGroup>
+    public class User2UserGroupEdge : MiniEdge<User, User2UserGroupEdgeTypes, UserGroup>
     {
 
         /// <summary>
@@ -43,18 +42,18 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="User">The source of the edge.</param>
         /// <param name="EdgeLabel">The label of the edge.</param>
-        /// <param name="Group">The target of the edge</param>
+        /// <param name="UserGroup">The target of the edge</param>
         /// <param name="PrivacyLevel">The level of privacy of this edge.</param>
         /// <param name="Created">The creation timestamp of the miniedge.</param>
-        public User2GroupEdge(User                 User,
-                              User2UserGroupEdgeTypes  EdgeLabel,
-                              UserGroup            Group,
-                              PrivacyLevel         PrivacyLevel  = PrivacyLevel.Private,
-                              DateTime?            Created       = null)
+        public User2UserGroupEdge(User                     User,
+                                  User2UserGroupEdgeTypes  EdgeLabel,
+                                  UserGroup                UserGroup,
+                                  PrivacyLevel             PrivacyLevel  = PrivacyLevel.Private,
+                                  DateTime?                Created       = null)
 
-            : base(User  ?? throw new ArgumentNullException(nameof(User),  "The given user must not be null!"),
+            : base(User      ?? throw new ArgumentNullException(nameof(User),       "The given user must not be null!"),
                    EdgeLabel,
-                   Group ?? throw new ArgumentNullException(nameof(Group), "The given group must not be null!"),
+                   UserGroup ?? throw new ArgumentNullException(nameof(UserGroup),  "The given user group must not be null!"),
                    PrivacyLevel,
                    Created)
 

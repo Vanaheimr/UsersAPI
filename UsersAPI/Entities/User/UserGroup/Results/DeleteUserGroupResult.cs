@@ -26,14 +26,14 @@ using org.GraphDefined.Vanaheimr.Illias;
 namespace social.OpenData.UsersAPI
 {
 
-    public class RemoveUserGroupResult : AResult<UserGroup>
+    public class DeleteUserGroupResult : AResult<UserGroup>
     {
 
-        private RemoveUserGroupResult(UserGroup         UserGroup,
+        private DeleteUserGroupResult(UserGroup         UserGroup,
                                       EventTracking_Id  EventTrackingId,
                                       Boolean           IsSuccess,
-                                      String            Argument           = null,
-                                      I18NString        ErrorDescription   = null)
+                                      String            Argument          = null,
+                                      I18NString        ErrorDescription  = null)
 
             : base(UserGroup,
                    EventTrackingId,
@@ -44,64 +44,64 @@ namespace social.OpenData.UsersAPI
         { }
 
 
-        public static RemoveUserGroupResult Success(UserGroup         UserGroup,
+        public static DeleteUserGroupResult Success(UserGroup         UserGroup,
                                                     EventTracking_Id  EventTrackingId)
 
-            => new RemoveUserGroupResult(UserGroup,
+            => new DeleteUserGroupResult(UserGroup,
                                          EventTrackingId,
                                          true);
 
 
-        public static RemoveUserGroupResult ArgumentError(UserGroup         UserGroup,
+        public static DeleteUserGroupResult ArgumentError(UserGroup         UserGroup,
                                                           EventTracking_Id  EventTrackingId,
                                                           String            Argument,
                                                           String            Description)
 
-            => new RemoveUserGroupResult(UserGroup,
+            => new DeleteUserGroupResult(UserGroup,
                                          EventTrackingId,
                                          false,
                                          Argument,
                                          I18NString.Create(Languages.en,
                                                            Description));
 
-        public static RemoveUserGroupResult ArgumentError(UserGroup         UserGroup,
+        public static DeleteUserGroupResult ArgumentError(UserGroup         UserGroup,
                                                           EventTracking_Id  EventTrackingId,
                                                           String            Argument,
                                                           I18NString        Description)
 
-            => new RemoveUserGroupResult(UserGroup,
+            => new DeleteUserGroupResult(UserGroup,
                                          EventTrackingId,
                                          false,
                                          Argument,
                                          Description);
 
 
-        public static RemoveUserGroupResult Failed(UserGroup         UserGroup,
+        public static DeleteUserGroupResult Failed(UserGroup         UserGroup,
                                                    EventTracking_Id  EventTrackingId,
                                                    String            Description)
 
-            => new RemoveUserGroupResult(UserGroup,
+            => new DeleteUserGroupResult(UserGroup,
                                          EventTrackingId,
                                          false,
                                          null,
                                          I18NString.Create(Languages.en,
                                                            Description));
 
-        public static RemoveUserGroupResult Failed(UserGroup         UserGroup,
+        public static DeleteUserGroupResult Failed(UserGroup         UserGroup,
                                                    EventTracking_Id  EventTrackingId,
                                                    I18NString        Description)
 
-            => new RemoveUserGroupResult(UserGroup,
+            => new DeleteUserGroupResult(UserGroup,
                                          EventTrackingId,
                                          false,
                                          null,
                                          Description);
 
-        public static RemoveUserGroupResult Failed(UserGroup         UserGroup,
+        public static DeleteUserGroupResult Failed(UserGroup         UserGroup,
                                                    EventTracking_Id  EventTrackingId,
                                                    Exception         Exception)
 
-            => new RemoveUserGroupResult(UserGroup,
+            => new DeleteUserGroupResult(UserGroup,
                                          EventTrackingId,
                                          false,
                                          null,

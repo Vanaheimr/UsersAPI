@@ -221,6 +221,30 @@ namespace social.OpenData.UsersAPI.Notifications
 
         #endregion
 
+        #region GetTelegramNotifications(this UsersAPI, UserGroup,      params NotificationMessageTypes)
+
+        public static IEnumerable<TelegramNotification> GetTelegramNotifications(this UsersAPI                     UsersAPI,
+                                                                                 UserGroup                         UserGroup,
+                                                                                 params NotificationMessageType[]  NotificationMessageTypes)
+
+
+            => UsersAPI.GetNotificationsOf<TelegramNotification>(UserGroup,
+                                                                 NotificationMessageTypes);
+
+        #endregion
+
+        #region GetTelegramNotifications(this UsersAPI, UserGroupId,    params NotificationMessageTypes)
+
+        public static IEnumerable<TelegramNotification> GetTelegramNotifications(this UsersAPI                     UsersAPI,
+                                                                                 UserGroup_Id                      UserGroupId,
+                                                                                 params NotificationMessageType[]  NotificationMessageTypes)
+
+
+            => UsersAPI.GetNotificationsOf<TelegramNotification>(UserGroupId,
+                                                                 NotificationMessageTypes);
+
+        #endregion
+
 
         //public static Notifications UnregisterTelegramNotification(this UsersAPI  UsersAPI,
         //                                                      User           User,

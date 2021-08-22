@@ -118,9 +118,363 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         public new readonly static JSONLDContext DefaultJSONLDContext = JSONLDContext.Parse("https://opendata.social/contexts/UsersAPI/userGroup");
 
-        private readonly List<User2GroupEdge>   _User2GroupEdges;
-        private readonly List<Group2UserEdge>   _Group2UserInEdges;
-        private readonly List<Group2GroupEdge>  _Group2GroupEdgeTypes;
+        #endregion
+
+        #region User      -> UserGroup edges
+
+        protected readonly List<User2UserGroupEdge> _User2UserGroup_Edges;
+
+        public IEnumerable<User2UserGroupEdge> User2UserGroupEdges
+            => _User2UserGroup_Edges;
+
+
+        public User2UserGroupEdge AddUser(User2UserGroupEdgeTypes  EdgeLabel,
+                                          User                     Source,
+                                          PrivacyLevel             PrivacyLevel = PrivacyLevel.Private)
+
+            => _User2UserGroup_Edges.
+                   AddAndReturnElement(new User2UserGroupEdge(Source,
+                                                              EdgeLabel,
+                                                              this,
+                                                              PrivacyLevel));
+
+
+        public User2UserGroupEdge AddUser(User2UserGroupEdge Edge)
+
+            => _User2UserGroup_Edges.
+                   AddAndReturnElement(Edge);
+
+        public UserGroup AddUsers(IEnumerable<User2UserGroupEdge> Edges)
+        {
+
+            foreach (var edge in Edges)
+                _User2UserGroup_Edges.Add(edge);
+
+            return this;
+
+        }
+
+
+
+        public IEnumerable<User2UserGroupEdge> User2GroupInEdges(Func<User2UserGroupEdgeTypes, Boolean> User2GroupEdgeFilter = null)
+            => _User2UserGroup_Edges.
+                   Where(edge => User2GroupEdgeFilter != null ? User2GroupEdgeFilter(edge.EdgeLabel) : true);
+
+
+        /// <summary>
+        /// All organizations this user belongs to,
+        /// filtered by the given edge label.
+        /// </summary>
+        /// <param name="User">Just return edges with the given user.</param>
+        public IEnumerable<User2UserGroupEdge> Edges(User User)
+
+            => _User2UserGroup_Edges.
+                   Where (edge => edge.Source == User);
+
+
+        /// <summary>
+        /// All organizations this user belongs to,
+        /// filtered by the given edge label.
+        /// </summary>
+        /// <param name="User">Just return edges with the given user.</param>
+        public IEnumerable<User2UserGroupEdge> Edges(User2UserGroupEdgeTypes  EdgeLabel,
+                                                     User                     User)
+
+            => _User2UserGroup_Edges.
+                   Where (edge => edge.Source == User && edge.EdgeLabel == EdgeLabel);
+
+
+        /// <summary>
+        /// All organizations this user belongs to,
+        /// filtered by the given edge label.
+        /// </summary>
+        /// <param name="User">Just return edges with the given user.</param>
+        public IEnumerable<User2UserGroupEdgeTypes> EdgeLabels(User User)
+
+            => _User2UserGroup_Edges.
+                   Where (edge => edge.Source == User).
+                   Select(edge => edge.EdgeLabel);
+
+
+        public Boolean HasEdge(User2UserGroupEdgeTypes  EdgeLabel,
+                               User                     User)
+
+            => _User2UserGroup_Edges.
+                   Any(edge => edge.EdgeLabel == EdgeLabel && edge.Source == User);
+
+        #endregion
+
+        #region UserGroup -> UserGroup edges
+
+        protected readonly List<UserGroup2UserGroupEdge> _UserGroup2UserGroup_InEdges;
+        protected readonly List<UserGroup2UserGroupEdge> _UserGroup2UserGroup_OutEdges;
+
+        public IEnumerable<UserGroup2UserGroupEdge> UserGroup2UserGroupInEdges
+            => _UserGroup2UserGroup_InEdges;
+
+        public IEnumerable<UserGroup2UserGroupEdge> UserGroup2UserGroupOutEdges
+            => _UserGroup2UserGroup_OutEdges;
+
+
+        #region AddEdge (Edge)
+
+        public UserGroup2UserGroupEdge AddEdge(UserGroup2UserGroupEdge Edge)
+
+            => Edge.Target == this
+                   ? _UserGroup2UserGroup_InEdges. AddAndReturnElement(Edge)
+                   : _UserGroup2UserGroup_OutEdges.AddAndReturnElement(Edge);
+
+        #endregion
+
+        #region AddEdges(Edges)
+
+        public IEnumerable<UserGroup2UserGroupEdge> AddEdges(IEnumerable<UserGroup2UserGroupEdge> Edges)
+        {
+
+            foreach (var edge in Edges)
+                AddEdge(edge);
+
+            return Edges;
+
+        }
+
+        #endregion
+
+        #region AddInEdge (EdgeLabel, SourceUserGroup, PrivacyLevel = PrivacyLevel.World)
+
+        public UserGroup2UserGroupEdge AddInEdge(UserGroup2UserGroupEdgeLabel  EdgeLabel,
+                                                 UserGroup                     SourceUserGroup,
+                                                 PrivacyLevel                  PrivacyLevel = PrivacyLevel.World)
+
+            => _UserGroup2UserGroup_InEdges.AddAndReturnElement(new UserGroup2UserGroupEdge(SourceUserGroup,
+                                                                                            EdgeLabel,
+                                                                                            this,
+                                                                                            PrivacyLevel));
+
+        #endregion
+
+        #region AddOutEdge(EdgeLabel, TargetUserGroup, PrivacyLevel = PrivacyLevel.World)
+
+        public UserGroup2UserGroupEdge AddOutEdge(UserGroup2UserGroupEdgeLabel  EdgeLabel,
+                                                  UserGroup                     TargetUserGroup,
+                                                  PrivacyLevel                  PrivacyLevel = PrivacyLevel.World)
+
+            => _UserGroup2UserGroup_OutEdges.AddAndReturnElement(new UserGroup2UserGroupEdge(this,
+                                                                                             EdgeLabel,
+                                                                                             TargetUserGroup,
+                                                                                             PrivacyLevel));
+
+        #endregion
+
+
+        #region (private) _GetAllParents(ref Parents)
+
+        private void _GetAllParents(ref HashSet<UserGroup> Parents)
+        {
+
+            var parents = _UserGroup2UserGroup_OutEdges.
+                              Where  (edge => edge.Source == this && edge.EdgeLabel == UserGroup2UserGroupEdgeLabel.IsSubgroupOf).
+                              Select (edge => edge.Target).
+                              ToArray();
+
+            foreach (var parent in parents)
+            {
+                // Detect loops!
+                if (Parents.Add(parent))
+                    parent._GetAllParents(ref Parents);
+            }
+
+        }
+
+        #endregion
+
+        #region GetAllParents(Filter = null)
+
+        public IEnumerable<UserGroup> GetAllParents(Func<UserGroup, Boolean> Include = null)
+        {
+
+            var parents = new HashSet<UserGroup>();
+            _GetAllParents(ref parents);
+
+            return Include != null
+                       ? parents.Where(Include)
+                       : parents;
+
+        }
+
+        #endregion
+
+        #region GetMeAndAllMyParents(Filter = null)
+
+        public IEnumerable<UserGroup> GetMeAndAllMyParents(Func<UserGroup, Boolean> Include = null)
+        {
+
+            var parentsAndMe = new HashSet<UserGroup>();
+            parentsAndMe.Add(this);
+            _GetAllParents(ref parentsAndMe);
+
+            return Include != null
+                       ? parentsAndMe.Where(Include)
+                       : parentsAndMe;
+
+        }
+
+        #endregion
+
+        #region ParentUserGroups
+
+        public IEnumerable<UserGroup> ParentUserGroups
+
+            => _UserGroup2UserGroup_OutEdges.
+                   Where (edge => edge.Source == this && edge.EdgeLabel == UserGroup2UserGroupEdgeLabel.IsSubgroupOf).
+                   Select(edge => edge.Target).
+                   ToArray();
+
+        #endregion
+
+
+        #region (private) _GetAllChilds(ref Childs)
+
+        private void _GetAllChilds(ref HashSet<UserGroup> Childs)
+        {
+
+            var childs = _UserGroup2UserGroup_InEdges.
+                             Where  (edge => edge.Target == this && edge.EdgeLabel == UserGroup2UserGroupEdgeLabel.IsSubgroupOf).
+                             Select (edge => edge.Source).
+                             ToArray();
+
+            foreach (var child in childs)
+            {
+                // Detect loops!
+                if (Childs.Add(child))
+                    child._GetAllChilds(ref Childs);
+            }
+
+        }
+
+        #endregion
+
+        #region GetAllChilds(Filter = null)
+
+        public IEnumerable<UserGroup> GetAllChilds(Func<UserGroup, Boolean> Include = null)
+        {
+
+            var childs = new HashSet<UserGroup>();
+            _GetAllChilds(ref childs);
+
+            return Include != null
+                       ? childs.Where(Include)
+                       : childs;
+
+        }
+
+        #endregion
+
+        #region GetMeAndAllMyChilds(Filter = null)
+
+        public IEnumerable<UserGroup> GetMeAndAllMyChilds(Func<UserGroup, Boolean> Include = null)
+        {
+
+            var childAndMe = new HashSet<UserGroup>();
+            childAndMe.Add(this);
+            _GetAllChilds(ref childAndMe);
+
+            return Include != null
+                       ? childAndMe.Where(Include)
+                       : childAndMe;
+
+        }
+
+        #endregion
+
+        #region SubUserGroups
+
+        /// <summary>
+        /// A relationship between two organizations where the first includes the second, e.g., as a subsidiary. See also: the more specific 'department' property.
+        /// </summary>
+        public IEnumerable<UserGroup> SubUserGroups
+
+            => _UserGroup2UserGroup_InEdges.
+                   Where (edge => edge.Target == this && edge.EdgeLabel == UserGroup2UserGroupEdgeLabel.IsSubgroupOf).
+                   Select(edge => edge.Source).
+                   ToArray();
+
+        #endregion
+
+
+        #region EdgeLabels(UserGroup UserGroup)
+
+        /// <summary>
+        /// All edge labels between this and the given user group.
+        /// </summary>
+        public IEnumerable<UserGroup2UserGroupEdgeLabel> EdgeLabels(UserGroup UserGroup)
+
+            => UserGroup is null
+
+                   ? new UserGroup2UserGroupEdgeLabel[0]
+
+                   : _UserGroup2UserGroup_InEdges.
+                         Where (edge => edge.Source == UserGroup).
+                         Select(edge => edge.EdgeLabel).Concat(
+
+                     _UserGroup2UserGroup_OutEdges.
+                         Where (edge => edge.Target == UserGroup).
+                         Select(edge => edge.EdgeLabel));
+
+        #endregion
+
+
+        #region RemoveInEdge  (EdgeLabel)
+
+        public Boolean RemoveInEdge(UserGroup2UserGroupEdge Edge)
+
+            => _UserGroup2UserGroup_InEdges.Remove(Edge);
+
+        #endregion
+
+        #region RemoveInEdges (EdgeLabel, SourceUserGroup)
+
+        public void RemoveInEdges(UserGroup2UserGroupEdgeLabel  EdgeLabel,
+                                  UserGroup                     SourceUserGroup)
+        {
+
+            var edges = _UserGroup2UserGroup_InEdges.
+                            Where(edge => edge.EdgeLabel == EdgeLabel &&
+                                          edge.Source    == SourceUserGroup).
+                            ToArray();
+
+            foreach (var edge in edges)
+                _UserGroup2UserGroup_InEdges.Remove(edge);
+
+        }
+
+        #endregion
+
+        #region RemoveOutEdges(EdgeLabel, TargetUserGroup)
+
+        public Boolean RemoveOutEdge(UserGroup2UserGroupEdge Edge)
+
+            => _UserGroup2UserGroup_OutEdges.Remove(Edge);
+
+        #endregion
+
+        #region RemoveOutEdges(EdgeLabel, TargetUserGroup)
+
+        public void RemoveOutEdges(UserGroup2UserGroupEdgeLabel  EdgeLabel,
+                                   UserGroup                     TargetUserGroup)
+        {
+
+            var edges = _UserGroup2UserGroup_OutEdges.
+                            Where(edge => edge.EdgeLabel == EdgeLabel &&
+                                          edge.Target    == TargetUserGroup).
+                            ToArray();
+
+            foreach (var edge in edges)
+                _UserGroup2UserGroup_OutEdges.Remove(edge);
+
+        }
+
+        #endregion
 
         #endregion
 
@@ -142,21 +496,23 @@ namespace social.OpenData.UsersAPI
         /// <param name="JSONLDContext">The JSON-LD context of this user group.</param>
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
         /// <param name="LastChange">The timestamp of the last changes within this user group. Can e.g. be used as a HTTP ETag.</param>
-        public UserGroup(UserGroup_Id                 Id,
+        public UserGroup(UserGroup_Id                          Id,
 
-                         I18NString                   Name,
-                         I18NString                   Description         = default,
-                         IEnumerable<User>            Users               = default,
-                         UserGroup                    ParentGroup         = default,
-                         IEnumerable<UserGroup>       Subgroups           = default,
+                         I18NString                            Name,
+                         I18NString                            Description                   = null,
+                         IEnumerable<User>                     Users                         = null,
+                         UserGroup                             ParentGroup                   = null,
+                         IEnumerable<UserGroup>                Subgroups                     = null,
 
-                         IEnumerable<User2GroupEdge>  User2GroupInEdges   = null,
+                         IEnumerable<User2UserGroupEdge>       User2GroupInEdges             = null,
+                         IEnumerable<UserGroup2UserGroupEdge>  UserGroup2UserGroupInEdges    = null,
+                         IEnumerable<UserGroup2UserGroupEdge>  UserGroup2UserGroupOutEdges   = null,
 
-                         JObject                      CustomData          = default,
-                         IEnumerable<AttachedFile>    AttachedFiles       = default,
-                         JSONLDContext?               JSONLDContext       = default,
-                         String                       DataSource          = default,
-                         DateTime?                    LastChange          = default)
+                         JObject                               CustomData                    = default,
+                         IEnumerable<AttachedFile>             AttachedFiles                 = default,
+                         JSONLDContext?                        JSONLDContext                 = default,
+                         String                                DataSource                    = default,
+                         DateTime?                             LastChange                    = default)
 
             : base(Id,
 
@@ -174,9 +530,9 @@ namespace social.OpenData.UsersAPI
 
         {
 
-            this._User2GroupEdges       = new List<User2GroupEdge>();
-            this._Group2UserInEdges     = new List<Group2UserEdge>();
-            this._Group2GroupEdgeTypes  = new List<Group2GroupEdge>();
+            this._User2UserGroup_Edges          = User2GroupInEdges != null ? new List<User2UserGroupEdge>     (User2GroupInEdges)           : new List<User2UserGroupEdge>();
+            this._UserGroup2UserGroup_InEdges   = User2GroupInEdges != null ? new List<UserGroup2UserGroupEdge>(UserGroup2UserGroupInEdges)  : new List<UserGroup2UserGroupEdge>();
+            this._UserGroup2UserGroup_OutEdges  = User2GroupInEdges != null ? new List<UserGroup2UserGroupEdge>(UserGroup2UserGroupOutEdges) : new List<UserGroup2UserGroupEdge>();
 
             CalcHash();
 
@@ -230,8 +586,8 @@ namespace social.OpenData.UsersAPI
                                        ? new JProperty("description",    Description.ToJSON())
                                        : null,
 
-                                   _User2GroupEdges.Where(edge => edge.EdgeLabel == User2UserGroupEdgeTypes.IsMember).SafeAny()
-                                       ? new JProperty("isMember", new JArray(_User2GroupEdges.Where(edge => edge.EdgeLabel == User2UserGroupEdgeTypes.IsMember).Select(edge => edge.Source.Id.ToString())))
+                                   _User2UserGroup_Edges.Where(edge => edge.EdgeLabel == User2UserGroupEdgeTypes.IsMember).SafeAny()
+                                       ? new JProperty("isMember", new JArray(_User2UserGroup_Edges.Where(edge => edge.EdgeLabel == User2UserGroupEdgeTypes.IsMember).Select(edge => edge.Source.Id.ToString())))
                                        : null,
 
                                    Members.SafeAny() && ExpandUsers != InfoStatus.Hidden
@@ -483,6 +839,8 @@ namespace social.OpenData.UsersAPI
                                           Subgroups,
 
                                           null,
+                                          null,
+                                          null,
 
                                           null,
                                           null,
@@ -506,141 +864,17 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-
-        #region User  -> Group edges
-
-        public User2GroupEdge AddIncomingEdge(User                 Source,
-                                              User2UserGroupEdgeTypes  EdgeLabel,
-                                              PrivacyLevel         PrivacyLevel = PrivacyLevel.Private)
-
-            => _User2GroupEdges.
-                   AddAndReturnElement(new User2GroupEdge(Source,
-                                                          EdgeLabel,
-                                                          this,
-                                                          PrivacyLevel));
-
-
-        public User2GroupEdge AddIncomingEdge(User2GroupEdge Edge)
-
-            => _User2GroupEdges.
-                   AddAndReturnElement(Edge);
-
-
-        public IEnumerable<User2GroupEdge> User2GroupInEdges(Func<User2UserGroupEdgeTypes, Boolean> User2GroupEdgeFilter)
-            => _User2GroupEdges.Where(edge => User2GroupEdgeFilter(edge.EdgeLabel));
-
-
-        /// <summary>
-        /// All organizations this user belongs to,
-        /// filtered by the given edge label.
-        /// </summary>
-        /// <param name="User">Just return edges with the given user.</param>
-        public IEnumerable<User2UserGroupEdgeTypes> InEdges(User User)
-
-            => _User2GroupEdges.
-                   Where (edge => edge.Source == User).
-                   Select(edge => edge.EdgeLabel);
-
-
-        public Boolean HasEdge(User2UserGroupEdgeTypes  EdgeLabel,
-                               User                 User)
-
-            => _User2GroupEdges.
-                   Any(edge => edge.EdgeLabel == EdgeLabel && edge.Source == User);
-
-
-        public UserGroup Add(IEnumerable<User2GroupEdge> Edges)
-        {
-
-            foreach (var edge in Edges)
-                _User2GroupEdges.Add(edge);
-
-            return this;
-
-        }
-
-        #endregion
-
-        #region Group -> User  edges
-
-        public Group2UserEdge AddOutgoingEdge(Group2UserEdgeTypes  EdgeLabel,
-                                              User                 Target,
-                                              PrivacyLevel         PrivacyLevel = PrivacyLevel.Private)
-
-            => _Group2UserInEdges.
-                   AddAndReturnElement(new Group2UserEdge(this,
-                                                          EdgeLabel,
-                                                          Target,
-                                                          PrivacyLevel));
-
-        public Group2UserEdge AddIncomingEdge(Group2UserEdge Edge)
-
-            => _Group2UserInEdges.
-                   AddAndReturnElement(Edge);
-
-
-        /// <summary>
-        /// All organizations this user belongs to,
-        /// filtered by the given edge label.
-        /// </summary>
-        public IEnumerable<Group2UserEdgeTypes> OutEdges(User User)
-
-            => _Group2UserInEdges.
-                   Where (edge => edge.Target == User).
-                   Select(edge => edge.EdgeLabel);
-
-
-        public Boolean RemoveInEdge(Group2UserEdge Edge)
-
-            => _Group2UserInEdges.
-                   Remove(Edge);
-
-        #endregion
-
-        #region Group -> Group edges
-
-        public Group2GroupEdge AddEdge(Group2GroupEdgeTypes  EdgeLabel,
-                                       UserGroup             Target,
-                                       PrivacyLevel          PrivacyLevel = PrivacyLevel.Private)
-
-            => _Group2GroupEdgeTypes.
-                   AddAndReturnElement(new Group2GroupEdge(this,
-                                                           EdgeLabel,
-                                                           Target,
-                                                           PrivacyLevel));
-
-
-        public Group2GroupEdge AddEdge(Group2GroupEdge Edge)
-
-            => _Group2GroupEdgeTypes.
-                   AddAndReturnElement(Edge);
-
-
-        /// <summary>
-        /// All organizations this user belongs to,
-        /// filtered by the given edge label.
-        /// </summary>
-        public IEnumerable<Group2GroupEdgeTypes> Edges(UserGroup Group)
-
-            => _Group2GroupEdgeTypes.
-                   Where (edge => edge.Target == Group).
-                   Select(edge => edge.EdgeLabel);
-
-        #endregion
-
-
-
         #region CopyAllLinkedDataFrom(OldGroup)
 
         public override void CopyAllLinkedDataFrom(UserGroup OldGroup)
         {
 
-            if (OldGroup._User2GroupEdges.Any() && !_User2GroupEdges.Any())
+            if (OldGroup._User2UserGroup_Edges.Any() && !_User2UserGroup_Edges.Any())
             {
 
-                Add(OldGroup._User2GroupEdges);
+                AddUsers(OldGroup._User2UserGroup_Edges);
 
-                foreach (var edge in _User2GroupEdges)
+                foreach (var edge in _User2UserGroup_Edges)
                     edge.Target = this;
 
             }
@@ -886,6 +1120,10 @@ namespace social.OpenData.UsersAPI
                            ParentGroup,
                            Subgroups,
 
+                           _User2UserGroup_Edges,
+                           _UserGroup2UserGroup_InEdges,
+                           _UserGroup2UserGroup_OutEdges,
+
                            CustomData,
                            AttachedFiles,
                            JSONLDContext,
@@ -905,6 +1143,19 @@ namespace social.OpenData.UsersAPI
                                           User>.Builder
         {
 
+            #region User      -> UserGroup edges
+
+            protected readonly List<User2UserGroupEdge>       _User2UserGroup_Edges;
+
+            #endregion
+
+            #region UserGroup -> UserGroup edges
+
+            protected readonly List<UserGroup2UserGroupEdge>  _UserGroup2UserGroup_InEdges;
+            protected readonly List<UserGroup2UserGroupEdge>  _UserGroup2UserGroup_OutEdges;
+
+            #endregion
+
             #region Constructor(s)
 
             /// <summary>
@@ -923,19 +1174,23 @@ namespace social.OpenData.UsersAPI
             /// <param name="JSONLDContext">The JSON-LD context of this user group.</param>
             /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
             /// <param name="LastChange">The timestamp of the last changes within this user group. Can e.g. be used as a HTTP ETag.</param>
-            public Builder(UserGroup_Id?              Id              = default,
+            public Builder(UserGroup_Id?                         Id                            = null,
 
-                           I18NString                 Name            = default,
-                           I18NString                 Description     = default,
-                           IEnumerable<User>          Users           = default,
-                           UserGroup                  ParentGroup     = default,
-                           IEnumerable<UserGroup>     Subgroups       = default,
+                           I18NString                            Name                          = null,
+                           I18NString                            Description                   = null,
+                           IEnumerable<User>                     Users                         = null,
+                           UserGroup                             ParentGroup                   = null,
+                           IEnumerable<UserGroup>                Subgroups                     = null,
 
-                           JObject                    CustomData      = default,
-                           IEnumerable<AttachedFile>  AttachedFiles   = default,
-                           JSONLDContext?             JSONLDContext   = default,
-                           String                     DataSource      = default,
-                           DateTime?                  LastChange      = default)
+                           IEnumerable<User2UserGroupEdge>       User2UserGroupEdges           = null,
+                           IEnumerable<UserGroup2UserGroupEdge>  UserGroup2UserGroupInEdges    = null,
+                           IEnumerable<UserGroup2UserGroupEdge>  UserGroup2UserGroupOutEdges   = null,
+
+                           JObject                               CustomData                    = default,
+                           IEnumerable<AttachedFile>             AttachedFiles                 = default,
+                           JSONLDContext?                        JSONLDContext                 = default,
+                           String                                DataSource                    = default,
+                           DateTime?                             LastChange                    = default)
 
                 : base(Id ?? UserGroup_Id.Random(),
                        JSONLDContext ?? DefaultJSONLDContext,
@@ -949,7 +1204,13 @@ namespace social.OpenData.UsersAPI
                        DataSource,
                        LastChange)
 
-            { }
+            {
+
+                this._User2UserGroup_Edges          = User2UserGroupEdges.        IsNeitherNullNorEmpty() ? new List<User2UserGroupEdge>     (User2UserGroupEdges)         : new List<User2UserGroupEdge>();
+                this._UserGroup2UserGroup_InEdges   = UserGroup2UserGroupInEdges. IsNeitherNullNorEmpty() ? new List<UserGroup2UserGroupEdge>(UserGroup2UserGroupInEdges)  : new List<UserGroup2UserGroupEdge>();
+                this._UserGroup2UserGroup_OutEdges  = UserGroup2UserGroupOutEdges.IsNeitherNullNorEmpty() ? new List<UserGroup2UserGroupEdge>(UserGroup2UserGroupOutEdges) : new List<UserGroup2UserGroupEdge>();
+
+            }
 
             #endregion
 
@@ -996,7 +1257,9 @@ namespace social.OpenData.UsersAPI
                                  ParentGroup,
                                  Subgroups,
 
-                                 null,
+                                 _User2UserGroup_Edges,
+                                 _UserGroup2UserGroup_InEdges,
+                                 _UserGroup2UserGroup_OutEdges,
 
                                  CustomData,
                                  AttachedFiles,

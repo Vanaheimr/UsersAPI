@@ -209,6 +209,30 @@ namespace social.OpenData.UsersAPI.Notifications
 
         #endregion
 
+        #region GetEMailNotifications(this UsersAPI, UserGroup,      params NotificationMessageTypes)
+
+        public static IEnumerable<EMailNotification> GetEMailNotifications(this UsersAPI                     UsersAPI,
+                                                                           UserGroup                         UserGroup,
+                                                                           params NotificationMessageType[]  NotificationMessageTypes)
+
+
+            => UsersAPI.GetNotificationsOf<EMailNotification>(UserGroup,
+                                                              NotificationMessageTypes);
+
+        #endregion
+
+        #region GetEMailNotifications(this UsersAPI, UserGroupId,    params NotificationMessageTypes)
+
+        public static IEnumerable<EMailNotification> GetEMailNotifications(this UsersAPI                     UsersAPI,
+                                                                           UserGroup_Id                      UserGroupId,
+                                                                           params NotificationMessageType[]  NotificationMessageTypes)
+
+
+            => UsersAPI.GetNotificationsOf<EMailNotification>(UserGroupId,
+                                                              NotificationMessageTypes);
+
+        #endregion
+
 
         //public static Notifications UnregisterEMailNotification(this UsersAPI  UsersAPI,
         //                                                        User           User,

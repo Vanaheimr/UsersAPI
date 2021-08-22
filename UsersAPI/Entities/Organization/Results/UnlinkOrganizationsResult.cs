@@ -32,14 +32,14 @@ namespace social.OpenData.UsersAPI
         public Organization                        OrganizationOut
             => Object1;
 
-        public Organization2OrganizationEdgeTypes  EdgeLabel       { get; }
+        public Organization2OrganizationEdgeLabel  EdgeLabel       { get; }
 
         public Organization                        OrganizationIn
             => Object2;
 
 
         public UnlinkOrganizationsResult(Organization                        OrganizationOut,
-                                         Organization2OrganizationEdgeTypes  EdgeLabel,
+                                         Organization2OrganizationEdgeLabel  EdgeLabel,
                                          Organization                        OrganizationIn,
                                          EventTracking_Id                    EventTrackingId,
                                          Boolean                             IsSuccess,
@@ -61,7 +61,7 @@ namespace social.OpenData.UsersAPI
 
 
         public static UnlinkOrganizationsResult Success(Organization                        OrganizationOut,
-                                                        Organization2OrganizationEdgeTypes  EdgeLabel,
+                                                        Organization2OrganizationEdgeLabel  EdgeLabel,
                                                         Organization                        OrganizationIn,
                                                         EventTracking_Id                    EventTrackingId)
 
@@ -73,7 +73,7 @@ namespace social.OpenData.UsersAPI
 
 
         public static UnlinkOrganizationsResult ArgumentError(Organization                        OrganizationOut,
-                                                              Organization2OrganizationEdgeTypes  EdgeLabel,
+                                                              Organization2OrganizationEdgeLabel  EdgeLabel,
                                                               Organization                        OrganizationIn,
                                                               EventTracking_Id                    EventTrackingId,
                                                               String                              Argument,
@@ -89,7 +89,7 @@ namespace social.OpenData.UsersAPI
                                                                Description));
 
         public static UnlinkOrganizationsResult ArgumentError(Organization                        OrganizationOut,
-                                                              Organization2OrganizationEdgeTypes  EdgeLabel,
+                                                              Organization2OrganizationEdgeLabel  EdgeLabel,
                                                               Organization                        OrganizationIn,
                                                               EventTracking_Id                    EventTrackingId,
                                                               String                              Argument,
@@ -105,7 +105,7 @@ namespace social.OpenData.UsersAPI
 
 
         public static UnlinkOrganizationsResult Failed(Organization                        OrganizationOut,
-                                                       Organization2OrganizationEdgeTypes  EdgeLabel,
+                                                       Organization2OrganizationEdgeLabel  EdgeLabel,
                                                        Organization                        OrganizationIn,
                                                        EventTracking_Id                    EventTrackingId,
                                                        String                              Description)
@@ -120,7 +120,7 @@ namespace social.OpenData.UsersAPI
                                                                Description));
 
         public static UnlinkOrganizationsResult Failed(Organization                        OrganizationOut,
-                                                       Organization2OrganizationEdgeTypes  EdgeLabel,
+                                                       Organization2OrganizationEdgeLabel  EdgeLabel,
                                                        Organization                        OrganizationIn,
                                                        EventTracking_Id                    EventTrackingId,
                                                        I18NString                          Description)
@@ -134,7 +134,7 @@ namespace social.OpenData.UsersAPI
                                              Description);
 
         public static UnlinkOrganizationsResult Failed(Organization                        OrganizationOut,
-                                                       Organization2OrganizationEdgeTypes  EdgeLabel,
+                                                       Organization2OrganizationEdgeLabel  EdgeLabel,
                                                        Organization                        OrganizationIn,
                                                        EventTracking_Id                    EventTrackingId,
                                                        Exception                           Exception)

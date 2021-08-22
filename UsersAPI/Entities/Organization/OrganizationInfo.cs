@@ -117,8 +117,8 @@ namespace social.OpenData.UsersAPI
         {
 
             this.You                             = You;
-            this.Admins                          = _User2Organization_InEdges.Where(_ => _.EdgeLabel == User2OrganizationEdgeTypes.IsAdmin). SafeSelect(edge => edge.Source).ToArray();
-            this.Members                         = _User2Organization_InEdges.Where(_ => _.EdgeLabel == User2OrganizationEdgeTypes.IsMember).SafeSelect(edge => edge.Source).ToArray();
+            this.Admins                          = _User2Organization_Edges.Where(_ => _.EdgeLabel == User2OrganizationEdgeTypes.IsAdmin). SafeSelect(edge => edge.Source).ToArray();
+            this.Members                         = _User2Organization_Edges.Where(_ => _.EdgeLabel == User2OrganizationEdgeTypes.IsMember).SafeSelect(edge => edge.Source).ToArray();
 
             this.YouAreMember                    = YouAreMember                   || Admins.Contains(You) || Members.Contains(You);
             this.YouCanAddMembers                = YouCanAddMembers               || Admins.Contains(You);
@@ -132,7 +132,7 @@ namespace social.OpenData.UsersAPI
                                                     Boolean       YouCanCreateChildOrganizationsRecursion)
 
                 => Org.Organization2OrganizationInEdges.
-                       Where     (edge => edge.EdgeLabel == Organization2OrganizationEdgeTypes.IsChildOf).
+                       Where     (edge => edge.EdgeLabel == Organization2OrganizationEdgeLabel.IsChildOf).
                        SafeSelect(edge => new OrganizationInfo(edge.Source,
                                                                You,
                                                                YouAreMemberRecursion,

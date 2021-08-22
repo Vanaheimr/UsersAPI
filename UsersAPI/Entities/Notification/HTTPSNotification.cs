@@ -223,6 +223,30 @@ namespace social.OpenData.UsersAPI.Notifications
 
         #endregion
 
+        #region GetHTTPSNotifications(this UsersAPI, UserGroup,      params NotificationMessageTypes)
+
+        public static IEnumerable<HTTPSNotification> GetHTTPSNotifications(this UsersAPI                     UsersAPI,
+                                                                           UserGroup                         UserGroup,
+                                                                           params NotificationMessageType[]  NotificationMessageTypes)
+
+
+            => UsersAPI.GetNotificationsOf<HTTPSNotification>(UserGroup,
+                                                              NotificationMessageTypes);
+
+        #endregion
+
+        #region GetHTTPSNotifications(this UsersAPI, UserGroupId,    params NotificationMessageTypes)
+
+        public static IEnumerable<HTTPSNotification> GetHTTPSNotifications(this UsersAPI                     UsersAPI,
+                                                                           UserGroup_Id                      UserGroupId,
+                                                                           params NotificationMessageType[]  NotificationMessageTypes)
+
+
+            => UsersAPI.GetNotificationsOf<HTTPSNotification>(UserGroupId,
+                                                              NotificationMessageTypes);
+
+        #endregion
+
 
         //public static Notifications UnregisterHTTPSNotification(this UsersAPI  UsersAPI,
         //                                                        User           User,

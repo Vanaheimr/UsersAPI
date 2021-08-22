@@ -18,19 +18,18 @@
 #region Usings
 
 using System;
-using social.OpenData.UsersAPI;
 
 #endregion
 
 namespace social.OpenData.UsersAPI
 {
 
-    public enum Group2GroupEdgeTypes
+    public enum UserGroup2UserGroupEdgeLabel
     {
-        IsSubgroup
+        IsSubgroupOf
     }
 
-    public class Group2GroupEdge : MiniEdge<UserGroup, Group2GroupEdgeTypes, UserGroup>
+    public class UserGroup2UserGroupEdge : MiniEdge<UserGroup, UserGroup2UserGroupEdgeLabel, UserGroup>
     {
 
         /// <summary>
@@ -41,15 +40,15 @@ namespace social.OpenData.UsersAPI
         /// <param name="GroupB">The target of the edge</param>
         /// <param name="PrivacyLevel">The level of privacy of this edge.</param>
         /// <param name="Created">The creation timestamp of the miniedge.</param>
-        public Group2GroupEdge(UserGroup             GroupA,
-                               Group2GroupEdgeTypes  EdgeLabel,
-                               UserGroup             GroupB,
-                               PrivacyLevel          PrivacyLevel  = PrivacyLevel.Private,
-                               DateTime?             Created       = null)
+        public UserGroup2UserGroupEdge(UserGroup                     GroupA,
+                                       UserGroup2UserGroupEdgeLabel  EdgeLabel,
+                                       UserGroup                     GroupB,
+                                       PrivacyLevel                  PrivacyLevel  = PrivacyLevel.Private,
+                                       DateTime?                     Created       = null)
 
-            : base(GroupA ?? throw new ArgumentNullException(nameof(GroupA), "The given group must not be null!"),
+            : base(GroupA ?? throw new ArgumentNullException(nameof(GroupA), "The given user group must not be null!"),
                    EdgeLabel,
-                   GroupB ?? throw new ArgumentNullException(nameof(GroupB), "The given group must not be null!"),
+                   GroupB ?? throw new ArgumentNullException(nameof(GroupB), "The given user group must not be null!"),
                    PrivacyLevel,
                    Created)
 
