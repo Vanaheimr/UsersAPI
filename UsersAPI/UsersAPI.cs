@@ -15854,10 +15854,10 @@ namespace social.OpenData.UsersAPI
                                            Where (edge => edge.EdgeLabel == User2OrganizationEdgeTypes.IsAdmin ||
                                                           edge.EdgeLabel == User2OrganizationEdgeTypes.IsMember).
                                            Select(edge => edge.Target).
-                                           ToHashSet();
+                                           ToSafeHashSet();
 
             // Limit the number of levels, or people will get overwhelmed by e-mails...
-            for (var i = 0; i <= 2; i++)
+            for (var i = 0; i <= 5; i++)
             {
                 foreach (var higherLevelOrganization in allHisOrganizations.ToArray().
                                                                             SelectMany(org => org.Organization2OrganizationOutEdges.
@@ -15872,7 +15872,7 @@ namespace social.OpenData.UsersAPI
             #endregion
 
 
-            if (!DisableNotifications)
+           if (!DisableNotifications)
             {
 
                 #region Telegram Notifications
@@ -15882,10 +15882,10 @@ namespace social.OpenData.UsersAPI
                     try
                     {
 
-                        var AllTelegramNotifications  = this.GetTelegramNotifications(User, messageTypes).
-                                                             ToHashSet();
+                        var AllTelegramNotifications  = User.GetNotificationsOf<TelegramNotification>(messageTypes).
+                                                             ToSafeHashSet();
 
-                        foreach (var telegramNotification in allHisOrganizations.SelectMany(org => this.GetTelegramNotifications(org, messageTypes)))
+                        foreach (var telegramNotification in allHisOrganizations.SelectMany(org => org.GetNotificationsOf<TelegramNotification>(messageTypes)))
                             AllTelegramNotifications.Add(telegramNotification);
 
                         if (AllTelegramNotifications.SafeAny())
@@ -15930,10 +15930,9 @@ namespace social.OpenData.UsersAPI
                 try
                 {
 
-                    var AllSMSNotifications  = this.GetSMSNotifications(User, messageTypes).
-                                                    ToHashSet();
+                    var AllSMSNotifications  = User.GetNotificationsOf<SMSNotification>(messageTypes).ToSafeHashSet();
 
-                    foreach (var SMSNotification in allHisOrganizations.SelectMany(org => this.GetSMSNotifications(org, messageTypes)))
+                    foreach (var SMSNotification in allHisOrganizations.SelectMany(org => org.GetNotificationsOf<SMSNotification>(messageTypes)))
                         AllSMSNotifications.Add(SMSNotification);
 
                     if (AllSMSNotifications.SafeAny())
@@ -15980,10 +15979,10 @@ namespace social.OpenData.UsersAPI
                 try
                 {
 
-                    var AllHTTPSNotifications  = this.GetHTTPSNotifications(User, messageTypes).
-                                                      ToHashSet();
+                    var AllHTTPSNotifications  = User.GetNotificationsOf<HTTPSNotification>(messageTypes).
+                                                      ToSafeHashSet();
 
-                    foreach (var HTTPSNotification in allHisOrganizations.SelectMany(org => this.GetHTTPSNotifications(org, messageTypes)))
+                    foreach (var HTTPSNotification in allHisOrganizations.SelectMany(org => org.GetNotificationsOf<HTTPSNotification>(messageTypes)))
                         AllHTTPSNotifications.Add(HTTPSNotification);
 
                     if (AllHTTPSNotifications.SafeAny())
@@ -16039,10 +16038,10 @@ namespace social.OpenData.UsersAPI
                     try
                     {
 
-                        var AllEMailNotifications  = this.GetEMailNotifications(User, messageTypes).
-                                                          ToHashSet();
+                        var AllEMailNotifications  = User.GetNotificationsOf<EMailNotification>(messageTypes).
+                                                          ToSafeHashSet();
 
-                        foreach (var eMailNotification in allHisOrganizations.SelectMany(org => this.GetEMailNotifications(org, messageTypes)))
+                        foreach (var eMailNotification in allHisOrganizations.SelectMany(org => org.GetNotificationsOf<EMailNotification>(messageTypes)))
                             AllEMailNotifications.Add(eMailNotification);
 
                         if (AllEMailNotifications.SafeAny())
@@ -16211,7 +16210,7 @@ namespace social.OpenData.UsersAPI
                         var AllTelegramNotifications  = ParentOrganizations.
                                                             SelectMany(parent => parent.User2OrganizationEdges).
                                                             SelectMany(edge   => edge.Source.GetNotificationsOf<TelegramNotification>(deleteUser_MessageType)).
-                                                            ToHashSet();
+                                                            ToSafeHashSet();
 
                         if (AllTelegramNotifications.SafeAny())
                         {
@@ -16239,7 +16238,7 @@ namespace social.OpenData.UsersAPI
                     var AllSMSNotifications = ParentOrganizations.
                                                   SelectMany(parent => parent.User2OrganizationEdges).
                                                   SelectMany(edge   => edge.Source.GetNotificationsOf<SMSNotification>(deleteUser_MessageType)).
-                                                  ToHashSet();
+                                                  ToSafeHashSet();
 
                     if (AllSMSNotifications.SafeAny())
                     {
@@ -16267,7 +16266,7 @@ namespace social.OpenData.UsersAPI
                     var AllHTTPSNotifications = ParentOrganizations.
                                                     SelectMany(parent => parent.User2OrganizationEdges).
                                                     SelectMany(edge   => edge.Source.GetNotificationsOf<HTTPSNotification>(deleteUser_MessageType)).
-                                                    ToHashSet();
+                                                    ToSafeHashSet();
 
                     if (AllHTTPSNotifications.SafeAny())
                     {
@@ -16301,7 +16300,7 @@ namespace social.OpenData.UsersAPI
                         var AllEMailNotifications = ParentOrganizations.
                                                         SelectMany(parent => parent.User2OrganizationEdges).
                                                         SelectMany(edge   => edge.Source.GetNotificationsOf<EMailNotification>(deleteUser_MessageType)).
-                                                        ToHashSet();
+                                                        ToSafeHashSet();
 
                         if (AllEMailNotifications.SafeAny())
                         {
@@ -16457,7 +16456,7 @@ namespace social.OpenData.UsersAPI
                                                               SelectMany(group       => group.Notifications).
                                                               Where     (description => description.Tags.Contains(NotificationTag.NewUserDefault)).
                                                               SelectMany(description => description.Messages).
-                                                              ToHashSet();
+                                                              ToSafeHashSet();
 
             if (newUserDefaultNotificationMessageGroups.Any())
                 await _AddNotification(User,
@@ -16723,7 +16722,7 @@ namespace social.OpenData.UsersAPI
                                                                 SelectMany(group       => group.Notifications).
                                                                 Where     (description => description.Tags.Contains(NotificationTag.NewUserDefault)).
                                                                 SelectMany(description => description.Messages).
-                                                                ToHashSet();
+                                                                ToSafeHashSet();
 
             if (newUserDefaultNotificationMessageGroups.Any())
                 await AddNotification(User,
@@ -16996,7 +16995,7 @@ namespace social.OpenData.UsersAPI
                                                                     SelectMany(group       => group.Notifications).
                                                                     Where     (description => description.Tags.Contains(NotificationTag.NewUserDefault)).
                                                                     SelectMany(description => description.Messages).
-                                                                    ToHashSet();
+                                                                    ToSafeHashSet();
 
                 if (newUserDefaultNotificationMessageGroups.Any())
                     await _AddNotification(User,
@@ -18335,7 +18334,7 @@ namespace social.OpenData.UsersAPI
                         var AllTelegramNotifications  = ParentUserGroups.
                                                             SelectMany(parent => parent.User2UserGroupEdges).
                                                             SelectMany(edge   => edge.Source.GetNotificationsOf<TelegramNotification>(deleteUserGroup_MessageType)).
-                                                            ToHashSet();
+                                                            ToSafeHashSet();
 
                         if (AllTelegramNotifications.SafeAny())
                         {
@@ -18363,7 +18362,7 @@ namespace social.OpenData.UsersAPI
                     var AllSMSNotifications = ParentUserGroups.
                                                   SelectMany(parent => parent.User2UserGroupEdges).
                                                   SelectMany(edge   => edge.Source.GetNotificationsOf<SMSNotification>(deleteUserGroup_MessageType)).
-                                                  ToHashSet();
+                                                  ToSafeHashSet();
 
                     if (AllSMSNotifications.SafeAny())
                     {
@@ -18391,7 +18390,7 @@ namespace social.OpenData.UsersAPI
                     var AllHTTPSNotifications = ParentUserGroups.
                                                     SelectMany(parent => parent.User2UserGroupEdges).
                                                     SelectMany(edge   => edge.Source.GetNotificationsOf<HTTPSNotification>(deleteUserGroup_MessageType)).
-                                                    ToHashSet();
+                                                    ToSafeHashSet();
 
                     if (AllHTTPSNotifications.SafeAny())
                     {
@@ -18425,7 +18424,7 @@ namespace social.OpenData.UsersAPI
                         var AllEMailNotifications = ParentUserGroups.
                                                         SelectMany(parent => parent.User2UserGroupEdges).
                                                         SelectMany(edge   => edge.Source.GetNotificationsOf<EMailNotification>(deleteUserGroup_MessageType)).
-                                                        ToHashSet();
+                                                        ToSafeHashSet();
 
                         if (AllEMailNotifications.SafeAny())
                         {
@@ -25927,8 +25926,8 @@ namespace social.OpenData.UsersAPI
                     try
                     {
 
-                        var AllTelegramNotifications  = this.GetTelegramNotifications(Organization, messageTypes).
-                                                             ToHashSet();
+                        var AllTelegramNotifications  = Organization.GetNotificationsOf<TelegramNotification>(messageTypes).
+                                                             ToSafeHashSet();
 
                         if (AllTelegramNotifications.SafeAny())
                         {
@@ -25960,8 +25959,8 @@ namespace social.OpenData.UsersAPI
                 try
                 {
 
-                    var AllSMSNotifications  = this.GetSMSNotifications(Organization, messageTypes).
-                                                    ToHashSet();
+                    var AllSMSNotifications  = Organization.GetNotificationsOf<SMSNotification>(messageTypes).
+                                                            ToSafeHashSet();
 
                     if (AllSMSNotifications.SafeAny())
                     {
@@ -25994,8 +25993,8 @@ namespace social.OpenData.UsersAPI
                 try
                 {
 
-                    var AllHTTPSNotifications  = this.GetHTTPSNotifications(Organization, messageTypes).
-                                                      ToHashSet();
+                    var AllHTTPSNotifications  = Organization.GetNotificationsOf<HTTPSNotification>(messageTypes).
+                                                              ToSafeHashSet();
 
                     if (AllHTTPSNotifications.SafeAny())
                     {
@@ -26035,8 +26034,8 @@ namespace social.OpenData.UsersAPI
                     try
                     {
 
-                        var AllEMailNotifications  = this.GetEMailNotifications(Organization, messageTypes).
-                                                          ToHashSet();
+                        var AllEMailNotifications  = Organization.GetNotificationsOf<EMailNotification>(messageTypes).
+                                                                  ToSafeHashSet();
 
                         if (AllEMailNotifications.SafeAny())
                         {
@@ -26177,7 +26176,7 @@ namespace social.OpenData.UsersAPI
                         var AllTelegramNotifications  = ParentOrganizations.
                                                             SelectMany(parent => parent.User2OrganizationEdges).
                                                             SelectMany(edge   => edge.Source.GetNotificationsOf<TelegramNotification>(deleteOrganization_MessageType)).
-                                                            ToHashSet();
+                                                            ToSafeHashSet();
 
                         if (AllTelegramNotifications.SafeAny())
                         {
@@ -26205,7 +26204,7 @@ namespace social.OpenData.UsersAPI
                     var AllSMSNotifications = ParentOrganizations.
                                                   SelectMany(parent => parent.User2OrganizationEdges).
                                                   SelectMany(edge   => edge.Source.GetNotificationsOf<SMSNotification>(deleteOrganization_MessageType)).
-                                                  ToHashSet();
+                                                  ToSafeHashSet();
 
                     if (AllSMSNotifications.SafeAny())
                     {
@@ -26233,7 +26232,7 @@ namespace social.OpenData.UsersAPI
                     var AllHTTPSNotifications = ParentOrganizations.
                                                     SelectMany(parent => parent.User2OrganizationEdges).
                                                     SelectMany(edge   => edge.Source.GetNotificationsOf<HTTPSNotification>(deleteOrganization_MessageType)).
-                                                    ToHashSet();
+                                                    ToSafeHashSet();
 
                     if (AllHTTPSNotifications.SafeAny())
                     {
@@ -26267,7 +26266,7 @@ namespace social.OpenData.UsersAPI
                         var AllEMailNotifications = ParentOrganizations.
                                                         SelectMany(parent => parent.User2OrganizationEdges).
                                                         SelectMany(edge   => edge.Source.GetNotificationsOf<EMailNotification>(deleteOrganization_MessageType)).
-                                                        ToHashSet();
+                                                        ToSafeHashSet();
 
                         if (AllEMailNotifications.SafeAny())
                         {
@@ -29484,21 +29483,21 @@ namespace social.OpenData.UsersAPI
                     try
                     {
 
-                        var AllTelegramNotifications  = this.GetTelegramNotifications(UserGroup, messageTypes).
-                                                             ToHashSet();
+                        //var AllTelegramNotifications  = UserGroup.GetNotificationsOf<TelegramNotification>(messageTypes).
+                        //                                     ToSafeHashSet();
 
-                        if (AllTelegramNotifications.SafeAny())
-                        {
+                        //if (AllTelegramNotifications.SafeAny())
+                        //{
 
-                            if (MessageTypes.Contains(addUserToUserGroup_MessageType))
-                                await TelegramStore.SendTelegrams(String.Concat("User '", User.Name, "' was added to user group '", UserGroup.Name.FirstText(), "'" + membership + "."),
-                                                                  AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
+                        //    if (MessageTypes.Contains(addUserToUserGroup_MessageType))
+                        //        await TelegramStore.SendTelegrams(String.Concat("User '", User.Name, "' was added to user group '", UserGroup.Name.FirstText(), "'" + membership + "."),
+                        //                                          AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
 
-                            if (MessageTypes.Contains(removeUserFromUserGroup_MessageType))
-                                await TelegramStore.SendTelegrams(String.Concat("User '", User.Name, "' was removed from user group '", UserGroup.Name.FirstText(), "'."),
-                                                                  AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
+                        //    if (MessageTypes.Contains(removeUserFromUserGroup_MessageType))
+                        //        await TelegramStore.SendTelegrams(String.Concat("User '", User.Name, "' was removed from user group '", UserGroup.Name.FirstText(), "'."),
+                        //                                          AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
 
-                        }
+                        //}
 
                     }
                     catch (Exception e)
@@ -29514,23 +29513,23 @@ namespace social.OpenData.UsersAPI
                 try
                 {
 
-                    var AllSMSNotifications  = this.GetSMSNotifications(UserGroup, messageTypes).
-                                                    ToHashSet();
+                    //var AllSMSNotifications  = UserGroup.GetNotificationsOf<SMSNotification>(messageTypes).
+                    //                                     ToSafeHashSet();
 
-                    if (AllSMSNotifications.SafeAny())
-                    {
+                    //if (AllSMSNotifications.SafeAny())
+                    //{
 
-                        if (MessageTypes.Contains(addUserToUserGroup_MessageType))
-                            SendSMS(String.Concat("User '", User.Name, "' was added to user group '", UserGroup.Name.FirstText(), "'" + membership + "."),
-                                    AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
-                                    SMSSenderName);
+                    //    if (MessageTypes.Contains(addUserToUserGroup_MessageType))
+                    //        SendSMS(String.Concat("User '", User.Name, "' was added to user group '", UserGroup.Name.FirstText(), "'" + membership + "."),
+                    //                AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
+                    //                SMSSenderName);
 
-                        if (MessageTypes.Contains(removeUserFromUserGroup_MessageType))
-                            SendSMS(String.Concat("User '", User.Name, "' was removed from user group '", UserGroup.Name.FirstText(), "'."),
-                                    AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
-                                    SMSSenderName);
+                    //    if (MessageTypes.Contains(removeUserFromUserGroup_MessageType))
+                    //        SendSMS(String.Concat("User '", User.Name, "' was removed from user group '", UserGroup.Name.FirstText(), "'."),
+                    //                AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
+                    //                SMSSenderName);
 
-                    }
+                    //}
 
                 }
                 catch (Exception e)
@@ -29545,37 +29544,37 @@ namespace social.OpenData.UsersAPI
                 try
                 {
 
-                    var AllHTTPSNotifications  = this.GetHTTPSNotifications(UserGroup, messageTypes).
-                                                      ToHashSet();
+                    //var AllHTTPSNotifications  = UserGroup.GetNotificationsOf<HTTPSNotification>(messageTypes).
+                    //                                       ToSafeHashSet();
 
-                    if (AllHTTPSNotifications.SafeAny())
-                    {
+                    //if (AllHTTPSNotifications.SafeAny())
+                    //{
 
-                        if (MessageTypes.Contains(addUserToUserGroup_MessageType))
-                            await SendHTTPSNotifications(AllHTTPSNotifications,
-                                                         new JObject(
-                                                             new JProperty("addUserToUserGroup",
-                                                                 new JObject(
-                                                                     new JProperty("userGroup", UserGroup.ToJSON()),
-                                                                     new JProperty("user",      User.     ToJSON())
-                                                                 )
-                                                             ),
-                                                             new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
-                                                         ));
+                    //    if (MessageTypes.Contains(addUserToUserGroup_MessageType))
+                    //        await SendHTTPSNotifications(AllHTTPSNotifications,
+                    //                                     new JObject(
+                    //                                         new JProperty("addUserToUserGroup",
+                    //                                             new JObject(
+                    //                                                 new JProperty("userGroup", UserGroup.ToJSON()),
+                    //                                                 new JProperty("user",      User.     ToJSON())
+                    //                                             )
+                    //                                         ),
+                    //                                         new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                    //                                     ));
 
-                        if (MessageTypes.Contains(removeUserFromUserGroup_MessageType))
-                            await SendHTTPSNotifications(AllHTTPSNotifications,
-                                                         new JObject(
-                                                             new JProperty("removeUserFromUserGroup",
-                                                                 new JObject(
-                                                                     new JProperty("userGroup", UserGroup.ToJSON()),
-                                                                     new JProperty("user",      User.     ToJSON())
-                                                                 )
-                                                             ),
-                                                             new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
-                                                         ));
+                    //    if (MessageTypes.Contains(removeUserFromUserGroup_MessageType))
+                    //        await SendHTTPSNotifications(AllHTTPSNotifications,
+                    //                                     new JObject(
+                    //                                         new JProperty("removeUserFromUserGroup",
+                    //                                             new JObject(
+                    //                                                 new JProperty("userGroup", UserGroup.ToJSON()),
+                    //                                                 new JProperty("user",      User.     ToJSON())
+                    //                                             )
+                    //                                         ),
+                    //                                         new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                    //                                     ));
 
-                    }
+                    //}
 
                 }
                 catch (Exception e)
@@ -29590,55 +29589,55 @@ namespace social.OpenData.UsersAPI
                 try
                 {
 
-                    var AllEMailNotifications  = this.GetEMailNotifications(UserGroup, messageTypes).
-                                                      ToHashSet();
+                    //var AllEMailNotifications  = UserGroup.GetNotificationsOf<EMailNotification>(messageTypes).
+                    //                                       ToSafeHashSet();
 
-                    if (AllEMailNotifications.SafeAny())
-                    {
+                    //if (AllEMailNotifications.SafeAny())
+                    //{
 
-                        if (MessageTypes.Contains(addUserToUserGroup_MessageType))
-                            await APISMTPClient.Send(
-                                     new HTMLEMailBuilder() {
+                    //    if (MessageTypes.Contains(addUserToUserGroup_MessageType))
+                    //        await APISMTPClient.Send(
+                    //                 new HTMLEMailBuilder() {
 
-                                         From           = Robot.EMail,
-                                         To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
-                                         Passphrase     = APIPassphrase,
-                                         Subject        = String.Concat("User '", User.Name, "' was added to user group '", UserGroup.Name.FirstText(), "'" + membership + "."),
+                    //                     From           = Robot.EMail,
+                    //                     To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
+                    //                     Passphrase     = APIPassphrase,
+                    //                     Subject        = String.Concat("User '", User.Name, "' was added to user group '", UserGroup.Name.FirstText(), "'" + membership + "."),
 
-                                         HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                        "User <a href=\"https://", this.ExternalDNSName, this.BasePath, "/users/", User.Id, "\">", User.Name, "</a> has been added to user group <a href=\"https://", ExternalDNSName, BasePath, "/user groups/", UserGroup.Id, "\">", UserGroup.Name.FirstText(), "</a>.<br />",
-                                                                        HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
+                    //                     HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
+                    //                                                    "User <a href=\"https://", this.ExternalDNSName, this.BasePath, "/users/", User.Id, "\">", User.Name, "</a> has been added to user group <a href=\"https://", ExternalDNSName, BasePath, "/user groups/", UserGroup.Id, "\">", UserGroup.Name.FirstText(), "</a>.<br />",
+                    //                                                    HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
-                                         PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                        "User '" + User.Name + "' has been added to user group '", UserGroup.Name.FirstText(), "'.\r\n",
-                                                                        TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
+                    //                     PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
+                    //                                                    "User '" + User.Name + "' has been added to user group '", UserGroup.Name.FirstText(), "'.\r\n",
+                    //                                                    TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
-                                         SecurityLevel  = EMailSecurity.auto
+                    //                     SecurityLevel  = EMailSecurity.auto
 
-                                     });
+                    //                 });
 
-                        if (MessageTypes.Contains(removeUserFromUserGroup_MessageType))
-                            await APISMTPClient.Send(
-                                     new HTMLEMailBuilder() {
+                    //    if (MessageTypes.Contains(removeUserFromUserGroup_MessageType))
+                    //        await APISMTPClient.Send(
+                    //                 new HTMLEMailBuilder() {
 
-                                         From           = Robot.EMail,
-                                         To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
-                                         Passphrase     = APIPassphrase,
-                                         Subject        = String.Concat("User '", User.Name, "' was removed from user group '", UserGroup.Name.FirstText(), "'."),
+                    //                     From           = Robot.EMail,
+                    //                     To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
+                    //                     Passphrase     = APIPassphrase,
+                    //                     Subject        = String.Concat("User '", User.Name, "' was removed from user group '", UserGroup.Name.FirstText(), "'."),
 
-                                         HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                        "User <a href=\"https://", this.ExternalDNSName, this.BasePath, "/users/", User.Id, "\">", User.Name, "</a> has been removed from user group <a href=\"https://", ExternalDNSName, BasePath, "/user groups/", UserGroup.Id, "\">", UserGroup.Name.FirstText(), "</a>.<br />",
-                                                                        HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
+                    //                     HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
+                    //                                                    "User <a href=\"https://", this.ExternalDNSName, this.BasePath, "/users/", User.Id, "\">", User.Name, "</a> has been removed from user group <a href=\"https://", ExternalDNSName, BasePath, "/user groups/", UserGroup.Id, "\">", UserGroup.Name.FirstText(), "</a>.<br />",
+                    //                                                    HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
-                                         PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                        "User '" + User.Name + "' has been removed from user group '", UserGroup.Name.FirstText(), "'.\r\n",
-                                                                        TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
+                    //                     PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
+                    //                                                    "User '" + User.Name + "' has been removed from user group '", UserGroup.Name.FirstText(), "'.\r\n",
+                    //                                                    TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
-                                         SecurityLevel  = EMailSecurity.auto
+                    //                     SecurityLevel  = EMailSecurity.auto
 
-                                     });
+                    //                 });
 
-                    }
+                    //}
 
                 }
                 catch (Exception e)
@@ -30550,8 +30549,8 @@ namespace social.OpenData.UsersAPI
                     try
                     {
 
-                        var AllTelegramNotifications  = this.GetTelegramNotifications(Organization, messageTypes).
-                                                             ToHashSet();
+                        var AllTelegramNotifications  = Organization.GetNotificationsOf<TelegramNotification>(messageTypes).
+                                                             ToSafeHashSet();
 
                         if (AllTelegramNotifications.SafeAny())
                         {
@@ -30580,8 +30579,8 @@ namespace social.OpenData.UsersAPI
                 try
                 {
 
-                    var AllSMSNotifications  = this.GetSMSNotifications(Organization, messageTypes).
-                                                    ToHashSet();
+                    var AllSMSNotifications  = Organization.GetNotificationsOf<SMSNotification>(messageTypes).
+                                                    ToSafeHashSet();
 
                     if (AllSMSNotifications.SafeAny())
                     {
@@ -30611,8 +30610,8 @@ namespace social.OpenData.UsersAPI
                 try
                 {
 
-                    var AllHTTPSNotifications  = this.GetHTTPSNotifications(Organization, messageTypes).
-                                                      ToHashSet();
+                    var AllHTTPSNotifications  = Organization.GetNotificationsOf<HTTPSNotification>(messageTypes).
+                                                      ToSafeHashSet();
 
                     if (AllHTTPSNotifications.SafeAny())
                     {
@@ -30656,8 +30655,8 @@ namespace social.OpenData.UsersAPI
                 try
                 {
 
-                    var AllEMailNotifications  = this.GetEMailNotifications(Organization, messageTypes).
-                                                      ToHashSet();
+                    var AllEMailNotifications  = Organization.GetNotificationsOf<EMailNotification>(messageTypes).
+                                                              ToSafeHashSet();
 
                     if (AllEMailNotifications.SafeAny())
                     {
@@ -31349,9 +31348,9 @@ namespace social.OpenData.UsersAPI
                     try
                     {
 
-                        var AllTelegramNotifications  = this.GetTelegramNotifications(OrganizationIn,  messageTypes).Concat(
-                                                        this.GetTelegramNotifications(OrganizationOut, messageTypes)).
-                                                        ToHashSet();
+                        var AllTelegramNotifications  = OrganizationIn. GetNotificationsOf<TelegramNotification>(messageTypes).Concat(
+                                                        OrganizationOut.GetNotificationsOf<TelegramNotification>(messageTypes)).
+                                                        ToSafeHashSet();
 
                         if (AllTelegramNotifications.SafeAny())
                         {
@@ -31384,9 +31383,9 @@ namespace social.OpenData.UsersAPI
                 try
                 {
 
-                    var AllSMSNotifications  = this.GetSMSNotifications(OrganizationIn,  messageTypes).Concat(
-                                               this.GetSMSNotifications(OrganizationOut, messageTypes)).
-                                               ToHashSet();
+                    var AllSMSNotifications  = OrganizationIn. GetNotificationsOf<SMSNotification>(messageTypes).Concat(
+                                               OrganizationOut.GetNotificationsOf<SMSNotification>(messageTypes)).
+                                               ToSafeHashSet();
 
                     if (AllSMSNotifications.SafeAny())
                     {
@@ -31420,9 +31419,9 @@ namespace social.OpenData.UsersAPI
                 try
                 {
 
-                    var AllHTTPSNotifications  = this.GetHTTPSNotifications(OrganizationIn,  messageTypes).Concat(
-                                                 this.GetHTTPSNotifications(OrganizationOut, messageTypes)).
-                                                 ToHashSet();
+                    var AllHTTPSNotifications  = OrganizationIn. GetNotificationsOf<HTTPSNotification>(messageTypes).Concat(
+                                                 OrganizationOut.GetNotificationsOf<HTTPSNotification>(messageTypes)).
+                                                 ToSafeHashSet();
 
                     if (AllHTTPSNotifications.SafeAny())
                     {
@@ -31476,9 +31475,9 @@ namespace social.OpenData.UsersAPI
                     try
                     {
 
-                        var AllEMailNotifications  = this.GetEMailNotifications(OrganizationIn,  messageTypes).Concat(
-                                                     this.GetEMailNotifications(OrganizationOut, messageTypes)).
-                                                     ToHashSet();
+                        var AllEMailNotifications  = OrganizationIn. GetNotificationsOf<EMailNotification>(messageTypes).Concat(
+                                                     OrganizationOut.GetNotificationsOf<EMailNotification>(messageTypes)).
+                                                     ToSafeHashSet();
 
                         if (AllEMailNotifications.SafeAny())
                         {
@@ -31918,8 +31917,9 @@ namespace social.OpenData.UsersAPI
                     try
                     {
 
-                        var AllTelegramNotifications = this.GetTelegramNotifications(ServiceTicket.Author, messageTypes).
-                                                            ToHashSet();
+                        var AllTelegramNotifications = ServiceTicket.Author.
+                                                                     GetNotificationsOf<EMailNotification>(messageTypes).
+                                                                     ToSafeHashSet();
 
                         if (ServiceTicket.Affected != null)
                         {
@@ -31927,14 +31927,14 @@ namespace social.OpenData.UsersAPI
                             if (ServiceTicket.Affected.Users.SafeAny())
                             {
                                 foreach (var user in ServiceTicket.Affected.Users)
-                                    foreach (var notification in this.GetTelegramNotifications(user.Id, messageTypes))
+                                    foreach (var notification in user.Message.GetNotificationsOf<EMailNotification>(messageTypes))
                                         AllTelegramNotifications.Add(notification);
                             }
 
                             if (ServiceTicket.Affected.Organizations.SafeAny())
                             {
                                 foreach (var organization in ServiceTicket.Affected.Organizations)
-                                    foreach (var notification in this.GetTelegramNotifications(organization.Id, messageTypes))
+                                    foreach (var notification in organization.Message.GetNotificationsOf<EMailNotification>(messageTypes))
                                         AllTelegramNotifications.Add(notification);
                             }
 
@@ -31962,8 +31962,9 @@ namespace social.OpenData.UsersAPI
                 try
                 {
 
-                    var AllSMSNotifications = this.GetSMSNotifications(ServiceTicket.Author, messageTypes).
-                                                   ToHashSet();
+                    var AllSMSNotifications = ServiceTicket.Author.
+                                                            GetNotificationsOf<SMSNotification>(messageTypes).
+                                                            ToSafeHashSet();
 
                     if (AllSMSNotifications.SafeAny())
                     {
@@ -31987,8 +31988,9 @@ namespace social.OpenData.UsersAPI
                 try
                 {
 
-                    var AllHTTPSNotifications = this.GetHTTPSNotifications(ServiceTicket.Author, messageTypes).
-                                                     ToHashSet();
+                    var AllHTTPSNotifications = ServiceTicket.Author.
+                                                              GetNotificationsOf<HTTPSNotification>(messageTypes).
+                                                              ToSafeHashSet();
 
                     if (AllHTTPSNotifications.SafeAny())
                     {
@@ -32070,7 +32072,7 @@ namespace social.OpenData.UsersAPI
                         var AllEMailNotifications = new HashSet<EMailNotification>();
 
                         // Add author
-                        this.GetEMailNotifications(ServiceTicket.Author, messageTypes).
+                        ServiceTicket.Author.GetNotificationsOf<EMailNotification>(messageTypes).
                              ForEach(notificationemail => AllEMailNotifications.Add(notificationemail));
 
                         // Add device owners

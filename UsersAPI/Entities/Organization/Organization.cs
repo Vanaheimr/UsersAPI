@@ -772,7 +772,15 @@ namespace social.OpenData.UsersAPI
 
             lock (_Notifications)
             {
-                return _Notifications.GetNotificationsOf<T>(NotificationMessageTypes);
+
+                var organizationNotifications  = _Notifications.GetNotificationsOf<T>(NotificationMessageTypes);
+
+                var userNotifications          = GetMeAndAllMyParents(parent => parent.Id.ToString() != "NoOwner").
+                                                 SelectMany          (parent => parent.User2OrganizationEdges).
+                                                 SelectMany          (edge   => edge.Source.GetNotificationsOf<T>(NotificationMessageTypes));
+
+                return organizationNotifications.Concat(userNotifications).ToArray();
+
             }
 
         }

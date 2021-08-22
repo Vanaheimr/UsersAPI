@@ -175,7 +175,7 @@ namespace social.OpenData.UsersAPI.Notifications
 
         #region GetTelegramNotifications(this UsersAPI, User,           params NotificationMessageTypes)
 
-        public static IEnumerable<TelegramNotification> GetTelegramNotifications(this UsersAPI                     UsersAPI,
+        public static IEnumerable<TelegramNotification> GetTelegramNotifications2(this UsersAPI                     UsersAPI,
                                                                                  User                              User,
                                                                                  params NotificationMessageType[]  NotificationMessageTypes)
 
@@ -187,7 +187,7 @@ namespace social.OpenData.UsersAPI.Notifications
 
         #region GetTelegramNotifications(this UsersAPI, UserId,         params NotificationMessageTypes)
 
-        public static IEnumerable<TelegramNotification> GetTelegramNotifications(this UsersAPI                     UsersAPI,
+        public static IEnumerable<TelegramNotification> GetTelegramNotifications2(this UsersAPI                     UsersAPI,
                                                                                  User_Id                           UserId,
                                                                                  params NotificationMessageType[]  NotificationMessageTypes)
 
@@ -199,7 +199,7 @@ namespace social.OpenData.UsersAPI.Notifications
 
         #region GetTelegramNotifications(this UsersAPI, Organization,   params NotificationMessageTypes)
 
-        public static IEnumerable<TelegramNotification> GetTelegramNotifications(this UsersAPI                     UsersAPI,
+        public static IEnumerable<TelegramNotification> GetTelegramNotifications2(this UsersAPI                     UsersAPI,
                                                                                  Organization                      Organization,
                                                                                  params NotificationMessageType[]  NotificationMessageTypes)
 
@@ -211,7 +211,7 @@ namespace social.OpenData.UsersAPI.Notifications
 
         #region GetTelegramNotifications(this UsersAPI, OrganizationId, params NotificationMessageTypes)
 
-        public static IEnumerable<TelegramNotification> GetTelegramNotifications(this UsersAPI                     UsersAPI,
+        public static IEnumerable<TelegramNotification> GetTelegramNotifications2(this UsersAPI                     UsersAPI,
                                                                                  Organization_Id                   OrganizationId,
                                                                                  params NotificationMessageType[]  NotificationMessageTypes)
 
@@ -223,7 +223,7 @@ namespace social.OpenData.UsersAPI.Notifications
 
         #region GetTelegramNotifications(this UsersAPI, UserGroup,      params NotificationMessageTypes)
 
-        public static IEnumerable<TelegramNotification> GetTelegramNotifications(this UsersAPI                     UsersAPI,
+        public static IEnumerable<TelegramNotification> GetTelegramNotifications2(this UsersAPI                     UsersAPI,
                                                                                  UserGroup                         UserGroup,
                                                                                  params NotificationMessageType[]  NotificationMessageTypes)
 
@@ -235,7 +235,7 @@ namespace social.OpenData.UsersAPI.Notifications
 
         #region GetTelegramNotifications(this UsersAPI, UserGroupId,    params NotificationMessageTypes)
 
-        public static IEnumerable<TelegramNotification> GetTelegramNotifications(this UsersAPI                     UsersAPI,
+        public static IEnumerable<TelegramNotification> GetTelegramNotifications2(this UsersAPI                     UsersAPI,
                                                                                  UserGroup_Id                      UserGroupId,
                                                                                  params NotificationMessageType[]  NotificationMessageTypes)
 

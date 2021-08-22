@@ -424,6 +424,7 @@ namespace social.OpenData.UsersAPI.tests
             #endregion
 
 
+            Assert.IsTrue(nullMailer.EMails.Any(), "Not a single notification e-mail was sent!");
 
             var maxEMailSubjectLength  = nullMailer.EMails.Max   (emailEnvelope => emailEnvelope.Mail.Subject.Length);
             var allEMailNotifications  = nullMailer.EMails.Select(emailEnvelope => emailEnvelope.Mail.Subject.PadRight(maxEMailSubjectLength + 2) + " => " + emailEnvelope.RcptTo.Select(email => email.Address).AggregateWith(", ")).ToArray();

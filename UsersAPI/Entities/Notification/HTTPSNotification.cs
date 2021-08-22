@@ -177,7 +177,7 @@ namespace social.OpenData.UsersAPI.Notifications
 
         #region GetHTTPSNotifications(this UsersAPI, User,           params NotificationMessageTypes)
 
-        public static IEnumerable<HTTPSNotification> GetHTTPSNotifications(this UsersAPI                     UsersAPI,
+        public static IEnumerable<HTTPSNotification> GetHTTPSNotifications2(this UsersAPI                     UsersAPI,
                                                                            User                              User,
                                                                            params NotificationMessageType[]  NotificationMessageTypes)
 
@@ -189,7 +189,7 @@ namespace social.OpenData.UsersAPI.Notifications
 
         #region GetHTTPSNotifications(this UsersAPI, UserId,         params NotificationMessageTypes)
 
-        public static IEnumerable<HTTPSNotification> GetHTTPSNotifications(this UsersAPI                     UsersAPI,
+        public static IEnumerable<HTTPSNotification> GetHTTPSNotifications2(this UsersAPI                     UsersAPI,
                                                                            User_Id                           UserId,
                                                                            params NotificationMessageType[]  NotificationMessageTypes)
 
@@ -201,7 +201,7 @@ namespace social.OpenData.UsersAPI.Notifications
 
         #region GetHTTPSNotifications(this UsersAPI, Organization,   params NotificationMessageTypes)
 
-        public static IEnumerable<HTTPSNotification> GetHTTPSNotifications(this UsersAPI                     UsersAPI,
+        public static IEnumerable<HTTPSNotification> GetHTTPSNotifications2(this UsersAPI                     UsersAPI,
                                                                            Organization                      Organization,
                                                                            params NotificationMessageType[]  NotificationMessageTypes)
 
@@ -213,7 +213,7 @@ namespace social.OpenData.UsersAPI.Notifications
 
         #region GetHTTPSNotifications(this UsersAPI, OrganizationId, params NotificationMessageTypes)
 
-        public static IEnumerable<HTTPSNotification> GetHTTPSNotifications(this UsersAPI                     UsersAPI,
+        public static IEnumerable<HTTPSNotification> GetHTTPSNotifications2(this UsersAPI                     UsersAPI,
                                                                            Organization_Id                   OrganizationId,
                                                                            params NotificationMessageType[]  NotificationMessageTypes)
 
@@ -225,7 +225,7 @@ namespace social.OpenData.UsersAPI.Notifications
 
         #region GetHTTPSNotifications(this UsersAPI, UserGroup,      params NotificationMessageTypes)
 
-        public static IEnumerable<HTTPSNotification> GetHTTPSNotifications(this UsersAPI                     UsersAPI,
+        public static IEnumerable<HTTPSNotification> GetHTTPSNotifications2(this UsersAPI                     UsersAPI,
                                                                            UserGroup                         UserGroup,
                                                                            params NotificationMessageType[]  NotificationMessageTypes)
 
@@ -237,7 +237,7 @@ namespace social.OpenData.UsersAPI.Notifications
 
         #region GetHTTPSNotifications(this UsersAPI, UserGroupId,    params NotificationMessageTypes)
 
-        public static IEnumerable<HTTPSNotification> GetHTTPSNotifications(this UsersAPI                     UsersAPI,
+        public static IEnumerable<HTTPSNotification> GetHTTPSNotifications2(this UsersAPI                     UsersAPI,
                                                                            UserGroup_Id                      UserGroupId,
                                                                            params NotificationMessageType[]  NotificationMessageTypes)
 
