@@ -276,24 +276,24 @@ namespace social.OpenData.UsersAPI
 
         #region User <-> User         edges
 
-        private readonly List<User2UserEdge> _User2UserEdges;
+        private readonly List<User2UserEdge> _User2User_Edges;
 
         public IEnumerable<User2UserEdge> __User2UserEdges
-            => _User2UserEdges;
+            => _User2User_Edges;
 
 
         public User2UserEdge
 
             Add(User2UserEdge Edge)
 
-                => _User2UserEdges.AddAndReturnElement(Edge);
+                => _User2User_Edges.AddAndReturnElement(Edge);
 
 
         public IEnumerable<User2UserEdge>
 
             Add(IEnumerable<User2UserEdge> Edges)
 
-                => _User2UserEdges.AddAndReturnList(Edges);
+                => _User2User_Edges.AddAndReturnList(Edges);
 
 
 
@@ -303,7 +303,7 @@ namespace social.OpenData.UsersAPI
 
             AddIncomingEdge(User2UserEdge  Edge)
 
-            => _User2UserEdges.AddAndReturnElement(Edge);
+            => _User2User_Edges.AddAndReturnElement(Edge);
 
         #endregion
 
@@ -315,7 +315,7 @@ namespace social.OpenData.UsersAPI
                             User2UserEdgeTypes  EdgeLabel,
                             PrivacyLevel    PrivacyLevel = PrivacyLevel.World)
 
-            => _User2UserEdges.AddAndReturnElement(new User2UserEdge(SourceUser, EdgeLabel, this, PrivacyLevel));
+            => _User2User_Edges.AddAndReturnElement(new User2UserEdge(SourceUser, EdgeLabel, this, PrivacyLevel));
 
         #endregion
 
@@ -325,7 +325,7 @@ namespace social.OpenData.UsersAPI
 
             AddOutgoingEdge(User2UserEdge  Edge)
 
-            => _User2UserEdges.AddAndReturnElement(Edge);
+            => _User2User_Edges.AddAndReturnElement(Edge);
 
         #endregion
 
@@ -337,7 +337,7 @@ namespace social.OpenData.UsersAPI
                             User            Target,
                             PrivacyLevel    PrivacyLevel = PrivacyLevel.World)
 
-            => _User2UserEdges.AddAndReturnElement(new User2UserEdge(this, EdgeLabel, Target, PrivacyLevel));
+            => _User2User_Edges.AddAndReturnElement(new User2UserEdge(this, EdgeLabel, Target, PrivacyLevel));
 
         #endregion
 
@@ -351,7 +351,7 @@ namespace social.OpenData.UsersAPI
         {
             get
             {
-                return _User2UserEdges.
+                return _User2User_Edges.
                            Where (edge => edge.EdgeLabel == User2UserEdgeTypes.gemini).
                            Select(edge => edge.Target);
             }
@@ -368,7 +368,7 @@ namespace social.OpenData.UsersAPI
         {
             get
             {
-                return _User2UserEdges.
+                return _User2User_Edges.
                            Where(edge => edge.EdgeLabel == User2UserEdgeTypes.follows).
                            Select(edge => edge.Target);
             }
@@ -385,7 +385,7 @@ namespace social.OpenData.UsersAPI
         {
             get
             {
-                return _User2UserEdges.
+                return _User2User_Edges.
                            Where(edge => edge.EdgeLabel == User2UserEdgeTypes.IsFollowedBy).
                            Select(edge => edge.Target);
             }
@@ -397,24 +397,24 @@ namespace social.OpenData.UsersAPI
 
         #region User  -> Organization edges
 
-        private readonly List<User2OrganizationEdge> _User2Organization_OutEdges;
+        private readonly List<User2OrganizationEdge> _User2Organization_Edges;
 
         public IEnumerable<User2OrganizationEdge> User2Organization_OutEdges
-            => _User2Organization_OutEdges;
+            => _User2Organization_Edges;
 
 
         public User2OrganizationEdge
 
             Add(User2OrganizationEdge Edge)
 
-                => _User2Organization_OutEdges.AddAndReturnElement(Edge);
+                => _User2Organization_Edges.AddAndReturnElement(Edge);
 
 
         public IEnumerable<User2OrganizationEdge>
 
             Add(IEnumerable<User2OrganizationEdge> Edges)
 
-                => _User2Organization_OutEdges.AddAndReturnList(Edges);
+                => _User2Organization_Edges.AddAndReturnList(Edges);
 
 
 
@@ -425,7 +425,7 @@ namespace social.OpenData.UsersAPI
                             Organization                Target,
                             PrivacyLevel                PrivacyLevel = PrivacyLevel.World)
 
-            => _User2Organization_OutEdges.AddAndReturnElement(new User2OrganizationEdge(this, EdgeLabel, Target, PrivacyLevel));
+            => _User2Organization_Edges.AddAndReturnElement(new User2OrganizationEdge(this, EdgeLabel, Target, PrivacyLevel));
 
 
 
@@ -435,11 +435,11 @@ namespace social.OpenData.UsersAPI
                             UserGroup            Target,
                             PrivacyLevel         PrivacyLevel = PrivacyLevel.World)
 
-            => _User2UserGroup_OutEdges.AddAndReturnElement(new User2UserGroupEdge(this, EdgeLabel, Target, PrivacyLevel));
+            => _User2UserGroup_Edges.AddAndReturnElement(new User2UserGroupEdge(this, EdgeLabel, Target, PrivacyLevel));
 
 
         public IEnumerable<User2UserGroupEdge> User2GroupOutEdges(Func<User2UserGroupEdgeTypes, Boolean> User2GroupEdgeFilter)
-            => _User2UserGroup_OutEdges.Where(edge => User2GroupEdgeFilter(edge.EdgeLabel));
+            => _User2UserGroup_Edges.Where(edge => User2GroupEdgeFilter(edge.EdgeLabel));
 
 
         #region EdgeLabels(Organization)
@@ -450,7 +450,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         public IEnumerable<User2OrganizationEdgeTypes> EdgeLabels(Organization Organization)
 
-            => _User2Organization_OutEdges.
+            => _User2Organization_Edges.
                    Where (edge => edge.Target == Organization).
                    Select(edge => edge.EdgeLabel);
 
@@ -464,7 +464,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         public IEnumerable<User2OrganizationEdge> Edges(Organization Organization)
 
-            => _User2Organization_OutEdges.
+            => _User2Organization_Edges.
                    Where(edge => edge.Target == Organization);
 
         #endregion
@@ -478,11 +478,25 @@ namespace social.OpenData.UsersAPI
         public IEnumerable<User2OrganizationEdge> Edges(Organization                Organization,
                                                         User2OrganizationEdgeTypes  EdgeLabel)
 
-            => _User2Organization_OutEdges.
+            => _User2Organization_Edges.
                    Where(edge => edge.Target == Organization && edge.EdgeLabel == EdgeLabel);
 
         #endregion
 
+
+
+        #region ParentOrganizations()
+
+        public IEnumerable<Organization> ParentOrganizations()
+
+            => _User2Organization_Edges.
+                   Where(edge  => edge.EdgeLabel == User2OrganizationEdgeTypes.IsAdmin  ||
+                                  edge.EdgeLabel == User2OrganizationEdgeTypes.IsMember ||
+                                  edge.EdgeLabel == User2OrganizationEdgeTypes.IsGuest).
+                   Select(edge => edge.Target).
+                   ToArray();
+
+        #endregion
 
         #region Organizations(RequireAdminAccess, RequireReadWriteAccess, Recursive = true)
 
@@ -490,47 +504,47 @@ namespace social.OpenData.UsersAPI
                                                        Boolean        Recursive = true)
         {
 
-            var AllMyOrganizations = new HashSet<Organization>();
+            var allMyOrganizations = new HashSet<Organization>();
 
             switch (AccessLevel)
             {
 
                 case Access_Levels.Admin:
-                    foreach (var organization in _User2Organization_OutEdges.
+                    foreach (var organization in _User2Organization_Edges.
                                                      Where (edge => edge.EdgeLabel == User2OrganizationEdgeTypes.IsAdmin).
                                                      Select(edge => edge.Target))
                     {
-                        AllMyOrganizations.Add(organization);
+                        allMyOrganizations.Add(organization);
                     }
                     break;
 
                 case Access_Levels.AdminReadOnly:
-                    foreach (var organization in _User2Organization_OutEdges.
+                    foreach (var organization in _User2Organization_Edges.
                                                      Where (edge => edge.EdgeLabel == User2OrganizationEdgeTypes.IsAdminReadOnly).
                                                      Select(edge => edge.Target))
                     {
-                        AllMyOrganizations.Add(organization);
+                        allMyOrganizations.Add(organization);
                     }
                     break;
 
                 case Access_Levels.ReadWrite:
-                    foreach (var organization in _User2Organization_OutEdges.
+                    foreach (var organization in _User2Organization_Edges.
                                                      Where (edge => edge.EdgeLabel == User2OrganizationEdgeTypes.IsAdmin ||
                                                                     edge.EdgeLabel == User2OrganizationEdgeTypes.IsMember).
                                                      Select(edge => edge.Target))
                     {
-                        AllMyOrganizations.Add(organization);
+                        allMyOrganizations.Add(organization);
                     }
                     break;
 
                 default:
-                    foreach (var organization in _User2Organization_OutEdges.
+                    foreach (var organization in _User2Organization_Edges.
                                                      Where (edge => edge.EdgeLabel == User2OrganizationEdgeTypes.IsAdmin  ||
                                                                     edge.EdgeLabel == User2OrganizationEdgeTypes.IsMember ||
                                                                     edge.EdgeLabel == User2OrganizationEdgeTypes.IsGuest).
                                                      Select(edge => edge.Target))
                     {
-                        AllMyOrganizations.Add(organization);
+                        allMyOrganizations.Add(organization);
                     }
                     break;
 
@@ -545,21 +559,21 @@ namespace social.OpenData.UsersAPI
                 do
                 {
 
-                    Level2 = AllMyOrganizations.SelectMany(organization => organization.
+                    Level2 = allMyOrganizations.SelectMany(organization => organization.
                                                                                Organization2OrganizationInEdges.
                                                                                Where(edge => edge.EdgeLabel == Organization2OrganizationEdgeLabel.IsChildOf)).
                                                 Select    (edge         => edge.Source).
-                                                Where     (organization => !AllMyOrganizations.Contains(organization)).
+                                                Where     (organization => !allMyOrganizations.Contains(organization)).
                                                 ToArray();
 
                     foreach (var organization in Level2)
-                        AllMyOrganizations.Add(organization);
+                        allMyOrganizations.Add(organization);
 
                 } while (Level2.Length > 0);
 
             }
 
-            return AllMyOrganizations;
+            return allMyOrganizations;
 
         }
 
@@ -589,16 +603,16 @@ namespace social.OpenData.UsersAPI
 
 
         public Boolean RemoveOutEdge(User2OrganizationEdge Edge)
-            => _User2Organization_OutEdges.Remove(Edge);
+            => _User2Organization_Edges.Remove(Edge);
 
         #endregion
 
         #region User  -> UserGroup    edges
 
-        private readonly List<User2UserGroupEdge> _User2UserGroup_OutEdges;
+        private readonly List<User2UserGroupEdge> _User2UserGroup_Edges;
 
         public IEnumerable<User2UserGroupEdge> User2Group_OutEdges
-            => _User2UserGroup_OutEdges;
+            => _User2UserGroup_Edges;
 
 
 
@@ -606,14 +620,14 @@ namespace social.OpenData.UsersAPI
 
             Add(User2UserGroupEdge Edge)
 
-                => _User2UserGroup_OutEdges.AddAndReturnElement(Edge);
+                => _User2UserGroup_Edges.AddAndReturnElement(Edge);
 
 
         public IEnumerable<User2UserGroupEdge>
 
             Add(IEnumerable<User2UserGroupEdge> Edges)
 
-                => _User2UserGroup_OutEdges.AddAndReturnList(Edges);
+                => _User2UserGroup_Edges.AddAndReturnList(Edges);
 
 
         #region UserGroups(EdgeFilter)
@@ -624,7 +638,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         public IEnumerable<UserGroup> UserGroups(User2UserGroupEdgeTypes EdgeFilter)
 
-            => _User2UserGroup_OutEdges.
+            => _User2UserGroup_Edges.
                    Where(edge => edge.EdgeLabel == EdgeFilter).
                    Select(edge => edge.Target);
 
@@ -638,13 +652,13 @@ namespace social.OpenData.UsersAPI
 
             var _Groups = RequireReadWriteAccess
 
-                                     ? _User2UserGroup_OutEdges.
+                                     ? _User2UserGroup_Edges.
                                            Where(edge => edge.EdgeLabel == User2UserGroupEdgeTypes.IsAdmin ||
                                                          edge.EdgeLabel == User2UserGroupEdgeTypes.IsMember).
                                            Select(edge => edge.Target).
                                            ToList()
 
-                                     : _User2UserGroup_OutEdges.
+                                     : _User2UserGroup_Edges.
                                            Where(edge => edge.EdgeLabel == User2UserGroupEdgeTypes.IsAdmin ||
                                                          edge.EdgeLabel == User2UserGroupEdgeTypes.IsMember ||
                                                          edge.EdgeLabel == User2UserGroupEdgeTypes.IsGuest).
@@ -687,7 +701,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         public IEnumerable<User2UserGroupEdgeTypes> EdgeLabels(UserGroup UserGroup)
 
-            => _User2UserGroup_OutEdges.
+            => _User2UserGroup_Edges.
                    Where(edge => edge.Target == UserGroup).
                    Select(edge => edge.EdgeLabel);
 
@@ -701,7 +715,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         public IEnumerable<User2UserGroupEdge> Edges(UserGroup UserGroup)
 
-            => _User2UserGroup_OutEdges.
+            => _User2UserGroup_Edges.
                    Where(edge => edge.Target == UserGroup);
 
         #endregion
@@ -715,7 +729,7 @@ namespace social.OpenData.UsersAPI
         public IEnumerable<User2UserGroupEdge> Edges(User2UserGroupEdgeTypes  EdgeLabel,
                                                      UserGroup                UserGroup)
 
-            => _User2UserGroup_OutEdges.
+            => _User2UserGroup_Edges.
                    Where(edge => edge.Target == UserGroup && edge.EdgeLabel == EdgeLabel);
 
         #endregion
@@ -723,12 +737,12 @@ namespace social.OpenData.UsersAPI
         public Boolean HasEdge(User2UserGroupEdgeTypes  EdgeLabel,
                                UserGroup                UserGroup)
 
-            => _User2UserGroup_OutEdges.
+            => _User2UserGroup_Edges.
                    Any(edge => edge.Target == UserGroup && edge.EdgeLabel == EdgeLabel);
 
 
         public Boolean RemoveOutEdge(User2UserGroupEdge Edge)
-            => _User2UserGroup_OutEdges.Remove(Edge);
+            => _User2UserGroup_Edges.Remove(Edge);
 
         #endregion
 
@@ -787,7 +801,7 @@ namespace social.OpenData.UsersAPI
                     IEnumerable<ANotification>          Notifications            = null,
 
                     IEnumerable<User2UserEdge>          User2UserEdges           = null,
-                    IEnumerable<User2UserGroupEdge>         User2GroupEdges          = null,
+                    IEnumerable<User2UserGroupEdge>     User2UserGroupEdges      = null,
                     IEnumerable<User2OrganizationEdge>  User2OrganizationEdges   = null,
 
                     JObject                             CustomData               = default,
@@ -838,10 +852,9 @@ namespace social.OpenData.UsersAPI
             if (Notifications.SafeAny())
                 _NotificationStore.Add(Notifications);
 
-            // Init edges
-            this._User2UserEdges              = User2UserEdges.        IsNeitherNullNorEmpty() ? new List<User2UserEdge>        (User2UserEdges)         : new List<User2UserEdge>();
-            this._User2UserGroup_OutEdges         = User2GroupEdges.       IsNeitherNullNorEmpty() ? new List<User2UserGroupEdge>       (User2GroupEdges)        : new List<User2UserGroupEdge>();
-            this._User2Organization_OutEdges  = User2OrganizationEdges.IsNeitherNullNorEmpty() ? new List<User2OrganizationEdge>(User2OrganizationEdges) : new List<User2OrganizationEdge>();
+            this._User2User_Edges             = User2UserEdges.        IsNeitherNullNorEmpty() ? new List<User2UserEdge>        (User2UserEdges)         : new List<User2UserEdge>();
+            this._User2UserGroup_Edges        = User2UserGroupEdges.   IsNeitherNullNorEmpty() ? new List<User2UserGroupEdge>   (User2UserGroupEdges)    : new List<User2UserGroupEdge>();
+            this._User2Organization_Edges     = User2OrganizationEdges.IsNeitherNullNorEmpty() ? new List<User2OrganizationEdge>(User2OrganizationEdges) : new List<User2OrganizationEdge>();
 
             CalcHash();
 
@@ -1509,9 +1522,9 @@ namespace social.OpenData.UsersAPI
 
                         _NotificationStore,
 
-                        _User2UserEdges,
-                        _User2UserGroup_OutEdges,
-                        _User2Organization_OutEdges,
+                        _User2User_Edges,
+                        _User2UserGroup_Edges,
+                        _User2Organization_Edges,
 
                         CustomData,
                         AttachedFiles,
@@ -1788,9 +1801,9 @@ namespace social.OpenData.UsersAPI
 
                            _NotificationStore,
 
-                           _User2UserEdges,
-                           _User2UserGroup_OutEdges,
-                           _User2Organization_OutEdges,
+                           _User2User_Edges,
+                           _User2UserGroup_Edges,
+                           _User2Organization_Edges,
 
                            CustomData,
                            AttachedFiles,

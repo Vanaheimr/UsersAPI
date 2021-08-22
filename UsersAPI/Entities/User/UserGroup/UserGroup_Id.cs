@@ -27,6 +27,29 @@ namespace social.OpenData.UsersAPI
 {
 
     /// <summary>
+    /// Extention methods for user group identifications.
+    /// </summary>
+    public static class UserGroupIdExtentions
+    {
+
+        /// <summary>
+        /// Indicates whether this user group identification is null or empty.
+        /// </summary>
+        /// <param name="UserGroupId">An user group identification.</param>
+        public static Boolean IsNullOrEmpty(this UserGroup_Id? UserGroupId)
+            => !UserGroupId.HasValue || UserGroupId.Value.IsNullOrEmpty;
+
+        /// <summary>
+        /// Indicates whether this user group identification is null or empty.
+        /// </summary>
+        /// <param name="UserGroupId">An user group identification.</param>
+        public static Boolean IsNotNullOrEmpty(this UserGroup_Id? UserGroupId)
+            => UserGroupId.HasValue && UserGroupId.Value.IsNotNullOrEmpty;
+
+    }
+
+
+    /// <summary>
     /// The unique identification of an user group.
     /// </summary>
     public readonly struct UserGroup_Id : IId<UserGroup_Id>
@@ -53,6 +76,12 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         public Boolean IsNullOrEmpty
             => InternalId.IsNullOrEmpty();
+
+        /// <summary>
+        /// Indicates whether this identification is NOT null or empty.
+        /// </summary>
+        public Boolean IsNotNullOrEmpty
+            => InternalId.IsNotNullOrEmpty();
 
         /// <summary>
         /// The length of the user group identificator.
