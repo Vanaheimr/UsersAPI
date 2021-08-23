@@ -14316,7 +14316,7 @@ namespace social.OpenData.UsersAPI
                     }
 
 
-                    if (!Enum.TryParse(Data["edge"].Value<String>(), out User2UserGroupEdgeTypes U2G_EdgeLabel))
+                    if (!Enum.TryParse(Data["edge"].Value<String>(), out User2UserGroupEdgeLabel U2G_EdgeLabel))
                     {
                         DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Unknown edge label '" + Data["edge"].Value<String>() + "'!"));
                         break;
@@ -29970,7 +29970,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking user identification</param>
         protected internal virtual Task SendNotifications(User                     User,
-                                                          User2UserGroupEdgeTypes  EdgeLabel,
+                                                          User2UserGroupEdgeLabel  EdgeLabel,
                                                           UserGroup                UserGroup,
                                                           NotificationMessageType  MessageType,
                                                           EventTracking_Id         EventTrackingId    = null,
@@ -29994,7 +29994,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking user identification.</param>
         protected internal async virtual Task SendNotifications(User                                  User,
-                                                                User2UserGroupEdgeTypes               EdgeLabel,
+                                                                User2UserGroupEdgeLabel               EdgeLabel,
                                                                 UserGroup                             UserGroup,
                                                                 IEnumerable<NotificationMessageType>  MessageTypes,
                                                                 EventTracking_Id                      EventTrackingId   = null,
@@ -30019,9 +30019,9 @@ namespace social.OpenData.UsersAPI
             {
 
                 var membership = EdgeLabel switch {
-                    User2UserGroupEdgeTypes.IsAdmin  => " as admin",
-                    User2UserGroupEdgeTypes.IsMember => " as member",
-                    User2UserGroupEdgeTypes.IsGuest  => " as guest",
+                    User2UserGroupEdgeLabel.IsAdmin  => " as admin",
+                    User2UserGroupEdgeLabel.IsMember => " as member",
+                    User2UserGroupEdgeLabel.IsGuest  => " as guest",
                     _                                => ""
                 };
 
@@ -30207,7 +30207,7 @@ namespace social.OpenData.UsersAPI
         #region (protected) _AddUserToUserGroup     (User, EdgeLabel, UserGroup, SuppressNotifications = false, CurrentUserId  = null)
 
         protected async Task<AddUserToUserGroupResult> _AddUserToUserGroup(User                     User,
-                                                                           User2UserGroupEdgeTypes  EdgeLabel,
+                                                                           User2UserGroupEdgeLabel  EdgeLabel,
                                                                            UserGroup                UserGroup,
                                                                            EventTracking_Id         EventTrackingId         = null,
                                                                            Boolean                  SuppressNotifications   = false,
@@ -30354,7 +30354,7 @@ namespace social.OpenData.UsersAPI
         #region AddUserToUserGroup                  (User, EdgeLabel, UserGroup,                                CurrentUserId  = null)
 
         public async Task<AddUserToUserGroupResult> AddUserToUserGroup(User                     User,
-                                                                       User2UserGroupEdgeTypes  EdgeLabel,
+                                                                       User2UserGroupEdgeLabel  EdgeLabel,
                                                                        UserGroup                UserGroup,
                                                                        EventTracking_Id         EventTrackingId   = null,
                                                                        User_Id?                 CurrentUserId     = null)
@@ -30424,7 +30424,7 @@ namespace social.OpenData.UsersAPI
         #region (protected) _RemoveUserFromUserGroup(User, EdgeLabel, UserGroup, SuppressNotifications = false, ...)
 
         protected async Task<RemoveUserFromUserGroupResult> _RemoveUserFromUserGroup(User                     User,
-                                                                                     User2UserGroupEdgeTypes  EdgeLabel,
+                                                                                     User2UserGroupEdgeLabel  EdgeLabel,
                                                                                      UserGroup                UserGroup,
                                                                                      EventTracking_Id         EventTrackingId         = null,
                                                                                      Boolean                  SuppressNotifications   = false,
@@ -30546,7 +30546,7 @@ namespace social.OpenData.UsersAPI
         #region RemoveUserFromUserGroup             (User, EdgeLabel, UserGroup,                                CurrentUserId = null)
 
         public async Task<RemoveUserFromUserGroupResult> RemoveUserFromUserGroup(User                     User,
-                                                                                 User2UserGroupEdgeTypes  EdgeLabel,
+                                                                                 User2UserGroupEdgeLabel  EdgeLabel,
                                                                                  UserGroup                UserGroup,
                                                                                  EventTracking_Id         EventTrackingId   = null,
                                                                                  User_Id?                 CurrentUserId     = null)
@@ -30791,7 +30791,7 @@ namespace social.OpenData.UsersAPI
         #region AddUserToUserGroup(User, Edge, UserGroup, ...)
 
         public async Task<AddUserToUserGroupResult> AddUserToUserGroup_old(User                     User,
-                                                                           User2UserGroupEdgeTypes  EdgeLabel,
+                                                                           User2UserGroupEdgeLabel  EdgeLabel,
                                                                            UserGroup                UserGroup,
                                                                            EventTracking_Id         EventTrackingId   = null,
                                                                            User_Id?                 CurrentUserId     = null)

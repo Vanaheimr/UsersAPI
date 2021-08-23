@@ -145,7 +145,7 @@
     <Compile Include="Entities\Organization\Organization.cs" />
     <Compile Include="Entities\Organization\Organization2OrganizationEdge.cs" />
     <Compile Include="Entities\Organization\Organization_Id.cs" />
-    <Compile Include="Entities\Organization\Organization2UserEdgeTypes.cs" />
+    <Compile Include="Entities\Organization\Organization2UserEdgeLabel.cs" />
     <Compile Include="Entities\Group\Group.cs" />
     <Compile Include="Entities\Group\UserGroup2User.cs" />
     <Compile Include="Entities\Message\Message.cs" />

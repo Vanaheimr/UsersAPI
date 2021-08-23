@@ -32,14 +32,14 @@ namespace social.OpenData.UsersAPI
         public User                     User
             => Object1;
 
-        public User2UserGroupEdgeTypes  EdgeLabel    { get; }
+        public User2UserGroupEdgeLabel  EdgeLabel    { get; }
 
         public UserGroup                UserGroup
             => Object2;
 
 
         public AddUserToUserGroupResult(User                     User,
-                                        User2UserGroupEdgeTypes  EdgeLabel,
+                                        User2UserGroupEdgeLabel  EdgeLabel,
                                         UserGroup                UserGroup,
                                         EventTracking_Id         EventTrackingId,
                                         Boolean                  IsSuccess,
@@ -61,7 +61,7 @@ namespace social.OpenData.UsersAPI
 
 
         public static AddUserToUserGroupResult Success(User                     User,
-                                                       User2UserGroupEdgeTypes  EdgeLabel,
+                                                       User2UserGroupEdgeLabel  EdgeLabel,
                                                        UserGroup                UserGroup,
                                                        EventTracking_Id         EventTrackingId)
 
@@ -73,7 +73,7 @@ namespace social.OpenData.UsersAPI
 
 
         public static AddUserToUserGroupResult ArgumentError(User                     User,
-                                                             User2UserGroupEdgeTypes  EdgeLabel,
+                                                             User2UserGroupEdgeLabel  EdgeLabel,
                                                              UserGroup                UserGroup,
                                                              EventTracking_Id         EventTrackingId,
                                                              String                   Argument,
@@ -89,7 +89,7 @@ namespace social.OpenData.UsersAPI
                                                               Description));
 
         public static AddUserToUserGroupResult ArgumentError(User                     User,
-                                                             User2UserGroupEdgeTypes  EdgeLabel,
+                                                             User2UserGroupEdgeLabel  EdgeLabel,
                                                              UserGroup                UserGroup,
                                                              EventTracking_Id         EventTrackingId,
                                                              String                   Argument,
@@ -105,7 +105,7 @@ namespace social.OpenData.UsersAPI
 
 
         public static AddUserToUserGroupResult Failed(User                     User,
-                                                      User2UserGroupEdgeTypes  EdgeLabel,
+                                                      User2UserGroupEdgeLabel  EdgeLabel,
                                                       UserGroup                UserGroup,
                                                       EventTracking_Id         EventTrackingId,
                                                       String                   Description)
@@ -120,7 +120,7 @@ namespace social.OpenData.UsersAPI
                                                               Description));
 
         public static AddUserToUserGroupResult Failed(User                     User,
-                                                      User2UserGroupEdgeTypes  EdgeLabel,
+                                                      User2UserGroupEdgeLabel  EdgeLabel,
                                                       UserGroup                UserGroup,
                                                       EventTracking_Id         EventTrackingId,
                                                       I18NString               Description)
@@ -134,7 +134,7 @@ namespace social.OpenData.UsersAPI
                                             Description);
 
         public static AddUserToUserGroupResult Failed(User                     User,
-                                                      User2UserGroupEdgeTypes  EdgeLabel,
+                                                      User2UserGroupEdgeLabel  EdgeLabel,
                                                       UserGroup                UserGroup,
                                                       EventTracking_Id         EventTrackingId,
                                                       Exception                Exception)

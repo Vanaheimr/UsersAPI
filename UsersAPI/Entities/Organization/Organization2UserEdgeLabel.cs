@@ -18,12 +18,12 @@
 namespace social.OpenData.UsersAPI
 {
 
-    public enum Organization2UserEdgeTypes
-    {
-        IsAdmin,
-        IsMember,
-        IsVisitor,
-        IsFollower
-    }
+    //public enum Organization2UserEdgeLabel
+    //{
+    //    IsAdmin,
+    //    IsMember,
+    //    IsVisitor,
+    //    IsFollower
+    //}
 
 }

@@ -431,14 +431,14 @@ namespace social.OpenData.UsersAPI
 
         public User2UserGroupEdge
 
-            AddToUserGroup(User2UserGroupEdgeTypes  EdgeLabel,
+            AddToUserGroup(User2UserGroupEdgeLabel  EdgeLabel,
                             UserGroup            Target,
                             PrivacyLevel         PrivacyLevel = PrivacyLevel.World)
 
             => _User2UserGroup_Edges.AddAndReturnElement(new User2UserGroupEdge(this, EdgeLabel, Target, PrivacyLevel));
 
 
-        public IEnumerable<User2UserGroupEdge> User2GroupOutEdges(Func<User2UserGroupEdgeTypes, Boolean> User2GroupEdgeFilter)
+        public IEnumerable<User2UserGroupEdge> User2GroupOutEdges(Func<User2UserGroupEdgeLabel, Boolean> User2GroupEdgeFilter)
             => _User2UserGroup_Edges.Where(edge => User2GroupEdgeFilter(edge.EdgeLabel));
 
 
@@ -636,7 +636,7 @@ namespace social.OpenData.UsersAPI
         /// All groups this user belongs to,
         /// filtered by the given edge label.
         /// </summary>
-        public IEnumerable<UserGroup> UserGroups(User2UserGroupEdgeTypes EdgeFilter)
+        public IEnumerable<UserGroup> UserGroups(User2UserGroupEdgeLabel EdgeFilter)
 
             => _User2UserGroup_Edges.
                    Where(edge => edge.EdgeLabel == EdgeFilter).
@@ -653,15 +653,15 @@ namespace social.OpenData.UsersAPI
             var _Groups = RequireReadWriteAccess
 
                                      ? _User2UserGroup_Edges.
-                                           Where(edge => edge.EdgeLabel == User2UserGroupEdgeTypes.IsAdmin ||
-                                                         edge.EdgeLabel == User2UserGroupEdgeTypes.IsMember).
+                                           Where(edge => edge.EdgeLabel == User2UserGroupEdgeLabel.IsAdmin ||
+                                                         edge.EdgeLabel == User2UserGroupEdgeLabel.IsMember).
                                            Select(edge => edge.Target).
                                            ToList()
 
                                      : _User2UserGroup_Edges.
-                                           Where(edge => edge.EdgeLabel == User2UserGroupEdgeTypes.IsAdmin ||
-                                                         edge.EdgeLabel == User2UserGroupEdgeTypes.IsMember ||
-                                                         edge.EdgeLabel == User2UserGroupEdgeTypes.IsGuest).
+                                           Where(edge => edge.EdgeLabel == User2UserGroupEdgeLabel.IsAdmin ||
+                                                         edge.EdgeLabel == User2UserGroupEdgeLabel.IsMember ||
+                                                         edge.EdgeLabel == User2UserGroupEdgeLabel.IsGuest).
                                            Select(edge => edge.Target).
                                            ToList();
 
@@ -699,7 +699,7 @@ namespace social.OpenData.UsersAPI
         /// All user groups this user belongs to,
         /// filtered by the given edge label.
         /// </summary>
-        public IEnumerable<User2UserGroupEdgeTypes> EdgeLabels(UserGroup UserGroup)
+        public IEnumerable<User2UserGroupEdgeLabel> EdgeLabels(UserGroup UserGroup)
 
             => _User2UserGroup_Edges.
                    Where(edge => edge.Target == UserGroup).
@@ -726,7 +726,7 @@ namespace social.OpenData.UsersAPI
         /// All organizations this user belongs to,
         /// filtered by the given edge label.
         /// </summary>
-        public IEnumerable<User2UserGroupEdge> Edges(User2UserGroupEdgeTypes  EdgeLabel,
+        public IEnumerable<User2UserGroupEdge> Edges(User2UserGroupEdgeLabel  EdgeLabel,
                                                      UserGroup                UserGroup)
 
             => _User2UserGroup_Edges.
@@ -734,7 +734,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        public Boolean HasEdge(User2UserGroupEdgeTypes  EdgeLabel,
+        public Boolean HasEdge(User2UserGroupEdgeLabel  EdgeLabel,
                                UserGroup                UserGroup)
 
             => _User2UserGroup_Edges.
@@ -2034,14 +2034,14 @@ namespace social.OpenData.UsersAPI
 
             public User2UserGroupEdge
 
-                AddOutgoingEdge(User2UserGroupEdgeTypes EdgeLabel,
+                AddOutgoingEdge(User2UserGroupEdgeLabel EdgeLabel,
                                 UserGroup           Target,
                                 PrivacyLevel    PrivacyLevel = PrivacyLevel.World)
 
                 => _User2Group_OutEdges.AddAndReturnElement(new User2UserGroupEdge(this, EdgeLabel, Target, PrivacyLevel));
 
 
-            public IEnumerable<User2UserGroupEdge> User2GroupOutEdges(Func<User2UserGroupEdgeTypes, Boolean> User2GroupEdgeFilter)
+            public IEnumerable<User2UserGroupEdge> User2GroupOutEdges(Func<User2UserGroupEdgeLabel, Boolean> User2GroupEdgeFilter)
                 => _User2Group_OutEdges.Where(edge => User2GroupEdgeFilter(edge.EdgeLabel));
 
 
@@ -2155,15 +2155,15 @@ namespace social.OpenData.UsersAPI
                 var _Groups = RequireReadWriteAccess
 
                                          ? _User2Group_OutEdges.
-                                               Where (edge => edge.EdgeLabel == User2UserGroupEdgeTypes.IsAdmin ||
-                                                              edge.EdgeLabel == User2UserGroupEdgeTypes.IsMember).
+                                               Where (edge => edge.EdgeLabel == User2UserGroupEdgeLabel.IsAdmin ||
+                                                              edge.EdgeLabel == User2UserGroupEdgeLabel.IsMember).
                                                Select(edge => edge.Target).
                                                ToList()
 
                                          : _User2Group_OutEdges.
-                                               Where (edge => edge.EdgeLabel == User2UserGroupEdgeTypes.IsAdmin  ||
-                                                              edge.EdgeLabel == User2UserGroupEdgeTypes.IsMember ||
-                                                              edge.EdgeLabel == User2UserGroupEdgeTypes.IsGuest).
+                                               Where (edge => edge.EdgeLabel == User2UserGroupEdgeLabel.IsAdmin  ||
+                                                              edge.EdgeLabel == User2UserGroupEdgeLabel.IsMember ||
+                                                              edge.EdgeLabel == User2UserGroupEdgeLabel.IsGuest).
                                                Select(edge => edge.Target).
                                                ToList();
 
@@ -2269,7 +2269,7 @@ namespace social.OpenData.UsersAPI
             /// All groups this user belongs to,
             /// filtered by the given edge label.
             /// </summary>
-            public IEnumerable<UserGroup> Groups(User2UserGroupEdgeTypes EdgeFilter)
+            public IEnumerable<UserGroup> Groups(User2UserGroupEdgeLabel EdgeFilter)
                 => _User2Group_OutEdges.
                        Where (edge => edge.EdgeLabel == EdgeFilter).
                        Select(edge => edge.Target);
@@ -2282,7 +2282,7 @@ namespace social.OpenData.UsersAPI
             /// All groups this user belongs to,
             /// filtered by the given edge label.
             /// </summary>
-            public IEnumerable<User2UserGroupEdgeTypes> OutEdges(UserGroup Group)
+            public IEnumerable<User2UserGroupEdgeLabel> OutEdges(UserGroup Group)
                 => _User2Group_OutEdges.
                        Where (edge => edge.Target == Group).
                        Select(edge => edge.EdgeLabel);

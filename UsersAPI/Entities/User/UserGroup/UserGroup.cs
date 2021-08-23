@@ -128,7 +128,7 @@ namespace social.OpenData.UsersAPI
             => _User2UserGroup_Edges;
 
 
-        public User2UserGroupEdge AddUser(User2UserGroupEdgeTypes  EdgeLabel,
+        public User2UserGroupEdge AddUser(User2UserGroupEdgeLabel  EdgeLabel,
                                           User                     Source,
                                           PrivacyLevel             PrivacyLevel = PrivacyLevel.Private)
 
@@ -156,7 +156,7 @@ namespace social.OpenData.UsersAPI
 
 
 
-        public IEnumerable<User2UserGroupEdge> User2GroupInEdges(Func<User2UserGroupEdgeTypes, Boolean> User2GroupEdgeFilter = null)
+        public IEnumerable<User2UserGroupEdge> User2GroupInEdges(Func<User2UserGroupEdgeLabel, Boolean> User2GroupEdgeFilter = null)
             => _User2UserGroup_Edges.
                    Where(edge => User2GroupEdgeFilter != null ? User2GroupEdgeFilter(edge.EdgeLabel) : true);
 
@@ -177,7 +177,7 @@ namespace social.OpenData.UsersAPI
         /// filtered by the given edge label.
         /// </summary>
         /// <param name="User">Just return edges with the given user.</param>
-        public IEnumerable<User2UserGroupEdge> Edges(User2UserGroupEdgeTypes  EdgeLabel,
+        public IEnumerable<User2UserGroupEdge> Edges(User2UserGroupEdgeLabel  EdgeLabel,
                                                      User                     User)
 
             => _User2UserGroup_Edges.
@@ -189,14 +189,14 @@ namespace social.OpenData.UsersAPI
         /// filtered by the given edge label.
         /// </summary>
         /// <param name="User">Just return edges with the given user.</param>
-        public IEnumerable<User2UserGroupEdgeTypes> EdgeLabels(User User)
+        public IEnumerable<User2UserGroupEdgeLabel> EdgeLabels(User User)
 
             => _User2UserGroup_Edges.
                    Where (edge => edge.Source == User).
                    Select(edge => edge.EdgeLabel);
 
 
-        public Boolean HasEdge(User2UserGroupEdgeTypes  EdgeLabel,
+        public Boolean HasEdge(User2UserGroupEdgeLabel  EdgeLabel,
                                User                     User)
 
             => _User2UserGroup_Edges.
@@ -586,8 +586,8 @@ namespace social.OpenData.UsersAPI
                                        ? new JProperty("description",    Description.ToJSON())
                                        : null,
 
-                                   _User2UserGroup_Edges.Where(edge => edge.EdgeLabel == User2UserGroupEdgeTypes.IsMember).SafeAny()
-                                       ? new JProperty("isMember", new JArray(_User2UserGroup_Edges.Where(edge => edge.EdgeLabel == User2UserGroupEdgeTypes.IsMember).Select(edge => edge.Source.Id.ToString())))
+                                   _User2UserGroup_Edges.Where(edge => edge.EdgeLabel == User2UserGroupEdgeLabel.IsMember).SafeAny()
+                                       ? new JProperty("isMember", new JArray(_User2UserGroup_Edges.Where(edge => edge.EdgeLabel == User2UserGroupEdgeLabel.IsMember).Select(edge => edge.Source.Id.ToString())))
                                        : null,
 
                                    Members.SafeAny() && ExpandUsers != InfoStatus.Hidden
