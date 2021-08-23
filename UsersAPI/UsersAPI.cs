@@ -1345,7 +1345,7 @@ namespace social.OpenData.UsersAPI
 
 
     /// <summary>
-    /// Managing users and organizations et.al within a HTTP API.
+    /// Managing users and organizations et al. within a HTTP API.
     /// </summary>
     public class UsersAPI : HTTPAPI
     {
@@ -5588,7 +5588,7 @@ namespace social.OpenData.UsersAPI
                                                               AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                               ContentType                = HTTPContentType.JSONLD_UTF8,
                                                               Content                    = JSONObject.Create(
-                                                                                               new JProperty("description", result?.ErrorDescription)
+                                                                                               new JProperty("description", result.ErrorDescription.ToJSON())
                                                                                            ).ToUTF8Bytes(),
                                                               SetCookie                  = String.Concat(CookieName, "=; Expires=", DateTime.UtcNow.ToRfc1123(),
                                                                                                          HTTPCookieDomain.IsNotNullOrEmpty()
@@ -18061,8 +18061,13 @@ namespace social.OpenData.UsersAPI
 
         #region VerifyPassword     (UserId, Password)
 
-        public Boolean _VerifyPassword(User_Id  UserId,
-                                       String   Password)
+        /// <summary>
+        /// Verify the given user identification and password.
+        /// </summary>
+        /// <param name="UserId">The unique identification of the user.</param>
+        /// <param name="Password">The user's password.</param>
+        protected internal Boolean _VerifyPassword(User_Id  UserId,
+                                                   String   Password)
 
             => UserId.IsNotNullOrEmpty &&
                UserId.Length >= MinUserIdLength &&
@@ -18070,6 +18075,11 @@ namespace social.OpenData.UsersAPI
                LoginPassword.VerifyPassword(Password);
 
 
+        /// <summary>
+        /// Verify the given user identification and password.
+        /// </summary>
+        /// <param name="UserId">The unique identification of the user.</param>
+        /// <param name="Password">The user's password.</param>
         public Boolean VerifyPassword(User_Id  UserId,
                                       String   Password)
         {
@@ -18195,7 +18205,6 @@ namespace social.OpenData.UsersAPI
                                           CurrentUserId);
 
                 _LoginPasswords[User.Id] = new LoginPassword(User.Id, NewPassword);
-
 
                 await SMTPClient.Send(PasswordChangedEMailCreator(User,
                                                                   User.EMail,
@@ -18346,14 +18355,11 @@ namespace social.OpenData.UsersAPI
 
                 _LoginPasswords[user.Id] = new LoginPassword(user.Id, NewPassword);
 
-                //await RemovePasswordReset(_PasswordReset,
-                //                          Request.EventTrackingId);
-
-                var mailResult = await SMTPClient.Send(PasswordChangedEMailCreator(user,
-                                                                                   user.EMail,
-                                                                                   //"https://" + Request.Host.SimpleString,
-                                                                                   DefaultLanguage,
-                                                                                   eventTrackingId));
+                await SMTPClient.Send(PasswordChangedEMailCreator(user,
+                                                                  user.EMail,
+                                                                  //"https://" + Request.Host.SimpleString,
+                                                                  DefaultLanguage,
+                                                                  eventTrackingId));
 
             }
 
@@ -18740,12 +18746,6 @@ namespace social.OpenData.UsersAPI
                                                          Argument:         nameof(SecurityTokenId1),
                                                          Description:      "Invalid security token(s)!");
 
-            if (!passwordReset.Users.All(user => _LoginPasswords.ContainsKey(user.Id)))
-                return ResetPasswordResult.ArgumentError(Users:            new User[0],
-                                                         EventTrackingId:  eventTrackingId,
-                                                         Argument:         "Users",
-                                                         Description:      "Invalid password reset!");
-
 
             foreach (var user in passwordReset.Users)
             {
@@ -18773,11 +18773,11 @@ namespace social.OpenData.UsersAPI
 
                 _LoginPasswords[user.Id] = new LoginPassword(user.Id, NewPassword);
 
-                var mailResult = await SMTPClient.Send(PasswordChangedEMailCreator(user,
-                                                                                   user.EMail,
-                                                                                   //"https://" + Request.Host.SimpleString,
-                                                                                   DefaultLanguage,
-                                                                                   eventTrackingId));
+                await SMTPClient.Send(PasswordChangedEMailCreator(user,
+                                                                  user.EMail,
+                                                                  //"https://" + Request.Host.SimpleString,
+                                                                  DefaultLanguage,
+                                                                  eventTrackingId));
 
             }
 
@@ -18856,9 +18856,9 @@ namespace social.OpenData.UsersAPI
         /// <param name="PasswordReset">A password reset.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional organization identification initiating this command/request.</param>
-        public async Task<Boolean> _RemovePasswordReset(PasswordReset     PasswordReset,
-                                                        EventTracking_Id  EventTrackingId   = null,
-                                                        User_Id?          CurrentUserId     = null)
+        protected internal async Task<Boolean> _RemovePasswordReset(PasswordReset     PasswordReset,
+                                                                    EventTracking_Id  EventTrackingId   = null,
+                                                                    User_Id?          CurrentUserId     = null)
         {
 
             await WriteToDatabaseFile(UsersAPIPath + DefaultPasswordResetsFile,
@@ -18867,7 +18867,7 @@ namespace social.OpenData.UsersAPI
                                       EventTrackingId ?? EventTracking_Id.New,
                                       CurrentUserId);
 
-            this._PasswordResets.Remove(PasswordReset.SecurityToken1);
+            _PasswordResets.Remove(PasswordReset.SecurityToken1);
 
             return true;
 
