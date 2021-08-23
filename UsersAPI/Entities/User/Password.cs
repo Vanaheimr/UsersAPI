@@ -30,6 +30,29 @@ namespace social.OpenData.UsersAPI
 {
 
     /// <summary>
+    /// Extention methods for passwords.
+    /// </summary>
+    public static class PasswordExtentions
+    {
+
+        /// <summary>
+        /// Indicates whether this password is null or empty.
+        /// </summary>
+        /// <param name="Password">A password.</param>
+        public static Boolean IsNullOrEmpty(this Password? Password)
+            => !Password.HasValue || Password.Value.IsNullOrEmpty;
+
+        /// <summary>
+        /// Indicates whether this password is null or empty.
+        /// </summary>
+        /// <param name="Password">A password.</param>
+        public static Boolean IsNotNullOrEmpty(this Password? Password)
+            => Password.HasValue && Password.Value.IsNotNullOrEmpty;
+
+    }
+
+
+    /// <summary>
     /// A password.
     /// </summary>
     public readonly struct Password : IEquatable<Password>
@@ -50,6 +73,18 @@ namespace social.OpenData.UsersAPI
         #endregion
 
         #region Properties
+
+        /// <summary>
+        /// Indicates whether this password is null or empty.
+        /// </summary>
+        public Boolean IsNullOrEmpty
+            => InternalPassword.UnsecureString().IsNullOrEmpty();
+
+        /// <summary>
+        /// Indicates whether this password is NOT null or empty.
+        /// </summary>
+        public Boolean IsNotNullOrEmpty
+            => InternalPassword.UnsecureString().IsNotNullOrEmpty();
 
         /// <summary>
         /// The salt of the password.
@@ -380,19 +415,8 @@ namespace social.OpenData.UsersAPI
         /// <param name="Password2">Another password.</param>
         /// <returns>true|false</returns>
         public static Boolean operator == (Password Password1, Password Password2)
-        {
 
-            // If both are null, or both are same instance, return true.
-            if (Object.ReferenceEquals(Password1, Password2))
-                return true;
-
-            // If one is null, but not both, return false.
-            if (((Object) Password1 == null) || ((Object) Password2 == null))
-                return false;
-
-            return Password1.Equals(Password2);
-
-        }
+            => Password1.Equals(Password2);
 
         #endregion
 
@@ -405,7 +429,8 @@ namespace social.OpenData.UsersAPI
         /// <param name="Password2">Another password.</param>
         /// <returns>true|false</returns>
         public static Boolean operator != (Password Password1, Password Password2)
-            => !(Password1 == Password2);
+
+            => !Password1.Equals(Password2);
 
         #endregion
 
@@ -421,17 +446,9 @@ namespace social.OpenData.UsersAPI
         /// <param name="Object">An object to compare with.</param>
         /// <returns>true|false</returns>
         public override Boolean Equals(Object Object)
-        {
 
-            if (Object == null)
-                return false;
-
-            if (!(Object is Password))
-                return false;
-
-            return Equals((Password) Object);
-
-        }
+            => Object is Password password &&
+                   Equals(password);
 
         #endregion
 
@@ -444,9 +461,6 @@ namespace social.OpenData.UsersAPI
         /// <returns>True if both match; False otherwise.</returns>
         public Boolean Equals(Password Password)
         {
-
-            if ((Object) Password == null)
-                return false;
 
             return Salt.            UnsecureString().Equals(Password.Salt.            UnsecureString()) &&
                    InternalPassword.UnsecureString().Equals(Password.InternalPassword.UnsecureString());

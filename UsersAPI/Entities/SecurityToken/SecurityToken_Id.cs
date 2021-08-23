@@ -27,6 +27,29 @@ namespace social.OpenData.UsersAPI
 {
 
     /// <summary>
+    /// Extention methods for security tokens.
+    /// </summary>
+    public static class SecurityTokenIdExtentions
+    {
+
+        /// <summary>
+        /// Indicates whether this security token is null or empty.
+        /// </summary>
+        /// <param name="SecurityTokenId">A security token.</param>
+        public static Boolean IsNullOrEmpty(this SecurityToken_Id? SecurityTokenId)
+            => !SecurityTokenId.HasValue || SecurityTokenId.Value.IsNullOrEmpty;
+
+        /// <summary>
+        /// Indicates whether this security token is null or empty.
+        /// </summary>
+        /// <param name="SecurityTokenId">A security token.</param>
+        public static Boolean IsNotNullOrEmpty(this SecurityToken_Id? SecurityTokenId)
+            => SecurityTokenId.HasValue && SecurityTokenId.Value.IsNotNullOrEmpty;
+
+    }
+
+
+    /// <summary>
     /// The unique identification of a security token.
     /// </summary>
     public readonly struct SecurityToken_Id : IId,
@@ -55,6 +78,12 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         public Boolean IsNullOrEmpty
             => InternalId.IsNullOrEmpty();
+
+        /// <summary>
+        /// Indicates whether this identification is NOT null or empty.
+        /// </summary>
+        public Boolean IsNotNullOrEmpty
+            => InternalId.IsNotNullOrEmpty();
 
         /// <summary>
         /// The length of the security token identification.

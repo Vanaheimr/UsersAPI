@@ -99,6 +99,9 @@
     <Compile Include="Entities\ServiceTickets\ServiceTicketStatus.cs" />
     <Compile Include="Entities\ServiceTickets\ServiceTicketStatusTypes.cs" />
     <Compile Include="Entities\ServiceTickets\ServiceTicket_Id.cs" />
+    <Compile Include="Entities\User\Results\AddPasswordResetResult.cs" />
+    <Compile Include="Entities\User\Results\ResetPasswordResult.cs" />
+    <Compile Include="Entities\User\Results\ChangePasswordResult.cs" />
     <Compile Include="Entities\User\UserGroup\Results\AddOrUpdateUserGroupResult.cs" />
     <Compile Include="Entities\User\UserGroup\Results\AddUserGroupResult.cs" />
     <Compile Include="Entities\User\UserGroup\Results\AddUserGroupIfNotExistsResult.cs" />

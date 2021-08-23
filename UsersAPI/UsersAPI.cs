@@ -937,14 +937,11 @@ namespace social.OpenData.UsersAPI
                                                        async (_user, _eventTrackingId) => {
                                                            if (Password.HasValue)
                                                            {
-                                                               if (!await _user.API._TryChangePassword(_user.Id,
-                                                                                                       Password.Value,
-                                                                                                       null,
-                                                                                                       _eventTrackingId,
-                                                                                                       CurrentUserId))
-                                                               {
-                                                                   throw new ApplicationException("The password for '" + _user.Id + "' could not be changed, as the given current password does not match!");
-                                                               }
+                                                               var result = await _user.API._ChangePassword(_user,
+                                                                                                            Password.Value,
+                                                                                                            null,
+                                                                                                            _eventTrackingId,
+                                                                                                            CurrentUserId);
                                                            }
                                                        },
 
@@ -1041,14 +1038,11 @@ namespace social.OpenData.UsersAPI
                                                        async (_user, _eventTrackingId) => {
                                                            if (Password.HasValue)
                                                            {
-                                                               if (!await _user.API._TryChangePassword(_user.Id,
-                                                                                                       Password.Value,
-                                                                                                       null,
-                                                                                                       _eventTrackingId,
-                                                                                                       CurrentUserId))
-                                                               {
-                                                                   throw new ApplicationException("The password for '" + _user.Id + "' could not be changed, as the given current password does not match!");
-                                                               }
+                                                               var result = await _user.API._ChangePassword(_user,
+                                                                                                            Password.Value,
+                                                                                                            null,
+                                                                                                            _eventTrackingId,
+                                                                                                            CurrentUserId);
                                                            }
                                                        },
 
@@ -1138,14 +1132,11 @@ namespace social.OpenData.UsersAPI
                                                                   async (_user, _eventTrackingId) => {
                                                                       if (Password.HasValue)
                                                                       {
-                                                                          if (!await _user.API._TryChangePassword(_user.Id,
-                                                                                                                  Password.Value,
-                                                                                                                  null,
-                                                                                                                  _eventTrackingId,
-                                                                                                                  CurrentUserId))
-                                                                          {
-                                                                              throw new ApplicationException("The password for '" + _user.Id + "' could not be changed, as the given current password does not match!");
-                                                                          }
+                                                                          var result = await _user.API._ChangePassword(_user,
+                                                                                                                       Password.Value,
+                                                                                                                       null,
+                                                                                                                       _eventTrackingId,
+                                                                                                                       CurrentUserId);
                                                                       }
                                                                   },
 
@@ -1242,14 +1233,11 @@ namespace social.OpenData.UsersAPI
                                                                   async (_user, _eventTrackingId) => {
                                                                       if (Password.HasValue)
                                                                       {
-                                                                          if (!await _user.API._TryChangePassword(_user.Id,
-                                                                                                                  Password.Value,
-                                                                                                                  null,
-                                                                                                                  _eventTrackingId,
-                                                                                                                  CurrentUserId))
-                                                                          {
-                                                                              throw new ApplicationException("The password for '" + _user.Id + "' could not be changed, as the given current password does not match!");
-                                                                          }
+                                                                          var result = await _user.API._ChangePassword(_user,
+                                                                                                                       Password.Value,
+                                                                                                                       null,
+                                                                                                                       _eventTrackingId,
+                                                                                                                       CurrentUserId);
                                                                       }
                                                                   },
 
@@ -5406,27 +5394,43 @@ namespace social.OpenData.UsersAPI
                                              #endregion
 
 
-                                             var passwordReset = await ResetPassword(Users,
-                                                                                     Request.EventTrackingId);
+                                             var result = await ResetPassword(Users,
+                                                                              Request.EventTrackingId);
 
 
-                                             return new HTTPResponse.Builder(Request) {
-                                                        HTTPStatusCode             = HTTPStatusCode.OK,
-                                                        Server                     = HTTPServer.DefaultServerName,
-                                                        Date                       = DateTime.UtcNow,
-                                                        AccessControlAllowOrigin   = "*",
-                                                        AccessControlAllowMethods  = "SET",
-                                                        AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                        ContentType                = HTTPContentType.JSON_UTF8,
-                                                        Content                    = JSONObject.Create(
-                                                                                         new JProperty("numberOfAccountsFound", Users.Count)
-                                                                                     ).ToUTF8Bytes(),
-                                                        Connection                 = "close"
-                                                    };
+                                             return result?.IsSuccess == true
 
-                                             },
+                                                        ? new HTTPResponse.Builder(Request) {
+                                                              HTTPStatusCode             = HTTPStatusCode.OK,
+                                                              Server                     = HTTPServer.DefaultServerName,
+                                                              Date                       = DateTime.UtcNow,
+                                                              AccessControlAllowOrigin   = "*",
+                                                              AccessControlAllowMethods  = "SET",
+                                                              AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                              ContentType                = HTTPContentType.JSON_UTF8,
+                                                              Content                    = JSONObject.Create(
+                                                                                               new JProperty("numberOfAccountsFound", Users.Count)
+                                                                                           ).ToUTF8Bytes(),
+                                                              Connection                 = "close"
+                                                          }
 
-                                             AllowReplacement: URLReplacement.Allow);
+                                                        : new HTTPResponse.Builder(Request) {
+                                                              HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                              Server                     = HTTPServer.DefaultServerName,
+                                                              Date                       = DateTime.UtcNow,
+                                                              AccessControlAllowOrigin   = "*",
+                                                              AccessControlAllowMethods  = "SET",
+                                                              AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                              ContentType                = HTTPContentType.JSON_UTF8,
+                                                              Content                    = JSONObject.Create(
+                                                                                               new JProperty("numberOfAccountsFound", Users.Count)
+                                                                                           ).ToUTF8Bytes(),
+                                                              Connection                 = "close"
+                                                          };
+
+                                         },
+
+                                         AllowReplacement: URLReplacement.Allow);
 
             #endregion
 
@@ -5460,13 +5464,15 @@ namespace social.OpenData.UsersAPI
 
                                              }
 
-                                             #region Parse SecurityToken1   [mandatory]
+                                             #endregion
+
+                                             #region Parse SecurityTokenId1    [mandatory]
 
                                              if (!JSONObj.ParseMandatory("securityToken1",
                                                                          "security token #1",
                                                                          HTTPServer.DefaultServerName,
                                                                          SecurityToken_Id.TryParse,
-                                                                         out SecurityToken_Id SecurityToken1,
+                                                                         out SecurityToken_Id SecurityTokenId1,
                                                                          Request,
                                                                          out HTTPResponse.Builder ErrorResponse))
                                              {
@@ -5475,23 +5481,7 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
-                                             #region Parse SecurityToken2   [optional]
-
-                                             if (JSONObj.ParseOptional("securityToken2",
-                                                                       "security token #2",
-                                                                       HTTPServer.DefaultServerName,
-                                                                       SecurityToken_Id.TryParse,
-                                                                       out SecurityToken_Id? SecurityToken2,
-                                                                       Request,
-                                                                       out ErrorResponse))
-                                             {
-                                                 if (ErrorResponse != null)
-                                                    return HTTPResponse;
-                                             }
-
-                                             #endregion
-
-                                             #region Parse NewPassword      [mandatory]
+                                             #region Parse NewPassword         [mandatory]
 
                                              if (!JSONObj.ParseMandatory("newPassword",
                                                                          "new password",
@@ -5504,13 +5494,43 @@ namespace social.OpenData.UsersAPI
                                                  return HTTPResponse;
                                              }
 
+                                             if (PasswordQualityCheck(NewPassword.UnsecureString) < 1.0)
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                                                            Server          = HTTPServer.DefaultServerName,
+                                                            ContentType     = HTTPContentType.JSON_UTF8,
+                                                            Content         = JSONObject.Create(
+                                                                                  new JProperty("@context",      SignInOutContext),
+                                                                                  new JProperty("statuscode",    400),
+                                                                                  new JProperty("property",     "password"),
+                                                                                  new JProperty("description",  "The choosen password does not match the password quality criteria!")
+                                                                              ).ToString().ToUTF8Bytes(),
+                                                            CacheControl    = "private",
+                                                            Connection      = "close"
+                                                        }.AsImmutable;
+
+                                             #endregion
+
+                                             #region Parse SecurityTokenId2    [optional]
+
+                                             if (JSONObj.ParseOptional("securityToken2",
+                                                                       "security token #2",
+                                                                       HTTPServer.DefaultServerName,
+                                                                       SecurityToken_Id.TryParse,
+                                                                       out SecurityToken_Id? SecurityTokenId2,
+                                                                       Request,
+                                                                       out ErrorResponse))
+                                             {
+                                                 if (ErrorResponse != null)
+                                                    return HTTPResponse;
+                                             }
+
                                              #endregion
 
 
                                              #region Verify token/password lengths...
 
-                                             if (SecurityToken1.Length != 40 ||
-                                                 NewPassword.Length < 6)
+                                             if (SecurityTokenId1.Length != 40)
                                              {
 
                                                  // Slow down attackers!
@@ -5530,132 +5550,57 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
-                                             #endregion
 
-                                             #region Is this a known/valid request?
-
-                                             if (!_PasswordResets.TryGetValue(SecurityToken1, out PasswordReset _PasswordReset))
-                                             {
-
-                                                 return new HTTPResponse.Builder(Request) {
-                                                            HTTPStatusCode             = HTTPStatusCode.Forbidden,
-                                                            Server                     = HTTPServer.DefaultServerName,
-                                                            Date                       = DateTime.UtcNow,
-                                                            AccessControlAllowOrigin   = "*",
-                                                            AccessControlAllowMethods  = "SET",
-                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                            ContentType                = HTTPContentType.JSONLD_UTF8,
-                                                            Content                    = JSONObject.Create(
-                                                                                             new JProperty(
-                                                                                                 "description",
-                                                                                                 "Unknown security token 1!")
-                                                                                         ).ToUTF8Bytes(),
-                                                            Connection                 = "close"
-                                                        }.AsImmutable;
-
-                                             }
-
-                                             #endregion
-
-                                             #region Is security token 2 used and valid?
-
-                                             if (SecurityToken2.HasValue                &&
-                                                 SecurityToken2.Value.ToString() != ""  &&
-                                                 SecurityToken2.Value            != _PasswordReset.SecurityToken2)
-                                             {
-
-                                                 return new HTTPResponse.Builder(Request) {
-                                                            HTTPStatusCode             = HTTPStatusCode.Forbidden,
-                                                            Server                     = HTTPServer.DefaultServerName,
-                                                            Date                       = DateTime.UtcNow,
-                                                            AccessControlAllowOrigin   = "*",
-                                                            AccessControlAllowMethods  = "SET",
-                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                            ContentType                = HTTPContentType.JSONLD_UTF8,
-                                                            Content                    = JSONObject.Create(
-                                                                                             new JProperty(
-                                                                                                 "description",
-                                                                                                 "Invalid security token 2!")
-                                                                                         ).ToUTF8Bytes(),
-                                                            Connection                 = "close"
-                                                        }.AsImmutable;
-
-                                             }
-
-                                             #endregion
+                                             var result = await ResetPassword(SecurityTokenId1,
+                                                                              NewPassword,
+                                                                              SecurityTokenId2,
+                                                                              Request.EventTrackingId,
+                                                                              Robot.Id);
 
 
-                                             foreach (var user in _PasswordReset.Users)
-                                             {
+                                             return result?.IsSuccess == true
 
-                                                 await WriteToDatabaseFile(this.UsersAPIPath + DefaultPasswordFile,
-                                                                           resetPassword_MessageType,
-                                                                           JSONObject.Create(
+                                                        ? new HTTPResponse.Builder(Request) {
+                                                              HTTPStatusCode             = HTTPStatusCode.OK,
+                                                              Server                     = HTTPServer.DefaultServerName,
+                                                              Date                       = DateTime.UtcNow,
+                                                              AccessControlAllowOrigin   = "*",
+                                                              AccessControlAllowMethods  = "SET",
+                                                              AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                              ContentType                = HTTPContentType.JSON_UTF8,
+                                                              Content                    = JSONObject.Create(
+                                                                                               new JProperty("numberOfAccountsFound", Users.Count())
+                                                                                           ).ToUTF8Bytes(),
+                                                              SetCookie                  = String.Concat(CookieName, "=; Expires=", DateTime.UtcNow.ToRfc1123(),
+                                                                                                         HTTPCookieDomain.IsNotNullOrEmpty()
+                                                                                                             ? "; Domain=" + HTTPCookieDomain
+                                                                                                             : "",
+                                                                                                         "; Path=", URLPathPrefix),
+                                                              Connection                 = "close"
+                                                          }.AsImmutable
 
-                                                                               new JProperty("login",                 user.Id.ToString()),
+                                                        : new HTTPResponse.Builder(Request) {
+                                                              HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                              Server                     = HTTPServer.DefaultServerName,
+                                                              Date                       = DateTime.UtcNow,
+                                                              AccessControlAllowOrigin   = "*",
+                                                              AccessControlAllowMethods  = "SET",
+                                                              AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                              ContentType                = HTTPContentType.JSONLD_UTF8,
+                                                              Content                    = JSONObject.Create(
+                                                                                               new JProperty("description", result?.ErrorDescription)
+                                                                                           ).ToUTF8Bytes(),
+                                                              SetCookie                  = String.Concat(CookieName, "=; Expires=", DateTime.UtcNow.ToRfc1123(),
+                                                                                                         HTTPCookieDomain.IsNotNullOrEmpty()
+                                                                                                             ? "; Domain=" + HTTPCookieDomain
+                                                                                                             : "",
+                                                                                                         "; Path=", URLPathPrefix),
+                                                              Connection                 = "close"
+                                                          }.AsImmutable;
 
-                                                                               new JProperty("newPassword", new JObject(
-                                                                                   new JProperty("salt",              NewPassword.Salt.UnsecureString()),
-                                                                                   new JProperty("passwordHash",      NewPassword.UnsecureString)
-                                                                               )),
+                                         },
 
-                                                                               new JProperty("securityToken1",        SecurityToken1.ToString()),
-
-                                                                               SecurityToken2.HasValue
-                                                                                   ? new JProperty("securityToken2",  SecurityToken2.ToString())
-                                                                                   : null
-
-                                                                           ),
-                                                                           Request.EventTrackingId,
-                                                                           Robot.Id);
-
-                                                 _LoginPasswords.Remove(user.Id);
-
-                                                 _LoginPasswords.Add(user.Id, new LoginPassword(user.Id, NewPassword));
-
-                                                 await RemovePasswordReset(_PasswordReset,
-                                                                           Request.EventTrackingId);
-
-                                                 #region Send e-mail...
-
-                                                 var MailSentResult = MailSentStatus.failed;
-                                                // var user           = GetUser(userId);
-
-                                                 var MailResultTask = SMTPClient.Send(PasswordChangedEMailCreator(user,
-                                                                                                                  user.EMail,
-                                                                                                                  //"https://" + Request.Host.SimpleString,
-                                                                                                                  DefaultLanguage,
-                                                                                                                  Request.EventTrackingId));
-
-                                                 if (MailResultTask.Wait(60000))
-                                                     MailSentResult = MailResultTask.Result;
-
-                                                 #endregion
-
-                                             }
-
-                                             return new HTTPResponse.Builder(Request) {
-                                                        HTTPStatusCode             = HTTPStatusCode.OK,
-                                                        Server                     = HTTPServer.DefaultServerName,
-                                                        Date                       = DateTime.UtcNow,
-                                                        AccessControlAllowOrigin   = "*",
-                                                        AccessControlAllowMethods  = "SET",
-                                                        AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                        ContentType                = HTTPContentType.JSON_UTF8,
-                                                        Content                    = JSONObject.Create(
-                                                                                         new JProperty("numberOfAccountsFound", Users.Count())
-                                                                                     ).ToUTF8Bytes(),
-                                                        SetCookie                  = String.Concat(CookieName, "=; Expires=", DateTime.UtcNow.ToRfc1123(),
-                                                                                                   HTTPCookieDomain.IsNotNullOrEmpty()
-                                                                                                       ? "; Domain=" + HTTPCookieDomain
-                                                                                                       : "",
-                                                                                                   "; Path=", URLPathPrefix),
-                                                        Connection                 = "close"
-                                                    }.AsImmutable;
-
-                                             },
-
-                                             AllowReplacement: URLReplacement.Allow);
+                                         AllowReplacement: URLReplacement.Allow);
 
             #endregion
 
@@ -7365,41 +7310,12 @@ namespace social.OpenData.UsersAPI
 
                                              #region Check UserId URL parameter
 
-                                             if (!Request.ParseUserId(this,
-                                                                      out User_Id?              UserIdURL,
-                                                                      out HTTPResponse.Builder  HTTPResponse))
+                                             if (!Request.ParseUser(this,
+                                                                    out User_Id?              UserIdURL,
+                                                                    out User                  User,
+                                                                    out HTTPResponse.Builder  HTTPResponse))
                                              {
                                                  return HTTPResponse;
-                                             }
-
-                                             #endregion
-
-                                             #region Parse JSON
-
-                                             if (!Request.TryParseJObjectRequestBody(out JObject JSONObj, out HTTPResponse))
-                                                 return HTTPResponse;
-
-                                             var ErrorResponse    = "";
-                                             var CurrentPassword  = JSONObj.GetString("currentPassword");
-                                             var NewPassword      = JSONObj.GetString("newPassword");
-
-                                             if (CurrentPassword.IsNullOrEmpty() || NewPassword.IsNullOrEmpty())
-                                             {
-
-                                                 return new HTTPResponse.Builder(Request) {
-                                                                HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                                Server                     = HTTPServer.DefaultServerName,
-                                                                Date                       = DateTime.UtcNow,
-                                                                AccessControlAllowOrigin   = "*",
-                                                                AccessControlAllowMethods  = "GET, SET",
-                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                ETag                       = "1",
-                                                                ContentType                = HTTPContentType.JSON_UTF8,
-                                                                Content                    = JSONObject.Create(
-                                                                                                 new JProperty("description",  ErrorResponse)
-                                                                                             ).ToUTF8Bytes()
-                                                            }.AsImmutable;
-
                                              }
 
                                              #endregion
@@ -7419,45 +7335,112 @@ namespace social.OpenData.UsersAPI
                                                         }.AsImmutable;
 
 
-                                             if (TryChangePassword(UserIdURL.Value,
-                                                                   Password.Parse(NewPassword),
-                                                                   CurrentPassword,
-                                                                   Request.EventTrackingId,
-                                                                   HTTPUser.Id).Result)
-                                             {
+                                             #region Parse JSON
 
-                                                 var MailSentResult = await SMTPClient.Send(PasswordChangedEMailCreator(HTTPUser,
-                                                                                                                        HTTPUser.EMail,
-                                                                                                                        //"https://" + Request.Host.SimpleString,
-                                                                                                                        DefaultLanguage,
-                                                                                                                        Request.EventTrackingId));
+                                             if (!Request.TryParseJObjectRequestBody(out JObject JSONObj, out HTTPResponse))
+                                                 return HTTPResponse;
 
-                                                 return new HTTPResponse.Builder(Request) {
-                                                                HTTPStatusCode              = HTTPStatusCode.OK,
-                                                                Server                      = HTTPServer.DefaultServerName,
-                                                                Date                        = DateTime.UtcNow,
-                                                                AccessControlAllowOrigin    = "*",
-                                                                AccessControlAllowMethods   = "SET",
-                                                                AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
-                                                                Connection                  = "close"
-                                                            }.AsImmutable;
+                                             #endregion
 
-                                             }
+                                             #region Parse CurrentPassword    [mandatory]
 
-                                             else
+                                             if (!JSONObj.ParseMandatory("currentPassword",
+                                                                         "current password",
+                                                                         Password.TryParse,
+                                                                         out Password  CurrentPassword,
+                                                                         out String    errorResponse))
                                              {
 
                                                  return new HTTPResponse.Builder(Request) {
-                                                                HTTPStatusCode              = HTTPStatusCode.Forbidden,
-                                                                Server                      = HTTPServer.DefaultServerName,
-                                                                Date                        = DateTime.UtcNow,
-                                                                AccessControlAllowOrigin    = "*",
-                                                                AccessControlAllowMethods   = "SET",
-                                                                AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
-                                                                Connection                  = "close"
-                                                            }.AsImmutable;
+                                                            HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                            Server                     = HTTPServer.DefaultServerName,
+                                                            Date                       = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin   = "*",
+                                                            AccessControlAllowMethods  = "GET, SET",
+                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                            ETag                       = "1",
+                                                            ContentType                = HTTPContentType.JSON_UTF8,
+                                                            Content                    = JSONObject.Create(
+                                                                                             new JProperty("description", errorResponse)
+                                                                                         ).ToUTF8Bytes()
+                                                        }.AsImmutable;
 
                                              }
+
+                                             #endregion
+
+                                             #region Parse NewPassword        [mandatory]
+
+                                             if (!JSONObj.ParseMandatory("newPassword",
+                                                                         "new password",
+                                                                         Password.TryParse,
+                                                                         out Password  NewPassword,
+                                                                         out           errorResponse))
+                                             {
+
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                            Server                     = HTTPServer.DefaultServerName,
+                                                            Date                       = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin   = "*",
+                                                            AccessControlAllowMethods  = "GET, SET",
+                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                            ETag                       = "1",
+                                                            ContentType                = HTTPContentType.JSON_UTF8,
+                                                            Content                    = JSONObject.Create(
+                                                                                             new JProperty("description", errorResponse)
+                                                                                         ).ToUTF8Bytes()
+                                                        }.AsImmutable;
+
+                                             }
+
+                                             if (PasswordQualityCheck(NewPassword.UnsecureString) < 1.0)
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                                                            Server          = HTTPServer.DefaultServerName,
+                                                            ContentType     = HTTPContentType.JSON_UTF8,
+                                                            Content         = JSONObject.Create(
+                                                                                  new JProperty("@context",      SignInOutContext),
+                                                                                  new JProperty("statuscode",    400),
+                                                                                  new JProperty("property",     "password"),
+                                                                                  new JProperty("description",  "The choosen password does not match the password quality criteria!")
+                                                                              ).ToString().ToUTF8Bytes(),
+                                                            CacheControl    = "private",
+                                                            Connection      = "close"
+                                                        }.AsImmutable;
+
+                                             #endregion
+
+
+
+                                             var result = await ChangePassword(User,
+                                                                               NewPassword,
+                                                                               CurrentPassword,
+                                                                               Request.EventTrackingId,
+                                                                               HTTPUser.Id);
+
+
+                                             return result?.IsSuccess == true
+
+                                                        ? new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode              = HTTPStatusCode.OK,
+                                                            Server                      = HTTPServer.DefaultServerName,
+                                                            Date                        = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin    = "*",
+                                                            AccessControlAllowMethods   = "SET",
+                                                            AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                            Connection                  = "close"
+                                                        }.AsImmutable
+
+                                                        : new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode              = HTTPStatusCode.Forbidden,
+                                                            Server                      = HTTPServer.DefaultServerName,
+                                                            Date                        = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin    = "*",
+                                                            AccessControlAllowMethods   = "SET",
+                                                            AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                            Connection                  = "close"
+                                                        }.AsImmutable;
 
                                          });
 
@@ -16205,12 +16188,12 @@ namespace social.OpenData.UsersAPI
                                                eventTrackingId,
                                                CurrentUserId);
 
-            var SetPasswordRequest = await _ResetPassword(User,
-                                                          eventTrackingId);
+            var resetPasswordResult = await _ResetPassword(User,
+                                                           eventTrackingId);
 
             await SMTPClient.Send(NewUserSignUpEMailCreator(User,
                                                             User.EMail,
-                                                            SetPasswordRequest.SecurityToken1,
+                                                            resetPasswordResult.PasswordReset.SecurityToken1,
                                                             User.MobilePhone.HasValue,
                                                             DefaultLanguage,
                                                             eventTrackingId));
@@ -16585,12 +16568,12 @@ namespace social.OpenData.UsersAPI
                                                eventTrackingId,
                                                CurrentUserId);
 
-            var SetPasswordRequest = await _ResetPassword(User,
-                                                          eventTrackingId);
+            var resetPasswordResult = await _ResetPassword(User,
+                                                           eventTrackingId);
 
             await SMTPClient.Send(NewUserSignUpEMailCreator(User,
                                                             User.EMail,
-                                                            SetPasswordRequest.SecurityToken1,
+                                                            resetPasswordResult.PasswordReset.SecurityToken1,
                                                             User.MobilePhone.HasValue,
                                                             DefaultLanguage,
                                                             eventTrackingId));
@@ -16975,12 +16958,12 @@ namespace social.OpenData.UsersAPI
                                                    eventTrackingId,
                                                    CurrentUserId);
 
-                var SetPasswordRequest = await _ResetPassword(User,
-                                                              eventTrackingId);
+                var resetPasswordResult = await _ResetPassword(User,
+                                                               eventTrackingId);
 
                 await SMTPClient.Send(NewUserSignUpEMailCreator(User,
                                                                 User.EMail,
-                                                                SetPasswordRequest.SecurityToken1,
+                                                                resetPasswordResult.PasswordReset.SecurityToken1,
                                                                 User.MobilePhone.HasValue,
                                                                 DefaultLanguage,
                                                                 eventTrackingId));
@@ -18065,6 +18048,2535 @@ namespace social.OpenData.UsersAPI
                                            eventTrackingId,
                                            "Internal locking failed!");
 
+
+        }
+
+        #endregion
+
+        #endregion
+
+        #endregion
+
+        #region Reset user password
+
+        #region VerifyPassword     (UserId, Password)
+
+        public Boolean _VerifyPassword(User_Id  UserId,
+                                       String   Password)
+
+            => UserId.IsNotNullOrEmpty &&
+               UserId.Length >= MinUserIdLength &&
+               _LoginPasswords.TryGetValue(UserId, out LoginPassword LoginPassword) &&
+               LoginPassword.VerifyPassword(Password);
+
+
+        public Boolean VerifyPassword(User_Id  UserId,
+                                      String   Password)
+        {
+
+            if (UsersSemaphore.Wait(SemaphoreSlimTimeout))
+            {
+                try
+                {
+
+                    return _VerifyPassword(UserId,
+                                           Password);
+
+                }
+                catch
+                { }
+                finally
+                {
+                    try
+                    {
+                        UsersSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
+
+            }
+
+            return false;
+
+        }
+
+        #endregion
+
+        #region ChangePassword     (User,  NewPassword, CurrentPassword = null, ...)
+
+        /// <summary>
+        /// Change the password of the given user.
+        /// </summary>
+        /// <param name="User">A user.</param>
+        /// <param name="NewPassword">The new password of the user.</param>
+        /// <param name="CurrentPassword">The optional current password of the user.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional organization identification initiating this command/request.</param>
+        protected internal async Task<ChangePasswordResult> _ChangePassword(User              User,
+                                                                            Password          NewPassword,
+                                                                            Password?         CurrentPassword   = null,
+                                                                            EventTracking_Id  EventTrackingId   = null,
+                                                                            User_Id?          CurrentUserId     = null)
+        {
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            if (User is null)
+                return ChangePasswordResult.ArgumentError(User,
+                                                          eventTrackingId,
+                                                          nameof(User),
+                                                          "The given user must not be null!");
+
+            if (NewPassword.IsNullOrEmpty)
+                return ChangePasswordResult.ArgumentError(User,
+                                                          eventTrackingId,
+                                                          nameof(NewPassword),
+                                                          "The given new password must not be null or empty!");
+
+            if (CurrentPassword.HasValue && CurrentPassword.Value.IsNullOrEmpty)
+                return ChangePasswordResult.ArgumentError(User,
+                                                          eventTrackingId,
+                                                          nameof(CurrentPassword),
+                                                          "The given current password must not be empty!");
+
+
+            #region AddPassword
+
+            if (!_LoginPasswords.TryGetValue(User.Id, out LoginPassword _LoginPassword))
+            {
+
+                await WriteToDatabaseFile(UsersAPIPath + DefaultPasswordFile,
+                                          addPassword_MessageType,
+                                          new JObject(
+                                              new JProperty("login",         User.Id.ToString()),
+                                              new JProperty("newPassword", new JObject(
+                                                  new JProperty("salt",          NewPassword.Salt.UnsecureString()),
+                                                  new JProperty("passwordHash",  NewPassword.UnsecureString)
+                                              ))
+                                          ),
+                                          eventTrackingId,
+                                          CurrentUserId);
+
+                _LoginPasswords.Add(User.Id, new LoginPassword(User.Id, NewPassword));
+
+                await SMTPClient.Send(PasswordChangedEMailCreator(User,
+                                                                  User.EMail,
+                                                                  //"https://" + Request.Host.SimpleString,
+                                                                  DefaultLanguage,
+                                                                  eventTrackingId));
+
+                return ChangePasswordResult.Success(User,
+                                                    eventTrackingId);
+
+            }
+
+            #endregion
+
+            #region ChangePassword
+
+            else if (CurrentPassword.IsNotNullOrEmpty() && _LoginPassword.VerifyPassword(CurrentPassword.Value))
+            {
+
+                await WriteToDatabaseFile(UsersAPIPath + DefaultPasswordFile,
+                                          changePassword_MessageType,
+                                          new JObject(
+                                              new JProperty("login",         User.Id.ToString()),
+                                              new JProperty("currentPassword", new JObject(
+                                                  new JProperty("salt",          _LoginPassword.Password.Salt.UnsecureString()),
+                                                  new JProperty("passwordHash",  _LoginPassword.Password.UnsecureString)
+                                              )),
+                                              new JProperty("newPassword",     new JObject(
+                                                  new JProperty("salt",          NewPassword.Salt.UnsecureString()),
+                                                  new JProperty("passwordHash",  NewPassword.UnsecureString)
+                                              ))
+                                          ),
+                                          eventTrackingId,
+                                          CurrentUserId);
+
+                _LoginPasswords[User.Id] = new LoginPassword(User.Id, NewPassword);
+
+
+                await SMTPClient.Send(PasswordChangedEMailCreator(User,
+                                                                  User.EMail,
+                                                                  //"https://" + Request.Host.SimpleString,
+                                                                  DefaultLanguage,
+                                                                  eventTrackingId));
+
+                return ChangePasswordResult.Success(User,
+                                                    eventTrackingId);
+
+            }
+
+            #endregion
+
+            else
+                return ChangePasswordResult.Failed(User,
+                                                   eventTrackingId,
+                                                   "Could not change the password!");
+
+        }
+
+        /// <summary>
+        /// Change the password of the given user.
+        /// </summary>
+        /// <param name="User">A user.</param>
+        /// <param name="NewPassword">The new password of the user.</param>
+        /// <param name="CurrentPassword">The optional current password of the user.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional organization identification initiating this command/request.</param>
+        public async Task<ChangePasswordResult> ChangePassword(User              User,
+                                                               Password          NewPassword,
+                                                               Password?         CurrentPassword   = null,
+                                                               EventTracking_Id  EventTrackingId   = null,
+                                                               User_Id?          CurrentUserId     = null)
+        {
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            if (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout))
+            {
+                try
+                {
+
+                    return await _ChangePassword(User,
+                                                 NewPassword,
+                                                 CurrentPassword,
+                                                 eventTrackingId,
+                                                 CurrentUserId);
+
+                }
+                catch (Exception e)
+                {
+
+                    DebugX.LogException(e);
+
+                    return ChangePasswordResult.Failed(User,
+                                                       eventTrackingId,
+                                                       e);
+
+                }
+                finally
+                {
+                    try
+                    {
+                        UsersSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
+
+            }
+
+            return ChangePasswordResult.Failed(User,
+                                               eventTrackingId,
+                                               "Internal locking failed!");
+
+        }
+
+        #endregion
+
+        #region ChangePassword     (Users, NewPassword, CurrentPassword = null, ...)
+
+        /// <summary>
+        /// Change the password of the given enumeration of users.
+        /// </summary>
+        /// <param name="Users">An enumeration of users.</param>
+        /// <param name="NewPassword">The new password of the user.</param>
+        /// <param name="CurrentPassword">The optional current password of the user.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional organization identification initiating this command/request.</param>
+        protected internal async Task<ChangePasswordResult> _ChangePassword(IEnumerable<User>  Users,
+                                                                            Password           NewPassword,
+                                                                            Password?          CurrentPassword   = null,
+                                                                            EventTracking_Id   EventTrackingId   = null,
+                                                                            User_Id?           CurrentUserId     = null)
+        {
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            if (Users is null || !Users.Any())
+                return ChangePasswordResult.ArgumentError(Users,
+                                                          eventTrackingId,
+                                                          nameof(Users),
+                                                          "The given user must not be null or empty!");
+
+            if (NewPassword.IsNullOrEmpty)
+                return ChangePasswordResult.ArgumentError(Users,
+                                                          eventTrackingId,
+                                                          nameof(NewPassword),
+                                                          "The given new password must not be null or empty!");
+
+            if (CurrentPassword.HasValue && CurrentPassword.Value.IsNullOrEmpty)
+                return ChangePasswordResult.ArgumentError(Users,
+                                                          eventTrackingId,
+                                                          nameof(CurrentPassword),
+                                                          "The given current password must not be empty!");
+
+            if (!Users.All(user => _LoginPasswords.ContainsKey(user.Id)))
+                return ChangePasswordResult.ArgumentError(Users,
+                                                          eventTrackingId,
+                                                          nameof(Users),
+                                                          "No all users exist!");
+
+
+            foreach (var user in Users)
+            {
+
+                await WriteToDatabaseFile(UsersAPIPath + DefaultPasswordFile,
+                                          resetPassword_MessageType,
+                                          JSONObject.Create(
+
+                                              new JProperty("login",                 user.Id.ToString()),
+
+                                              new JProperty("newPassword", new JObject(
+                                                  new JProperty("salt",              NewPassword.Salt.UnsecureString()),
+                                                  new JProperty("passwordHash",      NewPassword.UnsecureString)
+                                              ))
+
+                                              //new JProperty("securityToken1",        SecurityToken1.ToString()),
+
+                                              //SecurityToken2.HasValue
+                                              //    ? new JProperty("securityToken2",  SecurityToken2.ToString())
+                                              //    : null
+
+                                          ),
+                                          eventTrackingId,
+                                          CurrentUserId);
+
+                _LoginPasswords[user.Id] = new LoginPassword(user.Id, NewPassword);
+
+                //await RemovePasswordReset(_PasswordReset,
+                //                          Request.EventTrackingId);
+
+                var mailResult = await SMTPClient.Send(PasswordChangedEMailCreator(user,
+                                                                                   user.EMail,
+                                                                                   //"https://" + Request.Host.SimpleString,
+                                                                                   DefaultLanguage,
+                                                                                   eventTrackingId));
+
+            }
+
+            return ChangePasswordResult.Success(Users,
+                                                eventTrackingId);
+
+        }
+
+        /// <summary>
+        /// Change the password of the given enumeration of users.
+        /// </summary>
+        /// <param name="Users">An enumeration of users.</param>
+        /// <param name="NewPassword">The new password of the user.</param>
+        /// <param name="CurrentPassword">The optional current password of the user.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional organization identification initiating this command/request.</param>
+        public async Task<ChangePasswordResult> ChangePassword(IEnumerable<User>  Users,
+                                                               Password           NewPassword,
+                                                               Password?          CurrentPassword   = null,
+                                                               EventTracking_Id   EventTrackingId   = null,
+                                                               User_Id?           CurrentUserId     = null)
+        {
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            if (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout))
+            {
+                try
+                {
+
+                    return await _ChangePassword(Users,
+                                                 NewPassword,
+                                                 CurrentPassword,
+                                                 eventTrackingId,
+                                                 CurrentUserId);
+
+                }
+                catch (Exception e)
+                {
+
+                    DebugX.LogException(e);
+
+                    return ChangePasswordResult.Failed(Users,
+                                                       eventTrackingId,
+                                                       e);
+
+                }
+                finally
+                {
+                    try
+                    {
+                        UsersSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
+
+            }
+
+            return ChangePasswordResult.Failed(Users,
+                                               eventTrackingId,
+                                               "Internal locking failed!");
+
+        }
+
+        #endregion
+
+        #region ResetPassword      (User,  ...)
+
+        /// <summary>
+        /// Reset a user password.
+        /// </summary>
+        /// <param name="User">A user.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        protected internal async Task<ResetPasswordResult> _ResetPassword(User              User,
+                                                                          EventTracking_Id  EventTrackingId   = null)
+        {
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            var result = await _AddPasswordReset(
+                                   new PasswordReset(
+                                       User,
+                                       SecurityToken_Id.Random(40, _Random),
+                                       User.Use2AuthFactor == Use2AuthFactor.MobilePhoneSMS && User.MobilePhone.HasValue
+                                           ? SecurityToken_Id.Parse(_Random.RandomString(5) + "-" + _Random.RandomString(5))
+                                           : new SecurityToken_Id?(),
+                                       eventTrackingId),
+                                   eventTrackingId
+                               );
+
+            return new ResetPasswordResult(User,
+                                           result.EventTrackingId,
+                                           result.IsSuccess,
+                                           result.Argument,
+                                           result.ErrorDescription,
+                                           result.PasswordReset);
+
+        }
+
+        /// <summary>
+        /// Reset a user password.
+        /// </summary>
+        /// <param name="User">A user.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        public async Task<ResetPasswordResult> ResetPassword(User              User,
+                                                             EventTracking_Id  EventTrackingId   = null)
+        {
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            if (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout))
+            {
+                try
+                {
+
+                    return await _ResetPassword(User,
+                                                eventTrackingId);
+
+                }
+                catch (Exception e)
+                {
+
+                    DebugX.LogException(e);
+
+                    return ResetPasswordResult.Failed(User,
+                                                      eventTrackingId,
+                                                      e);
+
+                }
+                finally
+                {
+                    try
+                    {
+                        UsersSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
+
+            }
+
+            return ResetPasswordResult.Failed(User,
+                                              eventTrackingId,
+                                              "Internal locking failed!");
+
+        }
+
+        #endregion
+
+        #region ResetPassword      (Users, ...)
+
+        /// <summary>
+        /// Reset the password of a user having multiple logins.
+        /// </summary>
+        /// <param name="Users">An enumeration of users.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        protected internal async Task<ResetPasswordResult> _ResetPassword(IEnumerable<User>  Users,
+                                                                          EventTracking_Id   EventTrackingId   = null)
+        {
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            var result = await _AddPasswordReset(
+                                   new PasswordReset(
+                                       Users,
+                                       SecurityToken_Id.Random(40, _Random),
+                                       Users.Any(user => user.Use2AuthFactor == Use2AuthFactor.MobilePhoneSMS && user.MobilePhone.HasValue)
+                                           ? SecurityToken_Id.Parse(_Random.RandomString(5) + "-" + _Random.RandomString(5))
+                                           : new SecurityToken_Id?(),
+                                       eventTrackingId),
+                                   eventTrackingId
+                               );
+
+            return new ResetPasswordResult(Users,
+                                           result.EventTrackingId,
+                                           result.IsSuccess,
+                                           result.Argument,
+                                           result.ErrorDescription,
+                                           result.PasswordReset);
+
+        }
+
+        /// <summary>
+        /// Reset the password of a user having multiple logins.
+        /// </summary>
+        /// <param name="Users">An enumeration of users.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        public async Task<ResetPasswordResult> ResetPassword(IEnumerable<User>  Users,
+                                                             EventTracking_Id   EventTrackingId   = null)
+        {
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            if (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout))
+            {
+                try
+                {
+
+                    return await _ResetPassword(Users,
+                                                eventTrackingId);
+
+                }
+                catch (Exception e)
+                {
+
+                    DebugX.LogException(e);
+
+                    return ResetPasswordResult.Failed(Users,
+                                                      eventTrackingId,
+                                                      e);
+
+                }
+                finally
+                {
+                    try
+                    {
+                        UsersSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
+
+            }
+
+            return ResetPasswordResult.Failed(Users,
+                                              eventTrackingId,
+                                              "Internal locking failed!");
+
+        }
+
+        #endregion
+
+        #region AddPasswordReset   (PasswordReset, ...)
+
+        /// <summary>
+        /// Add a password reset.
+        /// </summary>
+        /// <param name="PasswordReset">A password reset.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        protected internal async Task<AddPasswordResetResult> _AddPasswordReset(PasswordReset     PasswordReset,
+                                                                                EventTracking_Id  EventTrackingId = null)
+        {
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            await WriteToDatabaseFile(UsersAPIPath + DefaultPasswordResetsFile,
+                                      addToPasswordFile,
+                                      PasswordReset.ToJSON(),
+                                      eventTrackingId);
+
+            this._PasswordResets.Add(PasswordReset.SecurityToken1,
+                                     PasswordReset);
+
+
+            foreach (var user in PasswordReset.Users)
+            {
+
+                await SMTPClient.Send(ResetPasswordEMailCreator(user,
+                                                                user.EMail,
+                                                                PasswordReset.SecurityToken1,
+                                                                user.Use2AuthFactor == Use2AuthFactor.MobilePhoneSMS && user.MobilePhone.HasValue,
+                                                                DefaultLanguage,
+                                                                eventTrackingId));
+
+                if (SMSClient != null &&
+                    PasswordReset.SecurityToken2.HasValue &&
+                    user.MobilePhone.HasValue)
+                {
+                    SMSClient.Send("Dear '" + user.Name + "' your 2nd security token for resetting your password is '" + PasswordReset.SecurityToken2 + "'!",
+                                   user.MobilePhone.Value.ToString());
+                }
+
+            }
+
+            return AddPasswordResetResult.Success(PasswordReset,
+                                                  eventTrackingId);
+
+        }
+
+        /// <summary>
+        /// Add a password reset.
+        /// </summary>
+        /// <param name="PasswordReset">A password reset.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        public async Task<AddPasswordResetResult> AddPasswordReset(PasswordReset     PasswordReset,
+                                                                   EventTracking_Id  EventTrackingId)
+        {
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            if (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout))
+            {
+                try
+                {
+
+                    return await _AddPasswordReset(PasswordReset,
+                                                   eventTrackingId);
+
+                }
+                catch (Exception e)
+                {
+
+                    DebugX.LogException(e);
+
+                    return AddPasswordResetResult.Failed(PasswordReset,
+                                                         eventTrackingId,
+                                                         e);
+
+                }
+                finally
+                {
+                    try
+                    {
+                        UsersSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
+
+            }
+
+            return AddPasswordResetResult.Failed(PasswordReset,
+                                                 eventTrackingId,
+                                                 "Internal locking failed!");
+
+        }
+
+        #endregion
+
+        #region ResetPassword      (SecurityTokenId1, NewPassword, SecurityTokenId2 = null, ...)
+
+        /// <summary>
+        /// Reset the user password(s) specified by the given security token(s).
+        /// </summary>
+        /// <param name="SecurityTokenId1">The (first) security token for the password reset.</param>
+        /// <param name="NewPassword">The new password of the user.</param>
+        /// <param name="SecurityTokenId2">An optional second security token for the password reset.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional organization identification initiating this command/request.</param>
+        protected internal async Task<ResetPasswordResult> _ResetPassword(SecurityToken_Id   SecurityTokenId1,
+                                                                          Password           NewPassword,
+                                                                          SecurityToken_Id?  SecurityTokenId2   = null,
+                                                                          EventTracking_Id   EventTrackingId    = null,
+                                                                          User_Id?           CurrentUserId      = null)
+        {
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            if (SecurityTokenId1.IsNullOrEmpty)
+                return ResetPasswordResult.ArgumentError(Users:            new User[0],
+                                                         EventTrackingId:  eventTrackingId,
+                                                         Argument:         nameof(SecurityTokenId1),
+                                                         Description:      "The given first security token must not be null or empty!");
+
+            if (!_PasswordResets.TryGetValue(SecurityTokenId1, out PasswordReset passwordReset))
+                return ResetPasswordResult.ArgumentError(Users:            new User[0],
+                                                         EventTrackingId:  eventTrackingId,
+                                                         Argument:         nameof(SecurityTokenId1),
+                                                         Description:      "Invalid security token(s)!");
+
+            if (NewPassword.IsNullOrEmpty)
+                return ResetPasswordResult.ArgumentError(Users:            new User[0],
+                                                         EventTrackingId:  eventTrackingId,
+                                                         Argument:         nameof(NewPassword),
+                                                         Description:      "The given new password must not be null or empty!");
+
+            if (PasswordQualityCheck(NewPassword.UnsecureString) < 1.0)
+                return ResetPasswordResult.ArgumentError(Users:            new User[0],
+                                                         EventTrackingId:  eventTrackingId,
+                                                         Argument:         nameof(NewPassword),
+                                                         Description:      "The choosen password does not match the password quality criteria!");
+
+            if (SecurityTokenId2.HasValue && SecurityTokenId2.Value.IsNullOrEmpty)
+                return ResetPasswordResult.ArgumentError(Users:            new User[0],
+                                                         EventTrackingId:  eventTrackingId,
+                                                         Argument:         nameof(SecurityTokenId1),
+                                                         Description:      "The given second security token must not be null or empty!");
+
+            if ((SecurityTokenId2.HasValue != passwordReset.SecurityToken2.HasValue) ||
+                (SecurityTokenId2.HasValue && passwordReset.SecurityToken2.HasValue && SecurityTokenId2.Value != passwordReset.SecurityToken2.Value))
+                return ResetPasswordResult.ArgumentError(Users:            new User[0],
+                                                         EventTrackingId:  eventTrackingId,
+                                                         Argument:         nameof(SecurityTokenId1),
+                                                         Description:      "Invalid security token(s)!");
+
+            if (!passwordReset.Users.All(user => _LoginPasswords.ContainsKey(user.Id)))
+                return ResetPasswordResult.ArgumentError(Users:            new User[0],
+                                                         EventTrackingId:  eventTrackingId,
+                                                         Argument:         "Users",
+                                                         Description:      "Invalid password reset!");
+
+
+            foreach (var user in passwordReset.Users)
+            {
+
+                await WriteToDatabaseFile(UsersAPIPath + DefaultPasswordFile,
+                                          resetPassword_MessageType,
+                                          JSONObject.Create(
+
+                                              new JProperty("login",                 user.Id.ToString()),
+
+                                              new JProperty("newPassword", new JObject(
+                                                  new JProperty("salt",              NewPassword.Salt.UnsecureString()),
+                                                  new JProperty("passwordHash",      NewPassword.UnsecureString)
+                                              ))
+
+                                              //new JProperty("securityToken1",        SecurityToken1.ToString()),
+
+                                              //SecurityToken2.HasValue
+                                              //    ? new JProperty("securityToken2",  SecurityToken2.ToString())
+                                              //    : null
+
+                                          ),
+                                          eventTrackingId,
+                                          CurrentUserId);
+
+                _LoginPasswords[user.Id] = new LoginPassword(user.Id, NewPassword);
+
+                var mailResult = await SMTPClient.Send(PasswordChangedEMailCreator(user,
+                                                                                   user.EMail,
+                                                                                   //"https://" + Request.Host.SimpleString,
+                                                                                   DefaultLanguage,
+                                                                                   eventTrackingId));
+
+            }
+
+            await _RemovePasswordReset(passwordReset,
+                                       eventTrackingId);
+
+            return ResetPasswordResult.Success(Users,
+                                                eventTrackingId);
+
+        }
+
+        /// <summary>
+        /// Reset the user password(s) specified by the given security token(s).
+        /// </summary>
+        /// <param name="SecurityTokenId1">The (first) security token for the password reset.</param>
+        /// <param name="NewPassword">The new password of the user.</param>
+        /// <param name="SecurityTokenId2">An optional second security token for the password reset.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional organization identification initiating this command/request.</param>
+        public async Task<ResetPasswordResult> ResetPassword(SecurityToken_Id   SecurityTokenId1,
+                                                             Password           NewPassword,
+                                                             SecurityToken_Id?  SecurityTokenId2   = null,
+                                                             EventTracking_Id   EventTrackingId    = null,
+                                                             User_Id?           CurrentUserId      = null)
+        {
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            if (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout))
+            {
+                try
+                {
+
+                    return await _ResetPassword(SecurityTokenId1,
+                                                NewPassword,
+                                                SecurityTokenId2,
+                                                eventTrackingId,
+                                                CurrentUserId);
+
+                }
+                catch (Exception e)
+                {
+
+                    DebugX.LogException(e);
+
+                    return ResetPasswordResult.Failed(Users:            new User[0],
+                                                      EventTrackingId:  eventTrackingId,
+                                                      Exception:        e);
+
+                }
+                finally
+                {
+                    try
+                    {
+                        UsersSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
+
+            }
+
+            return ResetPasswordResult.Failed(Users:            new User[0],
+                                              EventTrackingId:  eventTrackingId,
+                                              Description:      "Internal locking failed!");
+
+        }
+
+        #endregion
+
+        #region RemovePasswordReset(PasswordReset, ...)
+
+        /// <summary>
+        /// Remove a password reset.
+        /// </summary>
+        /// <param name="PasswordReset">A password reset.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional organization identification initiating this command/request.</param>
+        public async Task<Boolean> _RemovePasswordReset(PasswordReset     PasswordReset,
+                                                        EventTracking_Id  EventTrackingId   = null,
+                                                        User_Id?          CurrentUserId     = null)
+        {
+
+            await WriteToDatabaseFile(UsersAPIPath + DefaultPasswordResetsFile,
+                                      removeFromPasswordFile,
+                                      PasswordReset.ToJSON(),
+                                      EventTrackingId ?? EventTracking_Id.New,
+                                      CurrentUserId);
+
+            this._PasswordResets.Remove(PasswordReset.SecurityToken1);
+
+            return true;
+
+        }
+
+
+        /// <summary>
+        /// Remove a password reset.
+        /// </summary>
+        /// <param name="PasswordReset">A password reset.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional organization identification initiating this command/request.</param>
+        public async Task<Boolean> RemovePasswordReset(PasswordReset     PasswordReset,
+                                                       EventTracking_Id  EventTrackingId   = null,
+                                                       User_Id?          CurrentUserId     = null)
+        {
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            if (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout))
+            {
+                try
+                {
+
+                    return await _RemovePasswordReset(PasswordReset,
+                                                      eventTrackingId,
+                                                      CurrentUserId);
+
+                }
+                catch (Exception e)
+                {
+
+                    DebugX.LogException(e);
+
+                    return false;
+
+                }
+                finally
+                {
+                    try
+                    {
+                        UsersSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
+
+            }
+
+            return false;
+
+        }
+
+        #endregion
+
+        #endregion
+
+        #region API Keys
+
+        #region Data
+
+        /// <summary>
+        /// An enumeration of all API keys.
+        /// </summary>
+        protected internal readonly Dictionary<APIKey_Id, APIKey> _APIKeys;
+
+        /// <summary>
+        /// An enumeration of all API keys.
+        /// </summary>
+        public IEnumerable<APIKey> APIKeys
+        {
+            get
+            {
+
+                if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
+                {
+                    try
+                    {
+
+                        return _APIKeys.Values.ToArray();
+
+                    }
+                    finally
+                    {
+                        try
+                        {
+                            APIKeysSemaphore.Release();
+                        }
+                        catch
+                        { }
+                    }
+                }
+
+                return new APIKey[0];
+
+            }
+        }
+
+        #endregion
+
+
+        #region (protected internal) WriteToDatabaseFileAndNotify(APIKey, MessageType,  OldAPIKey = null, ...)
+
+        /// <summary>
+        /// Write the given API key to the database and send out notifications.
+        /// </summary>
+        /// <param name="APIKey">The API key.</param>
+        /// <param name="MessageType">The user notification.</param>
+        /// <param name="OldAPIKey">The old/updated API key.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        protected internal async Task WriteToDatabaseFileAndNotify(APIKey                   APIKey,
+                                                                   NotificationMessageType  MessageType,
+                                                                   APIKey                   OldAPIKey     = null,
+                                                                   EventTracking_Id         EventTrackingId   = null,
+                                                                   User_Id?                 CurrentUserId     = null)
+        {
+
+            if (APIKey is null)
+                throw new ArgumentNullException(nameof(APIKey),   "The given API key must not be null!");
+
+            if (MessageType.IsNullOrEmpty)
+                throw new ArgumentNullException(nameof(MessageType),  "The given message type must not be null or empty!");
+
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            await WriteToDatabaseFile(MessageType,
+                                      APIKey.ToJSON(true),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            await SendNotifications(APIKey,
+                                    MessageType,
+                                    OldAPIKey,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+        }
+
+        #endregion
+
+        #region (protected internal) SendNotifications           (APIKey, MessageTypes, OldAPIKey = null, ...)
+
+        /// <summary>
+        /// Send API key notifications.
+        /// </summary>
+        /// <param name="APIKey">The API key.</param>
+        /// <param name="MessageType">The API key notification.</param>
+        /// <param name="OldAPIKey">The old/updated API key.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        protected internal async Task SendNotifications(APIKey                   APIKey,
+                                                        NotificationMessageType  MessageType,
+                                                        APIKey                   OldAPIKey     = null,
+                                                        EventTracking_Id         EventTrackingId   = null,
+                                                        User_Id?                 CurrentUserId     = null)
+        {
+
+            if (APIKey is null)
+                throw new ArgumentNullException(nameof(APIKey),   "The given API key must not be null!");
+
+            if (MessageType.IsNullOrEmpty)
+                throw new ArgumentNullException(nameof(MessageType),  "The given message type must not be null or empty!");
+
+
+            await SendNotifications(APIKey,
+                                    new NotificationMessageType[] { MessageType },
+                                    OldAPIKey,
+                                    EventTrackingId,
+                                    CurrentUserId);
+
+        }
+
+
+        /// <summary>
+        /// Send API key notifications.
+        /// </summary>
+        /// <param name="APIKey">The API key.</param>
+        /// <param name="MessageTypes">The API key notifications.</param>
+        /// <param name="OldAPIKey">The old/updated API key.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        protected internal async Task SendNotifications(APIKey                            APIKey,
+                                                        IEnumerable<NotificationMessageType>  MessageTypes,
+                                                        APIKey                            OldAPIKey     = null,
+                                                        EventTracking_Id                      EventTrackingId   = null,
+                                                        User_Id?                              CurrentUserId     = null)
+        {
+
+            if (APIKey is null)
+                throw new ArgumentNullException(nameof(APIKey),    "The given API key must not be null!");
+
+            var messageTypesHash = new HashSet<NotificationMessageType>(MessageTypes.Where(messageType => !messageType.IsNullOrEmpty));
+
+            if (messageTypesHash.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(MessageTypes),  "The given enumeration of message types must not be null or empty!");
+
+            //if (messageTypesHash.Contains(addUserIfNotExists_MessageType))
+            //    messageTypesHash.Add(addUser_MessageType);
+
+            //if (messageTypesHash.Contains(addOrUpdateUser_MessageType))
+            //    messageTypesHash.Add(OldUser == null
+            //                           ? addUser_MessageType
+            //                           : updateUser_MessageType);
+
+            var messageTypes = messageTypesHash.ToArray();
+
+
+
+            if (!DisableNotifications)
+            {
+
+
+            }
+
+        }
+
+        #endregion
+
+
+        #region AddAPIKey           (APIKey, OnAdded = null,                   CurrentUserId = null)
+
+        /// <summary>
+        /// A delegate called whenever a API key was added.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp when the API key was added.</param>
+        /// <param name="APIKey">The added API key.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public delegate Task OnAPIKeyAddedDelegate(DateTime          Timestamp,
+                                                   APIKey            APIKey,
+                                                   EventTracking_Id  EventTrackingId   = null,
+                                                   User_Id?          CurrentUserId     = null);
+
+        /// <summary>
+        /// An event fired whenever a API key was added.
+        /// </summary>
+        public event OnAPIKeyAddedDelegate OnAPIKeyAdded;
+
+
+        #region (protected internal) _AddAPIKey(APIKey, OnAdded = null, ...)
+
+        /// <summary>
+        /// Add the given API key to the API.
+        /// </summary>
+        /// <param name="APIKey">A new API key to be added to this API.</param>
+        /// <param name="OnAdded">A delegate run whenever the API key has been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        protected internal async Task<AddAPIKeyResult> _AddAPIKey(APIKey                            APIKey,
+                                                                  Action<APIKey, EventTracking_Id>  OnAdded           = null,
+                                                                  EventTracking_Id                  EventTrackingId   = null,
+                                                                  User_Id?                          CurrentUserId     = null)
+        {
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            if (APIKey is null)
+                return AddAPIKeyResult.ArgumentError(APIKey,
+                                                     eventTrackingId,
+                                                     nameof(APIKey),
+                                                     "The given API key must not be null!");
+
+            if (APIKey.API != null && APIKey.API != this)
+                return AddAPIKeyResult.ArgumentError(APIKey,
+                                                     eventTrackingId,
+                                                     nameof(APIKey),
+                                                     "The given API key is already attached to another API!");
+
+            if (_APIKeys.ContainsKey(APIKey.Id))
+                return AddAPIKeyResult.ArgumentError(APIKey,
+                                                     eventTrackingId,
+                                                     nameof(APIKey),
+                                                     "APIKey identification '" + APIKey.Id + "' already exists!");
+
+            if (APIKey.Id.Length < MinAPIKeyLength)
+                return AddAPIKeyResult.ArgumentError(APIKey,
+                                                     eventTrackingId,
+                                                     nameof(APIKey),
+                                                     "APIKey identification '" + APIKey.Id + "' is too short!");
+
+            APIKey.API = this;
+
+
+            await WriteToDatabaseFile(addAPIKey_MessageType,
+                                      APIKey.ToJSON(false),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            _APIKeys.Add(APIKey.Id, APIKey);
+
+            OnAdded?.Invoke(APIKey,
+                            eventTrackingId);
+
+            var OnAPIKeyAddedLocal = OnAPIKeyAdded;
+            if (OnAPIKeyAddedLocal != null)
+                await OnAPIKeyAddedLocal?.Invoke(DateTime.UtcNow,
+                                                 APIKey,
+                                                 eventTrackingId,
+                                                 CurrentUserId);
+
+            await SendNotifications(APIKey,
+                                    addUser_MessageType,
+                                    null,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+            return AddAPIKeyResult.Success(APIKey,
+                                           eventTrackingId);
+
+        }
+
+        #endregion
+
+        #region AddAPIKey                      (APIKey, OnAdded = null, ...)
+
+        /// <summary>
+        /// Add the given API key.
+        /// </summary>
+        /// <param name="APIKey">A new API key.</param>
+        /// <param name="OnAdded">A delegate run whenever the API key has been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<AddAPIKeyResult> AddAPIKey(APIKey                            APIKey,
+                                                     Action<APIKey, EventTracking_Id>  OnAdded           = null,
+                                                     EventTracking_Id                  EventTrackingId   = null,
+                                                     User_Id?                          CurrentUserId     = null)
+        {
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            if (await APIKeysSemaphore.WaitAsync(SemaphoreSlimTimeout))
+            {
+                try
+                {
+
+                    return await _AddAPIKey(APIKey,
+                                            OnAdded,
+                                            eventTrackingId,
+                                            CurrentUserId);
+
+                }
+                catch (Exception e)
+                {
+
+                    DebugX.LogException(e);
+
+                    return AddAPIKeyResult.Failed(APIKey,
+                                                  eventTrackingId,
+                                                  e);
+
+                }
+                finally
+                {
+                    try
+                    {
+                        APIKeysSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
+            }
+
+            return AddAPIKeyResult.Failed(APIKey,
+                                          eventTrackingId,
+                                          "Internal locking failed!");
+
+        }
+
+        #endregion
+
+        #endregion
+
+        #region AddAPIKeyIfNotExists(APIKey, OnAdded = null,                   CurrentUserId = null)
+
+        #region (protected internal) _AddAPIKeyIfNotExists(APIKey, OnAdded = null, ...)
+
+        /// <summary>
+        /// When it has not been created before, add the given API key to the API.
+        /// </summary>
+        /// <param name="APIKey">A new API key to be added to this API.</param>
+        /// <param name="OnAdded">A delegate run whenever the API key has been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        protected internal async Task<AddAPIKeyIfNotExistsResult> _AddAPIKeyIfNotExists(APIKey                            APIKey,
+                                                                                        Action<APIKey, EventTracking_Id>  OnAdded           = null,
+                                                                                        EventTracking_Id                  EventTrackingId   = null,
+                                                                                        User_Id?                          CurrentUserId     = null)
+        {
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            if (APIKey is null)
+                return AddAPIKeyIfNotExistsResult.ArgumentError(APIKey,
+                                                                eventTrackingId,
+                                                                nameof(APIKey),
+                                                                "The given API key must not be null!");
+
+            if (APIKey.Id != null && APIKey.API != this)
+                return AddAPIKeyIfNotExistsResult.ArgumentError(APIKey,
+                                                                eventTrackingId,
+                                                                nameof(APIKey),
+                                                                "The given API key is already attached to another API!");
+
+            if (_APIKeys.ContainsKey(APIKey.Id))
+                return AddAPIKeyIfNotExistsResult.Success(_APIKeys[APIKey.Id],
+                                                          AddedOrIgnored.Ignored,
+                                                          eventTrackingId);
+
+            if (APIKey.Id.Length < MinAPIKeyLength)
+                return AddAPIKeyIfNotExistsResult.ArgumentError(APIKey,
+                                                                eventTrackingId,
+                                                                nameof(APIKey),
+                                                                "APIKey identification '" + APIKey.Id + "' is too short!");
+
+            APIKey.API = this;
+
+
+            await WriteToDatabaseFile(addAPIKeyIfNotExists_MessageType,
+                                      APIKey.ToJSON(false),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            _APIKeys.Add(APIKey.Id, APIKey);
+
+            OnAdded?.Invoke(APIKey,
+                            eventTrackingId);
+
+            var OnAPIKeyAddedLocal = OnAPIKeyAdded;
+            if (OnAPIKeyAddedLocal != null)
+                await OnAPIKeyAddedLocal?.Invoke(DateTime.UtcNow,
+                                                 APIKey,
+                                                 eventTrackingId,
+                                                 CurrentUserId);
+
+            await SendNotifications(APIKey,
+                                    addAPIKeyIfNotExists_MessageType,
+                                    null,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+            return AddAPIKeyIfNotExistsResult.Success(APIKey,
+                                                      AddedOrIgnored.Added,
+                                                      eventTrackingId);
+
+        }
+
+        #endregion
+
+        #region AddAPIKeyIfNotExists                      (APIKey, OnAdded = null, ...)
+
+        /// <summary>
+        /// Add the given API key.
+        /// </summary>
+        /// <param name="APIKey">A new API key.</param>
+        /// <param name="OnAdded">A delegate run whenever the API key has been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<AddAPIKeyIfNotExistsResult> AddAPIKeyIfNotExists(APIKey                            APIKey,
+                                                                           Action<APIKey, EventTracking_Id>  OnAdded           = null,
+                                                                           EventTracking_Id                  EventTrackingId   = null,
+                                                                           User_Id?                          CurrentUserId     = null)
+        {
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            if (await APIKeysSemaphore.WaitAsync(SemaphoreSlimTimeout))
+            {
+                try
+                {
+
+                    return await _AddAPIKeyIfNotExists(APIKey,
+                                                       OnAdded,
+                                                       eventTrackingId,
+                                                       CurrentUserId);
+
+                }
+                catch (Exception e)
+                {
+
+                    DebugX.LogException(e);
+
+                    return AddAPIKeyIfNotExistsResult.Failed(APIKey,
+                                                             eventTrackingId,
+                                                             e);
+
+                }
+                finally
+                {
+                    try
+                    {
+                        APIKeysSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
+            }
+
+            return AddAPIKeyIfNotExistsResult.Failed(APIKey,
+                                                     eventTrackingId,
+                                                     "Internal locking failed!");
+
+        }
+
+        #endregion
+
+        #endregion
+
+        #region AddOrUpdateAPIKey   (APIKey, OnAdded = null, OnUpdated = null, ...)
+
+        #region (protected internal) _AddOrUpdateAPIKey(APIKey, OnAdded = null, OnUpdated = null, ...)
+
+        /// <summary>
+        /// Add or update the given API key to/within the API.
+        /// </summary>
+        /// <param name="APIKey">A API key.</param>
+        /// <param name="OnAdded">A delegate run whenever the API key has been added successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the API key has been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional API key identification initiating this command/request.</param>
+        protected internal async Task<AddOrUpdateAPIKeyResult> _AddOrUpdateAPIKey(APIKey                            APIKey,
+                                                                                  Action<APIKey, EventTracking_Id>  OnAdded           = null,
+                                                                                  Action<APIKey, EventTracking_Id>  OnUpdated         = null,
+                                                                                  EventTracking_Id                  EventTrackingId   = null,
+                                                                                  User_Id?                          CurrentUserId     = null)
+        {
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            if (APIKey is null)
+                return AddOrUpdateAPIKeyResult.ArgumentError(APIKey,
+                                                             eventTrackingId,
+                                                             nameof(APIKey),
+                                                             "The given API key must not be null!");
+
+            if (APIKey.API != null && APIKey.API != this)
+                return AddOrUpdateAPIKeyResult.ArgumentError(APIKey,
+                                                             eventTrackingId,
+                                                             nameof(APIKey.API),
+                                                             "The given API key is already attached to another API!");
+
+            if (APIKey.Id.Length < MinAPIKeyLength)
+                return AddOrUpdateAPIKeyResult.ArgumentError(APIKey,
+                                                             eventTrackingId,
+                                                             nameof(APIKey),
+                                                             "The given API key identification '" + APIKey.Id + "' is too short!");
+
+            APIKey.API = this;
+
+
+            await WriteToDatabaseFile(addOrUpdateAPIKey_MessageType,
+                                      APIKey.ToJSON(false),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            if (_APIKeys.TryGetValue(APIKey.Id, out APIKey OldAPIKey))
+            {
+                _APIKeys.Remove(OldAPIKey.Id);
+                //APIKey.CopyAllLinkedDataFrom(OldAPIKey);
+            }
+
+            _APIKeys.Add(APIKey.Id, APIKey);
+
+            if (OldAPIKey != null)
+            {
+
+                OnUpdated?.Invoke(APIKey,
+                                  eventTrackingId);
+
+                var OnAPIKeyUpdatedLocal = OnAPIKeyUpdated;
+                if (OnAPIKeyUpdatedLocal != null)
+                    await OnAPIKeyUpdatedLocal?.Invoke(DateTime.UtcNow,
+                                                       APIKey,
+                                                       OldAPIKey,
+                                                       eventTrackingId,
+                                                       CurrentUserId);
+
+                await SendNotifications(APIKey,
+                                        updateAPIKey_MessageType,
+                                        OldAPIKey,
+                                        eventTrackingId,
+                                        CurrentUserId);
+
+            }
+            else
+            {
+
+                OnAdded?.Invoke(APIKey,
+                                eventTrackingId);
+
+                var OnAPIKeyAddedLocal = OnAPIKeyAdded;
+                if (OnAPIKeyAddedLocal != null)
+                    await OnAPIKeyAddedLocal?.Invoke(DateTime.UtcNow,
+                                                     APIKey,
+                                                     eventTrackingId,
+                                                     CurrentUserId);
+
+                await SendNotifications(APIKey,
+                                        addAPIKey_MessageType,
+                                        null,
+                                        eventTrackingId,
+                                        CurrentUserId);
+
+            }
+
+            return AddOrUpdateAPIKeyResult.Success(APIKey,
+                                                   AddedOrUpdated.Update,
+                                                   eventTrackingId);
+
+        }
+
+        #endregion
+
+        #region AddOrUpdateAPIKey                      (APIKey, OnAdded = null, OnUpdated = null, ...)
+
+        /// <summary>
+        /// Add or update the given API key to/within the API.
+        /// </summary>
+        /// <param name="APIKey">A API key.</param>
+        /// <param name="OnAdded">A delegate run whenever the API key has been added successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the API key has been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional API key identification initiating this command/request.</param>
+        public async Task<AddOrUpdateAPIKeyResult> AddOrUpdateAPIKey(APIKey                            APIKey,
+                                                                     Action<APIKey, EventTracking_Id>  OnAdded           = null,
+                                                                     Action<APIKey, EventTracking_Id>  OnUpdated         = null,
+                                                                     EventTracking_Id                  EventTrackingId   = null,
+                                                                     User_Id?                          CurrentUserId     = null)
+        {
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            if (await APIKeysSemaphore.WaitAsync(SemaphoreSlimTimeout))
+            {
+                try
+                {
+
+                    return await _AddOrUpdateAPIKey(APIKey,
+                                                    OnAdded,
+                                                    OnUpdated,
+                                                    eventTrackingId,
+                                                    CurrentUserId);
+
+                }
+                catch (Exception e)
+                {
+
+                    DebugX.LogException(e);
+
+                    return AddOrUpdateAPIKeyResult.Failed(APIKey,
+                                                          eventTrackingId,
+                                                          e);
+
+                }
+                finally
+                {
+                    try
+                    {
+                        APIKeysSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
+            }
+
+            return AddOrUpdateAPIKeyResult.Failed(APIKey,
+                                                  eventTrackingId,
+                                                  "Internal locking failed!");
+
+        }
+
+        #endregion
+
+        #endregion
+
+        #region UpdateAPIKey        (APIKey,                 OnUpdated = null, ...)
+
+        /// <summary>
+        /// A delegate called whenever a API key was updated.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp when the API key was updated.</param>
+        /// <param name="APIKey">The updated API key.</param>
+        /// <param name="OldAPIKey">The old API key.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking API key identification</param>
+        public delegate Task OnAPIKeyUpdatedDelegate(DateTime          Timestamp,
+                                                     APIKey            APIKey,
+                                                     APIKey            OldAPIKey,
+                                                     EventTracking_Id  EventTrackingId   = null,
+                                                     User_Id?          CurrentUserId     = null);
+
+        /// <summary>
+        /// An event fired whenever a API key was updated.
+        /// </summary>
+        public event OnAPIKeyUpdatedDelegate OnAPIKeyUpdated;
+
+
+        #region (protected internal) _UpdateAPIKey(APIKey,                 OnUpdated = null, ...)
+
+        /// <summary>
+        /// Update the given API key to/within the API.
+        /// </summary>
+        /// <param name="APIKey">A API key.</param>
+        /// <param name="OnUpdated">A delegate run whenever the API key has been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional API key identification initiating this command/request.</param>
+        protected internal async Task<UpdateAPIKeyResult> _UpdateAPIKey(APIKey                            APIKey,
+                                                                        Action<APIKey, EventTracking_Id>  OnUpdated         = null,
+                                                                        EventTracking_Id                  EventTrackingId   = null,
+                                                                        User_Id?                          CurrentUserId     = null)
+        {
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            if (APIKey is null)
+                return UpdateAPIKeyResult.ArgumentError(APIKey,
+                                                        eventTrackingId,
+                                                        nameof(APIKey),
+                                                        "The given API key must not be null!");
+
+            if (!_TryGetAPIKey(APIKey.Id, out APIKey OldAPIKey))
+                return UpdateAPIKeyResult.ArgumentError(APIKey,
+                                                        eventTrackingId,
+                                                        nameof(APIKey),
+                                                        "The given API key '" + APIKey.Id + "' does not exists in this API!");
+
+            if (APIKey.API != null && APIKey.API != this)
+                return UpdateAPIKeyResult.ArgumentError(APIKey,
+                                                        eventTrackingId,
+                                                        nameof(APIKey.API),
+                                                        "The given API key is not attached to this API!");
+
+            APIKey.API = this;
+
+
+            await WriteToDatabaseFile(updateAPIKey_MessageType,
+                                      APIKey.ToJSON(false),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            _APIKeys.Remove(OldAPIKey.Id);
+            //APIKey.CopyAllLinkedDataFrom(OldAPIKey);
+            _APIKeys.Add(APIKey.Id, APIKey);
+
+            OnUpdated?.Invoke(APIKey,
+                              eventTrackingId);
+
+            var OnAPIKeyUpdatedLocal = OnAPIKeyUpdated;
+            if (OnAPIKeyUpdatedLocal != null)
+                await OnAPIKeyUpdatedLocal?.Invoke(DateTime.UtcNow,
+                                                 APIKey,
+                                                 OldAPIKey,
+                                                 eventTrackingId,
+                                                 CurrentUserId);
+
+            await SendNotifications(APIKey,
+                                    updateAPIKey_MessageType,
+                                    OldAPIKey,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+            return UpdateAPIKeyResult.Success(APIKey,
+                                              eventTrackingId);
+
+        }
+
+        #endregion
+
+        #region UpdateAPIKey                      (APIKey,                 OnUpdated = null, ...)
+
+        /// <summary>
+        /// Update the given API key to/within the API.
+        /// </summary>
+        /// <param name="APIKey">A API key.</param>
+        /// <param name="OnUpdated">A delegate run whenever the API key has been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional API key identification initiating this command/request.</param>
+        public async Task<UpdateAPIKeyResult> UpdateAPIKey(APIKey                            APIKey,
+                                                           Action<APIKey, EventTracking_Id>  OnUpdated         = null,
+                                                           EventTracking_Id                  EventTrackingId   = null,
+                                                           User_Id?                          CurrentUserId     = null)
+        {
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            if (await APIKeysSemaphore.WaitAsync(SemaphoreSlimTimeout))
+            {
+                try
+                {
+
+                    return await _UpdateAPIKey(APIKey,
+                                               OnUpdated,
+                                               EventTrackingId,
+                                               CurrentUserId);
+
+                }
+                catch (Exception e)
+                {
+
+                    DebugX.LogException(e);
+
+                    return UpdateAPIKeyResult.Failed(APIKey,
+                                                     eventTrackingId,
+                                                     e);
+
+                }
+                finally
+                {
+                    try
+                    {
+                        APIKeysSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
+            }
+
+            return UpdateAPIKeyResult.Failed(APIKey,
+                                             eventTrackingId,
+                                             "Internal locking failed!");
+
+        }
+
+        #endregion
+
+
+        #region (protected internal) _UpdateAPIKey(APIKey, UpdateDelegate, OnUpdated = null, ...)
+
+        /// <summary>
+        /// Update the given API key.
+        /// </summary>
+        /// <param name="APIKey">A API key.</param>
+        /// <param name="UpdateDelegate">A delegate to update the given API key.</param>
+        /// <param name="OnUpdated">A delegate run whenever the API key has been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional API key identification initiating this command/request.</param>
+        protected internal async Task<UpdateAPIKeyResult> _UpdateAPIKey(APIKey                            APIKey,
+                                                                        Action<APIKey.Builder>            UpdateDelegate,
+                                                                        Action<APIKey, EventTracking_Id>  OnUpdated         = null,
+                                                                        EventTracking_Id                  EventTrackingId   = null,
+                                                                        User_Id?                          CurrentUserId     = null)
+        {
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            if (APIKey is null)
+                return UpdateAPIKeyResult.ArgumentError(APIKey,
+                                                        eventTrackingId,
+                                                        nameof(APIKey),
+                                                        "The given API key must not be null!");
+
+            if (!_APIKeyExists(APIKey.Id))
+                return UpdateAPIKeyResult.ArgumentError(APIKey,
+                                                        eventTrackingId,
+                                                        nameof(APIKey),
+                                                        "The given API key '" + APIKey.Id + "' does not exists in this API!");
+
+            if (APIKey.API != this)
+                return UpdateAPIKeyResult.ArgumentError(APIKey,
+                                                        eventTrackingId,
+                                                        nameof(APIKey.API),
+                                                        "The given API key is not attached to this API!");
+
+            if (UpdateDelegate is null)
+                return UpdateAPIKeyResult.ArgumentError(APIKey,
+                                                        eventTrackingId,
+                                                        nameof(UpdateDelegate),
+                                                        "The given update delegate must not be null!");
+
+
+            var builder = APIKey.ToBuilder();
+            UpdateDelegate(builder);
+            var updatedAPIKey = builder.ToImmutable;
+
+            await WriteToDatabaseFile(updateAPIKey_MessageType,
+                                      updatedAPIKey.ToJSON(false),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            _APIKeys.Remove(APIKey.Id);
+            //updatedAPIKey.CopyAllLinkedDataFrom(APIKey);
+            _APIKeys.Add(updatedAPIKey.Id, updatedAPIKey);
+
+            OnUpdated?.Invoke(updatedAPIKey,
+                              eventTrackingId);
+
+            var OnAPIKeyUpdatedLocal = OnAPIKeyUpdated;
+            if (OnAPIKeyUpdatedLocal != null)
+                await OnAPIKeyUpdatedLocal?.Invoke(DateTime.UtcNow,
+                                                   updatedAPIKey,
+                                                   APIKey,
+                                                   eventTrackingId,
+                                                   CurrentUserId);
+
+            await SendNotifications(updatedAPIKey,
+                                    updateAPIKey_MessageType,
+                                    APIKey,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+            return UpdateAPIKeyResult.Success(APIKey,
+                                              eventTrackingId);
+
+        }
+
+        #endregion
+
+        #region UpdateAPIKey                      (APIKey, UpdateDelegate, OnUpdated = null, ...)
+
+        /// <summary>
+        /// Update the given API key.
+        /// </summary>
+        /// <param name="APIKey">A API key.</param>
+        /// <param name="UpdateDelegate">A delegate to update the given API key.</param>
+        /// <param name="OnUpdated">A delegate run whenever the API key has been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional API key identification initiating this command/request.</param>
+        public async Task<UpdateAPIKeyResult> UpdateAPIKey(APIKey                            APIKey,
+                                                           Action<APIKey.Builder>            UpdateDelegate,
+                                                           Action<APIKey, EventTracking_Id>  OnUpdated         = null,
+                                                           EventTracking_Id                  EventTrackingId   = null,
+                                                           User_Id?                          CurrentUserId     = null)
+        {
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            if (await APIKeysSemaphore.WaitAsync(SemaphoreSlimTimeout))
+            {
+                try
+                {
+
+                    return await _UpdateAPIKey(APIKey,
+                                               UpdateDelegate,
+                                               OnUpdated,
+                                               eventTrackingId,
+                                               CurrentUserId);
+
+                }
+                catch (Exception e)
+                {
+
+                    DebugX.LogException(e);
+
+                    return UpdateAPIKeyResult.Failed(APIKey,
+                                                     eventTrackingId,
+                                                     e);
+
+                }
+                finally
+                {
+                    try
+                    {
+                        APIKeysSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
+            }
+
+            return UpdateAPIKeyResult.Failed(APIKey,
+                                             eventTrackingId,
+                                             "Internal locking failed!");
+
+        }
+
+        #endregion
+
+        #endregion
+
+
+        #region APIKeyExists       (APIKeyId)
+
+        /// <summary>
+        /// Determines whether the given API key identification exists within this API.
+        /// </summary>
+        /// <param name="APIKey">The unique identification of an API key.</param>
+        protected internal Boolean _APIKeyExists(APIKey_Id APIKey)
+
+            => APIKey.IsNotNullOrEmpty && _APIKeys.ContainsKey(APIKey);
+
+        /// <summary>
+        /// Determines whether the given API key identification exists within this API.
+        /// </summary>
+        /// <param name="APIKey">The unique identification of an API key.</param>
+        protected internal Boolean _APIKeyExists(APIKey_Id? APIKey)
+
+            => APIKey.IsNotNullOrEmpty() && _APIKeys.ContainsKey(APIKey.Value);
+
+
+        /// <summary>
+        /// Determines whether the given API key identification exists within this API.
+        /// </summary>
+        /// <param name="APIKey">The unique identification of an API key.</param>
+        public Boolean APIKeyExists(APIKey_Id APIKey)
+        {
+
+            if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
+            {
+                try
+                {
+
+                    return _APIKeyExists(APIKey);
+
+                }
+                catch
+                { }
+                finally
+                {
+                    try
+                    {
+                        APIKeysSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
+            }
+
+            return false;
+
+        }
+
+        /// <summary>
+        /// Determines whether the given API key identification exists within this API.
+        /// </summary>
+        /// <param name="APIKey">The unique identification of an API key.</param>
+        public Boolean APIKeyExists(APIKey_Id? APIKey)
+        {
+
+            if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
+            {
+                try
+                {
+
+                    return _APIKeyExists(APIKey);
+
+                }
+                catch
+                { }
+                finally
+                {
+                    try
+                    {
+                        APIKeysSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
+            }
+
+            return false;
+
+        }
+
+        #endregion
+
+        #region APIKeyIsValid      (APIKeyId)
+
+        /// <summary>
+        /// Determines whether the given API key is valid within this API.
+        /// </summary>
+        /// <param name="APIKey">The API key.</param>
+        protected internal Boolean _APIKeyIsValid(APIKey APIKey)
+
+            =>   APIKey != null &&
+               (!APIKey.NotBefore.HasValue || DateTime.UtcNow >= APIKey.NotBefore) &&
+               (!APIKey.NotAfter. HasValue || DateTime.UtcNow <  APIKey.NotAfter)  &&
+                !APIKey.IsDisabled;
+
+
+        /// <summary>
+        /// Determines whether the given API key is valid within this API.
+        /// </summary>
+        /// <param name="APIKey">The API key.</param>
+        protected internal Boolean _APIKeyIsValid(APIKey_Id APIKey)
+
+            => _TryGetAPIKey(APIKey, out APIKey apiKey) &&
+               _APIKeyIsValid(apiKey);
+
+        /// <summary>
+        /// Determines whether the given API key is valid within this API.
+        /// </summary>
+        /// <param name="APIKey">The API key.</param>
+        protected internal Boolean _APIKeyIsValid(APIKey_Id? APIKey)
+
+            => APIKey.HasValue &&
+               _APIKeyIsValid(APIKey.Value);
+
+
+        /// <summary>
+        /// Determines whether the given API key is valid within this API.
+        /// </summary>
+        /// <param name="APIKey">The API key.</param>
+        public Boolean APIKeyIsValid(APIKey APIKey)
+        {
+
+            if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
+            {
+                try
+                {
+
+                    return _APIKeyIsValid(APIKey);
+
+                }
+                catch
+                { }
+                finally
+                {
+                    try
+                    {
+                        APIKeysSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
+            }
+
+            return false;
+
+        }
+
+        /// <summary>
+        /// Determines whether the given API key is valid within this API.
+        /// </summary>
+        /// <param name="APIKey">The API key.</param>
+        public Boolean APIKeyIsValid(APIKey_Id APIKey)
+        {
+
+            if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
+            {
+                try
+                {
+
+                    return _APIKeyIsValid(APIKey);
+
+                }
+                catch
+                { }
+                finally
+                {
+                    try
+                    {
+                        APIKeysSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
+            }
+
+            return false;
+
+        }
+
+        /// <summary>
+        /// Determines whether the given API key is valid within this API.
+        /// </summary>
+        /// <param name="APIKey">The API key.</param>
+        public Boolean APIKeyIsValid(APIKey_Id? APIKey)
+        {
+
+            if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
+            {
+                try
+                {
+
+                    return _APIKeyIsValid(APIKey);
+
+                }
+                catch
+                { }
+                finally
+                {
+                    try
+                    {
+                        APIKeysSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
+            }
+
+            return false;
+
+        }
+
+        #endregion
+
+        #region GetAPIKey          (APIKeyId)
+
+        /// <summary>
+        /// Get the API key having the given unique identification.
+        /// </summary>
+        /// <param name="APIKey">The unique identification of an API key.</param>
+        protected internal APIKey _GetAPIKey(APIKey_Id APIKey)
+        {
+
+            if (!APIKey.IsNullOrEmpty && _APIKeys.TryGetValue(APIKey, out APIKey apiKey))
+                return apiKey;
+
+            return null;
+
+        }
+
+
+        /// <summary>
+        /// Get the API key having the given unique identification.
+        /// </summary>
+        /// <param name="APIKey">The unique identification of the API key.</param>
+        public APIKey GetAPIKey(APIKey_Id APIKey)
+        {
+
+            if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
+            {
+                try
+                {
+
+                    return _GetAPIKey(APIKey);
+
+                }
+                catch
+                { }
+                finally
+                {
+                    try
+                    {
+                        APIKeysSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
+            }
+
+            return null;
+
+        }
+
+        #endregion
+
+        #region TryGetAPIKey       (APIKeyId, out APIKey)
+
+        /// <summary>
+        /// Try to get the API key having the given unique identification.
+        /// </summary>
+        /// <param name="APIKeyId">The unique identification of an API key.</param>
+        /// <param name="APIKey">The API key.</param>
+        protected internal Boolean _TryGetAPIKey(APIKey_Id APIKeyId, out APIKey APIKey)
+        {
+
+            if (!APIKeyId.IsNullOrEmpty &&
+                _APIKeys.TryGetValue(APIKeyId, out APIKey apiKey))
+            {
+                APIKey = apiKey;
+                return true;
+            }
+
+            APIKey = null;
+            return false;
+
+        }
+
+        /// <summary>
+        /// Try to get the API key having the given unique identification.
+        /// </summary>
+        /// <param name="APIKeyId">The unique identification of an API key.</param>
+        /// <param name="APIKey">The API key.</param>
+        protected internal Boolean _TryGetAPIKey(APIKey_Id? APIKeyId, out APIKey APIKey)
+        {
+
+            if (APIKeyId.IsNotNullOrEmpty() &&
+               _APIKeys. TryGetValue(APIKeyId.Value, out APIKey apiKey))
+            {
+                APIKey = apiKey;
+                return true;
+            }
+
+            APIKey = null;
+            return false;
+
+        }
+
+
+        /// <summary>
+        /// Try to get the API key having the given unique identification.
+        /// </summary>
+        /// <param name="APIKeyId">The unique identification of an API key.</param>
+        /// <param name="APIKey">The API key.</param>
+        public Boolean TryGetAPIKey(APIKey_Id   APIKeyId,
+                                    out APIKey  APIKey)
+        {
+
+            if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
+            {
+                try
+                {
+
+                    return _TryGetAPIKey(APIKeyId, out APIKey);
+
+                }
+                catch
+                { }
+                finally
+                {
+                    try
+                    {
+                        APIKeysSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
+            }
+
+            APIKey = null;
+            return false;
+
+        }
+
+        /// <summary>
+        /// Try to get the API key having the given unique identification.
+        /// </summary>
+        /// <param name="APIKeyId">The unique identification of an API key.</param>
+        /// <param name="APIKey">The API key.</param>
+        public Boolean TryGetAPIKey(APIKey_Id?  APIKeyId,
+                                    out APIKey  APIKey)
+        {
+
+            if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
+            {
+                try
+                {
+
+                    return _TryGetAPIKey(APIKeyId, out APIKey);
+
+                }
+                catch
+                { }
+                finally
+                {
+                    try
+                    {
+                        APIKeysSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
+            }
+
+            APIKey = null;
+            return false;
+
+        }
+
+        #endregion
+
+        #region TryGetAPIKeyIfValid(APIKeyId, out APIKey)
+
+        /// <summary>
+        /// Try to get the API key having the given unique identification.
+        /// </summary>
+        /// <param name="APIKeyId">The unique identification of the API key.</param>
+        /// <param name="APIKey">The API key.</param>
+        protected internal Boolean _TryGetValidAPIKey(APIKey_Id   APIKeyId,
+                                                      out APIKey  APIKey)
+
+        {
+
+            if (_APIKeys.TryGetValue(APIKeyId, out APIKey apiKey) &&
+                _APIKeyIsValid(apiKey))
+            {
+                APIKey = apiKey;
+                return true;
+            }
+
+            APIKey = null;
+            return false;
+
+        }
+
+        /// <summary>
+        /// Try to get the API key having the given unique identification.
+        /// </summary>
+        /// <param name="APIKeyId">The unique identification of the API key.</param>
+        /// <param name="APIKey">The API key.</param>
+        protected internal Boolean _TryGetValidAPIKey(APIKey_Id?  APIKeyId,
+                                                      out APIKey  APIKey)
+
+        {
+
+            if (APIKeyId.IsNotNullOrEmpty() &&
+                _APIKeys.TryGetValue(APIKeyId.Value, out APIKey apiKey) &&
+                _APIKeyIsValid(apiKey))
+            {
+                APIKey = apiKey;
+                return true;
+            }
+
+            APIKey = null;
+            return false;
+
+        }
+
+
+        /// <summary>
+        /// Try to get the API key having the given unique identification.
+        /// </summary>
+        /// <param name="APIKeyId">The unique identification of the API key.</param>
+        /// <param name="APIKey">The API key.</param>
+        public Boolean TryGetValidAPIKey(APIKey_Id   APIKeyId,
+                                         out APIKey  APIKey)
+        {
+
+            if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
+            {
+                try
+                {
+
+                    return _TryGetValidAPIKey(APIKeyId, out APIKey);
+
+                }
+                catch
+                { }
+                finally
+                {
+                    try
+                    {
+                        APIKeysSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
+            }
+
+            APIKey = null;
+            return false;
+
+        }
+
+        /// <summary>
+        /// Try to get the API key having the given unique identification.
+        /// </summary>
+        /// <param name="APIKeyId">The unique identification of the API key.</param>
+        /// <param name="APIKey">The API key.</param>
+        public Boolean TryGetValidAPIKey(APIKey_Id?  APIKeyId,
+                                         out APIKey  APIKey)
+        {
+
+            if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
+            {
+                try
+                {
+
+                    return _TryGetValidAPIKey(APIKeyId, out APIKey);
+
+                }
+                catch
+                { }
+                finally
+                {
+                    try
+                    {
+                        APIKeysSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
+            }
+
+            APIKey = null;
+            return false;
+
+        }
+
+        #endregion
+
+
+        #region GetAPIKeysForUser     (User)
+
+        /// <summary>
+        /// Return all API keys for the given user.
+        /// </summary>
+        /// <param name="User">A user.</param>
+        protected internal IEnumerable<APIKey> _GetAPIKeysForUser(User User)
+
+            => _APIKeys.Values.
+                        Where(apiKey => apiKey.User == User).
+                        ToArray();
+
+
+        /// <summary>
+        /// Return all API keys for the given user.
+        /// </summary>
+        /// <param name="User">A user.</param>
+        public IEnumerable<APIKey> GetAPIKeysForUser(User User)
+        {
+
+            if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
+            {
+                try
+                {
+
+                    return _GetAPIKeysForUser(User);
+
+                }
+                catch
+                { }
+                finally
+                {
+                    try
+                    {
+                        APIKeysSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
+            }
+
+            return new APIKey[0];
+
+        }
+
+        #endregion
+
+        #region GetValidAPIKeysForUser(User)
+
+        /// <summary>
+        /// Return all API keys for the given user.
+        /// </summary>
+        /// <param name="User">A user.</param>
+        protected internal IEnumerable<APIKey> _GetValidAPIKeysForUser(User User)
+
+            => _APIKeys.Values.
+                        Where(apiKey => apiKey.User == User &&
+                                        APIKeyIsValid(apiKey)).
+                        ToArray();
+
+
+        /// <summary>
+        /// Return all API keys for the given user.
+        /// </summary>
+        /// <param name="User">A user.</param>
+        public IEnumerable<APIKey> GetValidAPIKeysForUser(User User)
+        {
+
+            if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
+            {
+                try
+                {
+
+                    return _GetValidAPIKeysForUser(User);
+
+                }
+                catch
+                { }
+                finally
+                {
+                    try
+                    {
+                        APIKeysSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
+            }
+
+            return new APIKey[0];
+
+        }
+
+        #endregion
+
+
+        #region RemoveAPIKey(APIKey, OnRemoved = null, ...)
+
+        /// <summary>
+        /// A delegate called whenever a API key was removed.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp when the API key was removed.</param>
+        /// <param name="APIKey">The API key to be removed.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking API key identification</param>
+        public delegate Task OnAPIKeyRemovedDelegate(DateTime          Timestamp,
+                                                     APIKey            APIKey,
+                                                     EventTracking_Id  EventTrackingId   = null,
+                                                     User_Id?          CurrentUserId     = null);
+
+        /// <summary>
+        /// An event fired whenever a API key was removed.
+        /// </summary>
+        public event OnAPIKeyRemovedDelegate OnAPIKeyRemoved;
+
+
+        #region (protected internal) _RemoveAPIKey(APIKey, OnRemoved = null, ...)
+
+        /// <summary>
+        /// Remove the given API key from the API.
+        /// </summary>
+        /// <param name="APIKey">The API key to be removed.</param>
+        /// <param name="OnRemoved">A delegate run whenever the API key has been removed successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional API key identification initiating this command/request.</param>
+        protected internal async Task<RemoveAPIKeyResult> _RemoveAPIKey(APIKey                            APIKey,
+                                                                        Action<APIKey, EventTracking_Id>  OnRemoved         = null,
+                                                                        EventTracking_Id                  EventTrackingId   = null,
+                                                                        User_Id?                          CurrentUserId     = null)
+        {
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            if (APIKey is null)
+                return RemoveAPIKeyResult.ArgumentError(APIKey,
+                                                        eventTrackingId,
+                                                        nameof(APIKey),
+                                                        "The given API key must not be null!");
+
+            if (APIKey.API != this)
+                return RemoveAPIKeyResult.ArgumentError(APIKey,
+                                                        eventTrackingId,
+                                                        nameof(APIKey),
+                                                        "The given API key is not attached to this API!");
+
+            if (!_APIKeys.TryGetValue(APIKey.Id, out APIKey APIKeyToBeRemoved))
+                return RemoveAPIKeyResult.ArgumentError(APIKey,
+                                                        eventTrackingId,
+                                                        nameof(APIKey),
+                                                        "The given API key does not exists in this API!");
+
+
+            await WriteToDatabaseFile(removeAPIKey_MessageType,
+                                      APIKey.ToJSON(false),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            _APIKeys.Remove(APIKey.Id);
+
+            OnRemoved?.Invoke(APIKey,
+                              eventTrackingId);
+
+            var OnAPIKeyRemovedLocal = OnAPIKeyRemoved;
+            if (OnAPIKeyRemovedLocal != null)
+                await OnAPIKeyRemovedLocal?.Invoke(DateTime.UtcNow,
+                                                   APIKey,
+                                                   eventTrackingId,
+                                                   CurrentUserId);
+
+            await SendNotifications(APIKey,
+                                    removeAPIKey_MessageType,
+                                    null,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+            return RemoveAPIKeyResult.Success(APIKey,
+                                              eventTrackingId);
+
+        }
+
+        #endregion
+
+        #region RemoveAPIKey                      (APIKey, OnRemoved = null, ...)
+
+        /// <summary>
+        /// Remove the given API key from the API.
+        /// </summary>
+        /// <param name="APIKey">The API key to be removed from this API.</param>
+        /// <param name="OnRemoved">A delegate run whenever the API key has been removed successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional API key identification initiating this command/request.</param>
+        public async Task<RemoveAPIKeyResult> RemoveAPIKey(APIKey                            APIKey,
+                                                           Action<APIKey, EventTracking_Id>  OnRemoved         = null,
+                                                           EventTracking_Id                  EventTrackingId   = null,
+                                                           User_Id?                          CurrentUserId     = null)
+        {
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            if (await APIKeysSemaphore.WaitAsync(SemaphoreSlimTimeout))
+            {
+                try
+                {
+
+                    return await _RemoveAPIKey(APIKey,
+                                               OnRemoved,
+                                               eventTrackingId,
+                                               CurrentUserId);
+
+                }
+                catch (Exception e)
+                {
+
+                    DebugX.LogException(e);
+
+                    return RemoveAPIKeyResult.Failed(APIKey,
+                                                     eventTrackingId,
+                                                     e);
+
+                }
+                finally
+                {
+                    try
+                    {
+                        APIKeysSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
+            }
+
+
+            return RemoveAPIKeyResult.Failed(APIKey,
+                                             eventTrackingId,
+                                             "Internal locking failed!");
 
         }
 
@@ -19862,2133 +22374,9 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region Reset user password
-
-        #region ChangePassword   (UserId, NewPassword, CurrentPassword = null, ...)
-
-        public async Task ChangePassword(User_Id           UserId,
-                                         Password          NewPassword,
-                                         String            CurrentPassword   = null,
-                                         EventTracking_Id  EventTrackingId   = null,
-                                         User_Id?          CurrentUserId     = null)
-        {
-
-            try
-            {
-
-                if (UserId.Length < MinUserIdLength)
-                    throw new ArgumentException("User identification '" + UserId + "' is too short!", nameof(UserId));
-
-                await UsersSemaphore.WaitAsync();
-
-                if (!_TryChangePassword(UserId,
-                                        NewPassword,
-                                        CurrentPassword,
-                                        EventTrackingId,
-                                        CurrentUserId).Result)
-                {
-                    throw new ApplicationException("The password for '" + UserId + "' could not be changed, as the given current password does not match!");
-                }
-
-            }
-            finally
-            {
-                UsersSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region TryChangePassword(UserId, NewPassword, CurrentPassword = null, ...)
-
-        protected internal async Task<Boolean> _TryChangePassword(User_Id           UserId,
-                                                                  Password          NewPassword,
-                                                                  String            CurrentPassword   = null,
-                                                                  EventTracking_Id  EventTrackingId   = null,
-                                                                  User_Id?          CurrentUserId     = null)
-        {
-
-            if (UserId.Length < MinUserIdLength)
-                throw new ArgumentException("User identification '" + UserId + "' is too short!", nameof(UserId));
-
-
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
-
-            #region AddPassword
-
-            if (!_LoginPasswords.TryGetValue(UserId, out LoginPassword _LoginPassword))
-            {
-
-                await WriteToDatabaseFile(UsersAPIPath + DefaultPasswordFile,
-                                          addPassword_MessageType,
-                                          new JObject(
-                                              new JProperty("login",         UserId.ToString()),
-                                              new JProperty("newPassword", new JObject(
-                                                  new JProperty("salt",          NewPassword.Salt.UnsecureString()),
-                                                  new JProperty("passwordHash",  NewPassword.UnsecureString)
-                                              ))
-                                          ),
-                                          eventTrackingId,
-                                          CurrentUserId);
-
-                _LoginPasswords.Add(UserId, new LoginPassword(UserId, NewPassword));
-
-                return true;
-
-            }
-
-            #endregion
-
-            #region ChangePassword
-
-            else if (CurrentPassword.IsNotNullOrEmpty() && _LoginPassword.VerifyPassword(CurrentPassword))
-            {
-
-                await WriteToDatabaseFile(UsersAPIPath + DefaultPasswordFile,
-                                          changePassword_MessageType,
-                                          new JObject(
-                                              new JProperty("login",         UserId.ToString()),
-                                              new JProperty("currentPassword", new JObject(
-                                                  new JProperty("salt",          _LoginPassword.Password.Salt.UnsecureString()),
-                                                  new JProperty("passwordHash",  _LoginPassword.Password.UnsecureString)
-                                              )),
-                                              new JProperty("newPassword",     new JObject(
-                                                  new JProperty("salt",          NewPassword.Salt.UnsecureString()),
-                                                  new JProperty("passwordHash",  NewPassword.UnsecureString)
-                                              ))
-                                          ),
-                                          eventTrackingId,
-                                          CurrentUserId);
-
-                _LoginPasswords[UserId] = new LoginPassword(UserId, NewPassword);
-
-                return true;
-
-            }
-
-            #endregion
-
-            else
-                return false;
-
-        }
-
-        public async Task<Boolean> TryChangePassword(User_Id           Login,
-                                                     Password          NewPassword,
-                                                     String            CurrentPassword   = null,
-                                                     EventTracking_Id  EventTrackingId   = null,
-                                                     User_Id?          CurrentUserId     = null)
-        {
-
-            try
-            {
-
-                await UsersSemaphore.WaitAsync();
-
-                return await _TryChangePassword(Login,
-                                                NewPassword,
-                                                CurrentPassword,
-                                                EventTrackingId,
-                                                CurrentUserId);
-
-            }
-            finally
-            {
-                UsersSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region VerifyPassword   (UserId, Password)
-
-        public Boolean VerifyPassword(User_Id  UserId,
-                                      String   Password)
-        {
-
-            try
-            {
-
-                if (UserId.Length < MinUserIdLength)
-                    throw new ArgumentException("User identification '" + UserId + "' is too short!", nameof(UserId));
-
-                UsersSemaphore.Wait();
-
-                return _LoginPasswords.TryGetValue   (UserId, out LoginPassword LoginPassword) &&
-                        LoginPassword. VerifyPassword(Password);
-
-            }
-            finally
-            {
-                UsersSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region ResetPassword      (User,          EventTrackingId = null)
-
-        /// <summary>
-        /// Reset a user password.
-        /// </summary>
-        /// <param name="User">A user.</param>
-        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
-        protected internal async Task<PasswordReset> _ResetPassword(User              User,
-                                                                    EventTracking_Id  EventTrackingId   = null)
-        {
-
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
-
-            return await _AddPasswordReset(
-                             new PasswordReset(
-                                 User,
-                                 SecurityToken_Id.Random(40, _Random),
-                                 User.Use2AuthFactor == Use2AuthFactor.MobilePhoneSMS && User.MobilePhone.HasValue
-                                     ? SecurityToken_Id.Parse(_Random.RandomString(5) + "-" + _Random.RandomString(5))
-                                     : new SecurityToken_Id?(),
-                                 eventTrackingId),
-                             eventTrackingId
-                         );
-
-        }
-
-        /// <summary>
-        /// Reset a user password.
-        /// </summary>
-        /// <param name="User">A user.</param>
-        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
-        public async Task<PasswordReset> ResetPassword(User              User,
-                                                       EventTracking_Id  EventTrackingId   = null)
-        {
-
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
-
-            if (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout))
-            {
-                try
-                {
-
-                    return await _ResetPassword(User,
-                                                eventTrackingId);
-
-                }
-                catch (Exception e)
-                {
-
-                    DebugX.LogException(e);
-
-                    return null;
-                    //return AddOrganizationResult.Failed(Organization,
-                    //                                    eventTrackingId,
-                    //                                    e,
-                    //                                    ParentOrganization);
-
-                }
-                finally
-                {
-                    try
-                    {
-                        UsersSemaphore.Release();
-                    }
-                    catch
-                    { }
-                }
-
-            }
-
-            return null;
-            //return AddOrganizationResult.Failed(Organization,
-            //                                    eventTrackingId,
-            //                                    "Internal locking failed!",
-            //                                    ParentOrganization);
-
-        }
-
-        #endregion
-
-        #region ResetPassword      (Users,         EventTrackingId = null)
-
-        /// <summary>
-        /// Reset the password of a user having multiple logins.
-        /// </summary>
-        /// <param name="Users">An enumeration of users.</param>
-        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
-        protected internal async Task<PasswordReset> _ResetPassword(IEnumerable<User>  Users,
-                                                                    EventTracking_Id   EventTrackingId   = null)
-        {
-
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
-
-            return await _AddPasswordReset(
-                             new PasswordReset(
-                                 Users,
-                                 SecurityToken_Id.Random(40, _Random),
-                                 Users.Any(user => user.Use2AuthFactor == Use2AuthFactor.MobilePhoneSMS && user.MobilePhone.HasValue)
-                                     ? SecurityToken_Id.Parse(_Random.RandomString(5) + "-" + _Random.RandomString(5))
-                                     : new SecurityToken_Id?(),
-                                 eventTrackingId),
-                             eventTrackingId
-                         );
-
-        }
-
-        /// <summary>
-        /// Reset the password of a user having multiple logins.
-        /// </summary>
-        /// <param name="Users">An enumeration of users.</param>
-        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
-        public async Task<PasswordReset> ResetPassword(IEnumerable<User>  Users,
-                                                       EventTracking_Id   EventTrackingId   = null)
-        {
-
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
-
-            if (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout))
-            {
-                try
-                {
-
-                    return await _ResetPassword(Users,
-                                                eventTrackingId);
-
-                }
-                catch (Exception e)
-                {
-
-                    DebugX.LogException(e);
-
-                    return null;
-                    //return AddOrganizationResult.Failed(Organization,
-                    //                                    eventTrackingId,
-                    //                                    e,
-                    //                                    ParentOrganization);
-
-                }
-                finally
-                {
-                    try
-                    {
-                        UsersSemaphore.Release();
-                    }
-                    catch
-                    { }
-                }
-
-            }
-
-            return null;
-            //return AddOrganizationResult.Failed(Organization,
-            //                                    eventTrackingId,
-            //                                    "Internal locking failed!",
-            //                                    ParentOrganization);
-
-        }
-
-        #endregion
-
-        #region AddPasswordReset   (PasswordReset, EventTrackingId = null)
-
-        /// <summary>
-        /// Add a password reset.
-        /// </summary>
-        /// <param name="PasswordReset">A password reset.</param>
-        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
-        protected internal async Task<PasswordReset> _AddPasswordReset(PasswordReset     PasswordReset,
-                                                                       EventTracking_Id  EventTrackingId = null)
-        {
-
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
-
-            await WriteToDatabaseFile(UsersAPIPath + DefaultPasswordResetsFile,
-                                      addToPasswordFile,
-                                      PasswordReset.ToJSON(),
-                                      eventTrackingId);
-
-            this._PasswordResets.Add(PasswordReset.SecurityToken1,
-                                     PasswordReset);
-
-
-            foreach (var user in PasswordReset.Users)
-            {
-
-                await SMTPClient.Send(ResetPasswordEMailCreator(user,
-                                                                user.EMail,
-                                                                PasswordReset.SecurityToken1,
-                                                                user.Use2AuthFactor == Use2AuthFactor.MobilePhoneSMS && user.MobilePhone.HasValue,
-                                                                DefaultLanguage,
-                                                                eventTrackingId));
-
-                if (SMSClient != null &&
-                    PasswordReset.SecurityToken2.HasValue &&
-                    user.MobilePhone.HasValue)
-                {
-                    SMSClient.Send("Dear '" + user.Name + "' your 2nd security token for resetting your password is '" + PasswordReset.SecurityToken2 + "'!",
-                                   user.MobilePhone.Value.ToString());
-                }
-
-            }
-
-            return PasswordReset;
-
-        }
-
-        /// <summary>
-        /// Add a password reset.
-        /// </summary>
-        /// <param name="PasswordReset">A password reset.</param>
-        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
-        public async Task<PasswordReset> AddPasswordReset(PasswordReset     PasswordReset,
-                                                          EventTracking_Id  EventTrackingId)
-        {
-
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
-
-            if (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout))
-            {
-                try
-                {
-
-                    return await _AddPasswordReset(PasswordReset,
-                                                   eventTrackingId);
-
-                }
-                catch (Exception e)
-                {
-
-                    DebugX.LogException(e);
-
-                    return null;
-                    //return AddOrganizationResult.Failed(Organization,
-                    //                                    eventTrackingId,
-                    //                                    e,
-                    //                                    ParentOrganization);
-
-                }
-                finally
-                {
-                    try
-                    {
-                        UsersSemaphore.Release();
-                    }
-                    catch
-                    { }
-                }
-
-            }
-
-            return null;
-            //return AddOrganizationResult.Failed(Organization,
-            //                                    eventTrackingId,
-            //                                    "Internal locking failed!",
-            //                                    ParentOrganization);
-
-        }
-
-        #endregion
-
-        #region RemovePasswordReset(PasswordReset, EventTrackingId)
-
-        /// <summary>
-        /// Remove a password reset.
-        /// </summary>
-        /// <param name="PasswordReset">A password reset.</param>
-        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
-        public async Task<PasswordReset> RemovePasswordReset(PasswordReset     PasswordReset,
-                                                             EventTracking_Id  EventTrackingId)
-        {
-
-            try
-            {
-
-                await UsersSemaphore.WaitAsync();
-
-                await WriteToDatabaseFile(UsersAPIPath + DefaultPasswordResetsFile,
-                                          removeFromPasswordFile,
-                                          PasswordReset.ToJSON(),
-                                          EventTrackingId);
-
-                this._PasswordResets.Remove(PasswordReset.SecurityToken1);
-
-                return PasswordReset;
-
-            }
-            finally
-            {
-                UsersSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #endregion
-
-        #region API Keys
-
-        #region Data
-
-        /// <summary>
-        /// An enumeration of all API keys.
-        /// </summary>
-        protected internal readonly Dictionary<APIKey_Id, APIKey> _APIKeys;
-
-        /// <summary>
-        /// An enumeration of all API keys.
-        /// </summary>
-        public IEnumerable<APIKey> APIKeys
-        {
-            get
-            {
-
-                if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
-                {
-                    try
-                    {
-
-                        return _APIKeys.Values.ToArray();
-
-                    }
-                    finally
-                    {
-                        try
-                        {
-                            APIKeysSemaphore.Release();
-                        }
-                        catch
-                        { }
-                    }
-                }
-
-                return new APIKey[0];
-
-            }
-        }
-
-        #endregion
-
-
-        #region (protected internal) WriteToDatabaseFileAndNotify(APIKey, MessageType,  OldAPIKey = null, ...)
-
-        /// <summary>
-        /// Write the given API key to the database and send out notifications.
-        /// </summary>
-        /// <param name="APIKey">The API key.</param>
-        /// <param name="MessageType">The user notification.</param>
-        /// <param name="OldAPIKey">The old/updated API key.</param>
-        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected internal async Task WriteToDatabaseFileAndNotify(APIKey                   APIKey,
-                                                                   NotificationMessageType  MessageType,
-                                                                   APIKey                   OldAPIKey     = null,
-                                                                   EventTracking_Id         EventTrackingId   = null,
-                                                                   User_Id?                 CurrentUserId     = null)
-        {
-
-            if (APIKey is null)
-                throw new ArgumentNullException(nameof(APIKey),   "The given API key must not be null!");
-
-            if (MessageType.IsNullOrEmpty)
-                throw new ArgumentNullException(nameof(MessageType),  "The given message type must not be null or empty!");
-
-
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
-
-            await WriteToDatabaseFile(MessageType,
-                                      APIKey.ToJSON(true),
-                                      eventTrackingId,
-                                      CurrentUserId);
-
-            await SendNotifications(APIKey,
-                                    MessageType,
-                                    OldAPIKey,
-                                    eventTrackingId,
-                                    CurrentUserId);
-
-        }
-
-        #endregion
-
-        #region (protected internal) SendNotifications           (APIKey, MessageTypes, OldAPIKey = null, ...)
-
-        /// <summary>
-        /// Send API key notifications.
-        /// </summary>
-        /// <param name="APIKey">The API key.</param>
-        /// <param name="MessageType">The API key notification.</param>
-        /// <param name="OldAPIKey">The old/updated API key.</param>
-        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected internal async Task SendNotifications(APIKey                   APIKey,
-                                                        NotificationMessageType  MessageType,
-                                                        APIKey                   OldAPIKey     = null,
-                                                        EventTracking_Id         EventTrackingId   = null,
-                                                        User_Id?                 CurrentUserId     = null)
-        {
-
-            if (APIKey is null)
-                throw new ArgumentNullException(nameof(APIKey),   "The given API key must not be null!");
-
-            if (MessageType.IsNullOrEmpty)
-                throw new ArgumentNullException(nameof(MessageType),  "The given message type must not be null or empty!");
-
-
-            await SendNotifications(APIKey,
-                                    new NotificationMessageType[] { MessageType },
-                                    OldAPIKey,
-                                    EventTrackingId,
-                                    CurrentUserId);
-
-        }
-
-
-        /// <summary>
-        /// Send API key notifications.
-        /// </summary>
-        /// <param name="APIKey">The API key.</param>
-        /// <param name="MessageTypes">The API key notifications.</param>
-        /// <param name="OldAPIKey">The old/updated API key.</param>
-        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected internal async Task SendNotifications(APIKey                            APIKey,
-                                                        IEnumerable<NotificationMessageType>  MessageTypes,
-                                                        APIKey                            OldAPIKey     = null,
-                                                        EventTracking_Id                      EventTrackingId   = null,
-                                                        User_Id?                              CurrentUserId     = null)
-        {
-
-            if (APIKey is null)
-                throw new ArgumentNullException(nameof(APIKey),    "The given API key must not be null!");
-
-            var messageTypesHash = new HashSet<NotificationMessageType>(MessageTypes.Where(messageType => !messageType.IsNullOrEmpty));
-
-            if (messageTypesHash.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(MessageTypes),  "The given enumeration of message types must not be null or empty!");
-
-            //if (messageTypesHash.Contains(addUserIfNotExists_MessageType))
-            //    messageTypesHash.Add(addUser_MessageType);
-
-            //if (messageTypesHash.Contains(addOrUpdateUser_MessageType))
-            //    messageTypesHash.Add(OldUser == null
-            //                           ? addUser_MessageType
-            //                           : updateUser_MessageType);
-
-            var messageTypes = messageTypesHash.ToArray();
-
-
-
-            if (!DisableNotifications)
-            {
-
-
-            }
-
-        }
-
-        #endregion
-
-
-        #region AddAPIKey           (APIKey, OnAdded = null,                   CurrentUserId = null)
-
-        /// <summary>
-        /// A delegate called whenever a API key was added.
-        /// </summary>
-        /// <param name="Timestamp">The timestamp when the API key was added.</param>
-        /// <param name="APIKey">The added API key.</param>
-        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public delegate Task OnAPIKeyAddedDelegate(DateTime          Timestamp,
-                                                   APIKey            APIKey,
-                                                   EventTracking_Id  EventTrackingId   = null,
-                                                   User_Id?          CurrentUserId     = null);
-
-        /// <summary>
-        /// An event fired whenever a API key was added.
-        /// </summary>
-        public event OnAPIKeyAddedDelegate OnAPIKeyAdded;
-
-
-        #region (protected internal) _AddAPIKey(APIKey, OnAdded = null, ...)
-
-        /// <summary>
-        /// Add the given API key to the API.
-        /// </summary>
-        /// <param name="APIKey">A new API key to be added to this API.</param>
-        /// <param name="OnAdded">A delegate run whenever the API key has been added successfully.</param>
-        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected internal async Task<AddAPIKeyResult> _AddAPIKey(APIKey                            APIKey,
-                                                                  Action<APIKey, EventTracking_Id>  OnAdded           = null,
-                                                                  EventTracking_Id                  EventTrackingId   = null,
-                                                                  User_Id?                          CurrentUserId     = null)
-        {
-
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
-
-            if (APIKey is null)
-                return AddAPIKeyResult.ArgumentError(APIKey,
-                                                     eventTrackingId,
-                                                     nameof(APIKey),
-                                                     "The given API key must not be null!");
-
-            if (APIKey.API != null && APIKey.API != this)
-                return AddAPIKeyResult.ArgumentError(APIKey,
-                                                     eventTrackingId,
-                                                     nameof(APIKey),
-                                                     "The given API key is already attached to another API!");
-
-            if (_APIKeys.ContainsKey(APIKey.Id))
-                return AddAPIKeyResult.ArgumentError(APIKey,
-                                                     eventTrackingId,
-                                                     nameof(APIKey),
-                                                     "APIKey identification '" + APIKey.Id + "' already exists!");
-
-            if (APIKey.Id.Length < MinAPIKeyLength)
-                return AddAPIKeyResult.ArgumentError(APIKey,
-                                                     eventTrackingId,
-                                                     nameof(APIKey),
-                                                     "APIKey identification '" + APIKey.Id + "' is too short!");
-
-            APIKey.API = this;
-
-
-            await WriteToDatabaseFile(addAPIKey_MessageType,
-                                      APIKey.ToJSON(false),
-                                      eventTrackingId,
-                                      CurrentUserId);
-
-            _APIKeys.Add(APIKey.Id, APIKey);
-
-            OnAdded?.Invoke(APIKey,
-                            eventTrackingId);
-
-            var OnAPIKeyAddedLocal = OnAPIKeyAdded;
-            if (OnAPIKeyAddedLocal != null)
-                await OnAPIKeyAddedLocal?.Invoke(DateTime.UtcNow,
-                                                 APIKey,
-                                                 eventTrackingId,
-                                                 CurrentUserId);
-
-            await SendNotifications(APIKey,
-                                    addUser_MessageType,
-                                    null,
-                                    eventTrackingId,
-                                    CurrentUserId);
-
-            return AddAPIKeyResult.Success(APIKey,
-                                           eventTrackingId);
-
-        }
-
-        #endregion
-
-        #region AddAPIKey                      (APIKey, OnAdded = null, ...)
-
-        /// <summary>
-        /// Add the given API key.
-        /// </summary>
-        /// <param name="APIKey">A new API key.</param>
-        /// <param name="OnAdded">A delegate run whenever the API key has been added successfully.</param>
-        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<AddAPIKeyResult> AddAPIKey(APIKey                            APIKey,
-                                                     Action<APIKey, EventTracking_Id>  OnAdded           = null,
-                                                     EventTracking_Id                  EventTrackingId   = null,
-                                                     User_Id?                          CurrentUserId     = null)
-        {
-
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
-
-            if (await APIKeysSemaphore.WaitAsync(SemaphoreSlimTimeout))
-            {
-                try
-                {
-
-                    return await _AddAPIKey(APIKey,
-                                            OnAdded,
-                                            eventTrackingId,
-                                            CurrentUserId);
-
-                }
-                catch (Exception e)
-                {
-
-                    DebugX.LogException(e);
-
-                    return AddAPIKeyResult.Failed(APIKey,
-                                                  eventTrackingId,
-                                                  e);
-
-                }
-                finally
-                {
-                    try
-                    {
-                        APIKeysSemaphore.Release();
-                    }
-                    catch
-                    { }
-                }
-            }
-
-            return AddAPIKeyResult.Failed(APIKey,
-                                          eventTrackingId,
-                                          "Internal locking failed!");
-
-        }
-
-        #endregion
-
-        #endregion
-
-        #region AddAPIKeyIfNotExists(APIKey, OnAdded = null,                   CurrentUserId = null)
-
-        #region (protected internal) _AddAPIKeyIfNotExists(APIKey, OnAdded = null, ...)
-
-        /// <summary>
-        /// When it has not been created before, add the given API key to the API.
-        /// </summary>
-        /// <param name="APIKey">A new API key to be added to this API.</param>
-        /// <param name="OnAdded">A delegate run whenever the API key has been added successfully.</param>
-        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected internal async Task<AddAPIKeyIfNotExistsResult> _AddAPIKeyIfNotExists(APIKey                            APIKey,
-                                                                                        Action<APIKey, EventTracking_Id>  OnAdded           = null,
-                                                                                        EventTracking_Id                  EventTrackingId   = null,
-                                                                                        User_Id?                          CurrentUserId     = null)
-        {
-
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
-
-            if (APIKey is null)
-                return AddAPIKeyIfNotExistsResult.ArgumentError(APIKey,
-                                                                eventTrackingId,
-                                                                nameof(APIKey),
-                                                                "The given API key must not be null!");
-
-            if (APIKey.Id != null && APIKey.API != this)
-                return AddAPIKeyIfNotExistsResult.ArgumentError(APIKey,
-                                                                eventTrackingId,
-                                                                nameof(APIKey),
-                                                                "The given API key is already attached to another API!");
-
-            if (_APIKeys.ContainsKey(APIKey.Id))
-                return AddAPIKeyIfNotExistsResult.Success(_APIKeys[APIKey.Id],
-                                                          AddedOrIgnored.Ignored,
-                                                          eventTrackingId);
-
-            if (APIKey.Id.Length < MinAPIKeyLength)
-                return AddAPIKeyIfNotExistsResult.ArgumentError(APIKey,
-                                                                eventTrackingId,
-                                                                nameof(APIKey),
-                                                                "APIKey identification '" + APIKey.Id + "' is too short!");
-
-            APIKey.API = this;
-
-
-            await WriteToDatabaseFile(addAPIKeyIfNotExists_MessageType,
-                                      APIKey.ToJSON(false),
-                                      eventTrackingId,
-                                      CurrentUserId);
-
-            _APIKeys.Add(APIKey.Id, APIKey);
-
-            OnAdded?.Invoke(APIKey,
-                            eventTrackingId);
-
-            var OnAPIKeyAddedLocal = OnAPIKeyAdded;
-            if (OnAPIKeyAddedLocal != null)
-                await OnAPIKeyAddedLocal?.Invoke(DateTime.UtcNow,
-                                                 APIKey,
-                                                 eventTrackingId,
-                                                 CurrentUserId);
-
-            await SendNotifications(APIKey,
-                                    addAPIKeyIfNotExists_MessageType,
-                                    null,
-                                    eventTrackingId,
-                                    CurrentUserId);
-
-            return AddAPIKeyIfNotExistsResult.Success(APIKey,
-                                                      AddedOrIgnored.Added,
-                                                      eventTrackingId);
-
-        }
-
-        #endregion
-
-        #region AddAPIKeyIfNotExists                      (APIKey, OnAdded = null, ...)
-
-        /// <summary>
-        /// Add the given API key.
-        /// </summary>
-        /// <param name="APIKey">A new API key.</param>
-        /// <param name="OnAdded">A delegate run whenever the API key has been added successfully.</param>
-        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<AddAPIKeyIfNotExistsResult> AddAPIKeyIfNotExists(APIKey                            APIKey,
-                                                                           Action<APIKey, EventTracking_Id>  OnAdded           = null,
-                                                                           EventTracking_Id                  EventTrackingId   = null,
-                                                                           User_Id?                          CurrentUserId     = null)
-        {
-
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
-
-            if (await APIKeysSemaphore.WaitAsync(SemaphoreSlimTimeout))
-            {
-                try
-                {
-
-                    return await _AddAPIKeyIfNotExists(APIKey,
-                                                       OnAdded,
-                                                       eventTrackingId,
-                                                       CurrentUserId);
-
-                }
-                catch (Exception e)
-                {
-
-                    DebugX.LogException(e);
-
-                    return AddAPIKeyIfNotExistsResult.Failed(APIKey,
-                                                             eventTrackingId,
-                                                             e);
-
-                }
-                finally
-                {
-                    try
-                    {
-                        APIKeysSemaphore.Release();
-                    }
-                    catch
-                    { }
-                }
-            }
-
-            return AddAPIKeyIfNotExistsResult.Failed(APIKey,
-                                                     eventTrackingId,
-                                                     "Internal locking failed!");
-
-        }
-
-        #endregion
-
-        #endregion
-
-        #region AddOrUpdateAPIKey   (APIKey, OnAdded = null, OnUpdated = null, ...)
-
-        #region (protected internal) _AddOrUpdateAPIKey(APIKey, OnAdded = null, OnUpdated = null, ...)
-
-        /// <summary>
-        /// Add or update the given API key to/within the API.
-        /// </summary>
-        /// <param name="APIKey">A API key.</param>
-        /// <param name="OnAdded">A delegate run whenever the API key has been added successfully.</param>
-        /// <param name="OnUpdated">A delegate run whenever the API key has been updated successfully.</param>
-        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
-        /// <param name="CurrentUserId">An optional API key identification initiating this command/request.</param>
-        protected internal async Task<AddOrUpdateAPIKeyResult> _AddOrUpdateAPIKey(APIKey                            APIKey,
-                                                                                  Action<APIKey, EventTracking_Id>  OnAdded           = null,
-                                                                                  Action<APIKey, EventTracking_Id>  OnUpdated         = null,
-                                                                                  EventTracking_Id                  EventTrackingId   = null,
-                                                                                  User_Id?                          CurrentUserId     = null)
-        {
-
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
-
-            if (APIKey is null)
-                return AddOrUpdateAPIKeyResult.ArgumentError(APIKey,
-                                                             eventTrackingId,
-                                                             nameof(APIKey),
-                                                             "The given API key must not be null!");
-
-            if (APIKey.API != null && APIKey.API != this)
-                return AddOrUpdateAPIKeyResult.ArgumentError(APIKey,
-                                                             eventTrackingId,
-                                                             nameof(APIKey.API),
-                                                             "The given API key is already attached to another API!");
-
-            if (APIKey.Id.Length < MinAPIKeyLength)
-                return AddOrUpdateAPIKeyResult.ArgumentError(APIKey,
-                                                             eventTrackingId,
-                                                             nameof(APIKey),
-                                                             "The given API key identification '" + APIKey.Id + "' is too short!");
-
-            APIKey.API = this;
-
-
-            await WriteToDatabaseFile(addOrUpdateAPIKey_MessageType,
-                                      APIKey.ToJSON(false),
-                                      eventTrackingId,
-                                      CurrentUserId);
-
-            if (_APIKeys.TryGetValue(APIKey.Id, out APIKey OldAPIKey))
-            {
-                _APIKeys.Remove(OldAPIKey.Id);
-                //APIKey.CopyAllLinkedDataFrom(OldAPIKey);
-            }
-
-            _APIKeys.Add(APIKey.Id, APIKey);
-
-            if (OldAPIKey != null)
-            {
-
-                OnUpdated?.Invoke(APIKey,
-                                  eventTrackingId);
-
-                var OnAPIKeyUpdatedLocal = OnAPIKeyUpdated;
-                if (OnAPIKeyUpdatedLocal != null)
-                    await OnAPIKeyUpdatedLocal?.Invoke(DateTime.UtcNow,
-                                                       APIKey,
-                                                       OldAPIKey,
-                                                       eventTrackingId,
-                                                       CurrentUserId);
-
-                await SendNotifications(APIKey,
-                                        updateAPIKey_MessageType,
-                                        OldAPIKey,
-                                        eventTrackingId,
-                                        CurrentUserId);
-
-            }
-            else
-            {
-
-                OnAdded?.Invoke(APIKey,
-                                eventTrackingId);
-
-                var OnAPIKeyAddedLocal = OnAPIKeyAdded;
-                if (OnAPIKeyAddedLocal != null)
-                    await OnAPIKeyAddedLocal?.Invoke(DateTime.UtcNow,
-                                                     APIKey,
-                                                     eventTrackingId,
-                                                     CurrentUserId);
-
-                await SendNotifications(APIKey,
-                                        addAPIKey_MessageType,
-                                        null,
-                                        eventTrackingId,
-                                        CurrentUserId);
-
-            }
-
-            return AddOrUpdateAPIKeyResult.Success(APIKey,
-                                                   AddedOrUpdated.Update,
-                                                   eventTrackingId);
-
-        }
-
-        #endregion
-
-        #region AddOrUpdateAPIKey                      (APIKey, OnAdded = null, OnUpdated = null, ...)
-
-        /// <summary>
-        /// Add or update the given API key to/within the API.
-        /// </summary>
-        /// <param name="APIKey">A API key.</param>
-        /// <param name="OnAdded">A delegate run whenever the API key has been added successfully.</param>
-        /// <param name="OnUpdated">A delegate run whenever the API key has been updated successfully.</param>
-        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
-        /// <param name="CurrentUserId">An optional API key identification initiating this command/request.</param>
-        public async Task<AddOrUpdateAPIKeyResult> AddOrUpdateAPIKey(APIKey                            APIKey,
-                                                                     Action<APIKey, EventTracking_Id>  OnAdded           = null,
-                                                                     Action<APIKey, EventTracking_Id>  OnUpdated         = null,
-                                                                     EventTracking_Id                  EventTrackingId   = null,
-                                                                     User_Id?                          CurrentUserId     = null)
-        {
-
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
-
-            if (await APIKeysSemaphore.WaitAsync(SemaphoreSlimTimeout))
-            {
-                try
-                {
-
-                    return await _AddOrUpdateAPIKey(APIKey,
-                                                    OnAdded,
-                                                    OnUpdated,
-                                                    eventTrackingId,
-                                                    CurrentUserId);
-
-                }
-                catch (Exception e)
-                {
-
-                    DebugX.LogException(e);
-
-                    return AddOrUpdateAPIKeyResult.Failed(APIKey,
-                                                          eventTrackingId,
-                                                          e);
-
-                }
-                finally
-                {
-                    try
-                    {
-                        APIKeysSemaphore.Release();
-                    }
-                    catch
-                    { }
-                }
-            }
-
-            return AddOrUpdateAPIKeyResult.Failed(APIKey,
-                                                  eventTrackingId,
-                                                  "Internal locking failed!");
-
-        }
-
-        #endregion
-
-        #endregion
-
-        #region UpdateAPIKey        (APIKey,                 OnUpdated = null, ...)
-
-        /// <summary>
-        /// A delegate called whenever a API key was updated.
-        /// </summary>
-        /// <param name="Timestamp">The timestamp when the API key was updated.</param>
-        /// <param name="APIKey">The updated API key.</param>
-        /// <param name="OldAPIKey">The old API key.</param>
-        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
-        /// <param name="CurrentUserId">The invoking API key identification</param>
-        public delegate Task OnAPIKeyUpdatedDelegate(DateTime          Timestamp,
-                                                     APIKey            APIKey,
-                                                     APIKey            OldAPIKey,
-                                                     EventTracking_Id  EventTrackingId   = null,
-                                                     User_Id?          CurrentUserId     = null);
-
-        /// <summary>
-        /// An event fired whenever a API key was updated.
-        /// </summary>
-        public event OnAPIKeyUpdatedDelegate OnAPIKeyUpdated;
-
-
-        #region (protected internal) _UpdateAPIKey(APIKey,                 OnUpdated = null, ...)
-
-        /// <summary>
-        /// Update the given API key to/within the API.
-        /// </summary>
-        /// <param name="APIKey">A API key.</param>
-        /// <param name="OnUpdated">A delegate run whenever the API key has been updated successfully.</param>
-        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
-        /// <param name="CurrentUserId">An optional API key identification initiating this command/request.</param>
-        protected internal async Task<UpdateAPIKeyResult> _UpdateAPIKey(APIKey                            APIKey,
-                                                                        Action<APIKey, EventTracking_Id>  OnUpdated         = null,
-                                                                        EventTracking_Id                  EventTrackingId   = null,
-                                                                        User_Id?                          CurrentUserId     = null)
-        {
-
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
-
-            if (APIKey is null)
-                return UpdateAPIKeyResult.ArgumentError(APIKey,
-                                                        eventTrackingId,
-                                                        nameof(APIKey),
-                                                        "The given API key must not be null!");
-
-            if (!_TryGetAPIKey(APIKey.Id, out APIKey OldAPIKey))
-                return UpdateAPIKeyResult.ArgumentError(APIKey,
-                                                        eventTrackingId,
-                                                        nameof(APIKey),
-                                                        "The given API key '" + APIKey.Id + "' does not exists in this API!");
-
-            if (APIKey.API != null && APIKey.API != this)
-                return UpdateAPIKeyResult.ArgumentError(APIKey,
-                                                        eventTrackingId,
-                                                        nameof(APIKey.API),
-                                                        "The given API key is not attached to this API!");
-
-            APIKey.API = this;
-
-
-            await WriteToDatabaseFile(updateAPIKey_MessageType,
-                                      APIKey.ToJSON(false),
-                                      eventTrackingId,
-                                      CurrentUserId);
-
-            _APIKeys.Remove(OldAPIKey.Id);
-            //APIKey.CopyAllLinkedDataFrom(OldAPIKey);
-            _APIKeys.Add(APIKey.Id, APIKey);
-
-            OnUpdated?.Invoke(APIKey,
-                              eventTrackingId);
-
-            var OnAPIKeyUpdatedLocal = OnAPIKeyUpdated;
-            if (OnAPIKeyUpdatedLocal != null)
-                await OnAPIKeyUpdatedLocal?.Invoke(DateTime.UtcNow,
-                                                 APIKey,
-                                                 OldAPIKey,
-                                                 eventTrackingId,
-                                                 CurrentUserId);
-
-            await SendNotifications(APIKey,
-                                    updateAPIKey_MessageType,
-                                    OldAPIKey,
-                                    eventTrackingId,
-                                    CurrentUserId);
-
-            return UpdateAPIKeyResult.Success(APIKey,
-                                              eventTrackingId);
-
-        }
-
-        #endregion
-
-        #region UpdateAPIKey                      (APIKey,                 OnUpdated = null, ...)
-
-        /// <summary>
-        /// Update the given API key to/within the API.
-        /// </summary>
-        /// <param name="APIKey">A API key.</param>
-        /// <param name="OnUpdated">A delegate run whenever the API key has been updated successfully.</param>
-        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
-        /// <param name="CurrentUserId">An optional API key identification initiating this command/request.</param>
-        public async Task<UpdateAPIKeyResult> UpdateAPIKey(APIKey                            APIKey,
-                                                           Action<APIKey, EventTracking_Id>  OnUpdated         = null,
-                                                           EventTracking_Id                  EventTrackingId   = null,
-                                                           User_Id?                          CurrentUserId     = null)
-        {
-
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
-
-            if (await APIKeysSemaphore.WaitAsync(SemaphoreSlimTimeout))
-            {
-                try
-                {
-
-                    return await _UpdateAPIKey(APIKey,
-                                               OnUpdated,
-                                               EventTrackingId,
-                                               CurrentUserId);
-
-                }
-                catch (Exception e)
-                {
-
-                    DebugX.LogException(e);
-
-                    return UpdateAPIKeyResult.Failed(APIKey,
-                                                     eventTrackingId,
-                                                     e);
-
-                }
-                finally
-                {
-                    try
-                    {
-                        APIKeysSemaphore.Release();
-                    }
-                    catch
-                    { }
-                }
-            }
-
-            return UpdateAPIKeyResult.Failed(APIKey,
-                                             eventTrackingId,
-                                             "Internal locking failed!");
-
-        }
-
-        #endregion
-
-
-        #region (protected internal) _UpdateAPIKey(APIKey, UpdateDelegate, OnUpdated = null, ...)
-
-        /// <summary>
-        /// Update the given API key.
-        /// </summary>
-        /// <param name="APIKey">A API key.</param>
-        /// <param name="UpdateDelegate">A delegate to update the given API key.</param>
-        /// <param name="OnUpdated">A delegate run whenever the API key has been updated successfully.</param>
-        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
-        /// <param name="CurrentUserId">An optional API key identification initiating this command/request.</param>
-        protected internal async Task<UpdateAPIKeyResult> _UpdateAPIKey(APIKey                            APIKey,
-                                                                        Action<APIKey.Builder>            UpdateDelegate,
-                                                                        Action<APIKey, EventTracking_Id>  OnUpdated         = null,
-                                                                        EventTracking_Id                  EventTrackingId   = null,
-                                                                        User_Id?                          CurrentUserId     = null)
-        {
-
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
-
-            if (APIKey is null)
-                return UpdateAPIKeyResult.ArgumentError(APIKey,
-                                                        eventTrackingId,
-                                                        nameof(APIKey),
-                                                        "The given API key must not be null!");
-
-            if (!_APIKeyExists(APIKey.Id))
-                return UpdateAPIKeyResult.ArgumentError(APIKey,
-                                                        eventTrackingId,
-                                                        nameof(APIKey),
-                                                        "The given API key '" + APIKey.Id + "' does not exists in this API!");
-
-            if (APIKey.API != this)
-                return UpdateAPIKeyResult.ArgumentError(APIKey,
-                                                        eventTrackingId,
-                                                        nameof(APIKey.API),
-                                                        "The given API key is not attached to this API!");
-
-            if (UpdateDelegate is null)
-                return UpdateAPIKeyResult.ArgumentError(APIKey,
-                                                        eventTrackingId,
-                                                        nameof(UpdateDelegate),
-                                                        "The given update delegate must not be null!");
-
-
-            var builder = APIKey.ToBuilder();
-            UpdateDelegate(builder);
-            var updatedAPIKey = builder.ToImmutable;
-
-            await WriteToDatabaseFile(updateAPIKey_MessageType,
-                                      updatedAPIKey.ToJSON(false),
-                                      eventTrackingId,
-                                      CurrentUserId);
-
-            _APIKeys.Remove(APIKey.Id);
-            //updatedAPIKey.CopyAllLinkedDataFrom(APIKey);
-            _APIKeys.Add(updatedAPIKey.Id, updatedAPIKey);
-
-            OnUpdated?.Invoke(updatedAPIKey,
-                              eventTrackingId);
-
-            var OnAPIKeyUpdatedLocal = OnAPIKeyUpdated;
-            if (OnAPIKeyUpdatedLocal != null)
-                await OnAPIKeyUpdatedLocal?.Invoke(DateTime.UtcNow,
-                                                   updatedAPIKey,
-                                                   APIKey,
-                                                   eventTrackingId,
-                                                   CurrentUserId);
-
-            await SendNotifications(updatedAPIKey,
-                                    updateAPIKey_MessageType,
-                                    APIKey,
-                                    eventTrackingId,
-                                    CurrentUserId);
-
-            return UpdateAPIKeyResult.Success(APIKey,
-                                              eventTrackingId);
-
-        }
-
-        #endregion
-
-        #region UpdateAPIKey                      (APIKey, UpdateDelegate, OnUpdated = null, ...)
-
-        /// <summary>
-        /// Update the given API key.
-        /// </summary>
-        /// <param name="APIKey">A API key.</param>
-        /// <param name="UpdateDelegate">A delegate to update the given API key.</param>
-        /// <param name="OnUpdated">A delegate run whenever the API key has been updated successfully.</param>
-        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
-        /// <param name="CurrentUserId">An optional API key identification initiating this command/request.</param>
-        public async Task<UpdateAPIKeyResult> UpdateAPIKey(APIKey                            APIKey,
-                                                           Action<APIKey.Builder>            UpdateDelegate,
-                                                           Action<APIKey, EventTracking_Id>  OnUpdated         = null,
-                                                           EventTracking_Id                  EventTrackingId   = null,
-                                                           User_Id?                          CurrentUserId     = null)
-        {
-
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
-
-            if (await APIKeysSemaphore.WaitAsync(SemaphoreSlimTimeout))
-            {
-                try
-                {
-
-                    return await _UpdateAPIKey(APIKey,
-                                               UpdateDelegate,
-                                               OnUpdated,
-                                               eventTrackingId,
-                                               CurrentUserId);
-
-                }
-                catch (Exception e)
-                {
-
-                    DebugX.LogException(e);
-
-                    return UpdateAPIKeyResult.Failed(APIKey,
-                                                     eventTrackingId,
-                                                     e);
-
-                }
-                finally
-                {
-                    try
-                    {
-                        APIKeysSemaphore.Release();
-                    }
-                    catch
-                    { }
-                }
-            }
-
-            return UpdateAPIKeyResult.Failed(APIKey,
-                                             eventTrackingId,
-                                             "Internal locking failed!");
-
-        }
-
-        #endregion
-
-        #endregion
-
-
-        #region APIKeyExists       (APIKeyId)
-
-        /// <summary>
-        /// Determines whether the given API key identification exists within this API.
-        /// </summary>
-        /// <param name="APIKey">The unique identification of an API key.</param>
-        protected internal Boolean _APIKeyExists(APIKey_Id APIKey)
-
-            => APIKey.IsNotNullOrEmpty && _APIKeys.ContainsKey(APIKey);
-
-        /// <summary>
-        /// Determines whether the given API key identification exists within this API.
-        /// </summary>
-        /// <param name="APIKey">The unique identification of an API key.</param>
-        protected internal Boolean _APIKeyExists(APIKey_Id? APIKey)
-
-            => APIKey.IsNotNullOrEmpty() && _APIKeys.ContainsKey(APIKey.Value);
-
-
-        /// <summary>
-        /// Determines whether the given API key identification exists within this API.
-        /// </summary>
-        /// <param name="APIKey">The unique identification of an API key.</param>
-        public Boolean APIKeyExists(APIKey_Id APIKey)
-        {
-
-            if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
-            {
-                try
-                {
-
-                    return _APIKeyExists(APIKey);
-
-                }
-                catch
-                { }
-                finally
-                {
-                    try
-                    {
-                        APIKeysSemaphore.Release();
-                    }
-                    catch
-                    { }
-                }
-            }
-
-            return false;
-
-        }
-
-        /// <summary>
-        /// Determines whether the given API key identification exists within this API.
-        /// </summary>
-        /// <param name="APIKey">The unique identification of an API key.</param>
-        public Boolean APIKeyExists(APIKey_Id? APIKey)
-        {
-
-            if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
-            {
-                try
-                {
-
-                    return _APIKeyExists(APIKey);
-
-                }
-                catch
-                { }
-                finally
-                {
-                    try
-                    {
-                        APIKeysSemaphore.Release();
-                    }
-                    catch
-                    { }
-                }
-            }
-
-            return false;
-
-        }
-
-        #endregion
-
-        #region APIKeyIsValid      (APIKeyId)
-
-        /// <summary>
-        /// Determines whether the given API key is valid within this API.
-        /// </summary>
-        /// <param name="APIKey">The API key.</param>
-        protected internal Boolean _APIKeyIsValid(APIKey APIKey)
-
-            =>   APIKey != null &&
-               (!APIKey.NotBefore.HasValue || DateTime.UtcNow >= APIKey.NotBefore) &&
-               (!APIKey.NotAfter. HasValue || DateTime.UtcNow <  APIKey.NotAfter)  &&
-                !APIKey.IsDisabled;
-
-
-        /// <summary>
-        /// Determines whether the given API key is valid within this API.
-        /// </summary>
-        /// <param name="APIKey">The API key.</param>
-        protected internal Boolean _APIKeyIsValid(APIKey_Id APIKey)
-
-            => _TryGetAPIKey(APIKey, out APIKey apiKey) &&
-               _APIKeyIsValid(apiKey);
-
-        /// <summary>
-        /// Determines whether the given API key is valid within this API.
-        /// </summary>
-        /// <param name="APIKey">The API key.</param>
-        protected internal Boolean _APIKeyIsValid(APIKey_Id? APIKey)
-
-            => APIKey.HasValue &&
-               _APIKeyIsValid(APIKey.Value);
-
-
-        /// <summary>
-        /// Determines whether the given API key is valid within this API.
-        /// </summary>
-        /// <param name="APIKey">The API key.</param>
-        public Boolean APIKeyIsValid(APIKey APIKey)
-        {
-
-            if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
-            {
-                try
-                {
-
-                    return _APIKeyIsValid(APIKey);
-
-                }
-                catch
-                { }
-                finally
-                {
-                    try
-                    {
-                        APIKeysSemaphore.Release();
-                    }
-                    catch
-                    { }
-                }
-            }
-
-            return false;
-
-        }
-
-        /// <summary>
-        /// Determines whether the given API key is valid within this API.
-        /// </summary>
-        /// <param name="APIKey">The API key.</param>
-        public Boolean APIKeyIsValid(APIKey_Id APIKey)
-        {
-
-            if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
-            {
-                try
-                {
-
-                    return _APIKeyIsValid(APIKey);
-
-                }
-                catch
-                { }
-                finally
-                {
-                    try
-                    {
-                        APIKeysSemaphore.Release();
-                    }
-                    catch
-                    { }
-                }
-            }
-
-            return false;
-
-        }
-
-        /// <summary>
-        /// Determines whether the given API key is valid within this API.
-        /// </summary>
-        /// <param name="APIKey">The API key.</param>
-        public Boolean APIKeyIsValid(APIKey_Id? APIKey)
-        {
-
-            if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
-            {
-                try
-                {
-
-                    return _APIKeyIsValid(APIKey);
-
-                }
-                catch
-                { }
-                finally
-                {
-                    try
-                    {
-                        APIKeysSemaphore.Release();
-                    }
-                    catch
-                    { }
-                }
-            }
-
-            return false;
-
-        }
-
-        #endregion
-
-        #region GetAPIKey          (APIKeyId)
-
-        /// <summary>
-        /// Get the API key having the given unique identification.
-        /// </summary>
-        /// <param name="APIKey">The unique identification of an API key.</param>
-        protected internal APIKey _GetAPIKey(APIKey_Id APIKey)
-        {
-
-            if (!APIKey.IsNullOrEmpty && _APIKeys.TryGetValue(APIKey, out APIKey apiKey))
-                return apiKey;
-
-            return null;
-
-        }
-
-
-        /// <summary>
-        /// Get the API key having the given unique identification.
-        /// </summary>
-        /// <param name="APIKey">The unique identification of the API key.</param>
-        public APIKey GetAPIKey(APIKey_Id APIKey)
-        {
-
-            if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
-            {
-                try
-                {
-
-                    return _GetAPIKey(APIKey);
-
-                }
-                catch
-                { }
-                finally
-                {
-                    try
-                    {
-                        APIKeysSemaphore.Release();
-                    }
-                    catch
-                    { }
-                }
-            }
-
-            return null;
-
-        }
-
-        #endregion
-
-        #region TryGetAPIKey       (APIKeyId, out APIKey)
-
-        /// <summary>
-        /// Try to get the API key having the given unique identification.
-        /// </summary>
-        /// <param name="APIKeyId">The unique identification of an API key.</param>
-        /// <param name="APIKey">The API key.</param>
-        protected internal Boolean _TryGetAPIKey(APIKey_Id APIKeyId, out APIKey APIKey)
-        {
-
-            if (!APIKeyId.IsNullOrEmpty &&
-                _APIKeys.TryGetValue(APIKeyId, out APIKey apiKey))
-            {
-                APIKey = apiKey;
-                return true;
-            }
-
-            APIKey = null;
-            return false;
-
-        }
-
-        /// <summary>
-        /// Try to get the API key having the given unique identification.
-        /// </summary>
-        /// <param name="APIKeyId">The unique identification of an API key.</param>
-        /// <param name="APIKey">The API key.</param>
-        protected internal Boolean _TryGetAPIKey(APIKey_Id? APIKeyId, out APIKey APIKey)
-        {
-
-            if (APIKeyId.IsNotNullOrEmpty() &&
-               _APIKeys. TryGetValue(APIKeyId.Value, out APIKey apiKey))
-            {
-                APIKey = apiKey;
-                return true;
-            }
-
-            APIKey = null;
-            return false;
-
-        }
-
-
-        /// <summary>
-        /// Try to get the API key having the given unique identification.
-        /// </summary>
-        /// <param name="APIKeyId">The unique identification of an API key.</param>
-        /// <param name="APIKey">The API key.</param>
-        public Boolean TryGetAPIKey(APIKey_Id   APIKeyId,
-                                    out APIKey  APIKey)
-        {
-
-            if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
-            {
-                try
-                {
-
-                    return _TryGetAPIKey(APIKeyId, out APIKey);
-
-                }
-                catch
-                { }
-                finally
-                {
-                    try
-                    {
-                        APIKeysSemaphore.Release();
-                    }
-                    catch
-                    { }
-                }
-            }
-
-            APIKey = null;
-            return false;
-
-        }
-
-        /// <summary>
-        /// Try to get the API key having the given unique identification.
-        /// </summary>
-        /// <param name="APIKeyId">The unique identification of an API key.</param>
-        /// <param name="APIKey">The API key.</param>
-        public Boolean TryGetAPIKey(APIKey_Id?  APIKeyId,
-                                    out APIKey  APIKey)
-        {
-
-            if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
-            {
-                try
-                {
-
-                    return _TryGetAPIKey(APIKeyId, out APIKey);
-
-                }
-                catch
-                { }
-                finally
-                {
-                    try
-                    {
-                        APIKeysSemaphore.Release();
-                    }
-                    catch
-                    { }
-                }
-            }
-
-            APIKey = null;
-            return false;
-
-        }
-
-        #endregion
-
-        #region TryGetAPIKeyIfValid(APIKeyId, out APIKey)
-
-        /// <summary>
-        /// Try to get the API key having the given unique identification.
-        /// </summary>
-        /// <param name="APIKeyId">The unique identification of the API key.</param>
-        /// <param name="APIKey">The API key.</param>
-        protected internal Boolean _TryGetValidAPIKey(APIKey_Id   APIKeyId,
-                                                      out APIKey  APIKey)
-
-        {
-
-            if (_APIKeys.TryGetValue(APIKeyId, out APIKey apiKey) &&
-                _APIKeyIsValid(apiKey))
-            {
-                APIKey = apiKey;
-                return true;
-            }
-
-            APIKey = null;
-            return false;
-
-        }
-
-        /// <summary>
-        /// Try to get the API key having the given unique identification.
-        /// </summary>
-        /// <param name="APIKeyId">The unique identification of the API key.</param>
-        /// <param name="APIKey">The API key.</param>
-        protected internal Boolean _TryGetValidAPIKey(APIKey_Id?  APIKeyId,
-                                                      out APIKey  APIKey)
-
-        {
-
-            if (APIKeyId.IsNotNullOrEmpty() &&
-                _APIKeys.TryGetValue(APIKeyId.Value, out APIKey apiKey) &&
-                _APIKeyIsValid(apiKey))
-            {
-                APIKey = apiKey;
-                return true;
-            }
-
-            APIKey = null;
-            return false;
-
-        }
-
-
-        /// <summary>
-        /// Try to get the API key having the given unique identification.
-        /// </summary>
-        /// <param name="APIKeyId">The unique identification of the API key.</param>
-        /// <param name="APIKey">The API key.</param>
-        public Boolean TryGetValidAPIKey(APIKey_Id   APIKeyId,
-                                         out APIKey  APIKey)
-        {
-
-            if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
-            {
-                try
-                {
-
-                    return _TryGetValidAPIKey(APIKeyId, out APIKey);
-
-                }
-                catch
-                { }
-                finally
-                {
-                    try
-                    {
-                        APIKeysSemaphore.Release();
-                    }
-                    catch
-                    { }
-                }
-            }
-
-            APIKey = null;
-            return false;
-
-        }
-
-        /// <summary>
-        /// Try to get the API key having the given unique identification.
-        /// </summary>
-        /// <param name="APIKeyId">The unique identification of the API key.</param>
-        /// <param name="APIKey">The API key.</param>
-        public Boolean TryGetValidAPIKey(APIKey_Id?  APIKeyId,
-                                         out APIKey  APIKey)
-        {
-
-            if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
-            {
-                try
-                {
-
-                    return _TryGetValidAPIKey(APIKeyId, out APIKey);
-
-                }
-                catch
-                { }
-                finally
-                {
-                    try
-                    {
-                        APIKeysSemaphore.Release();
-                    }
-                    catch
-                    { }
-                }
-            }
-
-            APIKey = null;
-            return false;
-
-        }
-
-        #endregion
-
-
-        #region GetAPIKeysForUser     (User)
-
-        /// <summary>
-        /// Return all API keys for the given user.
-        /// </summary>
-        /// <param name="User">A user.</param>
-        protected internal IEnumerable<APIKey> _GetAPIKeysForUser(User User)
-
-            => _APIKeys.Values.
-                        Where(apiKey => apiKey.User == User).
-                        ToArray();
-
-
-        /// <summary>
-        /// Return all API keys for the given user.
-        /// </summary>
-        /// <param name="User">A user.</param>
-        public IEnumerable<APIKey> GetAPIKeysForUser(User User)
-        {
-
-            if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
-            {
-                try
-                {
-
-                    return _GetAPIKeysForUser(User);
-
-                }
-                catch
-                { }
-                finally
-                {
-                    try
-                    {
-                        APIKeysSemaphore.Release();
-                    }
-                    catch
-                    { }
-                }
-            }
-
-            return new APIKey[0];
-
-        }
-
-        #endregion
-
-        #region GetValidAPIKeysForUser(User)
-
-        /// <summary>
-        /// Return all API keys for the given user.
-        /// </summary>
-        /// <param name="User">A user.</param>
-        protected internal IEnumerable<APIKey> _GetValidAPIKeysForUser(User User)
-
-            => _APIKeys.Values.
-                        Where(apiKey => apiKey.User == User &&
-                                        APIKeyIsValid(apiKey)).
-                        ToArray();
-
-
-        /// <summary>
-        /// Return all API keys for the given user.
-        /// </summary>
-        /// <param name="User">A user.</param>
-        public IEnumerable<APIKey> GetValidAPIKeysForUser(User User)
-        {
-
-            if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
-            {
-                try
-                {
-
-                    return _GetValidAPIKeysForUser(User);
-
-                }
-                catch
-                { }
-                finally
-                {
-                    try
-                    {
-                        APIKeysSemaphore.Release();
-                    }
-                    catch
-                    { }
-                }
-            }
-
-            return new APIKey[0];
-
-        }
-
-        #endregion
-
-
-        #region RemoveAPIKey(APIKey, OnRemoved = null, ...)
-
-        /// <summary>
-        /// A delegate called whenever a API key was removed.
-        /// </summary>
-        /// <param name="Timestamp">The timestamp when the API key was removed.</param>
-        /// <param name="APIKey">The API key to be removed.</param>
-        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
-        /// <param name="CurrentUserId">The invoking API key identification</param>
-        public delegate Task OnAPIKeyRemovedDelegate(DateTime          Timestamp,
-                                                     APIKey            APIKey,
-                                                     EventTracking_Id  EventTrackingId   = null,
-                                                     User_Id?          CurrentUserId     = null);
-
-        /// <summary>
-        /// An event fired whenever a API key was removed.
-        /// </summary>
-        public event OnAPIKeyRemovedDelegate OnAPIKeyRemoved;
-
-
-        #region (protected internal) _RemoveAPIKey(APIKey, OnRemoved = null, ...)
-
-        /// <summary>
-        /// Remove the given API key from the API.
-        /// </summary>
-        /// <param name="APIKey">The API key to be removed.</param>
-        /// <param name="OnRemoved">A delegate run whenever the API key has been removed successfully.</param>
-        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
-        /// <param name="CurrentUserId">An optional API key identification initiating this command/request.</param>
-        protected internal async Task<RemoveAPIKeyResult> _RemoveAPIKey(APIKey                            APIKey,
-                                                                        Action<APIKey, EventTracking_Id>  OnRemoved         = null,
-                                                                        EventTracking_Id                  EventTrackingId   = null,
-                                                                        User_Id?                          CurrentUserId     = null)
-        {
-
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
-
-            if (APIKey is null)
-                return RemoveAPIKeyResult.ArgumentError(APIKey,
-                                                        eventTrackingId,
-                                                        nameof(APIKey),
-                                                        "The given API key must not be null!");
-
-            if (APIKey.API != this)
-                return RemoveAPIKeyResult.ArgumentError(APIKey,
-                                                        eventTrackingId,
-                                                        nameof(APIKey),
-                                                        "The given API key is not attached to this API!");
-
-            if (!_APIKeys.TryGetValue(APIKey.Id, out APIKey APIKeyToBeRemoved))
-                return RemoveAPIKeyResult.ArgumentError(APIKey,
-                                                        eventTrackingId,
-                                                        nameof(APIKey),
-                                                        "The given API key does not exists in this API!");
-
-
-            await WriteToDatabaseFile(removeAPIKey_MessageType,
-                                      APIKey.ToJSON(false),
-                                      eventTrackingId,
-                                      CurrentUserId);
-
-            _APIKeys.Remove(APIKey.Id);
-
-            OnRemoved?.Invoke(APIKey,
-                              eventTrackingId);
-
-            var OnAPIKeyRemovedLocal = OnAPIKeyRemoved;
-            if (OnAPIKeyRemovedLocal != null)
-                await OnAPIKeyRemovedLocal?.Invoke(DateTime.UtcNow,
-                                                   APIKey,
-                                                   eventTrackingId,
-                                                   CurrentUserId);
-
-            await SendNotifications(APIKey,
-                                    removeAPIKey_MessageType,
-                                    null,
-                                    eventTrackingId,
-                                    CurrentUserId);
-
-            return RemoveAPIKeyResult.Success(APIKey,
-                                              eventTrackingId);
-
-        }
-
-        #endregion
-
-        #region RemoveAPIKey                      (APIKey, OnRemoved = null, ...)
-
-        /// <summary>
-        /// Remove the given API key from the API.
-        /// </summary>
-        /// <param name="APIKey">The API key to be removed from this API.</param>
-        /// <param name="OnRemoved">A delegate run whenever the API key has been removed successfully.</param>
-        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
-        /// <param name="CurrentUserId">An optional API key identification initiating this command/request.</param>
-        public async Task<RemoveAPIKeyResult> RemoveAPIKey(APIKey                            APIKey,
-                                                           Action<APIKey, EventTracking_Id>  OnRemoved         = null,
-                                                           EventTracking_Id                  EventTrackingId   = null,
-                                                           User_Id?                          CurrentUserId     = null)
-        {
-
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
-
-            if (await APIKeysSemaphore.WaitAsync(SemaphoreSlimTimeout))
-            {
-                try
-                {
-
-                    return await _RemoveAPIKey(APIKey,
-                                               OnRemoved,
-                                               eventTrackingId,
-                                               CurrentUserId);
-
-                }
-                catch (Exception e)
-                {
-
-                    DebugX.LogException(e);
-
-                    return RemoveAPIKeyResult.Failed(APIKey,
-                                                     eventTrackingId,
-                                                     e);
-
-                }
-                finally
-                {
-                    try
-                    {
-                        APIKeysSemaphore.Release();
-                    }
-                    catch
-                    { }
-                }
-            }
-
-
-            return RemoveAPIKeyResult.Failed(APIKey,
-                                             eventTrackingId,
-                                             "Internal locking failed!");
-
-        }
-
-        #endregion
-
-        #endregion
-
-        #endregion
+        #region Messages
 
         // ToDo: Create Mailinglists
-        #region Messages
 
         #region Data
 
