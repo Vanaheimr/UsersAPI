@@ -51,22 +51,27 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// The creation timestamp of the password-reset-information.
         /// </summary>
-        public DateTime           Timestamp         { get; }
+        public DateTime           Timestamp          { get; }
 
         /// <summary>
-        /// An enumeration of valid user identifications.
+        /// An enumeration of valid users.
         /// </summary>
-        public HashSet<User_Id>   UserIds           { get; }
+        public IEnumerable<User>  Users              { get; }
 
         /// <summary>
         /// A security token to authorize the password reset.
         /// </summary>
-        public SecurityToken_Id   SecurityToken1    { get; }
+        public SecurityToken_Id   SecurityToken1     { get; }
 
         /// <summary>
         /// An optional second security token to authorize the password reset.
         /// </summary>
-        public SecurityToken_Id?  SecurityToken2    { get; }
+        public SecurityToken_Id?  SecurityToken2     { get; }
+
+        /// <summary>
+        /// An optional unique event tracking identification for correlating this request with other events.
+        /// </summary>
+        public EventTracking_Id   EventTrackingId    { get; }
 
         #endregion
 
@@ -75,17 +80,41 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Create a new information object for resetting user passwords.
         /// </summary>
-        /// <param name="UserIds">An enumeration of valid user identifications.</param>
+        /// <param name="User">A valid user.</param>
         /// <param name="SecurityToken1">A security token to authorize the password reset.</param>
         /// <param name="SecurityToken2">An optional second security token to authorize the password reset.</param>
-        public PasswordReset(IEnumerable<User_Id>  UserIds,
-                             SecurityToken_Id      SecurityToken1,
-                             SecurityToken_Id?     SecurityToken2)
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        public PasswordReset(User               User,
+                             SecurityToken_Id   SecurityToken1,
+                             SecurityToken_Id?  SecurityToken2    = null,
+                             EventTracking_Id   EventTrackingId   = null)
 
             : this(DateTime.UtcNow,
-                   UserIds,
+                   new User[] { User },
                    SecurityToken1,
-                   SecurityToken2)
+                   SecurityToken2,
+                   EventTrackingId)
+
+        { }
+
+
+        /// <summary>
+        /// Create a new information object for resetting user passwords.
+        /// </summary>
+        /// <param name="Users">An enumeration of valid users.</param>
+        /// <param name="SecurityToken1">A security token to authorize the password reset.</param>
+        /// <param name="SecurityToken2">An optional second security token to authorize the password reset.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        public PasswordReset(IEnumerable<User>  Users,
+                             SecurityToken_Id   SecurityToken1,
+                             SecurityToken_Id?  SecurityToken2    = null,
+                             EventTracking_Id   EventTrackingId   = null)
+
+            : this(DateTime.UtcNow,
+                   Users,
+                   SecurityToken1,
+                   SecurityToken2,
+                   EventTrackingId)
 
         { }
 
@@ -94,22 +123,25 @@ namespace social.OpenData.UsersAPI
         /// Create a new information object for resetting user passwords.
         /// </summary>
         /// <param name="Timestamp">The creation timestamp of the password-reset-information.</param>
-        /// <param name="UserIds">An enumeration of valid user identifications.</param>
+        /// <param name="Users">An enumeration of valid users.</param>
         /// <param name="SecurityToken1">A security token to authorize the password reset.</param>
         /// <param name="SecurityToken2">An optional second security token to authorize the password reset.</param>
-        public PasswordReset(DateTime              Timestamp,
-                             IEnumerable<User_Id>  UserIds,
-                             SecurityToken_Id      SecurityToken1,
-                             SecurityToken_Id?     SecurityToken2)
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        public PasswordReset(DateTime           Timestamp,
+                             IEnumerable<User>  Users,
+                             SecurityToken_Id   SecurityToken1,
+                             SecurityToken_Id?  SecurityToken2    = null,
+                             EventTracking_Id   EventTrackingId   = null)
         {
 
-            if (UserIds is null || !UserIds.Any())
-                throw new ArgumentNullException(nameof(UserIds), "The given enumeration of user identifications must not be null or empty!");
+            if (Users is null || !Users.Any())
+                throw new ArgumentNullException(nameof(Users), "The given enumeration of users must not be null or empty!");
 
-            this.Timestamp       = Timestamp;
-            this.UserIds         = new HashSet<User_Id>(UserIds);
-            this.SecurityToken1  = SecurityToken1;
-            this.SecurityToken2  = SecurityToken2;
+            this.Timestamp        = Timestamp;
+            this.Users            = new HashSet<User>(Users);
+            this.SecurityToken1   = SecurityToken1;
+            this.SecurityToken2   = SecurityToken2;
+            this.EventTrackingId  = EventTrackingId ?? EventTracking_Id.New;
 
         }
 
@@ -128,26 +160,29 @@ namespace social.OpenData.UsersAPI
 
                    Embedded
                        ? null
-                       : new JProperty("@context",  JSONLDContext.ToString()),
+                       : new JProperty("@context",        JSONLDContext.       ToString()),
 
-                   new JProperty("timestamp",       Timestamp.ToIso8601()),
-                   new JProperty("userIds",         new JArray(UserIds.Select(user => user.ToString()))),
-                   new JProperty("securityToken1",  SecurityToken1.ToString()),
+                   new JProperty("timestamp",             Timestamp.           ToIso8601()),
+                   new JProperty("userIds",               new JArray(Users.Select(user => user.Id.ToString()))),
+                   new JProperty("securityToken1",        SecurityToken1.      ToString()),
 
                    SecurityToken2.HasValue
                        ? new JProperty("securityToken2",  SecurityToken2.Value.ToString())
-                       : null
+                       : null,
+
+                   new JProperty("eventTrackingId",       EventTrackingId.     ToString())
 
                );
 
         #endregion
 
-        #region (static) TryParseJSON(JSONObject, ..., out Communicator, out ErrorResponse, IgnoreContextMismatches = true)
+        #region (static) TryParseJSON(JSONObject, UserProvider, out PasswordReset, out ErrorResponse, IgnoreContextMismatches = true)
 
-        public static Boolean TryParseJSON(JObject              JSONObject,
-                                           out PasswordReset    PasswordReset,
-                                           out String           ErrorResponse,
-                                           Boolean              IgnoreContextMismatches = true)
+        public static Boolean TryParseJSON(JObject               JSONObject,
+                                           UserProviderDelegate  UserProvider,
+                                           out PasswordReset     PasswordReset,
+                                           out String            ErrorResponse,
+                                           Boolean               IgnoreContextMismatches = true)
 
         {
 
@@ -162,7 +197,7 @@ namespace social.OpenData.UsersAPI
                     return false;
                 }
 
-                #region Parse Context          [mandatory]
+                #region Parse Context            [mandatory]
 
                 if (!IgnoreContextMismatches)
                 {
@@ -186,7 +221,7 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                #region Parse Timestamp        [mandatory]
+                #region Parse Timestamp          [mandatory]
 
                 if (!JSONObject.ParseMandatory("timestamp",
                                                "timestamp",
@@ -198,7 +233,7 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                #region Parse UserIds          [mandatory]
+                #region Parse Users              [mandatory]
 
                 if (!JSONObject.ParseMandatory("userIds",
                                                "user identifications",
@@ -208,12 +243,12 @@ namespace social.OpenData.UsersAPI
                     return false;
                 }
 
-                HashSet<User_Id> UserIds = null;
+                HashSet<User_Id> userIds = null;
 
                 try
                 {
 
-                    UserIds = UserIdArray.
+                    userIds = UserIdArray.
                                   Where (jsonvalue => jsonvalue != null).
                                   Select(jsonvalue => User_Id.Parse(jsonvalue.Value<String>())).
                                   ToHashSet();
@@ -225,15 +260,30 @@ namespace social.OpenData.UsersAPI
                     return false;
                 }
 
-                if (!UserIds.Any())
+                if (!userIds.Any())
                 {
                     ErrorResponse = "The given array of users '" + UserIdArray + "' must not be empty!";
                     return false;
                 }
 
+                HashSet<User> Users = new HashSet<User>();
+
+                foreach (var userId in userIds)
+                {
+
+                    if (!UserProvider(userId, out User user))
+                    {
+                        ErrorResponse = "The given user '" + userId + "' is unknown or invalid!";
+                        return false;
+                    }
+
+                    Users.Add(user);
+
+                }
+
                 #endregion
 
-                #region Parse SecurityToken1   [mandatory]
+                #region Parse SecurityToken1     [mandatory]
 
                 if (!JSONObject.ParseMandatory("securityToken1",
                                                "security token #1",
@@ -246,7 +296,7 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                #region Parse SecurityToken2   [optional]
+                #region Parse SecurityToken2     [optional]
 
                 if (JSONObject.ParseOptionalStruct("securityToken2",
                                                    "security token #2",
@@ -260,11 +310,26 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
+                #region Parse EventTrackingId    [optional]
+
+                if (JSONObject.ParseOptional("eventTrackingId",
+                                             "event tracking identification",
+                                             EventTracking_Id.TryParse,
+                                             out EventTracking_Id EventTrackingId,
+                                             out ErrorResponse))
+                {
+                    if (ErrorResponse != null)
+                        return false;
+                }
+
+                #endregion
+
 
                 PasswordReset = new PasswordReset(Timestamp,
-                                                  UserIds,
+                                                  Users,
                                                   SecurityToken1,
-                                                  SecurityToken2);
+                                                  SecurityToken2,
+                                                  EventTrackingId);
 
                 return true;
 
@@ -279,7 +344,6 @@ namespace social.OpenData.UsersAPI
         }
 
         #endregion
-
 
     }
 

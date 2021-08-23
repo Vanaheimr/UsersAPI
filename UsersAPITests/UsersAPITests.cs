@@ -29,6 +29,7 @@ using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 using org.GraphDefined.Vanaheimr.Hermod.Mail;
 using org.GraphDefined.Vanaheimr.Hermod.SMTP;
 using social.OpenData.UsersAPI.Notifications;
+using System.IO;
 
 #endregion
 
@@ -58,6 +59,15 @@ namespace social.OpenData.UsersAPI.tests
         public void SetupEachTest()
         {
 
+            var folder = "UsersAPI_NotificationTests";
+
+            // C:\Users\...\AppData\Local\Temp\UsersAPI_NotificationTests
+            try
+            {
+                Directory.Delete(folder, true);
+            }
+            catch { }
+
             usersAPI = new UsersAPI(
                            ExternalDNSName:        "example.cloud",
                            HTTPPort:               IPPort.Parse(81),
@@ -68,6 +78,7 @@ namespace social.OpenData.UsersAPI.tests
                            AdminOrganizationId:    Organization_Id.Parse("admins"),
                            SMTPClient:             new NullMailer(),
                            SMSClient:              new NullSMSAPI(),
+                           LoggingPath:            folder,
                            Autostart:              true
                        );;
 
@@ -578,6 +589,7 @@ namespace social.OpenData.UsersAPI.tests
             var allSMSNotifications  = nullSMSClient.SMSs.Select(sms => sms.Text.PadRight(maxSMSMessageLength + 2) + " => " + sms.Receivers.OrderBy(_ =>_).AggregateWith(", ")).ToArray();
             var smsOverview          = allSMSNotifications.AggregateWith(Environment.NewLine);
 
+            // |-- 160 characters --------------------------------------------------------------------------------------------------------------------------------------------|
             // User 'API Admin 02' was successfully added. https://example.cloud/users/apiAdmin02                           => +49 170 111111
             // User 'API Admin 02' was added to organization 'Admins' as admin.                                             => +49 170 111111
             // User 'API Member 01' was successfully added. https://example.cloud/users/apiMember01                         => +49 170 111111
