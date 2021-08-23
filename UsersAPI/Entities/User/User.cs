@@ -421,7 +421,7 @@ namespace social.OpenData.UsersAPI
 
         public User2OrganizationEdge
 
-            AddOutgoingEdge(User2OrganizationEdgeTypes  EdgeLabel,
+            AddOutgoingEdge(User2OrganizationEdgeLabel  EdgeLabel,
                             Organization                Target,
                             PrivacyLevel                PrivacyLevel = PrivacyLevel.World)
 
@@ -448,7 +448,7 @@ namespace social.OpenData.UsersAPI
         /// All organizations this user belongs to,
         /// filtered by the given edge label.
         /// </summary>
-        public IEnumerable<User2OrganizationEdgeTypes> EdgeLabels(Organization Organization)
+        public IEnumerable<User2OrganizationEdgeLabel> EdgeLabels(Organization Organization)
 
             => _User2Organization_Edges.
                    Where (edge => edge.Target == Organization).
@@ -476,7 +476,7 @@ namespace social.OpenData.UsersAPI
         /// filtered by the given edge label.
         /// </summary>
         public IEnumerable<User2OrganizationEdge> Edges(Organization                Organization,
-                                                        User2OrganizationEdgeTypes  EdgeLabel)
+                                                        User2OrganizationEdgeLabel  EdgeLabel)
 
             => _User2Organization_Edges.
                    Where(edge => edge.Target == Organization && edge.EdgeLabel == EdgeLabel);
@@ -490,9 +490,9 @@ namespace social.OpenData.UsersAPI
         public IEnumerable<Organization> ParentOrganizations()
 
             => _User2Organization_Edges.
-                   Where(edge  => edge.EdgeLabel == User2OrganizationEdgeTypes.IsAdmin  ||
-                                  edge.EdgeLabel == User2OrganizationEdgeTypes.IsMember ||
-                                  edge.EdgeLabel == User2OrganizationEdgeTypes.IsGuest).
+                   Where(edge  => edge.EdgeLabel == User2OrganizationEdgeLabel.IsAdmin  ||
+                                  edge.EdgeLabel == User2OrganizationEdgeLabel.IsMember ||
+                                  edge.EdgeLabel == User2OrganizationEdgeLabel.IsGuest).
                    Select(edge => edge.Target).
                    ToArray();
 
@@ -511,7 +511,7 @@ namespace social.OpenData.UsersAPI
 
                 case Access_Levels.Admin:
                     foreach (var organization in _User2Organization_Edges.
-                                                     Where (edge => edge.EdgeLabel == User2OrganizationEdgeTypes.IsAdmin).
+                                                     Where (edge => edge.EdgeLabel == User2OrganizationEdgeLabel.IsAdmin).
                                                      Select(edge => edge.Target))
                     {
                         allMyOrganizations.Add(organization);
@@ -520,7 +520,7 @@ namespace social.OpenData.UsersAPI
 
                 case Access_Levels.AdminReadOnly:
                     foreach (var organization in _User2Organization_Edges.
-                                                     Where (edge => edge.EdgeLabel == User2OrganizationEdgeTypes.IsAdminReadOnly).
+                                                     Where (edge => edge.EdgeLabel == User2OrganizationEdgeLabel.IsAdminReadOnly).
                                                      Select(edge => edge.Target))
                     {
                         allMyOrganizations.Add(organization);
@@ -529,8 +529,8 @@ namespace social.OpenData.UsersAPI
 
                 case Access_Levels.ReadWrite:
                     foreach (var organization in _User2Organization_Edges.
-                                                     Where (edge => edge.EdgeLabel == User2OrganizationEdgeTypes.IsAdmin ||
-                                                                    edge.EdgeLabel == User2OrganizationEdgeTypes.IsMember).
+                                                     Where (edge => edge.EdgeLabel == User2OrganizationEdgeLabel.IsAdmin ||
+                                                                    edge.EdgeLabel == User2OrganizationEdgeLabel.IsMember).
                                                      Select(edge => edge.Target))
                     {
                         allMyOrganizations.Add(organization);
@@ -539,9 +539,9 @@ namespace social.OpenData.UsersAPI
 
                 default:
                     foreach (var organization in _User2Organization_Edges.
-                                                     Where (edge => edge.EdgeLabel == User2OrganizationEdgeTypes.IsAdmin  ||
-                                                                    edge.EdgeLabel == User2OrganizationEdgeTypes.IsMember ||
-                                                                    edge.EdgeLabel == User2OrganizationEdgeTypes.IsGuest).
+                                                     Where (edge => edge.EdgeLabel == User2OrganizationEdgeLabel.IsAdmin  ||
+                                                                    edge.EdgeLabel == User2OrganizationEdgeLabel.IsMember ||
+                                                                    edge.EdgeLabel == User2OrganizationEdgeLabel.IsGuest).
                                                      Select(edge => edge.Target))
                     {
                         allMyOrganizations.Add(organization);
@@ -2024,7 +2024,7 @@ namespace social.OpenData.UsersAPI
 
             public User2OrganizationEdge
 
-                AddOutgoingEdge(User2OrganizationEdgeTypes  EdgeLabel,
+                AddOutgoingEdge(User2OrganizationEdgeLabel  EdgeLabel,
                                 Organization            Target,
                                 PrivacyLevel            PrivacyLevel = PrivacyLevel.World)
 
@@ -2058,7 +2058,7 @@ namespace social.OpenData.UsersAPI
 
                     case Access_Levels.Admin:
                         foreach (var organization in _User2Organization_OutEdges.
-                                                         Where (edge => edge.EdgeLabel == User2OrganizationEdgeTypes.IsAdmin).
+                                                         Where (edge => edge.EdgeLabel == User2OrganizationEdgeLabel.IsAdmin).
                                                          Select(edge => edge.Target))
                         {
                             AllMyOrganizations.Add(organization);
@@ -2067,8 +2067,8 @@ namespace social.OpenData.UsersAPI
 
                     case Access_Levels.ReadWrite:
                         foreach (var organization in _User2Organization_OutEdges.
-                                                         Where (edge => edge.EdgeLabel == User2OrganizationEdgeTypes.IsAdmin ||
-                                                                        edge.EdgeLabel == User2OrganizationEdgeTypes.IsMember).
+                                                         Where (edge => edge.EdgeLabel == User2OrganizationEdgeLabel.IsAdmin ||
+                                                                        edge.EdgeLabel == User2OrganizationEdgeLabel.IsMember).
                                                          Select(edge => edge.Target))
                         {
                             AllMyOrganizations.Add(organization);
@@ -2077,9 +2077,9 @@ namespace social.OpenData.UsersAPI
 
                     default:
                         foreach (var organization in _User2Organization_OutEdges.
-                                                         Where (edge => edge.EdgeLabel == User2OrganizationEdgeTypes.IsAdmin  ||
-                                                                        edge.EdgeLabel == User2OrganizationEdgeTypes.IsMember ||
-                                                                        edge.EdgeLabel == User2OrganizationEdgeTypes.IsGuest).
+                                                         Where (edge => edge.EdgeLabel == User2OrganizationEdgeLabel.IsAdmin  ||
+                                                                        edge.EdgeLabel == User2OrganizationEdgeLabel.IsMember ||
+                                                                        edge.EdgeLabel == User2OrganizationEdgeLabel.IsGuest).
                                                          Select(edge => edge.Target))
                         {
                             AllMyOrganizations.Add(organization);
@@ -2295,7 +2295,7 @@ namespace social.OpenData.UsersAPI
             /// All organizations this user belongs to,
             /// filtered by the given edge label.
             /// </summary>
-            public IEnumerable<User2OrganizationEdgeTypes> Edges(Organization Organization)
+            public IEnumerable<User2OrganizationEdgeLabel> Edges(Organization Organization)
                 => _User2Organization_OutEdges.
                        Where (edge => edge.Target == Organization).
                        Select(edge => edge.EdgeLabel);

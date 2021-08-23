@@ -245,7 +245,7 @@ namespace social.OpenData.UsersAPI
         public User2OrganizationEdge
 
             AddUser(User                        Source,
-                    User2OrganizationEdgeTypes  EdgeLabel,
+                    User2OrganizationEdgeLabel  EdgeLabel,
                     PrivacyLevel                PrivacyLevel = PrivacyLevel.World)
 
             => _User2Organization_Edges.
@@ -267,27 +267,27 @@ namespace social.OpenData.UsersAPI
 
         public IEnumerable<User> Admins
 
-            => _User2Organization_Edges.Where     (edge => edge.EdgeLabel == User2OrganizationEdgeTypes.IsAdmin).
+            => _User2Organization_Edges.Where     (edge => edge.EdgeLabel == User2OrganizationEdgeLabel.IsAdmin).
                                         SafeSelect(edge => edge.Source).
                                         Distinct  ();
 
         public IEnumerable<User> Members
 
-            => _User2Organization_Edges.Where     (edge => edge.EdgeLabel == User2OrganizationEdgeTypes.IsMember).
+            => _User2Organization_Edges.Where     (edge => edge.EdgeLabel == User2OrganizationEdgeLabel.IsMember).
                                         SafeSelect(edge => edge.Source).
                                         Distinct  ();
 
         public IEnumerable<User> Guests
 
-            => _User2Organization_Edges.Where     (edge => edge.EdgeLabel == User2OrganizationEdgeTypes.IsGuest).
+            => _User2Organization_Edges.Where     (edge => edge.EdgeLabel == User2OrganizationEdgeLabel.IsGuest).
                                         SafeSelect(edge => edge.Source).
                                         Distinct  ();
 
         public IEnumerable<User> Users
 
-            => _User2Organization_Edges.Where     (edge => edge.EdgeLabel == User2OrganizationEdgeTypes.IsAdmin  ||
-                                                           edge.EdgeLabel == User2OrganizationEdgeTypes.IsMember ||
-                                                           edge.EdgeLabel == User2OrganizationEdgeTypes.IsGuest).
+            => _User2Organization_Edges.Where     (edge => edge.EdgeLabel == User2OrganizationEdgeLabel.IsAdmin  ||
+                                                           edge.EdgeLabel == User2OrganizationEdgeLabel.IsMember ||
+                                                           edge.EdgeLabel == User2OrganizationEdgeLabel.IsGuest).
                                         SafeSelect(edge => edge.Source).
                                         Distinct  ();
 
@@ -310,7 +310,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// The edge labels of all (incoming) edges between the given user and this organization.
         /// </summary>
-        public IEnumerable<User2OrganizationEdgeTypes> User2OrganizationInEdgeLabels(User User)
+        public IEnumerable<User2OrganizationEdgeLabel> User2OrganizationInEdgeLabels(User User)
 
             => _User2Organization_Edges.
                    Where (edge => edge.Source == User).
@@ -321,7 +321,7 @@ namespace social.OpenData.UsersAPI
 
         #region RemoveUser(EdgeLabel, User)
 
-        public void RemoveUser(User2OrganizationEdgeTypes  EdgeLabel,
+        public void RemoveUser(User2OrganizationEdgeLabel  EdgeLabel,
                                User                        User)
         {
 
@@ -1566,7 +1566,7 @@ namespace social.OpenData.UsersAPI
             public User2OrganizationEdge
 
                 LinkUser(User                    Source,
-                         User2OrganizationEdgeTypes  EdgeLabel,
+                         User2OrganizationEdgeLabel  EdgeLabel,
                          PrivacyLevel            PrivacyLevel = PrivacyLevel.World)
 
                 => _User2Organization_Edges.
@@ -1595,7 +1595,7 @@ namespace social.OpenData.UsersAPI
             /// <summary>
             /// The edge labels of all (incoming) edges between the given user and this organization.
             /// </summary>
-            public IEnumerable<User2OrganizationEdgeTypes> User2OrganizationInEdgeLabels(User User)
+            public IEnumerable<User2OrganizationEdgeLabel> User2OrganizationInEdgeLabels(User User)
 
                 => _User2Organization_Edges.
                        Where (edge => edge.Source == User).
@@ -1612,7 +1612,7 @@ namespace social.OpenData.UsersAPI
 
             #region UnlinkUser(EdgeLabel, User)
 
-            public void UnlinkUser(User2OrganizationEdgeTypes  EdgeLabel,
+            public void UnlinkUser(User2OrganizationEdgeLabel  EdgeLabel,
                                    User                    User)
             {
 

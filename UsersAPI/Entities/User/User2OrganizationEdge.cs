@@ -26,7 +26,7 @@ namespace social.OpenData.UsersAPI
 {
 
     [Flags]
-    public enum User2OrganizationEdgeTypes
+    public enum User2OrganizationEdgeLabel
     {
         IsAdmin,
         IsAdminReadOnly,
@@ -37,7 +37,7 @@ namespace social.OpenData.UsersAPI
     }
 
 
-    public class User2OrganizationEdge : MiniEdge<User, User2OrganizationEdgeTypes, Organization>
+    public class User2OrganizationEdge : MiniEdge<User, User2OrganizationEdgeLabel, Organization>
     {
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="PrivacyLevel">The level of privacy of this edge.</param>
         /// <param name="Created">The creation timestamp of the miniedge.</param>
         public User2OrganizationEdge(User                        User,
-                                     User2OrganizationEdgeTypes  EdgeLabel,
+                                     User2OrganizationEdgeLabel  EdgeLabel,
                                      Organization                Organization,
                                      PrivacyLevel                PrivacyLevel  = PrivacyLevel.Private,
                                      DateTime?                   Created       = null)

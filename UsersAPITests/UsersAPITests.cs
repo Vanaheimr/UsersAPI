@@ -146,7 +146,7 @@ namespace social.OpenData.UsersAPI.tests
                                                        SimpleEMailAddress.Parse("apiAdmin01@test.local"),
                                                        MobilePhone: PhoneNumber.Parse("+49 170 111111")
                                                    ),
-                                                   User2OrganizationEdgeTypes.IsAdmin,
+                                                   User2OrganizationEdgeLabel.IsAdmin,
                                                    usersAPI.GetOrganization(Organization_Id.Parse("admins")));
 
             Assert.IsNotNull(result01a);
@@ -193,7 +193,7 @@ namespace social.OpenData.UsersAPI.tests
                                                        "API Admin 02",
                                                        SimpleEMailAddress.Parse("apiAdmin02@test.local")
                                                    ),
-                                                   User2OrganizationEdgeTypes.IsAdmin,
+                                                   User2OrganizationEdgeLabel.IsAdmin,
                                                    usersAPI.GetOrganization(Organization_Id.Parse("admins")));
 
             Assert.IsNotNull(result01b);
@@ -207,7 +207,7 @@ namespace social.OpenData.UsersAPI.tests
                                                        SimpleEMailAddress.Parse("apiMember01@test.local"),
                                                        MobilePhone: PhoneNumber.Parse("+49 170 222222")
                                                    ),
-                                                   User2OrganizationEdgeTypes.IsMember,
+                                                   User2OrganizationEdgeLabel.IsMember,
                                                    usersAPI.GetOrganization(Organization_Id.Parse("admins")));
 
             Assert.IsNotNull(result01c);
@@ -254,7 +254,7 @@ namespace social.OpenData.UsersAPI.tests
                                                        "API Member 02",
                                                        SimpleEMailAddress.Parse("apiMember02@test.local")
                                                    ),
-                                                   User2OrganizationEdgeTypes.IsMember,
+                                                   User2OrganizationEdgeLabel.IsMember,
                                                    usersAPI.GetOrganization(Organization_Id.Parse("admins")));
 
             Assert.IsNotNull(result01d);
@@ -286,7 +286,7 @@ namespace social.OpenData.UsersAPI.tests
                                                        SimpleEMailAddress.Parse("firstOrgAdmin01@test.local"),
                                                        MobilePhone: PhoneNumber.Parse("+49 170 333333")
                                                    ),
-                                                   User2OrganizationEdgeTypes.IsAdmin,
+                                                   User2OrganizationEdgeLabel.IsAdmin,
                                                    result03.Organization);
 
             Assert.IsNotNull(result04a);
@@ -333,7 +333,7 @@ namespace social.OpenData.UsersAPI.tests
                                                        "First Org Admin 02",
                                                        SimpleEMailAddress.Parse("firstOrgAdmin02@test.local")
                                                    ),
-                                                   User2OrganizationEdgeTypes.IsAdmin,
+                                                   User2OrganizationEdgeLabel.IsAdmin,
                                                    result03.Organization);
 
             Assert.IsNotNull(result04b);
@@ -347,7 +347,7 @@ namespace social.OpenData.UsersAPI.tests
                                                        SimpleEMailAddress.Parse("firstOrgMember01@test.local"),
                                                        MobilePhone: PhoneNumber.Parse("+49 170 444444")
                                                    ),
-                                                   User2OrganizationEdgeTypes.IsMember,
+                                                   User2OrganizationEdgeLabel.IsMember,
                                                    result03.Organization);
 
 
@@ -395,7 +395,7 @@ namespace social.OpenData.UsersAPI.tests
                                                        "First Org Member 02",
                                                        SimpleEMailAddress.Parse("firstOrgMember02@test.local")
                                                    ),
-                                                   User2OrganizationEdgeTypes.IsMember,
+                                                   User2OrganizationEdgeLabel.IsMember,
                                                    result03.Organization);
 
             Assert.IsNotNull(result04d);
@@ -428,7 +428,7 @@ namespace social.OpenData.UsersAPI.tests
                                                        SimpleEMailAddress.Parse("secondOrgAdmin01@test.local"),
                                                        MobilePhone: PhoneNumber.Parse("+49 170 555555")
                                                    ),
-                                                   User2OrganizationEdgeTypes.IsAdmin,
+                                                   User2OrganizationEdgeLabel.IsAdmin,
                                                    result13.Organization);
 
             Assert.IsNotNull(result14a);
@@ -475,7 +475,7 @@ namespace social.OpenData.UsersAPI.tests
                                                        "Second Org Admin 02",
                                                        SimpleEMailAddress.Parse("secondOrgAdmin02@test.local")
                                                    ),
-                                                   User2OrganizationEdgeTypes.IsAdmin,
+                                                   User2OrganizationEdgeLabel.IsAdmin,
                                                    result13.Organization);
 
             Assert.IsNotNull(result14b);
@@ -489,7 +489,7 @@ namespace social.OpenData.UsersAPI.tests
                                                        SimpleEMailAddress.Parse("secondOrgMember01@test.local"),
                                                        MobilePhone: PhoneNumber.Parse("+49 170 666666")
                                                    ),
-                                                   User2OrganizationEdgeTypes.IsMember,
+                                                   User2OrganizationEdgeLabel.IsMember,
                                                    result13.Organization);
 
 
@@ -537,7 +537,7 @@ namespace social.OpenData.UsersAPI.tests
                                                        "Second Org Member 02",
                                                        SimpleEMailAddress.Parse("secondOrgMember02@test.local")
                                                    ),
-                                                   User2OrganizationEdgeTypes.IsMember,
+                                                   User2OrganizationEdgeLabel.IsMember,
                                                    result13.Organization);
 
             Assert.IsNotNull(result14d);

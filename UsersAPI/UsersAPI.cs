@@ -990,7 +990,7 @@ namespace social.OpenData.UsersAPI
                                                   User_Id                     Id,
                                                   String                      Name,
                                                   SimpleEMailAddress          EMail,
-                                                  User2OrganizationEdgeTypes  AccessRight,
+                                                  User2OrganizationEdgeLabel  AccessRight,
                                                   Organization                Organization,
                                                   Password?                   Password          = null,
                                                   I18NString                  Description       = null,
@@ -1185,7 +1185,7 @@ namespace social.OpenData.UsersAPI
                                                              User_Id                     Id,
                                                              String                      Name,
                                                              SimpleEMailAddress          EMail,
-                                                             User2OrganizationEdgeTypes  AccessRight,
+                                                             User2OrganizationEdgeLabel  AccessRight,
                                                              Organization                Organization,
                                                              Password?                   Password          = null,
                                                              I18NString                  Description       = null,
@@ -5871,7 +5871,7 @@ namespace social.OpenData.UsersAPI
                                                      return errorResponse;
                                              }
 
-                                             var accessRights = new List<Tuple<User2OrganizationEdgeTypes, Organization>>();
+                                             var accessRights = new List<Tuple<User2OrganizationEdgeLabel, Organization>>();
 
                                              if (accessRightsArray.SafeAny())
                                              {
@@ -5901,7 +5901,7 @@ namespace social.OpenData.UsersAPI
                                                      if (!accessRightObject.ParseMandatoryEnum("accessRight",
                                                                                                "access right",
                                                                                                HTTPServer.DefaultHTTPServerName,
-                                                                                               out User2OrganizationEdgeTypes accessRight,
+                                                                                               out User2OrganizationEdgeLabel accessRight,
                                                                                                Request,
                                                                                                out errorResponse))
                                                      {
@@ -5943,7 +5943,7 @@ namespace social.OpenData.UsersAPI
 
                                                      #endregion
 
-                                                     accessRights.Add(new Tuple<User2OrganizationEdgeTypes, Organization>(accessRight,
+                                                     accessRights.Add(new Tuple<User2OrganizationEdgeLabel, Organization>(accessRight,
                                                                                                                           organization));
 
                                                  }
@@ -6207,7 +6207,7 @@ namespace social.OpenData.UsersAPI
                                                      return errorResponse;
                                              }
 
-                                             var accessRights = new List<Tuple<User2OrganizationEdgeTypes, Organization>>();
+                                             var accessRights = new List<Tuple<User2OrganizationEdgeLabel, Organization>>();
 
                                              if (accessRightsArray.SafeAny())
                                              {
@@ -6237,7 +6237,7 @@ namespace social.OpenData.UsersAPI
                                                      if (!accessRightObject.ParseMandatoryEnum("accessRight",
                                                                                              "access right",
                                                                                              HTTPServer.DefaultHTTPServerName,
-                                                                                             out User2OrganizationEdgeTypes accessRight,
+                                                                                             out User2OrganizationEdgeLabel accessRight,
                                                                                              Request,
                                                                                              out errorResponse))
                                                      {
@@ -6275,7 +6275,7 @@ namespace social.OpenData.UsersAPI
 
                                                      #endregion
 
-                                                     accessRights.Add(new Tuple<User2OrganizationEdgeTypes, Organization>(accessRight,
+                                                     accessRights.Add(new Tuple<User2OrganizationEdgeLabel, Organization>(accessRight,
                                                                                                                           organization));
 
                                                  }
@@ -9712,7 +9712,7 @@ namespace social.OpenData.UsersAPI
 
                                                                                         foreach (var admin in Admins)
                                                                                             await _AddUserToOrganization(admin,
-                                                                                                                         User2OrganizationEdgeTypes.IsAdmin,
+                                                                                                                         User2OrganizationEdgeLabel.IsAdmin,
                                                                                                                          _organization);
 
                                                                                     },
@@ -10209,7 +10209,7 @@ namespace social.OpenData.UsersAPI
 
 
                                              var result = await AddUserToOrganization(user,
-                                                                                      User2OrganizationEdgeTypes.IsAdmin,
+                                                                                      User2OrganizationEdgeLabel.IsAdmin,
                                                                                       Organization);
 
 
@@ -10310,7 +10310,7 @@ namespace social.OpenData.UsersAPI
 
 
                                              var result = await AddUserToOrganization(user,
-                                                                                      User2OrganizationEdgeTypes.IsMember,
+                                                                                      User2OrganizationEdgeLabel.IsMember,
                                                                                       Organization);
 
 
@@ -10411,7 +10411,7 @@ namespace social.OpenData.UsersAPI
 
 
                                              var result = await AddUserToOrganization(user,
-                                                                                      User2OrganizationEdgeTypes.IsGuest,
+                                                                                      User2OrganizationEdgeLabel.IsGuest,
                                                                                       Organization);
 
 
@@ -10612,7 +10612,7 @@ namespace social.OpenData.UsersAPI
 
 
                                              var result = await RemoveUserFromOrganization(user,
-                                                                                           User2OrganizationEdgeTypes.IsAdmin,
+                                                                                           User2OrganizationEdgeLabel.IsAdmin,
                                                                                            Organization);
 
 
@@ -10713,7 +10713,7 @@ namespace social.OpenData.UsersAPI
 
 
                                              var result = await RemoveUserFromOrganization(user,
-                                                                                           User2OrganizationEdgeTypes.IsMember,
+                                                                                           User2OrganizationEdgeLabel.IsMember,
                                                                                            Organization);
 
 
@@ -10814,7 +10814,7 @@ namespace social.OpenData.UsersAPI
 
 
                                              var result = await RemoveUserFromOrganization(user,
-                                                                                           User2OrganizationEdgeTypes.IsGuest,
+                                                                                           User2OrganizationEdgeLabel.IsGuest,
                                                                                            Organization);
 
 
@@ -14068,7 +14068,7 @@ namespace social.OpenData.UsersAPI
                     }
 
 
-                    if (!Enum.TryParse(Data["edge"].Value<String>(), out User2OrganizationEdgeTypes U2O_EdgeLabel))
+                    if (!Enum.TryParse(Data["edge"].Value<String>(), out User2OrganizationEdgeLabel U2O_EdgeLabel))
                     {
                         DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Unknown edge label '" + Data["edge"].Value<String>() + "'!"));
                         break;
@@ -15557,8 +15557,8 @@ namespace social.OpenData.UsersAPI
             #region Get notification settings from his organisations and higher-level organizations
 
             var allHisOrganizations = User.User2Organization_OutEdges.
-                                           Where (edge => edge.EdgeLabel == User2OrganizationEdgeTypes.IsAdmin ||
-                                                          edge.EdgeLabel == User2OrganizationEdgeTypes.IsMember).
+                                           Where (edge => edge.EdgeLabel == User2OrganizationEdgeLabel.IsAdmin ||
+                                                          edge.EdgeLabel == User2OrganizationEdgeLabel.IsMember).
                                            Select(edge => edge.Target).
                                            ToSafeHashSet();
 
@@ -16281,7 +16281,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<AddUserResult> AddUser(User                            User,
-                                                 User2OrganizationEdgeTypes      AccessRight,
+                                                 User2OrganizationEdgeLabel      AccessRight,
                                                  Organization                    Organization,
                                                  Action<User, EventTracking_Id>  OnAdded           = null,
                                                  EventTracking_Id                EventTrackingId   = null,
@@ -16377,7 +16377,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<AddUserResult> AddUser(User                                                          User,
-                                                 IEnumerable<Tuple<User2OrganizationEdgeTypes, Organization>>  AccessRights,
+                                                 IEnumerable<Tuple<User2OrganizationEdgeLabel, Organization>>  AccessRights,
                                                  Action<User, EventTracking_Id>                                OnAdded           = null,
                                                  EventTracking_Id                                              EventTrackingId   = null,
                                                  User_Id?                                                      CurrentUserId     = null)
@@ -16662,7 +16662,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<AddUserIfNotExistsResult> AddUserIfNotExists(User                            User,
-                                                                       User2OrganizationEdgeTypes      AccessRight,
+                                                                       User2OrganizationEdgeLabel      AccessRight,
                                                                        Organization                    Organization,
                                                                        Action<User, EventTracking_Id>  OnAdded           = null,
                                                                        EventTracking_Id                EventTrackingId   = null,
@@ -16759,7 +16759,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<AddUserIfNotExistsResult> AddUserIfNotExists(User                                                          User,
-                                                                       IEnumerable<Tuple<User2OrganizationEdgeTypes, Organization>>  AccessRights,
+                                                                       IEnumerable<Tuple<User2OrganizationEdgeLabel, Organization>>  AccessRights,
                                                                        Action<User, EventTracking_Id>                                OnAdded           = null,
                                                                        EventTracking_Id                                              EventTrackingId   = null,
                                                                        User_Id?                                                      CurrentUserId     = null)
@@ -17082,7 +17082,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<AddOrUpdateUserResult> AddOrUpdateUser(User                            User,
-                                                                 User2OrganizationEdgeTypes      AccessRight,
+                                                                 User2OrganizationEdgeLabel      AccessRight,
                                                                  Organization                    Organization,
                                                                  Action<User, EventTracking_Id>  OnAdded           = null,
                                                                  Action<User, EventTracking_Id>  OnUpdated         = null,
@@ -30958,7 +30958,7 @@ namespace social.OpenData.UsersAPI
                 return true;
 
             // An astronaut must be at least an admin of some parent organization!
-            if (!Astronaut.User2Organization_OutEdges.Any(edge => edge.EdgeLabel == User2OrganizationEdgeTypes.IsAdmin))
+            if (!Astronaut.User2Organization_OutEdges.Any(edge => edge.EdgeLabel == User2OrganizationEdgeLabel.IsAdmin))
                 return false;
 
             var VetoUsers             = new HashSet<User>();
@@ -31036,7 +31036,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking user identification</param>
         protected internal virtual Task SendNotifications(User                        User,
-                                                          User2OrganizationEdgeTypes  EdgeLabel,
+                                                          User2OrganizationEdgeLabel  EdgeLabel,
                                                           Organization                Organization,
                                                           NotificationMessageType     MessageType,
                                                           EventTracking_Id            EventTrackingId    = null,
@@ -31060,7 +31060,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking user identification.</param>
         protected internal async virtual Task SendNotifications(User                                  User,
-                                                                User2OrganizationEdgeTypes            EdgeLabel,
+                                                                User2OrganizationEdgeLabel            EdgeLabel,
                                                                 Organization                          Organization,
                                                                 IEnumerable<NotificationMessageType>  MessageTypes,
                                                                 EventTracking_Id                      EventTrackingId   = null,
@@ -31085,9 +31085,9 @@ namespace social.OpenData.UsersAPI
             {
 
                 var membership = EdgeLabel switch {
-                    User2OrganizationEdgeTypes.IsAdmin  => " as admin",
-                    User2OrganizationEdgeTypes.IsMember => " as member",
-                    User2OrganizationEdgeTypes.IsGuest  => " as guest",
+                    User2OrganizationEdgeLabel.IsAdmin  => " as admin",
+                    User2OrganizationEdgeLabel.IsMember => " as member",
+                    User2OrganizationEdgeLabel.IsGuest  => " as guest",
                     _                                   => ""
                 };
 
@@ -31272,7 +31272,7 @@ namespace social.OpenData.UsersAPI
         #region (protected) _AddUserToOrganization     (User, EdgeLabel, Organization, SuppressNotifications = false, CurrentUserId  = null)
 
         protected async Task<AddUserToOrganizationResult> _AddUserToOrganization(User                        User,
-                                                                                 User2OrganizationEdgeTypes  EdgeLabel,
+                                                                                 User2OrganizationEdgeLabel  EdgeLabel,
                                                                                  Organization                Organization,
                                                                                  EventTracking_Id            EventTrackingId         = null,
                                                                                  Boolean                     SuppressNotifications   = false,
@@ -31387,7 +31387,7 @@ namespace social.OpenData.UsersAPI
         #region AddUserToOrganization                  (User, EdgeLabel, Organization,                                CurrentUserId  = null)
 
         public async Task<AddUserToOrganizationResult> AddUserToOrganization(User                        User,
-                                                                             User2OrganizationEdgeTypes  EdgeLabel,
+                                                                             User2OrganizationEdgeLabel  EdgeLabel,
                                                                              Organization                Organization,
                                                                              EventTracking_Id            EventTrackingId   = null,
                                                                              User_Id?                    CurrentUserId     = null)
@@ -31457,7 +31457,7 @@ namespace social.OpenData.UsersAPI
         #region (protected) _RemoveUserFromOrganization(User, EdgeLabel, Organization, SuppressNotifications = false, ...)
 
         protected async Task<RemoveUserFromOrganizationResult> _RemoveUserFromOrganization(User                        User,
-                                                                                           User2OrganizationEdgeTypes  EdgeLabel,
+                                                                                           User2OrganizationEdgeLabel  EdgeLabel,
                                                                                            Organization                Organization,
                                                                                            EventTracking_Id            EventTrackingId         = null,
                                                                                            Boolean                     SuppressNotifications   = false,
@@ -31579,7 +31579,7 @@ namespace social.OpenData.UsersAPI
         #region RemoveUserFromOrganization             (User, EdgeLabel, Organization,                                CurrentUserId = null)
 
         public async Task<RemoveUserFromOrganizationResult> RemoveUserFromOrganization(User                        User,
-                                                                                       User2OrganizationEdgeTypes  EdgeLabel,
+                                                                                       User2OrganizationEdgeLabel  EdgeLabel,
                                                                                        Organization                Organization,
                                                                                        EventTracking_Id            EventTrackingId   = null,
                                                                                        User_Id?                    CurrentUserId     = null)

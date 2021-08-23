@@ -32,14 +32,14 @@ namespace social.OpenData.UsersAPI
         public User                        User
             => Object1;
 
-        public User2OrganizationEdgeTypes  EdgeLabel       { get; }
+        public User2OrganizationEdgeLabel  EdgeLabel       { get; }
 
         public Organization                Organization
             => Object2;
 
 
         public AddUserToOrganizationResult(User                        User,
-                                           User2OrganizationEdgeTypes  EdgeLabel,
+                                           User2OrganizationEdgeLabel  EdgeLabel,
                                            Organization                Organization,
                                            EventTracking_Id            EventTrackingId,
                                            Boolean                     IsSuccess,
@@ -61,7 +61,7 @@ namespace social.OpenData.UsersAPI
 
 
         public static AddUserToOrganizationResult Success(User                        User,
-                                                          User2OrganizationEdgeTypes  EdgeLabel,
+                                                          User2OrganizationEdgeLabel  EdgeLabel,
                                                           Organization                Organization,
                                                           EventTracking_Id            EventTrackingId)
 
@@ -73,7 +73,7 @@ namespace social.OpenData.UsersAPI
 
 
         public static AddUserToOrganizationResult ArgumentError(User                        User,
-                                                                User2OrganizationEdgeTypes  EdgeLabel,
+                                                                User2OrganizationEdgeLabel  EdgeLabel,
                                                                 Organization                Organization,
                                                                 EventTracking_Id            EventTrackingId,
                                                                 String                      Argument,
@@ -89,7 +89,7 @@ namespace social.OpenData.UsersAPI
                                                                  Description));
 
         public static AddUserToOrganizationResult ArgumentError(User                        User,
-                                                                User2OrganizationEdgeTypes  EdgeLabel,
+                                                                User2OrganizationEdgeLabel  EdgeLabel,
                                                                 Organization                Organization,
                                                                 EventTracking_Id            EventTrackingId,
                                                                 String                      Argument,
@@ -105,7 +105,7 @@ namespace social.OpenData.UsersAPI
 
 
         public static AddUserToOrganizationResult Failed(User                        User,
-                                                         User2OrganizationEdgeTypes  EdgeLabel,
+                                                         User2OrganizationEdgeLabel  EdgeLabel,
                                                          Organization                Organization,
                                                          EventTracking_Id            EventTrackingId,
                                                          String                      Description)
@@ -120,7 +120,7 @@ namespace social.OpenData.UsersAPI
                                                                  Description));
 
         public static AddUserToOrganizationResult Failed(User                        User,
-                                                         User2OrganizationEdgeTypes  EdgeLabel,
+                                                         User2OrganizationEdgeLabel  EdgeLabel,
                                                          Organization                Organization,
                                                          EventTracking_Id            EventTrackingId,
                                                          I18NString                  Description)
@@ -134,7 +134,7 @@ namespace social.OpenData.UsersAPI
                                                Description);
 
         public static AddUserToOrganizationResult Failed(User                        User,
-                                                         User2OrganizationEdgeTypes  EdgeLabel,
+                                                         User2OrganizationEdgeLabel  EdgeLabel,
                                                          Organization                Organization,
                                                          EventTracking_Id            EventTrackingId,
                                                          Exception                   Exception)
