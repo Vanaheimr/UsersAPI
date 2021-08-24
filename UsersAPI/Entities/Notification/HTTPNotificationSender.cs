@@ -116,7 +116,7 @@ namespace social.OpenData.UsersAPI
                 var JSON = new JObject(
                                new JProperty("messages",    new JArray(JSONData)),
                                new JProperty("writer",      UsersAPI.SystemId),
-                               new JProperty("timestamp",   DateTime.UtcNow.ToIso8601()),
+                               new JProperty("timestamp",   Timestamp.Now.ToIso8601()),
                                new JProperty("nonce",       Guid.NewGuid().ToString().Replace("-", "")),
                                new JProperty("parentHash",  CurrentDatabaseHashValue)
                            );

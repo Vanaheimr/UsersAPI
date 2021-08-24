@@ -474,7 +474,7 @@ namespace social.OpenData.UsersAPI
 
             #region Send OnSendTelegramRequest event
 
-            var StartTime = DateTime.UtcNow;
+            var StartTime = Timestamp.Now;
 
             try
             {
@@ -517,7 +517,7 @@ namespace social.OpenData.UsersAPI
 
             #region Send OnSendTelegramResponse event
 
-            var Endtime = DateTime.UtcNow;
+            var Endtime = Timestamp.Now;
 
             try
             {
@@ -575,7 +575,7 @@ namespace social.OpenData.UsersAPI
 
             #region Send OnSendTelegramRequest event
 
-            var StartTime = DateTime.UtcNow;
+            var StartTime = Timestamp.Now;
 
             try
             {
@@ -616,7 +616,7 @@ namespace social.OpenData.UsersAPI
 
             #region Send OnSendTelegramResponse event
 
-            var Endtime = DateTime.UtcNow;
+            var Endtime = Timestamp.Now;
 
             try
             {
@@ -691,7 +691,7 @@ namespace social.OpenData.UsersAPI
 
             #region Send OnSendTelegramRequest event
 
-            var StartTime = DateTime.UtcNow;
+            var StartTime = Timestamp.Now;
 
             try
             {
@@ -737,7 +737,7 @@ namespace social.OpenData.UsersAPI
 
             #region Send OnSendTelegramResponse event
 
-            var Endtime = DateTime.UtcNow;
+            var Endtime = Timestamp.Now;
 
             try
             {
@@ -808,7 +808,7 @@ namespace social.OpenData.UsersAPI
 
             #region Send OnSendTelegramRequest event
 
-            var StartTime = DateTime.UtcNow;
+            var StartTime = Timestamp.Now;
 
             try
             {
@@ -854,7 +854,7 @@ namespace social.OpenData.UsersAPI
 
             #region Send OnSendTelegramResponse event
 
-            var Endtime = DateTime.UtcNow;
+            var Endtime = Timestamp.Now;
 
             try
             {

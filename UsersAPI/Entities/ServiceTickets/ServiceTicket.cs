@@ -224,7 +224,7 @@ namespace social.OpenData.UsersAPI
             this.ChangeSets      = ChangeSets.OrderByDescending(changeSet => changeSet.Timestamp).ToArray();
 
             Created              = this.ChangeSets.LastOrDefault()?.Timestamp
-                                                    ?? DateTime.UtcNow;
+                                                    ?? Timestamp.Now;
 
 
             Author               = this.ChangeSets.LastOrDefault()?.Author;
@@ -345,7 +345,7 @@ namespace social.OpenData.UsersAPI
                        new ServiceTicketChangeSet(
                            ServiceTicketChangeSet_Id.Random(),
                            ServiceTicketChangeSet.DefaultJSONLDContext,
-                           Timestamp     ?? DateTime.UtcNow,
+                           Timestamp     ?? org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
                            Author,
                            Status        ?? ServiceTicketStatusTypes.New,
                            Title,
@@ -885,7 +885,7 @@ namespace social.OpenData.UsersAPI
                         //               new HTTPResponseBuilder(Request) {
                         //                   HTTPStatusCode             = HTTPStatusCode.BadRequest,
                         //                   Server                     = HTTPServer.DefaultServerName,
-                        //                   Date                       = DateTime.UtcNow,
+                        //                   Date                       = Timestamp.Now,
                         //                   AccessControlAllowOrigin   = "*",
                         //                   AccessControlAllowMethods  = "GET, SET",
                         //                   AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -1004,7 +1004,7 @@ namespace social.OpenData.UsersAPI
                                     : new ServiceTicket(ServiceTicketIdBody ?? ServiceTicketIdURL.Value,
                                                         Context,
 
-                                                        DateTime.UtcNow,
+                                                        Timestamp.Now,
                                                         Author,
                                                         ServiceTicketStatusTypes.New,
                                                         Title,
@@ -1057,7 +1057,7 @@ namespace social.OpenData.UsersAPI
                                               (firstResponseDays == 0 && firstResponseHours < 4 ? firstResponseMinutes + " minutes" : "")
                                             : "";
 
-            var ageSeconds            = Math.Round(((ChangeSets.FirstOrDefault(changeSet => changeSet.Status == ServiceTicketStatusTypes.Closed)?.Timestamp ?? DateTime.UtcNow) - ChangeSets.Last().Timestamp).TotalSeconds, 0);
+            var ageSeconds            = Math.Round(((ChangeSets.FirstOrDefault(changeSet => changeSet.Status == ServiceTicketStatusTypes.Closed)?.Timestamp ?? Timestamp.Now) - ChangeSets.Last().Timestamp).TotalSeconds, 0);
             var ageDays               = Math.Floor(ageSeconds / 60 / (60 * 24));
             var ageHours              = Math.Floor(ageSeconds / 60 / 60) - (ageDays  * 24);
             var ageMinutes            = Math.Floor(ageSeconds / 60)      - (ageHours * 60);
@@ -1578,7 +1578,7 @@ namespace social.OpenData.UsersAPI
                                ServiceTicketChangeSetId ?? ServiceTicketChangeSet_Id.Random(),
                                JSONLDContext,
 
-                               Timestamp                ?? DateTime.UtcNow,
+                               Timestamp                ?? org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
                                Author,
                                Status                   ?? ServiceTicketStatusTypes.New,
                                Title,

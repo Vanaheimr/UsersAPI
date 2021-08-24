@@ -109,9 +109,9 @@ namespace social.OpenData.UsersAPI
         #region (static) Random(Length)
 
         /// <summary>
-        /// Create a new user identification.
+        /// Create a new random user identification.
         /// </summary>
-        /// <param name="Length">The expected length of the user identification.</param>
+        /// <param name="Length">The expected length of the random user identification.</param>
         public static User_Id Random(Byte Length = 15)
 
             => new User_Id(_random.RandomString(Length).ToUpper());

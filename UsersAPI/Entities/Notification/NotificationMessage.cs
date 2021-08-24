@@ -823,7 +823,7 @@ namespace social.OpenData.UsersAPI.Notifications
             public NotificationMessage ToImmutable
 
                 => new NotificationMessage(Id,
-                                           Timestamp ?? DateTime.UtcNow,
+                                           Timestamp ?? org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
                                            Type      ?? NotificationMessageType.Parse("default"),
                                            Data,
                                            Owners,

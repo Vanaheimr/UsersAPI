@@ -166,7 +166,7 @@ namespace social.OpenData.UsersAPI
             this.User          = User        ?? throw new ArgumentNullException(nameof(User), "The given user must not be null!");
             this.Description   = Description ?? I18NString.Empty;
             this.AccessRights  = AccessRights;
-            this.Created       = Created     ?? DateTime.UtcNow;
+            this.Created       = Created     ?? Timestamp.Now;
             this.NotBefore     = NotBefore;
             this.NotAfter      = NotAfter;
             this.IsDisabled    = IsDisabled  ?? false;
@@ -780,7 +780,7 @@ namespace social.OpenData.UsersAPI
                 this.User          = User        ?? throw new ArgumentNullException(nameof(User), "The given API key must not be null!");
                 this.Description   = Description ?? I18NString.Empty;
                 this.AccessRights  = AccessRights;
-                this.Created       = Created     ?? DateTime.UtcNow;
+                this.Created       = Created     ?? Timestamp.Now;
                 this.NotBefore     = NotBefore;
                 this.NotAfter      = NotAfter;
                 this.IsDisabled    = IsDisabled  ?? false;
@@ -829,8 +829,8 @@ namespace social.OpenData.UsersAPI
                                           User,
                                           Description,
                                           AccessRights ?? APIKeyRights.ReadOnly,
-                                          Created      ?? DateTime.UtcNow,
-                                          NotBefore    ?? DateTime.UtcNow,
+                                          Created      ?? Timestamp.Now,
+                                          NotBefore    ?? Timestamp.Now,
                                           NotAfter,
                                           IsDisabled   ?? false,
 

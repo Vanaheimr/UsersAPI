@@ -89,7 +89,7 @@ namespace social.OpenData.UsersAPI
                              SecurityToken_Id?  SecurityToken2    = null,
                              EventTracking_Id   EventTrackingId   = null)
 
-            : this(DateTime.UtcNow,
+            : this(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
                    new User[] { User },
                    SecurityToken1,
                    SecurityToken2,
@@ -110,7 +110,7 @@ namespace social.OpenData.UsersAPI
                              SecurityToken_Id?  SecurityToken2    = null,
                              EventTracking_Id   EventTrackingId   = null)
 
-            : this(DateTime.UtcNow,
+            : this(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
                    Users,
                    SecurityToken1,
                    SecurityToken2,

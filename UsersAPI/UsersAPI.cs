@@ -123,7 +123,7 @@ namespace social.OpenData.UsersAPI
                 HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
                     HTTPStatusCode  = HTTPStatusCode.BadRequest,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
-                    Date            = DateTime.UtcNow,
+                    Date            = Timestamp.Now,
                     Connection      = "close"
                 };
 
@@ -139,7 +139,7 @@ namespace social.OpenData.UsersAPI
                 HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
                     HTTPStatusCode  = HTTPStatusCode.BadRequest,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
-                    Date            = DateTime.UtcNow,
+                    Date            = Timestamp.Now,
                     ContentType     = HTTPContentType.JSON_UTF8,
                     Content         = @"{ ""description"": ""Invalid UserId!"" }".ToUTF8Bytes(),
                     Connection      = "close"
@@ -194,7 +194,7 @@ namespace social.OpenData.UsersAPI
                 HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
                     HTTPStatusCode  = HTTPStatusCode.BadRequest,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
-                    Date            = DateTime.UtcNow,
+                    Date            = Timestamp.Now,
                     Connection      = "close"
                 };
 
@@ -209,7 +209,7 @@ namespace social.OpenData.UsersAPI
                 HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
                     HTTPStatusCode  = HTTPStatusCode.BadRequest,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
-                    Date            = DateTime.UtcNow,
+                    Date            = Timestamp.Now,
                     ContentType     = HTTPContentType.JSON_UTF8,
                     Content         = @"{ ""description"": ""Invalid UserId!"" }".ToUTF8Bytes(),
                     Connection      = "close"
@@ -224,7 +224,7 @@ namespace social.OpenData.UsersAPI
                 HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
                     HTTPStatusCode  = HTTPStatusCode.NotFound,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
-                    Date            = DateTime.UtcNow,
+                    Date            = Timestamp.Now,
                     ContentType     = HTTPContentType.JSON_UTF8,
                     Content         = @"{ ""description"": ""Unknown UserId!"" }".ToUTF8Bytes(),
                     Connection      = "close"
@@ -278,7 +278,7 @@ namespace social.OpenData.UsersAPI
                 HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
                     HTTPStatusCode  = HTTPStatusCode.BadRequest,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
-                    Date            = DateTime.UtcNow,
+                    Date            = Timestamp.Now,
                     Connection      = "close"
                 };
 
@@ -294,7 +294,7 @@ namespace social.OpenData.UsersAPI
                 HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
                     HTTPStatusCode  = HTTPStatusCode.BadRequest,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
-                    Date            = DateTime.UtcNow,
+                    Date            = Timestamp.Now,
                     ContentType     = HTTPContentType.JSON_UTF8,
                     Content         = @"{ ""description"": ""Invalid UserGroupId!"" }".ToUTF8Bytes(),
                     Connection      = "close"
@@ -349,7 +349,7 @@ namespace social.OpenData.UsersAPI
                 HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
                     HTTPStatusCode  = HTTPStatusCode.BadRequest,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
-                    Date            = DateTime.UtcNow,
+                    Date            = Timestamp.Now,
                     Connection      = "close"
                 };
 
@@ -364,7 +364,7 @@ namespace social.OpenData.UsersAPI
                 HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
                     HTTPStatusCode  = HTTPStatusCode.BadRequest,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
-                    Date            = DateTime.UtcNow,
+                    Date            = Timestamp.Now,
                     ContentType     = HTTPContentType.JSON_UTF8,
                     Content         = @"{ ""description"": ""Invalid UserGroupId!"" }".ToUTF8Bytes(),
                     Connection      = "close"
@@ -379,7 +379,7 @@ namespace social.OpenData.UsersAPI
                 HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
                     HTTPStatusCode  = HTTPStatusCode.NotFound,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
-                    Date            = DateTime.UtcNow,
+                    Date            = Timestamp.Now,
                     ContentType     = HTTPContentType.JSON_UTF8,
                     Content         = @"{ ""description"": ""Unknown UserGroupId!"" }".ToUTF8Bytes(),
                     Connection      = "close"
@@ -433,7 +433,7 @@ namespace social.OpenData.UsersAPI
                 HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
                     HTTPStatusCode  = HTTPStatusCode.BadRequest,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
-                    Date            = DateTime.UtcNow,
+                    Date            = Timestamp.Now,
                     Connection      = "close"
                 };
 
@@ -449,7 +449,7 @@ namespace social.OpenData.UsersAPI
                 HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
                     HTTPStatusCode  = HTTPStatusCode.BadRequest,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
-                    Date            = DateTime.UtcNow,
+                    Date            = Timestamp.Now,
                     ContentType     = HTTPContentType.JSON_UTF8,
                     Content         = @"{ ""description"": ""Invalid OrganizationId!"" }".ToUTF8Bytes(),
                     Connection      = "close"
@@ -504,7 +504,7 @@ namespace social.OpenData.UsersAPI
                 HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
                     HTTPStatusCode  = HTTPStatusCode.BadRequest,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
-                    Date            = DateTime.UtcNow,
+                    Date            = Timestamp.Now,
                     Connection      = "close"
                 };
 
@@ -519,7 +519,7 @@ namespace social.OpenData.UsersAPI
                 HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
                     HTTPStatusCode  = HTTPStatusCode.BadRequest,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
-                    Date            = DateTime.UtcNow,
+                    Date            = Timestamp.Now,
                     ContentType     = HTTPContentType.JSON_UTF8,
                     Content         = @"{ ""description"": ""Invalid OrganizationId!"" }".ToUTF8Bytes(),
                     Connection      = "close"
@@ -534,7 +534,7 @@ namespace social.OpenData.UsersAPI
                 HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
                     HTTPStatusCode  = HTTPStatusCode.NotFound,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
-                    Date            = DateTime.UtcNow,
+                    Date            = Timestamp.Now,
                     ContentType     = HTTPContentType.JSON_UTF8,
                     Content         = @"{ ""description"": ""Unknown OrganizationId!"" }".ToUTF8Bytes(),
                     Connection      = "close"
@@ -588,7 +588,7 @@ namespace social.OpenData.UsersAPI
                 HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
                     HTTPStatusCode  = HTTPStatusCode.BadRequest,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
-                    Date            = DateTime.UtcNow,
+                    Date            = Timestamp.Now,
                     Connection      = "close"
                 };
 
@@ -604,7 +604,7 @@ namespace social.OpenData.UsersAPI
                 HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
                     HTTPStatusCode  = HTTPStatusCode.BadRequest,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
-                    Date            = DateTime.UtcNow,
+                    Date            = Timestamp.Now,
                     ContentType     = HTTPContentType.JSON_UTF8,
                     Content         = @"{ ""description"": ""Invalid NewsId!"" }".ToUTF8Bytes(),
                     Connection      = "close"
@@ -659,7 +659,7 @@ namespace social.OpenData.UsersAPI
                 HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
                     HTTPStatusCode  = HTTPStatusCode.BadRequest,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
-                    Date            = DateTime.UtcNow,
+                    Date            = Timestamp.Now,
                     Connection      = "close"
                 };
 
@@ -674,7 +674,7 @@ namespace social.OpenData.UsersAPI
                 HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
                     HTTPStatusCode  = HTTPStatusCode.BadRequest,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
-                    Date            = DateTime.UtcNow,
+                    Date            = Timestamp.Now,
                     ContentType     = HTTPContentType.JSON_UTF8,
                     Content         = @"{ ""description"": ""Invalid NewsId!"" }".ToUTF8Bytes(),
                     Connection      = "close"
@@ -689,7 +689,7 @@ namespace social.OpenData.UsersAPI
                 HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
                     HTTPStatusCode  = HTTPStatusCode.NotFound,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
-                    Date            = DateTime.UtcNow,
+                    Date            = Timestamp.Now,
                     ContentType     = HTTPContentType.JSON_UTF8,
                     Content         = @"{ ""description"": ""Unknown NewsId!"" }".ToUTF8Bytes(),
                     Connection      = "close"
@@ -743,7 +743,7 @@ namespace social.OpenData.UsersAPI
                 HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
                     HTTPStatusCode  = HTTPStatusCode.BadRequest,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
-                    Date            = DateTime.UtcNow,
+                    Date            = Timestamp.Now,
                     Connection      = "close"
                 };
 
@@ -759,7 +759,7 @@ namespace social.OpenData.UsersAPI
                 HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
                     HTTPStatusCode  = HTTPStatusCode.BadRequest,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
-                    Date            = DateTime.UtcNow,
+                    Date            = Timestamp.Now,
                     ContentType     = HTTPContentType.JSON_UTF8,
                     Content         = @"{ ""description"": ""Invalid NewsId!"" }".ToUTF8Bytes(),
                     Connection      = "close"
@@ -814,7 +814,7 @@ namespace social.OpenData.UsersAPI
                 HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
                     HTTPStatusCode  = HTTPStatusCode.BadRequest,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
-                    Date            = DateTime.UtcNow,
+                    Date            = Timestamp.Now,
                     Connection      = "close"
                 };
 
@@ -829,7 +829,7 @@ namespace social.OpenData.UsersAPI
                 HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
                     HTTPStatusCode  = HTTPStatusCode.BadRequest,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
-                    Date            = DateTime.UtcNow,
+                    Date            = Timestamp.Now,
                     ContentType     = HTTPContentType.JSON_UTF8,
                     Content         = @"{ ""description"": ""Invalid NewsId!"" }".ToUTF8Bytes(),
                     Connection      = "close"
@@ -844,7 +844,7 @@ namespace social.OpenData.UsersAPI
                 HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
                     HTTPStatusCode  = HTTPStatusCode.NotFound,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
-                    Date            = DateTime.UtcNow,
+                    Date            = Timestamp.Now,
                     ContentType     = HTTPContentType.JSON_UTF8,
                     Content         = @"{ ""description"": ""Unknown NewsId!"" }".ToUTF8Bytes(),
                     Connection      = "close"
@@ -3347,7 +3347,7 @@ namespace social.OpenData.UsersAPI
 
                 DebugX.LogT(GetType().Name + ".DoMaintenance() led to an exception: " + e.Message + Environment.NewLine + e.StackTrace);
 
-                //OnAPIException?.Invoke(DateTime.UtcNow,
+                //OnAPIException?.Invoke(Timestamp.Now,
                 //                       this,
                 //                       e);
 
@@ -4254,8 +4254,8 @@ namespace social.OpenData.UsersAPI
             if (Request.Cookies != null                                                                             &&
                 Request.Cookies. TryGet     (SessionCookieName,           out HTTPCookie       Cookie)              &&
                 SecurityToken_Id.TryParse   (Cookie.FirstOrDefault().Key, out SecurityToken_Id SecurityTokenId)     &&
-                _HTTPCookies.     TryGetValue(SecurityTokenId,             out SecurityToken    SecurityInformation) &&
-                DateTime.UtcNow < SecurityInformation.Expires                                                       &&
+                _HTTPCookies.    TryGetValue(SecurityTokenId,             out SecurityToken    SecurityInformation) &&
+                Timestamp.Now < SecurityInformation.Expires                                                         &&
                 TryGetUser(SecurityInformation.UserId, out User))
             {
                 return true;
@@ -4310,7 +4310,7 @@ namespace social.OpenData.UsersAPI
 
                 if (validUsers.Count == 1 &&
                     validUsers.First().AcceptedEULA.HasValue &&
-                    validUsers.First().AcceptedEULA.Value < DateTime.UtcNow)
+                    validUsers.First().AcceptedEULA.Value < Timestamp.Now)
                 {
                     User = validUsers.First();
                     return true;
@@ -4349,7 +4349,7 @@ namespace social.OpenData.UsersAPI
                 Request.Cookies. TryGet     (SessionCookieName,           out HTTPCookie       Cookie)              &&
                 SecurityToken_Id.TryParse   (Cookie.FirstOrDefault().Key, out SecurityToken_Id SecurityTokenId)     &&
                 _HTTPCookies.     TryGetValue(SecurityTokenId,             out SecurityToken    SecurityInformation) &&
-                DateTime.UtcNow < SecurityInformation.Expires                                                       &&
+                Timestamp.Now < SecurityInformation.Expires                                                       &&
                 TryGetUser(SecurityInformation.Astronaut ?? SecurityInformation.UserId, out User))
             {
                 return true;
@@ -4932,8 +4932,8 @@ namespace social.OpenData.UsersAPI
             //                                             var AdminMail = new TextEMailBuilder() {
             //                                                 From        = Robot.EMail,
             //                                                 To          = APIAdminEMails,
-            //                                                 Subject     = "New user activated: " + user.Id.ToString() + " at " + DateTime.UtcNow.ToString(),
-            //                                                 Text        = "New user activated: " + user.Id.ToString() + " at " + DateTime.UtcNow.ToString(),
+            //                                                 Subject     = "New user activated: " + user.Id.ToString() + " at " + Timestamp.Now.ToString(),
+            //                                                 Text        = "New user activated: " + user.Id.ToString() + " at " + Timestamp.Now.ToString(),
             //                                                 Passphrase  = APIPassphrase
             //                                             };
 
@@ -5233,7 +5233,7 @@ namespace social.OpenData.UsersAPI
                                                                                                ToUTF8Bytes()
                                                                                            ).ToHexString());
 
-                                             var expires          = DateTime.UtcNow.Add(MaxSignInSessionLifetime);
+                                             var expires          = Timestamp.Now.Add(MaxSignInSessionLifetime);
 
                                              lock (_HTTPCookies)
                                              {
@@ -5293,7 +5293,7 @@ namespace social.OpenData.UsersAPI
                                                 new HTTPResponse.Builder(Request) {
                                                     HTTPStatusCode             = HTTPStatusCode.OK,
                                                     Server                     = HTTPServer.DefaultServerName,
-                                                    Date                       = DateTime.UtcNow,
+                                                    Date                       = Timestamp.Now,
                                                     AccessControlAllowOrigin   = "*",
                                                     AccessControlAllowMethods  = "GET",
                                                     AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -5339,7 +5339,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                             Server                     = HTTPServer.DefaultServerName,
-                                                            Date                       = DateTime.UtcNow,
+                                                            Date                       = Timestamp.Now,
                                                             AccessControlAllowOrigin   = "*",
                                                             AccessControlAllowMethods  = "SET",
                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -5382,7 +5382,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode             = HTTPStatusCode.NotFound,
                                                             Server                     = HTTPServer.DefaultServerName,
-                                                            Date                       = DateTime.UtcNow,
+                                                            Date                       = Timestamp.Now,
                                                             AccessControlAllowOrigin   = "*",
                                                             AccessControlAllowMethods  = "SET",
                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -5403,7 +5403,7 @@ namespace social.OpenData.UsersAPI
                                                         ? new HTTPResponse.Builder(Request) {
                                                               HTTPStatusCode             = HTTPStatusCode.OK,
                                                               Server                     = HTTPServer.DefaultServerName,
-                                                              Date                       = DateTime.UtcNow,
+                                                              Date                       = Timestamp.Now,
                                                               AccessControlAllowOrigin   = "*",
                                                               AccessControlAllowMethods  = "SET",
                                                               AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -5417,7 +5417,7 @@ namespace social.OpenData.UsersAPI
                                                         : new HTTPResponse.Builder(Request) {
                                                               HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                               Server                     = HTTPServer.DefaultServerName,
-                                                              Date                       = DateTime.UtcNow,
+                                                              Date                       = Timestamp.Now,
                                                               AccessControlAllowOrigin   = "*",
                                                               AccessControlAllowMethods  = "SET",
                                                               AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -5539,7 +5539,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                             Server                     = HTTPServer.DefaultServerName,
-                                                            Date                       = DateTime.UtcNow,
+                                                            Date                       = Timestamp.Now,
                                                             AccessControlAllowOrigin   = "*",
                                                             AccessControlAllowMethods  = "SET",
                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -5563,7 +5563,7 @@ namespace social.OpenData.UsersAPI
                                                         ? new HTTPResponse.Builder(Request) {
                                                               HTTPStatusCode             = HTTPStatusCode.OK,
                                                               Server                     = HTTPServer.DefaultServerName,
-                                                              Date                       = DateTime.UtcNow,
+                                                              Date                       = Timestamp.Now,
                                                               AccessControlAllowOrigin   = "*",
                                                               AccessControlAllowMethods  = "SET",
                                                               AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -5571,7 +5571,7 @@ namespace social.OpenData.UsersAPI
                                                               Content                    = JSONObject.Create(
                                                                                                new JProperty("numberOfAccountsFound", Users.Count())
                                                                                            ).ToUTF8Bytes(),
-                                                              SetCookie                  = String.Concat(CookieName, "=; Expires=", DateTime.UtcNow.ToRfc1123(),
+                                                              SetCookie                  = String.Concat(CookieName, "=; Expires=", Timestamp.Now.ToRfc1123(),
                                                                                                          HTTPCookieDomain.IsNotNullOrEmpty()
                                                                                                              ? "; Domain=" + HTTPCookieDomain
                                                                                                              : "",
@@ -5582,7 +5582,7 @@ namespace social.OpenData.UsersAPI
                                                         : new HTTPResponse.Builder(Request) {
                                                               HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                               Server                     = HTTPServer.DefaultServerName,
-                                                              Date                       = DateTime.UtcNow,
+                                                              Date                       = Timestamp.Now,
                                                               AccessControlAllowOrigin   = "*",
                                                               AccessControlAllowMethods  = "SET",
                                                               AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -5590,7 +5590,7 @@ namespace social.OpenData.UsersAPI
                                                               Content                    = JSONObject.Create(
                                                                                                new JProperty("description", result.ErrorDescription.ToJSON())
                                                                                            ).ToUTF8Bytes(),
-                                                              SetCookie                  = String.Concat(CookieName, "=; Expires=", DateTime.UtcNow.ToRfc1123(),
+                                                              SetCookie                  = String.Concat(CookieName, "=; Expires=", Timestamp.Now.ToRfc1123(),
                                                                                                          HTTPCookieDomain.IsNotNullOrEmpty()
                                                                                                              ? "; Domain=" + HTTPCookieDomain
                                                                                                              : "",
@@ -5635,7 +5635,7 @@ namespace social.OpenData.UsersAPI
                                                  new HTTPResponse.Builder(Request) {
                                                      HTTPStatusCode              = HTTPStatusCode.OK,
                                                      Server                      = HTTPServer.DefaultServerName,
-                                                     Date                        = DateTime.UtcNow,
+                                                     Date                        = Timestamp.Now,
                                                      AccessControlAllowOrigin    = "*",
                                                      AccessControlAllowMethods   = "GET",
                                                      AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -5683,7 +5683,7 @@ namespace social.OpenData.UsersAPI
                                                      new HTTPResponse.Builder(Request) {
                                                          HTTPStatusCode             = HTTPStatusCode.OK,
                                                          Server                     = HTTPServer.DefaultServerName,
-                                                         Date                       = DateTime.UtcNow,
+                                                         Date                       = Timestamp.Now,
                                                          AccessControlAllowOrigin   = "*",
                                                          AccessControlAllowMethods  = "GET",
                                                          AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -5755,7 +5755,7 @@ namespace social.OpenData.UsersAPI
                                                  new HTTPResponse.Builder(Request) {
                                                      HTTPStatusCode                = HTTPStatusCode.OK,
                                                      Server                        = HTTPServer.DefaultServerName,
-                                                     Date                          = DateTime.UtcNow,
+                                                     Date                          = Timestamp.Now,
                                                      AccessControlAllowOrigin      = "*",
                                                      AccessControlAllowMethods     = "GET, COUNT, OPTIONS",
                                                      AccessControlAllowHeaders     = "Content-Type, Accept, Authorization",
@@ -5844,7 +5844,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                             Server                     = HTTPServer.DefaultServerName,
-                                                            Date                       = DateTime.UtcNow,
+                                                            Date                       = Timestamp.Now,
                                                             AccessControlAllowOrigin   = "*",
                                                             AccessControlAllowMethods  = "GET, ADD",
                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -5884,7 +5884,7 @@ namespace social.OpenData.UsersAPI
                                                          return new HTTPResponse.Builder(Request) {
                                                                     HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                                     Server                     = HTTPServer.DefaultServerName,
-                                                                    Date                       = DateTime.UtcNow,
+                                                                    Date                       = Timestamp.Now,
                                                                     AccessControlAllowOrigin   = "*",
                                                                     AccessControlAllowMethods  = "GET, SET",
                                                                     AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -5929,7 +5929,7 @@ namespace social.OpenData.UsersAPI
                                                          return new HTTPResponse.Builder(Request) {
                                                                     HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                                     Server                     = HTTPServer.DefaultServerName,
-                                                                    Date                       = DateTime.UtcNow,
+                                                                    Date                       = Timestamp.Now,
                                                                     AccessControlAllowOrigin   = "*",
                                                                     AccessControlAllowMethods  = "GET, SET",
                                                                     AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -5973,7 +5973,7 @@ namespace social.OpenData.UsersAPI
                                                         ? new HTTPResponse.Builder(Request) {
                                                               HTTPStatusCode              = HTTPStatusCode.Created,
                                                               Server                      = HTTPServer.DefaultServerName,
-                                                              Date                        = DateTime.UtcNow,
+                                                              Date                        = Timestamp.Now,
                                                               AccessControlAllowOrigin    = "*",
                                                               AccessControlAllowMethods   = "OPTIONS, ADD, EXISTS, GET, SET, AUTH, DEAUTH, IMPERSONATE, DEPERSONATE, DELETE",
                                                               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -5985,7 +5985,7 @@ namespace social.OpenData.UsersAPI
                                                         : new HTTPResponse.Builder(Request) {
                                                               HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                               Server                     = HTTPServer.DefaultServerName,
-                                                              Date                       = DateTime.UtcNow,
+                                                              Date                       = Timestamp.Now,
                                                               AccessControlAllowOrigin   = "*",
                                                               AccessControlAllowMethods  = "ADD, SET, GET",
                                                               AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -6013,13 +6013,13 @@ namespace social.OpenData.UsersAPI
                                                       CacheControl    = "private",
                                                       SetCookies      = new String[] {
 
-                                                                            String.Concat(CookieName, "=; Expires=", DateTime.UtcNow.ToRfc1123(),
+                                                                            String.Concat(CookieName, "=; Expires=", Timestamp.Now.ToRfc1123(),
                                                                                           HTTPCookieDomain.IsNotNullOrEmpty()
                                                                                               ? "; Domain=" + HTTPCookieDomain
                                                                                               : "",
                                                                                           "; Path=", URLPathPrefix),
 
-                                                                            String.Concat(SessionCookieName, "=; Expires=", DateTime.UtcNow.ToRfc1123(),
+                                                                            String.Concat(SessionCookieName, "=; Expires=", Timestamp.Now.ToRfc1123(),
                                                                                           HTTPCookieDomain.IsNotNullOrEmpty()
                                                                                               ? "; Domain=" + HTTPCookieDomain
                                                                                               : "",
@@ -6054,7 +6054,7 @@ namespace social.OpenData.UsersAPI
                                                  new HTTPResponse.Builder(Request) {
                                                      HTTPStatusCode             = HTTPStatusCode.OK,
                                                      Server                     = HTTPServer.DefaultServerName,
-                                                     Date                       = DateTime.UtcNow,
+                                                     Date                       = Timestamp.Now,
                                                      AccessControlAllowOrigin   = "*",
                                                      AccessControlAllowMethods  = "OPTIONS, ADD, EXISTS, GET, SET, AUTH, DEAUTH, IMPERSONATE, DEPERSONATE, DELETE",
                                                      AccessControlAllowHeaders  = "X-PINGOTHER, Content-Type, Accept, Authorization, X-App-Version",
@@ -6153,7 +6153,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                             Server                     = HTTPServer.DefaultServerName,
-                                                            Date                       = DateTime.UtcNow,
+                                                            Date                       = Timestamp.Now,
                                                             AccessControlAllowOrigin   = "*",
                                                             AccessControlAllowMethods  = "GET, SET",
                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -6180,7 +6180,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                             Server                     = HTTPServer.DefaultServerName,
-                                                            Date                       = DateTime.UtcNow,
+                                                            Date                       = Timestamp.Now,
                                                             AccessControlAllowOrigin   = "*",
                                                             AccessControlAllowMethods  = "GET, SET",
                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -6220,7 +6220,7 @@ namespace social.OpenData.UsersAPI
                                                          return new HTTPResponse.Builder(Request) {
                                                                      HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                                      Server                     = HTTPServer.DefaultServerName,
-                                                                     Date                       = DateTime.UtcNow,
+                                                                     Date                       = Timestamp.Now,
                                                                      AccessControlAllowOrigin   = "*",
                                                                      AccessControlAllowMethods  = "GET, SET",
                                                                      AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -6263,7 +6263,7 @@ namespace social.OpenData.UsersAPI
                                                          return new HTTPResponse.Builder(Request) {
                                                                      HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                                      Server                     = HTTPServer.DefaultServerName,
-                                                                     Date                       = DateTime.UtcNow,
+                                                                     Date                       = Timestamp.Now,
                                                                      AccessControlAllowOrigin   = "*",
                                                                      AccessControlAllowMethods  = "GET, SET",
                                                                      AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -6305,7 +6305,7 @@ namespace social.OpenData.UsersAPI
                                                         ? new HTTPResponse.Builder(Request) {
                                                               HTTPStatusCode              = HTTPStatusCode.Created,
                                                               Server                      = HTTPServer.DefaultServerName,
-                                                              Date                        = DateTime.UtcNow,
+                                                              Date                        = Timestamp.Now,
                                                               AccessControlAllowOrigin    = "*",
                                                               AccessControlAllowMethods   = "OPTIONS, ADD, EXISTS, GET, SET, AUTH, DEAUTH, IMPERSONATE, DEPERSONATE, DELETE",
                                                               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -6317,7 +6317,7 @@ namespace social.OpenData.UsersAPI
                                                         : new HTTPResponse.Builder(Request) {
                                                               HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                               Server                     = HTTPServer.DefaultServerName,
-                                                              Date                       = DateTime.UtcNow,
+                                                              Date                       = Timestamp.Now,
                                                               AccessControlAllowOrigin   = "*",
                                                               AccessControlAllowMethods  = "ADD, SET, GET",
                                                               AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -6391,7 +6391,7 @@ namespace social.OpenData.UsersAPI
                                                             new HTTPResponse.Builder(Request) {
                                                                 HTTPStatusCode             = HTTPStatusCode.Unauthorized,
                                                                 Server                     = HTTPServer.DefaultServerName,
-                                                                Date                       = DateTime.UtcNow,
+                                                                Date                       = Timestamp.Now,
                                                                 AccessControlAllowOrigin   = "*",
                                                                 AccessControlAllowMethods  = "GET, SET",
                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -6410,7 +6410,7 @@ namespace social.OpenData.UsersAPI
                                                  new HTTPResponse.Builder(Request) {
                                                      HTTPStatusCode              = HTTPStatusCode.OK,
                                                      Server                      = HTTPServer.DefaultServerName,
-                                                     Date                        = DateTime.UtcNow,
+                                                     Date                        = Timestamp.Now,
                                                      AccessControlAllowOrigin    = "*",
                                                      AccessControlAllowMethods   = "GET, SET",
                                                      AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -6470,7 +6470,7 @@ namespace social.OpenData.UsersAPI
                                                          ? new HTTPResponse.Builder(Request) {
                                                                HTTPStatusCode              = HTTPStatusCode.OK,
                                                                Server                      = HTTPServer.DefaultServerName,
-                                                               Date                        = DateTime.UtcNow,
+                                                               Date                        = Timestamp.Now,
                                                                AccessControlAllowOrigin    = "*",
                                                                AccessControlAllowMethods   = "GET",
                                                                AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -6483,7 +6483,7 @@ namespace social.OpenData.UsersAPI
                                                          : new HTTPResponse.Builder(Request) {
                                                                HTTPStatusCode              = HTTPStatusCode.Unauthorized,
                                                                Server                      = HTTPServer.DefaultServerName,
-                                                               Date                        = DateTime.UtcNow,
+                                                               Date                        = Timestamp.Now,
                                                                AccessControlAllowOrigin    = "*",
                                                                AccessControlAllowMethods   = "GET",
                                                                AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -6569,7 +6569,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                             Server                     = HTTPServer.DefaultServerName,
-                                                            Date                       = DateTime.UtcNow,
+                                                            Date                       = Timestamp.Now,
                                                             AccessControlAllowOrigin   = "*",
                                                             AccessControlAllowMethods  = "GET, SET",
                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -6591,7 +6591,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode              = HTTPStatusCode.Forbidden,
                                                             Server                      = HTTPServer.DefaultServerName,
-                                                            Date                        = DateTime.UtcNow,
+                                                            Date                        = Timestamp.Now,
                                                             AccessControlAllowOrigin    = "*",
                                                             AccessControlAllowMethods   = "GET, SET",
                                                             AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -6611,7 +6611,7 @@ namespace social.OpenData.UsersAPI
                                                         ? new HTTPResponse.Builder(Request) {
                                                               HTTPStatusCode              = HTTPStatusCode.OK,
                                                               Server                      = HTTPServer.DefaultServerName,
-                                                              Date                        = DateTime.UtcNow,
+                                                              Date                        = Timestamp.Now,
                                                               AccessControlAllowOrigin    = "*",
                                                               AccessControlAllowMethods   = "GET, SET",
                                                               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -6624,7 +6624,7 @@ namespace social.OpenData.UsersAPI
                                                         : new HTTPResponse.Builder(Request) {
                                                               HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                               Server                     = HTTPServer.DefaultServerName,
-                                                              Date                       = DateTime.UtcNow,
+                                                              Date                       = Timestamp.Now,
                                                               AccessControlAllowOrigin   = "*",
                                                               AccessControlAllowMethods  = "GET, SET",
                                                               AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -6868,7 +6868,7 @@ namespace social.OpenData.UsersAPI
                                                  }
 
                                                  await UpdateUser(validUser,
-                                                                  _user => _user.AcceptedEULA = DateTime.UtcNow,
+                                                                  _user => _user.AcceptedEULA = Timestamp.Now,
                                                                   null,
                                                                   Request.EventTrackingId,
                                                                   Robot.Id);
@@ -6887,7 +6887,7 @@ namespace social.OpenData.UsersAPI
                                                                                                ToUTF8Bytes()
                                                                                            ).ToHexString());
 
-                                             var expires          = DateTime.UtcNow.Add(MaxSignInSessionLifetime);
+                                             var expires          = Timestamp.Now.Add(MaxSignInSessionLifetime);
 
                                              lock (_HTTPCookies)
                                              {
@@ -6943,13 +6943,13 @@ namespace social.OpenData.UsersAPI
                                                       CacheControl    = "private",
                                                       SetCookies      = new String[] {
 
-                                                                            String.Concat(CookieName, "=; Expires=", DateTime.UtcNow.ToRfc1123(),
+                                                                            String.Concat(CookieName, "=; Expires=", Timestamp.Now.ToRfc1123(),
                                                                                           HTTPCookieDomain.IsNotNullOrEmpty()
                                                                                               ? "; Domain=" + HTTPCookieDomain
                                                                                               : "",
                                                                                           "; Path=", URLPathPrefix),
 
-                                                                            String.Concat(SessionCookieName, "=; Expires=", DateTime.UtcNow.ToRfc1123(),
+                                                                            String.Concat(SessionCookieName, "=; Expires=", Timestamp.Now.ToRfc1123(),
                                                                                           HTTPCookieDomain.IsNotNullOrEmpty()
                                                                                               ? "; Domain=" + HTTPCookieDomain
                                                                                               : "",
@@ -6999,7 +6999,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode              = HTTPStatusCode.NotFound,
                                                             Server                      = HTTPServer.DefaultServerName,
-                                                            Date                        = DateTime.UtcNow,
+                                                            Date                        = Timestamp.Now,
                                                             AccessControlAllowOrigin    = "*",
                                                             AccessControlAllowMethods   = "IMPERSONATE",
                                                             AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -7016,7 +7016,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode              = HTTPStatusCode.Forbidden,
                                                             Server                      = HTTPServer.DefaultServerName,
-                                                            Date                        = DateTime.UtcNow,
+                                                            Date                        = Timestamp.Now,
                                                             AccessControlAllowOrigin    = "*",
                                                             AccessControlAllowMethods   = "IMPERSONATE",
                                                             AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -7035,7 +7035,7 @@ namespace social.OpenData.UsersAPI
                                                                                                ToUTF8Bytes()
                                                                                            ).ToHexString());
 
-                                             var expires          = DateTime.UtcNow.Add(MaxSignInSessionLifetime);
+                                             var expires          = Timestamp.Now.Add(MaxSignInSessionLifetime);
 
                                              lock (_HTTPCookies)
                                              {
@@ -7116,7 +7116,7 @@ namespace social.OpenData.UsersAPI
                                                             new HTTPResponse.Builder(Request) {
                                                                 HTTPStatusCode              = HTTPStatusCode.NotFound,
                                                                 Server                      = HTTPServer.DefaultServerName,
-                                                                Date                        = DateTime.UtcNow,
+                                                                Date                        = Timestamp.Now,
                                                                 AccessControlAllowOrigin    = "*",
                                                                 AccessControlAllowMethods   = "DEPERSONATE",
                                                                 AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -7137,7 +7137,7 @@ namespace social.OpenData.UsersAPI
                                                                                                ToUTF8Bytes()
                                                                                            ).ToHexString());
 
-                                             var expires          = DateTime.UtcNow.Add(MaxSignInSessionLifetime);
+                                             var expires          = Timestamp.Now.Add(MaxSignInSessionLifetime);
 
                                              lock (_HTTPCookies)
                                              {
@@ -7226,7 +7226,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                          HTTPStatusCode             = HTTPStatusCode.Forbidden,
                                                          Server                     = HTTPServer.DefaultServerName,
-                                                         Date                       = DateTime.UtcNow,
+                                                         Date                       = Timestamp.Now,
                                                          AccessControlAllowOrigin   = "*",
                                                          AccessControlAllowMethods  = "OPTIONS, ADD, EXISTS, GET, SET, AUTH, DEAUTH, IMPERSONATE, DEPERSONATE, DELETE",
                                                          AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -7253,7 +7253,7 @@ namespace social.OpenData.UsersAPI
                                                      ? new HTTPResponse.Builder(Request) {
                                                              HTTPStatusCode             = HTTPStatusCode.OK,
                                                              Server                     = HTTPServer.DefaultServerName,
-                                                             Date                       = DateTime.UtcNow,
+                                                             Date                       = Timestamp.Now,
                                                              AccessControlAllowOrigin   = "*",
                                                              AccessControlAllowMethods  = "OPTIONS, ADD, EXISTS, GET, SET, AUTH, DEAUTH, IMPERSONATE, DEPERSONATE, DELETE",
                                                              AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -7266,7 +7266,7 @@ namespace social.OpenData.UsersAPI
                                                      : new HTTPResponse.Builder(Request) {
                                                              HTTPStatusCode             = HTTPStatusCode.FailedDependency,
                                                              Server                     = HTTPServer.DefaultServerName,
-                                                             Date                       = DateTime.UtcNow,
+                                                             Date                       = Timestamp.Now,
                                                              AccessControlAllowOrigin   = "*",
                                                              AccessControlAllowMethods  = "OPTIONS, ADD, EXISTS, GET, SET, AUTH, DEAUTH, IMPERSONATE, DEPERSONATE, DELETE",
                                                              AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -7327,7 +7327,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode              = HTTPStatusCode.Forbidden,
                                                             Server                      = HTTPServer.DefaultServerName,
-                                                            Date                        = DateTime.UtcNow,
+                                                            Date                        = Timestamp.Now,
                                                             AccessControlAllowOrigin    = "*",
                                                             AccessControlAllowMethods   = "GET, SET, CHOWN",
                                                             AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -7354,7 +7354,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                             Server                     = HTTPServer.DefaultServerName,
-                                                            Date                       = DateTime.UtcNow,
+                                                            Date                       = Timestamp.Now,
                                                             AccessControlAllowOrigin   = "*",
                                                             AccessControlAllowMethods  = "GET, SET",
                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -7381,7 +7381,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                             Server                     = HTTPServer.DefaultServerName,
-                                                            Date                       = DateTime.UtcNow,
+                                                            Date                       = Timestamp.Now,
                                                             AccessControlAllowOrigin   = "*",
                                                             AccessControlAllowMethods  = "GET, SET",
                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -7425,7 +7425,7 @@ namespace social.OpenData.UsersAPI
                                                         ? new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode              = HTTPStatusCode.OK,
                                                             Server                      = HTTPServer.DefaultServerName,
-                                                            Date                        = DateTime.UtcNow,
+                                                            Date                        = Timestamp.Now,
                                                             AccessControlAllowOrigin    = "*",
                                                             AccessControlAllowMethods   = "SET",
                                                             AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -7435,7 +7435,7 @@ namespace social.OpenData.UsersAPI
                                                         : new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode              = HTTPStatusCode.Forbidden,
                                                             Server                      = HTTPServer.DefaultServerName,
-                                                            Date                        = DateTime.UtcNow,
+                                                            Date                        = Timestamp.Now,
                                                             AccessControlAllowOrigin    = "*",
                                                             AccessControlAllowMethods   = "SET",
                                                             AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -7512,7 +7512,7 @@ namespace social.OpenData.UsersAPI
                                                  new HTTPResponse.Builder(Request) {
                                                      HTTPStatusCode             = HTTPStatusCode.OK,
                                                      Server                     = HTTPServer.DefaultServerName,
-                                                     Date                       = DateTime.UtcNow,
+                                                     Date                       = Timestamp.Now,
                                                      AccessControlAllowOrigin   = "*",
                                                      AccessControlAllowMethods  = "GET, COUNT, OPTIONS",
                                                      AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -7557,7 +7557,7 @@ namespace social.OpenData.UsersAPI
                                              return Task.FromResult(new HTTPResponse.Builder(Request) {
                                                         HTTPStatusCode             = HTTPStatusCode.OK,
                                                         Server                     = HTTPServer.DefaultServerName,
-                                                        Date                       = DateTime.UtcNow,
+                                                        Date                       = Timestamp.Now,
                                                         AccessControlAllowOrigin   = "*",
                                                         AccessControlAllowMethods  = "GET, SET",
                                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -7616,7 +7616,7 @@ namespace social.OpenData.UsersAPI
                                                          ? new HTTPResponse.Builder(Request) {
                                                                HTTPStatusCode              = HTTPStatusCode.OK,
                                                                Server                      = HTTPServer.DefaultServerName,
-                                                               Date                        = DateTime.UtcNow,
+                                                               Date                        = Timestamp.Now,
                                                                AccessControlAllowOrigin    = "*",
                                                                AccessControlAllowMethods   = "GET",
                                                                AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -7629,7 +7629,7 @@ namespace social.OpenData.UsersAPI
                                                          : new HTTPResponse.Builder(Request) {
                                                                HTTPStatusCode              = HTTPStatusCode.Unauthorized,
                                                                Server                      = HTTPServer.DefaultServerName,
-                                                               Date                        = DateTime.UtcNow,
+                                                               Date                        = Timestamp.Now,
                                                                AccessControlAllowOrigin    = "*",
                                                                AccessControlAllowMethods   = "GET",
                                                                AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -7695,7 +7695,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode              = HTTPStatusCode.Forbidden,
                                                             Server                      = HTTPServer.DefaultServerName,
-                                                            Date                        = DateTime.UtcNow,
+                                                            Date                        = Timestamp.Now,
                                                             AccessControlAllowOrigin    = "*",
                                                             AccessControlAllowMethods   = "GET, SET, CHOWN",
                                                             AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -7798,7 +7798,7 @@ namespace social.OpenData.UsersAPI
                                              return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                             Server                     = HTTPServer.DefaultServerName,
-                                                            Date                       = DateTime.UtcNow,
+                                                            Date                       = Timestamp.Now,
                                                             AccessControlAllowOrigin   = "*",
                                                             AccessControlAllowMethods  = "GET, SET",
                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -7819,7 +7819,7 @@ namespace social.OpenData.UsersAPI
                                              return new HTTPResponse.Builder(Request) {
                                                         HTTPStatusCode              = HTTPStatusCode.OK,
                                                         Server                      = HTTPServer.DefaultServerName,
-                                                        Date                        = DateTime.UtcNow,
+                                                        Date                        = Timestamp.Now,
                                                         AccessControlAllowOrigin    = "*",
                                                         AccessControlAllowMethods   = "GET, SET",
                                                         AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -7885,7 +7885,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode              = HTTPStatusCode.Forbidden,
                                                             Server                      = HTTPServer.DefaultServerName,
-                                                            Date                        = DateTime.UtcNow,
+                                                            Date                        = Timestamp.Now,
                                                             AccessControlAllowOrigin    = "*",
                                                             AccessControlAllowMethods   = "GET, SET, CHOWN",
                                                             AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -7988,7 +7988,7 @@ namespace social.OpenData.UsersAPI
                                              return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                             Server                     = HTTPServer.DefaultServerName,
-                                                            Date                       = DateTime.UtcNow,
+                                                            Date                       = Timestamp.Now,
                                                             AccessControlAllowOrigin   = "*",
                                                             AccessControlAllowMethods  = "GET, SET",
                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -8009,7 +8009,7 @@ namespace social.OpenData.UsersAPI
                                              return new HTTPResponse.Builder(Request) {
                                                         HTTPStatusCode              = HTTPStatusCode.OK,
                                                         Server                      = HTTPServer.DefaultServerName,
-                                                        Date                        = DateTime.UtcNow,
+                                                        Date                        = Timestamp.Now,
                                                         AccessControlAllowOrigin    = "*",
                                                         AccessControlAllowMethods   = "GET, SET",
                                                         AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -8058,7 +8058,7 @@ namespace social.OpenData.UsersAPI
                                                             new HTTPResponse.Builder(Request) {
                                                                 HTTPStatusCode  = HTTPStatusCode.BadRequest,
                                                                 Server          = HTTPServer.DefaultServerName,
-                                                                Date            = DateTime.UtcNow,
+                                                                Date            = Timestamp.Now,
                                                                 Connection      = "close"
                                                             }.AsImmutable);
 
@@ -8076,7 +8076,7 @@ namespace social.OpenData.UsersAPI
                                                  return Task.FromResult(new HTTPResponse.Builder(Request) {
                                                                             HTTPStatusCode             = HTTPStatusCode.OK,
                                                                             Server                     = HTTPServer.DefaultServerName,
-                                                                            Date                       = DateTime.UtcNow,
+                                                                            Date                       = Timestamp.Now,
                                                                             AccessControlAllowOrigin   = "*",
                                                                             AccessControlAllowMethods  = "GET, SET",
                                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -8096,7 +8096,7 @@ namespace social.OpenData.UsersAPI
                                                         new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode  = HTTPStatusCode.BadRequest,
                                                             Server          = HTTPServer.DefaultServerName,
-                                                            Date            = DateTime.UtcNow,
+                                                            Date            = Timestamp.Now,
                                                             Connection      = "close"
                                                         }.AsImmutable);
 
@@ -8151,7 +8151,7 @@ namespace social.OpenData.UsersAPI
                                                             new HTTPResponse.Builder(Request) {
                                                                 HTTPStatusCode  = HTTPStatusCode.BadRequest,
                                                                 Server          = HTTPServer.DefaultServerName,
-                                                                Date            = DateTime.UtcNow,
+                                                                Date            = Timestamp.Now,
                                                                 Connection      = "close"
                                                             }.AsImmutable);
 
@@ -8166,7 +8166,7 @@ namespace social.OpenData.UsersAPI
                                                          ? new HTTPResponse.Builder(Request) {
                                                                HTTPStatusCode              = HTTPStatusCode.OK,
                                                                Server                      = HTTPServer.DefaultServerName,
-                                                               Date                        = DateTime.UtcNow,
+                                                               Date                        = Timestamp.Now,
                                                                AccessControlAllowOrigin    = "*",
                                                                AccessControlAllowMethods   = "GET",
                                                                AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -8179,7 +8179,7 @@ namespace social.OpenData.UsersAPI
                                                          : new HTTPResponse.Builder(Request) {
                                                                HTTPStatusCode              = HTTPStatusCode.Unauthorized,
                                                                Server                      = HTTPServer.DefaultServerName,
-                                                               Date                        = DateTime.UtcNow,
+                                                               Date                        = Timestamp.Now,
                                                                AccessControlAllowOrigin    = "*",
                                                                AccessControlAllowMethods   = "GET",
                                                                AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -8233,7 +8233,7 @@ namespace social.OpenData.UsersAPI
                                                             new HTTPResponse.Builder(Request) {
                                                                 HTTPStatusCode              = HTTPStatusCode.Unauthorized,
                                                                 Server                      = HTTPServer.DefaultServerName,
-                                                                Date                        = DateTime.UtcNow,
+                                                                Date                        = Timestamp.Now,
                                                                 AccessControlAllowOrigin    = "*",
                                                                 AccessControlAllowMethods   = "GET",
                                                                 AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -8248,7 +8248,7 @@ namespace social.OpenData.UsersAPI
                                                  new HTTPResponse.Builder(Request) {
                                                      HTTPStatusCode              = HTTPStatusCode.OK,
                                                      Server                      = HTTPServer.DefaultServerName,
-                                                     Date                        = DateTime.UtcNow,
+                                                     Date                        = Timestamp.Now,
                                                      AccessControlAllowOrigin    = "*",
                                                      AccessControlAllowMethods   = "GET",
                                                      AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -8311,7 +8311,7 @@ namespace social.OpenData.UsersAPI
                                                             new HTTPResponse.Builder(Request) {
                                                                 HTTPStatusCode             = HTTPStatusCode.Forbidden,
                                                                 Server                     = HTTPServer.DefaultServerName,
-                                                                Date                       = DateTime.UtcNow,
+                                                                Date                       = Timestamp.Now,
                                                                 AccessControlAllowOrigin   = "*",
                                                                 AccessControlAllowMethods  = "ADD, GET",
                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -8329,7 +8329,7 @@ namespace social.OpenData.UsersAPI
                                                  return Task.FromResult(new HTTPResponse.Builder(Request) {
                                                                             HTTPStatusCode             = HTTPStatusCode.OK,
                                                                             Server                     = HTTPServer.DefaultServerName,
-                                                                            Date                       = DateTime.UtcNow,
+                                                                            Date                       = Timestamp.Now,
                                                                             AccessControlAllowOrigin   = "*",
                                                                             AccessControlAllowMethods  = "ADD, GET",
                                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -8350,7 +8350,7 @@ namespace social.OpenData.UsersAPI
                                                             new HTTPResponse.Builder(Request) {
                                                                 HTTPStatusCode             = HTTPStatusCode.InternalServerError,
                                                                 Server                     = HTTPServer.DefaultServerName,
-                                                                Date                       = DateTime.UtcNow,
+                                                                Date                       = Timestamp.Now,
                                                                 AccessControlAllowOrigin   = "*",
                                                                 AccessControlAllowMethods  = "ADD, GET",
                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -8423,7 +8423,7 @@ namespace social.OpenData.UsersAPI
                                                      return new HTTPResponse.Builder(Request) {
                                                                 HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                                 Server                     = HTTPServer.DefaultServerName,
-                                                                Date                       = DateTime.UtcNow,
+                                                                Date                       = Timestamp.Now,
                                                                 AccessControlAllowOrigin   = "*",
                                                                 AccessControlAllowMethods  = "ADD, GET",
                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -8446,7 +8446,7 @@ namespace social.OpenData.UsersAPI
                                                      return new HTTPResponse.Builder(Request) {
                                                                 HTTPStatusCode             = HTTPStatusCode.Forbidden,
                                                                 Server                     = HTTPServer.DefaultServerName,
-                                                                Date                       = DateTime.UtcNow,
+                                                                Date                       = Timestamp.Now,
                                                                 AccessControlAllowOrigin   = "*",
                                                                 AccessControlAllowMethods  = "ADD, GET",
                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -8472,7 +8472,7 @@ namespace social.OpenData.UsersAPI
                                                             ? new HTTPResponse.Builder(Request) {
                                                                       HTTPStatusCode             = HTTPStatusCode.OK,
                                                                       Server                     = HTTPServer.DefaultServerName,
-                                                                      Date                       = DateTime.UtcNow,
+                                                                      Date                       = Timestamp.Now,
                                                                       AccessControlAllowOrigin   = "*",
                                                                       AccessControlAllowMethods  = "ADD, GET",
                                                                       AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -8485,7 +8485,7 @@ namespace social.OpenData.UsersAPI
                                                             : new HTTPResponse.Builder(Request) {
                                                                       HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                                       Server                     = HTTPServer.DefaultServerName,
-                                                                      Date                       = DateTime.UtcNow,
+                                                                      Date                       = Timestamp.Now,
                                                                       AccessControlAllowOrigin   = "*",
                                                                       AccessControlAllowMethods  = "ADD, GET",
                                                                       AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -8501,7 +8501,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode             = HTTPStatusCode.InternalServerError,
                                                             Server                     = HTTPServer.DefaultServerName,
-                                                            Date                       = DateTime.UtcNow,
+                                                            Date                       = Timestamp.Now,
                                                             AccessControlAllowOrigin   = "*",
                                                             AccessControlAllowMethods  = "ADD, GET",
                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -8565,7 +8565,7 @@ namespace social.OpenData.UsersAPI
                                                      return new HTTPResponse.Builder(Request) {
                                                                 HTTPStatusCode  = HTTPStatusCode.BadRequest,
                                                                 Server                     = HTTPServer.DefaultServerName,
-                                                                Date                       = DateTime.UtcNow,
+                                                                Date                       = Timestamp.Now,
                                                                 AccessControlAllowOrigin   = "*",
                                                                 AccessControlAllowMethods  = "DELETE",
                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -8585,7 +8585,7 @@ namespace social.OpenData.UsersAPI
                                                      return new HTTPResponse.Builder(Request) {
                                                                 HTTPStatusCode  = HTTPStatusCode.BadRequest,
                                                                 Server                     = HTTPServer.DefaultServerName,
-                                                                Date                       = DateTime.UtcNow,
+                                                                Date                       = Timestamp.Now,
                                                                 AccessControlAllowOrigin   = "*",
                                                                 AccessControlAllowMethods  = "DELETE",
                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -8603,7 +8603,7 @@ namespace social.OpenData.UsersAPI
                                                      return new HTTPResponse.Builder(Request) {
                                                                 HTTPStatusCode  = HTTPStatusCode.NotFound,
                                                                 Server                     = HTTPServer.DefaultServerName,
-                                                                Date                       = DateTime.UtcNow,
+                                                                Date                       = Timestamp.Now,
                                                                 AccessControlAllowOrigin   = "*",
                                                                 AccessControlAllowMethods  = "DELETE",
                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -8625,7 +8625,7 @@ namespace social.OpenData.UsersAPI
                                                      return new HTTPResponse.Builder(Request) {
                                                                 HTTPStatusCode             = HTTPStatusCode.Forbidden,
                                                                 Server                     = HTTPServer.DefaultServerName,
-                                                                Date                       = DateTime.UtcNow,
+                                                                Date                       = Timestamp.Now,
                                                                 AccessControlAllowOrigin   = "*",
                                                                 AccessControlAllowMethods  = "DELETE",
                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -8650,7 +8650,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode             = HTTPStatusCode.OK,
                                                             Server                     = HTTPServer.DefaultServerName,
-                                                            Date                       = DateTime.UtcNow,
+                                                            Date                       = Timestamp.Now,
                                                             AccessControlAllowOrigin   = "*",
                                                             AccessControlAllowMethods  = "DELETE",
                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -8666,7 +8666,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode             = HTTPStatusCode.InternalServerError,
                                                             Server                     = HTTPServer.DefaultServerName,
-                                                            Date                       = DateTime.UtcNow,
+                                                            Date                       = Timestamp.Now,
                                                             AccessControlAllowOrigin   = "*",
                                                             AccessControlAllowMethods  = "DELETE",
                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -8718,7 +8718,7 @@ namespace social.OpenData.UsersAPI
                                                      new HTTPResponse.Builder(Request) {
                                                          HTTPStatusCode             = HTTPStatusCode.OK,
                                                          Server                     = HTTPServer.DefaultServerName,
-                                                         Date                       = DateTime.UtcNow,
+                                                         Date                       = Timestamp.Now,
                                                          AccessControlAllowOrigin   = "*",
                                                          AccessControlAllowMethods  = "GET",
                                                          AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -8794,7 +8794,7 @@ namespace social.OpenData.UsersAPI
                                                  new HTTPResponse.Builder(Request) {
                                                      HTTPStatusCode                = HTTPStatusCode.OK,
                                                      Server                        = HTTPServer.DefaultServerName,
-                                                     Date                          = DateTime.UtcNow,
+                                                     Date                          = Timestamp.Now,
                                                      AccessControlAllowOrigin      = "*",
                                                      AccessControlAllowMethods     = "GET, COUNT, OPTIONS",
                                                      AccessControlAllowHeaders     = "Content-Type, Accept, Authorization",
@@ -8850,7 +8850,7 @@ namespace social.OpenData.UsersAPI
                                                      new HTTPResponse.Builder(Request) {
                                                          HTTPStatusCode             = HTTPStatusCode.OK,
                                                          Server                     = HTTPServer.DefaultServerName,
-                                                         Date                       = DateTime.UtcNow,
+                                                         Date                       = Timestamp.Now,
                                                          AccessControlAllowOrigin   = "*",
                                                          AccessControlAllowMethods  = "GET",
                                                          AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -8900,7 +8900,7 @@ namespace social.OpenData.UsersAPI
                                                      new HTTPResponse.Builder(Request) {
                                                          HTTPStatusCode              = HTTPStatusCode.OK,
                                                          Server                      = HTTPServer.DefaultServerName,
-                                                         Date                        = DateTime.UtcNow,
+                                                         Date                        = Timestamp.Now,
                                                          AccessControlAllowOrigin    = "*",
                                                          AccessControlAllowMethods   = "GET, SET",
                                                          AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -8915,7 +8915,7 @@ namespace social.OpenData.UsersAPI
                                                               new HTTPResponse.Builder(Request) {
                                                                         HTTPStatusCode             = HTTPStatusCode.Unauthorized,
                                                                         Server                     = HTTPServer.DefaultServerName,
-                                                                        Date                       = DateTime.UtcNow,
+                                                                        Date                       = Timestamp.Now,
                                                                         AccessControlAllowOrigin   = "*",
                                                                         AccessControlAllowMethods  = "GET, SET",
                                                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -8998,7 +8998,7 @@ namespace social.OpenData.UsersAPI
                                                  new HTTPResponse.Builder(Request) {
                                                      HTTPStatusCode                 = HTTPStatusCode.OK,
                                                      Server                         = HTTPServer.DefaultServerName,
-                                                     Date                           = DateTime.UtcNow,
+                                                     Date                           = Timestamp.Now,
                                                      AccessControlAllowOrigin       = "*",
                                                      AccessControlAllowMethods      = "OPTIONS, GET, COUNT, ADD",
                                                      AccessControlAllowHeaders      = "Content-Type, Accept, Authorization",
@@ -9049,7 +9049,7 @@ namespace social.OpenData.UsersAPI
                                                      new HTTPResponse.Builder(Request) {
                                                          HTTPStatusCode             = HTTPStatusCode.OK,
                                                          Server                     = HTTPServer.DefaultServerName,
-                                                         Date                       = DateTime.UtcNow,
+                                                         Date                       = Timestamp.Now,
                                                          AccessControlAllowOrigin   = "*",
                                                          AccessControlAllowMethods  = "OPTIONS, GET, COUNT, ADD",
                                                          AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -9094,7 +9094,7 @@ namespace social.OpenData.UsersAPI
                                                  new HTTPResponse.Builder(Request) {
                                                      HTTPStatusCode             = HTTPStatusCode.OK,
                                                      Server                     = HTTPServer.DefaultServerName,
-                                                     Date                       = DateTime.UtcNow,
+                                                     Date                       = Timestamp.Now,
                                                      AccessControlAllowOrigin   = "*",
                                                      AccessControlAllowMethods  = "OPTIONS, GET, COUNT, ADD",
                                                      AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -9172,7 +9172,7 @@ namespace social.OpenData.UsersAPI
                                                      return new HTTPResponse.Builder(Request) {
                                                                 HTTPStatusCode              = HTTPStatusCode.BadRequest,
                                                                 Server                      = HTTPServer.DefaultServerName,
-                                                                Date                        = DateTime.UtcNow,
+                                                                Date                        = Timestamp.Now,
                                                                 AccessControlAllowOrigin    = "*",
                                                                 AccessControlAllowMethods   = "OPTIONS, GET, COUNT, ADD",
                                                                 AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -9205,7 +9205,7 @@ namespace social.OpenData.UsersAPI
                                                      return new HTTPResponse.Builder(Request) {
                                                              HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                              Server                     = HTTPServer.DefaultServerName,
-                                                             Date                       = DateTime.UtcNow,
+                                                             Date                       = Timestamp.Now,
                                                              AccessControlAllowOrigin   = "*",
                                                              AccessControlAllowMethods  = "OPTIONS, GET, COUNT, ADD",
                                                              AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -9233,7 +9233,7 @@ namespace social.OpenData.UsersAPI
                                                             ? new HTTPResponse.Builder(Request) {
                                                                   HTTPStatusCode              = HTTPStatusCode.Created,
                                                                   Server                      = HTTPServer.DefaultServerName,
-                                                                  Date                        = DateTime.UtcNow,
+                                                                  Date                        = Timestamp.Now,
                                                                   AccessControlAllowOrigin    = "*",
                                                                   AccessControlAllowMethods   = "OPTIONS, GET, COUNT, ADD",
                                                                   AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -9245,7 +9245,7 @@ namespace social.OpenData.UsersAPI
                                                             : new HTTPResponse.Builder(Request) {
                                                                   HTTPStatusCode              = HTTPStatusCode.BadRequest,
                                                                   Server                      = HTTPServer.DefaultServerName,
-                                                                  Date                        = DateTime.UtcNow,
+                                                                  Date                        = Timestamp.Now,
                                                                   AccessControlAllowOrigin    = "*",
                                                                   AccessControlAllowMethods   = "OPTIONS, GET, COUNT, ADD",
                                                                   AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -9260,7 +9260,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode             = HTTPStatusCode.InternalServerError,
                                                             Server                     = HTTPServer.DefaultServerName,
-                                                            Date                       = DateTime.UtcNow,
+                                                            Date                       = Timestamp.Now,
                                                             AccessControlAllowOrigin   = "*",
                                                             AccessControlAllowMethods  = "OPTIONS, GET, COUNT, ADD",
                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -9329,7 +9329,7 @@ namespace social.OpenData.UsersAPI
                                                             ? new HTTPResponse.Builder(Request) {
                                                                   HTTPStatusCode             = HTTPStatusCode.Unauthorized,
                                                                   Server                     = HTTPServer.DefaultServerName,
-                                                                  Date                       = DateTime.UtcNow,
+                                                                  Date                       = Timestamp.Now,
                                                                   AccessControlAllowOrigin   = "*",
                                                                   AccessControlAllowMethods  = "GET, EXISTS",
                                                                   AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -9339,7 +9339,7 @@ namespace social.OpenData.UsersAPI
                                                             : new HTTPResponse.Builder(Request) {
                                                                   HTTPStatusCode             = HTTPStatusCode.OK,
                                                                   Server                     = HTTPServer.DefaultServerName,
-                                                                  Date                       = DateTime.UtcNow,
+                                                                  Date                       = Timestamp.Now,
                                                                   AccessControlAllowOrigin   = "*",
                                                                   AccessControlAllowMethods  = "GET, EXISTS",
                                                                   AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -9411,7 +9411,7 @@ namespace social.OpenData.UsersAPI
                                                      new HTTPResponse.Builder(Request) {
                                                          HTTPStatusCode              = HTTPStatusCode.OK,
                                                          Server                      = HTTPServer.DefaultServerName,
-                                                         Date                        = DateTime.UtcNow,
+                                                         Date                        = Timestamp.Now,
                                                          AccessControlAllowOrigin    = "*",
                                                          AccessControlAllowMethods   = "GET",
                                                          AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -9427,7 +9427,7 @@ namespace social.OpenData.UsersAPI
                                                         new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode              = HTTPStatusCode.Unauthorized,
                                                             Server                      = HTTPServer.DefaultServerName,
-                                                            Date                        = DateTime.UtcNow,
+                                                            Date                        = Timestamp.Now,
                                                             AccessControlAllowOrigin    = "*",
                                                             AccessControlAllowMethods   = "GET",
                                                             AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -9477,7 +9477,7 @@ namespace social.OpenData.UsersAPI
                                                         new HTTPResponse.Builder(Request) {
                                                                 HTTPStatusCode             = HTTPStatusCode.OK,
                                                                 Server                     = HTTPServer.DefaultServerName,
-                                                                Date                       = DateTime.UtcNow,
+                                                                Date                       = Timestamp.Now,
                                                                 AccessControlAllowOrigin   = "*",
                                                                 AccessControlAllowMethods  = "GET, EXISTS",
                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -9560,7 +9560,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                         HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                         Server                     = HTTPServer.DefaultServerName,
-                                                        Date                       = DateTime.UtcNow,
+                                                        Date                       = Timestamp.Now,
                                                         AccessControlAllowOrigin   = "*",
                                                         AccessControlAllowMethods  = "GET, SET",
                                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -9610,7 +9610,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                          HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                          Server                     = HTTPServer.DefaultServerName,
-                                                         Date                       = DateTime.UtcNow,
+                                                         Date                       = Timestamp.Now,
                                                          AccessControlAllowOrigin   = "*",
                                                          AccessControlAllowMethods  = "GET, SET",
                                                          AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -9653,7 +9653,7 @@ namespace social.OpenData.UsersAPI
                                                      return new HTTPResponse.Builder(Request) {
                                                              HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                              Server                     = HTTPServer.DefaultServerName,
-                                                             Date                       = DateTime.UtcNow,
+                                                             Date                       = Timestamp.Now,
                                                              AccessControlAllowOrigin   = "*",
                                                              AccessControlAllowMethods  = "GET, SET",
                                                              AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -9673,7 +9673,7 @@ namespace social.OpenData.UsersAPI
                                                      return new HTTPResponse.Builder(Request) {
                                                              HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                              Server                     = HTTPServer.DefaultServerName,
-                                                             Date                       = DateTime.UtcNow,
+                                                             Date                       = Timestamp.Now,
                                                              AccessControlAllowOrigin   = "*",
                                                              AccessControlAllowMethods  = "GET, SET",
                                                              AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -9722,7 +9722,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                          HTTPStatusCode              = HTTPStatusCode.Created,
                                                          Server                      = HTTPServer.DefaultServerName,
-                                                         Date                        = DateTime.UtcNow,
+                                                         Date                        = Timestamp.Now,
                                                          AccessControlAllowOrigin    = "*",
                                                          AccessControlAllowMethods   = "GET, SET",
                                                          AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -9736,7 +9736,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                          HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                          Server                     = HTTPServer.DefaultServerName,
-                                                         Date                       = DateTime.UtcNow,
+                                                         Date                       = Timestamp.Now,
                                                          AccessControlAllowOrigin   = "*",
                                                          AccessControlAllowMethods  = "GET, SET",
                                                          AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -9816,7 +9816,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode              = HTTPStatusCode.Forbidden,
                                                             Server                      = HTTPServer.DefaultServerName,
-                                                            Date                        = DateTime.UtcNow,
+                                                            Date                        = Timestamp.Now,
                                                             AccessControlAllowOrigin    = "*",
                                                             AccessControlAllowMethods   = "GET, SET, CHOWN",
                                                             AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -9852,7 +9852,7 @@ namespace social.OpenData.UsersAPI
                                                      return new HTTPResponse.Builder(Request) {
                                                                 HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                                 Server                     = HTTPServer.DefaultServerName,
-                                                                Date                       = DateTime.UtcNow,
+                                                                Date                       = Timestamp.Now,
                                                                 AccessControlAllowOrigin   = "*",
                                                                 AccessControlAllowMethods  = "GET, SET",
                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -9867,7 +9867,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode              = HTTPStatusCode.Created,
                                                             Server                      = HTTPServer.DefaultServerName,
-                                                            Date                        = DateTime.UtcNow,
+                                                            Date                        = Timestamp.Now,
                                                             AccessControlAllowOrigin    = "*",
                                                             AccessControlAllowMethods   = "GET, SET",
                                                             AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -9883,7 +9883,7 @@ namespace social.OpenData.UsersAPI
                                              return new HTTPResponse.Builder(Request) {
                                                         HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                         Server                     = HTTPServer.DefaultServerName,
-                                                        Date                       = DateTime.UtcNow,
+                                                        Date                       = Timestamp.Now,
                                                         AccessControlAllowOrigin   = "*",
                                                         AccessControlAllowMethods  = "GET, SET",
                                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -9946,7 +9946,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                                 HTTPStatusCode             = HTTPStatusCode.Unauthorized,
                                                                 Server                     = HTTPServer.DefaultServerName,
-                                                                Date                       = DateTime.UtcNow,
+                                                                Date                       = Timestamp.Now,
                                                                 AccessControlAllowOrigin   = "*",
                                                                 AccessControlAllowMethods  = "GET, SET, DELETE",
                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -9967,7 +9967,7 @@ namespace social.OpenData.UsersAPI
                                                         ? new HTTPResponse.Builder(Request) {
                                                               HTTPStatusCode              = HTTPStatusCode.OK,
                                                               Server                      = HTTPServer.DefaultServerName,
-                                                              Date                        = DateTime.UtcNow,
+                                                              Date                        = Timestamp.Now,
                                                               AccessControlAllowOrigin    = "*",
                                                               AccessControlAllowMethods   = "GET, SET",
                                                               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -9977,7 +9977,7 @@ namespace social.OpenData.UsersAPI
                                                         : new HTTPResponse.Builder(Request) {
                                                               HTTPStatusCode              = HTTPStatusCode.FailedDependency,
                                                               Server                      = HTTPServer.DefaultServerName,
-                                                              Date                        = DateTime.UtcNow,
+                                                              Date                        = Timestamp.Now,
                                                               AccessControlAllowOrigin    = "*",
                                                               AccessControlAllowMethods   = "GET, SET",
                                                               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -10039,7 +10039,7 @@ namespace social.OpenData.UsersAPI
                                                      new HTTPResponse.Builder(Request) {
                                                          HTTPStatusCode              = HTTPStatusCode.OK,
                                                          Server                      = HTTPServer.DefaultServerName,
-                                                         Date                        = DateTime.UtcNow,
+                                                         Date                        = Timestamp.Now,
                                                          AccessControlAllowOrigin    = "*",
                                                          AccessControlAllowMethods   = "GET",
                                                          AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -10055,7 +10055,7 @@ namespace social.OpenData.UsersAPI
                                                         new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode              = HTTPStatusCode.Unauthorized,
                                                             Server                      = HTTPServer.DefaultServerName,
-                                                            Date                        = DateTime.UtcNow,
+                                                            Date                        = Timestamp.Now,
                                                             AccessControlAllowOrigin    = "*",
                                                             AccessControlAllowMethods   = "GET",
                                                             AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -10112,7 +10112,7 @@ namespace social.OpenData.UsersAPI
                                                      new HTTPResponse.Builder(Request) {
                                                          HTTPStatusCode              = HTTPStatusCode.OK,
                                                          Server                      = HTTPServer.DefaultServerName,
-                                                         Date                        = DateTime.UtcNow,
+                                                         Date                        = Timestamp.Now,
                                                          AccessControlAllowOrigin    = "*",
                                                          AccessControlAllowMethods   = "GET",
                                                          AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -10128,7 +10128,7 @@ namespace social.OpenData.UsersAPI
                                                         new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode              = HTTPStatusCode.Unauthorized,
                                                             Server                      = HTTPServer.DefaultServerName,
-                                                            Date                        = DateTime.UtcNow,
+                                                            Date                        = Timestamp.Now,
                                                             AccessControlAllowOrigin    = "*",
                                                             AccessControlAllowMethods   = "GET",
                                                             AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -10183,7 +10183,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode  = HTTPStatusCode.BadRequest,
                                                             Server          = HTTPServer.DefaultServerName,
-                                                            Date            = DateTime.UtcNow,
+                                                            Date            = Timestamp.Now,
                                                             Connection      = "close"
                                                         }.AsImmutable;
 
@@ -10193,7 +10193,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode  = HTTPStatusCode.BadRequest,
                                                             Server          = HTTPServer.DefaultServerName,
-                                                            Date            = DateTime.UtcNow,
+                                                            Date            = Timestamp.Now,
                                                             Connection      = "close"
                                                         }.AsImmutable;
 
@@ -10201,7 +10201,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode  = HTTPStatusCode.NotFound,
                                                             Server          = HTTPServer.DefaultServerName,
-                                                            Date            = DateTime.UtcNow,
+                                                            Date            = Timestamp.Now,
                                                             Connection      = "close"
                                                         }.AsImmutable;
 
@@ -10218,7 +10218,7 @@ namespace social.OpenData.UsersAPI
                                                         ? new HTTPResponse.Builder(Request) {
                                                               HTTPStatusCode              = HTTPStatusCode.OK,
                                                               Server                      = HTTPServer.DefaultServerName,
-                                                              Date                        = DateTime.UtcNow,
+                                                              Date                        = Timestamp.Now,
                                                               AccessControlAllowOrigin    = "*",
                                                               AccessControlAllowMethods   = "ADD, DELETE",
                                                               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -10229,7 +10229,7 @@ namespace social.OpenData.UsersAPI
                                                         : new HTTPResponse.Builder(Request) {
                                                               HTTPStatusCode              = HTTPStatusCode.Unauthorized,
                                                               Server                      = HTTPServer.DefaultServerName,
-                                                              Date                        = DateTime.UtcNow,
+                                                              Date                        = Timestamp.Now,
                                                               AccessControlAllowOrigin    = "*",
                                                               AccessControlAllowMethods   = "ADD, DELETE",
                                                               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -10284,7 +10284,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode  = HTTPStatusCode.BadRequest,
                                                             Server          = HTTPServer.DefaultServerName,
-                                                            Date            = DateTime.UtcNow,
+                                                            Date            = Timestamp.Now,
                                                             Connection      = "close"
                                                         }.AsImmutable;
 
@@ -10294,7 +10294,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode  = HTTPStatusCode.BadRequest,
                                                             Server          = HTTPServer.DefaultServerName,
-                                                            Date            = DateTime.UtcNow,
+                                                            Date            = Timestamp.Now,
                                                             Connection      = "close"
                                                         }.AsImmutable;
 
@@ -10302,7 +10302,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode  = HTTPStatusCode.NotFound,
                                                             Server          = HTTPServer.DefaultServerName,
-                                                            Date            = DateTime.UtcNow,
+                                                            Date            = Timestamp.Now,
                                                             Connection      = "close"
                                                         }.AsImmutable;
 
@@ -10319,7 +10319,7 @@ namespace social.OpenData.UsersAPI
                                                         ? new HTTPResponse.Builder(Request) {
                                                               HTTPStatusCode              = HTTPStatusCode.OK,
                                                               Server                      = HTTPServer.DefaultServerName,
-                                                              Date                        = DateTime.UtcNow,
+                                                              Date                        = Timestamp.Now,
                                                               AccessControlAllowOrigin    = "*",
                                                               AccessControlAllowMethods   = "ADD, DELETE",
                                                               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -10330,7 +10330,7 @@ namespace social.OpenData.UsersAPI
                                                         : new HTTPResponse.Builder(Request) {
                                                               HTTPStatusCode              = HTTPStatusCode.Unauthorized,
                                                               Server                      = HTTPServer.DefaultServerName,
-                                                              Date                        = DateTime.UtcNow,
+                                                              Date                        = Timestamp.Now,
                                                               AccessControlAllowOrigin    = "*",
                                                               AccessControlAllowMethods   = "ADD, DELETE",
                                                               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -10385,7 +10385,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode  = HTTPStatusCode.BadRequest,
                                                             Server          = HTTPServer.DefaultServerName,
-                                                            Date            = DateTime.UtcNow,
+                                                            Date            = Timestamp.Now,
                                                             Connection      = "close"
                                                         }.AsImmutable;
 
@@ -10395,7 +10395,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode  = HTTPStatusCode.BadRequest,
                                                             Server          = HTTPServer.DefaultServerName,
-                                                            Date            = DateTime.UtcNow,
+                                                            Date            = Timestamp.Now,
                                                             Connection      = "close"
                                                         }.AsImmutable;
 
@@ -10403,7 +10403,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode  = HTTPStatusCode.NotFound,
                                                             Server          = HTTPServer.DefaultServerName,
-                                                            Date            = DateTime.UtcNow,
+                                                            Date            = Timestamp.Now,
                                                             Connection      = "close"
                                                         }.AsImmutable;
 
@@ -10420,7 +10420,7 @@ namespace social.OpenData.UsersAPI
                                                         ? new HTTPResponse.Builder(Request) {
                                                               HTTPStatusCode              = HTTPStatusCode.OK,
                                                               Server                      = HTTPServer.DefaultServerName,
-                                                              Date                        = DateTime.UtcNow,
+                                                              Date                        = Timestamp.Now,
                                                               AccessControlAllowOrigin    = "*",
                                                               AccessControlAllowMethods   = "ADD, DELETE",
                                                               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -10431,7 +10431,7 @@ namespace social.OpenData.UsersAPI
                                                         : new HTTPResponse.Builder(Request) {
                                                               HTTPStatusCode              = HTTPStatusCode.Unauthorized,
                                                               Server                      = HTTPServer.DefaultServerName,
-                                                              Date                        = DateTime.UtcNow,
+                                                              Date                        = Timestamp.Now,
                                                               AccessControlAllowOrigin    = "*",
                                                               AccessControlAllowMethods   = "ADD, DELETE",
                                                               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -10486,7 +10486,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode  = HTTPStatusCode.BadRequest,
                                                             Server          = HTTPServer.DefaultServerName,
-                                                            Date            = DateTime.UtcNow,
+                                                            Date            = Timestamp.Now,
                                                             Connection      = "close"
                                                         }.AsImmutable;
 
@@ -10496,7 +10496,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode  = HTTPStatusCode.BadRequest,
                                                             Server          = HTTPServer.DefaultServerName,
-                                                            Date            = DateTime.UtcNow,
+                                                            Date            = Timestamp.Now,
                                                             Connection      = "close"
                                                         }.AsImmutable;
 
@@ -10504,7 +10504,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode  = HTTPStatusCode.NotFound,
                                                             Server          = HTTPServer.DefaultServerName,
-                                                            Date            = DateTime.UtcNow,
+                                                            Date            = Timestamp.Now,
                                                             Connection      = "close"
                                                         }.AsImmutable;
 
@@ -10520,7 +10520,7 @@ namespace social.OpenData.UsersAPI
                                                         ? new HTTPResponse.Builder(Request) {
                                                               HTTPStatusCode              = HTTPStatusCode.OK,
                                                               Server                      = HTTPServer.DefaultServerName,
-                                                              Date                        = DateTime.UtcNow,
+                                                              Date                        = Timestamp.Now,
                                                               AccessControlAllowOrigin    = "*",
                                                               AccessControlAllowMethods   = "ADD, DELETE",
                                                               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -10531,7 +10531,7 @@ namespace social.OpenData.UsersAPI
                                                         : new HTTPResponse.Builder(Request) {
                                                               HTTPStatusCode              = HTTPStatusCode.Unauthorized,
                                                               Server                      = HTTPServer.DefaultServerName,
-                                                              Date                        = DateTime.UtcNow,
+                                                              Date                        = Timestamp.Now,
                                                               AccessControlAllowOrigin    = "*",
                                                               AccessControlAllowMethods   = "ADD, DELETE",
                                                               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -10586,7 +10586,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode  = HTTPStatusCode.BadRequest,
                                                             Server          = HTTPServer.DefaultServerName,
-                                                            Date            = DateTime.UtcNow,
+                                                            Date            = Timestamp.Now,
                                                             Connection      = "close"
                                                         }.AsImmutable;
 
@@ -10596,7 +10596,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode  = HTTPStatusCode.BadRequest,
                                                             Server          = HTTPServer.DefaultServerName,
-                                                            Date            = DateTime.UtcNow,
+                                                            Date            = Timestamp.Now,
                                                             Connection      = "close"
                                                         }.AsImmutable;
 
@@ -10604,7 +10604,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode  = HTTPStatusCode.NotFound,
                                                             Server          = HTTPServer.DefaultServerName,
-                                                            Date            = DateTime.UtcNow,
+                                                            Date            = Timestamp.Now,
                                                             Connection      = "close"
                                                         }.AsImmutable;
 
@@ -10621,7 +10621,7 @@ namespace social.OpenData.UsersAPI
                                                         ? new HTTPResponse.Builder(Request) {
                                                               HTTPStatusCode              = HTTPStatusCode.OK,
                                                               Server                      = HTTPServer.DefaultServerName,
-                                                              Date                        = DateTime.UtcNow,
+                                                              Date                        = Timestamp.Now,
                                                               AccessControlAllowOrigin    = "*",
                                                               AccessControlAllowMethods   = "ADD, DELETE",
                                                               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -10632,7 +10632,7 @@ namespace social.OpenData.UsersAPI
                                                         : new HTTPResponse.Builder(Request) {
                                                               HTTPStatusCode              = HTTPStatusCode.Unauthorized,
                                                               Server                      = HTTPServer.DefaultServerName,
-                                                              Date                        = DateTime.UtcNow,
+                                                              Date                        = Timestamp.Now,
                                                               AccessControlAllowOrigin    = "*",
                                                               AccessControlAllowMethods   = "ADD, DELETE",
                                                               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -10687,7 +10687,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode  = HTTPStatusCode.BadRequest,
                                                             Server          = HTTPServer.DefaultServerName,
-                                                            Date            = DateTime.UtcNow,
+                                                            Date            = Timestamp.Now,
                                                             Connection      = "close"
                                                         }.AsImmutable;
 
@@ -10697,7 +10697,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode  = HTTPStatusCode.BadRequest,
                                                             Server          = HTTPServer.DefaultServerName,
-                                                            Date            = DateTime.UtcNow,
+                                                            Date            = Timestamp.Now,
                                                             Connection      = "close"
                                                         }.AsImmutable;
 
@@ -10705,7 +10705,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode  = HTTPStatusCode.NotFound,
                                                             Server          = HTTPServer.DefaultServerName,
-                                                            Date            = DateTime.UtcNow,
+                                                            Date            = Timestamp.Now,
                                                             Connection      = "close"
                                                         }.AsImmutable;
 
@@ -10722,7 +10722,7 @@ namespace social.OpenData.UsersAPI
                                                         ? new HTTPResponse.Builder(Request) {
                                                               HTTPStatusCode              = HTTPStatusCode.OK,
                                                               Server                      = HTTPServer.DefaultServerName,
-                                                              Date                        = DateTime.UtcNow,
+                                                              Date                        = Timestamp.Now,
                                                               AccessControlAllowOrigin    = "*",
                                                               AccessControlAllowMethods   = "ADD, DELETE",
                                                               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -10733,7 +10733,7 @@ namespace social.OpenData.UsersAPI
                                                         : new HTTPResponse.Builder(Request) {
                                                               HTTPStatusCode              = HTTPStatusCode.Unauthorized,
                                                               Server                      = HTTPServer.DefaultServerName,
-                                                              Date                        = DateTime.UtcNow,
+                                                              Date                        = Timestamp.Now,
                                                               AccessControlAllowOrigin    = "*",
                                                               AccessControlAllowMethods   = "ADD, DELETE",
                                                               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -10788,7 +10788,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode  = HTTPStatusCode.BadRequest,
                                                             Server          = HTTPServer.DefaultServerName,
-                                                            Date            = DateTime.UtcNow,
+                                                            Date            = Timestamp.Now,
                                                             Connection      = "close"
                                                         }.AsImmutable;
 
@@ -10798,7 +10798,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode  = HTTPStatusCode.BadRequest,
                                                             Server          = HTTPServer.DefaultServerName,
-                                                            Date            = DateTime.UtcNow,
+                                                            Date            = Timestamp.Now,
                                                             Connection      = "close"
                                                         }.AsImmutable;
 
@@ -10806,7 +10806,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode  = HTTPStatusCode.NotFound,
                                                             Server          = HTTPServer.DefaultServerName,
-                                                            Date            = DateTime.UtcNow,
+                                                            Date            = Timestamp.Now,
                                                             Connection      = "close"
                                                         }.AsImmutable;
 
@@ -10823,7 +10823,7 @@ namespace social.OpenData.UsersAPI
                                                         ? new HTTPResponse.Builder(Request) {
                                                               HTTPStatusCode              = HTTPStatusCode.OK,
                                                               Server                      = HTTPServer.DefaultServerName,
-                                                              Date                        = DateTime.UtcNow,
+                                                              Date                        = Timestamp.Now,
                                                               AccessControlAllowOrigin    = "*",
                                                               AccessControlAllowMethods   = "ADD, DELETE",
                                                               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -10834,7 +10834,7 @@ namespace social.OpenData.UsersAPI
                                                         : new HTTPResponse.Builder(Request) {
                                                               HTTPStatusCode              = HTTPStatusCode.Unauthorized,
                                                               Server                      = HTTPServer.DefaultServerName,
-                                                              Date                        = DateTime.UtcNow,
+                                                              Date                        = Timestamp.Now,
                                                               AccessControlAllowOrigin    = "*",
                                                               AccessControlAllowMethods   = "ADD, DELETE",
                                                               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -10889,7 +10889,7 @@ namespace social.OpenData.UsersAPI
                                                      new HTTPResponse.Builder(Request) {
                                                          HTTPStatusCode              = HTTPStatusCode.OK,
                                                          Server                      = HTTPServer.DefaultServerName,
-                                                         Date                        = DateTime.UtcNow,
+                                                         Date                        = Timestamp.Now,
                                                          AccessControlAllowOrigin    = "*",
                                                          AccessControlAllowMethods   = "GET",
                                                          AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -10904,7 +10904,7 @@ namespace social.OpenData.UsersAPI
                                                         new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode              = HTTPStatusCode.Unauthorized,
                                                             Server                      = HTTPServer.DefaultServerName,
-                                                            Date                        = DateTime.UtcNow,
+                                                            Date                        = Timestamp.Now,
                                                             AccessControlAllowOrigin    = "*",
                                                             AccessControlAllowMethods   = "GET",
                                                             AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -10961,7 +10961,7 @@ namespace social.OpenData.UsersAPI
                                                      new HTTPResponse.Builder(Request) {
                                                          HTTPStatusCode              = HTTPStatusCode.OK,
                                                          Server                      = HTTPServer.DefaultServerName,
-                                                         Date                        = DateTime.UtcNow,
+                                                         Date                        = Timestamp.Now,
                                                          AccessControlAllowOrigin    = "*",
                                                          AccessControlAllowMethods   = "GET",
                                                          AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -10977,7 +10977,7 @@ namespace social.OpenData.UsersAPI
                                                         new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode              = HTTPStatusCode.Unauthorized,
                                                             Server                      = HTTPServer.DefaultServerName,
-                                                            Date                        = DateTime.UtcNow,
+                                                            Date                        = Timestamp.Now,
                                                             AccessControlAllowOrigin    = "*",
                                                             AccessControlAllowMethods   = "GET",
                                                             AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -11034,7 +11034,7 @@ namespace social.OpenData.UsersAPI
                                                      new HTTPResponse.Builder(Request) {
                                                          HTTPStatusCode              = HTTPStatusCode.OK,
                                                          Server                      = HTTPServer.DefaultServerName,
-                                                         Date                        = DateTime.UtcNow,
+                                                         Date                        = Timestamp.Now,
                                                          AccessControlAllowOrigin    = "*",
                                                          AccessControlAllowMethods   = "GET",
                                                          AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -11050,7 +11050,7 @@ namespace social.OpenData.UsersAPI
                                                         new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode              = HTTPStatusCode.Unauthorized,
                                                             Server                      = HTTPServer.DefaultServerName,
-                                                            Date                        = DateTime.UtcNow,
+                                                            Date                        = Timestamp.Now,
                                                             AccessControlAllowOrigin    = "*",
                                                             AccessControlAllowMethods   = "GET",
                                                             AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -11102,7 +11102,7 @@ namespace social.OpenData.UsersAPI
                                              return Task.FromResult(new HTTPResponse.Builder(Request) {
                                                         HTTPStatusCode             = HTTPStatusCode.OK,
                                                         Server                     = HTTPServer.DefaultServerName,
-                                                        Date                       = DateTime.UtcNow,
+                                                        Date                       = Timestamp.Now,
                                                         AccessControlAllowOrigin   = "*",
                                                         AccessControlAllowMethods  = "GET, SET",
                                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -11167,7 +11167,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode              = HTTPStatusCode.Forbidden,
                                                             Server                      = HTTPServer.DefaultServerName,
-                                                            Date                        = DateTime.UtcNow,
+                                                            Date                        = Timestamp.Now,
                                                             AccessControlAllowOrigin    = "*",
                                                             AccessControlAllowMethods   = "GET, SET, CHOWN",
                                                             AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -11268,7 +11268,7 @@ namespace social.OpenData.UsersAPI
                                              return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                             Server                     = HTTPServer.DefaultServerName,
-                                                            Date                       = DateTime.UtcNow,
+                                                            Date                       = Timestamp.Now,
                                                             AccessControlAllowOrigin   = "*",
                                                             AccessControlAllowMethods  = "GET, SET",
                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -11289,7 +11289,7 @@ namespace social.OpenData.UsersAPI
                                              return new HTTPResponse.Builder(Request) {
                                                         HTTPStatusCode              = HTTPStatusCode.OK,
                                                         Server                      = HTTPServer.DefaultServerName,
-                                                        Date                        = DateTime.UtcNow,
+                                                        Date                        = Timestamp.Now,
                                                         AccessControlAllowOrigin    = "*",
                                                         AccessControlAllowMethods   = "GET, SET",
                                                         AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -11353,7 +11353,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode              = HTTPStatusCode.Forbidden,
                                                             Server                      = HTTPServer.DefaultServerName,
-                                                            Date                        = DateTime.UtcNow,
+                                                            Date                        = Timestamp.Now,
                                                             AccessControlAllowOrigin    = "*",
                                                             AccessControlAllowMethods   = "GET, SET, CHOWN",
                                                             AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -11454,7 +11454,7 @@ namespace social.OpenData.UsersAPI
                                              return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                             Server                     = HTTPServer.DefaultServerName,
-                                                            Date                       = DateTime.UtcNow,
+                                                            Date                       = Timestamp.Now,
                                                             AccessControlAllowOrigin   = "*",
                                                             AccessControlAllowMethods  = "GET, SET",
                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -11475,7 +11475,7 @@ namespace social.OpenData.UsersAPI
                                              return new HTTPResponse.Builder(Request) {
                                                         HTTPStatusCode              = HTTPStatusCode.OK,
                                                         Server                      = HTTPServer.DefaultServerName,
-                                                        Date                        = DateTime.UtcNow,
+                                                        Date                        = Timestamp.Now,
                                                         AccessControlAllowOrigin    = "*",
                                                         AccessControlAllowMethods   = "GET, SET",
                                                         AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -11523,7 +11523,7 @@ namespace social.OpenData.UsersAPI
                                                      new HTTPResponse.Builder(Request) {
                                                          HTTPStatusCode             = HTTPStatusCode.OK,
                                                          Server                     = HTTPServer.DefaultServerName,
-                                                         Date                       = DateTime.UtcNow,
+                                                         Date                       = Timestamp.Now,
                                                          AccessControlAllowOrigin   = "*",
                                                          AccessControlAllowMethods  = "GET",
                                                          AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -11598,7 +11598,7 @@ namespace social.OpenData.UsersAPI
                                                  new HTTPResponse.Builder(Request) {
                                                      HTTPStatusCode                = HTTPStatusCode.OK,
                                                      Server                        = HTTPServer.DefaultServerName,
-                                                     Date                          = DateTime.UtcNow,
+                                                     Date                          = Timestamp.Now,
                                                      AccessControlAllowOrigin      = "*",
                                                      AccessControlAllowMethods     = "GET, COUNT, OPTIONS",
                                                      AccessControlAllowHeaders     = "Content-Type, Accept, Authorization",
@@ -11659,7 +11659,7 @@ namespace social.OpenData.UsersAPI
                                                         new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode             = HTTPStatusCode.OK,
                                                             Server                     = HTTPServer.DefaultServerName,
-                                                            Date                       = DateTime.UtcNow,
+                                                            Date                       = Timestamp.Now,
                                                             AccessControlAllowOrigin   = "*",
                                                             AccessControlAllowMethods  = "GET, SET",
                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -11706,7 +11706,7 @@ namespace social.OpenData.UsersAPI
                                                  new HTTPResponse.Builder(Request) {
                                                      HTTPStatusCode              = HTTPStatusCode.OK,
                                                      Server                      = HTTPServer.DefaultServerName,
-                                                     Date                        = DateTime.UtcNow,
+                                                     Date                        = Timestamp.Now,
                                                      AccessControlAllowOrigin    = "*",
                                                      AccessControlAllowMethods   = "GET",
                                                      AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -11757,7 +11757,7 @@ namespace social.OpenData.UsersAPI
                                                             new HTTPResponse.Builder(Request) {
                                                                 HTTPStatusCode  = HTTPStatusCode.BadRequest,
                                                                 Server          = HTTPServer.DefaultServerName,
-                                                                Date            = DateTime.UtcNow,
+                                                                Date            = Timestamp.Now,
                                                                 Connection      = "close"
                                                             }.AsImmutable);
 
@@ -11770,7 +11770,7 @@ namespace social.OpenData.UsersAPI
                                                  new HTTPResponse.Builder(Request) {
                                                      HTTPStatusCode              = HTTPStatusCode.OK,
                                                      Server                      = HTTPServer.DefaultServerName,
-                                                     Date                        = DateTime.UtcNow,
+                                                     Date                        = Timestamp.Now,
                                                      AccessControlAllowOrigin    = "*",
                                                      AccessControlAllowMethods   = "GET",
                                                      AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -11814,7 +11814,7 @@ namespace social.OpenData.UsersAPI
                                                  new HTTPResponse.Builder(Request) {
                                                      HTTPStatusCode              = HTTPStatusCode.OK,
                                                      Server                      = HTTPServer.DefaultServerName,
-                                                     Date                        = DateTime.UtcNow,
+                                                     Date                        = Timestamp.Now,
                                                      AccessControlAllowOrigin    = "*",
                                                      AccessControlAllowMethods   = "GET",
                                                      AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -11861,7 +11861,7 @@ namespace social.OpenData.UsersAPI
                                                         new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode             = HTTPStatusCode.OK,
                                                             Server                     = HTTPServer.DefaultServerName,
-                                                            Date                       = DateTime.UtcNow,
+                                                            Date                       = Timestamp.Now,
                                                             AccessControlAllowOrigin   = "*",
                                                             AccessControlAllowMethods  = "GET, SET",
                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -11921,7 +11921,7 @@ namespace social.OpenData.UsersAPI
                                                  new HTTPResponse.Builder(Request) {
                                                      HTTPStatusCode              = HTTPStatusCode.OK,
                                                      Server                      = HTTPServer.DefaultServerName,
-                                                     Date                        = DateTime.UtcNow,
+                                                     Date                        = Timestamp.Now,
                                                      AccessControlAllowOrigin    = "*",
                                                      AccessControlAllowMethods   = "GET",
                                                      AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -11972,7 +11972,7 @@ namespace social.OpenData.UsersAPI
                                                  new HTTPResponse.Builder(Request) {
                                                      HTTPStatusCode              = HTTPStatusCode.OK,
                                                      Server                      = HTTPServer.DefaultServerName,
-                                                     Date                        = DateTime.UtcNow,
+                                                     Date                        = Timestamp.Now,
                                                      AccessControlAllowOrigin    = "*",
                                                      AccessControlAllowMethods   = "GET",
                                                      AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
@@ -12005,7 +12005,7 @@ namespace social.OpenData.UsersAPI
                                                  new HTTPResponse.Builder(Request) {
                                                      HTTPStatusCode             = HTTPStatusCode.OK,
                                                      Server                     = HTTPServer.DefaultServerName,
-                                                     Date                       = DateTime.UtcNow,
+                                                     Date                       = Timestamp.Now,
                                                      AccessControlAllowOrigin   = "*",
                                                      AccessControlAllowMethods  = "GET, COUNT, SEARCH, OPTIONS",
                                                      AccessControlAllowHeaders  = "X-PINGOTHER, Content-Type, Accept, Authorization, X-App-Version",
@@ -12057,7 +12057,7 @@ namespace social.OpenData.UsersAPI
                                              var expandTags          = expand.ContainsIgnoreCase("tags")     ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
                                              var expandAuthorId      = expand.ContainsIgnoreCase("authorId") ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
 
-                                             var now                 = DateTime.UtcNow;
+                                             var now                 = Timestamp.Now;
 
                                              var allNews             = _NewsPostings.Values.
                                                                            Where(posting => posting.PublicationDate <= now).
@@ -12086,7 +12086,7 @@ namespace social.OpenData.UsersAPI
                                                         new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode                = HTTPStatusCode.OK,
                                                             Server                        = HTTPServer.DefaultServerName,
-                                                            Date                          = DateTime.UtcNow,
+                                                            Date                          = Timestamp.Now,
                                                             AccessControlAllowOrigin      = "*",
                                                             AccessControlAllowMethods     = "GET",
                                                             AccessControlAllowHeaders     = "Content-Type, Accept, Authorization",
@@ -12136,7 +12136,7 @@ namespace social.OpenData.UsersAPI
                                                  new HTTPResponse.Builder(Request) {
                                                      HTTPStatusCode             = HTTPStatusCode.OK,
                                                      Server                     = HTTPServer.DefaultServerName,
-                                                     Date                       = DateTime.UtcNow,
+                                                     Date                       = Timestamp.Now,
                                                      AccessControlAllowOrigin   = "*",
                                                      AccessControlAllowMethods  = "GET",
                                                      AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -12169,7 +12169,7 @@ namespace social.OpenData.UsersAPI
                                                         new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode                = HTTPStatusCode.OK,
                                                             Server                        = HTTPServer.DefaultServerName,
-                                                            Date                          = DateTime.UtcNow,
+                                                            Date                          = Timestamp.Now,
                                                             AccessControlAllowOrigin      = "*",
                                                             AccessControlAllowMethods     = "GET",
                                                             AccessControlAllowHeaders     = "Content-Type, Accept, Authorization",
@@ -12200,7 +12200,7 @@ namespace social.OpenData.UsersAPI
                                                  new HTTPResponse.Builder(Request) {
                                                      HTTPStatusCode             = HTTPStatusCode.OK,
                                                      Server                     = HTTPServer.DefaultServerName,
-                                                     Date                       = DateTime.UtcNow,
+                                                     Date                       = Timestamp.Now,
                                                      AccessControlAllowOrigin   = "*",
                                                      AccessControlAllowMethods  = "GET, COUNT, SEARCH, OPTIONS",
                                                      AccessControlAllowHeaders  = "X-PINGOTHER, Content-Type, Accept, Authorization, X-App-Version",
@@ -12259,7 +12259,7 @@ namespace social.OpenData.UsersAPI
                                                         new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode             = HTTPStatusCode.OK,
                                                             Server                     = HTTPServer.DefaultServerName,
-                                                            Date                       = DateTime.UtcNow,
+                                                            Date                       = Timestamp.Now,
                                                             AccessControlAllowOrigin   = "*",
                                                             AccessControlAllowMethods  = "GET, SET",
                                                             AccessControlAllowHeaders  = "X-PINGOTHER, Content-Type, Accept, Authorization, X-App-Version",
@@ -12321,7 +12321,7 @@ namespace social.OpenData.UsersAPI
                                                  new HTTPResponse.Builder(Request) {
                                                      HTTPStatusCode             = HTTPStatusCode.OK,
                                                      Server                     = HTTPServer.DefaultServerName,
-                                                     Date                       = DateTime.UtcNow,
+                                                     Date                       = Timestamp.Now,
                                                      AccessControlAllowOrigin   = "*",
                                                      AccessControlAllowMethods  = "GET",
                                                      AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -12355,7 +12355,7 @@ namespace social.OpenData.UsersAPI
                                                  new HTTPResponse.Builder(Request) {
                                                      HTTPStatusCode             = HTTPStatusCode.OK,
                                                      Server                     = HTTPServer.DefaultServerName,
-                                                     Date                       = DateTime.UtcNow,
+                                                     Date                       = Timestamp.Now,
                                                      AccessControlAllowOrigin   = "*",
                                                      AccessControlAllowMethods  = "GET, COUNT, SEARCH, OPTIONS",
                                                      AccessControlAllowHeaders  = "X-PINGOTHER, Content-Type, Accept, Authorization, X-App-Version",
@@ -12407,7 +12407,7 @@ namespace social.OpenData.UsersAPI
                                              var expandDataLicenses  = expand.ContainsIgnoreCase("dataLicenses") ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
                                              var expandOwnerId       = expand.ContainsIgnoreCase("ownerId")      ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
 
-                                             var now                 = DateTime.UtcNow;
+                                             var now                 = Timestamp.Now;
 
                                              var allNews             = _NewsBanners.Values.
                                                                            ToArray();
@@ -12435,7 +12435,7 @@ namespace social.OpenData.UsersAPI
                                                         new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode                = HTTPStatusCode.OK,
                                                             Server                        = HTTPServer.DefaultServerName,
-                                                            Date                          = DateTime.UtcNow,
+                                                            Date                          = Timestamp.Now,
                                                             AccessControlAllowOrigin      = "*",
                                                             AccessControlAllowMethods     = "GET",
                                                             AccessControlAllowHeaders     = "Content-Type, Accept, Authorization",
@@ -12485,7 +12485,7 @@ namespace social.OpenData.UsersAPI
                                                  new HTTPResponse.Builder(Request) {
                                                      HTTPStatusCode             = HTTPStatusCode.OK,
                                                      Server                     = HTTPServer.DefaultServerName,
-                                                     Date                       = DateTime.UtcNow,
+                                                     Date                       = Timestamp.Now,
                                                      AccessControlAllowOrigin   = "*",
                                                      AccessControlAllowMethods  = "GET",
                                                      AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -12518,7 +12518,7 @@ namespace social.OpenData.UsersAPI
                                                         new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode                = HTTPStatusCode.OK,
                                                             Server                        = HTTPServer.DefaultServerName,
-                                                            Date                          = DateTime.UtcNow,
+                                                            Date                          = Timestamp.Now,
                                                             AccessControlAllowOrigin      = "*",
                                                             AccessControlAllowMethods     = "GET",
                                                             AccessControlAllowHeaders     = "Content-Type, Accept, Authorization",
@@ -12549,7 +12549,7 @@ namespace social.OpenData.UsersAPI
                                                  new HTTPResponse.Builder(Request) {
                                                      HTTPStatusCode             = HTTPStatusCode.OK,
                                                      Server                     = HTTPServer.DefaultServerName,
-                                                     Date                       = DateTime.UtcNow,
+                                                     Date                       = Timestamp.Now,
                                                      AccessControlAllowOrigin   = "*",
                                                      AccessControlAllowMethods  = "GET, COUNT, SEARCH, OPTIONS",
                                                      AccessControlAllowHeaders  = "X-PINGOTHER, Content-Type, Accept, Authorization, X-App-Version",
@@ -12609,7 +12609,7 @@ namespace social.OpenData.UsersAPI
                                                        new HTTPResponse.Builder(Request) {
                                                                 HTTPStatusCode             = HTTPStatusCode.OK,
                                                                 Server                     = HTTPServer.DefaultServerName,
-                                                                Date                       = DateTime.UtcNow,
+                                                                Date                       = Timestamp.Now,
                                                                 AccessControlAllowOrigin   = "*",
                                                                 AccessControlAllowMethods  = "GET, SET",
                                                                 AccessControlAllowHeaders  = "X-PINGOTHER, Content-Type, Accept, Authorization, X-App-Version",
@@ -12672,7 +12672,7 @@ namespace social.OpenData.UsersAPI
                                                      new HTTPResponse.Builder(Request) {
                                                          HTTPStatusCode             = HTTPStatusCode.OK,
                                                          Server                     = HTTPServer.DefaultServerName,
-                                                         Date                       = DateTime.UtcNow,
+                                                         Date                       = Timestamp.Now,
                                                          AccessControlAllowOrigin   = "*",
                                                          AccessControlAllowMethods  = "GET",
                                                          AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -12707,7 +12707,7 @@ namespace social.OpenData.UsersAPI
                                                  new HTTPResponse.Builder(Request) {
                                                      HTTPStatusCode             = HTTPStatusCode.OK,
                                                      Server                     = HTTPServer.DefaultServerName,
-                                                     Date                       = DateTime.UtcNow,
+                                                     Date                       = Timestamp.Now,
                                                      AccessControlAllowOrigin   = "*",
                                                      AccessControlAllowMethods  = "GET, COUNT, SEARCH, OPTIONS",
                                                      AccessControlAllowHeaders  = "X-PINGOTHER, Content-Type, Accept, Authorization, X-App-Version",
@@ -12759,7 +12759,7 @@ namespace social.OpenData.UsersAPI
                                              var expandTags          = expand.ContainsIgnoreCase("tags")     ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
                                              var expandAuthorId      = expand.ContainsIgnoreCase("authorId") ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
 
-                                             var now                 = DateTime.UtcNow;
+                                             var now                 = Timestamp.Now;
 
                                              var allFAQs             = _FAQs.Values.
                                                                            Where(posting => posting.PublicationDate <= now).
@@ -12788,7 +12788,7 @@ namespace social.OpenData.UsersAPI
                                                         new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode                = HTTPStatusCode.OK,
                                                             Server                        = HTTPServer.DefaultServerName,
-                                                            Date                          = DateTime.UtcNow,
+                                                            Date                          = Timestamp.Now,
                                                             AccessControlAllowOrigin      = "*",
                                                             AccessControlAllowMethods     = "GET",
                                                             AccessControlAllowHeaders     = "Content-Type, Accept, Authorization",
@@ -12838,7 +12838,7 @@ namespace social.OpenData.UsersAPI
                                                  new HTTPResponse.Builder(Request) {
                                                      HTTPStatusCode             = HTTPStatusCode.OK,
                                                      Server                     = HTTPServer.DefaultServerName,
-                                                     Date                       = DateTime.UtcNow,
+                                                     Date                       = Timestamp.Now,
                                                      AccessControlAllowOrigin   = "*",
                                                      AccessControlAllowMethods  = "GET",
                                                      AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -12871,7 +12871,7 @@ namespace social.OpenData.UsersAPI
                                                         new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode                = HTTPStatusCode.OK,
                                                             Server                        = HTTPServer.DefaultServerName,
-                                                            Date                          = DateTime.UtcNow,
+                                                            Date                          = Timestamp.Now,
                                                             AccessControlAllowOrigin      = "*",
                                                             AccessControlAllowMethods     = "GET",
                                                             AccessControlAllowHeaders     = "Content-Type, Accept, Authorization",
@@ -12924,7 +12924,7 @@ namespace social.OpenData.UsersAPI
             //                                     new HTTPResponse.Builder(Request) {
             //                                         HTTPStatusCode             = HTTPStatusCode.OK,
             //                                         Server                     = HTTPServer.DefaultServerName,
-            //                                         Date                       = DateTime.UtcNow,
+            //                                         Date                       = Timestamp.Now,
             //                                         AccessControlAllowOrigin   = "*",
             //                                         AccessControlAllowMethods  = "GET, SET",
             //                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -12999,7 +12999,7 @@ namespace social.OpenData.UsersAPI
                                                  #endregion
 
                                                  var reply       = JSONObject.Create(
-                                                                       new JProperty("timestamp",  DateTime.UtcNow),
+                                                                       new JProperty("timestamp",  Timestamp.Now),
                                                                        new JProperty("instance",   Environment.MachineName),
                                                                        new JProperty("content",    content.Reverse())
                                                                    );
@@ -13040,7 +13040,7 @@ namespace social.OpenData.UsersAPI
                                                      new HTTPResponse.Builder(Request) {
                                                          HTTPStatusCode             = HTTPStatusCode.OK,
                                                          Server                     = HTTPServer.DefaultServerName,
-                                                         Date                       = DateTime.UtcNow,
+                                                         Date                       = Timestamp.Now,
                                                          AccessControlAllowOrigin   = "*",
                                                          AccessControlAllowMethods  = "POST",
                                                          AccessControlAllowHeaders  = "Content-Type, Accept",
@@ -13057,7 +13057,7 @@ namespace social.OpenData.UsersAPI
                                                      new HTTPResponse.Builder(Request) {
                                                          HTTPStatusCode             = HTTPStatusCode.InternalServerError,
                                                          Server                     = HTTPServer.DefaultServerName,
-                                                         Date                       = DateTime.UtcNow,
+                                                         Date                       = Timestamp.Now,
                                                          AccessControlAllowOrigin   = "*",
                                                          AccessControlAllowMethods  = "POST",
                                                          AccessControlAllowHeaders  = "Content-Type, Accept",
@@ -13368,7 +13368,7 @@ namespace social.OpenData.UsersAPI
 
                             if (!_HTTPCookies.ContainsKey(SecurityTokenId) &&
                                 _LoginPasswords.ContainsKey(Login) &&
-                                Expires > DateTime.UtcNow)
+                                Expires > Timestamp.Now)
                             {
 
                                 _HTTPCookies.Add(SecurityTokenId,
@@ -13421,7 +13421,7 @@ namespace social.OpenData.UsersAPI
                 String   JSONCommand;
                 JObject  JSONObject;
 
-                var Now     = DateTime.UtcNow;
+                var Now     = Timestamp.Now;
                 var MaxAge  = TimeSpan.FromDays(7);
 
                 // Info: File.Exists(...) is harmful!
@@ -14700,7 +14700,7 @@ namespace social.OpenData.UsersAPI
                 try
                 {
 
-                    var Now          = DateTime.UtcNow;
+                    var Now          = Timestamp.Now;
 
                     var JSONMessage  = new JObject(
                                            new JProperty(MessageType.ToString(),  JSONData),
@@ -15701,7 +15701,7 @@ namespace social.OpenData.UsersAPI
                                                              new JProperty("userCreated",
                                                                  User.ToJSON()
                                                              ),
-                                                             new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                                                             new JProperty("timestamp", Timestamp.Now.ToIso8601())
                                                          ));
                         }
 
@@ -15712,7 +15712,7 @@ namespace social.OpenData.UsersAPI
                                                              new JProperty("userUpdated",
                                                                  User.ToJSON()
                                                              ),
-                                                             new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                                                             new JProperty("timestamp", Timestamp.Now.ToIso8601())
                                                          ));
                         }
 
@@ -15723,7 +15723,7 @@ namespace social.OpenData.UsersAPI
                         //                                     new JProperty("userRemoved",
                         //                                         User.ToJSON()
                         //                                     ),
-                        //                                     new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                        //                                     new JProperty("timestamp", Timestamp.Now.ToIso8601())
                         //                                 ));
                         //}
 
@@ -15983,7 +15983,7 @@ namespace social.OpenData.UsersAPI
                                                              new JProperty("userDeleted",
                                                                  User.ToJSON()
                                                              ),
-                                                             new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                                                             new JProperty("timestamp", Timestamp.Now.ToIso8601())
                                                          ));
 
                     }
@@ -16183,7 +16183,7 @@ namespace social.OpenData.UsersAPI
 
             var OnUserAddedLocal = OnUserAdded;
             if (OnUserAddedLocal != null)
-                await OnUserAddedLocal?.Invoke(DateTime.UtcNow,
+                await OnUserAddedLocal?.Invoke(Timestamp.Now,
                                                User,
                                                eventTrackingId,
                                                CurrentUserId);
@@ -16563,7 +16563,7 @@ namespace social.OpenData.UsersAPI
 
             var OnUserAddedLocal = OnUserAdded;
             if (OnUserAddedLocal != null)
-                await OnUserAddedLocal?.Invoke(DateTime.UtcNow,
+                await OnUserAddedLocal?.Invoke(Timestamp.Now,
                                                User,
                                                eventTrackingId,
                                                CurrentUserId);
@@ -16953,7 +16953,7 @@ namespace social.OpenData.UsersAPI
 
                 var OnUserAddedLocal = OnUserAdded;
                 if (OnUserAddedLocal != null)
-                    await OnUserAddedLocal?.Invoke(DateTime.UtcNow,
+                    await OnUserAddedLocal?.Invoke(Timestamp.Now,
                                                    User,
                                                    eventTrackingId,
                                                    CurrentUserId);
@@ -16987,7 +16987,7 @@ namespace social.OpenData.UsersAPI
 
                 var OnUserUpdatedLocal = OnUserUpdated;
                 if (OnUserUpdatedLocal != null)
-                    await OnUserUpdatedLocal?.Invoke(DateTime.UtcNow,
+                    await OnUserUpdatedLocal?.Invoke(Timestamp.Now,
                                                      User,
                                                      OldUser,
                                                      eventTrackingId,
@@ -17245,7 +17245,7 @@ namespace social.OpenData.UsersAPI
 
             var OnUserUpdatedLocal = OnUserUpdated;
             if (OnUserUpdatedLocal != null)
-                await OnUserUpdatedLocal?.Invoke(DateTime.UtcNow,
+                await OnUserUpdatedLocal?.Invoke(Timestamp.Now,
                                                  User,
                                                  OldUser,
                                                  eventTrackingId,
@@ -17384,7 +17384,7 @@ namespace social.OpenData.UsersAPI
 
             var OnUserUpdatedLocal = OnUserUpdated;
             if (OnUserUpdatedLocal != null)
-                await OnUserUpdatedLocal?.Invoke(DateTime.UtcNow,
+                await OnUserUpdatedLocal?.Invoke(Timestamp.Now,
                                                  updatedUser,
                                                  User,
                                                  eventTrackingId,
@@ -17976,7 +17976,7 @@ namespace social.OpenData.UsersAPI
 
             var OnUserDeletedLocal = OnUserDeleted;
             if (OnUserDeletedLocal != null)
-                await OnUserDeletedLocal?.Invoke(DateTime.UtcNow,
+                await OnUserDeletedLocal?.Invoke(Timestamp.Now,
                                                  User,
                                                  eventTrackingId,
                                                  CurrentUserId);
@@ -19165,7 +19165,7 @@ namespace social.OpenData.UsersAPI
 
             var OnAPIKeyAddedLocal = OnAPIKeyAdded;
             if (OnAPIKeyAddedLocal != null)
-                await OnAPIKeyAddedLocal?.Invoke(DateTime.UtcNow,
+                await OnAPIKeyAddedLocal?.Invoke(Timestamp.Now,
                                                  APIKey,
                                                  eventTrackingId,
                                                  CurrentUserId);
@@ -19299,7 +19299,7 @@ namespace social.OpenData.UsersAPI
 
             var OnAPIKeyAddedLocal = OnAPIKeyAdded;
             if (OnAPIKeyAddedLocal != null)
-                await OnAPIKeyAddedLocal?.Invoke(DateTime.UtcNow,
+                await OnAPIKeyAddedLocal?.Invoke(Timestamp.Now,
                                                  APIKey,
                                                  eventTrackingId,
                                                  CurrentUserId);
@@ -19440,7 +19440,7 @@ namespace social.OpenData.UsersAPI
 
                 var OnAPIKeyUpdatedLocal = OnAPIKeyUpdated;
                 if (OnAPIKeyUpdatedLocal != null)
-                    await OnAPIKeyUpdatedLocal?.Invoke(DateTime.UtcNow,
+                    await OnAPIKeyUpdatedLocal?.Invoke(Timestamp.Now,
                                                        APIKey,
                                                        OldAPIKey,
                                                        eventTrackingId,
@@ -19461,7 +19461,7 @@ namespace social.OpenData.UsersAPI
 
                 var OnAPIKeyAddedLocal = OnAPIKeyAdded;
                 if (OnAPIKeyAddedLocal != null)
-                    await OnAPIKeyAddedLocal?.Invoke(DateTime.UtcNow,
+                    await OnAPIKeyAddedLocal?.Invoke(Timestamp.Now,
                                                      APIKey,
                                                      eventTrackingId,
                                                      CurrentUserId);
@@ -19618,7 +19618,7 @@ namespace social.OpenData.UsersAPI
 
             var OnAPIKeyUpdatedLocal = OnAPIKeyUpdated;
             if (OnAPIKeyUpdatedLocal != null)
-                await OnAPIKeyUpdatedLocal?.Invoke(DateTime.UtcNow,
+                await OnAPIKeyUpdatedLocal?.Invoke(Timestamp.Now,
                                                  APIKey,
                                                  OldAPIKey,
                                                  eventTrackingId,
@@ -19757,7 +19757,7 @@ namespace social.OpenData.UsersAPI
 
             var OnAPIKeyUpdatedLocal = OnAPIKeyUpdated;
             if (OnAPIKeyUpdatedLocal != null)
-                await OnAPIKeyUpdatedLocal?.Invoke(DateTime.UtcNow,
+                await OnAPIKeyUpdatedLocal?.Invoke(Timestamp.Now,
                                                    updatedAPIKey,
                                                    APIKey,
                                                    eventTrackingId,
@@ -19933,8 +19933,8 @@ namespace social.OpenData.UsersAPI
         protected internal Boolean _APIKeyIsValid(APIKey APIKey)
 
             =>   APIKey != null &&
-               (!APIKey.NotBefore.HasValue || DateTime.UtcNow >= APIKey.NotBefore) &&
-               (!APIKey.NotAfter. HasValue || DateTime.UtcNow <  APIKey.NotAfter)  &&
+               (!APIKey.NotBefore.HasValue || Timestamp.Now >= APIKey.NotBefore) &&
+               (!APIKey.NotAfter. HasValue || Timestamp.Now <  APIKey.NotAfter)  &&
                 !APIKey.IsDisabled;
 
 
@@ -20506,7 +20506,7 @@ namespace social.OpenData.UsersAPI
 
             var OnAPIKeyRemovedLocal = OnAPIKeyRemoved;
             if (OnAPIKeyRemovedLocal != null)
-                await OnAPIKeyRemovedLocal?.Invoke(DateTime.UtcNow,
+                await OnAPIKeyRemovedLocal?.Invoke(Timestamp.Now,
                                                    APIKey,
                                                    eventTrackingId,
                                                    CurrentUserId);
@@ -20878,7 +20878,7 @@ namespace social.OpenData.UsersAPI
                                                              new JProperty("userGroupDeleted",
                                                                  UserGroup.ToJSON()
                                                              ),
-                                                             new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                                                             new JProperty("timestamp", Timestamp.Now.ToIso8601())
                                                          ));
 
                     }
@@ -21067,7 +21067,7 @@ namespace social.OpenData.UsersAPI
 
             var OnUserGroupAddedLocal = OnUserGroupAdded;
             if (OnUserGroupAddedLocal != null)
-                await OnUserGroupAddedLocal?.Invoke(DateTime.UtcNow,
+                await OnUserGroupAddedLocal?.Invoke(Timestamp.Now,
                                                     UserGroup,
                                                     eventTrackingId,
                                                     CurrentUserId);
@@ -21215,7 +21215,7 @@ namespace social.OpenData.UsersAPI
 
             var OnUserGroupAddedLocal = OnUserGroupAdded;
             if (OnUserGroupAddedLocal != null)
-                await OnUserGroupAddedLocal?.Invoke(DateTime.UtcNow,
+                await OnUserGroupAddedLocal?.Invoke(Timestamp.Now,
                                                     UserGroup,
                                                     eventTrackingId,
                                                     CurrentUserId);
@@ -21369,7 +21369,7 @@ namespace social.OpenData.UsersAPI
 
                 var OnUserGroupAddedLocal = OnUserGroupAdded;
                 if (OnUserGroupAddedLocal != null)
-                    await OnUserGroupAddedLocal?.Invoke(DateTime.UtcNow,
+                    await OnUserGroupAddedLocal?.Invoke(Timestamp.Now,
                                                         UserGroup,
                                                         eventTrackingId,
                                                         CurrentUserId);
@@ -21393,7 +21393,7 @@ namespace social.OpenData.UsersAPI
 
                 var OnUserGroupUpdatedLocal = OnUserGroupUpdated;
                 if (OnUserGroupUpdatedLocal != null)
-                    await OnUserGroupUpdatedLocal?.Invoke(DateTime.UtcNow,
+                    await OnUserGroupUpdatedLocal?.Invoke(Timestamp.Now,
                                                           UserGroup,
                                                           OldUserGroup,
                                                           eventTrackingId,
@@ -21551,7 +21551,7 @@ namespace social.OpenData.UsersAPI
 
             var OnUserGroupUpdatedLocal = OnUserGroupUpdated;
             if (OnUserGroupUpdatedLocal != null)
-                await OnUserGroupUpdatedLocal?.Invoke(DateTime.UtcNow,
+                await OnUserGroupUpdatedLocal?.Invoke(Timestamp.Now,
                                                       UserGroup,
                                                       OldUserGroup,
                                                       eventTrackingId,
@@ -21690,7 +21690,7 @@ namespace social.OpenData.UsersAPI
 
             var OnUserGroupUpdatedLocal = OnUserGroupUpdated;
             if (OnUserGroupUpdatedLocal != null)
-                await OnUserGroupUpdatedLocal?.Invoke(DateTime.UtcNow,
+                await OnUserGroupUpdatedLocal?.Invoke(Timestamp.Now,
                                                  updatedUserGroup,
                                                  UserGroup,
                                                  eventTrackingId,
@@ -22292,7 +22292,7 @@ namespace social.OpenData.UsersAPI
 
             var OnUserGroupDeletedLocal = OnUserGroupDeleted;
             if (OnUserGroupDeletedLocal != null)
-                await OnUserGroupDeletedLocal?.Invoke(DateTime.UtcNow,
+                await OnUserGroupDeletedLocal?.Invoke(Timestamp.Now,
                                                       UserGroup,
                                                       eventTrackingId,
                                                       CurrentUserId);
@@ -22625,7 +22625,7 @@ namespace social.OpenData.UsersAPI
 
             var OnMessageAddedLocal = OnMessageAdded;
             if (OnMessageAddedLocal != null)
-                await OnMessageAddedLocal?.Invoke(DateTime.UtcNow,
+                await OnMessageAddedLocal?.Invoke(Timestamp.Now,
                                                       Message,
                                                       eventTrackingId,
                                                       CurrentUserId);
@@ -22738,7 +22738,7 @@ namespace social.OpenData.UsersAPI
 
             var OnMessageAddedLocal = OnMessageAdded;
             if (OnMessageAddedLocal != null)
-                await OnMessageAddedLocal?.Invoke(DateTime.UtcNow,
+                await OnMessageAddedLocal?.Invoke(Timestamp.Now,
                                                       Message,
                                                       eventTrackingId,
                                                       CurrentUserId);
@@ -22859,7 +22859,7 @@ namespace social.OpenData.UsersAPI
 
                 var OnMessageUpdatedLocal = OnMessageUpdated;
                 if (OnMessageUpdatedLocal != null)
-                    await OnMessageUpdatedLocal?.Invoke(DateTime.UtcNow,
+                    await OnMessageUpdatedLocal?.Invoke(Timestamp.Now,
                                                             Message,
                                                             OldMessage,
                                                             eventTrackingId,
@@ -22880,7 +22880,7 @@ namespace social.OpenData.UsersAPI
 
                 var OnMessageAddedLocal = OnMessageAdded;
                 if (OnMessageAddedLocal != null)
-                    await OnMessageAddedLocal?.Invoke(DateTime.UtcNow,
+                    await OnMessageAddedLocal?.Invoke(Timestamp.Now,
                                                           Message,
                                                           eventTrackingId,
                                                           CurrentUserId);
@@ -23017,7 +23017,7 @@ namespace social.OpenData.UsersAPI
 
             var OnMessageUpdatedLocal = OnMessageUpdated;
             if (OnMessageUpdatedLocal != null)
-                await OnMessageUpdatedLocal?.Invoke(DateTime.UtcNow,
+                await OnMessageUpdatedLocal?.Invoke(Timestamp.Now,
                                                         Message,
                                                         OldMessage,
                                                         eventTrackingId,
@@ -23131,7 +23131,7 @@ namespace social.OpenData.UsersAPI
 
             var OnMessageUpdatedLocal = OnMessageUpdated;
             if (OnMessageUpdatedLocal != null)
-                await OnMessageUpdatedLocal?.Invoke(DateTime.UtcNow,
+                await OnMessageUpdatedLocal?.Invoke(Timestamp.Now,
                                                         NewMessage,
                                                         OldMessage,
                                                         eventTrackingId,
@@ -23480,7 +23480,7 @@ namespace social.OpenData.UsersAPI
 
                 var OnMessageRemovedLocal = OnMessageRemoved;
                 if (OnMessageRemovedLocal != null)
-                    await OnMessageRemovedLocal?.Invoke(DateTime.UtcNow,
+                    await OnMessageRemovedLocal?.Invoke(Timestamp.Now,
                                                             Message,
                                                             eventTrackingId,
                                                             CurrentUserId);
@@ -24921,7 +24921,7 @@ namespace social.OpenData.UsersAPI
 
             var OnNotificationMessageAddedLocal = OnNotificationMessageAdded;
             if (OnNotificationMessageAddedLocal != null)
-                await OnNotificationMessageAddedLocal?.Invoke(DateTime.UtcNow,
+                await OnNotificationMessageAddedLocal?.Invoke(Timestamp.Now,
                                                       NotificationMessage,
                                                       eventTrackingId,
                                                       CurrentUserId);
@@ -25034,7 +25034,7 @@ namespace social.OpenData.UsersAPI
 
             var OnNotificationMessageAddedLocal = OnNotificationMessageAdded;
             if (OnNotificationMessageAddedLocal != null)
-                await OnNotificationMessageAddedLocal?.Invoke(DateTime.UtcNow,
+                await OnNotificationMessageAddedLocal?.Invoke(Timestamp.Now,
                                                       NotificationMessage,
                                                       eventTrackingId,
                                                       CurrentUserId);
@@ -25155,7 +25155,7 @@ namespace social.OpenData.UsersAPI
 
                 var OnNotificationMessageUpdatedLocal = OnNotificationMessageUpdated;
                 if (OnNotificationMessageUpdatedLocal != null)
-                    await OnNotificationMessageUpdatedLocal?.Invoke(DateTime.UtcNow,
+                    await OnNotificationMessageUpdatedLocal?.Invoke(Timestamp.Now,
                                                             NotificationMessage,
                                                             OldNotificationMessage,
                                                             eventTrackingId,
@@ -25176,7 +25176,7 @@ namespace social.OpenData.UsersAPI
 
                 var OnNotificationMessageAddedLocal = OnNotificationMessageAdded;
                 if (OnNotificationMessageAddedLocal != null)
-                    await OnNotificationMessageAddedLocal?.Invoke(DateTime.UtcNow,
+                    await OnNotificationMessageAddedLocal?.Invoke(Timestamp.Now,
                                                           NotificationMessage,
                                                           eventTrackingId,
                                                           CurrentUserId);
@@ -25313,7 +25313,7 @@ namespace social.OpenData.UsersAPI
 
             var OnNotificationMessageUpdatedLocal = OnNotificationMessageUpdated;
             if (OnNotificationMessageUpdatedLocal != null)
-                await OnNotificationMessageUpdatedLocal?.Invoke(DateTime.UtcNow,
+                await OnNotificationMessageUpdatedLocal?.Invoke(Timestamp.Now,
                                                         NotificationMessage,
                                                         OldNotificationMessage,
                                                         eventTrackingId,
@@ -25427,7 +25427,7 @@ namespace social.OpenData.UsersAPI
 
             var OnNotificationMessageUpdatedLocal = OnNotificationMessageUpdated;
             if (OnNotificationMessageUpdatedLocal != null)
-                await OnNotificationMessageUpdatedLocal?.Invoke(DateTime.UtcNow,
+                await OnNotificationMessageUpdatedLocal?.Invoke(Timestamp.Now,
                                                         NewNotificationMessage,
                                                         OldNotificationMessage,
                                                         eventTrackingId,
@@ -25801,7 +25801,7 @@ namespace social.OpenData.UsersAPI
 
                 var OnNotificationMessageRemovedLocal = OnNotificationMessageRemoved;
                 if (OnNotificationMessageRemovedLocal != null)
-                    await OnNotificationMessageRemovedLocal?.Invoke(DateTime.UtcNow,
+                    await OnNotificationMessageRemovedLocal?.Invoke(Timestamp.Now,
                                                             NotificationMessage,
                                                             eventTrackingId,
                                                             CurrentUserId);
@@ -26554,7 +26554,7 @@ namespace social.OpenData.UsersAPI
                                                              new JProperty("organizationCreated",
                                                                  Organization.ToJSON()
                                                              ),
-                                                             new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                                                             new JProperty("timestamp", Timestamp.Now.ToIso8601())
                                                          ));
 
                         if (messageTypes.Contains(updateOrganization_MessageType))
@@ -26563,7 +26563,7 @@ namespace social.OpenData.UsersAPI
                                                              new JProperty("organizationUpdated",
                                                                  Organization.ToJSON()
                                                              ),
-                                                             new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                                                             new JProperty("timestamp", Timestamp.Now.ToIso8601())
                                                          ));
 
                     }
@@ -26792,7 +26792,7 @@ namespace social.OpenData.UsersAPI
                                                              new JProperty("organizationDeleted",
                                                                  Organization.ToJSON()
                                                              ),
-                                                             new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                                                             new JProperty("timestamp", Timestamp.Now.ToIso8601())
                                                          ));
 
                     }
@@ -26977,7 +26977,7 @@ namespace social.OpenData.UsersAPI
 
             var OnOrganizationAddedLocal = OnOrganizationAdded;
             if (OnOrganizationAddedLocal != null)
-                await OnOrganizationAddedLocal?.Invoke(DateTime.UtcNow,
+                await OnOrganizationAddedLocal?.Invoke(Timestamp.Now,
                                                        Organization,
                                                        eventTrackingId,
                                                        CurrentUserId);
@@ -27181,7 +27181,7 @@ namespace social.OpenData.UsersAPI
 
             var OnOrganizationAddedLocal = OnOrganizationAdded;
             if (OnOrganizationAddedLocal != null)
-                await OnOrganizationAddedLocal?.Invoke(DateTime.UtcNow,
+                await OnOrganizationAddedLocal?.Invoke(Timestamp.Now,
                                                Organization,
                                                eventTrackingId,
                                                CurrentUserId);
@@ -27393,7 +27393,7 @@ namespace social.OpenData.UsersAPI
 
                 var OnOrganizationAddedLocal = OnOrganizationAdded;
                 if (OnOrganizationAddedLocal != null)
-                    await OnOrganizationAddedLocal?.Invoke(DateTime.UtcNow,
+                    await OnOrganizationAddedLocal?.Invoke(Timestamp.Now,
                                                            Organization,
                                                            eventTrackingId,
                                                            CurrentUserId);
@@ -27417,7 +27417,7 @@ namespace social.OpenData.UsersAPI
 
                 var OnOrganizationUpdatedLocal = OnOrganizationUpdated;
                 if (OnOrganizationUpdatedLocal != null)
-                    await OnOrganizationUpdatedLocal?.Invoke(DateTime.UtcNow,
+                    await OnOrganizationUpdatedLocal?.Invoke(Timestamp.Now,
                                                              Organization,
                                                              OldOrganization,
                                                              eventTrackingId,
@@ -27696,7 +27696,7 @@ namespace social.OpenData.UsersAPI
 
             var OnOrganizationUpdatedLocal = OnOrganizationUpdated;
             if (OnOrganizationUpdatedLocal != null)
-                await OnOrganizationUpdatedLocal?.Invoke(DateTime.UtcNow,
+                await OnOrganizationUpdatedLocal?.Invoke(Timestamp.Now,
                                                          Organization,
                                                          OldOrganization,
                                                          eventTrackingId,
@@ -27835,7 +27835,7 @@ namespace social.OpenData.UsersAPI
 
             var OnOrganizationUpdatedLocal = OnOrganizationUpdated;
             if (OnOrganizationUpdatedLocal != null)
-                await OnOrganizationUpdatedLocal?.Invoke(DateTime.UtcNow,
+                await OnOrganizationUpdatedLocal?.Invoke(Timestamp.Now,
                                                          updatedOrganization,
                                                          Organization,
                                                          eventTrackingId,
@@ -28601,7 +28601,7 @@ namespace social.OpenData.UsersAPI
 
             var OnOrganizationDeletedLocal = OnOrganizationDeleted;
             if (OnOrganizationDeletedLocal != null)
-                await OnOrganizationDeletedLocal?.Invoke(DateTime.UtcNow,
+                await OnOrganizationDeletedLocal?.Invoke(Timestamp.Now,
                                                          Organization,
                                                          eventTrackingId,
                                                          CurrentUserId);
@@ -28937,7 +28937,7 @@ namespace social.OpenData.UsersAPI
 
             var OnOrganizationGroupAddedLocal = OnOrganizationGroupAdded;
             if (OnOrganizationGroupAddedLocal != null)
-                await OnOrganizationGroupAddedLocal?.Invoke(DateTime.UtcNow,
+                await OnOrganizationGroupAddedLocal?.Invoke(Timestamp.Now,
                                                             OrganizationGroup,
                                                             eventTrackingId,
                                                             CurrentUserId);
@@ -29050,7 +29050,7 @@ namespace social.OpenData.UsersAPI
 
             var OnOrganizationGroupAddedLocal = OnOrganizationGroupAdded;
             if (OnOrganizationGroupAddedLocal != null)
-                await OnOrganizationGroupAddedLocal?.Invoke(DateTime.UtcNow,
+                await OnOrganizationGroupAddedLocal?.Invoke(Timestamp.Now,
                                                             OrganizationGroup,
                                                             eventTrackingId,
                                                             CurrentUserId);
@@ -29171,7 +29171,7 @@ namespace social.OpenData.UsersAPI
 
                 var OnOrganizationGroupUpdatedLocal = OnOrganizationGroupUpdated;
                 if (OnOrganizationGroupUpdatedLocal != null)
-                    await OnOrganizationGroupUpdatedLocal?.Invoke(DateTime.UtcNow,
+                    await OnOrganizationGroupUpdatedLocal?.Invoke(Timestamp.Now,
                                                                   OrganizationGroup,
                                                                   OldOrganizationGroup,
                                                                   eventTrackingId,
@@ -29192,7 +29192,7 @@ namespace social.OpenData.UsersAPI
 
                 var OnOrganizationGroupAddedLocal = OnOrganizationGroupAdded;
                 if (OnOrganizationGroupAddedLocal != null)
-                    await OnOrganizationGroupAddedLocal?.Invoke(DateTime.UtcNow,
+                    await OnOrganizationGroupAddedLocal?.Invoke(Timestamp.Now,
                                                                 OrganizationGroup,
                                                                 eventTrackingId,
                                                                 CurrentUserId);
@@ -29329,7 +29329,7 @@ namespace social.OpenData.UsersAPI
 
             var OnOrganizationGroupUpdatedLocal = OnOrganizationGroupUpdated;
             if (OnOrganizationGroupUpdatedLocal != null)
-                await OnOrganizationGroupUpdatedLocal?.Invoke(DateTime.UtcNow,
+                await OnOrganizationGroupUpdatedLocal?.Invoke(Timestamp.Now,
                                                               OrganizationGroup,
                                                               OldOrganizationGroup,
                                                               eventTrackingId,
@@ -29443,7 +29443,7 @@ namespace social.OpenData.UsersAPI
 
             var OnOrganizationGroupUpdatedLocal = OnOrganizationGroupUpdated;
             if (OnOrganizationGroupUpdatedLocal != null)
-                await OnOrganizationGroupUpdatedLocal?.Invoke(DateTime.UtcNow,
+                await OnOrganizationGroupUpdatedLocal?.Invoke(Timestamp.Now,
                                                               NewOrganizationGroup,
                                                               OldOrganizationGroup,
                                                               eventTrackingId,
@@ -29873,7 +29873,7 @@ namespace social.OpenData.UsersAPI
 
                 var OnOrganizationGroupRemovedLocal = OnOrganizationGroupRemoved;
                 if (OnOrganizationGroupRemovedLocal != null)
-                    await OnOrganizationGroupRemovedLocal?.Invoke(DateTime.UtcNow,
+                    await OnOrganizationGroupRemovedLocal?.Invoke(Timestamp.Now,
                                                           OrganizationGroup,
                                                           eventTrackingId,
                                                           CurrentUserId);
@@ -30108,7 +30108,7 @@ namespace social.OpenData.UsersAPI
                     //                                                 new JProperty("user",      User.     ToJSON())
                     //                                             )
                     //                                         ),
-                    //                                         new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                    //                                         new JProperty("timestamp", Timestamp.Now.ToIso8601())
                     //                                     ));
 
                     //    if (MessageTypes.Contains(removeUserFromUserGroup_MessageType))
@@ -30120,7 +30120,7 @@ namespace social.OpenData.UsersAPI
                     //                                                 new JProperty("user",      User.     ToJSON())
                     //                                             )
                     //                                         ),
-                    //                                         new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                    //                                         new JProperty("timestamp", Timestamp.Now.ToIso8601())
                     //                                     ));
 
                     //}
@@ -31174,7 +31174,7 @@ namespace social.OpenData.UsersAPI
                                                                      new JProperty("user",         User.        ToJSON())
                                                                  )
                                                              ),
-                                                             new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                                                             new JProperty("timestamp", Timestamp.Now.ToIso8601())
                                                          ));
 
                         if (MessageTypes.Contains(removeUserFromOrganization_MessageType))
@@ -31186,7 +31186,7 @@ namespace social.OpenData.UsersAPI
                                                                      new JProperty("user",         User.        ToJSON())
                                                                  )
                                                              ),
-                                                             new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                                                             new JProperty("timestamp", Timestamp.Now.ToIso8601())
                                                          ));
 
                     }
@@ -31986,7 +31986,7 @@ namespace social.OpenData.UsersAPI
                                                                      new JProperty("parentOrganization", OrganizationIn.ToJSON())
                                                                  )
                                                              ),
-                                                             new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                                                             new JProperty("timestamp", Timestamp.Now.ToIso8601())
                                                          ));
 
                         }
@@ -32002,7 +32002,7 @@ namespace social.OpenData.UsersAPI
                                                                      new JProperty("parentOrganization", OrganizationIn.ToJSON())
                                                                  )
                                                              ),
-                                                             new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                                                             new JProperty("timestamp", Timestamp.Now.ToIso8601())
                                                          ));
 
                         }
@@ -32553,7 +32553,7 @@ namespace social.OpenData.UsersAPI
                                                    new JProperty("addServiceTicket",
                                                        ServiceTicket.ToJSON()
                                                    ),
-                                                   new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                                                   new JProperty("timestamp", Timestamp.Now.ToIso8601())
                                                );
 
                         else if (messageTypes.Contains(addServiceTicketIfNotExists_MessageType))
@@ -32561,7 +32561,7 @@ namespace social.OpenData.UsersAPI
                                                    new JProperty("addServiceTicketIfNotExists",
                                                        ServiceTicket.ToJSON()
                                                    ),
-                                                   new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                                                   new JProperty("timestamp", Timestamp.Now.ToIso8601())
                                                );
 
                         else if (messageTypes.Contains(addOrUpdateServiceTicket_MessageType))
@@ -32569,7 +32569,7 @@ namespace social.OpenData.UsersAPI
                                                    new JProperty("addOrUpdateServiceTicket",
                                                        ServiceTicket.ToJSON()
                                                    ),
-                                                   new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                                                   new JProperty("timestamp", Timestamp.Now.ToIso8601())
                                                );
 
                         else if (messageTypes.Contains(updateServiceTicket_MessageType))
@@ -32577,7 +32577,7 @@ namespace social.OpenData.UsersAPI
                                                    new JProperty("updateServiceTicket",
                                                        ServiceTicket.ToJSON()
                                                    ),
-                                                   new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                                                   new JProperty("timestamp", Timestamp.Now.ToIso8601())
                                                );
 
                         else if (messageTypes.Contains(removeServiceTicket_MessageType))
@@ -32585,7 +32585,7 @@ namespace social.OpenData.UsersAPI
                                                    new JProperty("removeServiceTicket",
                                                        ServiceTicket.ToJSON()
                                                    ),
-                                                   new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                                                   new JProperty("timestamp", Timestamp.Now.ToIso8601())
                                                );
 
                         else if (messageTypes.Contains(changeServiceTicketStatus_MessageType))
@@ -32593,7 +32593,7 @@ namespace social.OpenData.UsersAPI
                                                    new JProperty("changeServiceTicketStatus",
                                                        ServiceTicket.ToJSON()
                                                    ),
-                                                   new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                                                   new JProperty("timestamp", Timestamp.Now.ToIso8601())
                                                );
 
                         #endregion
@@ -32787,7 +32787,7 @@ namespace social.OpenData.UsersAPI
                 throw new ArgumentException(nameof(ServiceTicket), "The given service ticket is already attached to another API!");
 
             ServiceTicket  OldServiceTicket                = null;
-            DateTime       Now                             = DateTime.UtcNow;
+            DateTime       Now                             = Timestamp.Now;
             Boolean        FastAnalyzeServiceTicketStatus  = false;
 
             try
@@ -32888,7 +32888,7 @@ namespace social.OpenData.UsersAPI
                 throw new ArgumentException(nameof(ServiceTicket), "The given service ticket is already attached to another API!");
 
             ServiceTicket OldServiceTicket;
-            DateTime       Now = DateTime.UtcNow;
+            DateTime       Now = Timestamp.Now;
 
             try
             {
@@ -32975,7 +32975,7 @@ namespace social.OpenData.UsersAPI
 
             TServiceTicket  castedOldServiceTicket;
             TServiceTicket  ServiceTicket;
-            DateTime        Now = DateTime.UtcNow;
+            DateTime        Now = Timestamp.Now;
 
             try
             {
@@ -33459,7 +33459,7 @@ namespace social.OpenData.UsersAPI
 
             var OnNewsPostingAddedLocal = OnNewsPostingAdded;
             if (OnNewsPostingAddedLocal != null)
-                await OnNewsPostingAddedLocal?.Invoke(DateTime.UtcNow,
+                await OnNewsPostingAddedLocal?.Invoke(Timestamp.Now,
                                                       NewsPosting,
                                                       eventTrackingId,
                                                       CurrentUserId);
@@ -33572,7 +33572,7 @@ namespace social.OpenData.UsersAPI
 
             var OnNewsPostingAddedLocal = OnNewsPostingAdded;
             if (OnNewsPostingAddedLocal != null)
-                await OnNewsPostingAddedLocal?.Invoke(DateTime.UtcNow,
+                await OnNewsPostingAddedLocal?.Invoke(Timestamp.Now,
                                                       NewsPosting,
                                                       eventTrackingId,
                                                       CurrentUserId);
@@ -33693,7 +33693,7 @@ namespace social.OpenData.UsersAPI
 
                 var OnNewsPostingUpdatedLocal = OnNewsPostingUpdated;
                 if (OnNewsPostingUpdatedLocal != null)
-                    await OnNewsPostingUpdatedLocal?.Invoke(DateTime.UtcNow,
+                    await OnNewsPostingUpdatedLocal?.Invoke(Timestamp.Now,
                                                             NewsPosting,
                                                             OldNewsPosting,
                                                             eventTrackingId,
@@ -33714,7 +33714,7 @@ namespace social.OpenData.UsersAPI
 
                 var OnNewsPostingAddedLocal = OnNewsPostingAdded;
                 if (OnNewsPostingAddedLocal != null)
-                    await OnNewsPostingAddedLocal?.Invoke(DateTime.UtcNow,
+                    await OnNewsPostingAddedLocal?.Invoke(Timestamp.Now,
                                                           NewsPosting,
                                                           eventTrackingId,
                                                           CurrentUserId);
@@ -33851,7 +33851,7 @@ namespace social.OpenData.UsersAPI
 
             var OnNewsPostingUpdatedLocal = OnNewsPostingUpdated;
             if (OnNewsPostingUpdatedLocal != null)
-                await OnNewsPostingUpdatedLocal?.Invoke(DateTime.UtcNow,
+                await OnNewsPostingUpdatedLocal?.Invoke(Timestamp.Now,
                                                         NewsPosting,
                                                         OldNewsPosting,
                                                         eventTrackingId,
@@ -33965,7 +33965,7 @@ namespace social.OpenData.UsersAPI
 
             var OnNewsPostingUpdatedLocal = OnNewsPostingUpdated;
             if (OnNewsPostingUpdatedLocal != null)
-                await OnNewsPostingUpdatedLocal?.Invoke(DateTime.UtcNow,
+                await OnNewsPostingUpdatedLocal?.Invoke(Timestamp.Now,
                                                         NewNewsPosting,
                                                         OldNewsPosting,
                                                         eventTrackingId,
@@ -34314,7 +34314,7 @@ namespace social.OpenData.UsersAPI
 
                 var OnNewsPostingRemovedLocal = OnNewsPostingRemoved;
                 if (OnNewsPostingRemovedLocal != null)
-                    await OnNewsPostingRemovedLocal?.Invoke(DateTime.UtcNow,
+                    await OnNewsPostingRemovedLocal?.Invoke(Timestamp.Now,
                                                             NewsPosting,
                                                             eventTrackingId,
                                                             CurrentUserId);
@@ -34640,7 +34640,7 @@ namespace social.OpenData.UsersAPI
 
             var OnNewsBannerAddedLocal = OnNewsBannerAdded;
             if (OnNewsBannerAddedLocal != null)
-                await OnNewsBannerAddedLocal?.Invoke(DateTime.UtcNow,
+                await OnNewsBannerAddedLocal?.Invoke(Timestamp.Now,
                                                       NewsBanner,
                                                       eventTrackingId,
                                                       CurrentUserId);
@@ -34753,7 +34753,7 @@ namespace social.OpenData.UsersAPI
 
             var OnNewsBannerAddedLocal = OnNewsBannerAdded;
             if (OnNewsBannerAddedLocal != null)
-                await OnNewsBannerAddedLocal?.Invoke(DateTime.UtcNow,
+                await OnNewsBannerAddedLocal?.Invoke(Timestamp.Now,
                                                       NewsBanner,
                                                       eventTrackingId,
                                                       CurrentUserId);
@@ -34874,7 +34874,7 @@ namespace social.OpenData.UsersAPI
 
                 var OnNewsBannerUpdatedLocal = OnNewsBannerUpdated;
                 if (OnNewsBannerUpdatedLocal != null)
-                    await OnNewsBannerUpdatedLocal?.Invoke(DateTime.UtcNow,
+                    await OnNewsBannerUpdatedLocal?.Invoke(Timestamp.Now,
                                                             NewsBanner,
                                                             OldNewsBanner,
                                                             eventTrackingId,
@@ -34895,7 +34895,7 @@ namespace social.OpenData.UsersAPI
 
                 var OnNewsBannerAddedLocal = OnNewsBannerAdded;
                 if (OnNewsBannerAddedLocal != null)
-                    await OnNewsBannerAddedLocal?.Invoke(DateTime.UtcNow,
+                    await OnNewsBannerAddedLocal?.Invoke(Timestamp.Now,
                                                           NewsBanner,
                                                           eventTrackingId,
                                                           CurrentUserId);
@@ -35032,7 +35032,7 @@ namespace social.OpenData.UsersAPI
 
             var OnNewsBannerUpdatedLocal = OnNewsBannerUpdated;
             if (OnNewsBannerUpdatedLocal != null)
-                await OnNewsBannerUpdatedLocal?.Invoke(DateTime.UtcNow,
+                await OnNewsBannerUpdatedLocal?.Invoke(Timestamp.Now,
                                                         NewsBanner,
                                                         OldNewsBanner,
                                                         eventTrackingId,
@@ -35146,7 +35146,7 @@ namespace social.OpenData.UsersAPI
 
             var OnNewsBannerUpdatedLocal = OnNewsBannerUpdated;
             if (OnNewsBannerUpdatedLocal != null)
-                await OnNewsBannerUpdatedLocal?.Invoke(DateTime.UtcNow,
+                await OnNewsBannerUpdatedLocal?.Invoke(Timestamp.Now,
                                                         NewNewsBanner,
                                                         OldNewsBanner,
                                                         eventTrackingId,
@@ -35495,7 +35495,7 @@ namespace social.OpenData.UsersAPI
 
                 var OnNewsBannerRemovedLocal = OnNewsBannerRemoved;
                 if (OnNewsBannerRemovedLocal != null)
-                    await OnNewsBannerRemovedLocal?.Invoke(DateTime.UtcNow,
+                    await OnNewsBannerRemovedLocal?.Invoke(Timestamp.Now,
                                                             NewsBanner,
                                                             eventTrackingId,
                                                             CurrentUserId);
@@ -35821,7 +35821,7 @@ namespace social.OpenData.UsersAPI
 
             var OnFAQAddedLocal = OnFAQAdded;
             if (OnFAQAddedLocal != null)
-                await OnFAQAddedLocal?.Invoke(DateTime.UtcNow,
+                await OnFAQAddedLocal?.Invoke(Timestamp.Now,
                                                       FAQ,
                                                       eventTrackingId,
                                                       CurrentUserId);
@@ -35934,7 +35934,7 @@ namespace social.OpenData.UsersAPI
 
             var OnFAQAddedLocal = OnFAQAdded;
             if (OnFAQAddedLocal != null)
-                await OnFAQAddedLocal?.Invoke(DateTime.UtcNow,
+                await OnFAQAddedLocal?.Invoke(Timestamp.Now,
                                                       FAQ,
                                                       eventTrackingId,
                                                       CurrentUserId);
@@ -36055,7 +36055,7 @@ namespace social.OpenData.UsersAPI
 
                 var OnFAQUpdatedLocal = OnFAQUpdated;
                 if (OnFAQUpdatedLocal != null)
-                    await OnFAQUpdatedLocal?.Invoke(DateTime.UtcNow,
+                    await OnFAQUpdatedLocal?.Invoke(Timestamp.Now,
                                                             FAQ,
                                                             OldFAQ,
                                                             eventTrackingId,
@@ -36076,7 +36076,7 @@ namespace social.OpenData.UsersAPI
 
                 var OnFAQAddedLocal = OnFAQAdded;
                 if (OnFAQAddedLocal != null)
-                    await OnFAQAddedLocal?.Invoke(DateTime.UtcNow,
+                    await OnFAQAddedLocal?.Invoke(Timestamp.Now,
                                                           FAQ,
                                                           eventTrackingId,
                                                           CurrentUserId);
@@ -36213,7 +36213,7 @@ namespace social.OpenData.UsersAPI
 
             var OnFAQUpdatedLocal = OnFAQUpdated;
             if (OnFAQUpdatedLocal != null)
-                await OnFAQUpdatedLocal?.Invoke(DateTime.UtcNow,
+                await OnFAQUpdatedLocal?.Invoke(Timestamp.Now,
                                                         FAQ,
                                                         OldFAQ,
                                                         eventTrackingId,
@@ -36327,7 +36327,7 @@ namespace social.OpenData.UsersAPI
 
             var OnFAQUpdatedLocal = OnFAQUpdated;
             if (OnFAQUpdatedLocal != null)
-                await OnFAQUpdatedLocal?.Invoke(DateTime.UtcNow,
+                await OnFAQUpdatedLocal?.Invoke(Timestamp.Now,
                                                         NewFAQ,
                                                         OldFAQ,
                                                         eventTrackingId,
@@ -36676,7 +36676,7 @@ namespace social.OpenData.UsersAPI
 
                 var OnFAQRemovedLocal = OnFAQRemoved;
                 if (OnFAQRemovedLocal != null)
-                    await OnFAQRemovedLocal?.Invoke(DateTime.UtcNow,
+                    await OnFAQRemovedLocal?.Invoke(Timestamp.Now,
                                                             FAQ,
                                                             eventTrackingId,
                                                             CurrentUserId);

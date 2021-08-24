@@ -894,8 +894,8 @@ namespace social.OpenData.UsersAPI
 
                 => new NewsBanner(Id,
                                   Text,
-                                  StartTimestamp ?? DateTime.UtcNow,
-                                  EndTimestamp   ?? DateTime.UtcNow + TimeSpan.FromDays(14),
+                                  StartTimestamp ?? Timestamp.Now,
+                                  EndTimestamp   ?? Timestamp.Now + TimeSpan.FromDays(14),
                                   Author,
                                   IsHidden,
 

@@ -93,8 +93,8 @@ namespace social.OpenData.UsersAPI
             this.ContentType   = ContentType;
             this.Size          = Size;
             this.Icon          = Icon;
-            this.Created       = Created     ?? DateTime.UtcNow;
-            this.LastModified  = LastModifed ?? DateTime.UtcNow;
+            this.Created       = Created     ?? Timestamp.Now;
+            this.LastModified  = LastModifed ?? Timestamp.Now;
             //this.CryptoHashes  = 
             //this.Signatures    = 
 
@@ -295,9 +295,9 @@ namespace social.OpenData.UsersAPI
 
                 var Icon          = new HTTPPath?();
 
-                var Created       = DateTime.UtcNow;
+                var Created       = Timestamp.Now;
 
-                var LastModified  = DateTime.UtcNow;
+                var LastModified  = Timestamp.Now;
 
  
                 #region Get   DataSource       [optional]

@@ -100,7 +100,7 @@ namespace social.OpenData.UsersAPI
             this.Target        = Target;
             this.EdgeLabel     = EdgeLabel;
             this.PrivacyLevel  = PrivacyLevel;
-            this.Created       = Created ?? DateTime.UtcNow;
+            this.Created       = Created ?? Timestamp.Now;
             //   this._UserDefined   = new Dictionary<String, Object>();
 
         }

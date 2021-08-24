@@ -300,7 +300,7 @@
 //            this.ChangeSets      = ChangeSets.OrderByDescending(changeSet => changeSet.Timestamp).ToArray();
 
 //            Created              = this.ChangeSets.LastOrDefault()?.Timestamp
-//                                                   ?? DateTime.UtcNow;
+//                                                   ?? Timestamp.Now;
 
 
 //            Author               = this.ChangeSets.LastOrDefault()?.Author;
@@ -416,7 +416,7 @@
 //                   new List<AServiceTicketChangeSet>() {
 //                       new ServiceTicketChangeSet(
 //                           Id:                   ServiceTicketChangeSet_Id.Random(),
-//                           Timestamp:            Timestamp    ?? DateTime.UtcNow,
+//                           Timestamp:            Timestamp    ?? Timestamp.Now,
 //                           Author:               Author,
 //                           Status:               Status       ?? ServiceTicketStatusTypes.New,
 //                           Title:                Title,
@@ -999,7 +999,7 @@
 //                       new List<AServiceTicketChangeSet>() {
 //                           new ServiceTicketChangeSet(
 //                               Id:                   ServiceTicketChangeSetId ?? ServiceTicketChangeSet_Id.Random(),
-//                               Timestamp:            Timestamp                ?? DateTime.UtcNow,
+//                               Timestamp:            Timestamp                ?? Timestamp.Now,
 //                               Author:               Author,
 //                               Status:               Status                   ?? ServiceTicketStatusTypes.New,
 //                               Title:                Title,

@@ -277,7 +277,7 @@ namespace social.OpenData.UsersAPI
 
         {
 
-            this.Timestamp            = Timestamp           ?? DateTime.UtcNow;
+            this.Timestamp            = Timestamp           ?? org.GraphDefined.Vanaheimr.Illias.Timestamp.Now;
             this.Author               = Author              ?? throw new ArgumentNullException(nameof(Author), "The given author must not be null!");
             this.Status               = Status;
             this.Title                = Title;
@@ -820,7 +820,7 @@ namespace social.OpenData.UsersAPI
                         //               new HTTPResponseBuilder(Request) {
                         //                   HTTPStatusCode             = HTTPStatusCode.BadRequest,
                         //                   Server                     = HTTPServer.DefaultServerName,
-                        //                   Date                       = DateTime.UtcNow,
+                        //                   Date                       = Timestamp.Now,
                         //                   AccessControlAllowOrigin   = "*",
                         //                   AccessControlAllowMethods  = "GET, SET",
                         //                   AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -1355,7 +1355,7 @@ namespace social.OpenData.UsersAPI
 
             {
 
-                this.Timestamp            = Timestamp     ?? DateTime.UtcNow;
+                this.Timestamp            = Timestamp     ?? org.GraphDefined.Vanaheimr.Illias.Timestamp.Now;
                 this.Author               = Author        ?? throw new ArgumentNullException(nameof(Author), "The given author must not be null!");
                 this.Status               = Status;
                 this.Title                = Title;

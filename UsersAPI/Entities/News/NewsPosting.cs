@@ -273,7 +273,7 @@ namespace social.OpenData.UsersAPI
             this.Headline         = Headline;
             this.Text             = Text;
             this.Author           = Author          ?? throw new ArgumentNullException(nameof(Author), "The given author must not be null!");
-            this.PublicationDate  = PublicationDate ?? DateTime.UtcNow;
+            this.PublicationDate  = PublicationDate ?? Timestamp.Now;
             this.Tags             = Tags            ?? new TagRelevance[0];
             this.IsHidden         = IsHidden;
 

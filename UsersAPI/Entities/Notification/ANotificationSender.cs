@@ -182,7 +182,7 @@ namespace social.OpenData.UsersAPI
 
                 //DebugX.LogT(GetType().Name + ".SendNotifications '" + Id + "' led to an exception: " + e.Message + Environment.NewLine + e.StackTrace);
 
-                //OnWWCPCPOAdapterException?.Invoke(DateTime.UtcNow,
+                //OnWWCPCPOAdapterException?.Invoke(Timestamp.Now,
                 //                                  this,
                 //                                  e);
 
