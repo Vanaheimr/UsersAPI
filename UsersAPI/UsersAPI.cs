@@ -15882,15 +15882,15 @@ namespace social.OpenData.UsersAPI
         {
 
             if (User is null)
-                throw new ArgumentNullException(nameof(User),         "The given user must not be null or empty!");
+                throw new ArgumentNullException(nameof(User),                 "The given user must not be null or empty!");
 
-            if (ParentOrganizations is null || !ParentOrganizations.Any())
-                throw new ArgumentNullException(nameof(ParentOrganizations),  "The given enumeration of parent organizations must not be null or empty!");
+            if (ParentOrganizations is null)
+                ParentOrganizations = new Organization[0];
 
             var messageTypesHash = new HashSet<NotificationMessageType>(MessageTypes.Where(messageType => !messageType.IsNullOrEmpty));
 
             if (messageTypesHash.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(MessageTypes),      "The given enumeration of message types must not be null or empty!");
+                throw new ArgumentNullException(nameof(MessageTypes),         "The given enumeration of message types must not be null or empty!");
 
             //if (messageTypesHash.Contains(addUserIfNotExists_MessageType))
             //    messageTypesHash.Add(addUser_MessageType);
@@ -26693,8 +26693,8 @@ namespace social.OpenData.UsersAPI
             if (Organization is null)
                 throw new ArgumentNullException(nameof(Organization),         "The given organization must not be null or empty!");
 
-            if (ParentOrganizations is null || !ParentOrganizations.Any())
-                throw new ArgumentNullException(nameof(ParentOrganizations),  "The given enumeration of parent user groups must not be null or empty!");
+            if (ParentOrganizations is null)
+                ParentOrganizations = new Organization[0];
 
             var messageTypesHash = new HashSet<NotificationMessageType>(MessageTypes.Where(messageType => !messageType.IsNullOrEmpty));
 
