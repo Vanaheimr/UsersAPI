@@ -70,7 +70,7 @@ namespace social.OpenData.UsersAPI.tests
 
             usersAPI = new UsersAPI(
                            ExternalDNSName:        "example.cloud",
-                           HTTPPort:               IPPort.Parse(81),
+                           HTTPServerPort:               IPPort.Parse(81),
                            APIRobotEMailAddress:   new EMailAddress(
                                                        "Users API Unit Tests",
                                                        SimpleEMailAddress.Parse("robot@opendata.social")
