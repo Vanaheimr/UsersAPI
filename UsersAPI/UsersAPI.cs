@@ -2577,7 +2577,7 @@ namespace social.OpenData.UsersAPI
                                   MaxClientConnections,
 
                                   DNSClient,
-                                  false),
+                                  Autostart: false),
 
                    HTTPHostname,
                    ExternalDNSName,
@@ -2632,8 +2632,8 @@ namespace social.OpenData.UsersAPI
 
             // Everything is done in the other constructor!
 
-            if (Autostart)
-                HTTPServer.Start();
+            if (Autostart && HTTPServer.Start())
+                DebugX.Log(nameof(UsersAPI) + " version '" + APIVersionHash + "' started...");
 
         }
 
