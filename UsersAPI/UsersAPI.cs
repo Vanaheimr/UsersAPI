@@ -1371,8 +1371,7 @@ namespace social.OpenData.UsersAPI
 
         private   static readonly SemaphoreSlim  MaintenanceLock                 = new SemaphoreSlim(1, 1);
         private   static readonly SemaphoreSlim  ServiceTicketsSemaphore         = new SemaphoreSlim(1, 1);
-        private   static readonly SemaphoreSlim  SMTPLogSemaphore                = new SemaphoreSlim(1, 1);
-        private   static readonly SemaphoreSlim  TelegramLogSemaphore            = new SemaphoreSlim(1, 1);
+        
         private   static readonly SemaphoreSlim  LogFileSemaphore                = new SemaphoreSlim(1, 1);
         private   static readonly SemaphoreSlim  UsersSemaphore                  = new SemaphoreSlim(1, 1);
         private   static readonly SemaphoreSlim  UserGroupsSemaphore             = new SemaphoreSlim(1, 1);
@@ -2868,205 +2867,36 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
-            #region Setup SMSAPI
-
-            this.SMSClient      = SMSClient;
-            this.SMSSenderName  = SMSSenderName ?? "GraphDefined";
-
-            //if (SMSAPICredentials != null)
-            //{
-            //    this._SMSAPI                     = new SMSAPI(Credentials: SMSAPICredentials);
-            //    this.SMSSenderName               = SMSSenderName;
-            //}
-
-            if (SMSClient != null && !DisableLogfile)
-            {
-
-                SMSClient.OnSendSMSAPIResponse += async (LogTimestamp,
-                                                         Sender,
-                                                         EventTrackingId,
-                                                         Command,
-                                                         Data,
-                                                         RequestTimeout,
-                                                         Result,
-                                                         Runtime) =>
-                {
-
-                    var success = await SMTPLogSemaphore.WaitAsync(TimeSpan.FromSeconds(60));
-
-                    if (success)
-                    {
-                        try
-                        {
-
-                            var LogLine = String.Concat(LogTimestamp.   ToIso8601(),                                        US,
-                                                        EventTrackingId.ToString(),                                         US,
-                                                        Command,                                                            US,
-                                                        Data.                    ToString(Newtonsoft.Json.Formatting.None), US,
-                                                        Result.         ToJSON().ToString(Newtonsoft.Json.Formatting.None), US,
-                                                        Runtime.TotalMilliseconds);
-
-                            Console.WriteLine(LogLine);
-
-                            File.AppendAllText(String.Concat(this.SMSAPILoggingPath + Path.DirectorySeparatorChar +
-                                                             "SMSAPIResponses_",
-                                                             DateTime.Now.Year, "-",
-                                                             DateTime.Now.Month.ToString("D2"),
-                                                             ".log"),
-                                               LogLine + Environment.NewLine);
-
-                        }
-                        catch (Exception e)
-                        {
-                            DebugX.LogException(e);
-                        }
-                        finally
-                        {
-                            SMTPLogSemaphore.Release();
-                        }
-                    }
-
-                    await Task.Delay(0).ConfigureAwait(false);
-
-                };
-
-            }
-
-            #endregion
-
-            #region Setup SMTP logging
-
-            if (this.SMTPClient != null && !DisableLogfile)
-            {
-
-                SMTPClient.OnSendEMailResponse += async (LogTimestamp,
-                                                            Sender,
-                                                            EventTrackingId,
-                                                            EMailEnvelop,
-                                                            RequestTimeout,
-                                                            Result,
-                                                            Runtime) =>
-                {
-
-                    var success = await SMTPLogSemaphore.WaitAsync(TimeSpan.FromSeconds(60));
-
-                    if (success)
-                    {
-                        try
-                        {
-
-                            var LogLine = String.Concat(LogTimestamp.       ToIso8601(),        US,
-                                                        EventTrackingId.    ToString(),         US,
-                                                        EMailEnvelop.Mail.Subject,              US,
-                                                        EMailEnvelop.RcptTo.AggregateWith(" "), US,
-                                                        Result.             ToString(),         US,
-                                                        Runtime.TotalMilliseconds);
-
-                            Console.WriteLine(LogLine);
-
-                            File.AppendAllText(String.Concat(this.SMTPLoggingPath + Path.DirectorySeparatorChar +
-                                                             "SMTPResponses_",
-                                                             DateTime.Now.Year, "-",
-                                                             DateTime.Now.Month.ToString("D2"),
-                                                             ".log"),
-                                               LogLine + Environment.NewLine);
-
-                        }
-                        catch (Exception e)
-                        {
-                            DebugX.LogException(e);
-                        }
-                        finally
-                        {
-                            SMTPLogSemaphore.Release();
-                        }
-                    }
-
-                    await Task.Delay(0).ConfigureAwait(false);
-
-                };
-
-            }
-
-            #endregion
-
-            #region Setup Telegram Bot and logging
+            #region Setup Telegram Bot
 
             this.TelegramBotToken       = TelegramBotToken;
 
             if (this.TelegramBotToken.IsNeitherNullNorEmpty())
             {
-
                 this.TelegramAPI        = new TelegramBotClient(this.TelegramBotToken);
                 this.TelegramStore      = new TelegramStore    (this.TelegramAPI);
                 this.TelegramAPI.OnMessage += TelegramStore.ReceiveTelegramMessage;
                 this.TelegramAPI.OnMessage += ReceiveTelegramMessage;
                 this.TelegramAPI.StartReceiving();
-
-                if (!DisableLogfile)
-                {
-
-                    TelegramStore.OnSendTelegramResponse += async (LogTimestamp,
-                                                                   Sender,
-                                                                   EventTrackingId,
-                                                                   Message,
-                                                                   Usernames,
-                                                                   Responses,
-                                                                   Runtime) =>
-                    {
-
-                        var success = await TelegramLogSemaphore.WaitAsync(TimeSpan.FromSeconds(60));
-
-                        if (success)
-                        {
-                            try
-                            {
-
-                                var LogLine = String.Concat(LogTimestamp.        ToIso8601(),                                US,
-                                                            EventTrackingId.     ToString(),                                 US,
-                                                            Message.ToJSON().    ToString(Newtonsoft.Json.Formatting.None),  US,
-                                                            new JArray(Responses.SafeSelect(response => new JArray(response.Username, response.ChatId))).
-                                                                                 ToString(Newtonsoft.Json.Formatting.None),  US,
-                                                            Runtime.TotalMilliseconds);
-
-                                Console.WriteLine(LogLine);
-
-                                File.AppendAllText(String.Concat(this.TelegramLoggingPath + Path.DirectorySeparatorChar +
-                                                                 "TelegramMessageResponses_",
-                                                                 DateTime.Now.Year, "-",
-                                                                 DateTime.Now.Month.ToString("D2"),
-                                                                 ".log"),
-                                                   LogLine + Environment.NewLine);
-
-                            }
-                            catch (Exception e)
-                            {
-                                DebugX.LogException(e);
-                            }
-                            finally
-                            {
-                                TelegramLogSemaphore.Release();
-                            }
-                        }
-
-                        await Task.Delay(0).ConfigureAwait(false);
-
-                    };
-
-                }
-
             }
+
+            #endregion
+
+            #region Setup SMSAPI
+
+            this.SMSClient      = SMSClient;
+            this.SMSSenderName  = SMSSenderName ?? "GraphDefined";
 
             #endregion
 
             #region Setup Maintenance Task
 
-            this.DisableMaintenanceTasks      = DisableMaintenanceTasks;
-            this.MaintenanceEvery             = MaintenanceEvery ?? DefaultMaintenanceEvery;
-            this.MaintenanceTimer             = new Timer(DoMaintenance,
-                                                          null,
-                                                          this.MaintenanceEvery,
-                                                          this.MaintenanceEvery);
+            this.DisableMaintenanceTasks  = DisableMaintenanceTasks;
+            this.MaintenanceEvery         = MaintenanceEvery ?? DefaultMaintenanceEvery;
+            this.MaintenanceTimer         = new Timer(DoMaintenance,
+                                                      null,
+                                                      this.MaintenanceEvery,
+                                                      this.MaintenanceEvery);
 
             #endregion
 
@@ -3163,7 +2993,7 @@ namespace social.OpenData.UsersAPI
             if (!SkipURLTemplates)
                 RegisterURLTemplates();
 
-            DebugX.Log("UsersAPI version '" + this.APIVersionHash + "' started...");
+            DebugX.Log(nameof(UsersAPI) + " version '" + APIVersionHash + "' initialized...");
 
         }
 
