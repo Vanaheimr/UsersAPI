@@ -2873,9 +2873,6 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-
-
-
         #region Notifications...
 
         #region (static) NotificationMessageTypes

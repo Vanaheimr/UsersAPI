@@ -65,7 +65,7 @@
     <Compile Include="Entities\Dashboard\Dashboard_Id.cs" />
     <Compile Include="Entities\FAQ\FAQ.cs" />
     <Compile Include="Entities\FAQ\FAQ_Id.cs" />
-    <Compile Include="Entities\Group\AGroup.cs" />
+    <Compile Include="Entities\AGroup.cs" />
     <Compile Include="Entities\News\NewsBanner.cs" />
     <Compile Include="Entities\News\NewsPosting.cs" />
     <Compile Include="Entities\News\NewsBanner_Id.cs" />
@@ -131,7 +131,7 @@
     <Compile Include="CommonTypes\PrivacyLevel.cs" />
     <Compile Include="CommonTypes\VerificationToken.cs" />
     <Compile Include="Entities\BlogPosting\BlogPostingSignature.cs" />
-    <Compile Include="Entities\Group\UserGroup2Group.cs" />
+    <Compile Include="Entities\User\UserGroup\UserGroup2UserGroupEdge.cs" />
     <Compile Include="Entities\Notification\ANotification.cs" />
     <Compile Include="Entities\Notification\HTTPSNotification.cs" />
     <Compile Include="Entities\Notification\EMailNotification.cs" />
@@ -146,8 +146,6 @@
     <Compile Include="Entities\Organization\Organization2OrganizationEdge.cs" />
     <Compile Include="Entities\Organization\Organization_Id.cs" />
     <Compile Include="Entities\Organization\Organization2UserEdgeLabel.cs" />
-    <Compile Include="Entities\Group\Group.cs" />
-    <Compile Include="Entities\Group\UserGroup2User.cs" />
     <Compile Include="Entities\Message\Message.cs" />
     <Compile Include="Entities\Message\Message_Id.cs" />
     <Compile Include="Entities\BlogPosting\BlogPosting.cs" />

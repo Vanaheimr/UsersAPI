@@ -60,7 +60,7 @@ namespace social.OpenData.UsersAPI
         #region Data
 
         /// <summary>
-        /// The internal identification.
+        /// The internal user identification.
         /// </summary>
         private readonly String InternalId;
 
@@ -74,13 +74,13 @@ namespace social.OpenData.UsersAPI
         #region Properties
 
         /// <summary>
-        /// Indicates whether this identification is null or empty.
+        /// Indicates whether this user identification is null or empty.
         /// </summary>
         public Boolean IsNullOrEmpty
             => InternalId.IsNullOrEmpty();
 
         /// <summary>
-        /// Indicates whether this identification is NOT null or empty.
+        /// Indicates whether this user identification is NOT null or empty.
         /// </summary>
         public Boolean IsNotNullOrEmpty
             => InternalId.IsNotNullOrEmpty();
@@ -293,7 +293,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region IComparable<UserId> Members
+        #region IComparable<User_Id> Members
 
         #region CompareTo(Object)
 
@@ -326,7 +326,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region IEquatable<UserId> Members
+        #region IEquatable<User_Id> Members
 
         #region Equals(Object)
 
@@ -345,7 +345,7 @@ namespace social.OpenData.UsersAPI
         #region Equals(UserId)
 
         /// <summary>
-        /// Compares two UserIds for equality.
+        /// Compares two user identifications for equality.
         /// </summary>
         /// <param name="UserId">An user identification to compare with.</param>
         /// <returns>True if both match; False otherwise.</returns>

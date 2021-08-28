@@ -60,7 +60,7 @@ namespace social.OpenData.UsersAPI
         #region Data
 
         /// <summary>
-        /// The internal identification.
+        /// The internal organization identification.
         /// </summary>
         private readonly String InternalId;
 
@@ -74,13 +74,13 @@ namespace social.OpenData.UsersAPI
         #region Properties
 
         /// <summary>
-        /// Indicates whether this identification is null or empty.
+        /// Indicates whether this organization identification is null or empty.
         /// </summary>
         public Boolean IsNullOrEmpty
             => InternalId.IsNullOrEmpty();
 
         /// <summary>
-        /// Indicates whether this identification is NOT null or empty.
+        /// Indicates whether this organization identification is NOT null or empty.
         /// </summary>
         public Boolean IsNotNullOrEmpty
             => InternalId.IsNotNullOrEmpty();
@@ -293,7 +293,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region IComparable<OrganizationId> Members
+        #region IComparable<Organization_Id> Members
 
         #region CompareTo(Object)
 
@@ -326,7 +326,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region IEquatable<OrganizationId> Members
+        #region IEquatable<Organization_Id> Members
 
         #region Equals(Object)
 
@@ -345,7 +345,7 @@ namespace social.OpenData.UsersAPI
         #region Equals(OrganizationId)
 
         /// <summary>
-        /// Compares two OrganizationIds for equality.
+        /// Compares two organization identifications for equality.
         /// </summary>
         /// <param name="OrganizationId">An organization identification to compare with.</param>
         /// <returns>True if both match; False otherwise.</returns>

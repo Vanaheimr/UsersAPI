@@ -53,7 +53,7 @@ namespace social.OpenData.UsersAPI.Notifications
             var phoneNumber = PhoneNumber ?? User.MobilePhone;
 
             if (!phoneNumber.HasValue || phoneNumber.Value.IsNullOrEmpty)
-                throw new ArgumentNullException(nameof(PhoneNumber), "The given mobile phone numer must not be null or empty!");
+                throw new ArgumentNullException(nameof(PhoneNumber), "The given mobile phone number must not be null or empty!");
 
             return UsersAPI.AddNotification(User,
                                             new SMSNotification(phoneNumber.Value,
@@ -80,7 +80,7 @@ namespace social.OpenData.UsersAPI.Notifications
             var phoneNumber = PhoneNumber ?? User.MobilePhone;
 
             if (!phoneNumber.HasValue || phoneNumber.Value.IsNullOrEmpty)
-                throw new ArgumentNullException(nameof(PhoneNumber), "The given mobile phone numer must not be null or empty!");
+                throw new ArgumentNullException(nameof(PhoneNumber), "The given mobile phone number must not be null or empty!");
 
             return UsersAPI.AddNotification(User,
                                             new SMSNotification(phoneNumber.Value,

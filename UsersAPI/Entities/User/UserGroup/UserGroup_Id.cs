@@ -58,7 +58,7 @@ namespace social.OpenData.UsersAPI
         #region Data
 
         /// <summary>
-        /// The internal identification.
+        /// The internal user group identification.
         /// </summary>
         private readonly String InternalId;
 
@@ -72,13 +72,13 @@ namespace social.OpenData.UsersAPI
         #region Properties
 
         /// <summary>
-        /// Indicates whether this identification is null or empty.
+        /// Indicates whether this user group identification is null or empty.
         /// </summary>
         public Boolean IsNullOrEmpty
             => InternalId.IsNullOrEmpty();
 
         /// <summary>
-        /// Indicates whether this identification is NOT null or empty.
+        /// Indicates whether this user group identification is NOT null or empty.
         /// </summary>
         public Boolean IsNotNullOrEmpty
             => InternalId.IsNotNullOrEmpty();
@@ -291,7 +291,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region IComparable<UserGroupId> Members
+        #region IComparable<UserGroup_Id> Members
 
         #region CompareTo(Object)
 
@@ -324,7 +324,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region IEquatable<UserGroupId> Members
+        #region IEquatable<UserGroup_Id> Members
 
         #region Equals(Object)
 
@@ -343,7 +343,7 @@ namespace social.OpenData.UsersAPI
         #region Equals(UserGroupId)
 
         /// <summary>
-        /// Compares two UserGroupIds for equality.
+        /// Compares two user group identifications for equality.
         /// </summary>
         /// <param name="UserGroupId">An user group identification to compare with.</param>
         /// <returns>True if both match; False otherwise.</returns>
