@@ -121,7 +121,6 @@ namespace social.OpenData.UsersAPI.Notifications
         /// <summary>
         /// Create a new notification message.
         /// </summary>
-        /// <param name="Id">The unique identification of the notification message.</param>
         /// <param name="Timestamp">The timestamp of the notification message.</param>
         /// <param name="Type">The message type of the notification message.</param>
         /// <param name="Data">The data of the notification message.</param>

@@ -30,10 +30,22 @@ using org.GraphDefined.Vanaheimr.Illias;
 namespace social.OpenData.UsersAPI.Notifications
 {
 
-    public class NotificationGroup
+    public class NotificationGroup //: AEntity<NotificationGroup_Id,
+                                   //          NotificationGroup>
     {
 
+        #region Data
+
+        /// <summary>
+        /// The default JSON-LD context of organizations.
+        /// </summary>
+        public readonly static JSONLDContext DefaultJSONLDContext = JSONLDContext.Parse("https://opendata.social/contexts/UsersAPI/notificationGroup");
+
+        #endregion
+
         #region Properties
+
+        public NotificationGroup_Id                         Id               { get; }
 
         public I18NString                                   Title            { get; }
 
@@ -41,19 +53,26 @@ namespace social.OpenData.UsersAPI.Notifications
 
         public NotificationVisibility                       Visibility       { get; }
 
-        public IEnumerable<NotificationMessageDescription>  Notifications    { get; }
+        private readonly List<NotificationMessageDescription> notifications = new List<NotificationMessageDescription>();
+
+        public IEnumerable<NotificationMessageDescription> Notifications
+            => notifications;
 
         #endregion
 
         #region Constructor(s)
 
-        public NotificationGroup(I18NString                                   Title,
+        public NotificationGroup(NotificationGroup_Id                         Id,
+                                 I18NString                                   Title,
                                  I18NString                                   Description,
                                  NotificationVisibility                       Visibility,
                                  IEnumerable<NotificationMessageDescription>  Notifications)
         {
 
             #region Initial checks
+
+            if (Id.IsNullOrEmpty)
+                throw new ArgumentNullException(nameof(Id),             "The given notification group identification must not be null or empty!");
 
             if (Title.IsNullOrEmpty())
                 throw new ArgumentNullException(nameof(Title),          "The given multi-language headline string must not be null or empty!");
@@ -66,14 +85,44 @@ namespace social.OpenData.UsersAPI.Notifications
 
             #endregion
 
+            this.Id             = Id;
             this.Title          = Title;
             this.Description    = Description;
             this.Visibility     = Visibility;
-            this.Notifications  = Notifications;
+            this.notifications  = Notifications != null ? new List<NotificationMessageDescription>(Notifications) : new List<NotificationMessageDescription>();
 
         }
 
         #endregion
+
+
+        public void Add(params NotificationMessageDescription[] NotificationMessageDescriptions)
+        {
+            if (NotificationMessageDescriptions.SafeAny())
+                foreach (var notificationMessageDescription in NotificationMessageDescriptions)
+                    this.notifications.Add(notificationMessageDescription);
+        }
+
+        public void Remove(NotificationMessageDescription NotificationMessageDescription)
+        {
+            if (NotificationMessageDescription != null)
+                this.notifications.Remove(NotificationMessageDescription);
+        }
+
+        public void Remove(params NotificationMessageType[] NotificationMessageTypes)
+        {
+
+            if (NotificationMessageTypes.SafeAny())
+            {
+
+                var notificationMessageTypes = new HashSet<NotificationMessageType>(NotificationMessageTypes);
+
+                foreach (var remove in notifications.Where(nmd => notificationMessageTypes.Overlaps(nmd.Messages)).ToArray())
+                    this.notifications.Remove(remove);
+
+            }
+
+        }
 
 
         #region ToJSON()
@@ -82,16 +131,20 @@ namespace social.OpenData.UsersAPI.Notifications
 
             => JSONObject.Create(
 
-                         new JProperty("title",          Title.ToJSON()),
+                         new JProperty("@id",             Id.                  ToString()),
+
+                         new JProperty("@context",        DefaultJSONLDContext.ToString()),
+
+                         new JProperty("title",           Title.               ToJSON()),
 
                    Description.IsNeitherNullNorEmpty()
-                       ? new JProperty("description",    Description.ToJSON())
+                       ? new JProperty("description",     Description.         ToJSON())
                        : null,
 
-                         new JProperty("visibility",     Visibility.ToString().ToLower()),
+                         new JProperty("visibility",      Visibility.          ToString().ToLower()),
 
                    Notifications.SafeAny()
-                       ? new JProperty("notifications",  new JArray(Notifications.Select(info => info.ToJSON())))
+                       ? new JProperty("notifications",   new JArray(Notifications.Select(info => info.ToJSON())))
                        : null
 
                );

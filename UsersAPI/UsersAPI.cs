@@ -2439,7 +2439,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="DisableNotifications">Disable external notifications.</param>
         /// <param name="DisableLogfile">Disable the log file.</param>
         /// <param name="LoggingPath">The path for all logfiles.</param>
-        /// <param name="DatabaseFile">The name of the database file for this API.</param>
+        /// <param name="DatabaseFileName">The name of the database file for this API.</param>
         /// <param name="LogfileName">The name of the logfile for this API.</param>
         /// <param name="DNSClient">The DNS client of the API.</param>
         /// <param name="Autostart">Whether to start the API automatically.</param>
@@ -2506,7 +2506,7 @@ namespace social.OpenData.UsersAPI
                         Boolean                              DisableNotifications               = false,
                         Boolean                              DisableLogfile                     = false,
                         String                               LoggingPath                        = DefaultUsersAPI_LoggingPath,
-                        String                               DatabaseFile                       = DefaultUsersAPI_DatabaseFileName,
+                        String                               DatabaseFileName                   = DefaultUsersAPI_DatabaseFileName,
                         String                               LogfileName                        = DefaultUsersAPI_LogfileName,
                         DNSClient                            DNSClient                          = null,
                         Boolean                              Autostart                          = false)
@@ -2658,7 +2658,7 @@ namespace social.OpenData.UsersAPI
             #endregion
 
 
-            ReadUsersAPIDatabaseFiles().Wait();
+            
 
             #region Create default organizations/user groups
 
@@ -2713,7 +2713,7 @@ namespace social.OpenData.UsersAPI
                                                                      Subject        = ServiceName + " is low on disc (<" + HDPercentageFree + "%, " + MBytesFree + " MB free)",
                                                                      HTMLText       = ServiceName + " is low on disc (<" + HDPercentageFree + "%, " + MBytesFree + " MB free)" + Environment.NewLine + Environment.NewLine,
                                                                      PlainText      = ServiceName + " is low on disc (<" + HDPercentageFree + "%, " + MBytesFree + " MB free)" + Environment.NewLine + Environment.NewLine,
-                                                                     SecurityLevel  = EMailSecurity.auto
+                                                                     SecurityLevel  = EMailSecurity.autosign
                                                                  }).ConfigureAwait(false);
 
                                     }
@@ -2976,10 +2976,14 @@ namespace social.OpenData.UsersAPI
 
         #region (private) RegisterNotifications()
 
+        public static NotificationGroup_Id ServiceTicketsNotifications   = NotificationGroup_Id.Parse("Service Ticket Notifications");
+        public static NotificationGroup_Id UsersManagementNotifications  = NotificationGroup_Id.Parse("Users Management Notifications");
+
         private async Task RegisterNotifications()
         {
 
             await AddNotificationGroup(new NotificationGroup(
+                                           ServiceTicketsNotifications,
                                            I18NString.Create(Languages.en, "Service Tickets"),
                                            I18NString.Create(Languages.en, "Service Ticket notifications"),
                                            NotificationVisibility.Customers,
@@ -2993,21 +2997,22 @@ namespace social.OpenData.UsersAPI
                                            }));
 
             await AddNotificationGroup(new NotificationGroup(
+                                           UsersManagementNotifications,
                                            I18NString.Create(Languages.en, "Users Management"),
                                            I18NString.Create(Languages.en, "Users Management notifications"),
                                            NotificationVisibility.Customers,
                                            new NotificationMessageDescription[] {
-                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "New user created"),                 I18NString.Create(Languages.en, "A new user was added to portal."),             NotificationVisibility.Admins,     addUser_MessageType),
-                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "User added to organization"),       I18NString.Create(Languages.en, "The user was added to an organization."),      NotificationVisibility.Customers,  addUserToOrganization_MessageType),
-                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "User information updated"),         I18NString.Create(Languages.en, "The user information was updated."),           NotificationVisibility.Customers,  updateUser_MessageType),
-                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "User removed from portal"),         I18NString.Create(Languages.en, "The user was removed from the portal."),       NotificationVisibility.Admins,     deleteUser_MessageType),
-                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "User removed from organization"),   I18NString.Create(Languages.en, "The user was removed from an organization."),  NotificationVisibility.Customers,  removeUserFromOrganization_MessageType),
+                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "New user created"),                            I18NString.Create(Languages.en, "A new user was added to portal."),                   NotificationVisibility.Admins,     addUser_MessageType),
+                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "User added to organization"),                  I18NString.Create(Languages.en, "The user was added to an organization."),            NotificationVisibility.Customers,  addUserToOrganization_MessageType),
+                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "User information updated"),                    I18NString.Create(Languages.en, "The user information was updated."),                 NotificationVisibility.Customers,  updateUser_MessageType),
+                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "User removed from portal"),                    I18NString.Create(Languages.en, "The user was removed from the portal."),             NotificationVisibility.Admins,     deleteUser_MessageType),
+                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "User removed from organization"),              I18NString.Create(Languages.en, "The user was removed from an organization."),        NotificationVisibility.Customers,  removeUserFromOrganization_MessageType),
 
-                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "New organization created"),         I18NString.Create(Languages.en, "A new organization was created."),             NotificationVisibility.Admins,     addOrganization_MessageType),
-                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "New sub organization created"),     I18NString.Create(Languages.en, "A new sub organization was created."),         NotificationVisibility.Customers,  linkOrganizations_MessageType),
-                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "Organization information updated"), I18NString.Create(Languages.en, "An organization information was updated."),    NotificationVisibility.Customers,  updateOrganization_MessageType),
-                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "Organization removed"),             I18NString.Create(Languages.en, "An organization was removed."),                NotificationVisibility.Admins,     deleteOrganization_MessageType),
-                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "Sub organization removed"),         I18NString.Create(Languages.en, "Sub organization was removed."),               NotificationVisibility.Customers,  unlinkOrganizations_MessageType),
+                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "New organization created"),                    I18NString.Create(Languages.en, "A new organization was created."),                   NotificationVisibility.Admins,     addOrganization_MessageType),
+                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "Sub organization added to organization"),      I18NString.Create(Languages.en, "A sub organization was added to an organization."),  NotificationVisibility.Customers,  linkOrganizations_MessageType),
+                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "Organization information updated"),            I18NString.Create(Languages.en, "An organization information was updated."),          NotificationVisibility.Customers,  updateOrganization_MessageType),
+                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "Organization removed"),                        I18NString.Create(Languages.en, "An organization was removed."),                      NotificationVisibility.Admins,     deleteOrganization_MessageType),
+                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "Sub organization removed from organization"),  I18NString.Create(Languages.en, "A sub organization removed from an organization."),  NotificationVisibility.Customers,  unlinkOrganizations_MessageType),
                                            }));
 
         }
@@ -3147,7 +3152,7 @@ namespace social.OpenData.UsersAPI
                                          TextEMailFooter(ExternalDNSName, BasePath, EMailType.System)
                                     ),
 
-                    SecurityLevel  = EMailSecurity.auto
+                    SecurityLevel  = EMailSecurity.autosign
 
                 }.AsImmutable;
 
@@ -3186,7 +3191,7 @@ namespace social.OpenData.UsersAPI
                                         TextEMailFooter(ExternalDNSName, BasePath, EMailType.System)
                                     ),
 
-                   SecurityLevel  = EMailSecurity.auto
+                   SecurityLevel  = EMailSecurity.autosign
 
                }.//AddAttachment("Hi there!".ToUTF8Bytes(), "welcome.txt", MailContentTypes.text_plain).
                  AsImmutable;
@@ -3230,7 +3235,7 @@ namespace social.OpenData.UsersAPI
                                         TextEMailFooter(ExternalDNSName, BasePath, EMailType.System)
                                     ),
 
-                   SecurityLevel  = EMailSecurity.auto
+                   SecurityLevel  = EMailSecurity.autosign
 
                }.AsImmutable;
 
@@ -3269,7 +3274,7 @@ namespace social.OpenData.UsersAPI
                                         TextEMailFooter(ExternalDNSName, BasePath, EMailType.System)
                                     ),
 
-                   SecurityLevel  = EMailSecurity.auto
+                   SecurityLevel  = EMailSecurity.autosign
 
                }.AsImmutable;
 
@@ -3308,7 +3313,7 @@ namespace social.OpenData.UsersAPI
         //                                          //ParsedMessage.EMailBody + Environment.NewLine +
         //                                      TextEMailFooter,
 
-        //                    SecurityLevel   = EMailSecurity.sign
+        //                    SecurityLevel   = EMailSecurity.autosign
 
         //                };
 
@@ -3356,7 +3361,7 @@ namespace social.OpenData.UsersAPI
         //                                               " to '", NewStatus.Value, "'!\r\r\r\r",
         //                                               TextEMailFooter),
 
-        //                SecurityLevel  = EMailSecurity.auto
+        //                SecurityLevel  = EMailSecurity.autosign
 
         //            };
 
@@ -3400,7 +3405,7 @@ namespace social.OpenData.UsersAPI
         //                                               "') was changed!\r\r\r\r",
         //                                               TextEMailFooter),
 
-        //                SecurityLevel  = EMailSecurity.auto
+        //                SecurityLevel  = EMailSecurity.autosign
 
         //            };
 
@@ -12755,8 +12760,9 @@ namespace social.OpenData.UsersAPI
                                 switch (JSONCommand)
                                 {
 
-                                    #region addPassword
+                                    #region add
 
+                                        case "add":
                                         case "addPassword":
                                         case "AddPassword":
 
@@ -12777,8 +12783,9 @@ namespace social.OpenData.UsersAPI
 
                                         #endregion
 
-                                    #region changePassword
+                                    #region change
 
+                                        case "change":
                                         case "changePassword":
                                         case "ChangePassword":
 
@@ -12800,8 +12807,9 @@ namespace social.OpenData.UsersAPI
 
                                         #endregion
 
-                                    #region resetPassword
+                                    #region reset
 
+                                        case "reset":
                                         case "resetPassword":
                                         case "ResetPassword":
 
@@ -15277,7 +15285,7 @@ namespace social.OpenData.UsersAPI
                                                                             // to Organization {Org_Name}.\r\r\r\r",
                                                                             TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
-                                             SecurityLevel  = EMailSecurity.auto
+                                             SecurityLevel  = EMailSecurity.autosign
 
                                          });
                             }
@@ -15302,7 +15310,7 @@ namespace social.OpenData.UsersAPI
                                                                             // + {Updated information}
                                                                             TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
-                                             SecurityLevel  = EMailSecurity.auto
+                                             SecurityLevel  = EMailSecurity.autosign
 
                                          });
                             }
@@ -15325,7 +15333,7 @@ namespace social.OpenData.UsersAPI
                             //                                                "User '" + User.Name + "' information had been deleted.\r\n",
                             //                                                TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
-                            //                 SecurityLevel  = EMailSecurity.auto
+                            //                 SecurityLevel  = EMailSecurity.autosign
 
                             //             });
                             //}
@@ -15532,7 +15540,7 @@ namespace social.OpenData.UsersAPI
                                                                         "User '", User.Name, "' has been deleted.\r\n",
                                                                         TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
-                                         SecurityLevel  = EMailSecurity.auto
+                                         SecurityLevel  = EMailSecurity.autosign
 
                                      });
 
@@ -20427,7 +20435,7 @@ namespace social.OpenData.UsersAPI
                                                                         "User group '", UserGroup.Name.FirstText(), "' has been deleted.\r\n",
                                                                         TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
-                                         SecurityLevel  = EMailSecurity.auto
+                                         SecurityLevel  = EMailSecurity.autosign
 
                                      });
 
@@ -24122,8 +24130,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An enumeration of all notification groups.
         /// </summary>
-        //protected readonly Dictionary<NotificationGroup_Id, NotificationGroup> _NotificationGroups;
-        protected readonly Dictionary<Int32, NotificationGroup> _NotificationGroups = new Dictionary<Int32, NotificationGroup>();
+        protected readonly Dictionary<NotificationGroup_Id, NotificationGroup> _NotificationGroups = new Dictionary<NotificationGroup_Id, NotificationGroup>();
 
         /// <summary>
         /// An enumeration of all notification groups.
@@ -24161,7 +24168,7 @@ namespace social.OpenData.UsersAPI
 
                 await UsersSemaphore.WaitAsync();
 
-                _NotificationGroups.Add(_NotificationGroups.Count+1, NotificationGroup);
+                _NotificationGroups.Add(NotificationGroup.Id, NotificationGroup);
 
 
                 return NotificationGroup;
@@ -26111,7 +26118,7 @@ namespace social.OpenData.UsersAPI
                                                                             "https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\r\r\r\r",
                                                                             TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
-                                             SecurityLevel  = EMailSecurity.auto
+                                             SecurityLevel  = EMailSecurity.autosign
 
                                          });
 
@@ -26135,7 +26142,7 @@ namespace social.OpenData.UsersAPI
                                                                             // + {Updated information}",
                                                                             TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
-                                             SecurityLevel  = EMailSecurity.auto
+                                             SecurityLevel  = EMailSecurity.autosign
 
                                          });
 
@@ -26341,7 +26348,7 @@ namespace social.OpenData.UsersAPI
                                                                         "Organization '", Organization.Name.FirstText(), "' has been deleted.\r\n",
                                                                         TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
-                                         SecurityLevel  = EMailSecurity.auto
+                                         SecurityLevel  = EMailSecurity.autosign
 
                                      });
 
@@ -29665,7 +29672,7 @@ namespace social.OpenData.UsersAPI
                     //                                                    "User '" + User.Name + "' has been added to user group '", UserGroup.Name.FirstText(), "'.\r\n",
                     //                                                    TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
-                    //                     SecurityLevel  = EMailSecurity.auto
+                    //                     SecurityLevel  = EMailSecurity.autosign
 
                     //                 });
 
@@ -29686,7 +29693,7 @@ namespace social.OpenData.UsersAPI
                     //                                                    "User '" + User.Name + "' has been removed from user group '", UserGroup.Name.FirstText(), "'.\r\n",
                     //                                                    TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
-                    //                     SecurityLevel  = EMailSecurity.auto
+                    //                     SecurityLevel  = EMailSecurity.autosign
 
                     //                 });
 
@@ -30731,7 +30738,7 @@ namespace social.OpenData.UsersAPI
                                                                         "User '" + User.Name + "' has been added to organization '", Organization.Name.FirstText(), "'.\r\n",
                                                                         TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
-                                         SecurityLevel  = EMailSecurity.auto
+                                         SecurityLevel  = EMailSecurity.autosign
 
                                      });
 
@@ -30752,7 +30759,7 @@ namespace social.OpenData.UsersAPI
                                                                         "User '" + User.Name + "' has been removed from organization '", Organization.Name.FirstText(), "'.\r\n",
                                                                         TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
-                                         SecurityLevel  = EMailSecurity.auto
+                                         SecurityLevel  = EMailSecurity.autosign
 
                                      });
 
@@ -31553,7 +31560,7 @@ namespace social.OpenData.UsersAPI
                                                                             "Organization '" + OrganizationOut.Name.FirstText() + "' had been linked to organization '", OrganizationIn.Name.FirstText(), "'.\r\r\r\r",
                                                                             TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
-                                             SecurityLevel  = EMailSecurity.auto
+                                             SecurityLevel  = EMailSecurity.autosign
 
                                          });
                             }
@@ -31576,7 +31583,7 @@ namespace social.OpenData.UsersAPI
                                                                             "Organization '" + OrganizationOut.Name.FirstText() + "' had been unlinked from organization '", OrganizationIn.Name.FirstText(), "'.\r\r\r\r",
                                                                             TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
-                                             SecurityLevel  = EMailSecurity.auto
+                                             SecurityLevel  = EMailSecurity.autosign
 
                                          });
                             }
