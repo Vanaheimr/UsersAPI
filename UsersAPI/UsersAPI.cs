@@ -12711,19 +12711,7 @@ namespace social.OpenData.UsersAPI
                 DebugX.LogT(@"Could not (re-)load database file '" + databaseFileName + "': " + e.Message);
             }
 
-            DebugX.Log("Reloading of database file '" + databaseFileName + "' finished!");
 
-        }
-
-        #endregion
-
-        #region (protected) ReadUsersAPIDatabaseFiles()
-
-        /// <summary>
-        /// Read all UsersAPI database files.
-        /// </summary>
-        protected async Task ReadUsersAPIDatabaseFiles()
-        {
 
             DebugX.Log("Reloading all UsersAPI database helper files...");
 
@@ -24139,28 +24127,41 @@ namespace social.OpenData.UsersAPI
         {
             get
             {
-                try
-                {
-                    return UsersSemaphore.Wait(SemaphoreSlimTimeout)
-                               ? _NotificationGroups.Values.ToArray()
-                               : new NotificationGroup[0];
-                }
-                finally
+
+                if (UsersSemaphore.Wait(SemaphoreSlimTimeout))
                 {
                     try
                     {
-                        UsersSemaphore.Release();
+
+                        return _NotificationGroups.Values.ToArray();
+
                     }
-                    catch
-                    { }
+                    finally
+                    {
+                        try
+                        {
+                            UsersSemaphore.Release();
+                        }
+                        catch
+                        { }
+                    }
                 }
+
+                return new NotificationGroup[0];
+
             }
         }
 
         #endregion
 
 
-        public async Task<NotificationGroup> AddNotificationGroup(NotificationGroup NotificationGroup)
+        protected Boolean _AddNotificationGroup(NotificationGroup NotificationGroup)
+        {
+            _NotificationGroups.Add(NotificationGroup.Id, NotificationGroup);
+            return true;
+        }
+
+        public async Task<Boolean> AddNotificationGroup(NotificationGroup NotificationGroup)
         {
 
             try
@@ -24168,10 +24169,7 @@ namespace social.OpenData.UsersAPI
 
                 await UsersSemaphore.WaitAsync();
 
-                _NotificationGroups.Add(NotificationGroup.Id, NotificationGroup);
-
-
-                return NotificationGroup;
+                return _AddNotificationGroup(NotificationGroup);
 
             }
             finally
