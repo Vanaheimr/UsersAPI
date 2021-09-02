@@ -101,7 +101,7 @@ namespace org.GraphDefined.Vanaheimr.Hermod.SMTP
 
 
 
-        #region EMails
+        #region SMSs
 
         #region Data
 
@@ -144,14 +144,7 @@ namespace org.GraphDefined.Vanaheimr.Hermod.SMTP
         #endregion
 
 
-        #region Dispose()
 
-        public void Dispose()
-        {
-            
-        }
-
-        #endregion
 
 
 
@@ -178,6 +171,40 @@ namespace org.GraphDefined.Vanaheimr.Hermod.SMTP
         }
 
 
+        #region Clear()
+
+        public void Clear()
+        {
+            if (SMSSemaphore.Wait(TimeSpan.FromSeconds(60)))
+            {
+                try
+                {
+
+                    _SMSs.Clear();
+
+                }
+                catch (Exception e)
+                {
+                    DebugX.LogException(e);
+                }
+                finally
+                {
+                    SMSSemaphore.Release();
+                }
+            }
+        }
+
+        #endregion
+
+
+        #region Dispose()
+
+        public void Dispose()
+        {
+
+        }
+
+        #endregion
 
     }
 
