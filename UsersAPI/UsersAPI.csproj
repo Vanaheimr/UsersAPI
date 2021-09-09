@@ -125,6 +125,8 @@
     <Compile Include="Entities\Notification\NotificationTag.cs" />
     <Compile Include="Entities\Notification\NotificationGroup.cs" />
     <Compile Include="SMS\NullSMSAPI.cs" />
+    <Compile Include="Telegram\ITelegramStore.cs" />
+    <Compile Include="Telegram\NullTelegramStore.cs" />
     <Compile Include="Telegram\TelegramStore.cs" />
     <Compile Include="UsersAPILogger.cs" />
     <Compile Include="CommonTypes\LoginPassword.cs" />

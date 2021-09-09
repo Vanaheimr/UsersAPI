@@ -36,7 +36,7 @@ using System.Threading;
 namespace social.OpenData.UsersAPI
 {
 
-    public class TelegramStore : ITelegramStore
+    public class NullTelegramStore : ITelegramStore
     {
 
         #region Data
@@ -45,8 +45,6 @@ namespace social.OpenData.UsersAPI
         /// ASCII unit/cell separator
         /// </summary>
         protected const  Char                               US = (Char) 0x1F;
-
-        private readonly TelegramBotClient                  TelegramAPI;
 
         private readonly Dictionary<String, TelegramUser>   UserByUsername;
 
@@ -69,83 +67,24 @@ namespace social.OpenData.UsersAPI
 
         #region Events
 
-        public event OnSendTelegramRequestDelegate   OnSendTelegramRequest;
+        public event OnSendTelegramRequestDelegate                     OnSendTelegramRequest;
 
-        public event OnSendTelegramResponseDelegate  OnSendTelegramResponse;
+        public event OnSendTelegramResponseDelegate                    OnSendTelegramResponse;
 
-        public event EventHandler<Telegram.Bot.Args.MessageEventArgs> OnMessage
-        {
-            add
-            {
-                this.TelegramAPI.OnMessage += value;
-            }
-            remove
-            {
-                this.TelegramAPI.OnMessage -= value;
-            }
-        }
+        public event EventHandler<Telegram.Bot.Args.MessageEventArgs>  OnMessage;
 
         #endregion
 
         #region Constructor(s)
 
-        public TelegramStore(TelegramBotClient TelegramAPI)
+        public NullTelegramStore()
 
         {
-
-            this.TelegramAPI     = TelegramAPI ?? throw new ArgumentNullException(nameof(TelegramAPI), "The given Telegram API must not be null!");
-
-            this.TelegramAPI.OnMessage += ReceiveTelegramMessage;
 
             this.UserByUsername  = new Dictionary<String, TelegramUser>();
             this.UserByChatId    = new Dictionary<Int64,  TelegramUser>();
             this.GroupByTitle    = new Dictionary<String, TelegramGroup>();
             this.GroupByChatId   = new Dictionary<Int64,  TelegramGroup>();
-
-            try
-            {
-
-                foreach (var line in System.IO.File.ReadLines("TelegramStore.csv"))
-                {
-                    if (line.IsNotNullOrEmpty() && !line.StartsWith("//") && !line.StartsWith("#"))
-                    {
-                        try
-                        {
-
-                            var elements = line.Trim().Split(US);
-
-                            switch (elements[0])
-                            {
-
-                                case "updateUser":
-                                    UpdateUser(Int32.Parse(elements[1]),
-                                               elements[2],
-                                               elements[3],
-                                               elements[4],
-                                               Int64.Parse(elements[5]));
-                                    break;
-
-                                case "updateGroup":
-                                    UpdateUser(Int32.Parse(elements[1]),
-                                               elements[2],
-                                               elements[3],
-                                               elements[4],
-                                               Int64.Parse(elements[5]));
-                                    break;
-
-                            }
-
-                        }
-                        catch (Exception)
-                        { }
-                    }
-                }
-
-            }
-            catch (Exception)
-            { }
-
-            this.TelegramAPI.StartReceiving();
 
         }
 
@@ -367,6 +306,12 @@ namespace social.OpenData.UsersAPI
         }
 
 
+        private readonly List<Tuple<String, IEnumerable<String>>> telegrams = new List<Tuple<String, IEnumerable<String>>>();
+
+        public IEnumerable<Tuple<String, IEnumerable<String>>> Telegrams
+            => telegrams;
+
+
 
         #region SendTelegram (Message, Username)
 
@@ -389,8 +334,6 @@ namespace social.OpenData.UsersAPI
 
             if (Username.IsNullOrEmpty())
                 throw new ArgumentNullException(nameof(Username),  "The given username must not be null or empty!");
-
-            MessageEnvelop responseMessage;
 
             #endregion
 
@@ -424,20 +367,11 @@ namespace social.OpenData.UsersAPI
             #endregion
 
 
-            if (UserByUsername.TryGetValue(Username, out TelegramUser User))
-            {
-                responseMessage = new MessageEnvelop(Username,
-                                                     User.ChatId,
-                                                     await TelegramAPI.SendTextMessageAsync(
-                                                                           ChatId:  User.ChatId,
-                                                                           Text:    Message
-                                                                       ));
-            }
+            telegrams.Add(new Tuple<String, IEnumerable<String>>(Message, new String[] { Username }));
 
-            else
-                responseMessage = new MessageEnvelop(Username,
+            var responseMessage = new MessageEnvelop(Username,
                                                      new Telegram.Bot.Types.Message() {
-                                                         Text = "Unknown Telegram user '" + Username + "'!"
+                                                         Text = "Ok"
                                                      });
 
 
@@ -456,7 +390,9 @@ namespace social.OpenData.UsersAPI
                                                      eventTrackingId,
                                                      message,
                                                      usernames,
-                                                     new MessageEnvelop[] { responseMessage },
+                                                     new MessageEnvelop[] {
+                                                        responseMessage
+                                                     },
                                                      Endtime - StartTime))).
                                        ConfigureAwait(false);
 
@@ -492,8 +428,6 @@ namespace social.OpenData.UsersAPI
             if (Username.IsNullOrEmpty())
                 throw new ArgumentNullException(nameof(Username),  "The given username must not be null or empty!");
 
-            MessageEnvelop responseMessage;
-
             #endregion
 
             var eventTrackingId  = EventTracking_Id.New;
@@ -525,18 +459,12 @@ namespace social.OpenData.UsersAPI
             #endregion
 
 
-            if (UserByUsername.TryGetValue(Username, out TelegramUser User))
-                responseMessage = new MessageEnvelop(Username,
-                                                     User.ChatId,
-                                                     await TelegramAPI.SendTextMessageAsync(
-                                                                           ChatId:  User.ChatId,
-                                                                           Text:    Message[User.PreferredLanguage] ?? Message[Languages.en]
-                                                                       ));
+            telegrams.Add(new Tuple<String, IEnumerable<String>>(Message[Languages.en], new String[] { Username }));
 
-            else
-                responseMessage = new MessageEnvelop(Username,
+
+            var responseMessage = new MessageEnvelop(Username,
                                                      new Telegram.Bot.Types.Message() {
-                                                         Text = "Unknown Telegram user '" + Username + "'!"
+                                                         Text = "Ok"
                                                      });
 
 
@@ -555,7 +483,9 @@ namespace social.OpenData.UsersAPI
                                                      eventTrackingId,
                                                      Message,
                                                      usernames,
-                                                     new MessageEnvelop[] { responseMessage },
+                                                     new MessageEnvelop[] {
+                                                        responseMessage
+                                                     },
                                                      Endtime - StartTime))).
                                        ConfigureAwait(false);
 
@@ -641,22 +571,16 @@ namespace social.OpenData.UsersAPI
             #endregion
 
 
+            telegrams.Add(new Tuple<String, IEnumerable<String>>(Message, Usernames));
+
             foreach (var username in Usernames)
             {
 
-                if (UserByUsername.TryGetValue(username, out TelegramUser User))
-                    responseMessages.Add(new MessageEnvelop(username,
-                                                            User.ChatId,
-                                                            await TelegramAPI.SendTextMessageAsync(
-                                                                                  ChatId:  User.ChatId,
-                                                                                  Text:    Message
-                                                                              )));
-
-                else
-                    responseMessages.Add(new MessageEnvelop(username,
-                                                            new Telegram.Bot.Types.Message() {
-                                                                Text = "Unknown Telegram user '" + username + "'!"
-                                                            }));
+                responseMessages.Add(new MessageEnvelop(username,
+                                                        username.GetHashCode(),
+                                                        new Telegram.Bot.Types.Message() {
+                                                            Text = "Ok"
+                                                        }));
 
             }
 
@@ -758,22 +682,16 @@ namespace social.OpenData.UsersAPI
             #endregion
 
 
+            telegrams.Add(new Tuple<String, IEnumerable<String>>(Message[Languages.en], Usernames));
+
             foreach (var username in Usernames)
             {
 
-                if (UserByUsername.TryGetValue(username, out TelegramUser User))
-                    responseMessages.Add(new MessageEnvelop(username,
-                                                            User.ChatId,
-                                                            await TelegramAPI.SendTextMessageAsync(
-                                                                                  ChatId:  User.ChatId,
-                                                                                  Text:    Message[User.PreferredLanguage] ?? Message[Languages.en]
-                                                                              )));
-
-                else
-                    responseMessages.Add(new MessageEnvelop(username,
-                                                            new Telegram.Bot.Types.Message() {
-                                                                Text = "Unknown Telegram user '" + username + "'!"
-                                                            }));
+                responseMessages.Add(new MessageEnvelop(username,
+                                                        username.GetHashCode(),
+                                                        new Telegram.Bot.Types.Message() {
+                                                            Text = "Ok"
+                                                        }));
 
             }
 
@@ -813,7 +731,6 @@ namespace social.OpenData.UsersAPI
 
 
 
-
         /// <summary>
         /// Use this method to send text messages. On success, the sent Description is returned.
         /// </summary>
@@ -836,14 +753,21 @@ namespace social.OpenData.UsersAPI
                                                                      IReplyMarkup       ReplyMarkup             = default,
                                                                      CancellationToken  CancellationToken       = default)
 
-            => this.TelegramAPI.SendTextMessageAsync(ChatId,
-                                                     Text,
-                                                     ParseMode,
-                                                     DisableWebPagePreview,
-                                                     DisableNotification,
-                                                     ReplyToMessageId,
-                                                     ReplyMarkup,
-                                                     CancellationToken);
+            => Task.FromResult(
+                   new Telegram.Bot.Types.Message() {
+                       Text = "Ok"
+                   });
+
+
+        #region Clear()
+
+        public void Clear()
+        {
+            telegrams.Clear();
+        }
+
+        #endregion
+
 
     }
 

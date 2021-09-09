@@ -883,6 +883,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="Homepage">The homepage of the user.</param>
         /// <param name="GeoLocation">An optional geographical location of the user.</param>
         /// <param name="Address">An optional address of the user.</param>
+        /// <param name="SkipDefaultNotifications">Do not apply the default notifications settings for new users.</param>
         /// <param name="AcceptedEULA">Timestamp when the user accepted the End-User-License-Agreement.</param>
         /// <param name="IsAuthenticated">The user will not be shown in user listings, as its primary e-mail address is not yet authenticated.</param>
         /// <param name="IsDisabled">The user will be shown in user listings.</param>
@@ -894,25 +895,26 @@ namespace social.OpenData.UsersAPI
                                                   User_Id             Id,
                                                   String              Name,
                                                   SimpleEMailAddress  EMail,
-                                                  Password?           Password          = null,
-                                                  I18NString          Description       = null,
-                                                  PgpPublicKeyRing    PublicKeyRing     = null,
-                                                  PgpSecretKeyRing    SecretKeyRing     = null,
-                                                  Languages           UserLanguage      = Languages.en,
-                                                  PhoneNumber?        Telephone         = null,
-                                                  PhoneNumber?        MobilePhone       = null,
-                                                  Use2AuthFactor      Use2AuthFactor    = Use2AuthFactor.None,
-                                                  String              Telegram          = null,
-                                                  String              Homepage          = null,
-                                                  GeoCoordinate?      GeoLocation       = null,
-                                                  Address             Address           = null,
-                                                  DateTime?           AcceptedEULA      = null,
-                                                  Boolean             IsAuthenticated   = false,
-                                                  Boolean             IsDisabled        = false,
+                                                  Password?           Password                   = null,
+                                                  I18NString          Description                = null,
+                                                  PgpPublicKeyRing    PublicKeyRing              = null,
+                                                  PgpSecretKeyRing    SecretKeyRing              = null,
+                                                  Languages           UserLanguage               = Languages.en,
+                                                  PhoneNumber?        Telephone                  = null,
+                                                  PhoneNumber?        MobilePhone                = null,
+                                                  Use2AuthFactor      Use2AuthFactor             = Use2AuthFactor.None,
+                                                  String              Telegram                   = null,
+                                                  String              Homepage                   = null,
+                                                  GeoCoordinate?      GeoLocation                = null,
+                                                  Address             Address                    = null,
+                                                  Boolean             SkipDefaultNotifications   = false,
+                                                  DateTime?           AcceptedEULA               = null,
+                                                  Boolean             IsAuthenticated            = false,
+                                                  Boolean             IsDisabled                 = false,
 
-                                                  String              DataSource        = "",
-                                                  EventTracking_Id    EventTrackingId   = null,
-                                                  User_Id?            CurrentUserId     = null)
+                                                  String              DataSource                 = "",
+                                                  EventTracking_Id    EventTrackingId            = null,
+                                                  User_Id?            CurrentUserId              = null)
         {
 
             var addUserResult = await UsersAPI.AddUser(new User(Id,
@@ -934,7 +936,8 @@ namespace social.OpenData.UsersAPI
                                                                 IsDisabled,
                                                                 DataSource: DataSource),
 
-                                                       async (_user, _eventTrackingId) => {
+                                                       SkipDefaultNotifications,
+                                                       async(_user, _eventTrackingId) => {
                                                            if (Password.HasValue)
                                                            {
                                                                var result = await _user.API._ChangePassword(_user,
@@ -979,6 +982,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="Homepage">The homepage of the user.</param>
         /// <param name="GeoLocation">An optional geographical location of the user.</param>
         /// <param name="Address">An optional address of the user.</param>
+        /// <param name="SkipDefaultNotifications">Do not apply the default notifications settings for new users.</param>
         /// <param name="AcceptedEULA">Timestamp when the user accepted the End-User-License-Agreement.</param>
         /// <param name="IsAuthenticated">The user will not be shown in user listings, as its primary e-mail address is not yet authenticated.</param>
         /// <param name="IsDisabled">The user will be shown in user listings.</param>
@@ -992,25 +996,26 @@ namespace social.OpenData.UsersAPI
                                                   SimpleEMailAddress          EMail,
                                                   User2OrganizationEdgeLabel  AccessRight,
                                                   Organization                Organization,
-                                                  Password?                   Password          = null,
-                                                  I18NString                  Description       = null,
-                                                  PgpPublicKeyRing            PublicKeyRing     = null,
-                                                  PgpSecretKeyRing            SecretKeyRing     = null,
-                                                  Languages                   UserLanguage      = Languages.en,
-                                                  PhoneNumber?                Telephone         = null,
-                                                  PhoneNumber?                MobilePhone       = null,
-                                                  Use2AuthFactor              Use2AuthFactor    = Use2AuthFactor.None,
-                                                  String                      Telegram          = null,
-                                                  String                      Homepage          = null,
-                                                  GeoCoordinate?              GeoLocation       = null,
-                                                  Address                     Address           = null,
-                                                  DateTime?                   AcceptedEULA      = null,
-                                                  Boolean                     IsAuthenticated   = false,
-                                                  Boolean                     IsDisabled        = false,
+                                                  Password?                   Password                   = null,
+                                                  I18NString                  Description                = null,
+                                                  PgpPublicKeyRing            PublicKeyRing              = null,
+                                                  PgpSecretKeyRing            SecretKeyRing              = null,
+                                                  Languages                   UserLanguage               = Languages.en,
+                                                  PhoneNumber?                Telephone                  = null,
+                                                  PhoneNumber?                MobilePhone                = null,
+                                                  Use2AuthFactor              Use2AuthFactor             = Use2AuthFactor.None,
+                                                  String                      Telegram                   = null,
+                                                  String                      Homepage                   = null,
+                                                  GeoCoordinate?              GeoLocation                = null,
+                                                  Address                     Address                    = null,
+                                                  Boolean                     SkipDefaultNotifications   = false,
+                                                  DateTime?                   AcceptedEULA               = null,
+                                                  Boolean                     IsAuthenticated            = false,
+                                                  Boolean                     IsDisabled                 = false,
 
-                                                  String                      DataSource        = "",
-                                                  EventTracking_Id            EventTrackingId   = null,
-                                                  User_Id?                    CurrentUserId     = null)
+                                                  String                      DataSource                 = "",
+                                                  EventTracking_Id            EventTrackingId            = null,
+                                                  User_Id?                    CurrentUserId              = null)
         {
 
             var addUserResult = await UsersAPI.AddUser(new User(Id,
@@ -1035,7 +1040,8 @@ namespace social.OpenData.UsersAPI
                                                        AccessRight,
                                                        Organization,
 
-                                                       async (_user, _eventTrackingId) => {
+                                                       SkipDefaultNotifications,
+                                                       async(_user, _eventTrackingId) => {
                                                            if (Password.HasValue)
                                                            {
                                                                var result = await _user.API._ChangePassword(_user,
@@ -1078,6 +1084,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="Homepage">The homepage of the user.</param>
         /// <param name="GeoLocation">An optional geographical location of the user.</param>
         /// <param name="Address">An optional address of the user.</param>
+        /// <param name="SkipDefaultNotifications">Do not apply the default notifications settings for new users.</param>
         /// <param name="AcceptedEULA">Timestamp when the user accepted the End-User-License-Agreement.</param>
         /// <param name="IsAuthenticated">The user will not be shown in user listings, as its primary e-mail address is not yet authenticated.</param>
         /// <param name="IsDisabled">The user will be shown in user listings.</param>
@@ -1089,25 +1096,26 @@ namespace social.OpenData.UsersAPI
                                                              User_Id             Id,
                                                              String              Name,
                                                              SimpleEMailAddress  EMail,
-                                                             Password?           Password          = null,
-                                                             I18NString          Description       = null,
-                                                             PgpPublicKeyRing    PublicKeyRing     = null,
-                                                             PgpSecretKeyRing    SecretKeyRing     = null,
-                                                             Languages           UserLanguage      = Languages.en,
-                                                             PhoneNumber?        Telephone         = null,
-                                                             PhoneNumber?        MobilePhone       = null,
-                                                             Use2AuthFactor      Use2AuthFactor    = Use2AuthFactor.None,
-                                                             String              Telegram          = null,
-                                                             String              Homepage          = null,
-                                                             GeoCoordinate?      GeoLocation       = null,
-                                                             Address             Address           = null,
-                                                             DateTime?           AcceptedEULA      = null,
-                                                             Boolean             IsAuthenticated   = false,
-                                                             Boolean             IsDisabled        = false,
+                                                             Password?           Password                   = null,
+                                                             I18NString          Description                = null,
+                                                             PgpPublicKeyRing    PublicKeyRing              = null,
+                                                             PgpSecretKeyRing    SecretKeyRing              = null,
+                                                             Languages           UserLanguage               = Languages.en,
+                                                             PhoneNumber?        Telephone                  = null,
+                                                             PhoneNumber?        MobilePhone                = null,
+                                                             Use2AuthFactor      Use2AuthFactor             = Use2AuthFactor.None,
+                                                             String              Telegram                   = null,
+                                                             String              Homepage                   = null,
+                                                             GeoCoordinate?      GeoLocation                = null,
+                                                             Address             Address                    = null,
+                                                             Boolean             SkipDefaultNotifications   = false,
+                                                             DateTime?           AcceptedEULA               = null,
+                                                             Boolean             IsAuthenticated            = false,
+                                                             Boolean             IsDisabled                 = false,
 
-                                                             String              DataSource        = "",
-                                                             EventTracking_Id    EventTrackingId   = null,
-                                                             User_Id?            CurrentUserId     = null)
+                                                             String              DataSource                 = "",
+                                                             EventTracking_Id    EventTrackingId            = null,
+                                                             User_Id?            CurrentUserId              = null)
         {
 
             var addUserResult = await UsersAPI.AddUserIfNotExists(new User(Id,
@@ -1129,7 +1137,8 @@ namespace social.OpenData.UsersAPI
                                                                            IsDisabled,
                                                                            DataSource: DataSource),
 
-                                                                  async (_user, _eventTrackingId) => {
+                                                                  SkipDefaultNotifications,
+                                                                  async(_user, _eventTrackingId) => {
                                                                       if (Password.HasValue)
                                                                       {
                                                                           var result = await _user.API._ChangePassword(_user,
@@ -1174,6 +1183,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="Homepage">The homepage of the user.</param>
         /// <param name="GeoLocation">An optional geographical location of the user.</param>
         /// <param name="Address">An optional address of the user.</param>
+        /// <param name="SkipDefaultNotifications">Do not apply the default notifications settings for new users.</param>
         /// <param name="AcceptedEULA">Timestamp when the user accepted the End-User-License-Agreement.</param>
         /// <param name="IsAuthenticated">The user will not be shown in user listings, as its primary e-mail address is not yet authenticated.</param>
         /// <param name="IsDisabled">The user will be shown in user listings.</param>
@@ -1187,25 +1197,26 @@ namespace social.OpenData.UsersAPI
                                                              SimpleEMailAddress          EMail,
                                                              User2OrganizationEdgeLabel  AccessRight,
                                                              Organization                Organization,
-                                                             Password?                   Password          = null,
-                                                             I18NString                  Description       = null,
-                                                             PgpPublicKeyRing            PublicKeyRing     = null,
-                                                             PgpSecretKeyRing            SecretKeyRing     = null,
-                                                             Languages                   UserLanguage      = Languages.en,
-                                                             PhoneNumber?                Telephone         = null,
-                                                             PhoneNumber?                MobilePhone       = null,
-                                                             Use2AuthFactor              Use2AuthFactor    = Use2AuthFactor.None,
-                                                             String                      Telegram          = null,
-                                                             String                      Homepage          = null,
-                                                             GeoCoordinate?              GeoLocation       = null,
-                                                             Address                     Address           = null,
-                                                             DateTime?                   AcceptedEULA      = null,
-                                                             Boolean                     IsAuthenticated   = false,
-                                                             Boolean                     IsDisabled        = false,
+                                                             Password?                   Password                   = null,
+                                                             I18NString                  Description                = null,
+                                                             PgpPublicKeyRing            PublicKeyRing              = null,
+                                                             PgpSecretKeyRing            SecretKeyRing              = null,
+                                                             Languages                   UserLanguage               = Languages.en,
+                                                             PhoneNumber?                Telephone                  = null,
+                                                             PhoneNumber?                MobilePhone                = null,
+                                                             Use2AuthFactor              Use2AuthFactor             = Use2AuthFactor.None,
+                                                             String                      Telegram                   = null,
+                                                             String                      Homepage                   = null,
+                                                             GeoCoordinate?              GeoLocation                = null,
+                                                             Address                     Address                    = null,
+                                                             Boolean                     SkipDefaultNotifications   = false,
+                                                             DateTime?                   AcceptedEULA               = null,
+                                                             Boolean                     IsAuthenticated            = false,
+                                                             Boolean                     IsDisabled                 = false,
 
-                                                             String                      DataSource        = "",
-                                                             EventTracking_Id            EventTrackingId   = null,
-                                                             User_Id?                    CurrentUserId     = null)
+                                                             String                      DataSource                 = "",
+                                                             EventTracking_Id            EventTrackingId            = null,
+                                                             User_Id?                    CurrentUserId              = null)
         {
 
             var addUserResult = await UsersAPI.AddUserIfNotExists(new User(Id,
@@ -1230,7 +1241,8 @@ namespace social.OpenData.UsersAPI
                                                                   AccessRight,
                                                                   Organization,
 
-                                                                  async (_user, _eventTrackingId) => {
+                                                                  SkipDefaultNotifications,
+                                                                  async(_user, _eventTrackingId) => {
                                                                       if (Password.HasValue)
                                                                       {
                                                                           var result = await _user.API._ChangePassword(_user,
@@ -1505,20 +1517,20 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         public String                        SMSSenderName                      { get; }
 
-        /// <summary>
-        /// The Telegram API access token of the bot.
-        /// </summary>
-        public String                        TelegramBotToken                   { get; }
+        ///// <summary>
+        ///// The Telegram API access token of the bot.
+        ///// </summary>
+        //public String                        TelegramBotToken                   { get; }
 
-        /// <summary>
-        /// The Telegram API client.
-        /// </summary>
-        public TelegramBotClient             TelegramAPI                        { get; }
+        ///// <summary>
+        ///// The Telegram API client.
+        ///// </summary>
+        //public TelegramBotClient             TelegramAPI                        { get; }
 
         /// <summary>
         /// The Telegram user store.
         /// </summary>
-        public TelegramStore                 TelegramStore                      { get; }
+        public ITelegramStore                TelegramClient                      { get; }
 
         public HTTPCookieName                CookieName                         { get; }
 
@@ -2405,7 +2417,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="SMTPClient">A SMTP client for sending e-mails.</param>
         /// <param name="SMSClient">A SMS client for sending SMS.</param>
         /// <param name="SMSSenderName">The (default) SMS sender name.</param>
-        /// <param name="TelegramBotToken">The Telegram API access token of the bot.</param>
+        /// <param name="TelegramClient">A Telegram client for sendind and receiving Telegrams.</param>
         /// 
         /// <param name="PasswordQualityCheck">A delegate to ensure a minimal password quality.</param>
         /// <param name="CookieName">The name of the HTTP Cookie for authentication.</param>
@@ -2475,7 +2487,7 @@ namespace social.OpenData.UsersAPI
                         ISMTPClient                          SMTPClient                         = null,
                         ISMSClient                           SMSClient                          = null,
                         String                               SMSSenderName                      = null,
-                        String                               TelegramBotToken                   = null,
+                        ITelegramStore                       TelegramClient                     = null,
 
                         PasswordQualityCheckDelegate         PasswordQualityCheck               = null,
                         HTTPCookieName?                      CookieName                         = null,
@@ -2658,8 +2670,6 @@ namespace social.OpenData.UsersAPI
             #endregion
 
 
-            
-
             #region Create default organizations/user groups
 
             this.NoOwner = _Organizations.AddAndReturnValue(Organization_Id.Parse("NoOwner"),
@@ -2668,25 +2678,19 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
-            #region Setup Telegram Bot
-
-            this.TelegramBotToken       = TelegramBotToken;
-
-            if (this.TelegramBotToken.IsNeitherNullNorEmpty())
-            {
-                this.TelegramAPI        = new TelegramBotClient(this.TelegramBotToken);
-                this.TelegramStore      = new TelegramStore    (this.TelegramAPI);
-                this.TelegramAPI.OnMessage += TelegramStore.ReceiveTelegramMessage;
-                this.TelegramAPI.OnMessage += ReceiveTelegramMessage;
-                this.TelegramAPI.StartReceiving();
-            }
-
-            #endregion
-
             #region Setup SMSAPI
 
             this.SMSClient      = SMSClient;
             this.SMSSenderName  = SMSSenderName ?? "GraphDefined";
+
+            #endregion
+
+            #region Setup Telegram
+
+            this.TelegramClient = TelegramClient;
+
+            if (this.TelegramClient != null)
+                this.TelegramClient.OnMessage += ReceiveTelegramMessage;
 
             #endregion
 
@@ -3656,14 +3660,14 @@ namespace social.OpenData.UsersAPI
                 {
 
                     case "/system":
-                        await this.TelegramAPI.SendTextMessageAsync(
+                        await this.TelegramClient.SendTextMessageAsync(
                             ChatId:  e.Message.Chat,
                             Text:    "I'm running on: " + Environment.MachineName + " and use " + (Environment.WorkingSet / 1024 /1024) + " MBytes RAM"
                         );
                         break;
 
                     case "/echo":
-                        await this.TelegramAPI.SendTextMessageAsync(
+                        await this.TelegramClient.SendTextMessageAsync(
                             ChatId:  e.Message.Chat,
                             Text:    "Hello " + e.Message.From.FirstName + " " + e.Message.From.LastName + "!\nYou said:\n" + e.Message.Text
                         );
@@ -5465,14 +5469,14 @@ namespace social.OpenData.UsersAPI
 
                                                              ? await AddUser(newUser,
                                                                              accessRights,
-                                                                             (_user, _eventTrackingId) => {
-                                                                             },
+                                                                             false,
+                                                                             (_user, _eventTrackingId) => { },
                                                                              Request.EventTrackingId,
                                                                              CurrentUserId: HTTPUser.Id)
 
                                                              : await AddUser(newUser,
-                                                                             (_user, _eventTrackingId) => {
-                                                                             },
+                                                                             false,
+                                                                             (_user, _eventTrackingId) => { },
                                                                              Request.EventTrackingId,
                                                                              CurrentUserId: HTTPUser.Id);
 
@@ -5797,14 +5801,14 @@ namespace social.OpenData.UsersAPI
 
                                                              ? await AddUser(newUser,
                                                                              accessRights,
-                                                                             (_user, _eventTrackingId) => {
-                                                                             },
+                                                                             false,
+                                                                             (_user, _eventTrackingId) => { },
                                                                              Request.EventTrackingId,
                                                                              CurrentUserId: HTTPUser.Id)
 
                                                              : await AddUser(newUser,
-                                                                             (_user, _eventTrackingId) => {
-                                                                             },
+                                                                             false,
+                                                                             (_user, _eventTrackingId) => { },
                                                                              Request.EventTrackingId,
                                                                              CurrentUserId: HTTPUser.Id);
 
@@ -5824,16 +5828,16 @@ namespace social.OpenData.UsersAPI
                                                           }.AsImmutable
 
                                                         : new HTTPResponse.Builder(Request) {
-                                                              HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                              Server                     = HTTPServer.DefaultServerName,
-                                                              Date                       = Timestamp.Now,
-                                                              AccessControlAllowOrigin   = "*",
-                                                              AccessControlAllowMethods  = "ADD, SET, GET",
-                                                              AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                              ContentType                = HTTPContentType.JSON_UTF8,
-                                                              Content                    = JSONObject.Create(
-                                                                                               new JProperty("description", "Could create the new user!")
-                                                                                           ).ToUTF8Bytes()
+                                                              HTTPStatusCode              = HTTPStatusCode.BadRequest,
+                                                              Server                      = HTTPServer.DefaultServerName,
+                                                              Date                        = Timestamp.Now,
+                                                              AccessControlAllowOrigin    = "*",
+                                                              AccessControlAllowMethods   = "ADD, SET, GET",
+                                                              AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                              ContentType                 = HTTPContentType.JSON_UTF8,
+                                                              Content                     = JSONObject.Create(
+                                                                                                new JProperty("description", "Could create the new user!")
+                                                                                            ).ToUTF8Bytes()
                                                           }.AsImmutable;
 
                                          });
@@ -6109,6 +6113,7 @@ namespace social.OpenData.UsersAPI
 
 
                                              var result = await AddOrUpdateUser(_User,
+                                                                                false,
                                                                                 null,
                                                                                 null,
                                                                                 Request.EventTrackingId,
@@ -15083,7 +15088,7 @@ namespace social.OpenData.UsersAPI
 
                 #region Telegram Notifications
 
-                if (TelegramStore != null)
+                if (TelegramClient != null)
                 {
                     try
                     {
@@ -15099,7 +15104,7 @@ namespace social.OpenData.UsersAPI
 
                             if (messageTypes.Contains(addUser_MessageType))
                             {
-                                await TelegramStore.SendTelegrams(String.Concat("User '", User.Name, "' was successfully added. ",
+                                await TelegramClient.SendTelegrams(String.Concat("User '", User.Name, "' was successfully added. ",
                                                                                 "https://", ExternalDNSName, BasePath, "/users/", User.Id),
                                                                                 // to Organization {Org_Name}.",
                                                                   AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
@@ -15107,7 +15112,7 @@ namespace social.OpenData.UsersAPI
 
                             if (messageTypes.Contains(updateUser_MessageType))
                             {
-                                await TelegramStore.SendTelegrams(String.Concat("User '", User.Name, "' information had been successfully updated. ",
+                                await TelegramClient.SendTelegrams(String.Concat("User '", User.Name, "' information had been successfully updated. ",
                                                                                 "https://", ExternalDNSName, BasePath, "/users/", User.Id),
                                                                                 // + {Updated information}
                                                                   AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
@@ -15408,7 +15413,7 @@ namespace social.OpenData.UsersAPI
 
                 #region Telegram Notifications
 
-                if (TelegramStore != null)
+                if (TelegramClient != null)
                 {
                     try
                     {
@@ -15422,7 +15427,7 @@ namespace social.OpenData.UsersAPI
                         {
 
                             if (messageTypes.Contains(deleteUser_MessageType))
-                                await TelegramStore.SendTelegrams(String.Concat("User '", User.Name, "' has been deleted. "),
+                                await TelegramClient.SendTelegrams(String.Concat("User '", User.Name, "' has been deleted. "),
                                                                   AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
 
                         }
@@ -15573,7 +15578,7 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region AddUser           (User, (Membership, Organization), OnAdded = null, ...)
+        #region AddUser           (User, (Membership, Organization), SkipDefaultNotifications = false, OnAdded = null, ...)
 
         /// <summary>
         /// A delegate called whenever a user was added.
@@ -15593,19 +15598,21 @@ namespace social.OpenData.UsersAPI
         public event OnUserAddedDelegate OnUserAdded;
 
 
-        #region (protected internal) _AddUser(User,                            OnAdded = null, ...)
+        #region (protected internal) _AddUser(User,                            SkipDefaultNotifications = false, OnAdded = null, ...)
 
         /// <summary>
         /// Add the given user to the API.
         /// </summary>
         /// <param name="User">A new user to be added to this API.</param>
+        /// <param name="SkipDefaultNotifications">Do not apply the default notifications settings for new users.</param>
         /// <param name="OnAdded">A delegate run whenever the user has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         protected internal async Task<AddUserResult> _AddUser(User                            User,
-                                                              Action<User, EventTracking_Id>  OnAdded           = null,
-                                                              EventTracking_Id                EventTrackingId   = null,
-                                                              User_Id?                        CurrentUserId     = null)
+                                                              Boolean                         SkipDefaultNotifications   = false,
+                                                              Action<User, EventTracking_Id>  OnAdded                    = null,
+                                                              EventTracking_Id                EventTrackingId            = null,
+                                                              User_Id?                        CurrentUserId              = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -15658,22 +15665,27 @@ namespace social.OpenData.UsersAPI
 
             #region Register 'New User Default'-Notifications
 
-            var newUserDefaultNotificationMessageGroups = _NotificationGroups.Values.
-                                                              SelectMany(group       => group.Notifications).
-                                                              Where     (description => description.Tags.Contains(NotificationTag.NewUserDefault)).
-                                                              SelectMany(description => description.Messages).
-                                                              ToSafeHashSet();
+            if (!SkipDefaultNotifications)
+            {
 
-            if (newUserDefaultNotificationMessageGroups.Any())
-                await _AddNotification(User,
-                                       new EMailNotification(User.EMail,
-                                                             "",
-                                                             "",
-                                                             "",
-                                                             newUserDefaultNotificationMessageGroups,
-                                                             "Default notifications for new users"),
-                                       eventTrackingId,
-                                       CurrentUserId);
+                var newUserDefaultNotificationMessageGroups = _NotificationGroups.Values.
+                                                                  SelectMany(group       => group.Notifications).
+                                                                  Where     (description => description.Tags.Contains(NotificationTag.NewUserDefault)).
+                                                                  SelectMany(description => description.Messages).
+                                                                  ToSafeHashSet();
+
+                if (newUserDefaultNotificationMessageGroups.Any())
+                    await _AddNotification(User,
+                                           new EMailNotification(User.EMail,
+                                                                 "",
+                                                                 "",
+                                                                 "",
+                                                                 newUserDefaultNotificationMessageGroups,
+                                                                 "Default notifications for new users"),
+                                           eventTrackingId,
+                                           CurrentUserId);
+
+            }
 
             #endregion
 
@@ -15712,19 +15724,21 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddUser                      (User,                            OnAdded = null, ...)
+        #region AddUser                      (User,                            SkipDefaultNotifications = false, OnAdded = null, ...)
 
         /// <summary>
         /// Add the given user.
         /// </summary>
         /// <param name="User">A new user.</param>
+        /// <param name="SkipDefaultNotifications">Do not apply the default notifications settings for new users.</param>
         /// <param name="OnAdded">A delegate run whenever the user has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<AddUserResult> AddUser(User                            User,
-                                                 Action<User, EventTracking_Id>  OnAdded           = null,
-                                                 EventTracking_Id                EventTrackingId   = null,
-                                                 User_Id?                        CurrentUserId     = null)
+                                                 Boolean                         SkipDefaultNotifications   = false,
+                                                 Action<User, EventTracking_Id>  OnAdded                    = null,
+                                                 EventTracking_Id                EventTrackingId            = null,
+                                                 User_Id?                        CurrentUserId              = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -15735,6 +15749,7 @@ namespace social.OpenData.UsersAPI
                 {
 
                     return await _AddUser(User,
+                                          SkipDefaultNotifications,
                                           OnAdded,
                                           eventTrackingId,
                                           CurrentUserId);
@@ -15769,7 +15784,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddUser                      (User, AccessRight, Organization, OnAdded = null, ...)
+        #region AddUser                      (User, AccessRight, Organization, SkipDefaultNotifications = false, OnAdded = null, ...)
 
         /// <summary>
         /// Add the given user and add him/her to the given organization.
@@ -15777,15 +15792,17 @@ namespace social.OpenData.UsersAPI
         /// <param name="User">A new user.</param>
         /// <param name="AccessRight">The organization membership of the new user.</param>
         /// <param name="Organization">The organization of the new user.</param>
+        /// <param name="SkipDefaultNotifications">Do not apply the default notifications settings for new users.</param>
         /// <param name="OnAdded">A delegate run whenever the user has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<AddUserResult> AddUser(User                            User,
                                                  User2OrganizationEdgeLabel      AccessRight,
                                                  Organization                    Organization,
-                                                 Action<User, EventTracking_Id>  OnAdded           = null,
-                                                 EventTracking_Id                EventTrackingId   = null,
-                                                 User_Id?                        CurrentUserId     = null)
+                                                 Boolean                         SkipDefaultNotifications   = false,
+                                                 Action<User, EventTracking_Id>  OnAdded                    = null,
+                                                 EventTracking_Id                EventTrackingId            = null,
+                                                 User_Id?                        CurrentUserId              = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -15798,7 +15815,8 @@ namespace social.OpenData.UsersAPI
                     {
 
                         var result = await _AddUser(User,
-                                                    async (_user, _eventTrackingId) => {
+                                                    SkipDefaultNotifications,
+                                                    async(_user, _eventTrackingId) => {
 
                                                         await _AddUserToOrganization(_user,
                                                                                      AccessRight,
@@ -15866,21 +15884,23 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddUser                      (User, AccessRights,              OnAdded = null, ...)
+        #region AddUser                      (User, AccessRights,              SkipDefaultNotifications = false, OnAdded = null, ...)
 
         /// <summary>
         /// Add the given user and add him/her to the given organization.
         /// </summary>
         /// <param name="User">A new user.</param>
         /// <param name="AccessRights">The organization memberships of the new user.</param>
+        /// <param name="SkipDefaultNotifications">Do not apply the default notifications settings for new users.</param>
         /// <param name="OnAdded">A delegate run whenever the user has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<AddUserResult> AddUser(User                                                          User,
                                                  IEnumerable<Tuple<User2OrganizationEdgeLabel, Organization>>  AccessRights,
-                                                 Action<User, EventTracking_Id>                                OnAdded           = null,
-                                                 EventTracking_Id                                              EventTrackingId   = null,
-                                                 User_Id?                                                      CurrentUserId     = null)
+                                                 Boolean                                                       SkipDefaultNotifications   = false,
+                                                 Action<User, EventTracking_Id>                                OnAdded                    = null,
+                                                 EventTracking_Id                                              EventTrackingId            = null,
+                                                 User_Id?                                                      CurrentUserId              = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -15899,7 +15919,8 @@ namespace social.OpenData.UsersAPI
                     {
 
                         var result = await _AddUser(User,
-                                                    async (_user, _eventTrackingId) => {
+                                                    SkipDefaultNotifications,
+                                                    async(_user, _eventTrackingId) => {
 
                                                         foreach (var accessRight in AccessRights)
                                                             await _AddUserToOrganization(_user,
@@ -15973,21 +15994,23 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddUserIfNotExists(User, (Membership, Organization), OnAdded = null, ...)
+        #region AddUserIfNotExists(User, (Membership, Organization), SkipDefaultNotifications = false, OnAdded = null, ...)
 
-        #region (protected internal) _AddUserIfNotExists(User,                            OnAdded = null, ...)
+        #region (protected internal) _AddUserIfNotExists(User,                            SkipDefaultNotifications = false, OnAdded = null, ...)
 
         /// <summary>
         /// When it has not been created before, add the given user to the API.
         /// </summary>
         /// <param name="User">A new user to be added to this API.</param>
+        /// <param name="SkipDefaultNotifications">Do not apply the default notifications settings for new users.</param>
         /// <param name="OnAdded">A delegate run whenever the user has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         protected internal async Task<AddUserIfNotExistsResult> _AddUserIfNotExists(User                            User,
-                                                                                    Action<User, EventTracking_Id>  OnAdded           = null,
-                                                                                    EventTracking_Id                EventTrackingId   = null,
-                                                                                    User_Id?                        CurrentUserId     = null)
+                                                                                    Boolean                         SkipDefaultNotifications   = false,
+                                                                                    Action<User, EventTracking_Id>  OnAdded                    = null,
+                                                                                    EventTracking_Id                EventTrackingId            = null,
+                                                                                    User_Id?                        CurrentUserId              = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -16039,22 +16062,27 @@ namespace social.OpenData.UsersAPI
 
             #region Register 'New User Default'-Notifications
 
-            var newUserDefaultNotificationMessageGroups = _NotificationGroups.Values.
-                                                                SelectMany(group       => group.Notifications).
-                                                                Where     (description => description.Tags.Contains(NotificationTag.NewUserDefault)).
-                                                                SelectMany(description => description.Messages).
-                                                                ToSafeHashSet();
+            if (!SkipDefaultNotifications)
+            {
 
-            if (newUserDefaultNotificationMessageGroups.Any())
-                await AddNotification(User,
-                                      new EMailNotification(User.EMail,
-                                                            "",
-                                                            "",
-                                                            "",
-                                                            newUserDefaultNotificationMessageGroups,
-                                                            "Default notifications for new users"),
-                                      eventTrackingId,
-                                      CurrentUserId);
+                var newUserDefaultNotificationMessageGroups = _NotificationGroups.Values.
+                                                                    SelectMany(group       => group.Notifications).
+                                                                    Where     (description => description.Tags.Contains(NotificationTag.NewUserDefault)).
+                                                                    SelectMany(description => description.Messages).
+                                                                    ToSafeHashSet();
+
+                if (newUserDefaultNotificationMessageGroups.Any())
+                    await AddNotification(User,
+                                          new EMailNotification(User.EMail,
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                newUserDefaultNotificationMessageGroups,
+                                                                "Default notifications for new users"),
+                                          eventTrackingId,
+                                          CurrentUserId);
+
+            }
 
             #endregion
 
@@ -16093,19 +16121,21 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddUserIfNotExists                      (User,                            OnAdded = null, ...)
+        #region AddUserIfNotExists                      (User,                            SkipDefaultNotifications = false, OnAdded = null, ...)
 
         /// <summary>
         /// Add the given user.
         /// </summary>
         /// <param name="User">A new user.</param>
+        /// <param name="SkipDefaultNotifications">Do not apply the default notifications settings for new users.</param>
         /// <param name="OnAdded">A delegate run whenever the user has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<AddUserIfNotExistsResult> AddUserIfNotExists(User                            User,
-                                                                       Action<User, EventTracking_Id>  OnAdded           = null,
-                                                                       EventTracking_Id                EventTrackingId   = null,
-                                                                       User_Id?                        CurrentUserId     = null)
+                                                                       Boolean                         SkipDefaultNotifications   = false,
+                                                                       Action<User, EventTracking_Id>  OnAdded                    = null,
+                                                                       EventTracking_Id                EventTrackingId            = null,
+                                                                       User_Id?                        CurrentUserId              = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -16116,6 +16146,7 @@ namespace social.OpenData.UsersAPI
                 {
 
                     return await _AddUserIfNotExists(User,
+                                                     SkipDefaultNotifications,
                                                      OnAdded,
                                                      eventTrackingId,
                                                      CurrentUserId);
@@ -16150,7 +16181,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddUserIfNotExists                      (User, AccessRight, Organization, OnAdded = null, ...)
+        #region AddUserIfNotExists                      (User, AccessRight, Organization, SkipDefaultNotifications = false, OnAdded = null, ...)
 
         /// <summary>
         /// Add the given user and add him/her to the given organization.
@@ -16158,15 +16189,17 @@ namespace social.OpenData.UsersAPI
         /// <param name="User">A new user.</param>
         /// <param name="AccessRight">The organization membership of the new user.</param>
         /// <param name="Organization">The organization of the new user.</param>
+        /// <param name="SkipDefaultNotifications">Do not apply the default notifications settings for new users.</param>
         /// <param name="OnAdded">A delegate run whenever the user has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<AddUserIfNotExistsResult> AddUserIfNotExists(User                            User,
                                                                        User2OrganizationEdgeLabel      AccessRight,
                                                                        Organization                    Organization,
-                                                                       Action<User, EventTracking_Id>  OnAdded           = null,
-                                                                       EventTracking_Id                EventTrackingId   = null,
-                                                                       User_Id?                        CurrentUserId     = null)
+                                                                       Boolean                         SkipDefaultNotifications   = false,
+                                                                       Action<User, EventTracking_Id>  OnAdded                    = null,
+                                                                       EventTracking_Id                EventTrackingId            = null,
+                                                                       User_Id?                        CurrentUserId              = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -16180,6 +16213,7 @@ namespace social.OpenData.UsersAPI
                     {
 
                         var result = await _AddUserIfNotExists(User,
+                                                               SkipDefaultNotifications,
                                                                async (_user, _eventTrackingId) => {
 
                                                                    await _AddUserToOrganization(_user,
@@ -16248,21 +16282,23 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddUserIfNotExists                      (User, AccessRights,              OnAdded = null, ...)
+        #region AddUserIfNotExists                      (User, AccessRights,              SkipDefaultNotifications = false, OnAdded = null, ...)
 
         /// <summary>
         /// Add the given user and add him/her to the given organization.
         /// </summary>
         /// <param name="User">A new user.</param>
         /// <param name="AccessRights">The organization memberships of the new user.</param>
+        /// <param name="SkipDefaultNotifications">Do not apply the default notifications settings for new users.</param>
         /// <param name="OnAdded">A delegate run whenever the user has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<AddUserIfNotExistsResult> AddUserIfNotExists(User                                                          User,
                                                                        IEnumerable<Tuple<User2OrganizationEdgeLabel, Organization>>  AccessRights,
-                                                                       Action<User, EventTracking_Id>                                OnAdded           = null,
-                                                                       EventTracking_Id                                              EventTrackingId   = null,
-                                                                       User_Id?                                                      CurrentUserId     = null)
+                                                                       Boolean                                                       SkipDefaultNotifications   = false,
+                                                                       Action<User, EventTracking_Id>                                OnAdded                    = null,
+                                                                       EventTracking_Id                                              EventTrackingId            = null,
+                                                                       User_Id?                                                      CurrentUserId              = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -16282,6 +16318,7 @@ namespace social.OpenData.UsersAPI
                     {
 
                         var result = await _AddUserIfNotExists(User,
+                                                               SkipDefaultNotifications,
                                                                async (_user, _eventTrackingId) => {
 
                                                                    foreach (var accessRight in AccessRights)
@@ -16357,23 +16394,25 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddOrUpdateUser   (User, (Membership, Organization), OnAdded = null, OnUpdated = null, ...)
+        #region AddOrUpdateUser   (User, (Membership, Organization), SkipDefaultNotifications = false, OnAdded = null, OnUpdated = null, ...)
 
-        #region (protected internal) _AddOrUpdateUser(User,                            OnAdded = null, OnUpdated = null, ...)
+        #region (protected internal) _AddOrUpdateUser(User,                            SkipDefaultNotifications = false, OnAdded = null, OnUpdated = null, ...)
 
         /// <summary>
         /// Add or update the given user to/within the API.
         /// </summary>
         /// <param name="User">A user.</param>
+        /// <param name="SkipDefaultNotifications">Do not apply the default notifications settings for new users.</param>
         /// <param name="OnAdded">A delegate run whenever the user has been added successfully.</param>
         /// <param name="OnUpdated">A delegate run whenever the user has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         protected internal async Task<AddOrUpdateUserResult> _AddOrUpdateUser(User                            User,
-                                                                              Action<User, EventTracking_Id>  OnAdded           = null,
-                                                                              Action<User, EventTracking_Id>  OnUpdated         = null,
-                                                                              EventTracking_Id                EventTrackingId   = null,
-                                                                              User_Id?                        CurrentUserId     = null)
+                                                                              Boolean                         SkipDefaultNotifications   = false,
+                                                                              Action<User, EventTracking_Id>  OnAdded                    = null,
+                                                                              Action<User, EventTracking_Id>  OnUpdated                  = null,
+                                                                              EventTracking_Id                EventTrackingId            = null,
+                                                                              User_Id?                        CurrentUserId              = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -16429,22 +16468,27 @@ namespace social.OpenData.UsersAPI
 
                 #region Register 'New User Default'-Notifications
 
-                var newUserDefaultNotificationMessageGroups = _NotificationGroups.Values.
-                                                                    SelectMany(group       => group.Notifications).
-                                                                    Where     (description => description.Tags.Contains(NotificationTag.NewUserDefault)).
-                                                                    SelectMany(description => description.Messages).
-                                                                    ToSafeHashSet();
+                if (!SkipDefaultNotifications)
+                {
 
-                if (newUserDefaultNotificationMessageGroups.Any())
-                    await _AddNotification(User,
-                                           new EMailNotification(User.EMail,
-                                                                 "",
-                                                                 "",
-                                                                 "",
-                                                                 newUserDefaultNotificationMessageGroups,
-                                                                 "Default notifications for new users"),
-                                           eventTrackingId,
-                                           CurrentUserId);
+                    var newUserDefaultNotificationMessageGroups = _NotificationGroups.Values.
+                                                                        SelectMany(group       => group.Notifications).
+                                                                        Where     (description => description.Tags.Contains(NotificationTag.NewUserDefault)).
+                                                                        SelectMany(description => description.Messages).
+                                                                        ToSafeHashSet();
+
+                    if (newUserDefaultNotificationMessageGroups.Any())
+                        await _AddNotification(User,
+                                               new EMailNotification(User.EMail,
+                                                                     "",
+                                                                     "",
+                                                                     "",
+                                                                     newUserDefaultNotificationMessageGroups,
+                                                                     "Default notifications for new users"),
+                                               eventTrackingId,
+                                               CurrentUserId);
+
+                }
 
                 #endregion
 
@@ -16509,21 +16553,23 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddOrUpdateUser                      (User,                            OnAdded = null, OnUpdated = null, ...)
+        #region AddOrUpdateUser                      (User,                            SkipDefaultNotifications = false, OnAdded = null, OnUpdated = null, ...)
 
         /// <summary>
         /// Add or update the given user to/within the API.
         /// </summary>
         /// <param name="User">A user.</param>
+        /// <param name="SkipDefaultNotifications">Do not apply the default notifications settings for new users.</param>
         /// <param name="OnAdded">A delegate run whenever the user has been added successfully.</param>
         /// <param name="OnUpdated">A delegate run whenever the user has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<AddOrUpdateUserResult> AddOrUpdateUser(User                            User,
-                                                                 Action<User, EventTracking_Id>  OnAdded           = null,
-                                                                 Action<User, EventTracking_Id>  OnUpdated         = null,
-                                                                 EventTracking_Id                EventTrackingId   = null,
-                                                                 User_Id?                        CurrentUserId     = null)
+                                                                 Boolean                         SkipDefaultNotifications   = false,
+                                                                 Action<User, EventTracking_Id>  OnAdded                    = null,
+                                                                 Action<User, EventTracking_Id>  OnUpdated                  = null,
+                                                                 EventTracking_Id                EventTrackingId            = null,
+                                                                 User_Id?                        CurrentUserId              = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -16534,6 +16580,7 @@ namespace social.OpenData.UsersAPI
                 {
 
                     return await _AddOrUpdateUser(User,
+                                                  SkipDefaultNotifications,
                                                   OnAdded,
                                                   OnUpdated,
                                                   eventTrackingId,
@@ -16569,7 +16616,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddOrUpdateUser                      (User, AccessRight, Organization, OnAdded = null, OnUpdated = null, ...)
+        #region AddOrUpdateUser                      (User, AccessRight, Organization, SkipDefaultNotifications = false, OnAdded = null, OnUpdated = null, ...)
 
         /// <summary>
         /// Add or update the given user to/within the API.
@@ -16577,6 +16624,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="User">A user.</param>
         /// <param name="AccessRight">The organization membership of the new user.</param>
         /// <param name="Organization">The organization of the new user.</param>
+        /// <param name="SkipDefaultNotifications">Do not apply the default notifications settings for new users.</param>
         /// <param name="OnAdded">A delegate run whenever the user has been added successfully.</param>
         /// <param name="OnUpdated">A delegate run whenever the user has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
@@ -16584,10 +16632,11 @@ namespace social.OpenData.UsersAPI
         public async Task<AddOrUpdateUserResult> AddOrUpdateUser(User                            User,
                                                                  User2OrganizationEdgeLabel      AccessRight,
                                                                  Organization                    Organization,
-                                                                 Action<User, EventTracking_Id>  OnAdded           = null,
-                                                                 Action<User, EventTracking_Id>  OnUpdated         = null,
-                                                                 EventTracking_Id                EventTrackingId   = null,
-                                                                 User_Id?                        CurrentUserId     = null)
+                                                                 Boolean                         SkipDefaultNotifications   = false,
+                                                                 Action<User, EventTracking_Id>  OnAdded                    = null,
+                                                                 Action<User, EventTracking_Id>  OnUpdated                  = null,
+                                                                 EventTracking_Id                EventTrackingId            = null,
+                                                                 User_Id?                        CurrentUserId              = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -16600,7 +16649,8 @@ namespace social.OpenData.UsersAPI
                     {
 
                         var result = await _AddOrUpdateUser(User,
-                                                            async (_user, _eventTrackingId) => {
+                                                            SkipDefaultNotifications,
+                                                            async(_user, _eventTrackingId) => {
 
                                                                 await _AddUserToOrganization(_user,
                                                                                              AccessRight,
@@ -16671,7 +16721,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region UpdateUser        (User,                                             OnUpdated = null, ...)
+        #region UpdateUser        (User,                                                                               OnUpdated = null, ...)
 
         /// <summary>
         /// A delegate called whenever a user was updated.
@@ -20303,7 +20353,7 @@ namespace social.OpenData.UsersAPI
 
                 #region Telegram Notifications
 
-                if (TelegramStore != null)
+                if (TelegramClient != null)
                 {
                     try
                     {
@@ -20317,7 +20367,7 @@ namespace social.OpenData.UsersAPI
                         {
 
                             if (messageTypes.Contains(deleteUserGroup_MessageType))
-                                await TelegramStore.SendTelegrams(String.Concat("User group '", UserGroup.Name.FirstText(), "' has been deleted. "),
+                                await TelegramClient.SendTelegrams(String.Concat("User group '", UserGroup.Name.FirstText(), "' has been deleted. "),
                                                                   AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
 
                         }
@@ -25979,7 +26029,7 @@ namespace social.OpenData.UsersAPI
 
                 #region Telegram Notifications
 
-                if (TelegramStore != null)
+                if (TelegramClient != null)
                 {
                     try
                     {
@@ -25991,12 +26041,12 @@ namespace social.OpenData.UsersAPI
                         {
 
                             if (messageTypes.Contains(addOrganization_MessageType))
-                                await TelegramStore.SendTelegrams(String.Concat("Organization '", Organization.Name.FirstText(), "' was successfully created. ",
+                                await TelegramClient.SendTelegrams(String.Concat("Organization '", Organization.Name.FirstText(), "' was successfully created. ",
                                                                                 "https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id),
                                                                   AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
 
                             if (messageTypes.Contains(updateOrganization_MessageType))
-                                await TelegramStore.SendTelegrams(String.Concat("Organization '", Organization.Name.FirstText(), "' information had been successfully updated. ",
+                                await TelegramClient.SendTelegrams(String.Concat("Organization '", Organization.Name.FirstText(), "' information had been successfully updated. ",
                                                                                 "https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id),
                                                                                 // + {Updated information}
                                                                   AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
@@ -26226,7 +26276,7 @@ namespace social.OpenData.UsersAPI
 
                 #region Telegram Notifications
 
-                if (TelegramStore != null)
+                if (TelegramClient != null)
                 {
                     try
                     {
@@ -26240,7 +26290,7 @@ namespace social.OpenData.UsersAPI
                         {
 
                             if (messageTypes.Contains(deleteOrganization_MessageType))
-                                await TelegramStore.SendTelegrams(String.Concat("Organization '", Organization.Name.FirstText(), "' has been deleted. "),
+                                await TelegramClient.SendTelegrams(String.Concat("Organization '", Organization.Name.FirstText(), "' has been deleted. "),
                                                                   AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
 
                         }
@@ -29536,7 +29586,7 @@ namespace social.OpenData.UsersAPI
 
                 #region Telegram Notifications
 
-                if (TelegramStore != null)
+                if (TelegramClient != null)
                 {
                     try
                     {
@@ -30602,7 +30652,7 @@ namespace social.OpenData.UsersAPI
 
                 #region Telegram Notifications
 
-                if (TelegramStore != null)
+                if (TelegramClient != null)
                 {
                     try
                     {
@@ -30614,11 +30664,11 @@ namespace social.OpenData.UsersAPI
                         {
 
                             if (MessageTypes.Contains(addUserToOrganization_MessageType))
-                                await TelegramStore.SendTelegrams(String.Concat("User '", User.Name, "' was added to organization '", Organization.Name.FirstText(), "'" + membership + "."),
+                                await TelegramClient.SendTelegrams(String.Concat("User '", User.Name, "' was added to organization '", Organization.Name.FirstText(), "'" + membership + "."),
                                                                   AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
 
                             if (MessageTypes.Contains(removeUserFromOrganization_MessageType))
-                                await TelegramStore.SendTelegrams(String.Concat("User '", User.Name, "' was removed from organization '", Organization.Name.FirstText(), "'."),
+                                await TelegramClient.SendTelegrams(String.Concat("User '", User.Name, "' was removed from organization '", Organization.Name.FirstText(), "'."),
                                                                   AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
 
                         }
@@ -31401,7 +31451,7 @@ namespace social.OpenData.UsersAPI
 
                 #region Telegram Notifications
 
-                if (TelegramStore != null)
+                if (TelegramClient != null)
                 {
                     try
                     {
@@ -31415,13 +31465,13 @@ namespace social.OpenData.UsersAPI
 
                             if (messageTypes.Contains(linkOrganizations_MessageType))
                             {
-                                await TelegramStore.SendTelegrams(String.Concat("Organization '", OrganizationOut.Name.FirstText(), "' was linked to organization '", OrganizationIn.Name.FirstText(), "'."),
+                                await TelegramClient.SendTelegrams(String.Concat("Organization '", OrganizationOut.Name.FirstText(), "' was linked to organization '", OrganizationIn.Name.FirstText(), "'."),
                                                                   AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
                             }
 
                             if (messageTypes.Contains(unlinkOrganizations_MessageType))
                             {
-                                await TelegramStore.SendTelegrams(String.Concat("Organization '", OrganizationOut.Name.FirstText(), "' was unlinked from organization '", OrganizationIn.Name.FirstText(), "'."),
+                                await TelegramClient.SendTelegrams(String.Concat("Organization '", OrganizationOut.Name.FirstText(), "' was unlinked from organization '", OrganizationIn.Name.FirstText(), "'."),
                                                                   AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
                             }
 
@@ -31970,7 +32020,7 @@ namespace social.OpenData.UsersAPI
 
                 #region Telegram Notifications
 
-                if (TelegramStore != null)
+                if (TelegramClient != null)
                 {
                     try
                     {
