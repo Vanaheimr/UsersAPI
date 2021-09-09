@@ -505,15 +505,15 @@ namespace social.OpenData.UsersAPI
 
         #region SendTelegrams(Message, Usernames)
 
-        /// <summary>
-        /// Send a Telegram to the given users.
-        /// </summary>
-        /// <param name="Message">The text of the message.</param>
-        /// <param name="Usernames">An enumeration of usernames.</param>
-        public Task<IEnumerable<MessageEnvelop>> SendTelegrams(String           Message,
-                                                               params String[]  Usernames)
+        ///// <summary>
+        ///// Send a Telegram to the given users.
+        ///// </summary>
+        ///// <param name="Message">The text of the message.</param>
+        ///// <param name="Usernames">An enumeration of usernames.</param>
+        //public Task<IEnumerable<MessageEnvelop>> SendTelegrams(String           Message,
+        //                                                       params String[]  Usernames)
 
-            => SendTelegrams(Message, Usernames as IEnumerable<String>);
+        //    => SendTelegrams(Message, Usernames as IEnumerable<String>);
 
 
         /// <summary>

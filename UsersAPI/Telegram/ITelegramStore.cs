@@ -136,7 +136,7 @@ namespace social.OpenData.UsersAPI
     {
         UsersAPI UsersAPI { get; }
 
-        event OnSendTelegramRequestDelegate OnSendTelegramRequest;
+        event OnSendTelegramRequestDelegate  OnSendTelegramRequest;
         event OnSendTelegramResponseDelegate OnSendTelegramResponse;
 
         /// <summary>
@@ -149,7 +149,7 @@ namespace social.OpenData.UsersAPI
         Task<MessageEnvelop> SendTelegram(I18NString Message, string Username);
         Task<MessageEnvelop> SendTelegram(string Message, string Username);
         Task<IEnumerable<MessageEnvelop>> SendTelegrams(string Message, IEnumerable<string> Usernames);
-        Task<IEnumerable<MessageEnvelop>> SendTelegrams(string Message, params string[] Usernames);
+        //Task<IEnumerable<MessageEnvelop>> SendTelegrams(string Message, params string[] Usernames);
         void UpdateGroup(long ChatId, string Title, string InviteLink);
         void UpdateUser(int UserId, string Username, string Firstname, string Lastname, long ChatId);
 
