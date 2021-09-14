@@ -2443,6 +2443,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="DisableMaintenanceTasks">Disable all maintenance tasks.</param>
         /// <param name="MaintenanceInitialDelay">The initial delay of the maintenance tasks.</param>
         /// <param name="MaintenanceEvery">The maintenance intervall.</param>
+        /// 
         /// <param name="DisableWardenTasks">Disable all warden tasks.</param>
         /// <param name="WardenInitialDelay">The initial delay of the warden tasks.</param>
         /// <param name="WardenCheckEvery">The warden intervall.</param>
@@ -2472,14 +2473,14 @@ namespace social.OpenData.UsersAPI
                         SslProtocols?                        AllowedTLSProtocols                = null,
 
                         String                               ServerThreadName                   = null,
-                        ThreadPriority                       ServerThreadPriority               = ThreadPriority.AboveNormal,
-                        Boolean                              ServerThreadIsBackground           = true,
+                        ThreadPriority?                      ServerThreadPriority               = null,
+                        Boolean?                             ServerThreadIsBackground           = null,
                         ConnectionIdBuilder                  ConnectionIdBuilder                = null,
                         ConnectionThreadsNameBuilder         ConnectionThreadsNameBuilder       = null,
                         ConnectionThreadsPriorityBuilder     ConnectionThreadsPriorityBuilder   = null,
-                        Boolean                              ConnectionThreadsAreBackground     = true,
+                        Boolean?                             ConnectionThreadsAreBackground     = null,
                         TimeSpan?                            ConnectionTimeout                  = null,
-                        UInt32                               MaxClientConnections               = TCPServer.__DefaultMaxClientConnections,
+                        UInt32?                              MaxClientConnections               = null,
 
                         Organization_Id?                     AdminOrganizationId                = null,
                         EMailAddress                         APIRobotEMailAddress               = null,
@@ -2510,6 +2511,7 @@ namespace social.OpenData.UsersAPI
                         Boolean                              DisableMaintenanceTasks            = false,
                         TimeSpan?                            MaintenanceInitialDelay            = null,
                         TimeSpan?                            MaintenanceEvery                   = null,
+
                         Boolean                              DisableWardenTasks                 = false,
                         TimeSpan?                            WardenInitialDelay                 = null,
                         TimeSpan?                            WardenCheckEvery                   = null,
@@ -2552,6 +2554,7 @@ namespace social.OpenData.UsersAPI
                    DisableMaintenanceTasks,
                    MaintenanceInitialDelay,
                    MaintenanceEvery,
+
                    DisableWardenTasks,
                    WardenInitialDelay,
                    WardenCheckEvery,
