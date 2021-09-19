@@ -2386,6 +2386,108 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
+
+        // ---------------------------------------------------------------------
+
+        #region (protected internal) RestartRequest (Request)
+
+        /// <summary>
+        /// An event sent whenever a restart request was received.
+        /// </summary>
+        public HTTPRequestLogEvent OnRestartHTTPRequest = new HTTPRequestLogEvent();
+
+        /// <summary>
+        /// An event sent whenever a restart request was received.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp of the request.</param>
+        /// <param name="API">The HTTP API.</param>
+        /// <param name="Request">A HTTP request.</param>
+        protected internal Task RestartRequest(DateTime     Timestamp,
+                                               HTTPAPI      API,
+                                               HTTPRequest  Request)
+
+            => OnRestartHTTPRequest?.WhenAll(Timestamp,
+                                             API ?? this,
+                                             Request);
+
+        #endregion
+
+        #region (protected internal) RestartResponse(Response)
+
+        /// <summary>
+        /// An event sent whenever a restart response was sent.
+        /// </summary>
+        public HTTPResponseLogEvent OnRestartHTTPResponse = new HTTPResponseLogEvent();
+
+        /// <summary>
+        /// An event sent whenever a restart response was sent.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp of the request.</param>
+        /// <param name="API">The HTTP API.</param>
+        /// <param name="Request">A HTTP request.</param>
+        /// <param name="Response">A HTTP response.</param>
+        protected internal Task RestartResponse(DateTime      Timestamp,
+                                                HTTPAPI       API,
+                                                HTTPRequest   Request,
+                                                HTTPResponse  Response)
+
+            => OnRestartHTTPResponse?.WhenAll(Timestamp,
+                                              API ?? this,
+                                              Request,
+                                              Response);
+
+        #endregion
+
+
+        #region (protected internal) StopRequest (Request)
+
+        /// <summary>
+        /// An event sent whenever a stop request was received.
+        /// </summary>
+        public HTTPRequestLogEvent OnStopHTTPRequest = new HTTPRequestLogEvent();
+
+        /// <summary>
+        /// An event sent whenever a stop request was received.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp of the request.</param>
+        /// <param name="API">The HTTP API.</param>
+        /// <param name="Request">A HTTP request.</param>
+        protected internal Task StopRequest(DateTime     Timestamp,
+                                            HTTPAPI      API,
+                                            HTTPRequest  Request)
+
+            => OnStopHTTPRequest?.WhenAll(Timestamp,
+                                          API ?? this,
+                                          Request);
+
+        #endregion
+
+        #region (protected internal) StopResponse(Response)
+
+        /// <summary>
+        /// An event sent whenever a stop response was sent.
+        /// </summary>
+        public HTTPResponseLogEvent OnStopHTTPResponse = new HTTPResponseLogEvent();
+
+        /// <summary>
+        /// An event sent whenever a stop response was sent.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp of the request.</param>
+        /// <param name="API">The HTTP API.</param>
+        /// <param name="Request">A HTTP request.</param>
+        /// <param name="Response">A HTTP response.</param>
+        protected internal Task StopResponse(DateTime      Timestamp,
+                                             HTTPAPI       API,
+                                             HTTPRequest   Request,
+                                             HTTPResponse  Response)
+
+            => OnStopHTTPResponse?.WhenAll(Timestamp,
+                                           API ?? this,
+                                           Request,
+                                           Response);
+
+        #endregion
+
         #endregion
 
         #region Constructor(s)
@@ -3906,7 +4008,7 @@ namespace social.OpenData.UsersAPI
                                  : new HTTPResponse.Builder(Request) {
                                        HTTPStatusCode  = HTTPStatusCode.Unauthorized,
                                        Location        = URLPathPrefix + "login",
-                                       Date            = DateTime.Now,
+                                       Date            = Timestamp.Now,
                                        Server          = HTTPServer.DefaultServerName,
                                        CacheControl    = "private, max-age=0, no-cache",
                                        Connection      = "close"
@@ -3944,7 +4046,7 @@ namespace social.OpenData.UsersAPI
                 Response       = new HTTPResponse.Builder(Request) {
                                      HTTPStatusCode  = HTTPStatusCode.Unauthorized,
                                      Location        = URLPathPrefix + "login",
-                                     Date            = DateTime.Now,
+                                     Date            = Timestamp.Now,
                                      Server          = HTTPServer.DefaultServerName,
                                      CacheControl    = "private, max-age=0, no-cache",
                                      Connection      = "close"
@@ -12647,6 +12749,89 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
+
+            #region /restart
+
+            // -----------------------------------------------
+            // curl -v -X POST http://127.0.0.1:2000/restart
+            // -----------------------------------------------
+            HTTPServer.AddMethodCallback(HTTPHostname.Any,
+                                         HTTPMethod.POST,
+                                         HTTPPath.Parse("/restart"),
+                                         HTTPRequestLogger:   RestartRequest,
+                                         HTTPResponseLogger:  RestartResponse,
+                                         HTTPDelegate:        Request => {
+
+                                             #region Try to get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse.Builder   Response,
+                                                                 AccessLevel:               Access_Levels.Admin,
+                                                                 Recursive:                 true))
+                                             {
+                                                 return Task.FromResult(Response.AsImmutable);
+                                             }
+
+                                             #endregion
+
+                                             //if (IsAdmin(HTTPUser) == Access_Levels.Admin)
+                                                 Environment.Exit(1000);
+
+                                             return Task.FromResult(
+                                                 new HTTPResponse.Builder(Request) {
+                                                     HTTPStatusCode  = HTTPStatusCode.Unauthorized,
+                                                     Server          = HTTPServer.DefaultServerName,
+                                                     Connection      = "close"
+                                                 }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+            #region /stop
+
+            // -----------------------------------------------
+            // curl -v -X POST http://127.0.0.1:2000/stop
+            // -----------------------------------------------
+            HTTPServer.AddMethodCallback(HTTPHostname.Any,
+                                         HTTPMethod.POST,
+                                         HTTPPath.Parse("/stop"),
+                                         HTTPRequestLogger:   StopRequest,
+                                         HTTPResponseLogger:  StopResponse,
+                                         HTTPDelegate:        Request => {
+
+                                             #region Try to get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse.Builder   Response,
+                                                                 AccessLevel:               Access_Levels.Admin,
+                                                                 Recursive:                 true))
+                                             {
+                                                 return Task.FromResult(Response.AsImmutable);
+                                             }
+
+                                             #endregion
+
+                                             //if (IsAdmin(HTTPUser) == Access_Levels.Admin)
+                                                 Environment.Exit(0);
+
+                                             return Task.FromResult(
+                                                 new HTTPResponse.Builder(Request) {
+                                                     HTTPStatusCode  = HTTPStatusCode.Unauthorized,
+                                                     Server          = HTTPServer.DefaultServerName,
+                                                     Connection      = "close"
+                                                 }.AsImmutable);
+
+                                         });
+
+            #endregion
+
         }
 
         #endregion
@@ -16041,15 +16226,15 @@ namespace social.OpenData.UsersAPI
                                                                     ToSafeHashSet();
 
                 if (newUserDefaultNotificationMessageGroups.Any())
-                    await AddNotification(User,
-                                          new EMailNotification(User.EMail,
-                                                                "",
-                                                                "",
-                                                                "",
-                                                                newUserDefaultNotificationMessageGroups,
-                                                                "Default notifications for new users"),
-                                          eventTrackingId,
-                                          CurrentUserId);
+                    await _AddNotification(User,
+                                           new EMailNotification(User.EMail,
+                                                                 "",
+                                                                 "",
+                                                                 "",
+                                                                 newUserDefaultNotificationMessageGroups,
+                                                                 "Default notifications for new users"),
+                                           eventTrackingId,
+                                           CurrentUserId);
 
             }
 

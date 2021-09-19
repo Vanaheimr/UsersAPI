@@ -363,6 +363,39 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
+            #region API
+
+            RegisterEvent2("RestartRequest",
+                           handler => UsersAPI.OnRestartHTTPRequest += handler,
+                           handler => UsersAPI.OnRestartHTTPRequest -= handler,
+                           "api", "restart", "request",  "all").
+                RegisterDefaultConsoleLogTarget(this).
+                RegisterDefaultDiscLogTarget(this);
+
+            RegisterEvent2("RestartResponse",
+                           handler => UsersAPI.OnRestartHTTPResponse += handler,
+                           handler => UsersAPI.OnRestartHTTPResponse -= handler,
+                           "api", "restart", "response", "all").
+                RegisterDefaultConsoleLogTarget(this).
+                RegisterDefaultDiscLogTarget(this);
+
+
+            RegisterEvent2("StopRequest",
+                           handler => UsersAPI.OnStopHTTPRequest += handler,
+                           handler => UsersAPI.OnStopHTTPRequest -= handler,
+                           "api", "stop", "request", "all").
+                RegisterDefaultConsoleLogTarget(this).
+                RegisterDefaultDiscLogTarget(this);
+
+            RegisterEvent2("StopResponse",
+                           handler => UsersAPI.OnStopHTTPResponse += handler,
+                           handler => UsersAPI.OnStopHTTPResponse -= handler,
+                           "api", "stop", "response", "all").
+                RegisterDefaultConsoleLogTarget(this).
+                RegisterDefaultDiscLogTarget(this);
+
+            #endregion
+
         }
 
         #endregion
