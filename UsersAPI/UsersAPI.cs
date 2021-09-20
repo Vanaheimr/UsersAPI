@@ -4485,30 +4485,30 @@ namespace social.OpenData.UsersAPI
             // curl -v -H "Accept: text/html" http://127.0.0.1:2100/signup
             // -------------------------------------------------------------
             //HTTPServer.AddMethodCallback(HTTPHostname.Any,
-            //                              HTTPMethod.GET,
-            //                              new HTTPPath[] { URLPathPrefix + "signup" },
-            //                              HTTPContentType.HTML_UTF8,
-            //                              HTTPDelegate: async Request => {
+            //                             HTTPMethod.GET,
+            //                             URLPathPrefix + "signup",
+            //                             HTTPContentType.HTML_UTF8,
+            //                             HTTPDelegate: async Request => {
 
-            //                                  var _MemoryStream1 = new MemoryStream();
-            //                                  GetUsersAPIRessource("template.html").SeekAndCopyTo(_MemoryStream1, 0);
-            //                                  var Template = _MemoryStream1.ToArray().ToUTF8String();
+            //                                 var _MemoryStream1 = new MemoryStream();
+            //                                 GetUsersAPIRessource("template.html").SeekAndCopyTo(_MemoryStream1, 0);
+            //                                 var Template = _MemoryStream1.ToArray().ToUTF8String();
 
-            //                                  var _MemoryStream2 = new MemoryStream();
-            //                                  typeof(UsersAPI).Assembly.GetManifestResourceStream(HTTPRoot + "SignUp.SignUp-" + DefaultLanguage.ToString() + ".html").SeekAndCopyTo(_MemoryStream2, 0);
-            //                                  var HTML     = Template.Replace("<%= content %>",   _MemoryStream2.ToArray().ToUTF8String());
+            //                                 var _MemoryStream2 = new MemoryStream();
+            //                                 typeof(UsersAPI).Assembly.GetManifestResourceStream(HTTPRoot + "SignUp.SignUp-" + DefaultLanguage.ToString() + ".html").SeekAndCopyTo(_MemoryStream2, 0);
+            //                                 var HTML     = Template.Replace("<%= content %>",   _MemoryStream2.ToArray().ToUTF8String());
 
-            //                                  //if (LogoImage != null)
-            //                                  //    HTML = HTML.Replace("<%= logoimage %>", String.Concat(@"<img src=""", LogoImage, @""" /> "));
+            //                                 //if (LogoImage != null)
+            //                                 //    HTML = HTML.Replace("<%= logoimage %>", String.Concat(@"<img src=""", LogoImage, @""" /> "));
 
-            //                                  return new HTTPResponse.Builder(Request) {
-            //                                      HTTPStatusCode  = HTTPStatusCode.OK,
-            //                                      ContentType     = HTTPContentType.HTML_UTF8,
-            //                                      Content         = HTML.ToUTF8Bytes(),
-            //                                      Connection      = "close"
-            //                                  };
+            //                                 return new HTTPResponse.Builder(Request) {
+            //                                     HTTPStatusCode  = HTTPStatusCode.OK,
+            //                                     ContentType     = HTTPContentType.HTML_UTF8,
+            //                                     Content         = HTML.ToUTF8Bytes(),
+            //                                     Connection      = "close"
+            //                                 };
 
-            //                              }, AllowReplacement: URLReplacement.Allow);
+            //                             }, AllowReplacement: URLReplacement.Allow);
 
             #endregion
 
@@ -4656,7 +4656,7 @@ namespace social.OpenData.UsersAPI
 
             HTTPServer.AddMethodCallback(HTTPHostname.Any,
                                          HTTPMethod.POST,
-                                         HTTPPath.Parse("/login"),
+                                         URLPathPrefix + "/login",
                                          HTTPContentType.XWWWFormUrlEncoded,
                                          HTTPDelegate: Request => {
 
@@ -5782,7 +5782,7 @@ namespace social.OpenData.UsersAPI
             // -------------------------------------------------------------------------------
             HTTPServer.AddMethodCallback(HTTPHostname.Any,
                                          HTTPMethod.ADD,
-                                         HTTPPath.Parse("/users/{UserId}"),
+                                         URLPathPrefix + "users/{UserId}",
                                          HTTPContentType.JSON_UTF8,
                                          HTTPRequestLogger:   AddUserHTTPRequest,
                                          HTTPResponseLogger:  AddUserHTTPResponse,
@@ -6334,7 +6334,7 @@ namespace social.OpenData.UsersAPI
 
             HTTPServer.AddMethodCallback(HTTPHostname.Any,
                                          HTTPMethod.AUTH,
-                                         HTTPPath.Parse("/users/{UserId}"),
+                                         URLPathPrefix + "users/{UserId}",
                                          HTTPContentType.JSON_UTF8,
                                          HTTPDelegate: async Request => {
 
@@ -6623,31 +6623,31 @@ namespace social.OpenData.UsersAPI
             #region DEAUTH      ~/users/{UserId}
 
             HTTPServer.AddMethodCallback(HTTPHostname.Any,
-                                          HTTPMethod.DEAUTH,
-                                          HTTPPath.Parse("/users/{UserId}"),
-                                          HTTPContentType.JSON_UTF8,
-                                          HTTPDelegate: Request =>
+                                         HTTPMethod.DEAUTH,
+                                         URLPathPrefix + "users/{UserId}",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: Request =>
 
-                                              Task.FromResult(
-                                                  new HTTPResponse.Builder(Request) {
-                                                      HTTPStatusCode  = HTTPStatusCode.OK,
-                                                      CacheControl    = "private",
-                                                      SetCookies      = new String[] {
+                                             Task.FromResult(
+                                                 new HTTPResponse.Builder(Request) {
+                                                     HTTPStatusCode  = HTTPStatusCode.OK,
+                                                     CacheControl    = "private",
+                                                     SetCookies      = new String[] {
 
-                                                                            String.Concat(CookieName, "=; Expires=", Timestamp.Now.ToRfc1123(),
-                                                                                          HTTPCookieDomain.IsNotNullOrEmpty()
-                                                                                              ? "; Domain=" + HTTPCookieDomain
-                                                                                              : "",
-                                                                                          "; Path=", URLPathPrefix),
+                                                                           String.Concat(CookieName, "=; Expires=", Timestamp.Now.ToRfc1123(),
+                                                                                         HTTPCookieDomain.IsNotNullOrEmpty()
+                                                                                             ? "; Domain=" + HTTPCookieDomain
+                                                                                             : "",
+                                                                                         "; Path=", URLPathPrefix),
 
-                                                                            String.Concat(SessionCookieName, "=; Expires=", Timestamp.Now.ToRfc1123(),
-                                                                                          HTTPCookieDomain.IsNotNullOrEmpty()
-                                                                                              ? "; Domain=" + HTTPCookieDomain
-                                                                                              : "",
-                                                                                          "; Path=", URLPathPrefix)
-                                                                        },
-                                                      Connection      = "close"
-                                                  }.AsImmutable));
+                                                                           String.Concat(SessionCookieName, "=; Expires=", Timestamp.Now.ToRfc1123(),
+                                                                                         HTTPCookieDomain.IsNotNullOrEmpty()
+                                                                                             ? "; Domain=" + HTTPCookieDomain
+                                                                                             : "",
+                                                                                         "; Path=", URLPathPrefix)
+                                                                       },
+                                                     Connection      = "close"
+                                                 }.AsImmutable));
 
             #endregion
 
@@ -6655,7 +6655,7 @@ namespace social.OpenData.UsersAPI
 
             HTTPServer.AddMethodCallback(HTTPHostname.Any,
                                          HTTPMethod.IMPERSONATE,
-                                         HTTPPath.Parse("/users/{UserId}"),
+                                         URLPathPrefix + "users/{UserId}",
                                          HTTPContentType.JSON_UTF8,
                                          HTTPRequestLogger:   ImpersonateUserRequest,
                                          HTTPResponseLogger:  ImpersonateUserResponse,
@@ -6773,7 +6773,7 @@ namespace social.OpenData.UsersAPI
 
             HTTPServer.AddMethodCallback(HTTPHostname.Any,
                                          HTTPMethod.DEPERSONATE,
-                                         HTTPPath.Parse("/users/{UserId}"),
+                                         URLPathPrefix + "users/{UserId}",
                                          HTTPContentType.JSON_UTF8,
                                          HTTPDelegate: Request => {
 

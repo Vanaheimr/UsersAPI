@@ -18,10 +18,13 @@
 #region Usings
 
 using System;
+using System.Linq;
+using System.Collections.Generic;
 
 using Newtonsoft.Json.Linq;
 
 using org.GraphDefined.Vanaheimr.Illias;
+using org.GraphDefined.Vanaheimr.Hermod;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 
 #endregion
@@ -82,43 +85,48 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// The related user.
         /// </summary>
-        public User          User                { get; }
+        public User                     User                        { get; }
 
         /// <summary>
         /// An internationalized description of the API key.
         /// </summary>
-        public I18NString    Description         { get; }
+        public I18NString               Description                 { get; }
 
         /// <summary>
         /// The access rights of the API key.
         /// </summary>
-        public APIKeyRights  AccessRights        { get; }
+        public APIKeyRights             AccessRights                { get; }
 
         /// <summary>
         /// The creation timestamp.
         /// </summary>
-        public DateTime      Created             { get; }
+        public DateTime                 Created                     { get; }
 
         /// <summary>
         /// The API key is not valid before this optional timestamp.
         /// </summary>
-        public DateTime?     NotBefore           { get; }
+        public DateTime?                NotBefore                   { get; }
 
         /// <summary>
         /// The API key is not valid after this optional timestamp.
         /// </summary>
-        public DateTime?     NotAfter            { get; }
+        public DateTime?                NotAfter                    { get; }
+
+        /// <summary>
+        /// The API key is only valid when sent from one of the given remote IP addresses.
+        /// </summary>
+        public IEnumerable<IIPAddress>  ValidRemoteIPAddresses      { get; }
 
         /// <summary>
         /// The API key is currently disabled.
         /// </summary>
-        public Boolean       IsDisabled          { get; }
+        public Boolean                  IsDisabled                  { get; }
 
 
         /// <summary>
         /// The hash value of this object.
         /// </summary>
-        public String        CurrentCryptoHash   { get; protected set; }
+        public String                   CurrentCryptoHash           { get; protected set; }
 
         #endregion
 
@@ -135,41 +143,45 @@ namespace social.OpenData.UsersAPI
         /// <param name="Created">The creation timestamp.</param>
         /// <param name="NotBefore">The API key is not valid before this optional timestamp.</param>
         /// <param name="NotAfter">The API key is not valid after this optional timestamp.</param>
+        /// <param name="ValidRemoteIPAddresses">The API key is only valid when sent from one of the given remote IP addresses.</param>
         /// <param name="IsDisabled">The API key is currently disabled.</param>
         /// 
         /// <param name="CustomData">Custom data to be stored with this user.</param>
         /// <param name="JSONLDContext">The JSON-LD context of this user.</param>
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
         /// <param name="LastChange">The timestamp of the last changes within this user. Can e.g. be used as a HTTP ETag.</param>
-        public APIKey(APIKey_Id          Id,
-                          User            User,
+        public APIKey(APIKey_Id                Id,
+                      User                     User,
 
-                          I18NString      Description     = null,
-                          APIKeyRights    AccessRights    = APIKeyRights.ReadOnly,
-                          DateTime?       Created         = null,
-                          DateTime?       NotBefore       = null,
-                          DateTime?       NotAfter        = null,
-                          Boolean?        IsDisabled      = false,
+                      I18NString               Description              = null,
+                      APIKeyRights             AccessRights             = APIKeyRights.ReadOnly,
+                      DateTime?                Created                  = null,
+                      DateTime?                NotBefore                = null,
+                      DateTime?                NotAfter                 = null,
+                      IEnumerable<IIPAddress>  ValidRemoteIPAddresses   = null,
+                      Boolean?                 IsDisabled               = false,
 
-                          JObject         CustomData      = default,
-                          JSONLDContext?  JSONLDContext   = default,
-                          String          DataSource      = default,
-                          DateTime?       LastChange      = default)
+                      JObject                  CustomData               = default,
+                      JSONLDContext?           JSONLDContext            = default,
+                      String                   DataSource               = default,
+                      DateTime?                LastChange               = default)
 
             : base(Id,
                    JSONLDContext ?? DefaultJSONLDContext,
                    CustomData,
                    DataSource,
                    LastChange)
+
         {
 
-            this.User          = User        ?? throw new ArgumentNullException(nameof(User), "The given user must not be null!");
-            this.Description   = Description ?? I18NString.Empty;
-            this.AccessRights  = AccessRights;
-            this.Created       = Created     ?? Timestamp.Now;
-            this.NotBefore     = NotBefore;
-            this.NotAfter      = NotAfter;
-            this.IsDisabled    = IsDisabled  ?? false;
+            this.User                    = User        ?? throw new ArgumentNullException(nameof(User), "The given user must not be null!");
+            this.Description             = Description ?? I18NString.Empty;
+            this.AccessRights            = AccessRights;
+            this.Created                 = Created     ?? Timestamp.Now;
+            this.NotBefore               = NotBefore;
+            this.NotAfter                = NotAfter;
+            this.ValidRemoteIPAddresses  = ValidRemoteIPAddresses.SafeAny() ? ValidRemoteIPAddresses.Distinct().ToArray() : new IIPAddress[0];
+            this.IsDisabled              = IsDisabled  ?? false;
 
         }
 
@@ -190,7 +202,7 @@ namespace social.OpenData.UsersAPI
 
                 APIKey = null;
 
-                #region Parse APIKey           [optional]
+                #region Parse APIKey                    [optional]
 
                 // Verify that a given API key is at least valid.
                 if (!JSON.ParseOptionalStruct("@id",
@@ -216,7 +228,7 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                #region Parse Context          [mandatory]
+                #region Parse Context                   [mandatory]
 
                 if (!JSON.ParseMandatory("@context",
                                          "JSON-LinkedData context information",
@@ -236,7 +248,7 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                #region Parse UserId           [mandatory]
+                #region Parse UserId                    [mandatory]
 
                 // Verify that a given user identification
                 //   is at least valid.
@@ -257,7 +269,7 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                #region Parse Description      [optional]
+                #region Parse Description               [optional]
 
                 if (JSON.ParseOptional("description",
                                              "description",
@@ -272,7 +284,7 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                #region Parse AccessRights     [mandatory]
+                #region Parse AccessRights              [mandatory]
 
                 if (!JSON.ParseMandatoryEnum("accessRights",
                                                    "Access Rights",
@@ -285,7 +297,7 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                #region Parse Created          [mandatory]
+                #region Parse Created                   [mandatory]
 
                 if (!JSON.ParseMandatory("created",
                                                "creation timestamp",
@@ -297,7 +309,7 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                #region Parse NotBefore        [optional]
+                #region Parse NotBefore                 [optional]
 
                 if (JSON.ParseOptional("NotBefore",
                                              "'not-valid-before'-timestamp",
@@ -312,7 +324,7 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                #region Parse NotAfter         [optional]
+                #region Parse NotAfter                  [optional]
 
                 if (JSON.ParseOptional("NotAfter",
                                              "'not-valid-after'-timestamp",
@@ -327,9 +339,29 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                var IsDisabled       = JSON["isDisabled"]?.     Value<Boolean>();
+                #region Parse ValidRemoteIPAddresses    [optional]
 
-                #region Parse CryptoHash       [optional]
+                if (!JSON.ParseOptionalHashSet("validRemoteIPAddresses",
+                                              "valid remote IP addresses",
+                                              IPAddress.TryParse,
+                                              out HashSet<IIPAddress> ValidRemoteIPAddresses,
+                                              out ErrorResponse))
+                {
+
+                    if (ErrorResponse != null)
+                        return false;
+
+                }
+
+                #endregion
+
+                #region Parse IsDisabled                [optional]
+
+                var IsDisabled = JSON["isDisabled"]?.Value<Boolean>();
+
+                #endregion
+
+                #region Parse CryptoHash                [optional]
 
                 var CryptoHash       = JSON.GetOptional("cryptoHash");
 
@@ -337,13 +369,14 @@ namespace social.OpenData.UsersAPI
 
 
                 APIKey = new APIKey(APIKeyBody ?? APIKeyURI.Value,
-                                            User,
-                                            Description,
-                                            AccessRights,
-                                            Created,
-                                            NotBefore,
-                                            NotAfter,
-                                            IsDisabled);
+                                    User,
+                                    Description,
+                                    AccessRights,
+                                    Created,
+                                    NotBefore,
+                                    NotAfter,
+                                    ValidRemoteIPAddresses,
+                                    IsDisabled);
 
                 ErrorResponse = null;
                 return true;
@@ -352,7 +385,7 @@ namespace social.OpenData.UsersAPI
             catch (Exception e)
             {
                 ErrorResponse  = e.Message;
-                APIKey     = null;
+                APIKey         = null;
                 return false;
             }
 
@@ -396,21 +429,25 @@ namespace social.OpenData.UsersAPI
                                    null,
                                    new JProperty[] {
 
-                                       new JProperty("userId",              User.Id.        ToString()),
-                                       new JProperty("description",         Description.    ToJSON()),
-                                       new JProperty("accessRights",        AccessRights.   AsText()),
-                                       new JProperty("created",             Created.        ToIso8601()),
+                                       new JProperty("userId",                        User.Id.        ToString()),
+                                       new JProperty("description",                   Description.    ToJSON()),
+                                       new JProperty("accessRights",                  AccessRights.   AsText()),
+                                       new JProperty("created",                       Created.        ToIso8601()),
 
                                        NotBefore.HasValue
-                                           ? new JProperty("notBefore",     NotBefore.Value.ToIso8601())
+                                           ? new JProperty("notBefore",               NotBefore.Value.ToIso8601())
                                            : null,
 
                                        NotAfter.HasValue
-                                           ? new JProperty("notAfter",      NotAfter. Value.ToIso8601())
+                                           ? new JProperty("notAfter",                NotAfter. Value.ToIso8601())
+                                           : null,
+
+                                       ValidRemoteIPAddresses.SafeAny()
+                                           ? new JProperty("validRemoteIPAddresses",  new JArray(ValidRemoteIPAddresses.Select(validRemoteIPAddress => validRemoteIPAddress.ToString())))
                                            : null,
 
                                        IsDisabled
-                                           ? new JProperty("isDisabled",    IsDisabled)
+                                           ? new JProperty("isDisabled",              IsDisabled)
                                            : null
 
                                    });
@@ -438,6 +475,7 @@ namespace social.OpenData.UsersAPI
                           Created,
                           NotBefore,
                           NotAfter,
+                          ValidRemoteIPAddresses.ToArray(),
                           IsDisabled,
 
                           CustomData,
@@ -673,6 +711,7 @@ namespace social.OpenData.UsersAPI
                            Created,
                            NotBefore,
                            NotAfter,
+                           ValidRemoteIPAddresses,
                            IsDisabled,
 
                            CustomData,
@@ -696,43 +735,48 @@ namespace social.OpenData.UsersAPI
             /// <summary>
             /// The related user.
             /// </summary>
-            public User           User                { get; set; }
+            public User                 User                      { get; set; }
 
             /// <summary>
             /// An internationalized description of the API key.
             /// </summary>
-            public I18NString     Description         { get; set; }
+            public I18NString           Description               { get; set; }
 
             /// <summary>
             /// The access rights of the API key.
             /// </summary>
-            public APIKeyRights?  AccessRights        { get; set; }
+            public APIKeyRights?        AccessRights              { get; set; }
 
             /// <summary>
             /// The creation timestamp.
             /// </summary>
-            public DateTime?      Created             { get; set; }
+            public DateTime?            Created                   { get; set; }
 
             /// <summary>
             /// The API key is not valid before this optional timestamp.
             /// </summary>
-            public DateTime?      NotBefore           { get; set; }
+            public DateTime?            NotBefore                 { get; set; }
 
             /// <summary>
             /// The API key is not valid after this optional timestamp.
             /// </summary>
-            public DateTime?      NotAfter            { get; set; }
+            public DateTime?            NotAfter                  { get; set; }
+
+            /// <summary>
+            /// The API key is only valid when sent from one of the given remote IP addresses.
+            /// </summary>
+            public HashSet<IIPAddress>  ValidRemoteIPAddresses    { get; }
 
             /// <summary>
             /// The API key is currently disabled.
             /// </summary>
-            public Boolean?       IsDisabled          { get; set; }
+            public Boolean?             IsDisabled                { get; set; }
 
 
             /// <summary>
             /// The hash value of this object.
             /// </summary>
-            public String         CurrentCryptoHash   { get; set; }
+            public String               CurrentCryptoHash         { get; protected set; }
 
             #endregion
 
@@ -749,25 +793,27 @@ namespace social.OpenData.UsersAPI
             /// <param name="Created">The creation timestamp.</param>
             /// <param name="NotBefore">The API key is not valid before this optional timestamp.</param>
             /// <param name="NotAfter">The API key is not valid after this optional timestamp.</param>
+            /// <param name="ValidRemoteIPAddresses">The API key is only valid when sent from one of the given remote IP addresses.</param>
             /// <param name="IsDisabled">The API key is currently disabled.</param>
             /// 
             /// <param name="CustomData">Custom data to be stored with this API key.</param>
             /// <param name="JSONLDContext">The JSON-LD context of this API key.</param>
             /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
             /// <param name="LastChange">The timestamp of the last changes within this API key. Can e.g. be used as a HTTP ETag.</param>
-            public Builder(APIKey_Id          Id,
-                           User            User,
-                           I18NString      Description     = null,
-                           APIKeyRights    AccessRights    = APIKeyRights.ReadOnly,
-                           DateTime?       Created         = null,
-                           DateTime?       NotBefore       = null,
-                           DateTime?       NotAfter        = null,
-                           Boolean?        IsDisabled      = false,
+            public Builder(APIKey_Id                Id,
+                           User                     User,
+                           I18NString               Description              = null,
+                           APIKeyRights             AccessRights             = APIKeyRights.ReadOnly,
+                           DateTime?                Created                  = null,
+                           DateTime?                NotBefore                = null,
+                           DateTime?                NotAfter                 = null,
+                           IEnumerable<IIPAddress>  ValidRemoteIPAddresses   = null,
+                           Boolean?                 IsDisabled               = false,
 
-                           JObject         CustomData      = default,
-                           JSONLDContext?  JSONLDContext   = default,
-                           String          DataSource      = default,
-                           DateTime?       LastChange      = default)
+                           JObject                  CustomData               = default,
+                           JSONLDContext?           JSONLDContext            = default,
+                           String                   DataSource               = default,
+                           DateTime?                LastChange               = default)
 
                 : base(Id,
                        JSONLDContext ?? DefaultJSONLDContext,
@@ -777,13 +823,14 @@ namespace social.OpenData.UsersAPI
 
             {
 
-                this.User          = User        ?? throw new ArgumentNullException(nameof(User), "The given API key must not be null!");
-                this.Description   = Description ?? I18NString.Empty;
-                this.AccessRights  = AccessRights;
-                this.Created       = Created     ?? Timestamp.Now;
-                this.NotBefore     = NotBefore;
-                this.NotAfter      = NotAfter;
-                this.IsDisabled    = IsDisabled  ?? false;
+                this.User                    = User        ?? throw new ArgumentNullException(nameof(User), "The given API key must not be null!");
+                this.Description             = Description ?? I18NString.Empty;
+                this.AccessRights            = AccessRights;
+                this.Created                 = Created     ?? Timestamp.Now;
+                this.NotBefore               = NotBefore;
+                this.NotAfter                = NotAfter;
+                this.ValidRemoteIPAddresses  = ValidRemoteIPAddresses.SafeAny() ? new HashSet<IIPAddress>(ValidRemoteIPAddresses) : new HashSet<IIPAddress>();
+                this.IsDisabled              = IsDisabled  ?? false;
 
             }
 
@@ -826,18 +873,19 @@ namespace social.OpenData.UsersAPI
                         throw new ArgumentNullException(nameof(User),    "The given user must not be null!");
 
                     return new APIKey(Id,
-                                          User,
-                                          Description,
-                                          AccessRights ?? APIKeyRights.ReadOnly,
-                                          Created      ?? Timestamp.Now,
-                                          NotBefore    ?? Timestamp.Now,
-                                          NotAfter,
-                                          IsDisabled   ?? false,
+                                      User,
+                                      Description,
+                                      AccessRights ?? APIKeyRights.ReadOnly,
+                                      Created      ?? Timestamp.Now,
+                                      NotBefore    ?? Timestamp.Now,
+                                      NotAfter,
+                                      ValidRemoteIPAddresses,
+                                      IsDisabled   ?? false,
 
-                                          CustomData,
-                                          JSONLDContext,
-                                          DataSource,
-                                          LastChange);
+                                      CustomData,
+                                      JSONLDContext,
+                                      DataSource,
+                                      LastChange);
 
                 }
             }
