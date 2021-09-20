@@ -4410,54 +4410,53 @@ namespace social.OpenData.UsersAPI
 
         #region Manage HTTP Resources
 
-        #region (private) GetResourceStream      (ResourceName)
+        #region (protected override) GetResourceStream      (ResourceName)
 
-        private Stream GetResourceStream(String ResourceName)
+        protected override Stream GetResourceStream(String ResourceName)
 
-            => GetResourceStream(typeof(UsersAPI).Assembly, ResourceName);
-
-        #endregion
-
-        #region (private) GetResourceMemoryStream(ResourceName)
-
-        private MemoryStream GetResourceMemoryStream(String ResourceName)
-
-            => GetResourceMemoryStream(typeof(UsersAPI).Assembly, ResourceName);
+            => GetResourceStream(ResourceName,
+                                 new Tuple<String, System.Reflection.Assembly>(UsersAPI.HTTPRoot, typeof(UsersAPI).Assembly),
+                                 new Tuple<String, System.Reflection.Assembly>(HTTPAPI. HTTPRoot, typeof(HTTPAPI). Assembly));
 
         #endregion
 
-        #region (private) GetResourceString      (ResourceName)
+        #region (protected override) GetResourceMemoryStream(ResourceName)
 
-        private String GetResourceString(String ResourceName)
+        protected override MemoryStream GetResourceMemoryStream(String ResourceName)
 
-            => GetResourceString(typeof(UsersAPI).Assembly, ResourceName);
-
-        #endregion
-
-        #region (private) GetResourceBytes       (ResourceName)
-        private Byte[] GetResourceBytes(String ResourceName)
-
-            => GetResourceBytes(typeof(UsersAPI).Assembly, ResourceName);
+            => GetResourceMemoryStream(ResourceName,
+                                       new Tuple<String, System.Reflection.Assembly>(UsersAPI.HTTPRoot, typeof(UsersAPI).Assembly),
+                                       new Tuple<String, System.Reflection.Assembly>(HTTPAPI. HTTPRoot, typeof(HTTPAPI). Assembly));
 
         #endregion
 
-        #region (private) MixWithHTMLTemplate    (ResourceName)
+        #region (protected override) GetResourceString      (ResourceName)
 
-        protected virtual String MixWithHTMLTemplate(String ResourceName)
+        protected override String GetResourceString(String ResourceName)
+
+            => GetResourceString(ResourceName,
+                                 new Tuple<String, System.Reflection.Assembly>(UsersAPI.HTTPRoot, typeof(UsersAPI).Assembly),
+                                 new Tuple<String, System.Reflection.Assembly>(HTTPAPI. HTTPRoot, typeof(HTTPAPI). Assembly));
+
+        #endregion
+
+        #region (protected override) GetResourceBytes       (ResourceName)
+
+        protected override Byte[] GetResourceBytes(String ResourceName)
+
+            => GetResourceBytes(ResourceName,
+                                new Tuple<String, System.Reflection.Assembly>(UsersAPI.HTTPRoot, typeof(UsersAPI).Assembly),
+                                new Tuple<String, System.Reflection.Assembly>(HTTPAPI. HTTPRoot, typeof(HTTPAPI). Assembly));
+
+        #endregion
+
+        #region (protected override) MixWithHTMLTemplate    (ResourceName)
+
+        protected override String MixWithHTMLTemplate(String ResourceName)
 
             => MixWithHTMLTemplate(ResourceName,
-                                   new Tuple<String, System.Reflection.Assembly>(UsersAPI.HTTPRoot, typeof(UsersAPI).Assembly));
-
-        #endregion
-
-        #region (protected) GetUsersAPIRessource(Ressource)
-
-        /// <summary>
-        /// Get an embedded ressource of the UsersAPI.
-        /// </summary>
-        /// <param name="Ressource">The path and name of the ressource to load.</param>
-        protected Stream GetUsersAPIRessource(String Ressource)
-            => GetType().Assembly.GetManifestResourceStream(HTTPRoot + Ressource);
+                                   new Tuple<String, System.Reflection.Assembly>(UsersAPI.HTTPRoot, typeof(UsersAPI).Assembly),
+                                   new Tuple<String, System.Reflection.Assembly>(HTTPAPI. HTTPRoot, typeof(HTTPAPI). Assembly));
 
         #endregion
 
@@ -4624,6 +4623,34 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
+
+            #region GET         ~/login
+
+            // ------------------------------------------------------------
+            // curl -v -H "Accept: text/html" http://127.0.0.1:2100/login
+            // ------------------------------------------------------------
+            HTTPServer.AddMethodCallback(HTTPHostname.Any,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "login",
+                                         HTTPContentType.HTML_UTF8,
+                                         HTTPDelegate: Request =>
+
+                                            Task.FromResult(
+                                                new HTTPResponse.Builder(Request) {
+                                                    HTTPStatusCode             = HTTPStatusCode.OK,
+                                                    Server                     = HTTPServer.DefaultServerName,
+                                                    Date                       = Timestamp.Now,
+                                                    AccessControlAllowOrigin   = "*",
+                                                    AccessControlAllowMethods  = "GET",
+                                                    AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                    ContentType                = HTTPContentType.HTML_UTF8,
+                                                    ContentStream              = GetResourceStream("login.login-" + DefaultLanguage.ToString() + ".html"),
+                                                    Connection                 = "close"
+                                                }.AsImmutable),
+
+                                         AllowReplacement: URLReplacement.Allow);
+
+            #endregion
 
             #region POST        ~/login
 
@@ -4933,7 +4960,7 @@ namespace social.OpenData.UsersAPI
                                                     AccessControlAllowMethods  = "GET",
                                                     AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                     ContentType                = HTTPContentType.HTML_UTF8,
-                                                    ContentStream              = GetResourceStream( "SignInOut.LostPassword-" + DefaultLanguage.ToString() + ".html"),
+                                                    ContentStream              = GetResourceStream("login.lostPassword-" + DefaultLanguage.ToString() + ".html"),
                                                     Connection                 = "close"
                                                 }.AsImmutable),
 
@@ -5064,6 +5091,34 @@ namespace social.OpenData.UsersAPI
                                                           };
 
                                          },
+
+                                         AllowReplacement: URLReplacement.Allow);
+
+            #endregion
+
+            #region GET         ~/setPassword
+
+            // ------------------------------------------------------------------
+            // curl -v -H "Accept: text/html" http://127.0.0.1:2100/setPassword
+            // ------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(HTTPHostname.Any,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "setPassword",
+                                         HTTPContentType.HTML_UTF8,
+                                         HTTPDelegate: Request =>
+
+                                            Task.FromResult(
+                                                new HTTPResponse.Builder(Request) {
+                                                    HTTPStatusCode             = HTTPStatusCode.OK,
+                                                    Server                     = HTTPServer.DefaultServerName,
+                                                    Date                       = Timestamp.Now,
+                                                    AccessControlAllowOrigin   = "*",
+                                                    AccessControlAllowMethods  = "GET",
+                                                    AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                    ContentType                = HTTPContentType.HTML_UTF8,
+                                                    ContentStream              = GetResourceStream("login.setPassword-" + DefaultLanguage.ToString() + ".html"),
+                                                    Connection                 = "close"
+                                                }.AsImmutable),
 
                                          AllowReplacement: URLReplacement.Allow);
 

@@ -40,10 +40,6 @@
     "inputFile": "HTTPRoot/profile/organizations.scss"
   },
   {
-    "outputFile": "HTTPRoot/admin/admin.css",
-    "inputFile": "HTTPRoot/admin/admin.scss"
-  },
-  {
     "outputFile": "HTTPRoot/notification/editNotification.css",
     "inputFile": "HTTPRoot/notification/editNotification.scss"
   },
