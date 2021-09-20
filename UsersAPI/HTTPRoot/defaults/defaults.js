@@ -1,4 +1,5 @@
 var HTTPCookieId = "UsersAPI";
+var URLPathPrefix = null;
 var APIKey = null;
 var UILanguage = "en";
 let CurrentlyHighlightedMenuItem = "";

@@ -106,7 +106,7 @@ function VerifyLogin() {
             loginInput.classList.add("error");
     }
     function VerifyPassword() {
-        const ResponseText = HTTPAuth("/users/" + _login.value, {
+        const ResponseText = HTTPAuth(URLPathPrefix + "/users/" + _login.value, {
             "login": _login.value,
             "password": _password.value,
             "acceptsEULA": acceptsEULA
@@ -184,7 +184,7 @@ function LostPassword() {
     function ResetPassword() {
         responseDiv.style.display = 'block';
         responseDiv.innerHTML = '<i class="fa fa-spinner faa-spin animated"></i> Verifying your login... please wait!';
-        HTTPSet("/resetPassword", {
+        HTTPSet(URLPathPrefix + "/resetPassword", {
             "id": _id.value
         }, (HTTPStatus, ResponseText) => {
             try {
@@ -288,7 +288,7 @@ function SetPassword() {
         };
         if (securityToken2.value != "")
             SetPasswordJSON["securityToken2"] = securityToken2.value;
-        HTTPSet("/setPassword", SetPasswordJSON, (HTTPStatus, ResponseText) => {
+        HTTPSet(URLPathPrefix + "/setPassword", SetPasswordJSON, (HTTPStatus, ResponseText) => {
             try {
                 var responseJSON = JSON.parse(ResponseText);
                 if (responseJSON.numberOfAccountsFound != null) {
@@ -352,7 +352,7 @@ function SetPassword() {
         return SetPassword();
     };
     gotoLoginButton.onclick = () => {
-        window.location.href = "/login";
+        window.location.href = URLPathPrefix + "/login";
     };
     DeleteCookie(HTTPCookieId);
     ToogleSaveButton();
@@ -366,13 +366,13 @@ function SignIn() {
     const SignInErrors = SignInPanel.querySelector('#errors');
     SignInErrors.style.display = "none";
     SignInErrors.innerText = "";
-    SendJSON("AUTH", "/users/" + Username, {
+    SendJSON("AUTH", URLPathPrefix + "/users/" + Username, {
         "realm": Realm,
         "password": Password,
         "rememberme": RememberMe
     }, function (status, response) {
         //(<HTMLFormElement> document.querySelector('#loginform')).submit();
-        location.href = "/";
+        location.href = URLPathPrefix != null ? URLPathPrefix : "/";
     }, function (HTTPStatus, status, response) {
         SignInErrors.style.display = "block";
         SignInErrors.innerText = JSON.parse(response).description;
@@ -431,7 +431,7 @@ function checkSignedIn(RedirectUnkownUsers) {
         if (usernameDiv != null)
             usernameDiv.innerText = "anonymous";
         if (RedirectUnkownUsers)
-            location.href = "/login";
+            location.href = URLPathPrefix + "/login";
     });
     WithCookie(newsBannersCookieId, cookie => checkNewsBanner(cookie.split(":")), () => checkNewsBanner([]));
 }
@@ -440,27 +440,27 @@ function checkAdminSignedIn(RedirectUnkownUsers) {
         ShowElement('#admin');
         ShowElement('.admin');
         if (cookie.indexOf(":isAdmin") < 0)
-            location.href = "/";
+            location.href = URLPathPrefix != null ? URLPathPrefix : "/";
     }, () => {
         if (RedirectUnkownUsers)
-            location.href = "/login";
+            location.href = URLPathPrefix + "/login";
     });
     checkSignedIn(RedirectUnkownUsers);
 }
 function checkNotSignedIn() {
     WithCookie(HTTPCookieId, () => {
-        location.href = "/index.shtml";
+        location.href = URLPathPrefix + "/index.shtml";
     }, () => { });
 }
 function SignOut() {
-    SendJSON("DEAUTH", "/users", null, function (HTTPStatus, ResponseText) {
+    SendJSON("DEAUTH", URLPathPrefix + "/users", null, function (HTTPStatus, ResponseText) {
     }, function (HTTPStatus, StatusText, ResponseText) {
     });
     DeleteCookie(HTTPCookieId);
-    location.href = "/login";
+    location.href = URLPathPrefix + "/login";
 }
 function Depersonate() {
-    HTTPDepersonate("/users/" + SignInUser, (status, response) => {
+    HTTPDepersonate(URLPathPrefix + "/users/" + SignInUser, (status, response) => {
         window.location.reload(true);
     }, (status, statusText, response) => {
         alert("Not allowed!");
@@ -470,7 +470,7 @@ function checkNewsBanner(knownNewsIds) {
     const newsFilter = knownNewsIds.length > 0
         ? "?match=" + knownNewsIds.map(knownNewsId => "!" + knownNewsId).join(",")
         : "";
-    HTTPGet("/newsBanners" + newsFilter, (status, response) => {
+    HTTPGet(URLPathPrefix + "/newsBanners" + newsFilter, (status, response) => {
         var _a, _b;
         const newsBanners = ParseJSON_LD(response);
         const currentDate = new Date().getTime();

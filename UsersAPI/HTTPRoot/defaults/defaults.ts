@@ -1,7 +1,8 @@
 ﻿
-var HTTPCookieId: string = "UsersAPI";
-var APIKey:       string = null;
-var UILanguage:   string = "en";
+var HTTPCookieId:  string = "UsersAPI";
+var URLPathPrefix: string = null;
+var APIKey:        string = null;
+var UILanguage:    string = "en";
 let CurrentlyHighlightedMenuItem     = "";
 let CurrentlyHighlightedSubmenuItem  = "";
 var mapboxgl:any = null;
