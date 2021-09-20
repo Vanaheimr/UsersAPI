@@ -937,14 +937,15 @@ namespace social.OpenData.UsersAPI
                                                                 DataSource: DataSource),
 
                                                        SkipDefaultNotifications,
+
                                                        async(_user, _eventTrackingId) => {
-                                                           if (Password.HasValue)
-                                                           {
+                                                           if (Password.HasValue) {
                                                                var result = await _user.API._ChangePassword(_user,
                                                                                                             Password.Value,
                                                                                                             null,
-                                                                                                            _eventTrackingId,
-                                                                                                            CurrentUserId);
+                                                                                                            SuppressNotifications:  true,
+                                                                                                            EventTrackingId:        _eventTrackingId,
+                                                                                                            CurrentUserId:          CurrentUserId);
                                                            }
                                                        },
 
@@ -1041,14 +1042,15 @@ namespace social.OpenData.UsersAPI
                                                        Organization,
 
                                                        SkipDefaultNotifications,
+
                                                        async(_user, _eventTrackingId) => {
-                                                           if (Password.HasValue)
-                                                           {
+                                                           if (Password.HasValue) {
                                                                var result = await _user.API._ChangePassword(_user,
                                                                                                             Password.Value,
                                                                                                             null,
-                                                                                                            _eventTrackingId,
-                                                                                                            CurrentUserId);
+                                                                                                            SuppressNotifications:  true,
+                                                                                                            EventTrackingId:        _eventTrackingId,
+                                                                                                            CurrentUserId:          CurrentUserId);
                                                            }
                                                        },
 
@@ -1138,14 +1140,15 @@ namespace social.OpenData.UsersAPI
                                                                            DataSource: DataSource),
 
                                                                   SkipDefaultNotifications,
+
                                                                   async(_user, _eventTrackingId) => {
-                                                                      if (Password.HasValue)
-                                                                      {
+                                                                      if (Password.HasValue) {
                                                                           var result = await _user.API._ChangePassword(_user,
                                                                                                                        Password.Value,
                                                                                                                        null,
-                                                                                                                       _eventTrackingId,
-                                                                                                                       CurrentUserId);
+                                                                                                                       SuppressNotifications:  true,
+                                                                                                                       EventTrackingId:        _eventTrackingId,
+                                                                                                                       CurrentUserId:          CurrentUserId);
                                                                       }
                                                                   },
 
@@ -1242,14 +1245,15 @@ namespace social.OpenData.UsersAPI
                                                                   Organization,
 
                                                                   SkipDefaultNotifications,
+
                                                                   async(_user, _eventTrackingId) => {
-                                                                      if (Password.HasValue)
-                                                                      {
+                                                                      if (Password.HasValue) {
                                                                           var result = await _user.API._ChangePassword(_user,
                                                                                                                        Password.Value,
                                                                                                                        null,
-                                                                                                                       _eventTrackingId,
-                                                                                                                       CurrentUserId);
+                                                                                                                       SuppressNotifications:  true,
+                                                                                                                       EventTrackingId:        _eventTrackingId,
+                                                                                                                       CurrentUserId:          CurrentUserId);
                                                                       }
                                                                   },
 
@@ -2550,12 +2554,14 @@ namespace social.OpenData.UsersAPI
         /// <param name="WardenInitialDelay">The initial delay of the warden tasks.</param>
         /// <param name="WardenCheckEvery">The warden intervall.</param>
         /// 
+        /// <param name="IsDevelopment">This HTTP API runs in development mode.</param>
+        /// <param name="DevelopmentServers">An enumeration of server names which will imply to run this service in development mode.</param>
         /// <param name="SkipURLTemplates">Skip URL templates.</param>
         /// <param name="DisableNotifications">Disable external notifications.</param>
-        /// <param name="DisableLogfile">Disable the log file.</param>
+        /// <param name="DisableLogging">Disable the log file.</param>
         /// <param name="LoggingPath">The path for all logfiles.</param>
         /// <param name="DatabaseFileName">The name of the database file for this API.</param>
-        /// <param name="LogfileName">The name of the logfile for this API.</param>
+        /// <param name="LogfileCreator">A delegate for creating the name of the logfile for this API.</param>
         /// <param name="DNSClient">The DNS client of the API.</param>
         /// <param name="Autostart">Whether to start the API automatically.</param>
         public UsersAPI(HTTPHostname?                        HTTPHostname                       = null,
@@ -2618,12 +2624,15 @@ namespace social.OpenData.UsersAPI
                         TimeSpan?                            WardenInitialDelay                 = null,
                         TimeSpan?                            WardenCheckEvery                   = null,
 
+                        Boolean?                             IsDevelopment                      = null,
+                        IEnumerable<String>                  DevelopmentServers                 = null,
                         Boolean                              SkipURLTemplates                   = false,
-                        Boolean                              DisableNotifications               = false,
-                        Boolean                              DisableLogfile                     = false,
-                        String                               LoggingPath                        = DefaultUsersAPI_LoggingPath,
                         String                               DatabaseFileName                   = DefaultUsersAPI_DatabaseFileName,
-                        String                               LogfileName                        = DefaultUsersAPI_LogfileName,
+                        Boolean                              DisableNotifications               = false,
+                        Boolean                              DisableLogging                     = false,
+                        String                               LoggingPath                        = DefaultUsersAPI_LoggingPath,
+                        String                               LogfileName                        = DefaultHTTPAPI_LogfileName,
+                        LogfileCreatorDelegate               LogfileCreator                     = null,
                         DNSClient                            DNSClient                          = null,
                         Boolean                              Autostart                          = false)
 
@@ -2661,8 +2670,14 @@ namespace social.OpenData.UsersAPI
                    WardenInitialDelay,
                    WardenCheckEvery,
 
-                   DisableLogfile,
-                   LoggingPath)
+                   IsDevelopment,
+                   DevelopmentServers,
+                   DisableLogging,
+                   LoggingPath,
+                   LogfileName ?? DefaultUsersAPI_LogfileName,
+                   LogfileCreator,
+                   DNSClient,
+                   false) // Autostart
 
         {
 
@@ -2710,9 +2725,8 @@ namespace social.OpenData.UsersAPI
             this.SMSAPILoggingPath               = this.LoggingPath + "SMSAPIClient"   + Path.DirectorySeparatorChar;
 
             this.DisableNotifications            = DisableNotifications;
-            this.LogfileName                     = this.UsersAPIPath + (LogfileName ?? DefaultUsersAPI_LogfileName);
 
-            if (!DisableLogfile)
+            if (!DisableLogging)
             {
                 Directory.CreateDirectory(this.UsersAPIPath);
                 Directory.CreateDirectory(this.NotificationsPath);
@@ -2837,6 +2851,9 @@ namespace social.OpenData.UsersAPI
                 RegisterURLTemplates();
 
             DebugX.Log(nameof(UsersAPI) + " version '" + APIVersionHash + "' initialized...");
+
+            if (Autostart)
+                Start();
 
         }
 
@@ -3248,7 +3265,7 @@ namespace social.OpenData.UsersAPI
                                              "Dear ", User.Name, ",<br /><br />" + Environment.NewLine,
                                              "your " + ServiceName + " account has been created!<br /><br />" + Environment.NewLine,
                                              "Please click the following link to set a new password for your account" + (Use2FactorAuth ? " and check your mobile phone for an additional security token" : "") + "...<br /><br />" + Environment.NewLine,
-                                             "<a href=\"https://" + ExternalDNSName + "/setPassword?" + SecurityToken + (Use2FactorAuth ? "&2factor" : "") + "\" style=\"text-decoration: none; color: #FFFFFF; background-color: #ff7300; Border: solid #ff7300; border-width: 10px 20px; line-height: 2; font-weight: bold; text-align: center; cursor: pointer; display: inline-block; border-radius: 4px; margin-top: 20px; font-size: 70%\">Set a new password</a>" + Environment.NewLine,
+                                             "<a href=\"https://" + ExternalDNSName + (BasePath?.ToString() ?? "") + "/setPassword?" + SecurityToken + (Use2FactorAuth ? "&2factor" : "") + "\" style=\"text-decoration: none; color: #FFFFFF; background-color: #ff7300; Border: solid #ff7300; border-width: 10px 20px; line-height: 2; font-weight: bold; text-align: center; cursor: pointer; display: inline-block; border-radius: 4px; margin-top: 20px; font-size: 70%\">Set a new password</a>" + Environment.NewLine,
                                          HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.System)
                                      ),
 
@@ -3257,7 +3274,7 @@ namespace social.OpenData.UsersAPI
                                              "Dear ", User.Name, ", " + Environment.NewLine +
                                              "your " + ServiceName + " account has been created!" + Environment.NewLine + Environment.NewLine +
                                              "Please click the following link to set a new password for your account" + (Use2FactorAuth ? " and check your mobile phone for an additional security token" : "") + "..." + Environment.NewLine + Environment.NewLine +
-                                             "https://" + ExternalDNSName + "/setPassword?" + SecurityToken + (Use2FactorAuth ? "&2factor" : "") +
+                                             "https://" + ExternalDNSName + (BasePath?.ToString() ?? "") + "/setPassword?" + SecurityToken + (Use2FactorAuth ? "&2factor" : "") +
                                          TextEMailFooter(ExternalDNSName, BasePath, EMailType.System)
                                     ),
 
@@ -3288,7 +3305,7 @@ namespace social.OpenData.UsersAPI
                                         HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.System) +
                                             "Dear " + User.Name + ",<br /><br />" + Environment.NewLine +
                                             "welcome to your new " + ServiceName + " account!<br /><br />" + Environment.NewLine +
-                                            "<a href=\"https://" + ExternalDNSName + "/login\" style=\"text-decoration: none; color: #FFFFFF; background-color: #ff7300; Border: solid #ff7300; border-width: 10px 20px; line-height: 2; font-weight: bold; text-align: center; cursor: pointer; display: inline-block; border-radius: 4px; margin-top: 20px; font-size: 70%\">Login</a>" + Environment.NewLine +
+                                            "<a href=\"https://" + ExternalDNSName + (BasePath?.ToString() ?? "") + "/login\" style=\"text-decoration: none; color: #FFFFFF; background-color: #ff7300; Border: solid #ff7300; border-width: 10px 20px; line-height: 2; font-weight: bold; text-align: center; cursor: pointer; display: inline-block; border-radius: 4px; margin-top: 20px; font-size: 70%\">Login</a>" + Environment.NewLine +
                                         HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.System)
                                     ),
 
@@ -3296,7 +3313,7 @@ namespace social.OpenData.UsersAPI
                                         TextEMailHeader(ExternalDNSName, BasePath, EMailType.System) +
                                             "Dear " + User.Name + "," + Environment.NewLine +
                                             "welcome to your new " + ServiceName + " account!" + Environment.NewLine + Environment.NewLine +
-                                            "Please login via: https://" + ExternalDNSName + "/login" + Environment.NewLine + Environment.NewLine +
+                                            "Please login via: https://" + ExternalDNSName + (BasePath?.ToString() ?? "") + "/login" + Environment.NewLine + Environment.NewLine +
                                         TextEMailFooter(ExternalDNSName, BasePath, EMailType.System)
                                     ),
 
@@ -3331,7 +3348,7 @@ namespace social.OpenData.UsersAPI
                                             "Dear " + User.Name + ",<br /><br />" + Environment.NewLine +
                                             "someone - hopefully you - requested us to change your password!<br />" + Environment.NewLine +
                                             "If this request was your intention, please click the following link to set a new password...<br /><br />" + Environment.NewLine +
-                                            "<a href=\"https://" + ExternalDNSName + "/setPassword?" + SecurityToken + (Use2FactorAuth ? "&2factor" : "") + "\" style=\"text-decoration: none; color: #FFFFFF; background-color: #ff7300; Border: solid #ff7300; border-width: 10px 20px; line-height: 2; font-weight: bold; text-align: center; cursor: pointer; display: inline-block; border-radius: 4px; margin-top: 20px; font-size: 70%\">Set a new password</a>" + Environment.NewLine +
+                                            "<a href=\"https://" + ExternalDNSName + (BasePath?.ToString() ?? "") + "/setPassword?" + SecurityToken + (Use2FactorAuth ? "&2factor" : "") + "\" style=\"text-decoration: none; color: #FFFFFF; background-color: #ff7300; Border: solid #ff7300; border-width: 10px 20px; line-height: 2; font-weight: bold; text-align: center; cursor: pointer; display: inline-block; border-radius: 4px; margin-top: 20px; font-size: 70%\">Set a new password</a>" + Environment.NewLine +
                                         HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.System)
                                     ),
 
@@ -3340,7 +3357,7 @@ namespace social.OpenData.UsersAPI
                                             "Dear " + User.Name + "," + Environment.NewLine +
                                             "someone - hopefully you - requested us to change your password!" + Environment.NewLine +
                                             "If this request was your intention, please click the following link to set a new password..." + Environment.NewLine + Environment.NewLine +
-                                            "https://" + ExternalDNSName + "/setPassword?" + SecurityToken + (Use2FactorAuth ? "&2factor" : "") +
+                                            "https://" + ExternalDNSName + (BasePath?.ToString() ?? "") + "/setPassword?" + SecurityToken + (Use2FactorAuth ? "&2factor" : "") +
                                         TextEMailFooter(ExternalDNSName, BasePath, EMailType.System)
                                     ),
 
@@ -3371,7 +3388,7 @@ namespace social.OpenData.UsersAPI
                                         HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.System) +
                                             "Dear " + User.Name + ",<br /><br />" + Environment.NewLine +
                                             "your password has successfully been changed!<br />" + Environment.NewLine +
-                                            "<a href=\"https://" + ExternalDNSName + "/login?" + User.Id + "\" style=\"text-decoration: none; color: #FFFFFF; background-color: #ff7300; Border: solid #ff7300; border-width: 10px 20px; line-height: 2; font-weight: bold; text-align: center; cursor: pointer; display: inline-block; border-radius: 4px; margin-top: 20px; font-size: 70%\">Login</a>" + Environment.NewLine +
+                                            "<a href=\"https://" + ExternalDNSName + (BasePath?.ToString() ?? "") + "/login?" + User.Id + "\" style=\"text-decoration: none; color: #FFFFFF; background-color: #ff7300; Border: solid #ff7300; border-width: 10px 20px; line-height: 2; font-weight: bold; text-align: center; cursor: pointer; display: inline-block; border-radius: 4px; margin-top: 20px; font-size: 70%\">Login</a>" + Environment.NewLine +
                                         HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.System)
                                     ),
 
@@ -3379,7 +3396,7 @@ namespace social.OpenData.UsersAPI
                                         TextEMailHeader(ExternalDNSName, BasePath, EMailType.System) +
                                             "Dear " + User.Name + "," + Environment.NewLine +
                                             "your password has successfully been changed!" + Environment.NewLine +
-                                            "https://" + ExternalDNSName + "/login?" + User.Id +
+                                            "https://" + ExternalDNSName + (BasePath?.ToString() ?? "") + "/login?" + User.Id +
                                         TextEMailFooter(ExternalDNSName, BasePath, EMailType.System)
                                     ),
 
@@ -5013,7 +5030,7 @@ namespace social.OpenData.UsersAPI
 
 
                                              var result = await ResetPassword(Users,
-                                                                              Request.EventTrackingId);
+                                                                              EventTrackingId: Request.EventTrackingId);
 
 
                                              return result?.IsSuccess == true
@@ -7035,8 +7052,8 @@ namespace social.OpenData.UsersAPI
                                              var result = await ChangePassword(User,
                                                                                NewPassword,
                                                                                CurrentPassword,
-                                                                               Request.EventTrackingId,
-                                                                               HTTPUser.Id);
+                                                                               EventTrackingId: Request.EventTrackingId,
+                                                                               CurrentUserId:   HTTPUser.Id);
 
 
                                              return result?.IsSuccess == true
@@ -12851,7 +12868,7 @@ namespace social.OpenData.UsersAPI
                                               String                                        DatabaseFileName = null)
         {
 
-            if (DisableLogfile)
+            if (DisableLogging)
                 return;
 
             var databaseFileName = DatabaseFileName ?? this.DatabaseFileName;
@@ -14387,7 +14404,7 @@ namespace social.OpenData.UsersAPI
                                                           User_Id?                 CurrentUserId     = null)
         {
 
-            if (!DisableLogfile || !DisableNotifications)
+            if (!DisableLogging || !DisableNotifications)
             {
 
                 try
@@ -14417,7 +14434,7 @@ namespace social.OpenData.UsersAPI
 
                     #region Write to database file
 
-                    if (!DisableLogfile)
+                    if (!DisableLogging)
                     {
 
                         try
@@ -14496,13 +14513,13 @@ namespace social.OpenData.UsersAPI
                                                      User_Id?          CurrentUserId     = null)
         {
 
-            if (!DisableLogfile || !DisableNotifications)
+            if (!DisableLogging || !DisableNotifications)
             {
 
                 try
                 {
 
-                    if (!DisableLogfile)
+                    if (!DisableLogging)
                     {
 
                         try
@@ -14570,7 +14587,7 @@ namespace social.OpenData.UsersAPI
                                                String         Data)
         {
 
-            if (!DisableLogfile)
+            if (!DisableLogging)
             {
 
                 try
@@ -15855,7 +15872,8 @@ namespace social.OpenData.UsersAPI
                                                CurrentUserId);
 
             var resetPasswordResult = await _ResetPassword(User,
-                                                           eventTrackingId);
+                                                           SuppressNotifications: true,
+                                                           EventTrackingId:       eventTrackingId);
 
             await SMTPClient.Send(NewUserSignUpEMailCreator(User,
                                                             User.EMail,
@@ -16251,7 +16269,8 @@ namespace social.OpenData.UsersAPI
                                                CurrentUserId);
 
             var resetPasswordResult = await _ResetPassword(User,
-                                                           eventTrackingId);
+                                                           SuppressNotifications: true,
+                                                           EventTrackingId:       eventTrackingId);
 
             await SMTPClient.Send(NewUserSignUpEMailCreator(User,
                                                             User.EMail,
@@ -16657,7 +16676,8 @@ namespace social.OpenData.UsersAPI
                                                    CurrentUserId);
 
                 var resetPasswordResult = await _ResetPassword(User,
-                                                               eventTrackingId);
+                                                               SuppressNotifications: true,
+                                                               EventTrackingId:       eventTrackingId);
 
                 await SMTPClient.Send(NewUserSignUpEMailCreator(User,
                                                                 User.EMail,
@@ -17817,7 +17837,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region ChangePassword     (User,  NewPassword, CurrentPassword = null, ...)
+        #region ChangePassword     (User,  NewPassword, CurrentPassword = null, SuppressNotifications = false, ...)
 
         /// <summary>
         /// Change the password of the given user.
@@ -17825,13 +17845,15 @@ namespace social.OpenData.UsersAPI
         /// <param name="User">A user.</param>
         /// <param name="NewPassword">The new password of the user.</param>
         /// <param name="CurrentPassword">The optional current password of the user.</param>
+        /// <param name="SuppressNotifications">Do not send 'Password changed e-mails'.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional organization identification initiating this command/request.</param>
         protected internal async Task<ChangePasswordResult> _ChangePassword(User              User,
                                                                             Password          NewPassword,
-                                                                            Password?         CurrentPassword   = null,
-                                                                            EventTracking_Id  EventTrackingId   = null,
-                                                                            User_Id?          CurrentUserId     = null)
+                                                                            Password?         CurrentPassword         = null,
+                                                                            Boolean           SuppressNotifications   = false,
+                                                                            EventTracking_Id  EventTrackingId         = null,
+                                                                            User_Id?          CurrentUserId           = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -17874,11 +17896,12 @@ namespace social.OpenData.UsersAPI
 
                 _LoginPasswords.Add(User.Id, new LoginPassword(User.Id, NewPassword));
 
-                await SMTPClient.Send(PasswordChangedEMailCreator(User,
-                                                                  User.EMail,
-                                                                  //"https://" + Request.Host.SimpleString,
-                                                                  DefaultLanguage,
-                                                                  eventTrackingId));
+                if (!SuppressNotifications)
+                    await SMTPClient.Send(PasswordChangedEMailCreator(User,
+                                                                      User.EMail,
+                                                                      //"https://" + Request.Host.SimpleString,
+                                                                      DefaultLanguage,
+                                                                      eventTrackingId));
 
                 return ChangePasswordResult.Success(User,
                                                     eventTrackingId);
@@ -17910,11 +17933,12 @@ namespace social.OpenData.UsersAPI
 
                 _LoginPasswords[User.Id] = new LoginPassword(User.Id, NewPassword);
 
-                await SMTPClient.Send(PasswordChangedEMailCreator(User,
-                                                                  User.EMail,
-                                                                  //"https://" + Request.Host.SimpleString,
-                                                                  DefaultLanguage,
-                                                                  eventTrackingId));
+                if (!SuppressNotifications)
+                    await SMTPClient.Send(PasswordChangedEMailCreator(User,
+                                                                      User.EMail,
+                                                                      //"https://" + Request.Host.SimpleString,
+                                                                      DefaultLanguage,
+                                                                      eventTrackingId));
 
                 return ChangePasswordResult.Success(User,
                                                     eventTrackingId);
@@ -17936,13 +17960,15 @@ namespace social.OpenData.UsersAPI
         /// <param name="User">A user.</param>
         /// <param name="NewPassword">The new password of the user.</param>
         /// <param name="CurrentPassword">The optional current password of the user.</param>
+        /// <param name="SuppressNotifications">Do not send 'Password changed e-mails'.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional organization identification initiating this command/request.</param>
         public async Task<ChangePasswordResult> ChangePassword(User              User,
                                                                Password          NewPassword,
-                                                               Password?         CurrentPassword   = null,
-                                                               EventTracking_Id  EventTrackingId   = null,
-                                                               User_Id?          CurrentUserId     = null)
+                                                               Password?         CurrentPassword         = null,
+                                                               Boolean           SuppressNotifications   = false,
+                                                               EventTracking_Id  EventTrackingId         = null,
+                                                               User_Id?          CurrentUserId           = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -17955,6 +17981,7 @@ namespace social.OpenData.UsersAPI
                     return await _ChangePassword(User,
                                                  NewPassword,
                                                  CurrentPassword,
+                                                 SuppressNotifications,
                                                  eventTrackingId,
                                                  CurrentUserId);
 
@@ -17989,7 +18016,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region ChangePassword     (Users, NewPassword, CurrentPassword = null, ...)
+        #region ChangePassword     (Users, NewPassword, CurrentPassword = null, SuppressNotifications = false, ...)
 
         /// <summary>
         /// Change the password of the given enumeration of users.
@@ -17997,13 +18024,15 @@ namespace social.OpenData.UsersAPI
         /// <param name="Users">An enumeration of users.</param>
         /// <param name="NewPassword">The new password of the user.</param>
         /// <param name="CurrentPassword">The optional current password of the user.</param>
+        /// <param name="SuppressNotifications">Do not send 'Password changed e-mails'.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional organization identification initiating this command/request.</param>
         protected internal async Task<ChangePasswordResult> _ChangePassword(IEnumerable<User>  Users,
                                                                             Password           NewPassword,
-                                                                            Password?          CurrentPassword   = null,
-                                                                            EventTracking_Id   EventTrackingId   = null,
-                                                                            User_Id?           CurrentUserId     = null)
+                                                                            Password?          CurrentPassword         = null,
+                                                                            Boolean            SuppressNotifications   = false,
+                                                                            EventTracking_Id   EventTrackingId         = null,
+                                                                            User_Id?           CurrentUserId           = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -18059,11 +18088,12 @@ namespace social.OpenData.UsersAPI
 
                 _LoginPasswords[user.Id] = new LoginPassword(user.Id, NewPassword);
 
-                await SMTPClient.Send(PasswordChangedEMailCreator(user,
-                                                                  user.EMail,
-                                                                  //"https://" + Request.Host.SimpleString,
-                                                                  DefaultLanguage,
-                                                                  eventTrackingId));
+                if (!SuppressNotifications)
+                    await SMTPClient.Send(PasswordChangedEMailCreator(user,
+                                                                      user.EMail,
+                                                                      //"https://" + Request.Host.SimpleString,
+                                                                      DefaultLanguage,
+                                                                      eventTrackingId));
 
             }
 
@@ -18078,13 +18108,15 @@ namespace social.OpenData.UsersAPI
         /// <param name="Users">An enumeration of users.</param>
         /// <param name="NewPassword">The new password of the user.</param>
         /// <param name="CurrentPassword">The optional current password of the user.</param>
+        /// <param name="SuppressNotifications">Do not send 'Password changed e-mails'.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional organization identification initiating this command/request.</param>
         public async Task<ChangePasswordResult> ChangePassword(IEnumerable<User>  Users,
                                                                Password           NewPassword,
-                                                               Password?          CurrentPassword   = null,
-                                                               EventTracking_Id   EventTrackingId   = null,
-                                                               User_Id?           CurrentUserId     = null)
+                                                               Password?          CurrentPassword         = null,
+                                                               Boolean            SuppressNotifications   = false,
+                                                               EventTracking_Id   EventTrackingId         = null,
+                                                               User_Id?           CurrentUserId           = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -18097,6 +18129,7 @@ namespace social.OpenData.UsersAPI
                     return await _ChangePassword(Users,
                                                  NewPassword,
                                                  CurrentPassword,
+                                                 SuppressNotifications,
                                                  eventTrackingId,
                                                  CurrentUserId);
 
@@ -18131,15 +18164,17 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region ResetPassword      (User,  ...)
+        #region ResetPassword      (User,  SuppressNotifications = false, ...)
 
         /// <summary>
         /// Reset a user password.
         /// </summary>
         /// <param name="User">A user.</param>
+        /// <param name="SuppressNotifications">Do not send 'Reset Password e-mails/SMSs'.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         protected internal async Task<ResetPasswordResult> _ResetPassword(User              User,
-                                                                          EventTracking_Id  EventTrackingId   = null)
+                                                                          Boolean           SuppressNotifications   = false,
+                                                                          EventTracking_Id  EventTrackingId         = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -18151,7 +18186,9 @@ namespace social.OpenData.UsersAPI
                                        User.Use2AuthFactor == Use2AuthFactor.MobilePhoneSMS && User.MobilePhone.HasValue
                                            ? SecurityToken_Id.Parse(_Random.RandomString(5) + "-" + _Random.RandomString(5))
                                            : new SecurityToken_Id?(),
-                                       eventTrackingId),
+                                       eventTrackingId
+                                   ),
+                                   SuppressNotifications,
                                    eventTrackingId
                                );
 
@@ -18168,9 +18205,11 @@ namespace social.OpenData.UsersAPI
         /// Reset a user password.
         /// </summary>
         /// <param name="User">A user.</param>
+        /// <param name="SuppressNotifications">Do not send 'Reset Password e-mails/SMSs'.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         public async Task<ResetPasswordResult> ResetPassword(User              User,
-                                                             EventTracking_Id  EventTrackingId   = null)
+                                                             Boolean           SuppressNotifications   = false,
+                                                             EventTracking_Id  EventTrackingId         = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -18181,6 +18220,7 @@ namespace social.OpenData.UsersAPI
                 {
 
                     return await _ResetPassword(User,
+                                                SuppressNotifications,
                                                 eventTrackingId);
 
                 }
@@ -18214,15 +18254,17 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region ResetPassword      (Users, ...)
+        #region ResetPassword      (Users, SuppressNotifications = false, ...)
 
         /// <summary>
         /// Reset the password of a user having multiple logins.
         /// </summary>
         /// <param name="Users">An enumeration of users.</param>
+        /// <param name="SuppressNotifications">Do not send 'Reset Password e-mails/SMSs'.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         protected internal async Task<ResetPasswordResult> _ResetPassword(IEnumerable<User>  Users,
-                                                                          EventTracking_Id   EventTrackingId   = null)
+                                                                          Boolean            SuppressNotifications   = false,
+                                                                          EventTracking_Id   EventTrackingId         = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -18234,7 +18276,9 @@ namespace social.OpenData.UsersAPI
                                        Users.Any(user => user.Use2AuthFactor == Use2AuthFactor.MobilePhoneSMS && user.MobilePhone.HasValue)
                                            ? SecurityToken_Id.Parse(_Random.RandomString(5) + "-" + _Random.RandomString(5))
                                            : new SecurityToken_Id?(),
-                                       eventTrackingId),
+                                       eventTrackingId
+                                   ),
+                                   SuppressNotifications,
                                    eventTrackingId
                                );
 
@@ -18251,9 +18295,11 @@ namespace social.OpenData.UsersAPI
         /// Reset the password of a user having multiple logins.
         /// </summary>
         /// <param name="Users">An enumeration of users.</param>
+        /// <param name="SuppressNotifications">Do not send 'Reset Password e-mails/SMSs'.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         public async Task<ResetPasswordResult> ResetPassword(IEnumerable<User>  Users,
-                                                             EventTracking_Id   EventTrackingId   = null)
+                                                             Boolean            SuppressNotifications   = false,
+                                                             EventTracking_Id   EventTrackingId         = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -18264,6 +18310,7 @@ namespace social.OpenData.UsersAPI
                 {
 
                     return await _ResetPassword(Users,
+                                                SuppressNotifications,
                                                 eventTrackingId);
 
                 }
@@ -18303,9 +18350,11 @@ namespace social.OpenData.UsersAPI
         /// Add a password reset.
         /// </summary>
         /// <param name="PasswordReset">A password reset.</param>
+        /// <param name="SuppressNotifications">Do not send 'Reset Password e-mails/SMSs'.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         protected internal async Task<AddPasswordResetResult> _AddPasswordReset(PasswordReset     PasswordReset,
-                                                                                EventTracking_Id  EventTrackingId = null)
+                                                                                Boolean           SuppressNotifications   = false,
+                                                                                EventTracking_Id  EventTrackingId         = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -18321,22 +18370,25 @@ namespace social.OpenData.UsersAPI
 
             foreach (var user in PasswordReset.Users)
             {
-
-                await SMTPClient.Send(ResetPasswordEMailCreator(user,
-                                                                user.EMail,
-                                                                PasswordReset.SecurityToken1,
-                                                                user.Use2AuthFactor == Use2AuthFactor.MobilePhoneSMS && user.MobilePhone.HasValue,
-                                                                DefaultLanguage,
-                                                                eventTrackingId));
-
-                if (SMSClient != null &&
-                    PasswordReset.SecurityToken2.HasValue &&
-                    user.MobilePhone.HasValue)
+                if (!SuppressNotifications)
                 {
-                    SMSClient.Send("Dear '" + user.Name + "' your 2nd security token for resetting your password is '" + PasswordReset.SecurityToken2 + "'!",
-                                   user.MobilePhone.Value.ToString());
-                }
 
+                    await SMTPClient.Send(ResetPasswordEMailCreator(user,
+                                                                    user.EMail,
+                                                                    PasswordReset.SecurityToken1,
+                                                                    user.Use2AuthFactor == Use2AuthFactor.MobilePhoneSMS && user.MobilePhone.HasValue,
+                                                                    DefaultLanguage,
+                                                                    eventTrackingId));
+
+                    if (SMSClient != null &&
+                        PasswordReset.SecurityToken2.HasValue &&
+                        user.MobilePhone.HasValue)
+                    {
+                        SMSClient.Send("Dear '" + user.Name + "' your 2nd security token for resetting your password is '" + PasswordReset.SecurityToken2 + "'!",
+                                       user.MobilePhone.Value.ToString());
+                    }
+
+                }
             }
 
             return AddPasswordResetResult.Success(PasswordReset,
@@ -18348,9 +18400,11 @@ namespace social.OpenData.UsersAPI
         /// Add a password reset.
         /// </summary>
         /// <param name="PasswordReset">A password reset.</param>
+        /// <param name="SuppressNotifications">Do not send 'Reset Password e-mails/SMSs'.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         public async Task<AddPasswordResetResult> AddPasswordReset(PasswordReset     PasswordReset,
-                                                                   EventTracking_Id  EventTrackingId)
+                                                                   Boolean           SuppressNotifications   = false,
+                                                                   EventTracking_Id  EventTrackingId         = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -18361,6 +18415,7 @@ namespace social.OpenData.UsersAPI
                 {
 
                     return await _AddPasswordReset(PasswordReset,
+                                                   SuppressNotifications,
                                                    eventTrackingId);
 
                 }
