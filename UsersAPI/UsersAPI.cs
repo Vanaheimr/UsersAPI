@@ -2517,6 +2517,16 @@ namespace social.OpenData.UsersAPI
         /// <param name="ClientCertificateSelector">An optional delegate to select the SSL/TLS client certificate used for authentication.</param>
         /// <param name="AllowedTLSProtocols">The SSL/TLS protocol(s) allowed for this connection.</param>
         /// 
+        /// <param name="ServerThreadName">The optional name of the TCP server thread.</param>
+        /// <param name="ServerThreadPriority">The optional priority of the TCP server thread.</param>
+        /// <param name="ServerThreadIsBackground">Whether the TCP server thread is a background thread or not.</param>
+        /// <param name="ConnectionIdBuilder">An optional delegate to build a connection identification based on IP socket information.</param>
+        /// <param name="ConnectionThreadsNameBuilder">An optional delegate to set the name of the TCP connection threads.</param>
+        /// <param name="ConnectionThreadsPriorityBuilder">An optional delegate to set the priority of the TCP connection threads.</param>
+        /// <param name="ConnectionThreadsAreBackground">Whether the TCP connection threads are background threads or not (default: yes).</param>
+        /// <param name="ConnectionTimeout">The TCP client timeout for all incoming client connections in seconds (default: 30 sec).</param>
+        /// <param name="MaxClientConnections">The maximum number of concurrent TCP client connections (default: 4096).</param>
+        /// 
         /// <param name="AdminOrganizationId">The admins' organization identification.</param>
         /// <param name="APIRobotEMailAddress">An e-mail address for this API.</param>
         /// <param name="APIRobotGPGPassphrase">A GPG passphrase for this API.</param>
@@ -2535,16 +2545,6 @@ namespace social.OpenData.UsersAPI
         /// <param name="MinRealmLength">The minimal realm length.</param>
         /// <param name="MinUserGroupIdLength">The minimal user group identification length.</param>
         /// <param name="MinAPIKeyLength">The minimal API key length.</param>
-        /// 
-        /// <param name="ServerThreadName">The optional name of the TCP server thread.</param>
-        /// <param name="ServerThreadPriority">The optional priority of the TCP server thread.</param>
-        /// <param name="ServerThreadIsBackground">Whether the TCP server thread is a background thread or not.</param>
-        /// <param name="ConnectionIdBuilder">An optional delegate to build a connection identification based on IP socket information.</param>
-        /// <param name="ConnectionThreadsNameBuilder">An optional delegate to set the name of the TCP connection threads.</param>
-        /// <param name="ConnectionThreadsPriorityBuilder">An optional delegate to set the priority of the TCP connection threads.</param>
-        /// <param name="ConnectionThreadsAreBackground">Whether the TCP connection threads are background threads or not (default: yes).</param>
-        /// <param name="ConnectionTimeout">The TCP client timeout for all incoming client connections in seconds (default: 30 sec).</param>
-        /// <param name="MaxClientConnections">The maximum number of concurrent TCP client connections (default: 4096).</param>
         /// 
         /// <param name="DisableMaintenanceTasks">Disable all maintenance tasks.</param>
         /// <param name="MaintenanceInitialDelay">The initial delay of the maintenance tasks.</param>
@@ -2631,7 +2631,7 @@ namespace social.OpenData.UsersAPI
                         Boolean                              DisableNotifications               = false,
                         Boolean                              DisableLogging                     = false,
                         String                               LoggingPath                        = DefaultUsersAPI_LoggingPath,
-                        String                               LogfileName                        = DefaultHTTPAPI_LogfileName,
+                        String                               LogfileName                        = DefaultUsersAPI_LogfileName,
                         LogfileCreatorDelegate               LogfileCreator                     = null,
                         DNSClient                            DNSClient                          = null,
                         Boolean                              Autostart                          = false)
