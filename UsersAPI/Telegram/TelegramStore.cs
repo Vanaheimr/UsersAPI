@@ -304,7 +304,7 @@ namespace social.OpenData.UsersAPI
 
         }
 
-        #endregion
+        #endregion      
 
 
         internal async void ReceiveTelegramMessage(Object                              Sender,
@@ -368,15 +368,16 @@ namespace social.OpenData.UsersAPI
 
 
 
-        #region SendTelegram (Message, Username)
+        #region SendTelegram (Message, Username,  ParseMode)
 
         /// <summary>
         /// Send a Telegram to the given user.
         /// </summary>
         /// <param name="Message">The text of the message.</param>
         /// <param name="Username">The name of the user.</param>
-        public async Task<MessageEnvelop> SendTelegram(String  Message,
-                                                       String  Username)
+        public async Task<MessageEnvelop> SendTelegram(String     Message,
+                                                       String     Username,
+                                                       ParseMode  ParseMode)
         {
 
             #region Initial checks
@@ -479,7 +480,8 @@ namespace social.OpenData.UsersAPI
         /// <param name="Message">The  multi-language text of the message.</param>
         /// <param name="Username">The name of the user.</param>
         public async Task<MessageEnvelop> SendTelegram(I18NString  Message,
-                                                       String      Username)
+                                                       String      Username,
+                                                       ParseMode   ParseMode)
         {
 
             #region Initial checks
@@ -573,7 +575,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region SendTelegrams(Message, Usernames)
+        #region SendTelegrams(Message, Usernames, ParseMode)
 
         /// <summary>
         /// Send a Telegram to the given users.
@@ -581,9 +583,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="Message">The text of the message.</param>
         /// <param name="Usernames">An enumeration of usernames.</param>
         public Task<IEnumerable<MessageEnvelop>> SendTelegrams(String           Message,
+                                                               ParseMode        ParseMode,
                                                                params String[]  Usernames)
 
-            => SendTelegrams(Message, Usernames as IEnumerable<String>);
+            => SendTelegrams(Message, Usernames as IEnumerable<String>, ParseMode);
 
 
         /// <summary>
@@ -592,7 +595,8 @@ namespace social.OpenData.UsersAPI
         /// <param name="Message">The text of the message.</param>
         /// <param name="Usernames">An enumeration of usernames.</param>
         public async Task<IEnumerable<MessageEnvelop>> SendTelegrams(String               Message,
-                                                                     IEnumerable<String>  Usernames)
+                                                                     IEnumerable<String>  Usernames,
+                                                                     ParseMode            ParseMode)
         {
 
             #region Initial checks
@@ -648,8 +652,9 @@ namespace social.OpenData.UsersAPI
                     responseMessages.Add(new MessageEnvelop(username,
                                                             User.ChatId,
                                                             await TelegramAPI.SendTextMessageAsync(
-                                                                                  ChatId:  User.ChatId,
-                                                                                  Text:    Message
+                                                                                  ChatId:    User.ChatId,
+                                                                                  Text:      Message,
+                                                                                  ParseMode: ParseMode
                                                                               )));
 
                 else
@@ -700,9 +705,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="Message">The multi-language text of the message.</param>
         /// <param name="Usernames">An enumeration of usernames.</param>
         public Task<IEnumerable<MessageEnvelop>> SendTelegram(I18NString       Message,
+                                                              ParseMode        ParseMode,
                                                               params String[]  Usernames)
 
-            => SendTelegram(Message, Usernames as IEnumerable<String>);
+            => SendTelegram(Message, Usernames as IEnumerable<String>, ParseMode);
 
 
         /// <summary>
@@ -711,7 +717,8 @@ namespace social.OpenData.UsersAPI
         /// <param name="Message">The multi-language text of the message.</param>
         /// <param name="Usernames">An enumeration of usernames.</param>
         public async Task<IEnumerable<MessageEnvelop>> SendTelegram(I18NString           Message,
-                                                                    IEnumerable<String>  Usernames)
+                                                                    IEnumerable<String>  Usernames,
+                                                                    ParseMode            ParseMode)
         {
 
             #region Initial checks
@@ -765,8 +772,9 @@ namespace social.OpenData.UsersAPI
                     responseMessages.Add(new MessageEnvelop(username,
                                                             User.ChatId,
                                                             await TelegramAPI.SendTextMessageAsync(
-                                                                                  ChatId:  User.ChatId,
-                                                                                  Text:    Message[User.PreferredLanguage] ?? Message[Languages.en]
+                                                                                  ChatId:    User.ChatId,
+                                                                                  Text:      Message[User.PreferredLanguage] ?? Message[Languages.en],
+                                                                                  ParseMode: ParseMode
                                                                               )));
 
                 else

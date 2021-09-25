@@ -144,11 +144,11 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         event EventHandler<Telegram.Bot.Args.MessageEventArgs> OnMessage;
 
-        Task<IEnumerable<MessageEnvelop>> SendTelegram(I18NString Message, IEnumerable<string> Usernames);
-        Task<IEnumerable<MessageEnvelop>> SendTelegram(I18NString Message, params string[] Usernames);
-        Task<MessageEnvelop> SendTelegram(I18NString Message, string Username);
-        Task<MessageEnvelop> SendTelegram(string Message, string Username);
-        Task<IEnumerable<MessageEnvelop>> SendTelegrams(string Message, IEnumerable<string> Usernames);
+        Task<IEnumerable<MessageEnvelop>> SendTelegram(I18NString Message, IEnumerable<string> Usernames, ParseMode ParseMode);
+        Task<IEnumerable<MessageEnvelop>> SendTelegram(I18NString Message, ParseMode ParseMode, params string[] Usernames);
+        Task<MessageEnvelop> SendTelegram(I18NString Message, string Username, ParseMode ParseMode);
+        Task<MessageEnvelop> SendTelegram(string Message, string Username, ParseMode ParseMode);
+        Task<IEnumerable<MessageEnvelop>> SendTelegrams(string Message, IEnumerable<string> Usernames, ParseMode ParseMode);
         //Task<IEnumerable<MessageEnvelop>> SendTelegrams(string Message, params string[] Usernames);
         void UpdateGroup(long ChatId, string Title, string InviteLink);
         void UpdateUser(int UserId, string Username, string Firstname, string Lastname, long ChatId);

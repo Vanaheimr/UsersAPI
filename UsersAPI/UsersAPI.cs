@@ -15371,12 +15371,14 @@ namespace social.OpenData.UsersAPI
 
                             if (messageTypes.Contains(addUser_MessageType))
                                 await TelegramClient.SendTelegrams(String.Concat("User <a href=\"https://", ExternalDNSName, BasePath, "/users/", User.Id, "\">", User.Name, "</a> was successfully added. "),
-                                                                   AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
+                                                                   AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username),
+                                                                   Telegram.Bot.Types.Enums.ParseMode.Html);
 
                             if (messageTypes.Contains(updateUser_MessageType))
-                                await TelegramClient.SendTelegrams(String.Concat("User <a href=\"https://", ExternalDNSName, BasePath, "/users/", User.Id, "\">", User.Name, "</a> information had been successfully updated.<br /><br />",
-                                                                                 comparizionResult?.ToHTML() ?? ""),
-                                                                   AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
+                                await TelegramClient.SendTelegrams(String.Concat("User <a href=\"https://", ExternalDNSName, BasePath, "/users/", User.Id, "\">", User.Name, "</a> information had been successfully updated.\n",
+                                                                                 comparizionResult?.ToTelegram() ?? ""),
+                                                                   AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username),
+                                                                   Telegram.Bot.Types.Enums.ParseMode.Html);
 
                         }
 
@@ -15655,7 +15657,8 @@ namespace social.OpenData.UsersAPI
 
                             if (messageTypes.Contains(deleteUser_MessageType))
                                 await TelegramClient.SendTelegrams(String.Concat("User <a href=\"https://", ExternalDNSName, BasePath, "/users/", User.Id, "\">", User.Name, "</a> has been deleted."),
-                                                                   AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
+                                                                   AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username),
+                                                                   Telegram.Bot.Types.Enums.ParseMode.Html);
 
                         }
 
@@ -20633,7 +20636,8 @@ namespace social.OpenData.UsersAPI
 
                             if (messageTypes.Contains(deleteUserGroup_MessageType))
                                 await TelegramClient.SendTelegrams(String.Concat("User group '", UserGroup.Name.FirstText(), "' has been deleted. "),
-                                                                  AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
+                                                                   AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username),
+                                                                   Telegram.Bot.Types.Enums.ParseMode.Html);
 
                         }
 
@@ -26314,12 +26318,14 @@ namespace social.OpenData.UsersAPI
                             if (messageTypes.Contains(addOrganization_MessageType))
                                 await TelegramClient.SendTelegrams(String.Concat("Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a> was successfully created. ",
                                                                                  "https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id),
-                                                                   AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
+                                                                   AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username),
+                                                                   Telegram.Bot.Types.Enums.ParseMode.Html);
 
                             if (messageTypes.Contains(updateOrganization_MessageType))
-                                await TelegramClient.SendTelegrams(String.Concat("Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a> information had been successfully updated.<br /><br />",
-                                                                                 comparizionResult?.ToHTML() ?? ""),
-                                                                   AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
+                                await TelegramClient.SendTelegrams(String.Concat("Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a> information had been successfully updated.updated.\n",
+                                                                                 comparizionResult?.ToTelegram() ?? ""),
+                                                                   AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username),
+                                                                   Telegram.Bot.Types.Enums.ParseMode.Html);
 
                         }
 
@@ -26562,7 +26568,8 @@ namespace social.OpenData.UsersAPI
 
                             if (messageTypes.Contains(deleteOrganization_MessageType))
                                 await TelegramClient.SendTelegrams(String.Concat("Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a> has been deleted."),
-                                                                   AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
+                                                                   AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username),
+                                                                   Telegram.Bot.Types.Enums.ParseMode.Html);
 
                         }
 
@@ -30936,11 +30943,13 @@ namespace social.OpenData.UsersAPI
 
                             if (MessageTypes.Contains(addUserToOrganization_MessageType))
                                 await TelegramClient.SendTelegrams(String.Concat("User '", User.Name, "' was added to organization '", Organization.Name.FirstText(), "'" + membership + "."),
-                                                                  AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
+                                                                   AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username),
+                                                                   Telegram.Bot.Types.Enums.ParseMode.Html);
 
                             if (MessageTypes.Contains(removeUserFromOrganization_MessageType))
                                 await TelegramClient.SendTelegrams(String.Concat("User '", User.Name, "' was removed from organization '", Organization.Name.FirstText(), "'."),
-                                                                  AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
+                                                                   AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username),
+                                                                   Telegram.Bot.Types.Enums.ParseMode.Html);
 
                         }
 
@@ -31737,13 +31746,15 @@ namespace social.OpenData.UsersAPI
                             if (messageTypes.Contains(linkOrganizations_MessageType))
                             {
                                 await TelegramClient.SendTelegrams(String.Concat("Organization '", OrganizationOut.Name.FirstText(), "' was linked to organization '", OrganizationIn.Name.FirstText(), "'."),
-                                                                  AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
+                                                                   AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username),
+                                                                   Telegram.Bot.Types.Enums.ParseMode.Html);
                             }
 
                             if (messageTypes.Contains(unlinkOrganizations_MessageType))
                             {
                                 await TelegramClient.SendTelegrams(String.Concat("Organization '", OrganizationOut.Name.FirstText(), "' was unlinked from organization '", OrganizationIn.Name.FirstText(), "'."),
-                                                                  AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
+                                                                   AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username),
+                                                                   Telegram.Bot.Types.Enums.ParseMode.Html);
                             }
 
                         }
