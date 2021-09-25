@@ -586,7 +586,7 @@
     </EmbeddedResource>
     <EmbeddedResource Include="HTTPRoot\login\lostPassword.html" />
     <EmbeddedResource Include="HTTPRoot\login\setPassword.html" />
-    <EmbeddedResource Include="HTTPRoot\login\login.html" />
+    <EmbeddedResource Include="HTTPRoot\login\login-en.html" />
     <EmbeddedResource Include="HTTPRoot\images\building-2696768_640.png" />
     <EmbeddedResource Include="HTTPRoot\defaults\datePicker.css">
       <DependentUpon>datePicker.scss</DependentUpon>
