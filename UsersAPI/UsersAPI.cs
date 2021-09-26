@@ -3805,7 +3805,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region HTTP URL Templates...
+        #region (private) RegisterURLTemplates()
 
         #region (private)   GenerateCookieUserData(ValidUser, Astronaut = null)
 
@@ -4462,8 +4462,6 @@ namespace social.OpenData.UsersAPI
         #endregion
 
         #endregion
-
-        #region (private) RegisterURLTemplates()
 
         private void RegisterURLTemplates()
         {
@@ -12909,8 +12907,6 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #endregion
-
         #region Database file...
 
         #region (protected) ReadDatabaseFile(ProcessEventDelegate, DatabaseFileName = null)
@@ -13289,7 +13285,7 @@ namespace social.OpenData.UsersAPI
 
         //ToDo: Receive Network Database Events
 
-        #region (protected) ProcessEvent(Command, Data, Sender = null, LineNumber = null)
+        #region (protected virtual) ProcessEvent(Command, Data, Sender = null, LineNumber = null)
 
         /// <summary>
         /// Process a database event.
@@ -13298,10 +13294,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="Data">The event data.</param>
         /// <param name="Sender">The event sender or file name.</param>
         /// <param name="LineNumber">The event line number within the event file.</param>
-        protected async Task ProcessEvent(String   Command,
-                                          JObject  Data,
-                                          String   Sender     = null,
-                                          UInt64?  LineNumber = null)
+        protected virtual async Task ProcessEvent(String   Command,
+                                                  JObject  Data,
+                                                  String   Sender     = null,
+                                                  UInt64?  LineNumber = null)
         {
 
             #region Initial checks
@@ -15265,6 +15261,20 @@ namespace social.OpenData.UsersAPI
 
         #region (protected internal) SendNotifications           (User,                      MessageType(s), OldUser = null, ...)
 
+        protected virtual String UserHTMLInfo(User User)
+
+            => String.Concat(User.Name.IsNeitherNullNorEmpty()
+                                 ? String.Concat("<a href=\"https://", ExternalDNSName, BasePath, "/users/", User.Id, "\">", User.Name, "</a> ",
+                                                "(<a href=\"https://", ExternalDNSName, BasePath, "/users/", User.Id, "\">", User.Id,   "</a>)")
+                                 : String.Concat("<a href=\"https://", ExternalDNSName, BasePath, "/users/", User.Id, "\">", User.Id,   "</a>"));
+
+        protected virtual String UserTextInfo(User User)
+
+            => String.Concat(User.Name.IsNeitherNullNorEmpty()
+                                 ? String.Concat("'", User.Name, "' (", User.Id, ")")
+                                 : String.Concat("'", User.Id.ToString(), "'"));
+
+
         /// <summary>
         /// Send user notifications.
         /// </summary>
@@ -15351,7 +15361,7 @@ namespace social.OpenData.UsersAPI
 
 
            if (!DisableNotifications)
-            {
+           {
 
                 #region Telegram Notifications
 
@@ -15370,13 +15380,12 @@ namespace social.OpenData.UsersAPI
                         {
 
                             if (messageTypes.Contains(addUser_MessageType))
-                                await TelegramClient.SendTelegrams(String.Concat("User <a href=\"https://", ExternalDNSName, BasePath, "/users/", User.Id, "\">", User.Name, "</a> was successfully added. "),
+                                await TelegramClient.SendTelegrams(String.Concat("User ", UserHTMLInfo(User), " was successfully added."),
                                                                    AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username),
                                                                    Telegram.Bot.Types.Enums.ParseMode.Html);
 
                             if (messageTypes.Contains(updateUser_MessageType))
-                                await TelegramClient.SendTelegrams(String.Concat("User <a href=\"https://", ExternalDNSName, BasePath, "/users/", User.Id, "\">", User.Name, "</a> information had been successfully updated.\n",
-                                                                                 comparizionResult?.ToTelegram() ?? ""),
+                                await TelegramClient.SendTelegrams(String.Concat("User ", UserHTMLInfo(User), " information had been successfully updated.\n", comparizionResult?.ToTelegram() ?? ""),
                                                                    AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username),
                                                                    Telegram.Bot.Types.Enums.ParseMode.Html);
 
@@ -15406,29 +15415,19 @@ namespace social.OpenData.UsersAPI
 
                         if (messageTypes.Contains(addUser_MessageType))
                         {
-                            SendSMS(String.Concat("User '", User.Name, "' was successfully added. ",
+                            SendSMS(String.Concat("User ", UserTextInfo(User), " was successfully added. ",
                                                   "https://", ExternalDNSName, BasePath, "/users/", User.Id),
-                                                  // to Organization {Org_Name}.",
                                     AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
                                     SMSSenderName);
                         }
 
                         if (messageTypes.Contains(updateUser_MessageType))
                         {
-                            SendSMS(String.Concat("User '", User.Name, "' information had been successfully updated. ",
+                            SendSMS(String.Concat("User ", UserTextInfo(User), " information had been successfully updated. ",
                                                   "https://", ExternalDNSName, BasePath, "/users/", User.Id),
-                                                  // + {Updated information}
                                     AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
                                     SMSSenderName);
                         }
-
-                        //if (messageTypes.Contains(deleteUser_MessageType))
-                        //{
-                        //    SendSMS(String.Concat("User '", User.Name, "' information had been removed. ",
-                        //                          "If you haven't approved this request, please contact support: support@cardi-link.com"),
-                        //            AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
-                        //            SMSSenderName);
-                        //}
 
                     }
 
@@ -15520,14 +15519,14 @@ namespace social.OpenData.UsersAPI
                                              From           = Robot.EMail,
                                              To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
                                              Passphrase     = APIPassphrase,
-                                             Subject        = String.Concat("User '" + User.Name + "' was successfully created."),
+                                             Subject        = "User " + UserTextInfo(User) + " was successfully created",
 
                                              HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                            "User <a href=\"https://", ExternalDNSName, BasePath, "/users/", User.Id, "\">", User.Name, "</a> was successfully created.",
+                                                                            "User ", UserHTMLInfo(User), " was successfully created.",
                                                                             HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
                                              PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                            "User '" + User.Name + "' was successfully created.\r\n",
+                                                                            "User ", UserTextInfo(User), " was successfully created.\r\n",
                                                                             "https://", ExternalDNSName, BasePath, "/users/", User.Id, "\r\r\r\r",
                                                                             TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
@@ -15542,15 +15541,15 @@ namespace social.OpenData.UsersAPI
                                              From           = Robot.EMail,
                                              To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
                                              Passphrase     = APIPassphrase,
-                                             Subject        = String.Concat("User '" + User.Name + "' information had been successfully updated."),
+                                             Subject        = "User " + UserTextInfo(User) + " information had been successfully updated",
 
                                              HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                            "User <a href=\"https://", ExternalDNSName, BasePath, "/users/", User.Id, "\">", User.Name, "</a> information had been successfully updated.<br /><br />",
+                                                                            "User ", UserHTMLInfo(User), " information had been successfully updated.<br /><br />",
                                                                             comparizionResult?.ToHTML() ?? "",
                                                                             HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
                                              PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                            "User '" + User.Name + "' information had been successfully updated.\r\r\r\r",
+                                                                            "User ", UserTextInfo(User), " information had been successfully updated.\r\r\r\r",
                                                                             comparizionResult?.ToText() ?? "",
                                                                             "\r\r\r\r",
                                                                             "https://", ExternalDNSName, BasePath, "/users/", User.Id, "\r\r\r\r",
@@ -15656,7 +15655,7 @@ namespace social.OpenData.UsersAPI
                         {
 
                             if (messageTypes.Contains(deleteUser_MessageType))
-                                await TelegramClient.SendTelegrams(String.Concat("User <a href=\"https://", ExternalDNSName, BasePath, "/users/", User.Id, "\">", User.Name, "</a> has been deleted."),
+                                await TelegramClient.SendTelegrams(String.Concat("User ", UserHTMLInfo(User), " has been deleted."),
                                                                    AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username),
                                                                    Telegram.Bot.Types.Enums.ParseMode.Html);
 
@@ -15685,7 +15684,7 @@ namespace social.OpenData.UsersAPI
                     {
 
                         if (messageTypes.Contains(deleteUser_MessageType))
-                            SendSMS(String.Concat("User '", User.Name, "' has been deleted."),
+                            SendSMS(String.Concat("User ", UserTextInfo(User), " has been deleted."),
                                     AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
                                     SMSSenderName);
 
@@ -15753,14 +15752,14 @@ namespace social.OpenData.UsersAPI
                                          From           = Robot.EMail,
                                          To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
                                          Passphrase     = APIPassphrase,
-                                         Subject        = String.Concat("User '", User.Name, "' has been deleted."),
+                                         Subject        = "User " + UserTextInfo(User) + " has been deleted",
 
                                          HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                        "User <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", User.Id, "\">", User.Name, "</a> has been deleted.<br />",
+                                                                        "User ", UserHTMLInfo(User), " has been deleted.<br />",
                                                                         HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
                                          PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                        "User '", User.Name, "' has been deleted.\r\n",
+                                                                        "User ", UserTextInfo(User), " has been deleted.\r\n",
                                                                         TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
                                          SecurityLevel  = EMailSecurity.autosign
@@ -26238,6 +26237,20 @@ namespace social.OpenData.UsersAPI
 
         #region (protected internal) SendNotifications           (Organization,                      MessageType(s), OldOrganization = null, ...)
 
+        protected virtual String OrganizationHTMLInfo(Organization Organization)
+
+            => String.Concat(Organization.Name.IsNeitherNullNorEmpty()
+                                 ? String.Concat("<a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a> ",
+                                                "(<a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Id, "</a>)")
+                                 : String.Concat("<a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Id, "</a>"));
+
+        protected virtual String OrganizationTextInfo(Organization Organization)
+
+            => String.Concat(Organization.Name.IsNeitherNullNorEmpty()
+                                 ? String.Concat("'", Organization.Name.FirstText(), "' (", Organization.Id, ")")
+                                 : String.Concat("'", Organization.Id.ToString(), "'"));
+
+
         /// <summary>
         /// Send organization notifications.
         /// </summary>
@@ -26316,14 +26329,12 @@ namespace social.OpenData.UsersAPI
                         {
 
                             if (messageTypes.Contains(addOrganization_MessageType))
-                                await TelegramClient.SendTelegrams(String.Concat("Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a> was successfully created. ",
-                                                                                 "https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id),
+                                await TelegramClient.SendTelegrams(OrganizationHTMLInfo(Organization) + " was successfully created.",
                                                                    AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username),
                                                                    Telegram.Bot.Types.Enums.ParseMode.Html);
 
                             if (messageTypes.Contains(updateOrganization_MessageType))
-                                await TelegramClient.SendTelegrams(String.Concat("Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a> information had been successfully updated.updated.\n",
-                                                                                 comparizionResult?.ToTelegram() ?? ""),
+                                await TelegramClient.SendTelegrams(OrganizationHTMLInfo(Organization) + " information had been successfully updated.\n" + comparizionResult?.ToTelegram(),
                                                                    AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username),
                                                                    Telegram.Bot.Types.Enums.ParseMode.Html);
 
@@ -26431,14 +26442,14 @@ namespace social.OpenData.UsersAPI
                                              From           = Robot.EMail,
                                              To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
                                              Passphrase     = APIPassphrase,
-                                             Subject        = String.Concat("Organization '", Organization.Name.FirstText(), "' was successfully created."),
+                                             Subject        = OrganizationTextInfo(Organization) + " was successfully created",
 
                                              HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                            "Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a> was successfully created.",
+                                                                            OrganizationHTMLInfo(Organization) + " was successfully created.",
                                                                             HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
                                              PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                            "Organization '", Organization.Name.FirstText(), "' was successfully created.\r\n",
+                                                                            OrganizationTextInfo(Organization) + " was successfully created.\r\n",
                                                                             "https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\r\r\r\r",
                                                                             TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
@@ -26453,15 +26464,15 @@ namespace social.OpenData.UsersAPI
                                              From           = Robot.EMail,
                                              To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
                                              Passphrase     = APIPassphrase,
-                                             Subject        = String.Concat("Organization '", Organization.Name.FirstText(), "' information had been successfully updated."),
+                                             Subject        = OrganizationTextInfo(Organization) + " information had been successfully updated",
 
                                              HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                            "Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a> information had been successfully updated.<br /><br />",
+                                                                            OrganizationHTMLInfo(Organization) + " information had been successfully updated.<br /><br />",
                                                                             comparizionResult?.ToHTML() ?? "",
                                                                             HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
                                              PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                            "Organization '", Organization.Name.FirstText(), "' information had been successfully updated.\r\r\r\r",
+                                                                            OrganizationTextInfo(Organization) + " information had been successfully updated.\r\r\r\r",
                                                                             comparizionResult?.ToText() ?? "",
                                                                             "\r\r\r\r",
                                                                             "https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\r\r\r\r",
@@ -26567,7 +26578,7 @@ namespace social.OpenData.UsersAPI
                         {
 
                             if (messageTypes.Contains(deleteOrganization_MessageType))
-                                await TelegramClient.SendTelegrams(String.Concat("Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a> has been deleted."),
+                                await TelegramClient.SendTelegrams(OrganizationHTMLInfo(Organization) + " has been deleted.",
                                                                    AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username),
                                                                    Telegram.Bot.Types.Enums.ParseMode.Html);
 
@@ -26664,14 +26675,14 @@ namespace social.OpenData.UsersAPI
                                          From           = Robot.EMail,
                                          To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
                                          Passphrase     = APIPassphrase,
-                                         Subject        = String.Concat("Organization '", Organization.Name.FirstText(), "' has been deleted."),
+                                         Subject        = OrganizationTextInfo(Organization) + " has been deleted",
 
                                          HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                        "Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a> has been deleted.<br />",
+                                                                        OrganizationHTMLInfo(Organization) + " has been deleted.<br />",
                                                                         HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
                                          PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                        "Organization '", Organization.Name.FirstText(), "' has been deleted.\r\n",
+                                                                        OrganizationTextInfo(Organization) + " has been deleted.\r\n",
                                                                         TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
                                          SecurityLevel  = EMailSecurity.autosign
@@ -30942,12 +30953,12 @@ namespace social.OpenData.UsersAPI
                         {
 
                             if (MessageTypes.Contains(addUserToOrganization_MessageType))
-                                await TelegramClient.SendTelegrams(String.Concat("User '", User.Name, "' was added to organization '", Organization.Name.FirstText(), "'" + membership + "."),
+                                await TelegramClient.SendTelegrams(String.Concat("User ", UserHTMLInfo(User), " was added to organization ", OrganizationHTMLInfo(Organization), membership, "."),
                                                                    AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username),
                                                                    Telegram.Bot.Types.Enums.ParseMode.Html);
 
                             if (MessageTypes.Contains(removeUserFromOrganization_MessageType))
-                                await TelegramClient.SendTelegrams(String.Concat("User '", User.Name, "' was removed from organization '", Organization.Name.FirstText(), "'."),
+                                await TelegramClient.SendTelegrams(String.Concat("User ", UserHTMLInfo(User), " was removed from organization ", OrganizationHTMLInfo(Organization), "."),
                                                                    AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username),
                                                                    Telegram.Bot.Types.Enums.ParseMode.Html);
 
@@ -30974,12 +30985,12 @@ namespace social.OpenData.UsersAPI
                     {
 
                         if (MessageTypes.Contains(addUserToOrganization_MessageType))
-                            SendSMS(String.Concat("User '", User.Name, "' was added to organization '", Organization.Name.FirstText(), "'" + membership + "."),
+                            SendSMS(String.Concat("User ", UserTextInfo(User), " was added to organization ", OrganizationTextInfo(Organization), membership, "."),
                                     AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
                                     SMSSenderName);
 
                         if (MessageTypes.Contains(removeUserFromOrganization_MessageType))
-                            SendSMS(String.Concat("User '", User.Name, "' was removed from organization '", Organization.Name.FirstText(), "'."),
+                            SendSMS(String.Concat("User ", UserTextInfo(User), " was removed from organization ", OrganizationTextInfo(Organization), "."),
                                     AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
                                     SMSSenderName);
 
@@ -31056,14 +31067,14 @@ namespace social.OpenData.UsersAPI
                                          From           = Robot.EMail,
                                          To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
                                          Passphrase     = APIPassphrase,
-                                         Subject        = String.Concat("User '", User.Name, "' was added to organization '", Organization.Name.FirstText(), "'" + membership + "."),
+                                         Subject        = String.Concat("User ", UserTextInfo(User), " was added to organization ", Organization.Name.FirstText(), membership, "."),
 
                                          HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                        "User <a href=\"https://", this.ExternalDNSName, this.BasePath, "/users/", User.Id, "\">", User.Name, "</a> has been added to organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a>.<br />",
+                                                                        "User ", UserHTMLInfo(User), " has been added to organization ", OrganizationHTMLInfo(Organization), membership, ".<br />",
                                                                         HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
                                          PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                        "User '" + User.Name + "' has been added to organization '", Organization.Name.FirstText(), "'.\r\n",
+                                                                        "User ", UserTextInfo(User), " has been added to organization ", OrganizationTextInfo(Organization), membership, ".\r\n",
                                                                         TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
                                          SecurityLevel  = EMailSecurity.autosign
@@ -31077,14 +31088,14 @@ namespace social.OpenData.UsersAPI
                                          From           = Robot.EMail,
                                          To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
                                          Passphrase     = APIPassphrase,
-                                         Subject        = String.Concat("User '", User.Name, "' was removed from organization '", Organization.Name.FirstText(), "'."),
+                                         Subject        = String.Concat("User ", UserTextInfo(User), " was removed from organization ", Organization.Name.FirstText(), "."),
 
                                          HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                        "User <a href=\"https://", this.ExternalDNSName, this.BasePath, "/users/", User.Id, "\">", User.Name, "</a> has been removed from organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a>.<br />",
+                                                                        "User ", UserHTMLInfo(User), " has been removed from organization ", OrganizationHTMLInfo(Organization), ".<br />",
                                                                         HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
                                          PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                        "User '" + User.Name + "' has been removed from organization '", Organization.Name.FirstText(), "'.\r\n",
+                                                                        "User ", UserTextInfo(User), " has been removed from organization ", OrganizationTextInfo(Organization), ".\r\n",
                                                                         TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
                                          SecurityLevel  = EMailSecurity.autosign
@@ -31745,14 +31756,14 @@ namespace social.OpenData.UsersAPI
 
                             if (messageTypes.Contains(linkOrganizations_MessageType))
                             {
-                                await TelegramClient.SendTelegrams(String.Concat("Organization '", OrganizationOut.Name.FirstText(), "' was linked to organization '", OrganizationIn.Name.FirstText(), "'."),
+                                await TelegramClient.SendTelegrams(String.Concat("Organization ", OrganizationHTMLInfo(OrganizationOut), " was linked to organization ", OrganizationHTMLInfo(OrganizationIn), "."),
                                                                    AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username),
                                                                    Telegram.Bot.Types.Enums.ParseMode.Html);
                             }
 
                             if (messageTypes.Contains(unlinkOrganizations_MessageType))
                             {
-                                await TelegramClient.SendTelegrams(String.Concat("Organization '", OrganizationOut.Name.FirstText(), "' was unlinked from organization '", OrganizationIn.Name.FirstText(), "'."),
+                                await TelegramClient.SendTelegrams(String.Concat("Organization ", OrganizationHTMLInfo(OrganizationOut), " was unlinked from organization ", OrganizationHTMLInfo(OrganizationIn), "."),
                                                                    AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username),
                                                                    Telegram.Bot.Types.Enums.ParseMode.Html);
                             }
@@ -31782,14 +31793,14 @@ namespace social.OpenData.UsersAPI
 
                         if (messageTypes.Contains(linkOrganizations_MessageType))
                         {
-                            SendSMS(String.Concat("Organization '", OrganizationOut.Name.FirstText(), "' was linked to organization '", OrganizationIn.Name.FirstText(), "'."),
+                            SendSMS(String.Concat("Organization ", OrganizationTextInfo(OrganizationOut), " was linked to organization ", OrganizationTextInfo(OrganizationIn), "."),
                                     AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
                                     SMSSenderName);
                         }
 
                         if (messageTypes.Contains(unlinkOrganizations_MessageType))
                         {
-                            SendSMS(String.Concat("Organization '", OrganizationOut.Name.FirstText(), "' was unlinked from organization '", OrganizationIn.Name.FirstText(), "'."),
+                            SendSMS(String.Concat("Organization ", OrganizationTextInfo(OrganizationOut), " was unlinked from organization ", OrganizationTextInfo(OrganizationIn), "."),
                                     AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
                                     SMSSenderName);
                         }
@@ -31880,14 +31891,14 @@ namespace social.OpenData.UsersAPI
                                              From           = Robot.EMail,
                                              To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
                                              Passphrase     = APIPassphrase,
-                                             Subject        = String.Concat("Organization '", OrganizationOut.Name.FirstText(), "' was linked to organization '", OrganizationIn.Name.FirstText(), "'."),
+                                             Subject        = String.Concat("Organization ", OrganizationTextInfo(OrganizationOut), " was linked to organization ", OrganizationTextInfo(OrganizationIn), "."),
 
                                              HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                            "Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", OrganizationOut.Id, "\">", OrganizationOut.Name.FirstText(), "</a> had been linked to organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", OrganizationIn.Id, "\">", OrganizationIn.Name.FirstText(), "</a>.<br />",
+                                                                            "Organization ", OrganizationHTMLInfo(OrganizationOut), " had been linked to organization ", OrganizationTextInfo(OrganizationIn), ".<br />",
                                                                             HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
                                              PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                            "Organization '" + OrganizationOut.Name.FirstText() + "' had been linked to organization '", OrganizationIn.Name.FirstText(), "'.\r\r\r\r",
+                                                                            "Organization ", OrganizationTextInfo(OrganizationOut), " had been linked to organization ", OrganizationTextInfo(OrganizationIn), ".\r\r\r\r",
                                                                             TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
                                              SecurityLevel  = EMailSecurity.autosign
@@ -31903,14 +31914,14 @@ namespace social.OpenData.UsersAPI
                                              From           = Robot.EMail,
                                              To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
                                              Passphrase     = APIPassphrase,
-                                             Subject        = String.Concat("Organization '", OrganizationOut.Name.FirstText(), "' was unlinked from organization '", OrganizationIn.Name.FirstText(), "'."),
+                                             Subject        = String.Concat("Organization ", OrganizationTextInfo(OrganizationOut), " was unlinked from organization ", OrganizationTextInfo(OrganizationIn), "."),
 
                                              HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                            "Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", OrganizationOut.Id, "\">", OrganizationOut.Name.FirstText(), "</a> had been unlinked from organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", OrganizationIn.Id, "\">", OrganizationIn.Name.FirstText(), "</a>.<br />",
+                                                                            "Organization ", OrganizationHTMLInfo(OrganizationOut), " had been unlinked from organization ", OrganizationTextInfo(OrganizationIn), ".<br />",
                                                                             HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
                                              PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
-                                                                            "Organization '" + OrganizationOut.Name.FirstText() + "' had been unlinked from organization '", OrganizationIn.Name.FirstText(), "'.\r\r\r\r",
+                                                                            "Organization ", OrganizationTextInfo(OrganizationOut), " had been unlinked from organization ", OrganizationTextInfo(OrganizationIn), ".\r\r\r\r",
                                                                             TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
                                              SecurityLevel  = EMailSecurity.autosign
