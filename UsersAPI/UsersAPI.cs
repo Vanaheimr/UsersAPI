@@ -4024,12 +4024,13 @@ namespace social.OpenData.UsersAPI
             Response       = Organizations.SafeAny()
                                  ? null
                                  : new HTTPResponse.Builder(Request) {
-                                       HTTPStatusCode  = HTTPStatusCode.Unauthorized,
-                                       Location        = URLPathPrefix + "login",
-                                       Date            = Timestamp.Now,
-                                       Server          = HTTPServer.DefaultServerName,
-                                       CacheControl    = "private, max-age=0, no-cache",
-                                       Connection      = "close"
+                                       HTTPStatusCode      = HTTPStatusCode.Unauthorized,
+                                       Location            = URLPathPrefix + "login?redirect=" + Request.Path.ToString(),
+                                       Date                = Timestamp.Now,
+                                       Server              = HTTPServer.DefaultServerName,
+                                       CacheControl        = "private, max-age=0, no-cache",
+                                       XLocationAfterAuth  = Request.Path,
+                                       Connection          = "close"
                                    };
 
             return Organizations.SafeAny();
