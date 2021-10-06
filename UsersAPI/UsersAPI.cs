@@ -2617,11 +2617,11 @@ namespace social.OpenData.UsersAPI
                         Byte?                                MinNewsBannerIdLength              = null,
                         Byte?                                MinFAQIdLength                     = null,
 
-                        Boolean                              DisableMaintenanceTasks            = false,
+                        Boolean?                             DisableMaintenanceTasks            = null,
                         TimeSpan?                            MaintenanceInitialDelay            = null,
                         TimeSpan?                            MaintenanceEvery                   = null,
 
-                        Boolean                              DisableWardenTasks                 = false,
+                        Boolean?                             DisableWardenTasks                 = null,
                         TimeSpan?                            WardenInitialDelay                 = null,
                         TimeSpan?                            WardenCheckEvery                   = null,
 

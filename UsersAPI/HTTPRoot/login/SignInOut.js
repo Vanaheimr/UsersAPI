@@ -461,7 +461,7 @@ function SignOut() {
 }
 function Depersonate() {
     HTTPDepersonate((URLPathPrefix !== null && URLPathPrefix !== void 0 ? URLPathPrefix : "") + "/users/" + SignInUser, (status, response) => {
-        window.location.reload(true);
+        window.location.reload();
     }, (status, statusText, response) => {
         alert("Not allowed!");
     });

@@ -373,7 +373,7 @@ function ImpersonateUser(newUserId: string): void {
     HTTPImpersonate("/users/" + newUserId,
 
         (status, response) => {
-            window.location.reload(true);
+            window.location.reload();
         },
 
         (statusCode, status, response) => {

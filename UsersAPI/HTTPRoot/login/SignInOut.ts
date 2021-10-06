@@ -732,7 +732,7 @@ function Depersonate() {
     HTTPDepersonate((URLPathPrefix ?? "") + "/users/" + SignInUser,
 
                     (status, response) => {
-                        window.location.reload(true);
+                        window.location.reload();
                     },
 
                     (status, statusText, response) => {

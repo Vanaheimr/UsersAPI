@@ -172,7 +172,7 @@ function UpdateI18NTextArea(I18NTextArea, I18NString) {
 }
 function ImpersonateUser(newUserId) {
     HTTPImpersonate("/users/" + newUserId, (status, response) => {
-        window.location.reload(true);
+        window.location.reload();
     }, (statusCode, status, response) => {
         alert("Not allowed!");
     });

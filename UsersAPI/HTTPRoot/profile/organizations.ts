@@ -9,7 +9,7 @@ function ShowOrganizations() {
         HTTPImpersonate("/users/" + newUserId,
 
                         (HTTPStatus, ResponseText) => {
-                            window.location.reload(true);
+                            window.location.reload();
                         },
 
                         (HTTPStatus, StatusText, ResponseText) => {
