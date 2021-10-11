@@ -12849,12 +12849,14 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
-                                             Environment.Exit(1000);
+                                             //Task.Run(() => {
+                                             //    Task.Delay(10000);
+                                                 Environment.Exit(1000);
+                                             //});
 
-                                             // Will not happen anyway!
                                              return Task.FromResult(
                                                  new HTTPResponse.Builder(Request) {
-                                                     HTTPStatusCode  = HTTPStatusCode.Unauthorized,
+                                                     HTTPStatusCode  = HTTPStatusCode.OK,
                                                      Server          = HTTPServer.DefaultServerName,
                                                      Connection      = "close"
                                                  }.AsImmutable);
@@ -12865,9 +12867,9 @@ namespace social.OpenData.UsersAPI
 
             #region /stop
 
-            // -----------------------------------------------
+            // --------------------------------------------
             // curl -v -X POST http://127.0.0.1:2000/stop
-            // -----------------------------------------------
+            // --------------------------------------------
             HTTPServer.AddMethodCallback(HTTPHostname.Any,
                                          HTTPMethod.POST,
                                          URLPathPrefix + "/stop",
@@ -12890,12 +12892,14 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
-                                             Environment.Exit(0);
+                                             //Task.Run(() => {
+                                             //    Task.Delay(1000);
+                                                 Environment.Exit(0);
+                                             //});
 
-                                             // Will not happen anyway!
                                              return Task.FromResult(
                                                  new HTTPResponse.Builder(Request) {
-                                                     HTTPStatusCode  = HTTPStatusCode.Unauthorized,
+                                                     HTTPStatusCode  = HTTPStatusCode.OK,
                                                      Server          = HTTPServer.DefaultServerName,
                                                      Connection      = "close"
                                                  }.AsImmutable);
