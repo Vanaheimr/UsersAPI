@@ -12829,7 +12829,7 @@ namespace social.OpenData.UsersAPI
             // -----------------------------------------------
             HTTPServer.AddMethodCallback(HTTPHostname.Any,
                                          HTTPMethod.POST,
-                                         HTTPPath.Parse("/restart"),
+                                         URLPathPrefix + "/restart",
                                          HTTPRequestLogger:   RestartRequest,
                                          HTTPResponseLogger:  RestartResponse,
                                          HTTPDelegate:        Request => {
@@ -12849,9 +12849,9 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
-                                             //if (IsAdmin(HTTPUser) == Access_Levels.Admin)
-                                                 Environment.Exit(1000);
+                                             Environment.Exit(1000);
 
+                                             // Will not happen anyway!
                                              return Task.FromResult(
                                                  new HTTPResponse.Builder(Request) {
                                                      HTTPStatusCode  = HTTPStatusCode.Unauthorized,
@@ -12870,7 +12870,7 @@ namespace social.OpenData.UsersAPI
             // -----------------------------------------------
             HTTPServer.AddMethodCallback(HTTPHostname.Any,
                                          HTTPMethod.POST,
-                                         HTTPPath.Parse("/stop"),
+                                         URLPathPrefix + "/stop",
                                          HTTPRequestLogger:   StopRequest,
                                          HTTPResponseLogger:  StopResponse,
                                          HTTPDelegate:        Request => {
@@ -12890,9 +12890,9 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
-                                             //if (IsAdmin(HTTPUser) == Access_Levels.Admin)
-                                                 Environment.Exit(0);
+                                             Environment.Exit(0);
 
+                                             // Will not happen anyway!
                                              return Task.FromResult(
                                                  new HTTPResponse.Builder(Request) {
                                                      HTTPStatusCode  = HTTPStatusCode.Unauthorized,
