@@ -58,13 +58,16 @@ namespace social.OpenData.UsersAPI
         /// Create a new UsersAPI logger using the default logging delegates.
         /// </summary>
         /// <param name="UsersAPI">A UsersAPI.</param>
+        /// <param name="LoggingPath">The logging path.</param>
         /// <param name="Context">A context of this API.</param>
         /// <param name="LogFileCreator">A delegate to create a log file from the given context and log file name.</param>
         public UsersAPILogger(UsersAPI                UsersAPI,
+                              String                  LoggingPath,
                               String                  Context         = DefaultContext,
                               LogfileCreatorDelegate  LogFileCreator  = null)
 
             : this(UsersAPI,
+                   LoggingPath,
                    Context,
                    null,
                    null,
@@ -82,6 +85,7 @@ namespace social.OpenData.UsersAPI
         /// Create a new UsersAPI logger using the given logging delegates.
         /// </summary>
         /// <param name="UsersAPI">A UsersAPI.</param>
+        /// <param name="LoggingPath">The logging path.</param>
         /// <param name="Context">A context of this API.</param>
         /// 
         /// <param name="LogHTTPRequest_toConsole">A delegate to log incoming HTTP requests to console.</param>
@@ -101,6 +105,7 @@ namespace social.OpenData.UsersAPI
         /// 
         /// <param name="LogFileCreator">A delegate to create a log file from the given context and log file name.</param>
         public UsersAPILogger(UsersAPI                    UsersAPI,
+                              String                      LoggingPath,
                               String                      Context,
 
                               HTTPRequestLoggerDelegate   LogHTTPRequest_toConsole,
@@ -121,6 +126,7 @@ namespace social.OpenData.UsersAPI
                               LogfileCreatorDelegate      LogFileCreator              = null)
 
             : base(UsersAPI.HTTPServer,
+                   LoggingPath,
                    Context,
 
                    LogHTTPRequest_toConsole,
