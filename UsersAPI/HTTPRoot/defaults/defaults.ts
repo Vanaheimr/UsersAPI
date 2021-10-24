@@ -1,7 +1,8 @@
 ﻿
-var HTTPCookieId: string = "UsersAPI";
-var APIKey:       string = null;
-var UILanguage:   string = "en";
+var HTTPCookieId:  string = "UsersAPI";
+var URLPathPrefix: string = null;
+var APIKey:        string = null;
+var UILanguage:    string = "en";
 let CurrentlyHighlightedMenuItem     = "";
 let CurrentlyHighlightedSubmenuItem  = "";
 var mapboxgl:any = null;
@@ -372,7 +373,7 @@ function ImpersonateUser(newUserId: string): void {
     HTTPImpersonate("/users/" + newUserId,
 
         (status, response) => {
-            window.location.reload(true);
+            window.location.reload();
         },
 
         (statusCode, status, response) => {

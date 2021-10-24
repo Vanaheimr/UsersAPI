@@ -1,6 +1,6 @@
 ﻿/*
- * Copyright (c) 2014-2021, Achim 'ahzf' Friedland <achim@graphdefined.org>
- * This file is part of OpenDataAPI <http://www.github.com/GraphDefined/OpenDataAPI>
+ * Copyright (c) 2014-2021, Achim Friedland <achim.friedland@graphdefined.com>
+ * This file is part of UsersAPI <https://www.github.com/Vanaheimr/UsersAPI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ using Newtonsoft.Json.Linq;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 using org.GraphDefined.Vanaheimr.Illias;
 using social.OpenData.UsersAPI;
+using org.GraphDefined.Vanaheimr.Hermod;
 
 #endregion
 
@@ -50,6 +51,38 @@ namespace social.OpenData.UsersAPI.Notifications
         #endregion
 
         #region Properties
+
+        #region API
+
+        private Object _API;
+
+        /// <summary>
+        /// The API of this News.
+        /// </summary>
+        internal Object API
+        {
+
+            get
+            {
+                return _API;
+            }
+
+            set
+            {
+
+                if (_API != null)
+                    throw new ArgumentException("Illegal attempt to change the API of this notification message!");
+
+                if (value == null)
+                    throw new ArgumentException("Illegal attempt to delete the API reference of this notification message!");
+
+                _API = value;
+
+            }
+
+        }
+
+        #endregion
 
         /// <summary>
         /// The timestamp of the notification message.
@@ -76,16 +109,10 @@ namespace social.OpenData.UsersAPI.Notifications
         public IEnumerable<Organization_Id>  Owners          { get; }
 
         /// <summary>
-        /// The privacy level of the notification message.
-        /// </summary>
-        [Mandatory]
-        public PrivacyLevel                  PrivacyLevel    { get; }
-
-        /// <summary>
         /// Optional cryptographic signatures of the notification message.
         /// </summary>
         [Mandatory]
-        public IEnumerable<String>           Signatures      { get; }
+        public IEnumerable<Signature>        Signatures      { get; }
 
         #endregion
 
@@ -94,26 +121,22 @@ namespace social.OpenData.UsersAPI.Notifications
         /// <summary>
         /// Create a new notification message.
         /// </summary>
-        /// <param name="Id">The unique identification of the notification message.</param>
         /// <param name="Timestamp">The timestamp of the notification message.</param>
         /// <param name="Type">The message type of the notification message.</param>
         /// <param name="Data">The data of the notification message.</param>
         /// <param name="Owners">The owners of the notification message.</param>
-        /// <param name="PrivacyLevel">The privacy level of the notification message.</param>
         /// <param name="Signatures">Optional cryptographic signatures of the notification message.</param>
         public NotificationMessage(DateTime                      Timestamp,
                                    NotificationMessageType       Type,
                                    JObject                       Data,
                                    IEnumerable<Organization_Id>  Owners,
-                                   PrivacyLevel?                 PrivacyLevel  = null,
-                                   IEnumerable<String>           Signatures    = null)
+                                   IEnumerable<Signature>        Signatures    = null)
 
             : this(NotificationMessage_Id.Random(),
                    Timestamp,
                    Type,
                    Data,
                    Owners,
-                   PrivacyLevel,
                    Signatures)
 
         { }
@@ -127,20 +150,23 @@ namespace social.OpenData.UsersAPI.Notifications
         /// <param name="Type">The message type of the notification message.</param>
         /// <param name="Data">The data of the notification message.</param>
         /// <param name="Owners">The owners of the notification message.</param>
-        /// <param name="PrivacyLevel">The privacy level of the notification message.</param>
         /// <param name="Signatures">Optional cryptographic signatures of the notification message.</param>
         public NotificationMessage(NotificationMessage_Id        Id,
                                    DateTime                      Timestamp,
                                    NotificationMessageType       Type,
                                    JObject                       Data,
                                    IEnumerable<Organization_Id>  Owners,
-                                   PrivacyLevel?                 PrivacyLevel  = null,
-                                   IEnumerable<String>           Signatures    = null)
+                                   IEnumerable<Signature>        Signatures   = null,
+
+                                   JObject                       CustomData   = default,
+                                   String                        DataSource   = default,
+                                   DateTime?                     LastChange   = default)
 
             : base(Id,
                    DefaultJSONLDContext,
-                   null,
-                   "")
+                   CustomData,
+                   DataSource,
+                   LastChange)
 
         {
 
@@ -148,8 +174,7 @@ namespace social.OpenData.UsersAPI.Notifications
             this.Type          = Type;
             this.Data          = Data;
             this.Owners        = Owners == null ? new Organization_Id[0] : Owners;
-            this.PrivacyLevel  = PrivacyLevel ?? social.OpenData.UsersAPI.PrivacyLevel.Private;
-            this.Signatures    = Signatures   ?? new String[0];
+            this.Signatures    = Signatures    ?? new Signature[0];
 
             CalcHash();
 
@@ -284,18 +309,6 @@ namespace social.OpenData.UsersAPI.Notifications
 
                 #endregion
 
-                #region Parse PrivacyLevel            [mandatory]
-
-                if (!JSONObject.ParseMandatoryEnum("privacyLevel",
-                                               "privacy level",
-                                               out PrivacyLevel PrivacyLevel,
-                                               out ErrorResponse))
-                {
-                    return false;
-                }
-
-                #endregion
-
                 #region Parse Data                    [mandatory]
 
                 if (!JSONObject.ParseMandatory("name",
@@ -368,8 +381,7 @@ namespace social.OpenData.UsersAPI.Notifications
                                                               Type,
                                                               Data,
                                                               OwnerIds,
-                                                              PrivacyLevel,
-                                                              Signatures.Select(jtoken => jtoken.Value<String>()));
+                                                              null);
 
                 ErrorResponse = null;
                 return true;
@@ -641,6 +653,188 @@ namespace social.OpenData.UsersAPI.Notifications
         /// </summary>
         public override String ToString()
             => Id.ToString();
+
+        #endregion
+
+
+        #region ToBuilder(NewNotificationMessageId = null)
+
+        /// <summary>
+        /// Return a builder for this notification message.
+        /// </summary>
+        /// <param name="NewNotificationMessageId">An optional new notification message identification.</param>
+        public Builder ToBuilder(NotificationMessage_Id? NewNotificationMessageId = null)
+
+            => new Builder(NewNotificationMessageId ?? Id,
+                           Timestamp,
+                           Type,
+                           Data,
+                           Owners,
+                           Signatures,
+
+                           CustomData,
+                           DataSource,
+                           LastChange);
+
+        #endregion
+
+        #region (class) Builder
+
+        /// <summary>
+        /// A notification message builder.
+        /// </summary>
+        public new class Builder : AEntity<NotificationMessage_Id,
+                                          NotificationMessage>.Builder
+        {
+
+            #region Properties
+
+            /// <summary>
+            /// The timestamp of the notification message.
+            /// </summary>
+            [Mandatory]
+            public DateTime?                     Timestamp       { get; set; }
+
+            /// <summary>
+            /// The message type of the notification message.
+            /// </summary>
+            [Mandatory]
+            public NotificationMessageType?      Type            { get; set; }
+
+            /// <summary>
+            /// The data of the notification message.
+            /// </summary>
+            [Mandatory]
+            public JObject                       Data            { get; set; }
+
+            /// <summary>
+            /// The owners of the notification message.
+            /// </summary>
+            [Mandatory]
+            public HashSet<Organization_Id>      Owners          { get; }
+
+            /// <summary>
+            /// Optional cryptographic signatures of the notification message.
+            /// </summary>
+            [Mandatory]
+            public IEnumerable<Signature>        Signatures      { get; }
+
+            #endregion
+
+            #region Constructor(s)
+
+            /// <summary>
+            /// Create a new News builder.
+            /// </summary>
+            public Builder(NotificationMessage_Id?       Id                = null,
+                           DateTime?                     Timestamp         = null,
+                           NotificationMessageType?      Type              = null,
+                           JObject                       Data              = null,
+                           IEnumerable<Organization_Id>  Owners            = null,
+                           IEnumerable<Signature>        Signatures        = null,
+
+                           JObject                       CustomData        = default,
+                           String                        DataSource        = default,
+                           DateTime?                     LastChange        = default)
+
+                : base(Id ?? NotificationMessage_Id.Random(),
+                       DefaultJSONLDContext,
+                       CustomData,
+                       DataSource,
+                       LastChange)
+
+            {
+
+                this.Timestamp     = Timestamp;
+                this.Type          = Type;
+                this.Data          = Data;
+                this.Owners        = Owners     != null ? new HashSet<Organization_Id>(Owners)     : new HashSet<Organization_Id>();
+                this.Signatures    = Signatures != null ? new HashSet<Signature>      (Signatures) : new HashSet<Signature>();
+
+            }
+
+            #endregion
+
+
+            //public NotificationMessage Sign(ICipherParameters PrivateKey)
+            //{
+
+            //    var news        = new NotificationMessage(Id,
+            //                                      Headline,
+            //                                      Text,
+            //                                      Author,
+            //                                      PublicationDate,
+            //                                      Tags,
+            //                                      IsHidden,
+            //                                      Signatures);
+
+            //    var ctext       = news.ToJSON(Embedded:           false,
+            //                                  ExpandTags:         InfoStatus.ShowIdOnly,
+            //                                  IncludeCryptoHash:  false).ToString(Newtonsoft.Json.Formatting.None);
+
+            //    var BlockSize   = 32;
+
+            //    var SHA256      = new SHA256Managed();
+            //    var SHA256Hash  = SHA256.ComputeHash(ctext.ToUTF8Bytes());
+            //    var signer      = SignerUtilities.GetSigner("NONEwithECDSA");
+            //    signer.Init(true, PrivateKey);
+            //    signer.BlockUpdate(SHA256Hash, 0, BlockSize);
+
+            //    var signature   = signer.GenerateSignature().ToHexString();
+            //    var signatures  = new List<Signature>(Signatures);
+            //    signatures.Add(new Signature("json", "secp256k1", "DER+HEX", signature));
+
+            //    return new NotificationMessage(Id,
+            //                           Headline,
+            //                           Text,
+            //                           Author,
+            //                           PublicationDate,
+            //                           Tags,
+            //                           IsHidden,
+            //                           signatures);
+
+            //}
+
+
+            public override void CopyAllLinkedDataFrom(NotificationMessage OldEnity)
+            {
+            }
+
+            public override int CompareTo(object obj)
+            {
+                return 0;
+            }
+
+            #region ToImmutable
+
+            /// <summary>
+            /// Return an immutable version of the News.
+            /// </summary>
+            /// <param name="Builder">A News builder.</param>
+            public static implicit operator NotificationMessage(Builder Builder)
+
+                => Builder?.ToImmutable;
+
+
+            /// <summary>
+            /// Return an immutable version of the News.
+            /// </summary>
+            public NotificationMessage ToImmutable
+
+                => new NotificationMessage(Id,
+                                           Timestamp ?? org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
+                                           Type      ?? NotificationMessageType.Parse("default"),
+                                           Data,
+                                           Owners,
+                                           Signatures,
+
+                                           CustomData,
+                                           DataSource,
+                                           LastChange);
+
+            #endregion
+
+        }
 
         #endregion
 

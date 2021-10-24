@@ -2,7 +2,7 @@ function StartNewMember() {
     let newUserJSON = {
         "@id": "",
         "@context": "https://opendata.social/contexts/UsersAPI/user",
-        "username": null,
+        "name": null,
         "email": "",
         "telephone": "",
         "mobilephone": "",
@@ -16,7 +16,7 @@ function StartNewMember() {
     const dataDiv = newMemberDiv.querySelector('#data');
     const accessRights = dataDiv.querySelector('#accessRights');
     const login = dataDiv.querySelector('#login');
-    const username = dataDiv.querySelector('#username');
+    const name = dataDiv.querySelector('#name');
     const eMail = dataDiv.querySelector('#eMail');
     const language = dataDiv.querySelector('#language');
     const telephone = dataDiv.querySelector('#telephone');
@@ -24,7 +24,7 @@ function StartNewMember() {
     const homepage = dataDiv.querySelector('#homepage');
     const description = dataDiv.querySelector('#description');
     const loginError = login.parentElement.querySelector('.validationError');
-    const usernameError = username.parentElement.querySelector('.validationError');
+    const nameError = name.parentElement.querySelector('.validationError');
     const eMailError = eMail.parentElement.querySelector('.validationError');
     const telephoneError = telephone.parentElement.querySelector('.validationError');
     const mobilePhoneError = mobilePhone.parentElement.querySelector('.validationError');
@@ -33,7 +33,7 @@ function StartNewMember() {
     const lowerButtonsDiv = newMemberDiv.querySelector('#lowerButtons');
     const saveButton = lowerButtonsDiv.querySelector("#saveButton");
     login.oninput = () => { VerifyLogin(); };
-    username.oninput = () => { VerifyName(); };
+    name.oninput = () => { VerifyName(); };
     eMail.oninput = () => { VerifyEMail(); };
     telephone.oninput = () => { VerifyTelephone(); };
     mobilePhone.oninput = () => { VerifyMobilePhone(); };
@@ -85,22 +85,22 @@ function StartNewMember() {
         }
     }
     function VerifyName() {
-        const name = username.value;
-        if (name === "") {
+        const username = name.value;
+        if (username === "") {
             saveButton.disabled = true;
-            newUserJSON.username = "";
+            newUserJSON.name = "";
         }
-        else if (/^(.{4,})$/.test(name) == false) {
+        else if (/^(.{4,})$/.test(username) == false) {
             saveButton.disabled = true;
-            newUserJSON.username = "";
-            username.classList.add("error");
-            usernameError.innerText = "Invalid user name!";
-            usernameError.style.display = "flex";
+            newUserJSON.name = "";
+            name.classList.add("error");
+            nameError.innerText = "Invalid user name!";
+            nameError.style.display = "flex";
         }
         else {
-            username.classList.remove("error");
-            usernameError.style.display = "none";
-            newUserJSON.username = name;
+            name.classList.remove("error");
+            nameError.style.display = "none";
+            newUserJSON.name = username;
             VerifyAll();
         }
     }
@@ -193,7 +193,7 @@ function StartNewMember() {
     }
     function VerifyAll() {
         if (newUserJSON["@id"] != null &&
-            newUserJSON.username != "" &&
+            newUserJSON.name != "" &&
             newUserJSON.email != "" &&
             newUserJSON.telephone != null &&
             newUserJSON.mobilephone != null &&

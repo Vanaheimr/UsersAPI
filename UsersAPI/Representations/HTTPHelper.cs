@@ -1,6 +1,6 @@
 ﻿/*
- * Copyright (c) 2014-2021, Achim 'ahzf' Friedland <achim@graphdefined.org>
- * This file is part of Open Data Graph API <http://www.github.com/GraphDefined/OpenDataAPI>
+ * Copyright (c) 2014-2021, Achim Friedland <achim.friedland@graphdefined.com>
+ * This file is part of Open Data Graph API <https://www.github.com/Vanaheimr/UsersAPI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -139,7 +139,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                      HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                      Server                     = HTTPServerName,
-                                                     Date                       = DateTime.UtcNow,
+                                                     Date                       = Timestamp.Now,
                                                      AccessControlAllowOrigin   = "*",
                                                      AccessControlAllowMethods  = "GET, EXISTS, COUNT",
                                                      AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -154,7 +154,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                      HTTPStatusCode  = HTTPStatusCode.NotFound,
                                                      Server          = HTTPServerName,
-                                                     Date            = DateTime.UtcNow,
+                                                     Date            = Timestamp.Now,
                                                      ContentType     = HTTPContentType.JSON_UTF8,
                                                      Content         = ErrorMessage(TryGetItemError(Id)).ToUTF8Bytes(),
                                                      CacheControl    = "no-cache",
@@ -164,7 +164,7 @@ namespace social.OpenData.UsersAPI
                                              return new HTTPResponse.Builder(Request) {
                                                  HTTPStatusCode  = HTTPStatusCode.OK,
                                                  Server          = HTTPServerName,
-                                                 Date            = DateTime.UtcNow,
+                                                 Date            = Timestamp.Now,
                                                  ETag            = "1",
                                                  CacheControl    = "public",
                                                  //Expires         = "Mon, 25 Jun 2015 21:31:12 GMT",

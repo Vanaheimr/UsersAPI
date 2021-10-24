@@ -1,6 +1,6 @@
 ﻿/*
- * Copyright (c) 2014-2021, Achim 'ahzf' Friedland <achim@graphdefined.org>
- * This file is part of OpenDataAPI <http://www.github.com/GraphDefined/OpenDataAPI>
+ * Copyright (c) 2014-2021, Achim Friedland <achim.friedland@graphdefined.com>
+ * This file is part of UsersAPI <https://www.github.com/Vanaheimr/UsersAPI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,10 +24,11 @@ using System.Collections.Generic;
 
 using Newtonsoft.Json.Linq;
 
-using social.OpenData.UsersAPI;
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
+
+using social.OpenData.UsersAPI;
 
 #endregion
 
@@ -40,59 +41,17 @@ namespace social.OpenData.UsersAPI.Notifications
     public static class HTTPSNotificationExtentions
     {
 
-        #region AddHTTPSNotification(this UsersAPI, User,                             URL, Method, BasicAuth_Login = null, BasicAuth_Password = null, APIKey = null)
-
-        public static Task AddHTTPSNotification(this UsersAPI  UsersAPI,
-                                                User           User,
-                                                String         URL,
-                                                HTTPMethod?    Method              = null,
-                                                IPPort?        TCPPort             = null,
-                                                String         BasicAuth_Login     = null,
-                                                String         BasicAuth_Password  = null,
-                                                String         APIKey              = null)
-
-            => UsersAPI.AddNotification(User,
-                                        new HTTPSNotification(URL,
-                                                              Method,
-                                                              TCPPort,
-                                                              BasicAuth_Login,
-                                                              BasicAuth_Password,
-                                                              APIKey));
-
-        #endregion
-
-        #region AddHTTPSNotification(this UsersAPI, UserId,                           URL, Method, BasicAuth_Login = null, BasicAuth_Password = null, APIKey = null)
-
-        public static Task AddHTTPSNotification(this UsersAPI  UsersAPI,
-                                                User_Id        UserId,
-                                                String         URL,
-                                                HTTPMethod?    Method              = null,
-                                                IPPort?        TCPPort             = null,
-                                                String         BasicAuth_Login     = null,
-                                                String         BasicAuth_Password  = null,
-                                                String         APIKey              = null)
-
-            => UsersAPI.AddNotification(UserId,
-                                        new HTTPSNotification(URL,
-                                                              Method,
-                                                              TCPPort,
-                                                              BasicAuth_Login,
-                                                              BasicAuth_Password,
-                                                              APIKey));
-
-        #endregion
-
-        #region AddHTTPSNotification(this UsersAPI, User,   NotificationMessageType,  URL, Method, BasicAuth_Login = null, BasicAuth_Password = null, APIKey = null)
+        #region AddHTTPSNotification(this UsersAPI, User, NotificationMessageType,  URL, Method, BasicAuth_Login = null, BasicAuth_Password = null, APIKey = null)
 
         public static Task AddHTTPSNotification(this UsersAPI            UsersAPI,
                                                 User                     User,
                                                 NotificationMessageType  NotificationMessageType,
                                                 String                   URL,
-                                                HTTPMethod?              Method              = null,
-                                                IPPort?                  TCPPort             = null,
-                                                String                   BasicAuth_Login     = null,
-                                                String                   BasicAuth_Password  = null,
-                                                String                   APIKey              = null)
+                                                HTTPMethod?              Method               = null,
+                                                IPPort?                  TCPPort              = null,
+                                                String                   BasicAuth_Login      = null,
+                                                String                   BasicAuth_Password   = null,
+                                                String                   APIKey               = null)
 
             => UsersAPI.AddNotification(User,
                                         new HTTPSNotification(URL,
@@ -105,40 +64,17 @@ namespace social.OpenData.UsersAPI.Notifications
 
         #endregion
 
-        #region AddHTTPSNotification(this UsersAPI, UserId, NotificationMessageType,  URL, Method, BasicAuth_Login = null, BasicAuth_Password = null, APIKey = null)
-
-        public static Task AddHTTPSNotification(this UsersAPI            UsersAPI,
-                                                User_Id                  UserId,
-                                                NotificationMessageType  NotificationMessageType,
-                                                String                   URL,
-                                                HTTPMethod?              Method              = null,
-                                                IPPort?                  TCPPort             = null,
-                                                String                   BasicAuth_Login     = null,
-                                                String                   BasicAuth_Password  = null,
-                                                String                   APIKey              = null)
-
-            => UsersAPI.AddNotification(UserId,
-                                        new HTTPSNotification(URL,
-                                                              Method,
-                                                              TCPPort,
-                                                              BasicAuth_Login,
-                                                              BasicAuth_Password,
-                                                              APIKey),
-                                        NotificationMessageType);
-
-        #endregion
-
-        #region AddHTTPSNotification(this UsersAPI, User,   NotificationMessageTypes, URL, Method, BasicAuth_Login = null, BasicAuth_Password = null, APIKey = null)
+        #region AddHTTPSNotification(this UsersAPI, User, NotificationMessageTypes, URL, Method, BasicAuth_Login = null, BasicAuth_Password = null, APIKey = null)
 
         public static Task AddHTTPSNotification(this UsersAPI                         UsersAPI,
                                                 User                                  User,
                                                 IEnumerable<NotificationMessageType>  NotificationMessageTypes,
                                                 String                                URL,
-                                                HTTPMethod?                           Method              = null,
-                                                IPPort?                               TCPPort             = null,
-                                                String                                BasicAuth_Login     = null,
-                                                String                                BasicAuth_Password  = null,
-                                                String                                APIKey              = null)
+                                                HTTPMethod?                           Method               = null,
+                                                IPPort?                               TCPPort              = null,
+                                                String                                BasicAuth_Login      = null,
+                                                String                                BasicAuth_Password   = null,
+                                                String                                APIKey               = null)
 
             => UsersAPI.AddNotification(User,
                                         new HTTPSNotification(URL,
@@ -151,31 +87,8 @@ namespace social.OpenData.UsersAPI.Notifications
 
         #endregion
 
-        #region AddHTTPSNotification(this UsersAPI, UserId, NotificationMessageTypes, URL, Method, BasicAuth_Login = null, BasicAuth_Password = null, APIKey = null)
 
-        public static Task AddHTTPSNotification(this UsersAPI                         UsersAPI,
-                                                User_Id                               UserId,
-                                                IEnumerable<NotificationMessageType>  NotificationMessageTypes,
-                                                String                                URL,
-                                                HTTPMethod?                           Method              = null,
-                                                IPPort?                               TCPPort             = null,
-                                                String                                BasicAuth_Login     = null,
-                                                String                                BasicAuth_Password  = null,
-                                                String                                APIKey              = null)
-
-            => UsersAPI.AddNotification(UserId,
-                                        new HTTPSNotification(URL,
-                                                              Method,
-                                                              TCPPort,
-                                                              BasicAuth_Login,
-                                                              BasicAuth_Password,
-                                                              APIKey),
-                                        NotificationMessageTypes);
-
-        #endregion
-
-
-        #region GetHTTPSNotifications(this UsersAPI, User,           params NotificationMessageTypes)
+        #region GetHTTPSNotifications(this UsersAPI, User,         params NotificationMessageTypes)
 
         public static IEnumerable<HTTPSNotification> GetHTTPSNotifications(this UsersAPI                     UsersAPI,
                                                                            User                              User,
@@ -187,19 +100,7 @@ namespace social.OpenData.UsersAPI.Notifications
 
         #endregion
 
-        #region GetHTTPSNotifications(this UsersAPI, UserId,         params NotificationMessageTypes)
-
-        public static IEnumerable<HTTPSNotification> GetHTTPSNotifications(this UsersAPI                     UsersAPI,
-                                                                           User_Id                           UserId,
-                                                                           params NotificationMessageType[]  NotificationMessageTypes)
-
-
-            => UsersAPI.GetNotificationsOf<HTTPSNotification>(UserId,
-                                                              NotificationMessageTypes);
-
-        #endregion
-
-        #region GetHTTPSNotifications(this UsersAPI, Organization,   params NotificationMessageTypes)
+        #region GetHTTPSNotifications(this UsersAPI, Organization, params NotificationMessageTypes)
 
         public static IEnumerable<HTTPSNotification> GetHTTPSNotifications(this UsersAPI                     UsersAPI,
                                                                            Organization                      Organization,
@@ -211,14 +112,14 @@ namespace social.OpenData.UsersAPI.Notifications
 
         #endregion
 
-        #region GetHTTPSNotifications(this UsersAPI, OrganizationId, params NotificationMessageTypes)
+        #region GetHTTPSNotifications(this UsersAPI, UserGroup,    params NotificationMessageTypes)
 
         public static IEnumerable<HTTPSNotification> GetHTTPSNotifications(this UsersAPI                     UsersAPI,
-                                                                           Organization_Id                   OrganizationId,
+                                                                           UserGroup                         UserGroup,
                                                                            params NotificationMessageType[]  NotificationMessageTypes)
 
 
-            => UsersAPI.GetNotificationsOf<HTTPSNotification>(OrganizationId,
+            => UsersAPI.GetNotificationsOf<HTTPSNotification>(UserGroup,
                                                               NotificationMessageTypes);
 
         #endregion

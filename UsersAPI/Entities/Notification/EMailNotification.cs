@@ -1,6 +1,6 @@
 ﻿/*
- * Copyright (c) 2014-2021, Achim 'ahzf' Friedland <achim@graphdefined.org>
- * This file is part of OpenDataAPI <http://www.github.com/GraphDefined/OpenDataAPI>
+ * Copyright (c) 2014-2021, Achim Friedland <achim.friedland@graphdefined.com>
+ * This file is part of UsersAPI <https://www.github.com/Vanaheimr/UsersAPI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,106 +38,50 @@ namespace social.OpenData.UsersAPI.Notifications
     public static class EMailNotificationExtentions
     {
 
-        #region AddEMailNotification(this UsersAPI, User,                             EMailAddress, Subject = null, SubjectPrefix = null)
-
-        public static Task AddEMailNotification(this UsersAPI  UsersAPI,
-                                                User           User,
-                                                EMailAddress   EMailAddress,
-                                                String         Subject        = null,
-                                                String         SubjectPrefix  = null)
-
-            => UsersAPI.AddNotification(User,
-                                        new EMailNotification(EMailAddress,
-                                                              Subject,
-                                                              SubjectPrefix));
-
-        #endregion
-
-        #region AddEMailNotification(this UsersAPI, UserId,                           EMailAddress, Subject = null, SubjectPrefix = null)
-
-        public static Task AddEMailNotification(this UsersAPI  UsersAPI,
-                                                User_Id        UserId,
-                                                EMailAddress   EMailAddress,
-                                                String         Subject        = null,
-                                                String         SubjectPrefix  = null)
-
-            => UsersAPI.AddNotification(UserId,
-                                        new EMailNotification(EMailAddress,
-                                                              Subject,
-                                                              SubjectPrefix));
-
-        #endregion
-
-        #region AddEMailNotification(this UsersAPI, User,   NotificationMessageType,  EMailAddress, Subject = null, SubjectPrefix = null)
+        #region AddEMailNotification(this UsersAPI, User, NotificationMessageType,  EMailAddress = null, Subject = null, SubjectPrefix = null)
 
         public static Task AddEMailNotification(this UsersAPI            UsersAPI,
                                                 User                     User,
                                                 NotificationMessageType  NotificationMessageType,
-                                                EMailAddress             EMailAddress,
-                                                String                   Subject        = null,
-                                                String                   SubjectPrefix  = null)
+                                                EMailAddress             EMailAddress      = null,
+                                                String                   Subject           = null,
+                                                String                   SubjectPrefix     = null,
+                                                EventTracking_Id         EventTrackingId   = null,
+                                                User_Id?                 CurrentUserId     = null)
 
             => UsersAPI.AddNotification(User,
-                                        new EMailNotification(EMailAddress,
+                                        new EMailNotification(EMailAddress ?? User.EMail,
                                                               Subject,
                                                               SubjectPrefix),
-                                        NotificationMessageType);
+                                        NotificationMessageType,
+                                        EventTrackingId,
+                                        CurrentUserId);
 
         #endregion
 
-        #region AddEMailNotification(this UsersAPI, UserId, NotificationMessageType,  EMailAddress, Subject = null, SubjectPrefix = null)
-
-        public static Task AddEMailNotification(this UsersAPI            UsersAPI,
-                                                User_Id                  UserId,
-                                                NotificationMessageType  NotificationMessageType,
-                                                EMailAddress             EMailAddress,
-                                                String                   Subject        = null,
-                                                String                   SubjectPrefix  = null)
-
-            => UsersAPI.AddNotification(UserId,
-                                        new EMailNotification(EMailAddress,
-                                                              Subject,
-                                                              SubjectPrefix),
-                                        NotificationMessageType);
-
-        #endregion
-
-        #region AddEMailNotification(this UsersAPI, User,   NotificationMessageTypes, EMailAddress, Subject = null, SubjectPrefix = null)
+        #region AddEMailNotification(this UsersAPI, User, NotificationMessageTypes, EMailAddress = null, Subject = null, SubjectPrefix = null)
 
         public static Task AddEMailNotification(this UsersAPI                         UsersAPI,
                                                 User                                  User,
                                                 IEnumerable<NotificationMessageType>  NotificationMessageTypes,
-                                                EMailAddress                          EMailAddress,
-                                                String                                Subject        = null,
-                                                String                                SubjectPrefix  = null)
+                                                EMailAddress                          EMailAddress      = null,
+                                                String                                Subject           = null,
+                                                String                                SubjectPrefix     = null,
+                                                EventTracking_Id                      EventTrackingId   = null,
+                                                User_Id?                              CurrentUserId     = null)
 
             => UsersAPI.AddNotification(User,
-                                        new EMailNotification(EMailAddress,
+                                        new EMailNotification(EMailAddress ?? User.EMail,
                                                               Subject,
                                                               SubjectPrefix),
-                                        NotificationMessageTypes);
-
-        #endregion
-
-        #region AddEMailNotification(this UsersAPI, UserId, NotificationMessageTypes, EMailAddress, Subject = null, SubjectPrefix = null)
-
-        public static Task AddEMailNotification(this UsersAPI                         UsersAPI,
-                                                User_Id                               UserId,
-                                                IEnumerable<NotificationMessageType>  NotificationMessageTypes,
-                                                EMailAddress                          EMailAddress,
-                                                String                                Subject        = null,
-                                                String                                SubjectPrefix  = null)
-
-            => UsersAPI.AddNotification(UserId,
-                                        new EMailNotification(EMailAddress,
-                                                              Subject,
-                                                              SubjectPrefix),
-                                        NotificationMessageTypes);
+                                        NotificationMessageTypes,
+                                        EventTrackingId,
+                                        CurrentUserId);
 
         #endregion
 
 
-        #region GetEMailNotifications(this UsersAPI, User,           params NotificationMessageTypes)
+        #region GetEMailNotifications(this UsersAPI, User,         params NotificationMessageTypes)
 
         public static IEnumerable<EMailNotification> GetEMailNotifications(this UsersAPI                     UsersAPI,
                                                                            User                              User,
@@ -149,19 +93,7 @@ namespace social.OpenData.UsersAPI.Notifications
 
         #endregion
 
-        #region GetEMailNotifications(this UsersAPI, UserId,         params NotificationMessageTypes)
-
-        public static IEnumerable<EMailNotification> GetEMailNotifications(this UsersAPI                     UsersAPI,
-                                                                           User_Id                           UserId,
-                                                                           params NotificationMessageType[]  NotificationMessageTypes)
-
-
-            => UsersAPI.GetNotificationsOf<EMailNotification>(UserId,
-                                                              NotificationMessageTypes);
-
-        #endregion
-
-        #region GetEMailNotifications(this UsersAPI, Organization,   params NotificationMessageTypes)
+        #region GetEMailNotifications(this UsersAPI, Organization, params NotificationMessageTypes)
 
         public static IEnumerable<EMailNotification> GetEMailNotifications(this UsersAPI                     UsersAPI,
                                                                            Organization                      Organization,
@@ -173,14 +105,14 @@ namespace social.OpenData.UsersAPI.Notifications
 
         #endregion
 
-        #region GetEMailNotifications(this UsersAPI, OrganizationId, params NotificationMessageTypes)
+        #region GetEMailNotifications(this UsersAPI, UserGroup,    params NotificationMessageTypes)
 
         public static IEnumerable<EMailNotification> GetEMailNotifications(this UsersAPI                     UsersAPI,
-                                                                           Organization_Id                   OrganizationId,
+                                                                           UserGroup                         UserGroup,
                                                                            params NotificationMessageType[]  NotificationMessageTypes)
 
 
-            => UsersAPI.GetNotificationsOf<EMailNotification>(OrganizationId,
+            => UsersAPI.GetNotificationsOf<EMailNotification>(UserGroup,
                                                               NotificationMessageTypes);
 
         #endregion

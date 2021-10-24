@@ -1,6 +1,6 @@
 ﻿/*
- * Copyright (c) 2014-2021, Achim 'ahzf' Friedland <achim@graphdefined.org>
- * This file is part of OpenDataAPI <http://www.github.com/GraphDefined/OpenDataAPI>
+ * Copyright (c) 2014-2021, Achim Friedland <achim.friedland@graphdefined.com>
+ * This file is part of UsersAPI <https://www.github.com/Vanaheimr/UsersAPI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,9 @@ using System.Collections.Generic;
 
 using Newtonsoft.Json.Linq;
 
-using social.OpenData.UsersAPI;
 using org.GraphDefined.Vanaheimr.Illias;
+
+using social.OpenData.UsersAPI;
 
 #endregion
 
@@ -38,94 +39,62 @@ namespace social.OpenData.UsersAPI.Notifications
     public static class SMSNotificationExtentions
     {
 
-        #region AddSMSNotification(this UsersAPI, User,                             Phonenumber, TextTemplate = null)
-
-        public static Task AddSMSNotification(this UsersAPI  UsersAPI,
-                                              User           User,
-                                              PhoneNumber    Phonenumber,
-                                              String         TextTemplate  = null)
-
-            => UsersAPI.AddNotification(User,
-                                        new SMSNotification(Phonenumber,
-                                                            TextTemplate));
-
-        #endregion
-
-        #region AddSMSNotification(this UsersAPI, UserId,                           Phonenumber, TextTemplate = null)
-
-        public static Task AddSMSNotification(this UsersAPI  UsersAPI,
-                                              User_Id        UserId,
-                                              PhoneNumber    Phonenumber,
-                                              String         TextTemplate  = null)
-
-            => UsersAPI.AddNotification(UserId,
-                                        new SMSNotification(Phonenumber,
-                                                            TextTemplate));
-
-        #endregion
-
-        #region AddSMSNotification(this UsersAPI, User,   NotificationMessageType,  Phonenumber, TextTemplate = null)
+        #region AddSMSNotification(this UsersAPI, User, NotificationMessageType,  Phonenumber = null, TextTemplate = null)
 
         public static Task AddSMSNotification(this UsersAPI            UsersAPI,
                                               User                     User,
                                               NotificationMessageType  NotificationMessageType,
-                                              PhoneNumber              Phonenumber,
-                                              String                   TextTemplate  = null)
+                                              PhoneNumber?             PhoneNumber       = null,
+                                              String                   TextTemplate      = null,
+                                              EventTracking_Id         EventTrackingId   = null,
+                                              User_Id?                 CurrentUserId     = null)
+        {
 
-            => UsersAPI.AddNotification(User,
-                                        new SMSNotification(Phonenumber,
-                                                            TextTemplate),
-                                        NotificationMessageType);
+            var phoneNumber = PhoneNumber ?? User.MobilePhone;
 
-        #endregion
+            if (!phoneNumber.HasValue || phoneNumber.Value.IsNullOrEmpty)
+                throw new ArgumentNullException(nameof(PhoneNumber), "The given mobile phone number must not be null or empty!");
 
-        #region AddSMSNotification(this UsersAPI, UserId, NotificationMessageType,  Phonenumber, TextTemplate = null)
+            return UsersAPI.AddNotification(User,
+                                            new SMSNotification(phoneNumber.Value,
+                                                                TextTemplate),
+                                            NotificationMessageType,
+                                            EventTrackingId,
+                                            CurrentUserId);
 
-        public static Task AddSMSNotification(this UsersAPI            UsersAPI,
-                                              User_Id                  UserId,
-                                              NotificationMessageType  NotificationMessageType,
-                                              PhoneNumber              Phonenumber,
-                                              String                   TextTemplate  = null)
-
-            => UsersAPI.AddNotification(UserId,
-                                        new SMSNotification(Phonenumber,
-                                                            TextTemplate),
-                                        NotificationMessageType);
+        }
 
         #endregion
 
-        #region AddSMSNotification(this UsersAPI, User,   NotificationMessageTypes, Phonenumber, TextTemplate = null)
+        #region AddSMSNotification(this UsersAPI, User, NotificationMessageTypes, PhoneNumber = null, TextTemplate = null)
 
         public static Task AddSMSNotification(this UsersAPI                         UsersAPI,
                                               User                                  User,
                                               IEnumerable<NotificationMessageType>  NotificationMessageTypes,
-                                              PhoneNumber                           Phonenumber,
-                                              String                                TextTemplate  = null)
+                                              PhoneNumber?                          PhoneNumber       = null,
+                                              String                                TextTemplate      = null,
+                                              EventTracking_Id                      EventTrackingId   = null,
+                                              User_Id?                              CurrentUserId     = null)
+        {
 
-            => UsersAPI.AddNotification(User,
-                                        new SMSNotification(Phonenumber,
-                                                            TextTemplate),
-                                        NotificationMessageTypes);
+            var phoneNumber = PhoneNumber ?? User.MobilePhone;
 
-        #endregion
+            if (!phoneNumber.HasValue || phoneNumber.Value.IsNullOrEmpty)
+                throw new ArgumentNullException(nameof(PhoneNumber), "The given mobile phone number must not be null or empty!");
 
-        #region AddSMSNotification(this UsersAPI, UserId, NotificationMessageTypes, Phonenumber, TextTemplate = null)
+            return UsersAPI.AddNotification(User,
+                                            new SMSNotification(phoneNumber.Value,
+                                                                TextTemplate),
+                                            NotificationMessageTypes,
+                                            EventTrackingId,
+                                            CurrentUserId);
 
-        public static Task AddSMSNotification(this UsersAPI                         UsersAPI,
-                                              User_Id                               UserId,
-                                              IEnumerable<NotificationMessageType>  NotificationMessageTypes,
-                                              PhoneNumber                           Phonenumber,
-                                              String                                TextTemplate  = null)
-
-            => UsersAPI.AddNotification(UserId,
-                                        new SMSNotification(Phonenumber,
-                                                            TextTemplate),
-                                        NotificationMessageTypes);
+        }
 
         #endregion
 
 
-        #region GetSMSNotifications(this UsersAPI, User,           params NotificationMessageTypes)
+        #region GetSMSNotifications(this UsersAPI, User,         params NotificationMessageTypes)
 
         public static IEnumerable<SMSNotification> GetSMSNotifications(this UsersAPI                     UsersAPI,
                                                                        User                              User,
@@ -137,19 +106,7 @@ namespace social.OpenData.UsersAPI.Notifications
 
         #endregion
 
-        #region GetSMSNotifications(this UsersAPI, UserId,         params NotificationMessageTypes)
-
-        public static IEnumerable<SMSNotification> GetSMSNotifications(this UsersAPI                     UsersAPI,
-                                                                       User_Id                           UserId,
-                                                                       params NotificationMessageType[]  NotificationMessageTypes)
-
-
-            => UsersAPI.GetNotificationsOf<SMSNotification>(UserId,
-                                                            NotificationMessageTypes);
-
-        #endregion
-
-        #region GetSMSNotifications(this UsersAPI, Organization,   params NotificationMessageTypes)
+        #region GetSMSNotifications(this UsersAPI, Organization, params NotificationMessageTypes)
 
         public static IEnumerable<SMSNotification> GetSMSNotifications(this UsersAPI                     UsersAPI,
                                                                        Organization                      Organization,
@@ -161,14 +118,14 @@ namespace social.OpenData.UsersAPI.Notifications
 
         #endregion
 
-        #region GetSMSNotifications(this UsersAPI, OrganizationId, params NotificationMessageTypes)
+        #region GetSMSNotifications(this UsersAPI, UserGroup,    params NotificationMessageTypes)
 
         public static IEnumerable<SMSNotification> GetSMSNotifications(this UsersAPI                     UsersAPI,
-                                                                       Organization_Id                   OrganizationId,
+                                                                       UserGroup                         UserGroup,
                                                                        params NotificationMessageType[]  NotificationMessageTypes)
 
 
-            => UsersAPI.GetNotificationsOf<SMSNotification>(OrganizationId,
+            => UsersAPI.GetNotificationsOf<SMSNotification>(UserGroup,
                                                             NotificationMessageTypes);
 
         #endregion

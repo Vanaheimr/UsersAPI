@@ -1,6 +1,6 @@
 ﻿/*
- * Copyright (c) 2014-2021, Achim 'ahzf' Friedland <achim@graphdefined.org>
- * This file is part of OpenDataAPI <http://www.github.com/GraphDefined/OpenDataAPI>
+ * Copyright (c) 2014-2021, Achim Friedland <achim.friedland@graphdefined.com>
+ * This file is part of UsersAPI <https://www.github.com/Vanaheimr/UsersAPI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,19 +29,22 @@ namespace social.OpenData.UsersAPI
     /// <summary>
     /// The unique identification of a service ticket change set.
     /// </summary>
-    public struct ServiceTicketChangeSet_Id : IId,
-                                              IEquatable<ServiceTicketChangeSet_Id>,
-                                              IComparable<ServiceTicketChangeSet_Id>
+    public readonly struct ServiceTicketChangeSet_Id : IId,
+                                                       IEquatable<ServiceTicketChangeSet_Id>,
+                                                       IComparable<ServiceTicketChangeSet_Id>
     {
 
         #region Data
 
-        private static readonly Random _random = new Random(DateTime.Now.Millisecond);
-
         /// <summary>
         /// The internal identification.
         /// </summary>
-        private readonly String  InternalId;
+        private readonly String InternalId;
+
+        /// <summary>
+        /// Private non-cryptographic random number generator.
+        /// </summary>
+        private static readonly Random _random = new Random();
 
         #endregion
 
@@ -54,11 +57,10 @@ namespace social.OpenData.UsersAPI
             => InternalId.IsNullOrEmpty();
 
         /// <summary>
-        /// The length of the service ticket change set identification.
+        /// The length of the service ticket change set identificator.
         /// </summary>
         public UInt64 Length
-
-            => (UInt64) InternalId.Length;
+            => (UInt64) InternalId?.Length;
 
         #endregion
 
@@ -67,10 +69,9 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Create a new service ticket change set identification based on the given string.
         /// </summary>
-        /// <param name="String">The string representation of the service ticket change set identification.</param>
-        private ServiceTicketChangeSet_Id(String  String)
+        private ServiceTicketChangeSet_Id(String Text)
         {
-            this.InternalId  = String;
+            InternalId = Text;
         }
 
         #endregion
@@ -82,78 +83,74 @@ namespace social.OpenData.UsersAPI
         /// Create a new service ticket change set identification.
         /// </summary>
         /// <param name="Length">The expected length of the service ticket change set identification.</param>
-        public static ServiceTicketChangeSet_Id Random(Byte Length = 10)
+        public static ServiceTicketChangeSet_Id Random(Byte Length = 15)
 
             => new ServiceTicketChangeSet_Id(_random.RandomString(Length).ToUpper());
 
         #endregion
 
-        #region (static) Parse   (Text)
+        #region Parse   (Text)
 
         /// <summary>
         /// Parse the given string as a service ticket change set identification.
         /// </summary>
-        /// <param name="Text">A text representation of a service ticket change set identification.</param>
+        /// <param name="Text">A text-representation of a service ticket change set identification.</param>
         public static ServiceTicketChangeSet_Id Parse(String Text)
         {
 
-            if (TryParse(Text, out ServiceTicketChangeSet_Id _ServiceTicketChangeSetId))
-                return _ServiceTicketChangeSetId;
+            if (TryParse(Text, out ServiceTicketChangeSet_Id serviceTicketChangeSetId))
+                return serviceTicketChangeSetId;
 
-            throw new ArgumentException("The given text representation of a service ticket change set identification is invalid!", nameof(Text));
+            throw new ArgumentException("Invalid text-representation of a service ticket change set identification: '" + Text + "'!",
+                                        nameof(Text));
 
         }
 
         #endregion
 
-        #region (static) TryParse(Text)
+        #region TryParse(Text)
 
         /// <summary>
         /// Try to parse the given string as a service ticket change set identification.
         /// </summary>
-        /// <param name="Text">A text representation of a service ticket change set identification.</param>
+        /// <param name="Text">A text-representation of a service ticket change set identification.</param>
         public static ServiceTicketChangeSet_Id? TryParse(String Text)
         {
 
-            if (TryParse(Text, out ServiceTicketChangeSet_Id _ServiceTicketChangeSetId))
-                return _ServiceTicketChangeSetId;
+            if (TryParse(Text, out ServiceTicketChangeSet_Id serviceTicketChangeSetId))
+                return serviceTicketChangeSetId;
 
-            return new ServiceTicketChangeSet_Id?();
+            return null;
 
         }
 
         #endregion
 
-        #region (static) TryParse(Text, out ServiceTicketChangeSetId)
+        #region TryParse(Text, out ServiceTicketChangeSetId)
 
         /// <summary>
         /// Try to parse the given string as a service ticket change set identification.
         /// </summary>
-        /// <param name="Text">A text representation of a service ticket change set identification.</param>
+        /// <param name="Text">A text-representation of a service ticket change set identification.</param>
         /// <param name="ServiceTicketChangeSetId">The parsed service ticket change set identification.</param>
         public static Boolean TryParse(String Text, out ServiceTicketChangeSet_Id ServiceTicketChangeSetId)
         {
 
-            #region Initial checks
+            Text = Text?.Trim();
 
-            if (Text != null)
-                Text = Text.Trim();
-
-            if (Text.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Text), "The given text representation of a service ticket change set identification must not be null or empty!");
-
-            #endregion
-
-            try
+            if (Text.IsNotNullOrEmpty())
             {
-                ServiceTicketChangeSetId = new ServiceTicketChangeSet_Id(Text);
-                return true;
+                try
+                {
+                    ServiceTicketChangeSetId = new ServiceTicketChangeSet_Id(Text);
+                    return true;
+                }
+                catch
+                { }
             }
-            catch (Exception)
-            {
-                ServiceTicketChangeSetId = default(ServiceTicketChangeSet_Id);
-                return false;
-            }
+
+            ServiceTicketChangeSetId = default;
+            return false;
 
         }
 
@@ -164,11 +161,10 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Clone this service ticket change set identification.
         /// </summary>
-
         public ServiceTicketChangeSet_Id Clone
 
             => new ServiceTicketChangeSet_Id(
-                   new String(InternalId.ToCharArray())
+                   new String(InternalId?.ToCharArray())
                );
 
         #endregion
@@ -176,107 +172,93 @@ namespace social.OpenData.UsersAPI
 
         #region Operator overloading
 
-        #region Operator == (ServiceTicketChangeSetId1, ServiceTicketChangeSetId2)
+        #region Operator == (ServiceTicketChangeSetIdId1, ServiceTicketChangeSetIdId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="ServiceTicketChangeSetId1">A service ticket change set identification.</param>
-        /// <param name="ServiceTicketChangeSetId2">Another service ticket change set identification.</param>
+        /// <param name="ServiceTicketChangeSetIdId1">A service ticket change set identification.</param>
+        /// <param name="ServiceTicketChangeSetIdId2">Another service ticket change set identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator == (ServiceTicketChangeSet_Id ServiceTicketChangeSetId1, ServiceTicketChangeSet_Id ServiceTicketChangeSetId2)
-        {
+        public static Boolean operator == (ServiceTicketChangeSet_Id ServiceTicketChangeSetIdId1,
+                                           ServiceTicketChangeSet_Id ServiceTicketChangeSetIdId2)
 
-            // If both are null, or both are same instance, return true.
-            if (Object.ReferenceEquals(ServiceTicketChangeSetId1, ServiceTicketChangeSetId2))
-                return true;
-
-            // If one is null, but not both, return false.
-            if (((Object) ServiceTicketChangeSetId1 == null) || ((Object) ServiceTicketChangeSetId2 == null))
-                return false;
-
-            return ServiceTicketChangeSetId1.Equals(ServiceTicketChangeSetId2);
-
-        }
+            => ServiceTicketChangeSetIdId1.Equals(ServiceTicketChangeSetIdId2);
 
         #endregion
 
-        #region Operator != (ServiceTicketChangeSetId1, ServiceTicketChangeSetId2)
+        #region Operator != (ServiceTicketChangeSetIdId1, ServiceTicketChangeSetIdId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="ServiceTicketChangeSetId1">A service ticket change set identification.</param>
-        /// <param name="ServiceTicketChangeSetId2">Another service ticket change set identification.</param>
+        /// <param name="ServiceTicketChangeSetIdId1">A service ticket change set identification.</param>
+        /// <param name="ServiceTicketChangeSetIdId2">Another service ticket change set identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator != (ServiceTicketChangeSet_Id ServiceTicketChangeSetId1, ServiceTicketChangeSet_Id ServiceTicketChangeSetId2)
-            => !(ServiceTicketChangeSetId1 == ServiceTicketChangeSetId2);
+        public static Boolean operator != (ServiceTicketChangeSet_Id ServiceTicketChangeSetIdId1,
+                                           ServiceTicketChangeSet_Id ServiceTicketChangeSetIdId2)
+
+            => !ServiceTicketChangeSetIdId1.Equals(ServiceTicketChangeSetIdId2);
 
         #endregion
 
-        #region Operator <  (ServiceTicketChangeSetId1, ServiceTicketChangeSetId2)
+        #region Operator <  (ServiceTicketChangeSetIdId1, ServiceTicketChangeSetIdId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="ServiceTicketChangeSetId1">A service ticket change set identification.</param>
-        /// <param name="ServiceTicketChangeSetId2">Another service ticket change set identification.</param>
+        /// <param name="ServiceTicketChangeSetIdId1">A service ticket change set identification.</param>
+        /// <param name="ServiceTicketChangeSetIdId2">Another service ticket change set identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator < (ServiceTicketChangeSet_Id ServiceTicketChangeSetId1, ServiceTicketChangeSet_Id ServiceTicketChangeSetId2)
-        {
+        public static Boolean operator < (ServiceTicketChangeSet_Id ServiceTicketChangeSetIdId1,
+                                          ServiceTicketChangeSet_Id ServiceTicketChangeSetIdId2)
 
-            if ((Object) ServiceTicketChangeSetId1 == null)
-                throw new ArgumentNullException(nameof(ServiceTicketChangeSetId1), "The given ServiceTicketChangeSetId1 must not be null!");
-
-            return ServiceTicketChangeSetId1.CompareTo(ServiceTicketChangeSetId2) < 0;
-
-        }
+            => ServiceTicketChangeSetIdId1.CompareTo(ServiceTicketChangeSetIdId2) < 0;
 
         #endregion
 
-        #region Operator <= (ServiceTicketChangeSetId1, ServiceTicketChangeSetId2)
+        #region Operator <= (ServiceTicketChangeSetIdId1, ServiceTicketChangeSetIdId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="ServiceTicketChangeSetId1">A service ticket change set identification.</param>
-        /// <param name="ServiceTicketChangeSetId2">Another service ticket change set identification.</param>
+        /// <param name="ServiceTicketChangeSetIdId1">A service ticket change set identification.</param>
+        /// <param name="ServiceTicketChangeSetIdId2">Another service ticket change set identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator <= (ServiceTicketChangeSet_Id ServiceTicketChangeSetId1, ServiceTicketChangeSet_Id ServiceTicketChangeSetId2)
-            => !(ServiceTicketChangeSetId1 > ServiceTicketChangeSetId2);
+        public static Boolean operator <= (ServiceTicketChangeSet_Id ServiceTicketChangeSetIdId1,
+                                           ServiceTicketChangeSet_Id ServiceTicketChangeSetIdId2)
+
+            => ServiceTicketChangeSetIdId1.CompareTo(ServiceTicketChangeSetIdId2) <= 0;
 
         #endregion
 
-        #region Operator >  (ServiceTicketChangeSetId1, ServiceTicketChangeSetId2)
+        #region Operator >  (ServiceTicketChangeSetIdId1, ServiceTicketChangeSetIdId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="ServiceTicketChangeSetId1">A service ticket change set identification.</param>
-        /// <param name="ServiceTicketChangeSetId2">Another service ticket change set identification.</param>
+        /// <param name="ServiceTicketChangeSetIdId1">A service ticket change set identification.</param>
+        /// <param name="ServiceTicketChangeSetIdId2">Another service ticket change set identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator > (ServiceTicketChangeSet_Id ServiceTicketChangeSetId1, ServiceTicketChangeSet_Id ServiceTicketChangeSetId2)
-        {
+        public static Boolean operator > (ServiceTicketChangeSet_Id ServiceTicketChangeSetIdId1,
+                                          ServiceTicketChangeSet_Id ServiceTicketChangeSetIdId2)
 
-            if ((Object) ServiceTicketChangeSetId1 == null)
-                throw new ArgumentNullException(nameof(ServiceTicketChangeSetId1), "The given ServiceTicketChangeSetId1 must not be null!");
-
-            return ServiceTicketChangeSetId1.CompareTo(ServiceTicketChangeSetId2) > 0;
-
-        }
+            => ServiceTicketChangeSetIdId1.CompareTo(ServiceTicketChangeSetIdId2) > 0;
 
         #endregion
 
-        #region Operator >= (ServiceTicketChangeSetId1, ServiceTicketChangeSetId2)
+        #region Operator >= (ServiceTicketChangeSetIdId1, ServiceTicketChangeSetIdId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="ServiceTicketChangeSetId1">A service ticket change set identification.</param>
-        /// <param name="ServiceTicketChangeSetId2">Another service ticket change set identification.</param>
+        /// <param name="ServiceTicketChangeSetIdId1">A service ticket change set identification.</param>
+        /// <param name="ServiceTicketChangeSetIdId2">Another service ticket change set identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator >= (ServiceTicketChangeSet_Id ServiceTicketChangeSetId1, ServiceTicketChangeSet_Id ServiceTicketChangeSetId2)
-            => !(ServiceTicketChangeSetId1 < ServiceTicketChangeSetId2);
+        public static Boolean operator >= (ServiceTicketChangeSet_Id ServiceTicketChangeSetIdId1,
+                                           ServiceTicketChangeSet_Id ServiceTicketChangeSetIdId2)
+
+            => ServiceTicketChangeSetIdId1.CompareTo(ServiceTicketChangeSetIdId2) >= 0;
 
         #endregion
 
@@ -291,18 +273,11 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="Object">An object to compare with.</param>
         public Int32 CompareTo(Object Object)
-        {
 
-            if (Object == null)
-                throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
-
-            if (!(Object is ServiceTicketChangeSet_Id))
-                throw new ArgumentException("The given object is not a service ticket change set identification!",
-                                            nameof(Object));
-
-            return CompareTo((ServiceTicketChangeSet_Id) Object);
-
-        }
+            => Object is ServiceTicketChangeSet_Id serviceTicketChangeSetId
+                   ? CompareTo(serviceTicketChangeSetId)
+                   : throw new ArgumentException("The given object is not a service ticket change set identification!",
+                                                 nameof(Object));
 
         #endregion
 
@@ -313,14 +288,10 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="ServiceTicketChangeSetId">An object to compare with.</param>
         public Int32 CompareTo(ServiceTicketChangeSet_Id ServiceTicketChangeSetId)
-        {
 
-            if ((Object) ServiceTicketChangeSetId == null)
-                throw new ArgumentNullException(nameof(ServiceTicketChangeSetId),  "The given service ticket change set identification must not be null!");
-
-            return String.Compare(InternalId, ServiceTicketChangeSetId.InternalId, StringComparison.OrdinalIgnoreCase);
-
-        }
+            => String.Compare(InternalId,
+                              ServiceTicketChangeSetId.InternalId,
+                              StringComparison.OrdinalIgnoreCase);
 
         #endregion
 
@@ -336,36 +307,24 @@ namespace social.OpenData.UsersAPI
         /// <param name="Object">An object to compare with.</param>
         /// <returns>true|false</returns>
         public override Boolean Equals(Object Object)
-        {
 
-            if (Object == null)
-                return false;
-
-            if (!(Object is ServiceTicketChangeSet_Id))
-                return false;
-
-            return Equals((ServiceTicketChangeSet_Id) Object);
-
-        }
+            => Object is ServiceTicketChangeSet_Id serviceTicketChangeSetId &&
+                   Equals(serviceTicketChangeSetId);
 
         #endregion
 
         #region Equals(ServiceTicketChangeSetId)
 
         /// <summary>
-        /// Compares two service ticket change set identifications for equality.
+        /// Compares two ServiceTicketChangeSetIds for equality.
         /// </summary>
-        /// <param name="ServiceTicketChangeSetId">An service ticket change set identification to compare with.</param>
+        /// <param name="ServiceTicketChangeSetId">A service ticket change set identification to compare with.</param>
         /// <returns>True if both match; False otherwise.</returns>
         public Boolean Equals(ServiceTicketChangeSet_Id ServiceTicketChangeSetId)
-        {
 
-            if ((Object) ServiceTicketChangeSetId == null)
-                return false;
-
-            return InternalId.Equals(ServiceTicketChangeSetId.InternalId, StringComparison.OrdinalIgnoreCase);
-
-        }
+            => String.Equals(InternalId,
+                             ServiceTicketChangeSetId.InternalId,
+                             StringComparison.OrdinalIgnoreCase);
 
         #endregion
 
@@ -374,21 +333,23 @@ namespace social.OpenData.UsersAPI
         #region GetHashCode()
 
         /// <summary>
-        /// Return the HashCode of this object.
+        /// Return the hash code of this object.
         /// </summary>
-        /// <returns>The HashCode of this object.</returns>
+        /// <returns>The hash code of this object.</returns>
         public override Int32 GetHashCode()
-            => InternalId.ToLower().GetHashCode();
+
+            => InternalId?.GetHashCode() ?? 0;
 
         #endregion
 
         #region (override) ToString()
 
         /// <summary>
-        /// Return a text representation of this object.
+        /// Return a text-representation of this object.
         /// </summary>
         public override String ToString()
-            => InternalId;
+
+            => InternalId ?? "";
 
         #endregion
 

@@ -1,6 +1,6 @@
 ﻿/*
- * Copyright (c) 2014-2021, Achim 'ahzf' Friedland <achim@graphdefined.org>
- * This file is part of OpenDataAPI <http://www.github.com/GraphDefined/OpenDataAPI>
+ * Copyright (c) 2014-2021, Achim Friedland <achim.friedland@graphdefined.com>
+ * This file is part of UsersAPI <https://www.github.com/Vanaheimr/UsersAPI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,94 +26,18 @@ using System.Collections.Generic;
 using Telegram.Bot;
 
 using org.GraphDefined.Vanaheimr.Illias;
+using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
+using System.Threading;
 
 #endregion
 
 namespace social.OpenData.UsersAPI
 {
 
-    public class TelegramStore
+    public class TelegramStore : ITelegramStore
     {
-
-        public class TelegramUser
-        {
-
-            public Int32      UserId               { get; }
-            public String     Username             { get; }
-            public String     Firstname            { get; }
-            public String     Lastname             { get; }
-            public Int64      ChatId               { get; }
-            public Languages  PreferredLanguage    { get; }
-
-            public TelegramUser(Int32      UserId,
-                                String     Username,
-                                String     Firstname,
-                                String     Lastname,
-                                Int64      ChatId,
-                                Languages  PreferredLanguage = Languages.en)
-            {
-
-                this.UserId             = UserId;
-                this.Username           = Username;
-                this.Firstname          = Firstname;
-                this.Lastname           = Lastname;
-                this.ChatId             = ChatId;
-                this.PreferredLanguage  = PreferredLanguage;
-
-            }
-
-        }
-
-
-        public class TelegramGroup
-        {
-            public Int64   ChatId        { get; }
-            public String  Title         { get; }
-            public String  InviteLink    { get; }
-
-            public TelegramGroup(Int64   ChatId,
-                                 String  Title,
-                                 String  InviteLink)
-            {
-
-                this.ChatId      = ChatId;
-                this.Title       = Title;
-                this.InviteLink  = InviteLink;
-
-            }
-
-        }
-
-
-        public class MessageEnvelop
-        {
-
-            public String                      Username       { get; }
-            public Int64?                      ChatId     { get; }
-            public Telegram.Bot.Types.Message  Message    { get; }
-
-            public MessageEnvelop(String                      User,
-                                  Telegram.Bot.Types.Message  Message)
-            {
-
-                this.Username     = User;
-                this.Message  = Message;
-
-            }
-
-            public MessageEnvelop(String                      User,
-                                  Int64?                      ChatId,
-                                  Telegram.Bot.Types.Message  Message)
-            {
-
-                this.Username     = User;
-                this.ChatId   = ChatId;
-                this.Message  = Message;
-
-            }
-
-        }
-
 
         #region Data
 
@@ -145,24 +69,21 @@ namespace social.OpenData.UsersAPI
 
         #region Events
 
-        public delegate Task OnSendTelegramRequestDelegate (DateTime                      LogTimestamp,
-                                                            TelegramStore                 Sender,
-                                                            EventTracking_Id              EventTrackingId,
-                                                            I18NString                    Message,
-                                                            IEnumerable<String>           Usernames);
+        public event OnSendTelegramRequestDelegate   OnSendTelegramRequest;
 
-        public event OnSendTelegramRequestDelegate OnSendTelegramRequest;
+        public event OnSendTelegramResponseDelegate  OnSendTelegramResponse;
 
-
-        public delegate Task OnSendTelegramResponseDelegate(DateTime                      LogTimestamp,
-                                                            TelegramStore                 Sender,
-                                                            EventTracking_Id              EventTrackingId,
-                                                            I18NString                    Message,
-                                                            IEnumerable<String>           Usernames,
-                                                            IEnumerable<MessageEnvelop>   Responses,
-                                                            TimeSpan                      Runtime);
-
-        public event OnSendTelegramResponseDelegate OnSendTelegramResponse;
+        public event EventHandler<Telegram.Bot.Args.MessageEventArgs> OnMessage
+        {
+            add
+            {
+                this.TelegramAPI.OnMessage += value;
+            }
+            remove
+            {
+                this.TelegramAPI.OnMessage -= value;
+            }
+        }
 
         #endregion
 
@@ -172,7 +93,10 @@ namespace social.OpenData.UsersAPI
 
         {
 
-            this.TelegramAPI     = TelegramAPI;
+            this.TelegramAPI     = TelegramAPI ?? throw new ArgumentNullException(nameof(TelegramAPI), "The given Telegram API must not be null!");
+
+            this.TelegramAPI.OnMessage += ReceiveTelegramMessage;
+
             this.UserByUsername  = new Dictionary<String, TelegramUser>();
             this.UserByChatId    = new Dictionary<Int64,  TelegramUser>();
             this.GroupByTitle    = new Dictionary<String, TelegramGroup>();
@@ -181,7 +105,7 @@ namespace social.OpenData.UsersAPI
             try
             {
 
-                foreach (var line in File.ReadLines("TelegramStore.csv"))
+                foreach (var line in System.IO.File.ReadLines("TelegramStore.csv"))
                 {
                     if (line.IsNotNullOrEmpty() && !line.StartsWith("//") && !line.StartsWith("#"))
                     {
@@ -221,6 +145,8 @@ namespace social.OpenData.UsersAPI
             catch (Exception)
             { }
 
+            this.TelegramAPI.StartReceiving();
+
         }
 
         #endregion
@@ -259,8 +185,8 @@ namespace social.OpenData.UsersAPI
 
                             UserByChatId.Add(ChatId, newTelegramUser);
 
-                            File.AppendAllText("TelegramStore.csv",
-                                               String.Concat("updateUser", US, UserId, US, Username, US, Firstname, US, Lastname, US, ChatId, Environment.NewLine));
+                            System.IO.File.AppendAllText("TelegramStore.csv",
+                                                         String.Concat("updateUser", US, UserId, US, Username, US, Firstname, US, Lastname, US, ChatId, Environment.NewLine));
 
                         }
 
@@ -286,8 +212,8 @@ namespace social.OpenData.UsersAPI
 
                                 UserByChatId.Add(ChatId, newTelegramUser);
 
-                                File.AppendAllText("TelegramStore.csv",
-                                                   String.Concat("updateUser", US, UserId, US, Username, US, Firstname, US, Lastname, US, ChatId, Environment.NewLine));
+                                System.IO.File.AppendAllText("TelegramStore.csv",
+                                                             String.Concat("updateUser", US, UserId, US, Username, US, Firstname, US, Lastname, US, ChatId, Environment.NewLine));
 
                             }
 
@@ -336,8 +262,8 @@ namespace social.OpenData.UsersAPI
 
                             GroupByTitle.Add(Title, newTelegramGroup);
 
-                            File.AppendAllText("TelegramStore.csv",
-                                               String.Concat("updateGroup", US, ChatId, US, Title, US, InviteLink, Environment.NewLine));
+                            System.IO.File.AppendAllText("TelegramStore.csv",
+                                                         String.Concat("updateGroup", US, ChatId, US, Title, US, InviteLink, Environment.NewLine));
 
                         }
 
@@ -362,8 +288,8 @@ namespace social.OpenData.UsersAPI
 
                                 GroupByTitle.Add(Title, newTelegramGroup);
 
-                                File.AppendAllText("TelegramStore.csv",
-                                                   String.Concat("updateGroup", US, ChatId, US, Title, US, InviteLink, Environment.NewLine));
+                                System.IO.File.AppendAllText("TelegramStore.csv",
+                                                             String.Concat("updateGroup", US, ChatId, US, Title, US, InviteLink, Environment.NewLine));
 
                             }
 
@@ -378,7 +304,7 @@ namespace social.OpenData.UsersAPI
 
         }
 
-        #endregion
+        #endregion      
 
 
         internal async void ReceiveTelegramMessage(Object                              Sender,
@@ -442,15 +368,16 @@ namespace social.OpenData.UsersAPI
 
 
 
-        #region SendTelegram (Message, Username)
+        #region SendTelegram (Message, Username,  ParseMode)
 
         /// <summary>
         /// Send a Telegram to the given user.
         /// </summary>
         /// <param name="Message">The text of the message.</param>
         /// <param name="Username">The name of the user.</param>
-        public async Task<MessageEnvelop> SendTelegram(String  Message,
-                                                       String  Username)
+        public async Task<MessageEnvelop> SendTelegram(String     Message,
+                                                       String     Username,
+                                                       ParseMode  ParseMode)
         {
 
             #region Initial checks
@@ -474,7 +401,7 @@ namespace social.OpenData.UsersAPI
 
             #region Send OnSendTelegramRequest event
 
-            var StartTime = DateTime.UtcNow;
+            var StartTime = Timestamp.Now;
 
             try
             {
@@ -492,7 +419,7 @@ namespace social.OpenData.UsersAPI
             }
             catch (Exception e)
             {
-                e.Log(nameof(TelegramStore) + "." + nameof(OnSendTelegramRequest));
+                DebugX.Log(e, nameof(TelegramStore) + "." + nameof(OnSendTelegramRequest));
             }
 
             #endregion
@@ -517,7 +444,7 @@ namespace social.OpenData.UsersAPI
 
             #region Send OnSendTelegramResponse event
 
-            var Endtime = DateTime.UtcNow;
+            var Endtime = Timestamp.Now;
 
             try
             {
@@ -537,7 +464,7 @@ namespace social.OpenData.UsersAPI
             }
             catch (Exception e)
             {
-                e.Log(nameof(TelegramStore) + "." + nameof(OnSendTelegramResponse));
+                DebugX.Log(e, nameof(TelegramStore) + "." + nameof(OnSendTelegramResponse));
             }
 
             #endregion
@@ -553,7 +480,8 @@ namespace social.OpenData.UsersAPI
         /// <param name="Message">The  multi-language text of the message.</param>
         /// <param name="Username">The name of the user.</param>
         public async Task<MessageEnvelop> SendTelegram(I18NString  Message,
-                                                       String      Username)
+                                                       String      Username,
+                                                       ParseMode   ParseMode)
         {
 
             #region Initial checks
@@ -575,7 +503,7 @@ namespace social.OpenData.UsersAPI
 
             #region Send OnSendTelegramRequest event
 
-            var StartTime = DateTime.UtcNow;
+            var StartTime = Timestamp.Now;
 
             try
             {
@@ -593,7 +521,7 @@ namespace social.OpenData.UsersAPI
             }
             catch (Exception e)
             {
-                e.Log(nameof(TelegramStore) + "." + nameof(OnSendTelegramRequest));
+                DebugX.Log(e, nameof(TelegramStore) + "." + nameof(OnSendTelegramRequest));
             }
 
             #endregion
@@ -616,7 +544,7 @@ namespace social.OpenData.UsersAPI
 
             #region Send OnSendTelegramResponse event
 
-            var Endtime = DateTime.UtcNow;
+            var Endtime = Timestamp.Now;
 
             try
             {
@@ -636,7 +564,7 @@ namespace social.OpenData.UsersAPI
             }
             catch (Exception e)
             {
-                e.Log(nameof(TelegramStore) + "." + nameof(OnSendTelegramResponse));
+                DebugX.Log(e, nameof(TelegramStore) + "." + nameof(OnSendTelegramResponse));
             }
 
             #endregion
@@ -647,7 +575,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region SendTelegrams(Message, Usernames)
+        #region SendTelegrams(Message, Usernames, ParseMode)
 
         /// <summary>
         /// Send a Telegram to the given users.
@@ -655,9 +583,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="Message">The text of the message.</param>
         /// <param name="Usernames">An enumeration of usernames.</param>
         public Task<IEnumerable<MessageEnvelop>> SendTelegrams(String           Message,
+                                                               ParseMode        ParseMode,
                                                                params String[]  Usernames)
 
-            => SendTelegrams(Message, Usernames as IEnumerable<String>);
+            => SendTelegrams(Message, Usernames as IEnumerable<String>, ParseMode);
 
 
         /// <summary>
@@ -666,7 +595,8 @@ namespace social.OpenData.UsersAPI
         /// <param name="Message">The text of the message.</param>
         /// <param name="Usernames">An enumeration of usernames.</param>
         public async Task<IEnumerable<MessageEnvelop>> SendTelegrams(String               Message,
-                                                                     IEnumerable<String>  Usernames)
+                                                                     IEnumerable<String>  Usernames,
+                                                                     ParseMode            ParseMode)
         {
 
             #region Initial checks
@@ -691,7 +621,7 @@ namespace social.OpenData.UsersAPI
 
             #region Send OnSendTelegramRequest event
 
-            var StartTime = DateTime.UtcNow;
+            var StartTime = Timestamp.Now;
 
             try
             {
@@ -709,7 +639,7 @@ namespace social.OpenData.UsersAPI
             }
             catch (Exception e)
             {
-                e.Log(nameof(TelegramStore) + "." + nameof(OnSendTelegramRequest));
+                DebugX.Log(e, nameof(TelegramStore) + "." + nameof(OnSendTelegramRequest));
             }
 
             #endregion
@@ -722,8 +652,9 @@ namespace social.OpenData.UsersAPI
                     responseMessages.Add(new MessageEnvelop(username,
                                                             User.ChatId,
                                                             await TelegramAPI.SendTextMessageAsync(
-                                                                                  ChatId:  User.ChatId,
-                                                                                  Text:    Message
+                                                                                  ChatId:    User.ChatId,
+                                                                                  Text:      Message,
+                                                                                  ParseMode: ParseMode
                                                                               )));
 
                 else
@@ -737,7 +668,7 @@ namespace social.OpenData.UsersAPI
 
             #region Send OnSendTelegramResponse event
 
-            var Endtime = DateTime.UtcNow;
+            var Endtime = Timestamp.Now;
 
             try
             {
@@ -757,7 +688,7 @@ namespace social.OpenData.UsersAPI
             }
             catch (Exception e)
             {
-                e.Log(nameof(TelegramStore) + "." + nameof(OnSendTelegramResponse));
+                DebugX.Log(e, nameof(TelegramStore) + "." + nameof(OnSendTelegramResponse));
             }
 
             #endregion
@@ -774,9 +705,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="Message">The multi-language text of the message.</param>
         /// <param name="Usernames">An enumeration of usernames.</param>
         public Task<IEnumerable<MessageEnvelop>> SendTelegram(I18NString       Message,
+                                                              ParseMode        ParseMode,
                                                               params String[]  Usernames)
 
-            => SendTelegram(Message, Usernames as IEnumerable<String>);
+            => SendTelegram(Message, Usernames as IEnumerable<String>, ParseMode);
 
 
         /// <summary>
@@ -785,7 +717,8 @@ namespace social.OpenData.UsersAPI
         /// <param name="Message">The multi-language text of the message.</param>
         /// <param name="Usernames">An enumeration of usernames.</param>
         public async Task<IEnumerable<MessageEnvelop>> SendTelegram(I18NString           Message,
-                                                                    IEnumerable<String>  Usernames)
+                                                                    IEnumerable<String>  Usernames,
+                                                                    ParseMode            ParseMode)
         {
 
             #region Initial checks
@@ -808,7 +741,7 @@ namespace social.OpenData.UsersAPI
 
             #region Send OnSendTelegramRequest event
 
-            var StartTime = DateTime.UtcNow;
+            var StartTime = Timestamp.Now;
 
             try
             {
@@ -826,7 +759,7 @@ namespace social.OpenData.UsersAPI
             }
             catch (Exception e)
             {
-                e.Log(nameof(TelegramStore) + "." + nameof(OnSendTelegramRequest));
+                DebugX.Log(e, nameof(TelegramStore) + "." + nameof(OnSendTelegramRequest));
             }
 
             #endregion
@@ -839,8 +772,9 @@ namespace social.OpenData.UsersAPI
                     responseMessages.Add(new MessageEnvelop(username,
                                                             User.ChatId,
                                                             await TelegramAPI.SendTextMessageAsync(
-                                                                                  ChatId:  User.ChatId,
-                                                                                  Text:    Message[User.PreferredLanguage] ?? Message[Languages.en]
+                                                                                  ChatId:    User.ChatId,
+                                                                                  Text:      Message[User.PreferredLanguage] ?? Message[Languages.en],
+                                                                                  ParseMode: ParseMode
                                                                               )));
 
                 else
@@ -854,7 +788,7 @@ namespace social.OpenData.UsersAPI
 
             #region Send OnSendTelegramResponse event
 
-            var Endtime = DateTime.UtcNow;
+            var Endtime = Timestamp.Now;
 
             try
             {
@@ -874,7 +808,7 @@ namespace social.OpenData.UsersAPI
             }
             catch (Exception e)
             {
-                e.Log(nameof(TelegramStore) + "." + nameof(OnSendTelegramResponse));
+                DebugX.Log(e, nameof(TelegramStore) + "." + nameof(OnSendTelegramResponse));
             }
 
             #endregion
@@ -885,6 +819,39 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
+
+
+
+        /// <summary>
+        /// Use this method to send text messages. On success, the sent Description is returned.
+        /// </summary>
+        /// <param name="ChatId"><see cref="ChatId"/> for the target chat</param>
+        /// <param name="Text">Text of the message to be sent</param>
+        /// <param name="ParseMode">Change, if you want Telegram apps to show bold, italic, fixed-width text or inline URLs in your bot's message.</param>
+        /// <param name="DisableWebPagePreview">Disables link previews for links in this message</param>
+        /// <param name="DisableNotification">Sends the message silently. iOS users will not receive a notification, Android users will receive a notification with no sound.</param>
+        /// <param name="ReplyToMessageId">If the message is a reply, ID of the original message</param>
+        /// <param name="ReplyMarkup">Additional interface options. A JSON-serialized object for a custom reply keyboard, instructions to hide keyboard or to force a reply from the user.</param>
+        /// <param name="CancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>On success, the sent Description is returned.</returns>
+        /// <see href="https://core.telegram.org/bots/api#sendmessage"/>
+        public Task<Telegram.Bot.Types.Message> SendTextMessageAsync(ChatId             ChatId,
+                                                                     String             Text,
+                                                                     ParseMode          ParseMode               = default,
+                                                                     Boolean            DisableWebPagePreview   = default,
+                                                                     Boolean            DisableNotification     = default,
+                                                                     Int32              ReplyToMessageId        = default,
+                                                                     IReplyMarkup       ReplyMarkup             = default,
+                                                                     CancellationToken  CancellationToken       = default)
+
+            => this.TelegramAPI.SendTextMessageAsync(ChatId,
+                                                     Text,
+                                                     ParseMode,
+                                                     DisableWebPagePreview,
+                                                     DisableNotification,
+                                                     ReplyToMessageId,
+                                                     ReplyMarkup,
+                                                     CancellationToken);
 
     }
 

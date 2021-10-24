@@ -1,6 +1,6 @@
 ﻿/*
- * Copyright (c) 2014-2021, Achim 'ahzf' Friedland <achim@graphdefined.org>
- * This file is part of OpenDataAPI <http://www.github.com/GraphDefined/OpenDataAPI>
+ * Copyright (c) 2014-2021, Achim Friedland <achim.friedland@graphdefined.com>
+ * This file is part of UsersAPI <https://www.github.com/Vanaheimr/UsersAPI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ namespace social.OpenData.UsersAPI
 {
 
     [Flags]
-    public enum Organization2OrganizationEdgeTypes
+    public enum Organization2OrganizationEdgeLabel
     {
         IsSubsidary,
         IsParent,
@@ -34,7 +34,7 @@ namespace social.OpenData.UsersAPI
     }
 
 
-    public class Organization2OrganizationEdge : MiniEdge<Organization, Organization2OrganizationEdgeTypes, Organization>
+    public class Organization2OrganizationEdge : MiniEdge<Organization, Organization2OrganizationEdgeLabel, Organization>
     {
 
         /// <summary>
@@ -46,7 +46,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="PrivacyLevel">The level of privacy of this edge.</param>
         /// <param name="Created">The creation timestamp of the miniedge.</param>
         public Organization2OrganizationEdge(Organization                        OrganizationA,
-                                             Organization2OrganizationEdgeTypes  EdgeLabel,
+                                             Organization2OrganizationEdgeLabel  EdgeLabel,
                                              Organization                        OrganizationB,
                                              PrivacyLevel                        PrivacyLevel  = PrivacyLevel.Private,
                                              DateTime?                           Created       = null)

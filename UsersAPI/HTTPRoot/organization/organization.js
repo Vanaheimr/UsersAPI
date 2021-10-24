@@ -114,12 +114,6 @@ function StartOrganization() {
     const headlineDiv = organizationDiv.querySelector("#headline");
     const upperButtonsDiv = organizationDiv.querySelector('#upperButtons');
     const deleteOrganizationButton = upperButtonsDiv.querySelector('#deleteOrganizationButton');
-    const confirmToDeleteDiv = document.getElementById("confirmToDeleteOrganization");
-    const yes = confirmToDeleteDiv.querySelector('#yes');
-    const no = confirmToDeleteDiv.querySelector('#no');
-    const deletionFailedDiv = document.getElementById("deletionFailed");
-    const deletionFailedDescription = deletionFailedDiv.querySelector('#description');
-    const ok = deletionFailedDiv.querySelector('#ok');
     const dataDiv = organizationDiv.querySelector('#data');
     const name = dataDiv.querySelector('#name');
     const description = dataDiv.querySelector('#description');
@@ -131,6 +125,12 @@ function StartOrganization() {
     const responseDiv = document.getElementById("response");
     const lowerButtonsDiv = organizationDiv.querySelector('#lowerButtons');
     const saveButton = lowerButtonsDiv.querySelector("#saveButton");
+    const confirmToDeleteDiv = document.getElementById("confirmToDeleteOrganization");
+    const yes = confirmToDeleteDiv.querySelector('#yes');
+    const no = confirmToDeleteDiv.querySelector('#no');
+    const deletionFailedDiv = document.getElementById("deletionFailed");
+    const deletionFailedDescription = deletionFailedDiv.querySelector('#description');
+    const ok = deletionFailedDiv.querySelector('#ok');
     ok.onclick = () => { deletionFailedDiv.style.display = "none"; };
     name.oninput = () => { ToogleSaveButton(); };
     description.oninput = () => { ToogleSaveButton(); };

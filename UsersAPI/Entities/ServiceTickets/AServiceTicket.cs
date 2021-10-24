@@ -1,6 +1,6 @@
 ﻿///*
-// * Copyright (c) 2014-2021, Achim 'ahzf' Friedland <achim@graphdefined.org>
-// * This file is part of OpenDataAPI <http://www.github.com/GraphDefined/OpenDataAPI>
+// * Copyright (c) 2014-2021, Achim Friedland <achim.friedland@graphdefined.com>
+// * This file is part of UsersAPI <https://www.github.com/Vanaheimr/UsersAPI>
 // *
 // * Licensed under the Apache License, Version 2.0 (the "License");
 // * you may not use this file except in compliance with the License.
@@ -300,7 +300,7 @@
 //            this.ChangeSets      = ChangeSets.OrderByDescending(changeSet => changeSet.Timestamp).ToArray();
 
 //            Created              = this.ChangeSets.LastOrDefault()?.Timestamp
-//                                                   ?? DateTime.UtcNow;
+//                                                   ?? Timestamp.Now;
 
 
 //            Author               = this.ChangeSets.LastOrDefault()?.Author;
@@ -416,7 +416,7 @@
 //                   new List<AServiceTicketChangeSet>() {
 //                       new ServiceTicketChangeSet(
 //                           Id:                   ServiceTicketChangeSet_Id.Random(),
-//                           Timestamp:            Timestamp    ?? DateTime.UtcNow,
+//                           Timestamp:            Timestamp    ?? Timestamp.Now,
 //                           Author:               Author,
 //                           Status:               Status       ?? ServiceTicketStatusTypes.New,
 //                           Title:                Title,
@@ -999,7 +999,7 @@
 //                       new List<AServiceTicketChangeSet>() {
 //                           new ServiceTicketChangeSet(
 //                               Id:                   ServiceTicketChangeSetId ?? ServiceTicketChangeSet_Id.Random(),
-//                               Timestamp:            Timestamp                ?? DateTime.UtcNow,
+//                               Timestamp:            Timestamp                ?? Timestamp.Now,
 //                               Author:               Author,
 //                               Status:               Status                   ?? ServiceTicketStatusTypes.New,
 //                               Title:                Title,

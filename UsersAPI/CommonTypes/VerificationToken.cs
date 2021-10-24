@@ -1,6 +1,6 @@
 ﻿/*
- * Copyright (c) 2014-2021, Achim 'ahzf' Friedland <achim@graphdefined.org>
- * This file is part of OpenDataAPI <http://www.github.com/GraphDefined/OpenDataAPI>
+ * Copyright (c) 2014-2021, Achim Friedland <achim.friedland@graphdefined.com>
+ * This file is part of UsersAPI <https://www.github.com/Vanaheimr/UsersAPI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,20 +37,22 @@ namespace social.OpenData.UsersAPI
     /// <summary>
     /// A verification token.
     /// </summary>
-    public class VerificationToken : IEquatable<VerificationToken>,
-                                     IComparable<VerificationToken>,
-                                     IComparable
+    public readonly struct VerificationToken : IEquatable<VerificationToken>,
+                                               IComparable<VerificationToken>,
+                                               IComparable
     {
 
         #region Data
 
-        private readonly String InternalId;
+        /// <summary>
+        /// The internal identification.
+        /// </summary>
+        private readonly String   InternalId;
 
-        #endregion
-
-        #region Properties
-
-        public User_Id  Login    { get; }
+        /// <summary>
+        /// Private non-cryptographic random number generator.
+        /// </summary>
+        private static readonly Random _random = new Random();
 
         #endregion
 
@@ -60,18 +62,188 @@ namespace social.OpenData.UsersAPI
         /// Create a new verification token.
         /// </summary>
         /// <param name="Seed">The cryptographic seed.</param>
-        /// <param name="UserId">The user identification.</param>
-        public VerificationToken(String   Seed,
-                                 User_Id  UserId)
+        public VerificationToken(String Seed)
+        {
+            this.InternalId  = new SHA256Managed().ComputeHash((_random.RandomString(32) + Seed).ToUTF8Bytes()).ToHexString();
+        }
+
+        #endregion
+
+
+        #region Parse   (Text)
+
+        /// <summary>
+        /// Parse the given string as a verification token.
+        /// </summary>
+        /// <param name="Text">A text-representation of a verification token.</param>
+        public static VerificationToken Parse(String Text)
         {
 
-            this.InternalId  = new SHA256Managed().ComputeHash((Guid.NewGuid().ToString() + Seed).ToUTF8Bytes()).ToHexString();
-            this.Login       = UserId;
+            if (TryParse(Text, out VerificationToken verificationToken))
+                return verificationToken;
+
+            throw new ArgumentException("Invalid text-representation of a verification token: '" + Text + "'!",
+                                        nameof(Text));
 
         }
 
         #endregion
 
+        #region TryParse(Text)
+
+        /// <summary>
+        /// Try to parse the given string as a verification token.
+        /// </summary>
+        /// <param name="Text">A text-representation of a verification token.</param>
+        public static VerificationToken? TryParse(String Text)
+        {
+
+            if (TryParse(Text, out VerificationToken verificationToken))
+                return verificationToken;
+
+            return null;
+
+        }
+
+        #endregion
+
+        #region TryParse(Text, out VerificationToken)
+
+        /// <summary>
+        /// Try to parse the given string as a verification token.
+        /// </summary>
+        /// <param name="Text">A text-representation of a verification token.</param>
+        /// <param name="VerificationToken">The parsed verification token.</param>
+        public static Boolean TryParse(String Text, out VerificationToken VerificationToken)
+        {
+
+            Text = Text?.Trim();
+
+            if (Text.IsNotNullOrEmpty())
+            {
+                try
+                {
+                    VerificationToken = new VerificationToken(Text);
+                    return true;
+                }
+                catch
+                { }
+            }
+
+            VerificationToken = default;
+            return false;
+
+        }
+
+        #endregion
+
+        #region Clone
+
+        /// <summary>
+        /// Clone this verification token.
+        /// </summary>
+        public VerificationToken Clone
+
+            => new VerificationToken(
+                   new String(InternalId?.ToCharArray())
+               );
+
+        #endregion
+
+
+        #region Operator overloading
+
+        #region Operator == (VerificationToken1, VerificationToken2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="VerificationToken1">A verification token.</param>
+        /// <param name="VerificationToken2">Another verification token.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator == (VerificationToken VerificationToken1,
+                                           VerificationToken VerificationToken2)
+
+            => VerificationToken1.Equals(VerificationToken2);
+
+        #endregion
+
+        #region Operator != (VerificationToken1, VerificationToken2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="VerificationToken1">A verification token.</param>
+        /// <param name="VerificationToken2">Another verification token.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator != (VerificationToken VerificationToken1,
+                                           VerificationToken VerificationToken2)
+
+            => !VerificationToken1.Equals(VerificationToken2);
+
+        #endregion
+
+        #region Operator <  (VerificationToken1, VerificationToken2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="VerificationToken1">A verification token.</param>
+        /// <param name="VerificationToken2">Another verification token.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator < (VerificationToken VerificationToken1,
+                                          VerificationToken VerificationToken2)
+
+            => VerificationToken1.CompareTo(VerificationToken2) < 0;
+
+        #endregion
+
+        #region Operator <= (VerificationToken1, VerificationToken2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="VerificationToken1">A verification token.</param>
+        /// <param name="VerificationToken2">Another verification token.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator <= (VerificationToken VerificationToken1,
+                                           VerificationToken VerificationToken2)
+
+            => VerificationToken1.CompareTo(VerificationToken2) <= 0;
+
+        #endregion
+
+        #region Operator >  (VerificationToken1, VerificationToken2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="VerificationToken1">A verification token.</param>
+        /// <param name="VerificationToken2">Another verification token.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator > (VerificationToken VerificationToken1,
+                                          VerificationToken VerificationToken2)
+
+            => VerificationToken1.CompareTo(VerificationToken2) > 0;
+
+        #endregion
+
+        #region Operator >= (VerificationToken1, VerificationToken2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="VerificationToken1">A verification token.</param>
+        /// <param name="VerificationToken2">Another verification token.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator >= (VerificationToken VerificationToken1,
+                                           VerificationToken VerificationToken2)
+
+            => VerificationToken1.CompareTo(VerificationToken2) >= 0;
+
+        #endregion
+
+        #endregion
 
         #region IComparable<VerificationToken> Members
 
@@ -82,19 +254,11 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="Object">An object to compare with.</param>
         public Int32 CompareTo(Object Object)
-        {
 
-            if (Object == null)
-                throw new ArgumentNullException("The given object must not be null!");
-
-            // Check if the given object is a verification token.
-            var _VerificationToken = Object as VerificationToken;
-            if ((Object) _VerificationToken == null)
-                throw new ArgumentException("The given object is not a verification token!");
-
-            return CompareTo(_VerificationToken);
-
-        }
+            => Object is VerificationToken verificationToken
+                   ? CompareTo(verificationToken)
+                   : throw new ArgumentException("The given object is not a verification token!",
+                                                 nameof(Object));
 
         #endregion
 
@@ -103,16 +267,12 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="VerificationToken">An user groups object to compare with.</param>
+        /// <param name="VerificationToken">An object to compare with.</param>
         public Int32 CompareTo(VerificationToken VerificationToken)
-        {
 
-            if ((Object) VerificationToken == null)
-                throw new ArgumentNullException("The given verification token must not be null!");
-
-            return InternalId.CompareTo(VerificationToken.InternalId);
-
-        }
+            => String.Compare(InternalId,
+                              VerificationToken.InternalId,
+                              StringComparison.Ordinal);
 
         #endregion
 
@@ -128,19 +288,9 @@ namespace social.OpenData.UsersAPI
         /// <param name="Object">An object to compare with.</param>
         /// <returns>true|false</returns>
         public override Boolean Equals(Object Object)
-        {
 
-            if (Object == null)
-                return false;
-
-            // Check if the given object is a verification token.
-            var _VerificationToken = Object as VerificationToken;
-            if ((Object) _VerificationToken == null)
-                return false;
-
-            return this.Equals(_VerificationToken);
-
-        }
+            => Object is VerificationToken verificationToken &&
+                   Equals(verificationToken);
 
         #endregion
 
@@ -149,17 +299,13 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Compares two verification tokens for equality.
         /// </summary>
-        /// <param name="Operator">A verification token to compare with.</param>
+        /// <param name="VerificationToken">A verification token to compare with.</param>
         /// <returns>True if both match; False otherwise.</returns>
-        public Boolean Equals(VerificationToken Operator)
-        {
+        public Boolean Equals(VerificationToken VerificationToken)
 
-            if ((Object) Operator == null)
-                return false;
-
-            return InternalId.Equals(Operator.InternalId);
-
-        }
+            => String.Equals(InternalId,
+                             VerificationToken.InternalId,
+                             StringComparison.Ordinal);
 
         #endregion
 
@@ -168,24 +314,23 @@ namespace social.OpenData.UsersAPI
         #region GetHashCode()
 
         /// <summary>
-        /// Get the hashcode of this object.
+        /// Return the hash code of this object.
         /// </summary>
+        /// <returns>The hash code of this object.</returns>
         public override Int32 GetHashCode()
-        {
-            return InternalId.GetHashCode();
-        }
+
+            => InternalId?.GetHashCode() ?? 0;
 
         #endregion
 
         #region (override) ToString()
 
         /// <summary>
-        /// Return a text representation of this object.
+        /// Return a text-representation of this object.
         /// </summary>
         public override String ToString()
-        {
-            return InternalId.ToString();
-        }
+
+            => InternalId ?? "";
 
         #endregion
 

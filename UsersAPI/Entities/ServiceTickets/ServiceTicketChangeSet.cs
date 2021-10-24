@@ -1,6 +1,6 @@
 ﻿/*
- * Copyright (c) 2014-2021, Achim 'ahzf' Friedland <achim@graphdefined.org>
- * This file is part of OpenDataAPI <http://www.github.com/GraphDefined/OpenDataAPI>
+ * Copyright (c) 2014-2021, Achim Friedland <achim.friedland@graphdefined.com>
+ * This file is part of UsersAPI <https://www.github.com/Vanaheimr/UsersAPI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -277,7 +277,7 @@ namespace social.OpenData.UsersAPI
 
         {
 
-            this.Timestamp            = Timestamp           ?? DateTime.UtcNow;
+            this.Timestamp            = Timestamp           ?? org.GraphDefined.Vanaheimr.Illias.Timestamp.Now;
             this.Author               = Author              ?? throw new ArgumentNullException(nameof(Author), "The given author must not be null!");
             this.Status               = Status;
             this.Title                = Title;
@@ -820,7 +820,7 @@ namespace social.OpenData.UsersAPI
                         //               new HTTPResponseBuilder(Request) {
                         //                   HTTPStatusCode             = HTTPStatusCode.BadRequest,
                         //                   Server                     = HTTPServer.DefaultServerName,
-                        //                   Date                       = DateTime.UtcNow,
+                        //                   Date                       = Timestamp.Now,
                         //                   AccessControlAllowOrigin   = "*",
                         //                   AccessControlAllowMethods  = "GET, SET",
                         //                   AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -1355,7 +1355,7 @@ namespace social.OpenData.UsersAPI
 
             {
 
-                this.Timestamp            = Timestamp     ?? DateTime.UtcNow;
+                this.Timestamp            = Timestamp     ?? org.GraphDefined.Vanaheimr.Illias.Timestamp.Now;
                 this.Author               = Author        ?? throw new ArgumentNullException(nameof(Author), "The given author must not be null!");
                 this.Status               = Status;
                 this.Title                = Title;

@@ -167,7 +167,7 @@ function VerifyLogin() {
 
     function VerifyPassword(): boolean {
 
-        const ResponseText = HTTPAuth("/users/" + _login.value,
+        const ResponseText = HTTPAuth((URLPathPrefix ?? "") + "/users/" + _login.value,
                                       {
                                           "login":        _login.value,
                                           "password":     _password.value,
@@ -281,7 +281,7 @@ function LostPassword() {
         responseDiv.style.display = 'block';
         responseDiv.innerHTML = '<i class="fa fa-spinner faa-spin animated"></i> Verifying your login... please wait!';
 
-        HTTPSet("/resetPassword",
+        HTTPSet((URLPathPrefix ?? "") + "/resetPassword",
                 {
                     "id":  _id.value
                 },
@@ -433,7 +433,7 @@ function SetPassword() {
         if (securityToken2.value != "")
             SetPasswordJSON["securityToken2"] = securityToken2.value;
 
-        HTTPSet("/setPassword",
+        HTTPSet((URLPathPrefix ?? "") + "/setPassword",
                 SetPasswordJSON,
 
                 (HTTPStatus, ResponseText) => {
@@ -443,13 +443,14 @@ function SetPassword() {
                         var responseJSON = JSON.parse(ResponseText);
 
                         if (responseJSON.numberOfAccountsFound != null) {
-                            responseDiv.style.display       = 'block';
-                            responseDiv.innerHTML           = "<i class='fas fa-user-check  fa-2x menuicons'></i> Succssfully resetted your password!";
+                            responseDiv.style.display        = 'block';
+                            responseDiv.innerHTML            = "<i class='fas fa-user-check  fa-2x menuicons'></i> Succssfully resetted your password!";
                             responseDiv.classList.remove("responseError");
                             responseDiv.classList.add   ("responseOk");
-                            setPasswordInput.disabled       = true;
-                            setPasswordButton.style.display = 'none';
-                            gotoLoginButton.style.display   = 'block';
+                            setPasswordInput.disabled        = true;
+                            setPasswordButton.style.display  = 'none';
+                            gotoLoginInput.disabled          = false;
+                            gotoLoginButton.style.display    = 'block';
                             return;
                         }
 
@@ -531,7 +532,7 @@ function SetPassword() {
     }
 
     gotoLoginButton.onclick = () => {
-        window.location.href = "/login";
+        window.location.href = (URLPathPrefix ?? "") + "/login";
     }
 
     DeleteCookie(HTTPCookieId);
@@ -554,7 +555,7 @@ function SignIn() {
     SignInErrors.innerText     = "";
 
     SendJSON("AUTH",
-             "/users/" + Username,
+             (URLPathPrefix ?? "") + "/users/" + Username,
              {
                  "realm":      Realm,
                  "password":   Password,
@@ -563,7 +564,7 @@ function SignIn() {
 
              function (status, response) {
                  //(<HTMLFormElement> document.querySelector('#loginform')).submit();
-                 location.href = "/";
+                 location.href = URLPathPrefix != null && URLPathPrefix != "" ? URLPathPrefix : "/";
              },
 
              function (HTTPStatus, status, response) {
@@ -654,7 +655,7 @@ function checkSignedIn(RedirectUnkownUsers: boolean) {
                        usernameDiv.innerText = "anonymous";
 
                    if (RedirectUnkownUsers)
-                       location.href = "/login";
+                       location.href = (URLPathPrefix ?? "") + "/login";
 
                }
 
@@ -677,14 +678,14 @@ function checkAdminSignedIn(RedirectUnkownUsers: boolean) {
                    ShowElement('.admin');
 
                    if (cookie.indexOf(":isAdmin") < 0)
-                       location.href = "/";
+                       location.href = URLPathPrefix != null && URLPathPrefix != "" ? URLPathPrefix : "/";
 
                },
 
                () => {
 
                    if (RedirectUnkownUsers)
-                       location.href = "/login";
+                       location.href = (URLPathPrefix ?? "") + "/login";
 
                }
 
@@ -699,7 +700,7 @@ function checkNotSignedIn() {
     WithCookie(HTTPCookieId,
 
                () => {
-                   location.href = "/index.shtml";
+                   location.href = (URLPathPrefix ?? "") + "/index.shtml";
                },
 
                () => { }
@@ -711,7 +712,7 @@ function checkNotSignedIn() {
 function SignOut() {
 
     SendJSON("DEAUTH",
-             "/users",
+             (URLPathPrefix ?? "") + "/users",
              null,
 
              function (HTTPStatus, ResponseText) {
@@ -722,16 +723,16 @@ function SignOut() {
 
     DeleteCookie(HTTPCookieId);
 
-    location.href = "/login";
+    location.href = (URLPathPrefix ?? "") + "/login";
 
 }
 
 function Depersonate() {
 
-    HTTPDepersonate("/users/" + SignInUser,
+    HTTPDepersonate((URLPathPrefix ?? "") + "/users/" + SignInUser,
 
                     (status, response) => {
-                        window.location.reload(true);
+                        window.location.reload();
                     },
 
                     (status, statusText, response) => {
@@ -753,7 +754,7 @@ function checkNewsBanner(knownNewsIds: string[]) {
                            ? "?match=" + knownNewsIds.map(knownNewsId => "!" + knownNewsId).join(",")
                            : "";
 
-    HTTPGet("/newsBanners" + newsFilter,
+    HTTPGet((URLPathPrefix ?? "") + "/newsBanners" + newsFilter,
 
             (status, response) => {
 

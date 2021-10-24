@@ -1,6 +1,6 @@
 ﻿/*
- * Copyright (c) 2014-2021, Achim 'ahzf' Friedland <achim@graphdefined.org>
- * This file is part of OpenDataAPI <http://www.github.com/GraphDefined/OpenDataAPI>
+ * Copyright (c) 2014-2021, Achim Friedland <achim.friedland@graphdefined.com>
+ * This file is part of UsersAPI <https://www.github.com/Vanaheimr/UsersAPI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -126,7 +126,7 @@ namespace social.OpenData.UsersAPI
                                    ref Boolean  _YouCanCreateChildOrganizationsRecursion)
             {
 
-                foreach (var parent in OOORg.Parents)
+                foreach (var parent in OOORg.ParentOrganizations)
                 {
                     CheckAccessRights(parent,
                                       ref _YouAreMemberRecursion,
@@ -167,7 +167,7 @@ namespace social.OpenData.UsersAPI
                                                     Boolean       YouCanCreateChildOrganizationsRecursion)
 
                 => Org.Organization2OrganizationInEdges.
-                       Where     (edge => edge.EdgeLabel == Organization2OrganizationEdgeTypes.IsChildOf).
+                       Where     (edge => edge.EdgeLabel == Organization2OrganizationEdgeLabel.IsChildOf).
                        SafeSelect(edge => new OrganizationInfo(edge.Source,
                                                                You,
                                                                YouAreMemberRecursion,

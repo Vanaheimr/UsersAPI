@@ -1,6 +1,6 @@
 ﻿/*
- * Copyright (c) 2014-2021, Achim 'ahzf' Friedland <achim@graphdefined.org>
- * This file is part of OpenDataAPI <http://www.github.com/GraphDefined/OpenDataAPI>
+ * Copyright (c) 2014-2021, Achim Friedland <achim.friedland@graphdefined.com>
+ * This file is part of UsersAPI <https://www.github.com/Vanaheimr/UsersAPI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,18 +25,16 @@ using Newtonsoft.Json.Linq;
 
 using Org.BouncyCastle.Bcpg.OpenPgp;
 
-using social.OpenData.UsersAPI.Notifications;
-
 using org.GraphDefined.Vanaheimr.Aegir;
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod;
 using org.GraphDefined.Vanaheimr.Hermod.Mail;
-
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 using org.GraphDefined.Vanaheimr.Styx.Arrows;
 using org.GraphDefined.Vanaheimr.BouncyCastle;
+
 using social.OpenData.UsersAPI;
-using org.GraphDefined.Vanaheimr.Hermod.JSON;
+using social.OpenData.UsersAPI.Notifications;
 
 #endregion
 
@@ -95,10 +93,25 @@ namespace social.OpenData.UsersAPI
 
     }
 
+    public enum Use2AuthFactor
+    {
+
+        /// <summary>
+        /// Do not use any second authentication factor.
+        /// </summary>
+        None,
+
+        /// <summary>
+        /// Use a SMS via the user's mobile phone as second authentication factor.
+        /// </summary>
+        MobilePhoneSMS
+
+    }
+
 
 
     /// <summary>
-    /// An Open Data user.
+    /// A user.
     /// </summary>
     public class User : AEntity<User_Id,
                                 User>
@@ -114,7 +127,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// The default JSON-LD context of users.
         /// </summary>
-        public new readonly static JSONLDContext DefaultJSONLDContext = JSONLDContext.Parse("https://opendata.social/contexts/UsersAPI/user");
+        public readonly static JSONLDContext DefaultJSONLDContext = JSONLDContext.Parse("https://opendata.social/contexts/UsersAPI/user");
 
         #endregion
 
@@ -195,7 +208,12 @@ namespace social.OpenData.UsersAPI
         public PhoneNumber?               MobilePhone          { get; }
 
         /// <summary>
-        /// The telegram user name.       
+        /// Whether to use a second authentication factor.
+        /// </summary>
+        public Use2AuthFactor             Use2AuthFactor       { get; }
+
+        /// <summary>
+        /// The telegram user name.
         /// </summary>
         [Optional]
         public String                     Telegram             { get; }
@@ -256,28 +274,26 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region Edges
-
         #region User <-> User         edges
 
-        private readonly List<User2UserEdge> _User2UserEdges;
+        private readonly List<User2UserEdge> _User2User_Edges;
 
         public IEnumerable<User2UserEdge> __User2UserEdges
-            => _User2UserEdges;
+            => _User2User_Edges;
 
 
         public User2UserEdge
 
             Add(User2UserEdge Edge)
 
-                => _User2UserEdges.AddAndReturnElement(Edge);
+                => _User2User_Edges.AddAndReturnElement(Edge);
 
 
         public IEnumerable<User2UserEdge>
 
             Add(IEnumerable<User2UserEdge> Edges)
 
-                => _User2UserEdges.AddAndReturnList(Edges);
+                => _User2User_Edges.AddAndReturnList(Edges);
 
 
 
@@ -287,7 +303,7 @@ namespace social.OpenData.UsersAPI
 
             AddIncomingEdge(User2UserEdge  Edge)
 
-            => _User2UserEdges.AddAndReturnElement(Edge);
+            => _User2User_Edges.AddAndReturnElement(Edge);
 
         #endregion
 
@@ -299,7 +315,7 @@ namespace social.OpenData.UsersAPI
                             User2UserEdgeTypes  EdgeLabel,
                             PrivacyLevel    PrivacyLevel = PrivacyLevel.World)
 
-            => _User2UserEdges.AddAndReturnElement(new User2UserEdge(SourceUser, EdgeLabel, this, PrivacyLevel));
+            => _User2User_Edges.AddAndReturnElement(new User2UserEdge(SourceUser, EdgeLabel, this, PrivacyLevel));
 
         #endregion
 
@@ -309,7 +325,7 @@ namespace social.OpenData.UsersAPI
 
             AddOutgoingEdge(User2UserEdge  Edge)
 
-            => _User2UserEdges.AddAndReturnElement(Edge);
+            => _User2User_Edges.AddAndReturnElement(Edge);
 
         #endregion
 
@@ -321,7 +337,59 @@ namespace social.OpenData.UsersAPI
                             User            Target,
                             PrivacyLevel    PrivacyLevel = PrivacyLevel.World)
 
-            => _User2UserEdges.AddAndReturnElement(new User2UserEdge(this, EdgeLabel, Target, PrivacyLevel));
+            => _User2User_Edges.AddAndReturnElement(new User2UserEdge(this, EdgeLabel, Target, PrivacyLevel));
+
+        #endregion
+
+
+        #region Genimi
+
+        /// <summary>
+        /// The gemini of this user.
+        /// </summary>
+        public IEnumerable<User> Genimi
+        {
+            get
+            {
+                return _User2User_Edges.
+                           Where (edge => edge.EdgeLabel == User2UserEdgeTypes.gemini).
+                           Select(edge => edge.Target);
+            }
+        }
+
+        #endregion
+
+        #region FollowsUsers
+
+        /// <summary>
+        /// This user follows this other users.
+        /// </summary>
+        public IEnumerable<User> FollowsUsers
+        {
+            get
+            {
+                return _User2User_Edges.
+                           Where(edge => edge.EdgeLabel == User2UserEdgeTypes.follows).
+                           Select(edge => edge.Target);
+            }
+        }
+
+        #endregion
+
+        #region IsFollowedBy
+
+        /// <summary>
+        /// This user is followed by this other users.
+        /// </summary>
+        public IEnumerable<User> IsFollowedBy
+        {
+            get
+            {
+                return _User2User_Edges.
+                           Where(edge => edge.EdgeLabel == User2UserEdgeTypes.IsFollowedBy).
+                           Select(edge => edge.Target);
+            }
+        }
 
         #endregion
 
@@ -329,89 +397,154 @@ namespace social.OpenData.UsersAPI
 
         #region User  -> Organization edges
 
-        private readonly List<User2OrganizationEdge> _User2Organization_OutEdges;
+        private readonly List<User2OrganizationEdge> _User2Organization_Edges;
 
         public IEnumerable<User2OrganizationEdge> User2Organization_OutEdges
-            => _User2Organization_OutEdges;
+            => _User2Organization_Edges;
 
 
         public User2OrganizationEdge
 
             Add(User2OrganizationEdge Edge)
 
-                => _User2Organization_OutEdges.AddAndReturnElement(Edge);
+                => _User2Organization_Edges.AddAndReturnElement(Edge);
 
 
         public IEnumerable<User2OrganizationEdge>
 
             Add(IEnumerable<User2OrganizationEdge> Edges)
 
-                => _User2Organization_OutEdges.AddAndReturnList(Edges);
+                => _User2Organization_Edges.AddAndReturnList(Edges);
 
 
 
 
         public User2OrganizationEdge
 
-            AddOutgoingEdge(User2OrganizationEdgeTypes  EdgeLabel,
+            AddOutgoingEdge(User2OrganizationEdgeLabel  EdgeLabel,
                             Organization                Target,
                             PrivacyLevel                PrivacyLevel = PrivacyLevel.World)
 
-            => _User2Organization_OutEdges.AddAndReturnElement(new User2OrganizationEdge(this, EdgeLabel, Target, PrivacyLevel));
+            => _User2Organization_Edges.AddAndReturnElement(new User2OrganizationEdge(this, EdgeLabel, Target, PrivacyLevel));
 
 
 
-        public User2GroupEdge
+        public User2UserGroupEdge
 
-            AddOutgoingEdge(User2GroupEdgeTypes  EdgeLabel,
+            AddToUserGroup(User2UserGroupEdgeLabel  EdgeLabel,
                             UserGroup            Target,
                             PrivacyLevel         PrivacyLevel = PrivacyLevel.World)
 
-            => _User2Group_OutEdges.AddAndReturnElement(new User2GroupEdge(this, EdgeLabel, Target, PrivacyLevel));
+            => _User2UserGroup_Edges.AddAndReturnElement(new User2UserGroupEdge(this, EdgeLabel, Target, PrivacyLevel));
 
 
-        public IEnumerable<User2GroupEdge> User2GroupOutEdges(Func<User2GroupEdgeTypes, Boolean> User2GroupEdgeFilter)
-            => _User2Group_OutEdges.Where(edge => User2GroupEdgeFilter(edge.EdgeLabel));
+        public IEnumerable<User2UserGroupEdge> User2GroupOutEdges(Func<User2UserGroupEdgeLabel, Boolean> User2GroupEdgeFilter)
+            => _User2UserGroup_Edges.Where(edge => User2GroupEdgeFilter(edge.EdgeLabel));
 
 
-        #region Organizations(RequireAdminAccess, RequireReadWriteAccess, Recursive)
+        #region EdgeLabels(Organization)
+
+        /// <summary>
+        /// All organizations this user belongs to,
+        /// filtered by the given edge label.
+        /// </summary>
+        public IEnumerable<User2OrganizationEdgeLabel> EdgeLabels(Organization Organization)
+
+            => _User2Organization_Edges.
+                   Where (edge => edge.Target == Organization).
+                   Select(edge => edge.EdgeLabel);
+
+        #endregion
+
+        #region Edges     (Organization)
+
+        /// <summary>
+        /// All organizations this user belongs to,
+        /// filtered by the given edge label.
+        /// </summary>
+        public IEnumerable<User2OrganizationEdge> Edges(Organization Organization)
+
+            => _User2Organization_Edges.
+                   Where(edge => edge.Target == Organization);
+
+        #endregion
+
+        #region Edges     (EdgeLabel, Organization)
+
+        /// <summary>
+        /// All organizations this user belongs to,
+        /// filtered by the given edge label.
+        /// </summary>
+        public IEnumerable<User2OrganizationEdge> Edges(Organization                Organization,
+                                                        User2OrganizationEdgeLabel  EdgeLabel)
+
+            => _User2Organization_Edges.
+                   Where(edge => edge.Target == Organization && edge.EdgeLabel == EdgeLabel);
+
+        #endregion
+
+
+
+        #region ParentOrganizations()
+
+        public IEnumerable<Organization> ParentOrganizations()
+
+            => _User2Organization_Edges.
+                   Where(edge  => edge.EdgeLabel == User2OrganizationEdgeLabel.IsAdmin  ||
+                                  edge.EdgeLabel == User2OrganizationEdgeLabel.IsMember ||
+                                  edge.EdgeLabel == User2OrganizationEdgeLabel.IsGuest).
+                   Select(edge => edge.Target).
+                   ToArray();
+
+        #endregion
+
+        #region Organizations(RequireAdminAccess, RequireReadWriteAccess, Recursive = true)
 
         public IEnumerable<Organization> Organizations(Access_Levels  AccessLevel,
-                                                       Boolean        Recursive)
+                                                       Boolean        Recursive = true)
         {
 
-            var AllMyOrganizations = new HashSet<Organization>();
+            var allMyOrganizations = new HashSet<Organization>();
 
             switch (AccessLevel)
             {
 
                 case Access_Levels.Admin:
-                    foreach (var organization in _User2Organization_OutEdges.
-                                                     Where (edge => edge.EdgeLabel == User2OrganizationEdgeTypes.IsAdmin).
+                    foreach (var organization in _User2Organization_Edges.
+                                                     Where (edge => edge.EdgeLabel == User2OrganizationEdgeLabel.IsAdmin).
                                                      Select(edge => edge.Target))
                     {
-                        AllMyOrganizations.Add(organization);
+                        allMyOrganizations.Add(organization);
+                    }
+                    break;
+
+                case Access_Levels.AdminReadOnly:
+                    foreach (var organization in _User2Organization_Edges.
+                                                     Where (edge => edge.EdgeLabel == User2OrganizationEdgeLabel.IsAdminReadOnly).
+                                                     Select(edge => edge.Target))
+                    {
+                        allMyOrganizations.Add(organization);
                     }
                     break;
 
                 case Access_Levels.ReadWrite:
-                    foreach (var organization in _User2Organization_OutEdges.
-                                                     Where (edge => edge.EdgeLabel == User2OrganizationEdgeTypes.IsAdmin ||
-                                                                    edge.EdgeLabel == User2OrganizationEdgeTypes.IsMember).
+                    foreach (var organization in _User2Organization_Edges.
+                                                     Where (edge => edge.EdgeLabel == User2OrganizationEdgeLabel.IsAdmin ||
+                                                                    edge.EdgeLabel == User2OrganizationEdgeLabel.IsMember).
                                                      Select(edge => edge.Target))
                     {
-                        AllMyOrganizations.Add(organization);
+                        allMyOrganizations.Add(organization);
                     }
                     break;
 
                 default:
-                    foreach (var organization in _User2Organization_OutEdges.
-                                                     Where (edge => edge.EdgeLabel == User2OrganizationEdgeTypes.IsAdmin  ||
-                                                                    edge.EdgeLabel == User2OrganizationEdgeTypes.IsMember ||
-                                                                    edge.EdgeLabel == User2OrganizationEdgeTypes.IsGuest).
+                    foreach (var organization in _User2Organization_Edges.
+                                                     Where (edge => edge.EdgeLabel == User2OrganizationEdgeLabel.IsAdmin  ||
+                                                                    edge.EdgeLabel == User2OrganizationEdgeLabel.IsMember ||
+                                                                    edge.EdgeLabel == User2OrganizationEdgeLabel.IsGuest).
                                                      Select(edge => edge.Target))
                     {
-                        AllMyOrganizations.Add(organization);
+                        allMyOrganizations.Add(organization);
                     }
                     break;
 
@@ -426,73 +559,109 @@ namespace social.OpenData.UsersAPI
                 do
                 {
 
-                    Level2 = AllMyOrganizations.SelectMany(organization => organization.
+                    Level2 = allMyOrganizations.SelectMany(organization => organization.
                                                                                Organization2OrganizationInEdges.
-                                                                               Where(edge => edge.EdgeLabel == Organization2OrganizationEdgeTypes.IsChildOf)).
+                                                                               Where(edge => edge.EdgeLabel == Organization2OrganizationEdgeLabel.IsChildOf)).
                                                 Select    (edge         => edge.Source).
-                                                Where     (organization => !AllMyOrganizations.Contains(organization)).
+                                                Where     (organization => !allMyOrganizations.Contains(organization)).
                                                 ToArray();
 
                     foreach (var organization in Level2)
-                        AllMyOrganizations.Add(organization);
+                        allMyOrganizations.Add(organization);
 
                 } while (Level2.Length > 0);
 
             }
 
-            return AllMyOrganizations;
+            return allMyOrganizations;
 
         }
 
         #endregion
 
-        public Boolean RemoveOutEdge(User2OrganizationEdge Edge)
-            => _User2Organization_OutEdges.Remove(Edge);
+        #region HasAccessToOrganization(AccessLevel, Organization,   Recursive = true)
+
+        public Boolean HasAccessToOrganization(Access_Levels  AccessLevel,
+                                               Organization   Organization,
+                                               Boolean        Recursive = true)
+
+            => !(Organization is null) &&
+                 Organizations(AccessLevel, Recursive).Contains(Organization);
 
         #endregion
 
-        #region User  -> Group        edges
+        #region HasAccessToOrganization(AccessLevel, OrganizationId, Recursive = true)
 
-        private readonly List<User2GroupEdge> _User2Group_OutEdges;
+        public Boolean HasAccessToOrganization(Access_Levels    AccessLevel,
+                                               Organization_Id  OrganizationId,
+                                               Boolean          Recursive = true)
 
-        public IEnumerable<User2GroupEdge> User2Group_OutEdges
-            => _User2Group_OutEdges;
+            => !OrganizationId.IsNullOrEmpty &&
+                Organizations(AccessLevel, Recursive).Any(org => org.Id == OrganizationId);
 
-
-
-        public User2GroupEdge
-
-            Add(User2GroupEdge Edge)
-
-                => _User2Group_OutEdges.AddAndReturnElement(Edge);
+        #endregion
 
 
-        public IEnumerable<User2GroupEdge>
+        public Boolean RemoveOutEdge(User2OrganizationEdge Edge)
+            => _User2Organization_Edges.Remove(Edge);
 
-            Add(IEnumerable<User2GroupEdge> Edges)
+        #endregion
 
-                => _User2Group_OutEdges.AddAndReturnList(Edges);
+        #region User  -> UserGroup    edges
+
+        private readonly List<User2UserGroupEdge> _User2UserGroup_Edges;
+
+        public IEnumerable<User2UserGroupEdge> User2Group_OutEdges
+            => _User2UserGroup_Edges;
 
 
 
-        #region Groups(RequireReadWriteAccess = false, Recursive = false)
+        public User2UserGroupEdge
 
-        public IEnumerable<UserGroup> Groups(Boolean RequireReadWriteAccess  = false,
-                                         Boolean Recursive               = false)
+            Add(User2UserGroupEdge Edge)
+
+                => _User2UserGroup_Edges.AddAndReturnElement(Edge);
+
+
+        public IEnumerable<User2UserGroupEdge>
+
+            Add(IEnumerable<User2UserGroupEdge> Edges)
+
+                => _User2UserGroup_Edges.AddAndReturnList(Edges);
+
+
+        #region UserGroups(EdgeFilter)
+
+        /// <summary>
+        /// All groups this user belongs to,
+        /// filtered by the given edge label.
+        /// </summary>
+        public IEnumerable<UserGroup> UserGroups(User2UserGroupEdgeLabel EdgeFilter)
+
+            => _User2UserGroup_Edges.
+                   Where(edge => edge.EdgeLabel == EdgeFilter).
+                   Select(edge => edge.Target);
+
+        #endregion
+
+        #region UserGroups(RequireReadWriteAccess = false, Recursive = false)
+
+        public IEnumerable<UserGroup> UserGroups(Boolean RequireReadWriteAccess = false,
+                                                 Boolean Recursive = false)
         {
 
             var _Groups = RequireReadWriteAccess
 
-                                     ? _User2Group_OutEdges.
-                                           Where (edge => edge.EdgeLabel == User2GroupEdgeTypes.IsAdmin ||
-                                                          edge.EdgeLabel == User2GroupEdgeTypes.IsMember).
+                                     ? _User2UserGroup_Edges.
+                                           Where(edge => edge.EdgeLabel == User2UserGroupEdgeLabel.IsAdmin ||
+                                                         edge.EdgeLabel == User2UserGroupEdgeLabel.IsMember).
                                            Select(edge => edge.Target).
                                            ToList()
 
-                                     : _User2Group_OutEdges.
-                                           Where (edge => edge.EdgeLabel == User2GroupEdgeTypes.IsAdmin  ||
-                                                          edge.EdgeLabel == User2GroupEdgeTypes.IsMember ||
-                                                          edge.EdgeLabel == User2GroupEdgeTypes.IsVisitor).
+                                     : _User2UserGroup_Edges.
+                                           Where(edge => edge.EdgeLabel == User2UserGroupEdgeLabel.IsAdmin ||
+                                                         edge.EdgeLabel == User2UserGroupEdgeLabel.IsMember ||
+                                                         edge.EdgeLabel == User2UserGroupEdgeLabel.IsGuest).
                                            Select(edge => edge.Target).
                                            ToList();
 
@@ -524,124 +693,56 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        public Boolean RemoveOutEdge(User2GroupEdge Edge)
-            => _User2Group_OutEdges.Remove(Edge);
-
-        #endregion
-
-
-        #region Genimi
+        #region EdgeLabels(UserGroup)
 
         /// <summary>
-        /// The gemini of this user.
-        /// </summary>
-        public IEnumerable<User> Genimi
-        {
-            get
-            {
-                return _User2UserEdges.
-                           Where (edge => edge.EdgeLabel == User2UserEdgeTypes.gemini).
-                           Select(edge => edge.Target);
-            }
-        }
-
-        #endregion
-
-        #region FollowsUsers
-
-        /// <summary>
-        /// This user follows this other users.
-        /// </summary>
-        public IEnumerable<User> FollowsUsers
-        {
-            get
-            {
-                return _User2UserEdges.
-                           Where(edge => edge.EdgeLabel == User2UserEdgeTypes.follows).
-                           Select(edge => edge.Target);
-            }
-        }
-
-        #endregion
-
-        #region IsFollowedBy
-
-        /// <summary>
-        /// This user is followed by this other users.
-        /// </summary>
-        public IEnumerable<User> IsFollowedBy
-        {
-            get
-            {
-                return _User2UserEdges.
-                           Where(edge => edge.EdgeLabel == User2UserEdgeTypes.IsFollowedBy).
-                           Select(edge => edge.Target);
-            }
-        }
-
-        #endregion
-
-        #region Groups()
-
-        /// <summary>
-        /// All groups this user belongs to.
-        /// </summary>
-        public IEnumerable<UserGroup> Groups()
-            => _User2Group_OutEdges.
-                   Select(edge => edge.Target);
-
-        #endregion
-
-        #region Groups(EdgeFilter)
-
-        /// <summary>
-        /// All groups this user belongs to,
+        /// All user groups this user belongs to,
         /// filtered by the given edge label.
         /// </summary>
-        public IEnumerable<UserGroup> Groups(User2GroupEdgeTypes EdgeFilter)
-            => _User2Group_OutEdges.
-                   Where (edge => edge.EdgeLabel == EdgeFilter).
-                   Select(edge => edge.Target);
+        public IEnumerable<User2UserGroupEdgeLabel> EdgeLabels(UserGroup UserGroup)
 
-        #endregion
-
-        #region Edges(Group)
-
-        /// <summary>
-        /// All groups this user belongs to,
-        /// filtered by the given edge label.
-        /// </summary>
-        public IEnumerable<User2GroupEdgeTypes> OutEdges(UserGroup Group)
-            => _User2Group_OutEdges.
-                   Where (edge => edge.Target == Group).
+            => _User2UserGroup_Edges.
+                   Where(edge => edge.Target == UserGroup).
                    Select(edge => edge.EdgeLabel);
 
         #endregion
 
-        #region EdgeLabels(Organization)
+        #region Edges     (UserGroup)
 
         /// <summary>
         /// All organizations this user belongs to,
         /// filtered by the given edge label.
         /// </summary>
-        public IEnumerable<User2OrganizationEdgeTypes> EdgeLabels(Organization Organization)
-            => _User2Organization_OutEdges.
-                   Where (edge => edge.Target == Organization).
-                   Select(edge => edge.EdgeLabel);
+        public IEnumerable<User2UserGroupEdge> Edges(UserGroup UserGroup)
+
+            => _User2UserGroup_Edges.
+                   Where(edge => edge.Target == UserGroup);
 
         #endregion
 
-        #region Edges     (Organization)
+        #region Edges     (EdgeLabel, UserGroup)
 
         /// <summary>
         /// All organizations this user belongs to,
         /// filtered by the given edge label.
         /// </summary>
-        public IEnumerable<User2OrganizationEdge> Edges(Organization Organization)
-            => _User2Organization_OutEdges.
-                   Where(edge => edge.Target == Organization);
+        public IEnumerable<User2UserGroupEdge> Edges(User2UserGroupEdgeLabel  EdgeLabel,
+                                                     UserGroup                UserGroup)
+
+            => _User2UserGroup_Edges.
+                   Where(edge => edge.Target == UserGroup && edge.EdgeLabel == EdgeLabel);
 
         #endregion
+
+        public Boolean HasEdge(User2UserGroupEdgeLabel  EdgeLabel,
+                               UserGroup                UserGroup)
+
+            => _User2UserGroup_Edges.
+                   Any(edge => edge.Target == UserGroup && edge.EdgeLabel == EdgeLabel);
+
+
+        public Boolean RemoveOutEdge(User2UserGroupEdge Edge)
+            => _User2UserGroup_Edges.Remove(Edge);
 
         #endregion
 
@@ -652,19 +753,20 @@ namespace social.OpenData.UsersAPI
         #region Constructor(s)
 
         /// <summary>
-        /// Create a new Open Data user.
+        /// Create a new user.
         /// </summary>
         /// <param name="Id">The unique identification of the user.</param>
-        /// 
-        /// <param name="EMail">The primary e-mail of the user.</param>
         /// <param name="Name">An offical (multi-language) name of the user.</param>
+        /// <param name="EMail">The primary e-mail of the user.</param>
+        /// 
         /// <param name="Description">An optional (multi-language) description of the user.</param>
         /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the user.</param>
         /// <param name="SecretKeyRing">An optional PGP/GPG secret keyring of the user.</param>
         /// <param name="UserLanguage">The language setting of the user.</param>
         /// <param name="Telephone">An optional telephone number of the user.</param>
         /// <param name="MobilePhone">An optional mobile telephone number of the user.</param>
-        /// <param name="Telegram">The telegram user name.</param>
+        /// <param name="Use2AuthFactor">Whether to use a second authentication factor.</param>
+        /// <param name="Telegram">An optional telegram account name of the user.</param>
         /// <param name="Homepage">The homepage of the user.</param>
         /// <param name="GeoLocation">An optional geographical location of the user.</param>
         /// <param name="Address">An optional address of the user.</param>
@@ -677,35 +779,36 @@ namespace social.OpenData.UsersAPI
         /// <param name="JSONLDContext">The JSON-LD context of this user.</param>
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
         /// <param name="LastChange">The timestamp of the last changes within this user. Can e.g. be used as a HTTP ETag.</param>
-        internal User(User_Id                             Id,
+        public User(User_Id                             Id,
+                    String                              Name,
+                    SimpleEMailAddress                  EMail,
 
-                      SimpleEMailAddress                  EMail,
-                      String                              Name                     = null,
-                      I18NString                          Description              = null,
-                      PgpPublicKeyRing                    PublicKeyRing            = null,
-                      PgpSecretKeyRing                    SecretKeyRing            = null,
-                      Languages                           UserLanguage             = Languages.en,
-                      PhoneNumber?                        Telephone                = null,
-                      PhoneNumber?                        MobilePhone              = null,
-                      String                              Telegram                 = null,
-                      String                              Homepage                 = null,
-                      GeoCoordinate?                      GeoLocation              = null,
-                      Address                             Address                  = null,
-                      DateTime?                           AcceptedEULA             = null,
-                      Boolean                             IsDisabled               = false,
-                      Boolean                             IsAuthenticated          = false,
+                    I18NString                          Description              = null,
+                    PgpPublicKeyRing                    PublicKeyRing            = null,
+                    PgpSecretKeyRing                    SecretKeyRing            = null,
+                    Languages                           UserLanguage             = Languages.en,
+                    PhoneNumber?                        Telephone                = null,
+                    PhoneNumber?                        MobilePhone              = null,
+                    Use2AuthFactor                      Use2AuthFactor           = Use2AuthFactor.None,
+                    String                              Telegram                 = null,
+                    String                              Homepage                 = null,
+                    GeoCoordinate?                      GeoLocation              = null,
+                    Address                             Address                  = null,
+                    DateTime?                           AcceptedEULA             = null,
+                    Boolean                             IsDisabled               = false,
+                    Boolean                             IsAuthenticated          = false,
 
-                      IEnumerable<ANotification>          Notifications            = null,
+                    IEnumerable<ANotification>          Notifications            = null,
 
-                      IEnumerable<User2UserEdge>          User2UserEdges           = null,
-                      IEnumerable<User2GroupEdge>         User2GroupEdges          = null,
-                      IEnumerable<User2OrganizationEdge>  User2OrganizationEdges   = null,
+                    IEnumerable<User2UserEdge>          User2UserEdges           = null,
+                    IEnumerable<User2UserGroupEdge>     User2UserGroupEdges      = null,
+                    IEnumerable<User2OrganizationEdge>  User2OrganizationEdges   = null,
 
-                      JObject                             CustomData               = default,
-                      IEnumerable<AttachedFile>           AttachedFiles            = default,
-                      JSONLDContext?                      JSONLDContext            = default,
-                      String                              DataSource               = default,
-                      DateTime?                           LastChange               = default)
+                    JObject                             CustomData               = default,
+                    IEnumerable<AttachedFile>           AttachedFiles            = default,
+                    JSONLDContext?                      JSONLDContext            = default,
+                    String                              DataSource               = default,
+                    DateTime?                           LastChange               = default)
 
             : base(Id,
                    JSONLDContext ?? DefaultJSONLDContext,
@@ -717,8 +820,7 @@ namespace social.OpenData.UsersAPI
 
             #region Initial checks
 
-            if (Name != null)
-                Name = Name.Trim();
+            Name = Name?.Trim();
 
             if (Name.IsNullOrEmpty())
                 throw new ArgumentNullException(nameof(Name), "The given username must not be null or empty!");
@@ -734,6 +836,7 @@ namespace social.OpenData.UsersAPI
             this.UserLanguage                 = UserLanguage;
             this.Telephone                    = Telephone;
             this.MobilePhone                  = MobilePhone;
+            this.Use2AuthFactor               = Use2AuthFactor;
             this.Telegram                     = Telegram;
             this.Homepage                     = Homepage;
             this.Description                  = Description   ?? new I18NString();
@@ -749,10 +852,9 @@ namespace social.OpenData.UsersAPI
             if (Notifications.SafeAny())
                 _NotificationStore.Add(Notifications);
 
-            // Init edges
-            this._User2UserEdges              = User2UserEdges.        IsNeitherNullNorEmpty() ? new List<User2UserEdge>        (User2UserEdges)         : new List<User2UserEdge>();
-            this._User2Group_OutEdges         = User2GroupEdges.       IsNeitherNullNorEmpty() ? new List<User2GroupEdge>       (User2GroupEdges)        : new List<User2GroupEdge>();
-            this._User2Organization_OutEdges  = User2OrganizationEdges.IsNeitherNullNorEmpty() ? new List<User2OrganizationEdge>(User2OrganizationEdges) : new List<User2OrganizationEdge>();
+            this._User2User_Edges             = User2UserEdges.        IsNeitherNullNorEmpty() ? new List<User2UserEdge>        (User2UserEdges)         : new List<User2UserEdge>();
+            this._User2UserGroup_Edges        = User2UserGroupEdges.   IsNeitherNullNorEmpty() ? new List<User2UserGroupEdge>   (User2UserGroupEdges)    : new List<User2UserGroupEdge>();
+            this._User2Organization_Edges     = User2OrganizationEdges.IsNeitherNullNorEmpty() ? new List<User2OrganizationEdge>(User2OrganizationEdges) : new List<User2OrganizationEdge>();
 
             CalcHash();
 
@@ -923,110 +1025,14 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region ToJSON(Embedded = false, IncludeCryptoHash = false)
-
-        /// <summary>
-        /// Return a JSON representation of this object.
-        /// </summary>
-        /// <param name="Embedded">Whether this data is embedded into another data structure.</param>
-        /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
-        public override JObject ToJSON(Boolean Embedded           = false,
-                                       Boolean IncludeCryptoHash  = false)
-
-            => ToJSON(Embedded,
-                      InfoStatus.Hidden,
-                      InfoStatus.Hidden,
-                      false);
-
-
-        /// <summary>
-        /// Return a JSON representation of this object.
-        /// </summary>
-        /// <param name="Embedded">Whether this data is embedded into another data structure.</param>
-        /// <param name="ExpandOrganizations">Whether to expand the organizations this user is a member of.</param>
-        /// <param name="ExpandGroups">Whether to expand the groups this user is a member of.</param>
-        /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
-        public JObject ToJSON(Boolean                                Embedded               = false,
-                              InfoStatus                             ExpandOrganizations    = InfoStatus.Hidden,
-                              InfoStatus                             ExpandGroups           = InfoStatus.Hidden,
-                              Boolean                                IncludeLastChange      = true,
-                              Boolean                                IncludeCryptoHash      = true,
-                              CustomJObjectSerializerDelegate<User>  CustomUserSerializer   = null)
-
-        {
-
-            var JSON = base.ToJSON(Embedded,
-                                   IncludeLastChange,
-                                   IncludeCryptoHash,
-                                   null,
-                                   new JProperty[] {
-
-                                       new JProperty("name",                 Name),
-
-                                       Description.IsNeitherNullNorEmpty()
-                                           ? new JProperty("description",    Description.ToJSON())
-                                           : null,
-
-                                       new JProperty("email",                EMail.Address.ToString()),
-
-                                       PublicKeyRing != null
-                                           ? new JProperty("publicKeyRing",  PublicKeyRing.GetEncoded().ToHexString())
-                                           : null,
-
-                                       SecretKeyRing != null
-                                           ? new JProperty("secretKeyRing",  SecretKeyRing.GetEncoded().ToHexString())
-                                           : null,
-
-                                       new JProperty("language",             UserLanguage.AsText()),
-
-                                       Telephone.HasValue
-                                           ? new JProperty("telephone",      Telephone.ToString())
-                                           : null,
-
-                                       MobilePhone.HasValue
-                                           ? new JProperty("mobilePhone",    MobilePhone.ToString())
-                                           : null,
-
-                                       Telegram.IsNotNullOrEmpty()
-                                           ? new JProperty("telegram",       Telegram)
-                                           : null,
-
-                                       Homepage.IsNotNullOrEmpty()
-                                           ? new JProperty("homepage",       Homepage.ToString())
-                                           : null,
-
-                                       PrivacyLevel.ToJSON(),
-
-                                       AcceptedEULA.HasValue
-                                           ? new JProperty("acceptedEULA",   AcceptedEULA.Value.ToIso8601())
-                                           : null,
-
-                                       new JProperty("isAuthenticated",      IsAuthenticated),
-                                       new JProperty("isDisabled",           IsDisabled)
-
-                                       //new JProperty("signatures",           new JArray()),
-
-                                       //ExpandOrganizations.Switch(
-                                       //    () => new JProperty("organizationIds",   Owner.Id.ToString()),
-                                       //    () => new JProperty("organizations",     Owner.ToJSON())),
-
-                                    });
-
-
-            return CustomUserSerializer != null
-                       ? CustomUserSerializer(this, JSON)
-                       : JSON;
-
-        }
-
-        #endregion
-
-        #region (static) TryParseJSON(JSONObject, ..., out User, out ErrorResponse)
+        #region (static) TryParseJSON(JSONObject, ..., out User, out ErrorResponse, ...)
 
         public static Boolean TryParseJSON(JObject     JSONObject,
                                            out User    User,
                                            out String  ErrorResponse,
-                                           User_Id?    UserIdURL = null)
+                                           User_Id?    UserIdURL           = null,
+                                           Byte?       MinUserIdLength     = 0,
+                                           Byte?       MinUserNameLength   = 0)
         {
 
             try
@@ -1036,8 +1042,6 @@ namespace social.OpenData.UsersAPI
 
                 #region Parse UserId           [optional]
 
-                // Verify that a given user identification
-                //   is at least valid.
                 if (JSONObject.ParseOptionalStruct("@id",
                                                    "user identification",
                                                    User_Id.TryParse,
@@ -1059,6 +1063,14 @@ namespace social.OpenData.UsersAPI
                 if (UserIdURL.HasValue && UserIdBody.HasValue && UserIdURL.Value != UserIdBody.Value)
                 {
                     ErrorResponse = "The optional user identification given within the JSON body does not match the one given in the URI!";
+                    return false;
+                }
+
+                var userId = UserIdBody ?? UserIdURL.Value;
+
+                if (userId.Length < MinUserIdLength)
+                {
+                    ErrorResponse = "The given user identification '" + userId + "' is too short!";
                     return false;
                 }
 
@@ -1094,19 +1106,10 @@ namespace social.OpenData.UsersAPI
                     return false;
                 }
 
-                #endregion
-
-                #region Parse Description      [optional]
-
-                if (JSONObject.ParseOptional("description",
-                                             "user description",
-                                             out I18NString Description,
-                                             out ErrorResponse))
+                if (Name.Length < MinUserNameLength)
                 {
-
-                    if (ErrorResponse != null)
-                        return false;
-
+                    ErrorResponse = "The given user name '" + Name + "' is too short!";
+                    return false;
                 }
 
                 #endregion
@@ -1120,6 +1123,21 @@ namespace social.OpenData.UsersAPI
                                                out ErrorResponse))
                 {
                     return false;
+                }
+
+                #endregion
+
+                #region Parse Description      [optional]
+
+                if (JSONObject.ParseOptional("description",
+                                             "user description",
+                                             out I18NString Description,
+                                             out ErrorResponse))
+                {
+
+                    if (ErrorResponse != null)
+                        return false;
+
                 }
 
                 #endregion
@@ -1195,6 +1213,21 @@ namespace social.OpenData.UsersAPI
                                              PhoneNumber.TryParse,
                                              out PhoneNumber? MobilePhone,
                                              out ErrorResponse))
+                {
+
+                    if (ErrorResponse != null)
+                        return false;
+
+                }
+
+                #endregion
+
+                #region Parse Use2AuthFactor   [optional]
+
+                if (JSONObject.ParseOptionalEnum("use2AuthFactor",
+                                                 "use a second authentication factor",
+                                                 out Use2AuthFactor? Use2AuthFactor,
+                                                 out ErrorResponse))
                 {
 
                     if (ErrorResponse != null)
@@ -1313,29 +1346,34 @@ namespace social.OpenData.UsersAPI
                 #endregion
 
 
-                User = new User(UserIdBody ?? UserIdURL.Value,
-
-                                EMail,
+                User = new User(userId,
                                 Name,
+                                EMail,
                                 Description,
                                 PublicKeyRing,
                                 SecretKeyRing,
-                                UserLanguage ?? Languages.en,
+                                UserLanguage    ?? Languages.en,
                                 Telephone,
                                 MobilePhone,
+                                Use2AuthFactor  ?? OpenData.UsersAPI.Use2AuthFactor.None,
                                 Telegram,
                                 Homepage,
                                 GeoLocation,
                                 Address,
                                 AcceptedEULA,
                                 IsAuthenticated ?? false,
-                                IsDisabled      ?? false);
+                                IsDisabled      ?? false,
 
-                                //CustomData,
-                                //AttachedFiles,
-                                //JSONLDContext,
-                                //DataSource,
-                                //LastChange);
+                                null,
+                                null,
+                                null,
+                                null,
+
+                                null, //CustomData,
+                                null, //AttachedFiles,
+                                null, //JSONLDContext,
+                                DataSource,
+                                null); //LastChange
 
                 ErrorResponse = null;
                 return true;
@@ -1349,6 +1387,150 @@ namespace social.OpenData.UsersAPI
             }
 
         }
+
+        #endregion
+
+        #region ToJSON(Embedded = false, IncludeCryptoHash = false)
+
+        /// <summary>
+        /// Return a JSON representation of this object.
+        /// </summary>
+        /// <param name="Embedded">Whether this data is embedded into another data structure.</param>
+        /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
+        public override JObject ToJSON(Boolean Embedded           = false,
+                                       Boolean IncludeCryptoHash  = false)
+
+            => ToJSON(Embedded,
+                      InfoStatus.Hidden,
+                      InfoStatus.Hidden,
+                      true,
+                      IncludeCryptoHash);
+
+
+        /// <summary>
+        /// Return a JSON representation of this object.
+        /// </summary>
+        /// <param name="Embedded">Whether this data is embedded into another data structure.</param>
+        /// <param name="ExpandOrganizations">Whether to expand the organizations this user is a member of.</param>
+        /// <param name="ExpandGroups">Whether to expand the groups this user is a member of.</param>
+        /// <param name="IncludeLastChange">Whether to include the lastChange timestamp of this object.</param>
+        /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
+        /// <param name="CustomUserSerializer">A delegate to serialize custom user JSON objects.</param>
+        public JObject ToJSON(Boolean                                Embedded               = false,
+                              InfoStatus                             ExpandOrganizations    = InfoStatus.Hidden,
+                              InfoStatus                             ExpandGroups           = InfoStatus.Hidden,
+                              Boolean                                IncludeLastChange      = true,
+                              Boolean                                IncludeCryptoHash      = true,
+                              CustomJObjectSerializerDelegate<User>  CustomUserSerializer   = null)
+
+        {
+
+            var JSON = base.ToJSON(Embedded,
+                                   IncludeLastChange,
+                                   IncludeCryptoHash,
+                                   null,
+                                   new JProperty[] {
+
+                                       new JProperty("name",                   Name),
+
+                                       Description.IsNeitherNullNorEmpty()
+                                           ? new JProperty("description",      Description.ToJSON())
+                                           : null,
+
+                                       new JProperty("email",                  EMail.Address.ToString()),
+
+                                       PublicKeyRing != null
+                                           ? new JProperty("publicKeyRing",    PublicKeyRing.GetEncoded().ToHexString())
+                                           : null,
+
+                                       SecretKeyRing != null
+                                           ? new JProperty("secretKeyRing",    SecretKeyRing.GetEncoded().ToHexString())
+                                           : null,
+
+                                       new JProperty("language",               UserLanguage.AsText()),
+
+                                       Telephone.HasValue
+                                           ? new JProperty("telephone",        Telephone.ToString())
+                                           : null,
+
+                                       MobilePhone.HasValue
+                                           ? new JProperty("mobilePhone",      MobilePhone.ToString())
+                                           : null,
+
+                                       Use2AuthFactor != Use2AuthFactor.None
+                                           ? new JProperty("use2AuthFactor",   Use2AuthFactor.ToString())
+                                           : null,
+
+                                       Telegram.IsNotNullOrEmpty()
+                                           ? new JProperty("telegram",         Telegram)
+                                           : null,
+
+                                       Homepage.IsNotNullOrEmpty()
+                                           ? new JProperty("homepage",         Homepage.ToString())
+                                           : null,
+
+                                       PrivacyLevel.ToJSON(),
+
+                                       AcceptedEULA.HasValue
+                                           ? new JProperty("acceptedEULA",     AcceptedEULA.Value.ToIso8601())
+                                           : null,
+
+                                       new JProperty("isAuthenticated",        IsAuthenticated),
+                                       new JProperty("isDisabled",             IsDisabled)
+
+                                       //new JProperty("signatures",           new JArray()),
+
+                                       //ExpandOrganizations.Switch(
+                                       //    () => new JProperty("organizationIds",   Owner.Id.ToString()),
+                                       //    () => new JProperty("organizations",     Owner.ToJSON())),
+
+                                   });
+
+            return CustomUserSerializer != null
+                       ? CustomUserSerializer(this, JSON)
+                       : JSON;
+
+        }
+
+        #endregion
+
+        #region Clone(NewUserId = null)
+
+        /// <summary>
+        /// Clone this object.
+        /// </summary>
+        /// <param name="NewUserId">An optional new user identification.</param>
+        public User Clone(User_Id? NewUserId = null)
+
+            => new User(NewUserId ?? Id.Clone,
+                        Name,
+                        EMail.Address,
+                        Description?.Clone,
+                        PublicKeyRing,
+                        SecretKeyRing,
+                        UserLanguage,
+                        Telephone?.Clone,
+                        MobilePhone,
+                        Use2AuthFactor,
+                        Telegram,
+                        Homepage,
+                        GeoLocation,
+                        Address,
+                        AcceptedEULA,
+                        IsDisabled,
+                        IsAuthenticated,
+
+                        _NotificationStore,
+
+                        _User2User_Edges,
+                        _User2UserGroup_Edges,
+                        _User2Organization_Edges,
+
+                        CustomData,
+                        AttachedFiles,
+                        JSONLDContext,
+                        DataSource,
+                        LastChange);
 
         #endregion
 
@@ -1414,7 +1596,7 @@ namespace social.OpenData.UsersAPI
                 return true;
 
             // If one is null, but not both, return false.
-            if (((Object) UserId1 == null) || ((Object) UserId2 == null))
+            if (UserId1 is null || UserId2 is null)
                 return false;
 
             return UserId1.Equals(UserId2);
@@ -1447,7 +1629,7 @@ namespace social.OpenData.UsersAPI
         public static Boolean operator < (User UserId1, User UserId2)
         {
 
-            if ((Object) UserId1 == null)
+            if (UserId1 is null)
                 throw new ArgumentNullException(nameof(UserId1), "The given UserId1 must not be null!");
 
             return UserId1.CompareTo(UserId2) < 0;
@@ -1480,7 +1662,7 @@ namespace social.OpenData.UsersAPI
         public static Boolean operator > (User UserId1, User UserId2)
         {
 
-            if ((Object) UserId1 == null)
+            if (UserId1 is null)
                 throw new ArgumentNullException(nameof(UserId1), "The given UserId1 must not be null!");
 
             return UserId1.CompareTo(UserId2) > 0;
@@ -1574,6 +1756,7 @@ namespace social.OpenData.UsersAPI
         /// Get the hashcode of this object.
         /// </summary>
         public override Int32 GetHashCode()
+
             => Id.GetHashCode();
 
         #endregion
@@ -1584,6 +1767,7 @@ namespace social.OpenData.UsersAPI
         /// Return a text representation of this object.
         /// </summary>
         public override String ToString()
+
             => Id.ToString();
 
         #endregion
@@ -1597,7 +1781,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="NewUserId">An optional new user identification.</param>
         public Builder ToBuilder(User_Id? NewUserId = null)
 
-            => new Builder(NewUserId ?? Id,
+            => new Builder(NewUserId ?? Id.Clone,
                            EMail.Address,
                            Name,
                            Description,
@@ -1606,6 +1790,7 @@ namespace social.OpenData.UsersAPI
                            UserLanguage,
                            Telephone,
                            MobilePhone,
+                           Use2AuthFactor,
                            Telegram,
                            Homepage,
                            GeoLocation,
@@ -1616,9 +1801,9 @@ namespace social.OpenData.UsersAPI
 
                            _NotificationStore,
 
-                           _User2UserEdges,
-                           _User2Group_OutEdges,
-                           _User2Organization_OutEdges,
+                           _User2User_Edges,
+                           _User2UserGroup_Edges,
+                           _User2Organization_Edges,
 
                            CustomData,
                            AttachedFiles,
@@ -1686,6 +1871,11 @@ namespace social.OpenData.UsersAPI
             /// </summary>
             [Optional]
             public PhoneNumber?           MobilePhone          { get; set; }
+
+            /// <summary>
+            /// Whether to use a second authentication factor.
+            /// </summary>
+            public Use2AuthFactor?        Use2AuthFactor       { get; set; }
 
             /// <summary>
             /// The telegram user name.
@@ -1834,7 +2024,7 @@ namespace social.OpenData.UsersAPI
 
             public User2OrganizationEdge
 
-                AddOutgoingEdge(User2OrganizationEdgeTypes  EdgeLabel,
+                AddOutgoingEdge(User2OrganizationEdgeLabel  EdgeLabel,
                                 Organization            Target,
                                 PrivacyLevel            PrivacyLevel = PrivacyLevel.World)
 
@@ -1842,16 +2032,16 @@ namespace social.OpenData.UsersAPI
 
 
 
-            public User2GroupEdge
+            public User2UserGroupEdge
 
-                AddOutgoingEdge(User2GroupEdgeTypes EdgeLabel,
+                AddOutgoingEdge(User2UserGroupEdgeLabel EdgeLabel,
                                 UserGroup           Target,
                                 PrivacyLevel    PrivacyLevel = PrivacyLevel.World)
 
-                => _User2Group_OutEdges.AddAndReturnElement(new User2GroupEdge(this, EdgeLabel, Target, PrivacyLevel));
+                => _User2Group_OutEdges.AddAndReturnElement(new User2UserGroupEdge(this, EdgeLabel, Target, PrivacyLevel));
 
 
-            public IEnumerable<User2GroupEdge> User2GroupOutEdges(Func<User2GroupEdgeTypes, Boolean> User2GroupEdgeFilter)
+            public IEnumerable<User2UserGroupEdge> User2GroupOutEdges(Func<User2UserGroupEdgeLabel, Boolean> User2GroupEdgeFilter)
                 => _User2Group_OutEdges.Where(edge => User2GroupEdgeFilter(edge.EdgeLabel));
 
 
@@ -1868,7 +2058,7 @@ namespace social.OpenData.UsersAPI
 
                     case Access_Levels.Admin:
                         foreach (var organization in _User2Organization_OutEdges.
-                                                         Where (edge => edge.EdgeLabel == User2OrganizationEdgeTypes.IsAdmin).
+                                                         Where (edge => edge.EdgeLabel == User2OrganizationEdgeLabel.IsAdmin).
                                                          Select(edge => edge.Target))
                         {
                             AllMyOrganizations.Add(organization);
@@ -1877,8 +2067,8 @@ namespace social.OpenData.UsersAPI
 
                     case Access_Levels.ReadWrite:
                         foreach (var organization in _User2Organization_OutEdges.
-                                                         Where (edge => edge.EdgeLabel == User2OrganizationEdgeTypes.IsAdmin ||
-                                                                        edge.EdgeLabel == User2OrganizationEdgeTypes.IsMember).
+                                                         Where (edge => edge.EdgeLabel == User2OrganizationEdgeLabel.IsAdmin ||
+                                                                        edge.EdgeLabel == User2OrganizationEdgeLabel.IsMember).
                                                          Select(edge => edge.Target))
                         {
                             AllMyOrganizations.Add(organization);
@@ -1887,9 +2077,9 @@ namespace social.OpenData.UsersAPI
 
                     default:
                         foreach (var organization in _User2Organization_OutEdges.
-                                                         Where (edge => edge.EdgeLabel == User2OrganizationEdgeTypes.IsAdmin  ||
-                                                                        edge.EdgeLabel == User2OrganizationEdgeTypes.IsMember ||
-                                                                        edge.EdgeLabel == User2OrganizationEdgeTypes.IsGuest).
+                                                         Where (edge => edge.EdgeLabel == User2OrganizationEdgeLabel.IsAdmin  ||
+                                                                        edge.EdgeLabel == User2OrganizationEdgeLabel.IsMember ||
+                                                                        edge.EdgeLabel == User2OrganizationEdgeLabel.IsGuest).
                                                          Select(edge => edge.Target))
                         {
                             AllMyOrganizations.Add(organization);
@@ -1909,7 +2099,7 @@ namespace social.OpenData.UsersAPI
 
                         Level2 = AllMyOrganizations.SelectMany(organization => organization.
                                                                                    Organization2OrganizationInEdges.
-                                                                                   Where(edge => edge.EdgeLabel == Organization2OrganizationEdgeTypes.IsChildOf)).
+                                                                                   Where(edge => edge.EdgeLabel == Organization2OrganizationEdgeLabel.IsChildOf)).
                                                     Select    (edge         => edge.Source).
                                                     Where     (organization => !AllMyOrganizations.Contains(organization)).
                                                     ToArray();
@@ -1934,23 +2124,23 @@ namespace social.OpenData.UsersAPI
 
             #region User  -> Group        edges
 
-            private readonly List<User2GroupEdge> _User2Group_OutEdges;
+            private readonly List<User2UserGroupEdge> _User2Group_OutEdges;
 
-            public IEnumerable<User2GroupEdge> User2Group_OutEdges
+            public IEnumerable<User2UserGroupEdge> User2Group_OutEdges
                 => _User2Group_OutEdges;
 
 
 
-            public User2GroupEdge
+            public User2UserGroupEdge
 
-                Add(User2GroupEdge Edge)
+                Add(User2UserGroupEdge Edge)
 
                     => _User2Group_OutEdges.AddAndReturnElement(Edge);
 
 
-            public IEnumerable<User2GroupEdge>
+            public IEnumerable<User2UserGroupEdge>
 
-                Add(IEnumerable<User2GroupEdge> Edges)
+                Add(IEnumerable<User2UserGroupEdge> Edges)
 
                     => _User2Group_OutEdges.AddAndReturnList(Edges);
 
@@ -1965,15 +2155,15 @@ namespace social.OpenData.UsersAPI
                 var _Groups = RequireReadWriteAccess
 
                                          ? _User2Group_OutEdges.
-                                               Where (edge => edge.EdgeLabel == User2GroupEdgeTypes.IsAdmin ||
-                                                              edge.EdgeLabel == User2GroupEdgeTypes.IsMember).
+                                               Where (edge => edge.EdgeLabel == User2UserGroupEdgeLabel.IsAdmin ||
+                                                              edge.EdgeLabel == User2UserGroupEdgeLabel.IsMember).
                                                Select(edge => edge.Target).
                                                ToList()
 
                                          : _User2Group_OutEdges.
-                                               Where (edge => edge.EdgeLabel == User2GroupEdgeTypes.IsAdmin  ||
-                                                              edge.EdgeLabel == User2GroupEdgeTypes.IsMember ||
-                                                              edge.EdgeLabel == User2GroupEdgeTypes.IsVisitor).
+                                               Where (edge => edge.EdgeLabel == User2UserGroupEdgeLabel.IsAdmin  ||
+                                                              edge.EdgeLabel == User2UserGroupEdgeLabel.IsMember ||
+                                                              edge.EdgeLabel == User2UserGroupEdgeLabel.IsGuest).
                                                Select(edge => edge.Target).
                                                ToList();
 
@@ -2005,7 +2195,7 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
-            public Boolean RemoveOutEdge(User2GroupEdge Edge)
+            public Boolean RemoveOutEdge(User2UserGroupEdge Edge)
                 => _User2Group_OutEdges.Remove(Edge);
 
             #endregion
@@ -2079,7 +2269,7 @@ namespace social.OpenData.UsersAPI
             /// All groups this user belongs to,
             /// filtered by the given edge label.
             /// </summary>
-            public IEnumerable<UserGroup> Groups(User2GroupEdgeTypes EdgeFilter)
+            public IEnumerable<UserGroup> Groups(User2UserGroupEdgeLabel EdgeFilter)
                 => _User2Group_OutEdges.
                        Where (edge => edge.EdgeLabel == EdgeFilter).
                        Select(edge => edge.Target);
@@ -2092,7 +2282,7 @@ namespace social.OpenData.UsersAPI
             /// All groups this user belongs to,
             /// filtered by the given edge label.
             /// </summary>
-            public IEnumerable<User2GroupEdgeTypes> OutEdges(UserGroup Group)
+            public IEnumerable<User2UserGroupEdgeLabel> OutEdges(UserGroup Group)
                 => _User2Group_OutEdges.
                        Where (edge => edge.Target == Group).
                        Select(edge => edge.EdgeLabel);
@@ -2105,7 +2295,7 @@ namespace social.OpenData.UsersAPI
             /// All organizations this user belongs to,
             /// filtered by the given edge label.
             /// </summary>
-            public IEnumerable<User2OrganizationEdgeTypes> Edges(Organization Organization)
+            public IEnumerable<User2OrganizationEdgeLabel> Edges(Organization Organization)
                 => _User2Organization_OutEdges.
                        Where (edge => edge.Target == Organization).
                        Select(edge => edge.EdgeLabel);
@@ -2128,13 +2318,20 @@ namespace social.OpenData.UsersAPI
             /// <param name="UserLanguage">The language setting of the user.</param>
             /// <param name="Telephone">An optional telephone number of the user.</param>
             /// <param name="MobilePhone">An optional telephone number of the user.</param>
+            /// <param name="Use2AuthFactor">Whether to use a second authentication factor.</param>
+            /// <param name="Telegram">An optional telegram account name of the user.</param>
             /// <param name="Homepage">The homepage of the user.</param>
             /// <param name="GeoLocation">An optional geographical location of the user.</param>
             /// <param name="Address">An optional address of the user.</param>
             /// <param name="AcceptedEULA">Timestamp when the user accepted the End-User-License-Agreement.</param>
             /// <param name="IsDisabled">The user is disabled.</param>
             /// <param name="IsAuthenticated">The user will not be shown in user listings, as its primary e-mail address is not yet authenticated.</param>
+            /// 
+            /// <param name="CustomData">Custom data to be stored with this user.</param>
+            /// <param name="AttachedFiles">Optional files attached to this user.</param>
+            /// <param name="JSONLDContext">The JSON-LD context of this user.</param>
             /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
+            /// <param name="LastChange">The timestamp of the last changes within this user. Can e.g. be used as a HTTP ETag.</param>
             public Builder(User_Id                             Id,
                            SimpleEMailAddress                  EMail,
                            String                              Name                     = null,
@@ -2144,6 +2341,7 @@ namespace social.OpenData.UsersAPI
                            Languages                           UserLanguage             = Languages.en,
                            PhoneNumber?                        Telephone                = null,
                            PhoneNumber?                        MobilePhone              = null,
+                           Use2AuthFactor?                     Use2AuthFactor           = null,
                            String                              Telegram                 = null,
                            String                              Homepage                 = null,
                            GeoCoordinate?                      GeoLocation              = null,
@@ -2155,7 +2353,7 @@ namespace social.OpenData.UsersAPI
                            IEnumerable<ANotification>          Notifications            = null,
 
                            IEnumerable<User2UserEdge>          User2UserEdges           = null,
-                           IEnumerable<User2GroupEdge>         User2GroupEdges          = null,
+                           IEnumerable<User2UserGroupEdge>         User2GroupEdges          = null,
                            IEnumerable<User2OrganizationEdge>  User2OrganizationEdges   = null,
 
                            JObject                             CustomData               = default,
@@ -2184,6 +2382,7 @@ namespace social.OpenData.UsersAPI
                 this.UserLanguage                 = UserLanguage;
                 this.Telephone                    = Telephone;
                 this.MobilePhone                  = MobilePhone;
+                this.Use2AuthFactor               = Use2AuthFactor;
                 this.Telegram                     = Telegram;
                 this.Homepage                     = Homepage;
                 this.GeoLocation                  = GeoLocation;
@@ -2200,7 +2399,7 @@ namespace social.OpenData.UsersAPI
 
                 // Init edges
                 this._User2UserEdges              = User2UserEdges.        IsNeitherNullNorEmpty() ? new List<User2UserEdge>        (User2UserEdges)         : new List<User2UserEdge>();
-                this._User2Group_OutEdges         = User2GroupEdges.       IsNeitherNullNorEmpty() ? new List<User2GroupEdge>       (User2GroupEdges)        : new List<User2GroupEdge>();
+                this._User2Group_OutEdges         = User2GroupEdges.       IsNeitherNullNorEmpty() ? new List<User2UserGroupEdge>       (User2GroupEdges)        : new List<User2UserGroupEdge>();
                 this._User2Organization_OutEdges  = User2OrganizationEdges.IsNeitherNullNorEmpty() ? new List<User2OrganizationEdge>(User2OrganizationEdges) : new List<User2OrganizationEdge>();
 
                 //if (Notifications.SafeAny())
@@ -2431,35 +2630,44 @@ namespace social.OpenData.UsersAPI
             /// Return an immutable version of the user.
             /// </summary>
             public User ToImmutable
+            {
+                get
+                {
 
-                => new User(Id,
-                            EMail.Address,
-                            Name,
-                            Description,
-                            PublicKeyRing,
-                            SecretKeyRing,
-                            UserLanguage,
-                            Telephone,
-                            MobilePhone,
-                            Telegram,
-                            Homepage,
-                            GeoLocation,
-                            Address,
-                            AcceptedEULA,
-                            IsDisabled,
-                            IsAuthenticated,
+                    //if (!Branch.HasValue || Branch.Value.IsNullOrEmpty)
+                    //    throw new ArgumentNullException(nameof(Branch), "The given branch must not be null or empty!");
 
-                            _NotificationStore,
+                    return new User(Id,
+                                    Name,
+                                    EMail.Address,
+                                    Description,
+                                    PublicKeyRing,
+                                    SecretKeyRing,
+                                    UserLanguage,
+                                    Telephone,
+                                    MobilePhone,
+                                    Use2AuthFactor ?? OpenData.UsersAPI.Use2AuthFactor.None,
+                                    Telegram,
+                                    Homepage,
+                                    GeoLocation,
+                                    Address,
+                                    AcceptedEULA,
+                                    IsDisabled,
+                                    IsAuthenticated,
 
-                            _User2UserEdges,
-                            _User2Group_OutEdges,
-                            _User2Organization_OutEdges,
+                                    _NotificationStore,
 
-                            CustomData,
-                            AttachedFiles,
-                            JSONLDContext,
-                            DataSource,
-                            LastChange);
+                                    _User2UserEdges,
+                                    _User2Group_OutEdges,
+                                    _User2Organization_OutEdges,
+
+                                    CustomData,
+                                    AttachedFiles,
+                                    JSONLDContext,
+                                    DataSource,
+                                    LastChange);
+                }
+            }
 
             #endregion
 

@@ -1,6 +1,6 @@
 ﻿/*
- * Copyright (c) 2014-2021, Achim 'ahzf' Friedland <achim@graphdefined.org>
- * This file is part of OpenDataAPI <http://www.github.com/GraphDefined/OpenDataAPI>
+ * Copyright (c) 2014-2021, Achim Friedland <achim.friedland@graphdefined.com>
+ * This file is part of UsersAPI <https://www.github.com/Vanaheimr/UsersAPI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,29 @@ namespace social.OpenData.UsersAPI
 {
 
     /// <summary>
+    /// Extention methods for security tokens.
+    /// </summary>
+    public static class SecurityTokenIdExtentions
+    {
+
+        /// <summary>
+        /// Indicates whether this security token is null or empty.
+        /// </summary>
+        /// <param name="SecurityTokenId">A security token.</param>
+        public static Boolean IsNullOrEmpty(this SecurityToken_Id? SecurityTokenId)
+            => !SecurityTokenId.HasValue || SecurityTokenId.Value.IsNullOrEmpty;
+
+        /// <summary>
+        /// Indicates whether this security token is null or empty.
+        /// </summary>
+        /// <param name="SecurityTokenId">A security token.</param>
+        public static Boolean IsNotNullOrEmpty(this SecurityToken_Id? SecurityTokenId)
+            => SecurityTokenId.HasValue && SecurityTokenId.Value.IsNotNullOrEmpty;
+
+    }
+
+
+    /// <summary>
     /// The unique identification of a security token.
     /// </summary>
     public readonly struct SecurityToken_Id : IId,
@@ -41,7 +64,10 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         private readonly String  InternalId;
 
-        private static readonly Random _Random = new Random();
+        /// <summary>
+        /// Private non-cryptographic random number generator.
+        /// </summary>
+        private static readonly Random _random = new Random();
 
         #endregion
 
@@ -52,6 +78,12 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         public Boolean IsNullOrEmpty
             => InternalId.IsNullOrEmpty();
+
+        /// <summary>
+        /// Indicates whether this identification is NOT null or empty.
+        /// </summary>
+        public Boolean IsNotNullOrEmpty
+            => InternalId.IsNotNullOrEmpty();
 
         /// <summary>
         /// The length of the security token identification.
@@ -85,7 +117,7 @@ namespace social.OpenData.UsersAPI
         public static SecurityToken_Id Random(UInt16  Length              = 40,
                                               Random  SourceOfRandomness  = null)
 
-            => new SecurityToken_Id((SourceOfRandomness ?? _Random).RandomString(Length));
+            => new SecurityToken_Id((SourceOfRandomness ?? _random).RandomString(Length));
 
         #endregion
 
@@ -147,7 +179,7 @@ namespace social.OpenData.UsersAPI
                     SecurityTokenId = new SecurityToken_Id(Text);
                     return true;
                 }
-                catch (Exception)
+                catch
                 { }
             }
 
@@ -201,7 +233,7 @@ namespace social.OpenData.UsersAPI
         public static Boolean operator != (SecurityToken_Id SecurityTokenId1,
                                            SecurityToken_Id SecurityTokenId2)
 
-            => !(SecurityTokenId1 == SecurityTokenId2);
+            => !SecurityTokenId1.Equals(SecurityTokenId2);
 
         #endregion
 

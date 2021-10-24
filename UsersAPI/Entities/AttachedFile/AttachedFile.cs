@@ -1,6 +1,6 @@
 ﻿/*
- * Copyright (c) 2014-2021, Achim 'ahzf' Friedland <achim@graphdefined.org>
- * This file is part of OpenDataAPI <http://www.github.com/GraphDefined/OpenDataAPI>
+ * Copyright (c) 2014-2021, Achim Friedland <achim.friedland@graphdefined.com>
+ * This file is part of UsersAPI <https://www.github.com/Vanaheimr/UsersAPI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -93,8 +93,8 @@ namespace social.OpenData.UsersAPI
             this.ContentType   = ContentType;
             this.Size          = Size;
             this.Icon          = Icon;
-            this.Created       = Created     ?? DateTime.UtcNow;
-            this.LastModified  = LastModifed ?? DateTime.UtcNow;
+            this.Created       = Created     ?? Timestamp.Now;
+            this.LastModified  = LastModifed ?? Timestamp.Now;
             //this.CryptoHashes  = 
             //this.Signatures    = 
 
@@ -295,9 +295,9 @@ namespace social.OpenData.UsersAPI
 
                 var Icon          = new HTTPPath?();
 
-                var Created       = DateTime.UtcNow;
+                var Created       = Timestamp.Now;
 
-                var LastModified  = DateTime.UtcNow;
+                var LastModified  = Timestamp.Now;
 
  
                 #region Get   DataSource       [optional]

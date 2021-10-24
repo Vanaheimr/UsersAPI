@@ -1,6 +1,6 @@
 ﻿/*
- * Copyright (c) 2014-2021, Achim 'ahzf' Friedland <achim@graphdefined.org>
- * This file is part of OpenDataAPI <http://www.github.com/GraphDefined/OpenDataAPI>
+ * Copyright (c) 2014-2021, Achim Friedland <achim.friedland@graphdefined.com>
+ * This file is part of UsersAPI <https://www.github.com/Vanaheimr/UsersAPI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -147,7 +147,6 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-
         /// <summary>
         /// The (multi-language) headline of this news posting.
         /// </summary>
@@ -274,7 +273,7 @@ namespace social.OpenData.UsersAPI
             this.Headline         = Headline;
             this.Text             = Text;
             this.Author           = Author          ?? throw new ArgumentNullException(nameof(Author), "The given author must not be null!");
-            this.PublicationDate  = PublicationDate ?? DateTime.UtcNow;
+            this.PublicationDate  = PublicationDate ?? Timestamp.Now;
             this.Tags             = Tags            ?? new TagRelevance[0];
             this.IsHidden         = IsHidden;
 

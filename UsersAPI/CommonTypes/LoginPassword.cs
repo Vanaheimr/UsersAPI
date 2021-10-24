@@ -1,6 +1,6 @@
 ﻿/*
- * Copyright (c) 2014-2021, Achim 'ahzf' Friedland <achim@graphdefined.org>
- * This file is part of OpenDataAPI <http://www.github.com/GraphDefined/OpenDataAPI>
+ * Copyright (c) 2014-2021, Achim Friedland <achim.friedland@graphdefined.com>
+ * This file is part of UsersAPI <https://www.github.com/Vanaheimr/UsersAPI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,36 @@
 
 #region Usings
 
+using org.GraphDefined.Vanaheimr.Illias;
 using System;
 
 #endregion
 
 namespace social.OpenData.UsersAPI
 {
+
+    /// <summary>
+    /// Extention methods for login & passwords.
+    /// </summary>
+    public static class LoginPasswordExtentions
+    {
+
+        /// <summary>
+        /// Indicates whether this login & password is null or empty.
+        /// </summary>
+        /// <param name="LoginPassword">A login & password.</param>
+        public static Boolean IsNullOrEmpty(this LoginPassword? LoginPassword)
+            => !LoginPassword.HasValue || LoginPassword.Value.IsNullOrEmpty;
+
+        /// <summary>
+        /// Indicates whether this login & password is null or empty.
+        /// </summary>
+        /// <param name="LoginPassword">A login & password.</param>
+        public static Boolean IsNotNullOrEmpty(this LoginPassword? LoginPassword)
+            => LoginPassword.HasValue && LoginPassword.Value.IsNotNullOrEmpty;
+
+    }
+
 
     /// <summary>
     /// A user identification and password combination.
@@ -33,6 +57,18 @@ namespace social.OpenData.UsersAPI
     {
 
         #region Properties
+
+        /// <summary>
+        /// Indicates whether this login & password is null or empty.
+        /// </summary>
+        public Boolean IsNullOrEmpty
+            => Login.IsNullOrEmpty;
+
+        /// <summary>
+        /// Indicates whether this login & password is NOT null or empty.
+        /// </summary>
+        public Boolean IsNotNullOrEmpty
+            => Login.IsNotNullOrEmpty;
 
         /// <summary>
         /// The unique user identification.
@@ -71,11 +107,66 @@ namespace social.OpenData.UsersAPI
         /// Verify the given password.
         /// </summary>
         /// <param name="Password">A password to verify.</param>
+        public Boolean VerifyPassword(Password Password)
+
+            => this.Password.Equals(Password);
+
+
+        /// <summary>
+        /// Verify the given password.
+        /// </summary>
+        /// <param name="Password">A password to verify.</param>
+        public Boolean VerifyPassword(Password? Password)
+
+            => Password.HasValue
+                   ? this.Password.Equals(Password.Value)
+                   : false;
+
+
+        /// <summary>
+        /// Verify the given password.
+        /// </summary>
+        /// <param name="Password">A password to verify.</param>
         public Boolean VerifyPassword(String Password)
-            => this.Password.Verify(Password);
+
+            => Password.IsNotNullOrEmpty()
+                   ? this.Password.Verify(Password)
+                   : false;
 
         #endregion
 
+
+        #region Operator overloading
+
+        #region Operator == (LoginPassword1, LoginPassword2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="LoginPassword1">A login & password.</param>
+        /// <param name="LoginPassword2">Another login & password.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator == (LoginPassword LoginPassword1, LoginPassword LoginPassword2)
+
+            => LoginPassword1.Equals(LoginPassword2);
+
+        #endregion
+
+        #region Operator != (LoginPassword1, LoginPassword2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="LoginPassword1">A login & password.</param>
+        /// <param name="LoginPassword2">Another login & password.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator != (LoginPassword LoginPassword1, LoginPassword LoginPassword2)
+
+            => !LoginPassword1.Equals(LoginPassword2);
+
+        #endregion
+
+        #endregion
 
         #region IComparable<LoginPassword> Members
 

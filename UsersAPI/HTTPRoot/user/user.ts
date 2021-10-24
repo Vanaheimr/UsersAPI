@@ -215,37 +215,50 @@ function StartUser() {
     }
 
 
-    const pathElements       = window.location.pathname.split("/");
-    const userId             = pathElements[pathElements.length - 1];
+    const pathElements              = window.location.pathname.split("/");
+    const userId                    = pathElements[pathElements.length - 1];
 
-    const userProfile        = document.       getElementById('userProfile')          as HTMLDivElement;
+    const userProfileDiv            = document.                 getElementById('userProfile')           as HTMLDivElement;
+    const headlineDiv               = userProfileDiv.           querySelector ("#headline")             as HTMLDivElement;
 
-    const impersonateButton  = userProfile.    querySelector ("#impersonateButton")   as HTMLButtonElement;
+    const upperButtonsDiv           = userProfileDiv.           querySelector ('#upperButtons')         as HTMLDivElement;
+    const deleteUserButton          = upperButtonsDiv.          querySelector ('#deleteUserButton')     as HTMLButtonElement;
+    const impersonateButton         = upperButtonsDiv.          querySelector ("#impersonateButton")    as HTMLButtonElement;
 
-    const data               = userProfile.    querySelector ('#data')                as HTMLInputElement;
-    const login              = data.           querySelector ('#login')               as HTMLInputElement;
-    const username           = data.           querySelector ('#username')            as HTMLInputElement;
-    const eMail              = data.           querySelector ('#eMail')               as HTMLInputElement;
-    const language           = data.           querySelector ('#language')            as HTMLSelectElement;
-    const telephone          = data.           querySelector ('#telephone')           as HTMLInputElement;
-    const mobilePhone        = data.           querySelector ('#mobilePhone')         as HTMLInputElement;
-    const telegram           = data.           querySelector ('#telegram')            as HTMLInputElement;
-    const homepage           = data.           querySelector ('#homepage')            as HTMLInputElement;
-    const description        = data.           querySelector ('#userDescription')     as HTMLDivElement;
-    const descriptionText    = data.           querySelector ('#description')         as HTMLTextAreaElement;
+    const data                      = userProfileDiv.           querySelector ('#data')                 as HTMLInputElement;
+    const login                     = data.                     querySelector ('#login')                as HTMLInputElement;
+    const username                  = data.                     querySelector ('#username')             as HTMLInputElement;
+    const eMail                     = data.                     querySelector ('#eMail')                as HTMLInputElement;
+    const language                  = data.                     querySelector ('#language')             as HTMLSelectElement;
+    const telephone                 = data.                     querySelector ('#telephone')            as HTMLInputElement;
+    const mobilePhone               = data.                     querySelector ('#mobilePhone')          as HTMLInputElement;
+    const telegram                  = data.                     querySelector ('#telegram')             as HTMLInputElement;
+    const homepage                  = data.                     querySelector ('#homepage')             as HTMLInputElement;
+    const description               = data.                     querySelector ('#userDescription')      as HTMLDivElement;
+    const descriptionText           = data.                     querySelector ('#description')          as HTMLTextAreaElement;
 
-    const usernameError      = username.   parentElement.querySelector('.validationError')   as HTMLDivElement;
-    const eMailError         = eMail.      parentElement.querySelector('.validationError')   as HTMLDivElement;
-    const telephoneError     = telephone.  parentElement.querySelector('.validationError')   as HTMLDivElement;
-    const mobilePhoneError   = mobilePhone.parentElement.querySelector('.validationError')   as HTMLDivElement;
-    const homepageError      = homepage.   parentElement.querySelector('.validationError')   as HTMLDivElement;
+    const usernameError             = username.   parentElement.querySelector ('.validationError')      as HTMLDivElement;
+    const eMailError                = eMail.      parentElement.querySelector ('.validationError')      as HTMLDivElement;
+    const telephoneError            = telephone.  parentElement.querySelector ('.validationError')      as HTMLDivElement;
+    const mobilePhoneError          = mobilePhone.parentElement.querySelector ('.validationError')      as HTMLDivElement;
+    const homepageError             = homepage.   parentElement.querySelector ('.validationError')      as HTMLDivElement;
 
-    const responseDiv        = document.       getElementById("response")             as HTMLDivElement;
+    const responseDiv               = document.                 getElementById("response")              as HTMLDivElement;
 
-    const lowerButtonsDiv    = userProfile.    querySelector ('#lowerButtons')        as HTMLDivElement;
-    const saveButton         = lowerButtonsDiv.querySelector ("#saveButton")          as HTMLButtonElement;
+    const lowerButtonsDiv           = userProfileDiv.           querySelector ('#lowerButtons')         as HTMLDivElement;
+    const saveButton                = lowerButtonsDiv.          querySelector ("#saveButton")           as HTMLButtonElement;
 
-    login.value              = userId;
+    const confirmToDeleteUserDiv    = document.                 getElementById("confirmToDeleteUser")   as HTMLDivElement;
+    const yes                       = confirmToDeleteUserDiv.   querySelector ('#yes')                  as HTMLButtonElement;
+    const no                        = confirmToDeleteUserDiv.   querySelector ('#no')                   as HTMLButtonElement;
+
+    const deletionFailedDiv         = document.                 getElementById("deletionFailed")        as HTMLDivElement;
+    const deletionFailedReason      = deletionFailedDiv.        querySelector ('#reason')               as HTMLDivElement;
+    const ok                        = deletionFailedDiv.        querySelector ('#ok')                   as HTMLButtonElement;
+
+    ok.onclick                      = () => { deletionFailedDiv.style.display  = "none"; }
+
+    login.value                     = userId;
 
 
     function VerifyName()
@@ -410,12 +423,6 @@ function StartUser() {
                     if (UserProfileJSON["youCanEdit"])
                     {
 
-                        impersonateButton.disabled       = false;
-                        impersonateButton.style.display  = "block";
-                        impersonateButton.onclick        = () => {
-                            ImpersonateUser(userId);
-                        }
-
                         username.readOnly                = false;
                         username.oninput         = () => { VerifyName();        }
 
@@ -449,6 +456,85 @@ function StartUser() {
                         saveButton.onclick               = () => {
                             SaveData();
                         }
+
+
+                        impersonateButton.disabled       = false;
+                        impersonateButton.style.display  = "block";
+                        impersonateButton.onclick        = () => {
+                            ImpersonateUser(userId);
+                        }
+
+
+                        //deleteUserButton.disabled        = false;
+                        //deleteUserButton.style.display   = "block";
+                        //deleteUserButton.onclick         = () => {
+
+                        //    confirmToDeleteUserDiv.style.display = "block";
+
+                        //    yes.onclick = () => {
+
+                        //        HTTPDelete("/users/" + userId,
+
+                        //                   // Ok!
+                        //                   (status, response) => {
+                        //                       try
+                        //                       {
+
+                        //                           confirmToDeleteUserDiv.style.display = "none";
+                        //                           responseDiv.innerHTML = "<div class=\"HTTP OK\">Successfully deleted this user.</div>";
+
+                        //                           // Redirect after 2 seconds!
+                        //                           setTimeout(function () {
+                        //                               window.location.href = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
+                        //                           }, 2000);
+
+                        //                       }
+                        //                       catch (exception) {
+                        //                           responseDiv.innerHTML = "<div class=\"HTTP Error\">Deleting this user failed!</div>";
+                        //                       }
+                        //                   },
+
+                        //                   // Failed dependencies, e.g. user still has attached data!
+                        //                   (status, response) => {
+                        //                       try
+                        //                       {
+                        //                           const responseJSON = response !== "" ? JSON.parse(response) : {};
+                        //                           confirmToDeleteUserDiv.style.display = "none";
+                        //                           deletionFailedDiv.style.display  = "block";
+                        //                           deletionFailedReason.innerHTML = responseJSON.errorDescription.en;
+                        //                       }
+                        //                       catch (exception)
+                        //                       {
+                        //                           responseDiv.innerHTML = "<div class=\"HTTP Error\">Deleting this user failed!</div>";
+                        //                       }
+                        //                   },
+
+                        //                   // Some error occured!
+                        //                   (statusCode, status, response) => {
+                        //                       try
+                        //                       {
+
+                        //                           confirmToDeleteUserDiv.style.display = "none";
+
+                        //                           const responseJSON = response !== "" ? JSON.parse(response) : {};
+                        //                           const info         = responseJSON.description != null ? "<br />" + responseJSON.description : "";
+                        //                           responseDiv.innerHTML = "<div class=\"HTTP Error\">Deleting this user failed!<br />" + info + "</div>";
+
+                        //                       }
+                        //                       catch (exception) {
+                        //                           responseDiv.innerHTML = "<div class=\"HTTP Error\">Deleting this user failed!</div>";
+                        //                       }
+                        //                   });
+
+                        //    };
+
+                        //    no.onclick = () => {
+
+                        //        confirmToDeleteUserDiv.style.display = "none";
+
+                        //    };
+
+                        //};
 
                     }
 

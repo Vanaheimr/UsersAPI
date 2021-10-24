@@ -4,15 +4,15 @@ function StartNewMember() {
     let newUserJSON = {
         "@id":          "",
         "@context":     "https://opendata.social/contexts/UsersAPI/user",
-        "username":      null,
+        "name":         null,
         "email":        "",
         "telephone":    "",
         "mobilephone":  "",
         "homepage":     ""
     };
 
-    const pathElements         = window.location.pathname.split("/");
-    const organizationId       = pathElements[pathElements.length - 2];
+    const pathElements      = window.location.pathname.split("/");
+    const organizationId    = pathElements[pathElements.length - 2];
 
     FixMenuLinks("organizationMenu", organizationId);
 
@@ -22,7 +22,7 @@ function StartNewMember() {
     const dataDiv           = newMemberDiv.querySelector('#data')                           as HTMLDivElement;
     const accessRights      = dataDiv.querySelector('#accessRights')                        as HTMLSelectElement;
     const login             = dataDiv.querySelector('#login')                               as HTMLInputElement;
-    const username          = dataDiv.querySelector('#username')                            as HTMLInputElement;
+    const name              = dataDiv.querySelector('#name')                                as HTMLInputElement;
     const eMail             = dataDiv.querySelector('#eMail')                               as HTMLInputElement;
     const language          = dataDiv.querySelector('#language')                            as HTMLSelectElement;
     const telephone         = dataDiv.querySelector('#telephone')                           as HTMLInputElement;
@@ -31,7 +31,7 @@ function StartNewMember() {
     const description       = dataDiv.querySelector('#description')                         as HTMLTextAreaElement;
 
     const loginError        = login.      parentElement.querySelector('.validationError')   as HTMLDivElement;
-    const usernameError     = username.   parentElement.querySelector('.validationError')   as HTMLDivElement;
+    const nameError         = name.       parentElement.querySelector('.validationError')   as HTMLDivElement;
     const eMailError        = eMail.      parentElement.querySelector('.validationError')   as HTMLDivElement;
     const telephoneError    = telephone.  parentElement.querySelector('.validationError')   as HTMLDivElement;
     const mobilePhoneError  = mobilePhone.parentElement.querySelector('.validationError')   as HTMLDivElement;
@@ -43,7 +43,7 @@ function StartNewMember() {
     const saveButton        = lowerButtonsDiv.querySelector("#saveButton")                  as HTMLButtonElement;
 
     login.oninput           = () => { VerifyLogin();       }
-    username.oninput        = () => { VerifyName();        }
+    name.oninput            = () => { VerifyName();        }
     eMail.oninput           = () => { VerifyEMail();       }
     telephone.oninput       = () => { VerifyTelephone();   }
     mobilePhone.oninput     = () => { VerifyMobilePhone(); }
@@ -113,25 +113,25 @@ function StartNewMember() {
 
     function VerifyName() {
 
-        const name = username.value;
+        const username = name.value;
 
-        if (name === "") {
+        if (username === "") {
             saveButton.disabled = true;
-            newUserJSON.username = "";
+            newUserJSON.name = "";
         }
 
-        else if (/^(.{4,})$/.test(name) == false) {
+        else if (/^(.{4,})$/.test(username) == false) {
             saveButton.disabled = true;
-            newUserJSON.username = "";
-            username.classList.add("error");
-            usernameError.innerText = "Invalid user name!";
-            usernameError.style.display = "flex";
+            newUserJSON.name = "";
+            name.classList.add("error");
+            nameError.innerText = "Invalid user name!";
+            nameError.style.display = "flex";
         }
 
         else {
-            username.classList.remove("error");
-            usernameError.style.display = "none";
-            newUserJSON.username = name;
+            name.classList.remove("error");
+            nameError.style.display = "none";
+            newUserJSON.name = username;
             VerifyAll();
         }
     }
@@ -251,7 +251,7 @@ function StartNewMember() {
     function VerifyAll() {
 
         if (newUserJSON["@id"]      != null &&
-            newUserJSON.username    != ""   &&
+            newUserJSON.name        != ""   &&
             newUserJSON.email       != ""   &&
             newUserJSON.telephone   != null &&
             newUserJSON.mobilephone != null &&

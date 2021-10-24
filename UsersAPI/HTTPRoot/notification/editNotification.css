@@ -113,6 +113,27 @@ body #page #right #text #AddOrEditNotification {
                   padding: 2px 0px 1px 0px; }
                   body #page #right #text #AddOrEditNotification #notification .row .value .messageTypeGroups .messageTypeGroup .messageTypes .messageType .text .title {
                     font-size: 100%; }
+                    body #page #right #text #AddOrEditNotification #notification .row .value .messageTypeGroups .messageTypeGroup .messageTypes .messageType .text .title .systemNotification {
+                      background-color: #ef9b9b;
+                      color: #a85252;
+                      font-size: 80%;
+                      border-radius: 3px;
+                      padding: 2px 6px;
+                      margin-left: 10px; }
+                    body #page #right #text #AddOrEditNotification #notification .row .value .messageTypeGroups .messageTypeGroup .messageTypes .messageType .text .title .adminNotification {
+                      background-color: #ffb364;
+                      color: #d18230;
+                      font-size: 80%;
+                      border-radius: 3px;
+                      padding: 2px 6px;
+                      margin-left: 10px; }
+                    body #page #right #text #AddOrEditNotification #notification .row .value .messageTypeGroups .messageTypeGroup .messageTypes .messageType .text .title .newUserDefault {
+                      background-color: #e4e4e4;
+                      color: #878787;
+                      font-size: 80%;
+                      border-radius: 3px;
+                      padding: 2px 8px;
+                      margin-left: 10px; }
                   body #page #right #text #AddOrEditNotification #notification .row .value .messageTypeGroups .messageTypeGroup .messageTypes .messageType .text .description {
                     font-size: 70%; }
               body #page #right #text #AddOrEditNotification #notification .row .value .messageTypeGroups .messageTypeGroup .messageTypes .messageType.on {

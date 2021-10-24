@@ -198,14 +198,6 @@ function StartOrganization() {
     const upperButtonsDiv            = organizationDiv.   querySelector ('#upperButtons')                  as HTMLDivElement;
     const deleteOrganizationButton   = upperButtonsDiv.   querySelector ('#deleteOrganizationButton')      as HTMLButtonElement;
 
-    const confirmToDeleteDiv         = document.          getElementById("confirmToDeleteOrganization")    as HTMLDivElement;
-    const yes                        = confirmToDeleteDiv.querySelector ('#yes')                           as HTMLButtonElement;
-    const no                         = confirmToDeleteDiv.querySelector ('#no')                            as HTMLButtonElement;
-
-    const deletionFailedDiv          = document.          getElementById("deletionFailed")                 as HTMLDivElement;
-    const deletionFailedDescription  = deletionFailedDiv. querySelector ('#description')                   as HTMLDivElement;
-    const ok                         = deletionFailedDiv. querySelector ('#ok')                            as HTMLButtonElement;
-
     const dataDiv                    = organizationDiv.   querySelector ('#data')                          as HTMLDivElement;
     const name                       = dataDiv.           querySelector ('#name')                          as HTMLInputElement;
     const description                = dataDiv.           querySelector ('#description')                   as HTMLTextAreaElement;
@@ -219,6 +211,14 @@ function StartOrganization() {
 
     const lowerButtonsDiv            = organizationDiv.   querySelector ('#lowerButtons')                  as HTMLDivElement;
     const saveButton                 = lowerButtonsDiv.   querySelector ("#saveButton")                    as HTMLButtonElement;
+
+    const confirmToDeleteDiv         = document.          getElementById("confirmToDeleteOrganization")    as HTMLDivElement;
+    const yes                        = confirmToDeleteDiv.querySelector ('#yes')                           as HTMLButtonElement;
+    const no                         = confirmToDeleteDiv.querySelector ('#no')                            as HTMLButtonElement;
+
+    const deletionFailedDiv          = document.          getElementById("deletionFailed")                 as HTMLDivElement;
+    const deletionFailedDescription  = deletionFailedDiv. querySelector ('#description')                   as HTMLDivElement;
+    const ok                         = deletionFailedDiv. querySelector ('#ok')                            as HTMLButtonElement;
 
     ok.onclick                       = () => { deletionFailedDiv.style.display  = "none"; }
 

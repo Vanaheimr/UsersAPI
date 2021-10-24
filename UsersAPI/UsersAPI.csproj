@@ -53,12 +53,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommonTypes\ParcelTracking_Id.cs" />
+    <Compile Include="Entities\APIKeys\APIKey.cs" />
+    <Compile Include="Entities\APIKeys\APIKeyRights.cs" />
+    <Compile Include="Entities\APIKeys\Results\AddAPIKeyIfNotExistsResult.cs" />
+    <Compile Include="Entities\APIKeys\Results\AddAPIKeyResult.cs" />
+    <Compile Include="Entities\APIKeys\Results\AddOrUpdateAPIKeyResult.cs" />
+    <Compile Include="Entities\APIKeys\Results\RemoveAPIKeyResult.cs" />
+    <Compile Include="Entities\APIKeys\Results\UpdateAPIKeyResult.cs" />
     <Compile Include="Entities\AttachedFile\AttachedFile_Id.cs" />
     <Compile Include="Entities\Dashboard\Dashboard.cs" />
     <Compile Include="Entities\Dashboard\Dashboard_Id.cs" />
     <Compile Include="Entities\FAQ\FAQ.cs" />
     <Compile Include="Entities\FAQ\FAQ_Id.cs" />
-    <Compile Include="Entities\Group\AGroup.cs" />
+    <Compile Include="Entities\AGroup.cs" />
     <Compile Include="Entities\News\NewsBanner.cs" />
     <Compile Include="Entities\News\NewsPosting.cs" />
     <Compile Include="Entities\News\NewsBanner_Id.cs" />
@@ -66,8 +73,17 @@
     <Compile Include="Entities\Notification\NotificationMessageGroupId.cs" />
     <Compile Include="Entities\Notification\TelegramGroupNotification.cs" />
     <Compile Include="Entities\Notification\TelegramNotification.cs" />
+    <Compile Include="Entities\Notification\NotificationGroup_Id.cs" />
+    <Compile Include="Entities\Organization\Results\AddOrUpdateOrganizationResult.cs" />
+    <Compile Include="Entities\Organization\Results\UnlinkOrganizationsResult.cs" />
+    <Compile Include="Entities\Organization\Results\LinkOrganizationsResult.cs" />
+    <Compile Include="Entities\Organization\Results\UpdateUserResult.cs" />
+    <Compile Include="Entities\Organization\Results\AddOrganizationIfNotExistsResult.cs" />
+    <Compile Include="Entities\Organization\Results\DeleteOrganizationResult.cs" />
+    <Compile Include="Entities\Organization\Group\RemoveOrganizationGroupResult.cs" />
     <Compile Include="Entities\Organization\Group\OrganizationGroup.cs" />
     <Compile Include="Entities\Organization\Group\OrganizationGroup_Id.cs" />
+    <Compile Include="Entities\Organization\Results\AddOrganizationResult.cs" />
     <Compile Include="Entities\ServiceTickets\Affected.cs" />
     <Compile Include="Entities\ServiceTickets\AGenericServiceTicket.cs" />
     <Compile Include="Entities\ServiceTickets\AServiceTicket.cs" />
@@ -84,19 +100,41 @@
     <Compile Include="Entities\ServiceTickets\ServiceTicketStatus.cs" />
     <Compile Include="Entities\ServiceTickets\ServiceTicketStatusTypes.cs" />
     <Compile Include="Entities\ServiceTickets\ServiceTicket_Id.cs" />
-    <Compile Include="Entities\User\Group\UserGroup.cs" />
-    <Compile Include="Entities\User\Group\UserGroup_Id.cs" />
+    <Compile Include="Entities\User\Results\AddPasswordResetResult.cs" />
+    <Compile Include="Entities\User\Results\ResetPasswordResult.cs" />
+    <Compile Include="Entities\User\Results\ChangePasswordResult.cs" />
+    <Compile Include="Entities\User\UserGroup\Results\AddOrUpdateUserGroupResult.cs" />
+    <Compile Include="Entities\User\UserGroup\Results\AddUserGroupResult.cs" />
+    <Compile Include="Entities\User\UserGroup\Results\AddUserGroupIfNotExistsResult.cs" />
+    <Compile Include="Entities\User\UserGroup\Results\DeleteUserGroupResult.cs" />
+    <Compile Include="Entities\User\UserGroup\Results\UpdateUserGroupResult.cs" />
+    <Compile Include="Entities\User\UserGroup\UserGroup.cs" />
+    <Compile Include="Entities\User\UserGroup\UserGroup_Id.cs" />
+    <Compile Include="Entities\User\Results\AddOrUpdateUserResult.cs" />
+    <Compile Include="Entities\User\Results\AddUserToUserGroupResult.cs" />
+    <Compile Include="Entities\User\Results\RemoveUserFromUserGroupResult.cs" />
+    <Compile Include="Entities\User\Results\RemoveUserFromOrganizationResult.cs" />
+    <Compile Include="Entities\User\Results\AddUserToOrganizationResult.cs" />
+    <Compile Include="Entities\User\Results\UpdateUserResult.cs" />
+    <Compile Include="Entities\AResult.cs" />
+    <Compile Include="Entities\User\Results\AddUserIfNotExistsResult.cs" />
+    <Compile Include="Entities\User\Results\DeleteUserResult.cs" />
+    <Compile Include="Entities\User\Results\AddUserResult.cs" />
     <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="Entities\Notification\NotificationVisibility.cs" />
+    <Compile Include="Entities\Notification\NotificationTag.cs" />
+    <Compile Include="Entities\Notification\NotificationGroup.cs" />
+    <Compile Include="SMS\NullSMSAPI.cs" />
+    <Compile Include="Telegram\ITelegramStore.cs" />
+    <Compile Include="Telegram\NullTelegramStore.cs" />
     <Compile Include="Telegram\TelegramStore.cs" />
     <Compile Include="UsersAPILogger.cs" />
-    <Compile Include="CommonTypes\APIKeyRights.cs" />
-    <Compile Include="CommonTypes\APIKeyInfo.cs" />
     <Compile Include="CommonTypes\LoginPassword.cs" />
     <Compile Include="CommonTypes\MiniEdge.cs" />
     <Compile Include="CommonTypes\PrivacyLevel.cs" />
     <Compile Include="CommonTypes\VerificationToken.cs" />
     <Compile Include="Entities\BlogPosting\BlogPostingSignature.cs" />
-    <Compile Include="Entities\Group\UserGroup2Group.cs" />
+    <Compile Include="Entities\User\UserGroup\UserGroup2UserGroupEdge.cs" />
     <Compile Include="Entities\Notification\ANotification.cs" />
     <Compile Include="Entities\Notification\HTTPSNotification.cs" />
     <Compile Include="Entities\Notification\EMailNotification.cs" />
@@ -110,10 +148,7 @@
     <Compile Include="Entities\Organization\Organization.cs" />
     <Compile Include="Entities\Organization\Organization2OrganizationEdge.cs" />
     <Compile Include="Entities\Organization\Organization_Id.cs" />
-    <Compile Include="Entities\Organization\Organization2UserEdgeTypes.cs" />
-    <Compile Include="Entities\Group\Group.cs" />
-    <Compile Include="Entities\Group\UserGroup2User.cs" />
-    <Compile Include="Entities\Group\Group_Id.cs" />
+    <Compile Include="Entities\Organization\Organization2UserEdgeLabel.cs" />
     <Compile Include="Entities\Message\Message.cs" />
     <Compile Include="Entities\Message\Message_Id.cs" />
     <Compile Include="Entities\BlogPosting\BlogPosting.cs" />
@@ -126,12 +161,12 @@
     <Compile Include="Entities\User\Password.cs" />
     <Compile Include="Entities\User\User.cs" />
     <Compile Include="Entities\User\User2OrganizationEdge.cs" />
-    <Compile Include="Entities\User\User2GroupEdge.cs" />
+    <Compile Include="Entities\User\User2UserGroupEdge.cs" />
     <Compile Include="Entities\User\User2UserEdge.cs" />
     <Compile Include="Entities\User\User_Id.cs" />
-    <Compile Include="Notifications\NotificationMessageDescription.cs" />
-    <Compile Include="Notifications\HTTPNotificationSender.cs" />
-    <Compile Include="Notifications\ANotificationSender.cs" />
+    <Compile Include="Entities\Notification\NotificationMessageDescription.cs" />
+    <Compile Include="Entities\Notification\HTTPNotificationSender.cs" />
+    <Compile Include="Entities\Notification\ANotificationSender.cs" />
     <Compile Include="Representations\HTTPHelper.cs" />
     <Compile Include="Entities\User\PasswordReset.cs" />
     <Compile Include="UsersAPI.cs" />
@@ -551,7 +586,7 @@
     </EmbeddedResource>
     <EmbeddedResource Include="HTTPRoot\login\lostPassword.html" />
     <EmbeddedResource Include="HTTPRoot\login\setPassword.html" />
-    <EmbeddedResource Include="HTTPRoot\login\login.html" />
+    <EmbeddedResource Include="HTTPRoot\login\login-en.html" />
     <EmbeddedResource Include="HTTPRoot\images\building-2696768_640.png" />
     <EmbeddedResource Include="HTTPRoot\defaults\datePicker.css">
       <DependentUpon>datePicker.scss</DependentUpon>
@@ -647,6 +682,7 @@
       <Name>TelegramBotAPI</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>tsc</PreBuildEvent>

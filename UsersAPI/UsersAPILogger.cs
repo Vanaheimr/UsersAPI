@@ -1,6 +1,6 @@
 ﻿/*
- * Copyright (c) 2014-2021, Achim 'ahzf' Friedland <achim@graphdefined.org>
- * This file is part of OpenDataAPI <http://www.github.com/GraphDefined/OpenDataAPI>
+ * Copyright (c) 2014-2021, Achim Friedland <achim.friedland@graphdefined.com>
+ * This file is part of UsersAPI <https://www.github.com/Vanaheimr/UsersAPI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ namespace social.OpenData.UsersAPI
 {
 
     /// <summary>
-    /// A UsersAPI logger.
+    /// The Users API logger.
     /// </summary>
     public class UsersAPILogger : HTTPServerLogger
     {
@@ -58,13 +58,16 @@ namespace social.OpenData.UsersAPI
         /// Create a new UsersAPI logger using the default logging delegates.
         /// </summary>
         /// <param name="UsersAPI">A UsersAPI.</param>
+        /// <param name="LoggingPath">The logging path.</param>
         /// <param name="Context">A context of this API.</param>
         /// <param name="LogFileCreator">A delegate to create a log file from the given context and log file name.</param>
         public UsersAPILogger(UsersAPI                UsersAPI,
+                              String                  LoggingPath,
                               String                  Context         = DefaultContext,
                               LogfileCreatorDelegate  LogFileCreator  = null)
 
             : this(UsersAPI,
+                   LoggingPath,
                    Context,
                    null,
                    null,
@@ -82,6 +85,7 @@ namespace social.OpenData.UsersAPI
         /// Create a new UsersAPI logger using the given logging delegates.
         /// </summary>
         /// <param name="UsersAPI">A UsersAPI.</param>
+        /// <param name="LoggingPath">The logging path.</param>
         /// <param name="Context">A context of this API.</param>
         /// 
         /// <param name="LogHTTPRequest_toConsole">A delegate to log incoming HTTP requests to console.</param>
@@ -101,6 +105,7 @@ namespace social.OpenData.UsersAPI
         /// 
         /// <param name="LogFileCreator">A delegate to create a log file from the given context and log file name.</param>
         public UsersAPILogger(UsersAPI                    UsersAPI,
+                              String                      LoggingPath,
                               String                      Context,
 
                               HTTPRequestLoggerDelegate   LogHTTPRequest_toConsole,
@@ -121,6 +126,7 @@ namespace social.OpenData.UsersAPI
                               LogfileCreatorDelegate      LogFileCreator              = null)
 
             : base(UsersAPI.HTTPServer,
+                   LoggingPath,
                    Context,
 
                    LogHTTPRequest_toConsole,
@@ -147,30 +153,30 @@ namespace social.OpenData.UsersAPI
             #region Users
 
             RegisterEvent2("AddUserRequest",
-                           handler => UsersAPI.OnAddUserRequest += handler,
-                           handler => UsersAPI.OnAddUserRequest -= handler,
+                           handler => UsersAPI.OnAddUserHTTPRequest += handler,
+                           handler => UsersAPI.OnAddUserHTTPRequest -= handler,
                            "User", "Request",  "All").
                 RegisterDefaultConsoleLogTarget(this).
                 RegisterDefaultDiscLogTarget(this);
 
             RegisterEvent2("AddUserResponse",
-                           handler => UsersAPI.OnAddUserResponse += handler,
-                           handler => UsersAPI.OnAddUserResponse -= handler,
+                           handler => UsersAPI.OnAddUserHTTPResponse += handler,
+                           handler => UsersAPI.OnAddUserHTTPResponse -= handler,
                            "User", "Response", "All").
                 RegisterDefaultConsoleLogTarget(this).
                 RegisterDefaultDiscLogTarget(this);
 
 
             RegisterEvent2("SetUserRequest",
-                           handler => UsersAPI.OnSetUserRequest += handler,
-                           handler => UsersAPI.OnSetUserRequest -= handler,
+                           handler => UsersAPI.OnSetUserHTTPRequest += handler,
+                           handler => UsersAPI.OnSetUserHTTPRequest -= handler,
                            "User", "Request",  "All").
                 RegisterDefaultConsoleLogTarget(this).
                 RegisterDefaultDiscLogTarget(this);
 
             RegisterEvent2("SetUserResponse",
-                           handler => UsersAPI.OnSetUserResponse += handler,
-                           handler => UsersAPI.OnSetUserResponse -= handler,
+                           handler => UsersAPI.OnSetUserHTTPResponse += handler,
+                           handler => UsersAPI.OnSetUserHTTPResponse -= handler,
                            "User", "Response", "All").
                 RegisterDefaultConsoleLogTarget(this).
                 RegisterDefaultDiscLogTarget(this);
@@ -240,15 +246,15 @@ namespace social.OpenData.UsersAPI
             #region Organizations
 
             RegisterEvent2("AddOrganizationRequest",
-                           handler => UsersAPI.OnAddOrganizationRequest += handler,
-                           handler => UsersAPI.OnAddOrganizationRequest -= handler,
+                           handler => UsersAPI.OnAddOrganizationHTTPRequest += handler,
+                           handler => UsersAPI.OnAddOrganizationHTTPRequest -= handler,
                            "Organization", "Request",  "All").
                 RegisterDefaultConsoleLogTarget(this).
                 RegisterDefaultDiscLogTarget(this);
 
             RegisterEvent2("AddOrganizationResponse",
-                           handler => UsersAPI.OnAddOrganizationResponse += handler,
-                           handler => UsersAPI.OnAddOrganizationResponse -= handler,
+                           handler => UsersAPI.OnAddOrganizationHTTPResponse += handler,
+                           handler => UsersAPI.OnAddOrganizationHTTPResponse -= handler,
                            "Organization", "Response", "All").
                 RegisterDefaultConsoleLogTarget(this).
                 RegisterDefaultDiscLogTarget(this);
@@ -300,15 +306,15 @@ namespace social.OpenData.UsersAPI
 
 
             RegisterEvent2("DeleteOrganizationRequest",
-                           handler => UsersAPI.OnDeleteOrganizationRequest += handler,
-                           handler => UsersAPI.OnDeleteOrganizationRequest -= handler,
+                           handler => UsersAPI.OnDeleteOrganizationHTTPRequest += handler,
+                           handler => UsersAPI.OnDeleteOrganizationHTTPRequest -= handler,
                            "DeleteOrganizations", "Organization", "Request", "All").
                      RegisterDefaultConsoleLogTarget(this).
                      RegisterDefaultDiscLogTarget(this);
 
             RegisterEvent2("DeleteOrganizationResponse",
-                           handler => UsersAPI.OnDeleteOrganizationResponse += handler,
-                           handler => UsersAPI.OnDeleteOrganizationResponse -= handler,
+                           handler => UsersAPI.OnDeleteOrganizationHTTPResponse += handler,
+                           handler => UsersAPI.OnDeleteOrganizationHTTPResponse -= handler,
                            "DeleteOrganizations", "Organization", "Response", "All").
                      RegisterDefaultConsoleLogTarget(this).
                      RegisterDefaultDiscLogTarget(this);
@@ -358,6 +364,39 @@ namespace social.OpenData.UsersAPI
                            handler => UsersAPI.OnAddServiceTicketChangeSetResponse += handler,
                            handler => UsersAPI.OnAddServiceTicketChangeSetResponse -= handler,
                            "ServiceTicketComment", "ServiceTicket", "Response", "All").
+                RegisterDefaultConsoleLogTarget(this).
+                RegisterDefaultDiscLogTarget(this);
+
+            #endregion
+
+            #region API
+
+            RegisterEvent2("RestartRequest",
+                           handler => UsersAPI.OnRestartHTTPRequest += handler,
+                           handler => UsersAPI.OnRestartHTTPRequest -= handler,
+                           "api", "restart", "request",  "all").
+                RegisterDefaultConsoleLogTarget(this).
+                RegisterDefaultDiscLogTarget(this);
+
+            RegisterEvent2("RestartResponse",
+                           handler => UsersAPI.OnRestartHTTPResponse += handler,
+                           handler => UsersAPI.OnRestartHTTPResponse -= handler,
+                           "api", "restart", "response", "all").
+                RegisterDefaultConsoleLogTarget(this).
+                RegisterDefaultDiscLogTarget(this);
+
+
+            RegisterEvent2("StopRequest",
+                           handler => UsersAPI.OnStopHTTPRequest += handler,
+                           handler => UsersAPI.OnStopHTTPRequest -= handler,
+                           "api", "stop", "request", "all").
+                RegisterDefaultConsoleLogTarget(this).
+                RegisterDefaultDiscLogTarget(this);
+
+            RegisterEvent2("StopResponse",
+                           handler => UsersAPI.OnStopHTTPResponse += handler,
+                           handler => UsersAPI.OnStopHTTPResponse -= handler,
+                           "api", "stop", "response", "all").
                 RegisterDefaultConsoleLogTarget(this).
                 RegisterDefaultDiscLogTarget(this);
 
