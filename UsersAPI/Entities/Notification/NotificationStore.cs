@@ -219,10 +219,12 @@ namespace social.OpenData.UsersAPI.Notifications
                                   ? _NotificationTypes.Where(typeT => typeT.Contains(NotificationMessageType.Value)).ToArray()
                                   : _NotificationTypes.ToArray();
 
-                // When no specialized notification was found... return a general notification!
-                return results.Length > 0
-                           ? results
-                           : _NotificationTypes.Where(typeT => typeT.Count == 0);
+                //// When no specialized notification was found... return a general notification!
+                //return results.Length > 0
+                //           ? results
+                //           : _NotificationTypes.Where(typeT => typeT.Count == 0);
+
+                return results;
 
             }
 
@@ -245,10 +247,12 @@ namespace social.OpenData.UsersAPI.Notifications
                                   ? _NotificationTypes.OfType<T>().Where(typeT => typeT.Contains(NotificationMessageTypes)).ToArray()
                                   : _NotificationTypes.OfType<T>().ToArray();
 
-                // When no specialized notification was found... return a general notification!
-                return results.Length > 0
-                           ? results
-                           : _NotificationTypes.OfType<T>().Where(typeT => typeT.Count == 0);
+                //// When no specialized notification was found... return a general notification!
+                //return results.Length > 0
+                //           ? results
+                //           : _NotificationTypes.OfType<T>().Where(typeT => typeT.Count == 0);
+
+                return results;
 
             }
 
@@ -269,10 +273,12 @@ namespace social.OpenData.UsersAPI.Notifications
 
                 var results = _NotificationTypes.Where(typeT => typeT.Any(NotificationMessageTypeFilter)).ToArray();
 
-                // When no specialized notification was found... return a general notification!
-                return results.Length > 0
-                           ? results
-                           : _NotificationTypes.Where(typeT => typeT.Count == 0);
+                //// When no specialized notification was found... return a general notification!
+                //return results.Length > 0
+                //           ? results
+                //           : _NotificationTypes.Where(typeT => typeT.Count == 0);
+
+                return results;
 
             }
 
@@ -296,10 +302,12 @@ namespace social.OpenData.UsersAPI.Notifications
 
                 var results = _NotificationTypes.OfType<T>().Where(typeT => typeT.Any(NotificationMessageTypeFilter)).ToArray();
 
-                // When no specialized notification was found... return a general notification!
-                return results.Length > 0
-                           ? results
-                           : _NotificationTypes.OfType<T>().Where(typeT => typeT.Count == 0);
+                //// When no specialized notification was found... return a general notification!
+                //return results.Length > 0
+                //           ? results
+                //           : _NotificationTypes.OfType<T>().Where(typeT => typeT.Count == 0);
+
+                return results;
 
             }
 
