@@ -3645,7 +3645,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        protected async Task SendHTTPSNotifications(IEnumerable<HTTPSNotification>  AllNotificationURLs,
+        protected async Task SendHTTPSNotifications(IEnumerable<HTTPSNotification>  AllNotifications,
                                                     JObject                         JSONNotification)
         {
 
@@ -3655,7 +3655,7 @@ namespace social.OpenData.UsersAPI
                 try
                 {
 
-                    foreach (var notificationURL in AllNotificationURLs)
+                    foreach (var notification in AllNotifications)
                     {
 
                         HTTPRequest  request     = null;
@@ -3669,67 +3669,50 @@ namespace social.OpenData.UsersAPI
                             try
                             {
 
-                                String       protocol;
-                                HTTPPath      URL;
-                                HTTPHostname hostname;
-
-                                if (notificationURL.URL.Contains("://"))
-                                {
-                                    protocol = notificationURL.URL.Substring(0, notificationURL.URL.IndexOf("://"));
-                                    var url  = notificationURL.URL.Substring(notificationURL.URL.IndexOf("://") + 3);
-                                    hostname = HTTPHostname.Parse(url.Substring(0, url.IndexOf('/')));
-                                    URL      = HTTPPath.Parse(url.Substring(url.IndexOf('/')));
-                                }
-                                else
-                                {
-                                    protocol = "https";
-                                    hostname = HTTPHostname.Parse(notificationURL.URL.Substring(0, notificationURL.URL.IndexOf('/')));
-                                    URL      = HTTPPath.Parse(notificationURL.URL.Substring(notificationURL.URL.IndexOf('/')));
-                                }
-
-                                using (var _HTTPSClient = new HTTPSClient(hostname,
+                                using (var _HTTPSClient = new HTTPSClient(notification.RemoteURL,
                                                                           //HTTPVirtualHost:
-                                                                          RemoteCertificateValidator: (Object                                                         sender,
-                                                                                                       System.Security.Cryptography.X509Certificates.X509Certificate  certificate,
-                                                                                                       X509Chain                                                      chain,
-                                                                                                       SslPolicyErrors                                                sslPolicyErrors) => true,
+                                                                          RemoteCertificateValidator:  notification.RemoteURL.Protocol == HTTPProtocols.https
+                                                                                                           ? (Object                                                         sender,
+                                                                                                              System.Security.Cryptography.X509Certificates.X509Certificate  certificate,
+                                                                                                              X509Chain                                                      chain,
+                                                                                                              SslPolicyErrors                                                sslPolicyErrors) => true
+                                                                                                           : null,
                                                                           ClientCertificateSelector:   null,
                                                                           ClientCert:                  null,
-                                                                          RemotePort:                  notificationURL.RemotePort,
                                                                           HTTPUserAgent:               null,
                                                                           RequestTimeout:              null,
-                                                                          DNSClient:                   this.DNSClient))
+                                                                          DNSClient:                   DNSClient))
                                 {
 
-                                    Console.WriteLine("Sending HTTPS-notification to: " + hostname.Name);
+                                    DebugX.Log("Sending HTTPS-notification to: " + notification.RemoteURL);
 
                                     request  = new HTTPRequest.Builder(_HTTPSClient) {
-                                                   HTTPMethod     = notificationURL.Method,
-                                                   Host           = hostname,
-                                                   Path           = URL,
+                                                   HTTPMethod     = notification.Method,
+                                                   Host           = notification.RemoteURL.Hostname,
+                                                   Path           = notification.RemoteURL.Path,
                                                    Content        = new JArray(JSONNotification).ToUTF8Bytes(),
                                                    ContentType    = HTTPContentType.JSON_UTF8,
                                                    UserAgent      = "CardiCloud Notification API",
-                                                   API_Key        = notificationURL.APIKey.IsNotNullOrEmpty()
-                                                                        ? notificationURL.APIKey
+                                                   API_Key        = notification.APIKey.HasValue
+                                                                        ? notification.APIKey.Value.ToString()
                                                                         : null,
-                                                   Authorization  = notificationURL.BasicAuth_Login.   IsNotNullOrEmpty() &&
-                                                                    notificationURL.BasicAuth_Password.IsNotNullOrEmpty()
-                                                                        ? new HTTPBasicAuthentication(notificationURL.BasicAuth_Login,
-                                                                                                      notificationURL.BasicAuth_Password)
+                                                   Authorization  = notification.BasicAuth_Login.   IsNotNullOrEmpty() &&
+                                                                    notification.BasicAuth_Password.IsNotNullOrEmpty()
+                                                                        ? new HTTPBasicAuthentication(notification.BasicAuth_Login,
+                                                                                                      notification.BasicAuth_Password)
                                                                         : null
                                     };
 
                                     result   = await _HTTPSClient.Execute(Request:              request,
-                                                                          RequestLogDelegate:   (timestamp, client, req)       => LogRequest (timestamp, client, hostname.Name, req),
-                                                                          ResponseLogDelegate:  (timestamp, client, req, resp) => LogResponse(timestamp, client, hostname.Name, req, resp),
+                                                                          RequestLogDelegate:   (timestamp, client, req)       => LogRequest (timestamp, client, notification.RemoteURL.Hostname.ToString(), req),
+                                                                          ResponseLogDelegate:  (timestamp, client, req, resp) => LogResponse(timestamp, client, notification.RemoteURL.Hostname.ToString(), req, resp),
 
                                                                           CancellationToken:    null,
                                                                           EventTrackingId:      EventTracking_Id.New,
-                                                                          RequestTimeout:       notificationURL.RequestTimeout,
+                                                                          RequestTimeout:       notification.RequestTimeout,
                                                                           NumberOfRetry:        TransmissionRetry++);
 
-                                    Console.WriteLine("Result: " + result);
+                                    //Console.WriteLine("Result: " + result);
 
                                 }
 
@@ -3739,7 +3722,7 @@ namespace social.OpenData.UsersAPI
                             }
                             catch (Exception e)
                             {
-                                Console.WriteLine(e);
+                                DebugX.LogException(e, "SendHTTPSNotification");
                             }
 
                         }
@@ -3755,7 +3738,7 @@ namespace social.OpenData.UsersAPI
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
+                    DebugX.LogException(e, "SendHTTPSNotifications");
                 }
 
             }
