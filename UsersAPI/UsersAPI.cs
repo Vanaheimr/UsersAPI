@@ -3599,7 +3599,7 @@ namespace social.OpenData.UsersAPI
         #region (protected) LogRequest(...)
 
         protected Task LogRequest(DateTime     Timestamp,
-                                  AHTTPClient  Client,
+                                  IHTTPClient  Client,
                                   String       RemoteHost,
                                   HTTPRequest  Request)
         {
@@ -3628,7 +3628,7 @@ namespace social.OpenData.UsersAPI
         #region (protected) LogResponse(...)
 
         protected Task LogResponse(DateTime      Timestamp,
-                                   AHTTPClient   Client,
+                                   IHTTPClient   Client,
                                    String        RemoteHost,
                                    HTTPRequest   Request,
                                    HTTPResponse  Response)
