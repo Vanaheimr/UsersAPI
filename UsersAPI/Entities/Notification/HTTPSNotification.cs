@@ -41,22 +41,20 @@ namespace social.OpenData.UsersAPI.Notifications
     public static class HTTPSNotificationExtentions
     {
 
-        #region AddHTTPSNotification(this UsersAPI, User, NotificationMessageType,  URL, Method, BasicAuth_Login = null, BasicAuth_Password = null, APIKey = null)
+        #region AddHTTPSNotification(this UsersAPI, User, NotificationMessageType,  RemoteURL, Method = null, BasicAuth_Login = null, BasicAuth_Password = null, APIKey = null)
 
         public static Task AddHTTPSNotification(this UsersAPI            UsersAPI,
                                                 User                     User,
                                                 NotificationMessageType  NotificationMessageType,
-                                                String                   URL,
+                                                URL                      RemoteURL,
                                                 HTTPMethod?              Method               = null,
-                                                IPPort?                  TCPPort              = null,
                                                 String                   BasicAuth_Login      = null,
                                                 String                   BasicAuth_Password   = null,
-                                                String                   APIKey               = null)
+                                                APIKey_Id?               APIKey               = null)
 
             => UsersAPI.AddNotification(User,
-                                        new HTTPSNotification(URL,
+                                        new HTTPSNotification(RemoteURL,
                                                               Method,
-                                                              TCPPort,
                                                               BasicAuth_Login,
                                                               BasicAuth_Password,
                                                               APIKey),
@@ -64,22 +62,20 @@ namespace social.OpenData.UsersAPI.Notifications
 
         #endregion
 
-        #region AddHTTPSNotification(this UsersAPI, User, NotificationMessageTypes, URL, Method, BasicAuth_Login = null, BasicAuth_Password = null, APIKey = null)
+        #region AddHTTPSNotification(this UsersAPI, User, NotificationMessageTypes, RemoteURL, Method = null, BasicAuth_Login = null, BasicAuth_Password = null, APIKey = null)
 
         public static Task AddHTTPSNotification(this UsersAPI                         UsersAPI,
                                                 User                                  User,
                                                 IEnumerable<NotificationMessageType>  NotificationMessageTypes,
-                                                String                                URL,
+                                                URL                                   RemoteURL,
                                                 HTTPMethod?                           Method               = null,
-                                                IPPort?                               TCPPort              = null,
                                                 String                                BasicAuth_Login      = null,
                                                 String                                BasicAuth_Password   = null,
-                                                String                                APIKey               = null)
+                                                APIKey_Id?                            APIKey               = null)
 
             => UsersAPI.AddNotification(User,
-                                        new HTTPSNotification(URL,
+                                        new HTTPSNotification(RemoteURL,
                                                               Method,
-                                                              TCPPort,
                                                               BasicAuth_Login,
                                                               BasicAuth_Password,
                                                               APIKey),
@@ -200,17 +196,12 @@ namespace social.OpenData.UsersAPI.Notifications
         /// <summary>
         /// The URL for of HTTPS notification.
         /// </summary>
-        public String      URL                   { get; }
+        public URL         RemoteURL             { get; }
 
         /// <summary>
         /// The HTTP method of this HTTPS notification.
         /// </summary>
         public HTTPMethod  Method                { get; }
-
-        /// <summary>
-        /// The remote TCP port of this HTTPS notification.
-        /// </summary>
-        public IPPort      RemotePort            { get; }
 
         /// <summary>
         /// An optional HTTP Basic Auth login for the HTTPS notification.
@@ -225,7 +216,7 @@ namespace social.OpenData.UsersAPI.Notifications
         /// <summary>
         /// An optional HTTP API Key for the HTTPS notification.
         /// </summary>
-        public String      APIKey                { get; }
+        public APIKey_Id?  APIKey                { get; }
 
         /// <summary>
         /// An optional HTTP request timeout.
@@ -239,21 +230,19 @@ namespace social.OpenData.UsersAPI.Notifications
         /// <summary>
         /// Create a new HTTPS notification.
         /// </summary>
-        /// <param name="URL">The URL of this HTTPS notification.</param>
+        /// <param name="RemoteURL">The URL of this HTTPS notification.</param>
         /// <param name="Method">The HTTP method of this HTTPS notification.</param>
-        /// <param name="RemotePort">The remote TCP port of this HTTPS notification.</param>
         /// <param name="BasicAuth_Login">An optional HTTP Basic Auth login for the HTTPS notification.</param>
         /// <param name="BasicAuth_Password">An optional HTTP Basic Auth password for the HTTPS notification.</param>
         /// <param name="APIKey">An optional HTTP API Key for the HTTPS notification.</param>
         /// <param name="RequestTimeout"></param>
         /// <param name="NotificationMessageTypes">An optional enumeration of notification message types.</param>
         /// <param name="Description">Some description to remember why this notification was created.</param>
-        public HTTPSNotification(String                                URL,
+        public HTTPSNotification(URL                                   RemoteURL,
                                  HTTPMethod?                           Method                     = null,
-                                 IPPort?                               RemotePort                 = null,
                                  String                                BasicAuth_Login            = null,
                                  String                                BasicAuth_Password         = null,
-                                 String                                APIKey                     = null,
+                                 APIKey_Id?                            APIKey                     = null,
                                  TimeSpan?                             RequestTimeout             = null,
                                  IEnumerable<NotificationMessageType>  NotificationMessageTypes   = null,
                                  String                                Description                = null)
@@ -261,15 +250,13 @@ namespace social.OpenData.UsersAPI.Notifications
             : base(NotificationMessageTypes,
                    Description,
                    String.Concat(nameof(HTTPSNotification),
-                                 URL,
-                                 Method     ?? HTTPMethod.POST,
-                                 RemotePort ?? IPPort.HTTPS))
+                                 RemoteURL,
+                                 Method ?? HTTPMethod.POST))
 
         {
 
-            this.URL                 = URL;
-            this.Method              = Method     ?? HTTPMethod.POST;
-            this.RemotePort          = RemotePort ?? IPPort.HTTPS;
+            this.RemoteURL           = RemoteURL;
+            this.Method              = Method ?? HTTPMethod.POST;
             this.BasicAuth_Login     = BasicAuth_Login;
             this.BasicAuth_Password  = BasicAuth_Password;
             this.APIKey              = APIKey;
@@ -305,14 +292,13 @@ namespace social.OpenData.UsersAPI.Notifications
                 url.IsNotNullOrEmpty())
             {
 
-                Notification = new HTTPSNotification(JSON["URL"           ]?.Value<String>(),
+                Notification = new HTTPSNotification(URL.Parse(JSON["URL"           ]?.Value<String>()),
                                                      JSON["method"        ] != null ? HTTPMethod.ParseString(JSON["method"].Value<String>()) : HTTPMethod.POST,
-                                                     JSON["TCPPort"       ] != null ? IPPort.Parse(JSON["TCPPort"].Value<String>()) : IPPort.HTTPS,
                                                      JSON["basicAuth"     ]?["login"   ]?.Value<String>(),
                                                      JSON["basicAuth"     ]?["password"]?.Value<String>(),
-                                                     JSON["APIKey"        ]?.Value<String>(),
+                                                     JSON["APIKey"] != null ? APIKey_Id.Parse(JSON["APIKey"        ]?.Value<String>()) : null,
                                                      JSON["RequestTimeout"] != null ? TimeSpan.FromSeconds((Double) JSON["RequestTimeout"]?.Value<Int32>()) : new TimeSpan?(),
-                                                     (JSON["messageTypes" ] as JArray)?.SafeSelect(element => NotificationMessageType.Parse(element.Value<String>())),
+                                                    (JSON["messageTypes"  ] as JArray)?.SafeSelect(element => NotificationMessageType.Parse(element.Value<String>())),
                                                      JSON["description"   ]?.Value<String>());
 
                 return true;
@@ -337,8 +323,7 @@ namespace social.OpenData.UsersAPI.Notifications
                        : null,
 
                    new JProperty("method",                Method.ToString()),
-                   new JProperty("URL",                   URL),
-                   new JProperty("TCPPort",               RemotePort.ToUInt16()),
+                   new JProperty("URL",                   RemoteURL.ToString()),
 
                    BasicAuth_Login.   IsNotNullOrEmpty() &&
                    BasicAuth_Password.IsNotNullOrEmpty()
@@ -350,8 +335,8 @@ namespace social.OpenData.UsersAPI.Notifications
                          )
                        : null,
 
-                   APIKey.IsNotNullOrEmpty()
-                       ? new JProperty("APIKey",          APIKey)
+                   APIKey.HasValue
+                       ? new JProperty("APIKey",          APIKey.Value.ToString())
                        : null,
 
                    RequestTimeout.HasValue
@@ -380,9 +365,8 @@ namespace social.OpenData.UsersAPI.Notifications
 
         public Boolean OptionalEquals(HTTPSNotification other)
 
-            => Method.    Equals(other.Method)                             &&
-               URL.       Equals(other.URL)                                &&
-               RemotePort.Equals(other.RemotePort)                         &&
+            => Method.   Equals(other.Method)                              &&
+               RemoteURL.Equals(other.RemoteURL)                           &&
 
                String.Equals(BasicAuth_Login,    other.BasicAuth_Login)    &&
                String.Equals(BasicAuth_Password, other.BasicAuth_Password) &&
@@ -409,11 +393,7 @@ namespace social.OpenData.UsersAPI.Notifications
         public Int32 CompareTo(HTTPSNotification other)
         {
 
-            var c = URL.CompareTo(other.URL);
-            if (c != 0)
-                return c;
-
-            c = RemotePort.CompareTo(other.RemotePort);
+            var c = RemoteURL.CompareTo(other.RemoteURL);
             if (c != 0)
                 return c;
 
@@ -438,9 +418,8 @@ namespace social.OpenData.UsersAPI.Notifications
 
         public Boolean Equals(HTTPSNotification other)
 
-            => URL.    Equals(other.URL)     &&
-               RemotePort.Equals(other.RemotePort) &&
-               Method. Equals(other.Method);
+            => RemoteURL.Equals(other.RemoteURL) &&
+               Method.   Equals(other.Method);
 
         #endregion
 
@@ -462,7 +441,7 @@ namespace social.OpenData.UsersAPI.Notifications
         /// Return a text representation of this object.
         /// </summary>
         public override String ToString()
-            => String.Concat(nameof(HTTPSNotification), ": ", Method, " ", URL, ":", RemotePort);
+            => String.Concat(nameof(HTTPSNotification), ": ", Method, " ", RemoteURL);
 
         #endregion
 
