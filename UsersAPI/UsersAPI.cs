@@ -3671,7 +3671,7 @@ namespace social.OpenData.UsersAPI
 
                                 using (var _HTTPSClient = new HTTPSClient(notification.RemoteURL,
                                                                           //HTTPVirtualHost:
-                                                                          RemoteCertificateValidator:  notification.RemoteURL.Protocol == HTTPProtocols.https
+                                                                          RemoteCertificateValidator:  notification.RemoteURL.Protocol == URLProtocols.https
                                                                                                            ? (Object                                                         sender,
                                                                                                               System.Security.Cryptography.X509Certificates.X509Certificate  certificate,
                                                                                                               X509Chain                                                      chain,
