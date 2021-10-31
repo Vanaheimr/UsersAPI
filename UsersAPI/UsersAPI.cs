@@ -2738,7 +2738,7 @@ namespace social.OpenData.UsersAPI
 
             this.Robot                           = new User(Id:               User_Id.Parse("robot"),
                                                             EMail:            APIRobotEMailAddress.Address,
-                                                            Name:             APIRobotEMailAddress.OwnerName,
+                                                            Name:             APIRobotEMailAddress.OwnerName ?? "Robot",
                                                             PublicKeyRing:    APIRobotEMailAddress.PublicKeyRing,
                                                             SecretKeyRing:    APIRobotEMailAddress.SecretKeyRing,
                                                             Description:      I18NString.Create(Languages.en, "The API robot"),
