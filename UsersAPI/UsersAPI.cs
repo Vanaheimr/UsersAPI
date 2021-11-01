@@ -2738,7 +2738,7 @@ namespace social.OpenData.UsersAPI
 
             this.Robot                           = new User(Id:               User_Id.Parse("robot"),
                                                             EMail:            APIRobotEMailAddress.Address,
-                                                            Name:             APIRobotEMailAddress.OwnerName,
+                                                            Name:             APIRobotEMailAddress.OwnerName ?? "Robot",
                                                             PublicKeyRing:    APIRobotEMailAddress.PublicKeyRing,
                                                             SecretKeyRing:    APIRobotEMailAddress.SecretKeyRing,
                                                             Description:      I18NString.Create(Languages.en, "The API robot"),
@@ -3599,7 +3599,7 @@ namespace social.OpenData.UsersAPI
         #region (protected) LogRequest(...)
 
         protected Task LogRequest(DateTime     Timestamp,
-                                  AHTTPClient  Client,
+                                  IHTTPClient  Client,
                                   String       RemoteHost,
                                   HTTPRequest  Request)
         {
@@ -3628,7 +3628,7 @@ namespace social.OpenData.UsersAPI
         #region (protected) LogResponse(...)
 
         protected Task LogResponse(DateTime      Timestamp,
-                                   AHTTPClient   Client,
+                                   IHTTPClient   Client,
                                    String        RemoteHost,
                                    HTTPRequest   Request,
                                    HTTPResponse  Response)
@@ -3671,7 +3671,7 @@ namespace social.OpenData.UsersAPI
 
                                 using (var _HTTPSClient = new HTTPSClient(notification.RemoteURL,
                                                                           //HTTPVirtualHost:
-                                                                          RemoteCertificateValidator:  notification.RemoteURL.Protocol == HTTPProtocols.https
+                                                                          RemoteCertificateValidator:  notification.RemoteURL.Protocol == URLProtocols.https
                                                                                                            ? (Object                                                         sender,
                                                                                                               System.Security.Cryptography.X509Certificates.X509Certificate  certificate,
                                                                                                               X509Chain                                                      chain,
