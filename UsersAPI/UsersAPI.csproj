@@ -77,7 +77,7 @@
     <Compile Include="Entities\Organization\Results\AddOrUpdateOrganizationResult.cs" />
     <Compile Include="Entities\Organization\Results\UnlinkOrganizationsResult.cs" />
     <Compile Include="Entities\Organization\Results\LinkOrganizationsResult.cs" />
-    <Compile Include="Entities\Organization\Results\UpdateUserResult.cs" />
+    <Compile Include="Entities\Organization\Results\UpdateOrganizationResult.cs" />
     <Compile Include="Entities\Organization\Results\AddOrganizationIfNotExistsResult.cs" />
     <Compile Include="Entities\Organization\Results\DeleteOrganizationResult.cs" />
     <Compile Include="Entities\Organization\Group\RemoveOrganizationGroupResult.cs" />
