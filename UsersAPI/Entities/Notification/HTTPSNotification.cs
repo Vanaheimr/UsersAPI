@@ -296,7 +296,7 @@ namespace social.OpenData.UsersAPI.Notifications
                                                      JSON["method"        ] != null ? HTTPMethod.ParseString(JSON["method"].Value<String>()) : HTTPMethod.POST,
                                                      JSON["basicAuth"     ]?["login"   ]?.Value<String>(),
                                                      JSON["basicAuth"     ]?["password"]?.Value<String>(),
-                                                     JSON["APIKey"] != null ? APIKey_Id.Parse(JSON["APIKey"        ]?.Value<String>()) : null,
+                                                     JSON["APIKey"] != null ? APIKey_Id.Parse(JSON["APIKey"        ]?.Value<String>()) : new APIKey_Id?(),
                                                      JSON["RequestTimeout"] != null ? TimeSpan.FromSeconds((Double) JSON["RequestTimeout"]?.Value<Int32>()) : new TimeSpan?(),
                                                     (JSON["messageTypes"  ] as JArray)?.SafeSelect(element => NotificationMessageType.Parse(element.Value<String>())),
                                                      JSON["description"   ]?.Value<String>());
