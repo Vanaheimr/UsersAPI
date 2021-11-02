@@ -3669,14 +3669,18 @@ namespace social.OpenData.UsersAPI
                             try
                             {
 
+                                RemoteCertificateValidationCallback rcv = null;
+                                if (notification.RemoteURL.Protocol == URLProtocols.https)
+                                {
+                                    rcv = (Object                                                         sender,
+                                           System.Security.Cryptography.X509Certificates.X509Certificate  certificate,
+                                           X509Chain                                                      chain,
+                                           SslPolicyErrors                                                sslPolicyErrors) => true;
+                                }
+
                                 using (var _HTTPSClient = new HTTPSClient(notification.RemoteURL,
                                                                           //HTTPVirtualHost:
-                                                                          RemoteCertificateValidator:  notification.RemoteURL.Protocol == URLProtocols.https
-                                                                                                           ? (Object                                                         sender,
-                                                                                                              System.Security.Cryptography.X509Certificates.X509Certificate  certificate,
-                                                                                                              X509Chain                                                      chain,
-                                                                                                              SslPolicyErrors                                                sslPolicyErrors) => true
-                                                                                                           : null,
+                                                                          RemoteCertificateValidator:  rcv,
                                                                           ClientCertificateSelector:   null,
                                                                           ClientCert:                  null,
                                                                           HTTPUserAgent:               null,
