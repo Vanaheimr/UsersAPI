@@ -236,13 +236,13 @@
     <EmbeddedResource Include="HTTPRoot\SignInOut\SignInOut.css" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="HTTPRoot\login\LostPassword-en.html" />
+    <EmbeddedResource Include="HTTPRoot\login\lostPassword-en.html" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="HTTPRoot\SignUp\SignUp-en.html" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="HTTPRoot\login\LostPassword-de.html" />
+    <EmbeddedResource Include="HTTPRoot\login\lostPassword-de.html" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="HTTPRoot\js\LoadThings.js" />
@@ -540,6 +540,7 @@
     <EmbeddedResource Include="HTTPRoot\notification\messages.min.css">
       <DependentUpon>messages.css</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\login\setPassword-en.html" />
     <Content Include="HTTPRoot\notification\settings.css">
       <DependentUpon>settings.scss</DependentUpon>
     </Content>
@@ -584,8 +585,7 @@
     <EmbeddedResource Include="HTTPRoot\notification\editNotification.css">
       <DependentUpon>editNotification.scss</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\login\lostPassword.html" />
-    <EmbeddedResource Include="HTTPRoot\login\setPassword.html" />
+    <EmbeddedResource Include="HTTPRoot\login\setPassword-de.html" />
     <EmbeddedResource Include="HTTPRoot\login\login-en.html" />
     <EmbeddedResource Include="HTTPRoot\images\building-2696768_640.png" />
     <EmbeddedResource Include="HTTPRoot\defaults\datePicker.css">
