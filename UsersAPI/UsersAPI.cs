@@ -1111,6 +1111,8 @@ namespace social.OpenData.UsersAPI
                                                              GeoCoordinate?      GeoLocation                = null,
                                                              Address             Address                    = null,
                                                              Boolean             SkipDefaultNotifications   = false,
+                                                             Boolean             SkipNewUserEMail           = false,
+                                                             Boolean             SkipNewUserNotifications   = false,
                                                              DateTime?           AcceptedEULA               = null,
                                                              Boolean             IsAuthenticated            = false,
                                                              Boolean             IsDisabled                 = false,
@@ -1140,8 +1142,10 @@ namespace social.OpenData.UsersAPI
                                                                            DataSource: DataSource),
 
                                                                   SkipDefaultNotifications,
+                                                                  SkipNewUserEMail,
+                                                                  SkipNewUserNotifications,
 
-                                                                  async(_user, _eventTrackingId) => {
+                                                                  async (_user, _eventTrackingId) => {
                                                                       if (Password.HasValue) {
                                                                           var result = await _user.API._ChangePassword(_user,
                                                                                                                        Password.Value,
@@ -1213,6 +1217,8 @@ namespace social.OpenData.UsersAPI
                                                              GeoCoordinate?              GeoLocation                = null,
                                                              Address                     Address                    = null,
                                                              Boolean                     SkipDefaultNotifications   = false,
+                                                             Boolean                     SkipNewUserEMail           = false,
+                                                             Boolean                     SkipNewUserNotifications   = false,
                                                              DateTime?                   AcceptedEULA               = null,
                                                              Boolean                     IsAuthenticated            = false,
                                                              Boolean                     IsDisabled                 = false,
@@ -1245,8 +1251,10 @@ namespace social.OpenData.UsersAPI
                                                                   Organization,
 
                                                                   SkipDefaultNotifications,
+                                                                  SkipNewUserEMail,
+                                                                  SkipNewUserNotifications,
 
-                                                                  async(_user, _eventTrackingId) => {
+                                                                  async (_user, _eventTrackingId) => {
                                                                       if (Password.HasValue) {
                                                                           var result = await _user.API._ChangePassword(_user,
                                                                                                                        Password.Value,
@@ -16230,6 +16238,8 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         protected internal async Task<AddUserIfNotExistsResult> _AddUserIfNotExists(User                            User,
                                                                                     Boolean                         SkipDefaultNotifications   = false,
+                                                                                    Boolean                         SkipNewUserEMail           = false,
+                                                                                    Boolean                         SkipNewUserNotifications   = false,
                                                                                     Action<User, EventTracking_Id>  OnAdded                    = null,
                                                                                     EventTracking_Id                EventTrackingId            = null,
                                                                                     User_Id?                        CurrentUserId              = null)
@@ -16322,18 +16332,20 @@ namespace social.OpenData.UsersAPI
                                                            SuppressNotifications: true,
                                                            EventTrackingId:       eventTrackingId);
 
-            await SMTPClient.Send(NewUserSignUpEMailCreator(User,
-                                                            User.EMail,
-                                                            resetPasswordResult.PasswordReset.SecurityToken1,
-                                                            User.MobilePhone.HasValue,
-                                                            DefaultLanguage,
-                                                            eventTrackingId));
+            if (!SkipNewUserEMail)
+                await SMTPClient.Send(NewUserSignUpEMailCreator(User,
+                                                                User.EMail,
+                                                                resetPasswordResult.PasswordReset.SecurityToken1,
+                                                                User.MobilePhone.HasValue,
+                                                                DefaultLanguage,
+                                                                eventTrackingId));
 
-            await SendNotifications(User,
-                                    addUserIfNotExists_MessageType,
-                                    null,
-                                    eventTrackingId,
-                                    CurrentUserId);
+            if (!SkipNewUserNotifications)
+                await SendNotifications(User,
+                                        addUserIfNotExists_MessageType,
+                                        null,
+                                        eventTrackingId,
+                                        CurrentUserId);
 
 
             return AddUserIfNotExistsResult.Success(User,
@@ -16356,6 +16368,8 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<AddUserIfNotExistsResult> AddUserIfNotExists(User                            User,
                                                                        Boolean                         SkipDefaultNotifications   = false,
+                                                                       Boolean                         SkipNewUserEMail           = false,
+                                                                       Boolean                         SkipNewUserNotifications   = false,
                                                                        Action<User, EventTracking_Id>  OnAdded                    = null,
                                                                        EventTracking_Id                EventTrackingId            = null,
                                                                        User_Id?                        CurrentUserId              = null)
@@ -16370,6 +16384,8 @@ namespace social.OpenData.UsersAPI
 
                     return await _AddUserIfNotExists(User,
                                                      SkipDefaultNotifications,
+                                                     SkipNewUserEMail,
+                                                     SkipNewUserNotifications,
                                                      OnAdded,
                                                      eventTrackingId,
                                                      CurrentUserId);
@@ -16420,6 +16436,8 @@ namespace social.OpenData.UsersAPI
                                                                        User2OrganizationEdgeLabel      AccessRight,
                                                                        Organization                    Organization,
                                                                        Boolean                         SkipDefaultNotifications   = false,
+                                                                       Boolean                         SkipNewUserEMail           = false,
+                                                                       Boolean                         SkipNewUserNotifications   = false,
                                                                        Action<User, EventTracking_Id>  OnAdded                    = null,
                                                                        EventTracking_Id                EventTrackingId            = null,
                                                                        User_Id?                        CurrentUserId              = null)
@@ -16437,6 +16455,8 @@ namespace social.OpenData.UsersAPI
 
                         var result = await _AddUserIfNotExists(User,
                                                                SkipDefaultNotifications,
+                                                               SkipNewUserEMail,
+                                                               SkipNewUserNotifications,
                                                                async (_user, _eventTrackingId) => {
 
                                                                    await _AddUserToOrganization(_user,
@@ -16519,6 +16539,8 @@ namespace social.OpenData.UsersAPI
         public async Task<AddUserIfNotExistsResult> AddUserIfNotExists(User                                                          User,
                                                                        IEnumerable<Tuple<User2OrganizationEdgeLabel, Organization>>  AccessRights,
                                                                        Boolean                                                       SkipDefaultNotifications   = false,
+                                                                       Boolean                                                       SkipNewUserEMail           = false,
+                                                                       Boolean                                                       SkipNewUserNotifications   = false,
                                                                        Action<User, EventTracking_Id>                                OnAdded                    = null,
                                                                        EventTracking_Id                                              EventTrackingId            = null,
                                                                        User_Id?                                                      CurrentUserId              = null)
@@ -16542,6 +16564,8 @@ namespace social.OpenData.UsersAPI
 
                         var result = await _AddUserIfNotExists(User,
                                                                SkipDefaultNotifications,
+                                                               SkipNewUserEMail,
+                                                               SkipNewUserNotifications,
                                                                async (_user, _eventTrackingId) => {
 
                                                                    foreach (var accessRight in AccessRights)
