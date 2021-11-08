@@ -7543,7 +7543,7 @@ namespace social.OpenData.UsersAPI
                                                                  out User                   HTTPUser,
                                                                  out HashSet<Organization>  HTTPOrganizations,
                                                                  out HTTPResponse.Builder   HTTPResponse,
-                                                                 AccessLevel:               Access_Levels.ReadWrite,
+                                                                 AccessLevel:               Access_Levels.ReadOnly,
                                                                  Recursive:                 true))
                                              {
                                                  return HTTPResponse;
