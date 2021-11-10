@@ -14032,13 +14032,11 @@ namespace social.OpenData.UsersAPI
                                                out userGroup,
                                                out ErrorResponse))
                     {
-
                         if (!_UserGroups.ContainsKey(userGroup.Id))
                         {
                             userGroup.API = this;
                             _UserGroups.AddAndReturnValue(userGroup.Id, userGroup);
                         }
-
                     }
 
                     else
@@ -14052,9 +14050,9 @@ namespace social.OpenData.UsersAPI
 
                 case "addUserToUserGroup":
 
-                    if (!User_Id.TryParse(Data["user"]?.Value<String>(), out User_Id U2G_UserId))
+                    if (!User_Id.TryParse(Data["userId"]?.Value<String>(), out User_Id U2G_UserId))
                     {
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Invalid user identification '" + Data["user"]?.Value<String>() + "'!"));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Invalid user identification '" + Data["userId"]?.Value<String>() + "'!"));
                         break;
                     }
 
@@ -14065,9 +14063,9 @@ namespace social.OpenData.UsersAPI
                     }
 
 
-                    if (!UserGroup_Id.TryParse(Data["group"]?.Value<String>(), out UserGroup_Id U2G_GroupId))
+                    if (!UserGroup_Id.TryParse(Data["userGroupId"]?.Value<String>(), out UserGroup_Id U2G_GroupId))
                     {
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Invalid group identification '" + Data["user"]?.Value<String>() + "'!"));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Invalid group identification '" + Data["userGroupId"]?.Value<String>() + "'!"));
                         break;
                     }
 
@@ -14078,9 +14076,9 @@ namespace social.OpenData.UsersAPI
                     }
 
 
-                    if (!Enum.TryParse(Data["edge"].Value<String>(), out User2UserGroupEdgeLabel U2G_EdgeLabel))
+                    if (!Enum.TryParse(Data["edgeLabel"].Value<String>(), out User2UserGroupEdgeLabel U2G_EdgeLabel))
                     {
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Unknown edge label '" + Data["edge"].Value<String>() + "'!"));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Unknown edge label '" + Data["edgeLabel"].Value<String>() + "'!"));
                         break;
                     }
 
@@ -14178,112 +14176,136 @@ namespace social.OpenData.UsersAPI
                     user          = null;
                     organization  = null;
 
-                    if (Data["@context"]?.Value<String>().IsNotNullOrEmpty() == true &&
+                    if (Data["@context"]?.Value<String>().IsNotNullOrEmpty() != true)
+                    {
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given '" + Command + "' command as the @context is invalid or missing!"));
+                        break;
+                    }
 
-                       (Data["userId"]?.Value<String>().IsNotNullOrEmpty() == true &&
-                        User_Id.TryParse(Data["userId"]?.Value<String>(), out userId) &&
-                        TryGetUser(userId, out user))
-
-                        ||
-
-                       (Data["organizationId"]?.Value<String>().IsNotNullOrEmpty() == true &&
-                        Organization_Id.TryParse(Data["organizationId"]?.Value<String>(), out organizationId) &&
-                        TryGetOrganization(organizationId, out organization)))
+                    if (Data.ContainsKey("userId"))
                     {
 
-                        switch (Data["@context"]?.Value<String>())
+                        if (Data["userId"]?.Value<String>().IsNotNullOrEmpty() == false)
                         {
+                            DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given '" + Command + "' command as the 'userId' is invalid or missing!"));
+                            break;
+                        }
 
-                            case TelegramNotification.JSONLDContext:
+                        if (!User_Id.TryParse(Data["userId"]?.Value<String>(), out userId))
+                        {
+                            DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given '" + Command + "' command as the userId '" + (Data["userId"]?.Value<String>() ?? "") + "' could not be parsed!"));
+                            break;
+                        }
 
-                                var telegramNotification = TelegramNotification.Parse(Data);
-
-                                if (telegramNotification != null)
-                                {
-                                    user?.        AddNotification(telegramNotification);
-                                    organization?.AddNotification(telegramNotification);
-                                }
-
-                                else
-                                    DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given Telegram notification!"));
-
-                                break;
-
-
-                            case TelegramGroupNotification.JSONLDContext:
-
-                                var telegramGroupNotification = TelegramGroupNotification.Parse(Data);
-
-                                if (telegramGroupNotification != null)
-                                {
-                                    user?.        AddNotification(telegramGroupNotification);
-                                    organization?.AddNotification(telegramGroupNotification);
-                                }
-
-                                else
-                                    DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given Telegram group notification!"));
-
-                                break;
-
-
-                            case SMSNotification.JSONLDContext:
-
-                                var smsnotification = SMSNotification.Parse(Data);
-
-                                if (smsnotification != null)
-                                {
-                                    user?.        AddNotification(smsnotification);
-                                    organization?.AddNotification(smsnotification);
-                                }
-
-                                else
-                                    DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given SMS notification!"));
-
-                                break;
-
-
-                            case HTTPSNotification.JSONLDContext:
-
-                                var httpsnotification = HTTPSNotification.Parse(Data);
-
-                                if (httpsnotification != null)
-                                {
-                                    user?.        AddNotification(httpsnotification);
-                                    organization?.AddNotification(httpsnotification);
-                                }
-
-                                else
-                                    DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given HTTPS notification!"));
-
-                                break;
-
-
-                            case EMailNotification.JSONLDContext:
-
-                                var emailnotification = EMailNotification.Parse(Data);
-
-                                if (emailnotification != null)
-                                {
-                                    user?.        AddNotification(emailnotification);
-                                    organization?.AddNotification(emailnotification);
-                                }
-
-                                else
-                                    DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given e-mail notification!"));
-
-                                break;
-
-
-                            default:
-                                DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given 'add notification' command!"));
-                                break;
-
+                        if (!TryGetUser(userId, out user))
+                        {
+                            DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given '" + Command + "' command as the user '" + userId + "' is unknown!"));
+                            break;
                         }
 
                     }
 
-                    else
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given 'add notification' command as context '" + Data["@context"]?.Value<String>() + "' is unknown!"));
+                    if (Data.ContainsKey("organizationId"))
+                    {
+
+                        if (Data["organizationId"]?.Value<String>().IsNotNullOrEmpty() == false)
+                        {
+                            DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given '" + Command + "' command as the 'organizationId' is invalid or missing!"));
+                            break;
+                        }
+
+                        if (!Organization_Id.TryParse(Data["organizationId"]?.Value<String>(), out organizationId))
+                        {
+                            DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given '" + Command + "' command as the organizationId '" + (Data["organizationId"]?.Value<String>() ?? "") + "' could not be parsed!"));
+                            break;
+                        }
+
+                        if (!TryGetOrganization(organizationId, out organization))
+                        {
+                            DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given '" + Command + "' command as the organization '" + organizationId + "' is unknown!"));
+                            break;
+                        }
+
+                    }
+
+                    switch (Data["@context"]?.Value<String>())
+                    {
+
+                        case TelegramNotification.JSONLDContext:
+
+                            if (TelegramNotification.TryParse(Data, out TelegramNotification telegramNotification))
+                            {
+                                user?.        AddNotification(telegramNotification);
+                                organization?.AddNotification(telegramNotification);
+                            }
+
+                            else
+                                DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given Telegram notification!"));
+
+                            break;
+
+
+                        case TelegramGroupNotification.JSONLDContext:
+
+                            if (TelegramGroupNotification.TryParse(Data, out TelegramGroupNotification telegramGroupNotification))
+                            {
+                                user?.        AddNotification(telegramGroupNotification);
+                                organization?.AddNotification(telegramGroupNotification);
+                            }
+
+                            else
+                                DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given Telegram group notification!"));
+
+                            break;
+
+
+                        case SMSNotification.JSONLDContext:
+
+                            if (SMSNotification.TryParse(Data, out SMSNotification smsNotification))
+                            {
+                                user?.        AddNotification(smsNotification);
+                                organization?.AddNotification(smsNotification);
+                            }
+
+                            else
+                                DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given SMS notification!"));
+
+                            break;
+
+
+                        case HTTPSNotification.JSONLDContext:
+
+                            if (HTTPSNotification.TryParse(Data, out HTTPSNotification httpsNotification))
+                            {
+                                user?.        AddNotification(httpsNotification);
+                                organization?.AddNotification(httpsNotification);
+                            }
+
+                            else
+                                DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given HTTPS notification!"));
+
+                            break;
+
+
+                        case EMailNotification.JSONLDContext:
+
+                            if (EMailNotification.TryParse(Data, out EMailNotification emailNotification))
+                            {
+                                user?.        AddNotification(emailNotification);
+                                organization?.AddNotification(emailNotification);
+                            }
+
+                            else
+                                DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given e-mail notification!"));
+
+                            break;
+
+
+                        default:
+                            DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given 'add notification' command as the @context '" + (Data["@context"]?.Value<String>() ?? "") + "' is unknown!"));
+                            break;
+
+                    }
 
                     break;
 
@@ -14296,107 +14318,136 @@ namespace social.OpenData.UsersAPI
                     user          = null;
                     organization  = null;
 
-                    if (Data["@context"]?.Value<String>().IsNotNullOrEmpty() == true &&
+                    if (Data["@context"]?.Value<String>().IsNotNullOrEmpty() != true)
+                    {
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given '" + Command + "' command as the @context is invalid or missing!"));
+                        break;
+                    }
 
-                       (Data["userId"]?.Value<String>().IsNotNullOrEmpty() == true &&
-                        User_Id.TryParse(Data["userId"]?.Value<String>(), out userId) &&
-                        TryGetUser(userId, out user))
-
-                        ||
-
-                       (Data["organizationId"]?.Value<String>().IsNotNullOrEmpty() == true &&
-                        Organization_Id.TryParse(Data["organizationId"]?.Value<String>(), out organizationId) &&
-                        TryGetOrganization(organizationId, out organization)))
+                    if (Data.ContainsKey("userId"))
                     {
 
-                        switch (Data["@context"]?.Value<String>())
+                        if (Data["userId"]?.Value<String>().IsNotNullOrEmpty() == false)
                         {
+                            DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given '" + Command + "' command as the 'userId' is invalid or missing!"));
+                            break;
+                        }
 
-                            case TelegramNotification.JSONLDContext:
+                        if (!User_Id.TryParse(Data["userId"]?.Value<String>(), out userId))
+                        {
+                            DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given '" + Command + "' command as the userId '" + (Data["userId"]?.Value<String>() ?? "") + "' could not be parsed!"));
+                            break;
+                        }
 
-                                var telegramNotification = TelegramNotification.Parse(Data);
-
-                                if (telegramNotification != null)
-                                {
-                                    user?.        RemoveNotification(telegramNotification);
-                                    organization?.RemoveNotification(telegramNotification);
-                                }
-
-                                else
-                                    DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given Telegram notification!"));
-
-                                break;
-
-
-                            case TelegramGroupNotification.JSONLDContext:
-
-                                var telegramGroupNotification = TelegramGroupNotification.Parse(Data);
-
-                                if (telegramGroupNotification != null)
-                                {
-                                    user?.        RemoveNotification(telegramGroupNotification);
-                                    organization?.RemoveNotification(telegramGroupNotification);
-                                }
-
-                                else
-                                    DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given Telegram group notification!"));
-
-                                break;
-
-
-                            case SMSNotification.JSONLDContext:
-
-                                var smsnotification = SMSNotification.Parse(Data);
-
-                                if (smsnotification != null)
-                                {
-                                    user?.        RemoveNotification(smsnotification);
-                                    organization?.RemoveNotification(smsnotification);
-                                }
-
-                                else
-                                    DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given SMS notification!"));
-
-                                break;
-
-
-                            case HTTPSNotification.JSONLDContext:
-
-                                var httpsnotification = HTTPSNotification.Parse(Data);
-
-                                if (httpsnotification != null)
-                                {
-                                    user?.        RemoveNotification(httpsnotification);
-                                    organization?.RemoveNotification(httpsnotification);
-                                }
-
-                                else
-                                    DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given HTTPS notification!"));
-
-                                break;
-
-
-                            case EMailNotification.JSONLDContext:
-
-                                var emailnotification = EMailNotification.Parse(Data);
-
-                                if (emailnotification != null)
-                                {
-                                    user?.        RemoveNotification(emailnotification);
-                                    organization?.RemoveNotification(emailnotification);
-                                }
-
-                                else
-                                    DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given e-mail notification!"));
-
-                                break;
-
+                        if (!TryGetUser(userId, out user))
+                        {
+                            DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given '" + Command + "' command as the user '" + userId + "' is unknown!"));
+                            break;
                         }
 
                     }
 
-                    else
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given 'remove notification' command!"));
+                    if (Data.ContainsKey("organizationId"))
+                    {
+
+                        if (Data["organizationId"]?.Value<String>().IsNotNullOrEmpty() == false)
+                        {
+                            DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given '" + Command + "' command as the 'organizationId' is invalid or missing!"));
+                            break;
+                        }
+
+                        if (!Organization_Id.TryParse(Data["organizationId"]?.Value<String>(), out organizationId))
+                        {
+                            DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given '" + Command + "' command as the organizationId '" + (Data["organizationId"]?.Value<String>() ?? "") + "' could not be parsed!"));
+                            break;
+                        }
+
+                        if (!TryGetOrganization(organizationId, out organization))
+                        {
+                            DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given '" + Command + "' command as the organization '" + organizationId + "' is unknown!"));
+                            break;
+                        }
+
+                    }
+
+                    switch (Data["@context"]?.Value<String>())
+                    {
+
+                        case TelegramNotification.JSONLDContext:
+
+                            if (TelegramNotification.TryParse(Data, out TelegramNotification telegramNotification))
+                            {
+                                user?.        RemoveNotification(telegramNotification);
+                                organization?.RemoveNotification(telegramNotification);
+                            }
+
+                            else
+                                DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given Telegram notification!"));
+
+                            break;
+
+
+                        case TelegramGroupNotification.JSONLDContext:
+
+                            if (TelegramGroupNotification.TryParse(Data, out TelegramGroupNotification telegramGroupNotification))
+                            {
+                                user?.        RemoveNotification(telegramGroupNotification);
+                                organization?.RemoveNotification(telegramGroupNotification);
+                            }
+
+                            else
+                                DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given Telegram group notification!"));
+
+                            break;
+
+
+                        case SMSNotification.JSONLDContext:
+
+                            if (SMSNotification.TryParse(Data, out SMSNotification smsNotification))
+                            {
+                                user?.        RemoveNotification(smsNotification);
+                                organization?.RemoveNotification(smsNotification);
+                            }
+
+                            else
+                                DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given SMS notification!"));
+
+                            break;
+
+
+                        case HTTPSNotification.JSONLDContext:
+
+                            if (HTTPSNotification.TryParse(Data, out HTTPSNotification httpsNotification))
+                            {
+                                user?.        RemoveNotification(httpsNotification);
+                                organization?.RemoveNotification(httpsNotification);
+                            }
+
+                            else
+                                DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given HTTPS notification!"));
+
+                            break;
+
+
+                        case EMailNotification.JSONLDContext:
+
+                            if (EMailNotification.TryParse(Data, out EMailNotification emailNotification))
+                            {
+                                user?.        RemoveNotification(emailNotification);
+                                organization?.RemoveNotification(emailNotification);
+                            }
+
+                            else
+                                DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given e-mail notification!"));
+
+                            break;
+
+
+                        default:
+                            DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given 'add notification' command as the @context '" + (Data["@context"]?.Value<String>() ?? "") + "' is unknown!"));
+                            break;
+
+                    }
 
                     break;
 
@@ -30067,7 +30118,6 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-
         #region (protected) _AddUserToUserGroup     (User, EdgeLabel, UserGroup, SuppressNotifications = false, CurrentUserId  = null)
 
         protected async Task<AddUserToUserGroupResult> _AddUserToUserGroup(User                     User,
@@ -30082,27 +30132,27 @@ namespace social.OpenData.UsersAPI
 
             if (User is null)
                 return AddUserToUserGroupResult.ArgumentError(User,
-                                                                 EdgeLabel,
-                                                                 UserGroup,
-                                                                 eventTrackingId,
-                                                                 nameof(User),
-                                                                 "The given user must not be null!");
+                                                              EdgeLabel,
+                                                              UserGroup,
+                                                              eventTrackingId,
+                                                              nameof(User),
+                                                              "The given user must not be null!");
 
             if (User.API != null && User.API != this)
                 return AddUserToUserGroupResult.ArgumentError(User,
-                                                                 EdgeLabel,
-                                                                 UserGroup,
-                                                                 eventTrackingId,
-                                                                 nameof(User),
-                                                                 "The given user is not attached to this API!");
+                                                              EdgeLabel,
+                                                              UserGroup,
+                                                              eventTrackingId,
+                                                              nameof(User),
+                                                              "The given user is not attached to this API!");
 
             if (!_Users.ContainsKey(User.Id))
                 return AddUserToUserGroupResult.ArgumentError(User,
-                                                                 EdgeLabel,
-                                                                 UserGroup,
-                                                                 eventTrackingId,
-                                                                 nameof(User),
-                                                                 "The given user '" + User.Id + "' does not exists within this API!");
+                                                              EdgeLabel,
+                                                              UserGroup,
+                                                              eventTrackingId,
+                                                              nameof(User),
+                                                              "The given user '" + User.Id + "' does not exists within this API!");
 
 
             //if (EdgeLabel.IsNullOrEmpty())
@@ -30139,47 +30189,15 @@ namespace social.OpenData.UsersAPI
                                                               "The given user group '" + UserGroup.Id + "' does not exists within this API!");
 
 
-                        //var updated = false;
-
-                        //if (!User.OutEdges(UserGroup).Any(edgeLabel => edgeLabel == EdgeLabel))
-                        //{
-                        //    User.AddOutgoingEdge(EdgeLabel, UserGroup);
-                        //    updated = true;
-                        //}
-
-                        //if (!UserGroup.InEdgeLabels(User).Any(edgeLabel => edgeLabel == EdgeLabel))
-                        //{
-                        //    UserGroup.AddIncomingEdge(User, EdgeLabel);
-                        //    updated = true;
-                        //}
-
-                        //if (updated)
-                        //    await WriteToDatabaseFile(addUserToUserGroup_MessageType,
-                        //                              new JObject(
-                        //                                  new JProperty("user",  User.Id.  ToString()),
-                        //                                  new JProperty("edge",  EdgeLabel.ToString()),
-                        //                                  new JProperty("group", UserGroup.ToString())
-                        //                              ),
-                        //                              eventTrackingId,
-                        //                              CurrentUserId);
-
-
-
-
-
-
-
-
-
             if (!User.     EdgeLabels(UserGroup).Any(edgelabel => edgelabel == EdgeLabel) &&
                 !UserGroup.EdgeLabels(User).     Any(edgelabel => edgelabel == EdgeLabel))
             {
 
                 await WriteToDatabaseFile(addUserToUserGroup_MessageType,
                                           new JObject(
-                                              new JProperty("user",         User.        Id.ToString()),
-                                              new JProperty("edge",         EdgeLabel.      ToString()),
-                                              new JProperty("user group", UserGroup.Id.ToString())
+                                              new JProperty("userId",      User.     Id.ToString()),
+                                              new JProperty("edgeLabel",   EdgeLabel.   ToString()),
+                                              new JProperty("userGroupId", UserGroup.Id.ToString())
                                           ),
                                           eventTrackingId,
                                           CurrentUserId);
@@ -30199,17 +30217,17 @@ namespace social.OpenData.UsersAPI
 
 
                 return AddUserToUserGroupResult.Success(User,
-                                                           EdgeLabel,
-                                                           UserGroup,
-                                                           eventTrackingId);
+                                                        EdgeLabel,
+                                                        UserGroup,
+                                                        eventTrackingId);
 
             }
 
             return AddUserToUserGroupResult.Failed(User,
-                                                      EdgeLabel,
-                                                      UserGroup,
-                                                      eventTrackingId,
-                                                      "The given edge already exists!");
+                                                   EdgeLabel,
+                                                   UserGroup,
+                                                   eventTrackingId,
+                                                   "The given edge already exists!");
 
         }
 
@@ -30372,9 +30390,9 @@ namespace social.OpenData.UsersAPI
 
                 await WriteToDatabaseFile(removeUserFromUserGroup_MessageType,
                                           new JObject(
-                                              new JProperty("user",      User.     Id.ToString()),
-                                              new JProperty("edge",      EdgeLabel.   ToString()),
-                                              new JProperty("userGroup", UserGroup.Id.ToString())
+                                              new JProperty("userId",      User.     Id.ToString()),
+                                              new JProperty("edgeLabel",   EdgeLabel.   ToString()),
+                                              new JProperty("userGroupId", UserGroup.Id.ToString())
                                           ),
                                           eventTrackingId,
                                           CurrentUserId);
@@ -30547,9 +30565,9 @@ namespace social.OpenData.UsersAPI
 
                 await WriteToDatabaseFile(removeUserFromUserGroup_MessageType,
                                           new JObject(
-                                              new JProperty("user",       User.     Id.       ToString()),
-                                              new JProperty("edge",       edge.     EdgeLabel.ToString()),
-                                              new JProperty("userGroup",  UserGroup.Id.       ToString())
+                                              new JProperty("userId",      User.     Id.       ToString()),
+                                              new JProperty("edgeLabel",   edge.     EdgeLabel.ToString()),
+                                              new JProperty("userGroupId", UserGroup.Id.       ToString())
                                           ),
                                           eventTrackingId,
                                           CurrentUserId);
@@ -30640,105 +30658,6 @@ namespace social.OpenData.UsersAPI
                                                         UserGroup,
                                                         eventTrackingId,
                                                         "Internal locking failed!");
-
-        }
-
-        #endregion
-
-
-
-
-
-
-
-
-        #region AddUserToUserGroup(User, Edge, UserGroup, ...)
-
-        public async Task<AddUserToUserGroupResult> AddUserToUserGroup_old(User                     User,
-                                                                           User2UserGroupEdgeLabel  EdgeLabel,
-                                                                           UserGroup                UserGroup,
-                                                                           EventTracking_Id         EventTrackingId   = null,
-                                                                           User_Id?                 CurrentUserId     = null)
-
-        {
-
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
-
-            if (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout))
-            {
-                if (await UserGroupsSemaphore.WaitAsync(SemaphoreSlimTimeout))
-                {
-                    try
-                    {
-
-                        var updated = false;
-
-                        if (!User.     HasEdge(EdgeLabel, UserGroup))
-                        {
-                            User.AddToUserGroup(EdgeLabel, UserGroup);
-                            updated = true;
-                        }
-
-                        if (!UserGroup.HasEdge(EdgeLabel, User))
-                        {
-                            UserGroup.AddUser(EdgeLabel, User);
-                            updated = true;
-                        }
-
-                        if (updated)
-                            await WriteToDatabaseFile(addUserToUserGroup_MessageType,
-                                                      new JObject(
-                                                          new JProperty("user",  User.Id.  ToString()),
-                                                          new JProperty("edge",  EdgeLabel.ToString()),
-                                                          new JProperty("group", UserGroup.ToString())
-                                                      ),
-                                                      eventTrackingId,
-                                                      CurrentUserId);
-
-                        return AddUserToUserGroupResult.Success(User,
-                                                                EdgeLabel,
-                                                                UserGroup,
-                                                                eventTrackingId);
-
-                    }
-                    catch (Exception e)
-                    {
-
-                        DebugX.LogException(e);
-
-                        return AddUserToUserGroupResult.Failed(User,
-                                                               EdgeLabel,
-                                                               UserGroup,
-                                                               eventTrackingId,
-                                                               e);
-
-                    }
-                    finally
-                    {
-                        try
-                        {
-                            UserGroupsSemaphore.Release();
-                        }
-                        catch
-                        { }
-
-                        try
-                        {
-                            UsersSemaphore.Release();
-                        }
-                        catch
-                        { }
-                    }
-                }
-                else
-                    UsersSemaphore.Release();
-            }
-
-            return AddUserToUserGroupResult.Failed(User,
-                                                   EdgeLabel,
-                                                   UserGroup,
-                                                   eventTrackingId,
-                                                   "Internal locking failed!");
 
         }
 

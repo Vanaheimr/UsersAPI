@@ -232,8 +232,8 @@ namespace social.OpenData.UsersAPI.Notifications
         public static SMSNotification Parse(JObject JSON)
         {
 
-            if (TryParse(JSON, out SMSNotification Notification))
-                return Notification;
+            if (TryParse(JSON, out SMSNotification smsNotification))
+                return smsNotification;
 
             return null;
 
