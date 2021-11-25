@@ -4942,7 +4942,7 @@ namespace social.OpenData.UsersAPI
             // -------------------------------------------------------------------
             HTTPServer.AddMethodCallback(HTTPHostname.Any,
                                          HTTPMethod.GET,
-                                         URLPathPrefix + "lostpassword",
+                                         URLPathPrefix + "lostPassword",
                                          HTTPContentType.HTML_UTF8,
                                          HTTPDelegate: Request =>
 
