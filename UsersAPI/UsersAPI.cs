@@ -3957,7 +3957,7 @@ namespace social.OpenData.UsersAPI
 
             if (TryGetValidAPIKey(Request.API_Key, out APIKey apiKey))
             {
-                User = apiKey.User;
+                TryGetUser(apiKey.UserId, out User);
                 return true;
             }
 
@@ -8127,7 +8127,7 @@ namespace social.OpenData.UsersAPI
 
                                                  #region Validate user
 
-                                                 if (apiKey.User != User || (HTTPUser != User && !CanImpersonate(HTTPUser, User)))
+                                                 if (apiKey.UserId != User.Id || (HTTPUser != User && !CanImpersonate(HTTPUser, User)))
                                                  {
                                                      return new HTTPResponse.Builder(Request) {
                                                                 HTTPStatusCode             = HTTPStatusCode.Forbidden,
@@ -8306,7 +8306,7 @@ namespace social.OpenData.UsersAPI
 
                                                  #region Validate user
 
-                                                 if (apiKeyInfo.User != User || (HTTPUser != User && !CanImpersonate(HTTPUser, User)))
+                                                 if (apiKeyInfo.UserId != User.Id || (HTTPUser != User && !CanImpersonate(HTTPUser, User)))
                                                  {
                                                      return new HTTPResponse.Builder(Request) {
                                                                 HTTPStatusCode             = HTTPStatusCode.Forbidden,
@@ -13838,7 +13838,7 @@ namespace social.OpenData.UsersAPI
 
 
                     U2O_Organization.AddUser(U2O_User.AddOutgoingEdge(U2O_EdgeLabel,
-                                                                       U2O_Organization));
+                                                                      U2O_Organization));
 
                     break;
 
@@ -20235,7 +20235,7 @@ namespace social.OpenData.UsersAPI
         protected internal IEnumerable<APIKey> _GetAPIKeysForUser(User User)
 
             => _APIKeys.Values.
-                        Where(apiKey => apiKey.User == User).
+                        Where(apiKey => apiKey.UserId == User.Id).
                         ToArray();
 
 
@@ -20282,7 +20282,7 @@ namespace social.OpenData.UsersAPI
         protected internal IEnumerable<APIKey> _GetValidAPIKeysForUser(User User)
 
             => _APIKeys.Values.
-                        Where(apiKey => apiKey.User == User &&
+                        Where(apiKey => apiKey.UserId == User.Id &&
                                         APIKeyIsValid(apiKey)).
                         ToArray();
 

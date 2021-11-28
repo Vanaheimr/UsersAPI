@@ -2353,7 +2353,7 @@ namespace social.OpenData.UsersAPI
                            IEnumerable<ANotification>          Notifications            = null,
 
                            IEnumerable<User2UserEdge>          User2UserEdges           = null,
-                           IEnumerable<User2UserGroupEdge>         User2GroupEdges          = null,
+                           IEnumerable<User2UserGroupEdge>     User2GroupEdges          = null,
                            IEnumerable<User2OrganizationEdge>  User2OrganizationEdges   = null,
 
                            JObject                             CustomData               = default,
@@ -2399,7 +2399,7 @@ namespace social.OpenData.UsersAPI
 
                 // Init edges
                 this._User2UserEdges              = User2UserEdges.        IsNeitherNullNorEmpty() ? new List<User2UserEdge>        (User2UserEdges)         : new List<User2UserEdge>();
-                this._User2Group_OutEdges         = User2GroupEdges.       IsNeitherNullNorEmpty() ? new List<User2UserGroupEdge>       (User2GroupEdges)        : new List<User2UserGroupEdge>();
+                this._User2Group_OutEdges         = User2GroupEdges.       IsNeitherNullNorEmpty() ? new List<User2UserGroupEdge>   (User2GroupEdges)        : new List<User2UserGroupEdge>();
                 this._User2Organization_OutEdges  = User2OrganizationEdges.IsNeitherNullNorEmpty() ? new List<User2OrganizationEdge>(User2OrganizationEdges) : new List<User2OrganizationEdge>();
 
                 //if (Notifications.SafeAny())

@@ -85,7 +85,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// The related user.
         /// </summary>
-        public User                     User                        { get; }
+        public User_Id                  UserId                      { get; }
 
         /// <summary>
         /// An internationalized description of the API key.
@@ -151,7 +151,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
         /// <param name="LastChange">The timestamp of the last changes within this user. Can e.g. be used as a HTTP ETag.</param>
         public APIKey(APIKey_Id                Id,
-                      User                     User,
+                      User_Id                  UserId,
 
                       I18NString               Description              = null,
                       APIKeyRights             AccessRights             = APIKeyRights.ReadOnly,
@@ -174,7 +174,7 @@ namespace social.OpenData.UsersAPI
 
         {
 
-            this.User                    = User        ?? throw new ArgumentNullException(nameof(User), "The given user must not be null!");
+            this.UserId                  = UserId;//   ?? throw new ArgumentNullException(nameof(UserId), "The given user must not be null!");
             this.Description             = Description ?? I18NString.Empty;
             this.AccessRights            = AccessRights;
             this.Created                 = Created     ?? Timestamp.Now;
@@ -253,10 +253,10 @@ namespace social.OpenData.UsersAPI
                 // Verify that a given user identification
                 //   is at least valid.
                 if (!JSON.ParseMandatory("userId",
-                                               "user identification",
-                                               User_Id.TryParse,
-                                               out User_Id UserId,
-                                               out ErrorResponse))
+                                         "user identification",
+                                         User_Id.TryParse,
+                                         out User_Id UserId,
+                                         out ErrorResponse))
                 {
                     return false;
                 }
@@ -369,7 +369,7 @@ namespace social.OpenData.UsersAPI
 
 
                 APIKey = new APIKey(APIKeyBody ?? APIKeyURI.Value,
-                                    User,
+                                    UserId,
                                     Description,
                                     AccessRights,
                                     Created,
@@ -429,7 +429,7 @@ namespace social.OpenData.UsersAPI
                                    null,
                                    new JProperty[] {
 
-                                       new JProperty("userId",                        User.Id.        ToString()),
+                                       new JProperty("userId",                        UserId.         ToString()),
                                        new JProperty("description",                   Description.    ToJSON()),
                                        new JProperty("accessRights",                  AccessRights.   AsText()),
                                        new JProperty("created",                       Created.        ToIso8601()),
@@ -469,7 +469,7 @@ namespace social.OpenData.UsersAPI
         public APIKey Clone(APIKey_Id? NewAPIKeyId = null)
 
             => new APIKey(NewAPIKeyId ?? Id.Clone,
-                          User,
+                          UserId,
                           Description?.Clone,
                           AccessRights,
                           Created,
@@ -688,7 +688,7 @@ namespace social.OpenData.UsersAPI
         public override String ToString()
 
             => String.Concat("'", Id, "' for ",
-                             User.Id.ToString(), ", [",
+                             UserId.ToString(), ", [",
                              AccessRights.ToString(),
                              NotAfter != null ? ", expires at " + NotAfter.Value.ToIso8601() : "",
                              IsDisabled ? ", disabled]" : "]");
@@ -705,7 +705,7 @@ namespace social.OpenData.UsersAPI
         public Builder ToBuilder(APIKey_Id? NewAPIKeyId = null)
 
             => new Builder(NewAPIKeyId ?? Id.Clone,
-                           User,
+                           UserId,
                            Description,
                            AccessRights,
                            Created,
@@ -735,7 +735,7 @@ namespace social.OpenData.UsersAPI
             /// <summary>
             /// The related user.
             /// </summary>
-            public User                 User                      { get; set; }
+            public User_Id              UserId                    { get; set; }
 
             /// <summary>
             /// An internationalized description of the API key.
@@ -787,7 +787,7 @@ namespace social.OpenData.UsersAPI
             /// </summary>
             /// <param name="Id">The unique identification of the API key.</param>
             /// 
-            /// <param name="User">The related user.</param>
+            /// <param name="UserId">The related user.</param>
             /// <param name="Description">An optional internationalized description of the API key.</param>
             /// <param name="AccessRights">The access rights of the API key.</param>
             /// <param name="Created">The creation timestamp.</param>
@@ -801,7 +801,7 @@ namespace social.OpenData.UsersAPI
             /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
             /// <param name="LastChange">The timestamp of the last changes within this API key. Can e.g. be used as a HTTP ETag.</param>
             public Builder(APIKey_Id                Id,
-                           User                     User,
+                           User_Id                  UserId,
                            I18NString               Description              = null,
                            APIKeyRights             AccessRights             = APIKeyRights.ReadOnly,
                            DateTime?                Created                  = null,
@@ -823,7 +823,7 @@ namespace social.OpenData.UsersAPI
 
             {
 
-                this.User                    = User        ?? throw new ArgumentNullException(nameof(User), "The given API key must not be null!");
+                this.UserId                  = UserId;// ?? throw new ArgumentNullException(nameof(User), "The given API key must not be null!");
                 this.Description             = Description ?? I18NString.Empty;
                 this.AccessRights            = AccessRights;
                 this.Created                 = Created     ?? Timestamp.Now;
@@ -869,11 +869,11 @@ namespace social.OpenData.UsersAPI
                     if (Id.IsNullOrEmpty)
                         throw new ArgumentNullException(nameof(APIKey),  "The given API key identification must not be null or empty!");
 
-                    if (User is null)
-                        throw new ArgumentNullException(nameof(User),    "The given user must not be null!");
+                    if (UserId.IsNullOrEmpty)
+                        throw new ArgumentNullException(nameof(UserId),  "The given user must not be null!");
 
                     return new APIKey(Id,
-                                      User,
+                                      UserId,
                                       Description,
                                       AccessRights ?? APIKeyRights.ReadOnly,
                                       Created      ?? Timestamp.Now,
