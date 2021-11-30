@@ -13328,6 +13328,7 @@ namespace social.OpenData.UsersAPI
                                           out user,
                                           out String  ErrorResponse))
                     {
+                        user.API = this;
                         _Users.AddAndReturnValue(user.Id, user);
                     }
 
@@ -13346,6 +13347,7 @@ namespace social.OpenData.UsersAPI
                                           out user,
                                           out ErrorResponse))
                     {
+                        user.API = this;
                         _Users.AddAndReturnValue(user.Id, user);
                     }
 
