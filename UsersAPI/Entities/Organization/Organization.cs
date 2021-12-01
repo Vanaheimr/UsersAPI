@@ -20,6 +20,7 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using Newtonsoft.Json.Linq;
 
@@ -29,10 +30,10 @@ using org.GraphDefined.Vanaheimr.Hermod;
 using org.GraphDefined.Vanaheimr.Styx.Arrows;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 using org.GraphDefined.Vanaheimr.Hermod.Mail;
-
-using social.OpenData.UsersAPI.Notifications;
-using social.OpenData.UsersAPI;
 using org.GraphDefined.Vanaheimr.Hermod.JSON;
+
+using social.OpenData.UsersAPI;
+using social.OpenData.UsersAPI.Notifications;
 
 #endregion
 
@@ -838,8 +839,8 @@ namespace social.OpenData.UsersAPI
 
         #region (internal) RemoveNotification(NotificationType,                           OnRemoval = null)
 
-        internal T RemoveNotification<T>(T          NotificationType,
-                                         Action<T>  OnRemoval  = null)
+        internal Task RemoveNotification<T>(T          NotificationType,
+                                            Action<T>  OnRemoval  = null)
 
             where T : ANotification
 
@@ -1960,8 +1961,8 @@ namespace social.OpenData.UsersAPI
 
             #region (internal) RemoveNotification(NotificationType,                           OnRemoval = null)
 
-            internal T RemoveNotification<T>(T          NotificationType,
-                                             Action<T>  OnRemoval  = null)
+            internal Task RemoveNotification<T>(T          NotificationType,
+                                                Action<T>  OnRemoval  = null)
 
                 where T : ANotification
 

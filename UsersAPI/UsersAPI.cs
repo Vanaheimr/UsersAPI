@@ -14379,8 +14379,8 @@ namespace social.OpenData.UsersAPI
 
                             if (TelegramNotification.TryParse(Data, out TelegramNotification telegramNotification))
                             {
-                                user?.        RemoveNotification(telegramNotification);
-                                organization?.RemoveNotification(telegramNotification);
+                                await user?.        RemoveNotification(telegramNotification);
+                                await organization?.RemoveNotification(telegramNotification);
                             }
 
                             else
@@ -14393,8 +14393,8 @@ namespace social.OpenData.UsersAPI
 
                             if (TelegramGroupNotification.TryParse(Data, out TelegramGroupNotification telegramGroupNotification))
                             {
-                                user?.        RemoveNotification(telegramGroupNotification);
-                                organization?.RemoveNotification(telegramGroupNotification);
+                                await user?.        RemoveNotification(telegramGroupNotification);
+                                await organization?.RemoveNotification(telegramGroupNotification);
                             }
 
                             else
@@ -14407,8 +14407,8 @@ namespace social.OpenData.UsersAPI
 
                             if (SMSNotification.TryParse(Data, out SMSNotification smsNotification))
                             {
-                                user?.        RemoveNotification(smsNotification);
-                                organization?.RemoveNotification(smsNotification);
+                                await user?.        RemoveNotification(smsNotification);
+                                await organization?.RemoveNotification(smsNotification);
                             }
 
                             else
@@ -14421,8 +14421,8 @@ namespace social.OpenData.UsersAPI
 
                             if (HTTPSNotification.TryParse(Data, out HTTPSNotification httpsNotification))
                             {
-                                user?.        RemoveNotification(httpsNotification);
-                                organization?.RemoveNotification(httpsNotification);
+                                await user?.        RemoveNotification(httpsNotification);
+                                await organization?.RemoveNotification(httpsNotification);
                             }
 
                             else
@@ -14435,8 +14435,8 @@ namespace social.OpenData.UsersAPI
 
                             if (EMailNotification.TryParse(Data, out EMailNotification emailNotification))
                             {
-                                user?.        RemoveNotification(emailNotification);
-                                organization?.RemoveNotification(emailNotification);
+                                await user?.        RemoveNotification(emailNotification);
+                                await organization?.RemoveNotification(emailNotification);
                             }
 
                             else
@@ -24373,11 +24373,11 @@ namespace social.OpenData.UsersAPI
 
                 await UsersSemaphore.WaitAsync();
 
-                User.RemoveNotification(NotificationType,
-                                        async update => await WriteToDatabaseFile(removeNotification_MessageType,
-                                                                                  update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
-                                                                                  EventTrackingId,
-                                                                                  CurrentUserId));
+                await User.RemoveNotification(NotificationType,
+                                              async update => await WriteToDatabaseFile(removeNotification_MessageType,
+                                                                                        update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
+                                                                                        EventTrackingId,
+                                                                                        CurrentUserId));
 
             }
             finally

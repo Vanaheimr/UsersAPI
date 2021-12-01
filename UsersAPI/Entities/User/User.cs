@@ -20,6 +20,7 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using Newtonsoft.Json.Linq;
 
@@ -1012,13 +1013,13 @@ namespace social.OpenData.UsersAPI
 
         #region (internal) RemoveNotification(NotificationType,                           OnRemoval = null)
 
-        internal T RemoveNotification<T>(T          NotificationType,
-                                         Action<T>  OnRemoval  = null)
+        internal Task RemoveNotification<T>(T          NotificationType,
+                                            Action<T>  OnRemoval  = null)
 
             where T : ANotification
 
             => _NotificationStore.Remove(NotificationType,
-                                     OnRemoval);
+                                         OnRemoval);
 
         #endregion
 
@@ -2559,13 +2560,13 @@ namespace social.OpenData.UsersAPI
 
             #region (internal) RemoveNotification(NotificationType,                           OnRemoval = null)
 
-            internal T RemoveNotification<T>(T          NotificationType,
-                                             Action<T>  OnRemoval  = null)
+            internal Task RemoveNotification<T>(T          NotificationType,
+                                                Action<T>  OnRemoval  = null)
 
                 where T : ANotification
 
                 => _NotificationStore.Remove(NotificationType,
-                                         OnRemoval);
+                                             OnRemoval);
 
             #endregion
 

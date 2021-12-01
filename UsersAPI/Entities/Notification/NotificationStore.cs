@@ -21,6 +21,7 @@ using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using Newtonsoft.Json.Linq;
 
@@ -318,8 +319,8 @@ namespace social.OpenData.UsersAPI.Notifications
 
         #region Remove(NotificationType, OnRemoval = null)
 
-        public T Remove<T>(T          NotificationType,
-                           Action<T>  OnRemoval  = null)
+        public async Task Remove<T>(T          NotificationType,
+                                    Action<T>  OnRemoval  = null)
 
             where T : ANotification
 
@@ -327,15 +328,11 @@ namespace social.OpenData.UsersAPI.Notifications
 
             lock (_NotificationTypes)
             {
-
                 foreach (var notification in _NotificationTypes.OfType<T>().Where(typeT => typeT.Equals(NotificationType)).ToArray())
                 {
                     _NotificationTypes.Remove(notification);
                     OnRemoval?.Invoke(notification);
                 }
-
-                return null;
-
             }
 
         }
