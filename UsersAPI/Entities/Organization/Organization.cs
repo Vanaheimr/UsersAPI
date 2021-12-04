@@ -52,9 +52,9 @@ namespace social.OpenData.UsersAPI
 
 
     /// <summary>
-    /// Extention methods for organizations.
+    /// Extension methods for organizations.
     /// </summary>
-    public static class OrganizationExtentions
+    public static class OrganizationExtensions
     {
 
         #region ToJSON(this Organizations, Skip = null, Take = null, Embedded = false, ...)

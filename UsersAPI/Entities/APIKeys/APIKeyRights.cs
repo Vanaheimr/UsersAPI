@@ -31,7 +31,7 @@ namespace social.OpenData.UsersAPI
     /// <summary>
     /// JSON content representation.
     /// </summary>
-    public static class APIKeyRightsExtentions
+    public static class APIKeyRightsExtensions
     {
 
         public static APIKeyRights Parse(String Text)

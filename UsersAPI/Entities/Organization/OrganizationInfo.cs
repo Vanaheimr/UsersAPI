@@ -37,9 +37,9 @@ namespace social.OpenData.UsersAPI
 {
 
     /// <summary>
-    /// Extention methods for OrganizationInfos.
+    /// Extension methods for OrganizationInfos.
     /// </summary>
-    public static class OrganizationInfoExtentions
+    public static class OrganizationInfoExtensions
     {
 
         public static JArray ToJSON(this IEnumerable<OrganizationInfo> OrganizationInfos)

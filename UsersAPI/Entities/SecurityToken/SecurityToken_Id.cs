@@ -27,9 +27,9 @@ namespace social.OpenData.UsersAPI
 {
 
     /// <summary>
-    /// Extention methods for security tokens.
+    /// Extension methods for security tokens.
     /// </summary>
-    public static class SecurityTokenIdExtentions
+    public static class SecurityTokenIdExtensions
     {
 
         /// <summary>

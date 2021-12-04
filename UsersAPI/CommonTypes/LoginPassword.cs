@@ -26,9 +26,9 @@ namespace social.OpenData.UsersAPI
 {
 
     /// <summary>
-    /// Extention methods for login & passwords.
+    /// Extension methods for login & passwords.
     /// </summary>
-    public static class LoginPasswordExtentions
+    public static class LoginPasswordExtensions
     {
 
         /// <summary>

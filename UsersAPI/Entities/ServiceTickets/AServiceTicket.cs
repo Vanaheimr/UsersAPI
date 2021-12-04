@@ -50,9 +50,9 @@
 
 
 //    /// <summary>
-//    /// Extention methods for the service ticket.
+//    /// Extension methods for the service ticket.
 //    /// </summary>
-//    //public static class AServiceTicketExtentions
+//    //public static class AServiceTicketExtensions
 //    //{
 
 //    //    #region ToJSON(this ServiceTickets, Skip = null, Take = null, Embedded = false, ...)

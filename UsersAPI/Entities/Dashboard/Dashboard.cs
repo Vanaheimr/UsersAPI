@@ -50,9 +50,9 @@ namespace social.OpenData.UsersAPI
 
 
     /// <summary>
-    /// Extention methods for dashboards.
+    /// Extension methods for dashboards.
     /// </summary>
-    public static class DashboardExtentions
+    public static class DashboardExtensions
     {
 
         #region ToJSON(this Dashboard, Skip = null, Take = null, Embedded = false, ...)

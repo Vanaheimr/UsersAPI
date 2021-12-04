@@ -46,9 +46,9 @@ namespace social.OpenData.UsersAPI
 
 
     /// <summary>
-    /// Extention methods for the organization groups.
+    /// Extension methods for the organization groups.
     /// </summary>
-    public static partial class OrganizationGroupExtentions
+    public static partial class OrganizationGroupExtensions
     {
 
         #region ToJSON(this OrganizationGroups, Skip = null, Take = null, Embedded = false, ...)

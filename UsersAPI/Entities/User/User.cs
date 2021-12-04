@@ -52,9 +52,9 @@ namespace social.OpenData.UsersAPI
 
 
     /// <summary>
-    /// Extention methods for Users.
+    /// Extension methods for Users.
     /// </summary>
-    public static class UserExtentions
+    public static class UserExtensions
     {
 
         #region ToJSON(this Users, Skip = null, Take = null, Embedded = false, ...)
@@ -1179,7 +1179,7 @@ namespace social.OpenData.UsersAPI
 
                 if (!JSONObject.ParseOptional("language",
                                               "user language",
-                                              LanguagesExtentions.Parse,
+                                              LanguagesExtensions.Parse,
                                               out Languages? UserLanguage,
                                               out ErrorResponse))
                 {

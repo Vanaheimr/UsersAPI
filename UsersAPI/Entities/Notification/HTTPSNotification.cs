@@ -36,9 +36,9 @@ namespace social.OpenData.UsersAPI.Notifications
 {
 
     /// <summary>
-    /// Extention methods for HTTPS Notifications.
+    /// Extension methods for HTTPS Notifications.
     /// </summary>
-    public static class HTTPSNotificationExtentions
+    public static class HTTPSNotificationExtensions
     {
 
         #region AddHTTPSNotification(this UsersAPI, User, NotificationMessageType,  RemoteURL, Method = null, BasicAuth_Login = null, BasicAuth_Password = null, APIKey = null)

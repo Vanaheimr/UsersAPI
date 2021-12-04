@@ -43,9 +43,9 @@ namespace social.OpenData.UsersAPI
 
 
     /// <summary>
-    /// Extention methods for news banners.
+    /// Extension methods for news banners.
     /// </summary>
-    public static class NewsBannerExtentions
+    public static class NewsBannerExtensions
     {
 
         #region ToJSON(this NewsBanner, Skip = null, Take = null, Embedded = false, ...)

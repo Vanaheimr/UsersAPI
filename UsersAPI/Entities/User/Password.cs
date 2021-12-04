@@ -30,9 +30,9 @@ namespace social.OpenData.UsersAPI
 {
 
     /// <summary>
-    /// Extention methods for passwords.
+    /// Extension methods for passwords.
     /// </summary>
-    public static class PasswordExtentions
+    public static class PasswordExtensions
     {
 
         /// <summary>
