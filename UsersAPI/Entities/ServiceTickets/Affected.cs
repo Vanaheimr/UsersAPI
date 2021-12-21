@@ -31,7 +31,7 @@ using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 namespace social.OpenData.UsersAPI
 {
 
-    public static class AffectedExtentions
+    public static class AffectedExtensions
     {
 
         /// <summary>

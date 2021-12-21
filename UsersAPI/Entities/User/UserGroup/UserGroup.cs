@@ -45,9 +45,9 @@ namespace social.OpenData.UsersAPI
 
 
     /// <summary>
-    /// Extention methods for the user groups.
+    /// Extension methods for the user groups.
     /// </summary>
-    public static partial class UserGroupExtentions
+    public static partial class UserGroupExtensions
     {
 
         #region ToJSON(this UserGroups, Skip = null, Take = null, Embedded = false, ...)

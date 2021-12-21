@@ -34,9 +34,9 @@ namespace social.OpenData.UsersAPI.Notifications
 {
 
     /// <summary>
-    /// Extention methods for SMS notifications.
+    /// Extension methods for SMS notifications.
     /// </summary>
-    public static class SMSNotificationExtentions
+    public static class SMSNotificationExtensions
     {
 
         #region AddSMSNotification(this UsersAPI, User, NotificationMessageType,  Phonenumber = null, TextTemplate = null)

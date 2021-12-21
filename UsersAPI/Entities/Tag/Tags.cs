@@ -286,7 +286,7 @@ namespace social.OpenData.UsersAPI
 
     }
 
-    public static class TagsExtentions
+    public static class TagsExtensions
     {
 
         public static JArray ToJSON(this IEnumerable<TagInfo> TagInfos,

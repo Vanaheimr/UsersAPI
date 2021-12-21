@@ -33,9 +33,9 @@ namespace social.OpenData.UsersAPI.Notifications
 {
 
     /// <summary>
-    /// Extention methods for e-mail notifications.
+    /// Extension methods for e-mail notifications.
     /// </summary>
-    public static class EMailNotificationExtentions
+    public static class EMailNotificationExtensions
     {
 
         #region AddEMailNotification(this UsersAPI, User, NotificationMessageType,  EMailAddress = null, Subject = null, SubjectPrefix = null)

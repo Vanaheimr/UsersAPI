@@ -49,9 +49,9 @@ namespace social.OpenData.UsersAPI
 
 
     /// <summary>
-    /// Extention methods for FAQs.
+    /// Extension methods for FAQs.
     /// </summary>
-    public static class FAQExtentions
+    public static class FAQExtensions
     {
 
         #region ToJSON(this FAQ, Skip = null, Take = null, Embedded = false, ...)

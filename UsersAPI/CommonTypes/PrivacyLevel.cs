@@ -25,7 +25,7 @@ namespace social.OpenData.UsersAPI
     /// <summary>
     /// JSON content representation.
     /// </summary>
-    public static class PrivacyLevelExtention
+    public static class PrivacyLevelExtension
     {
 
         #region ToJSON(this Privacylevel)

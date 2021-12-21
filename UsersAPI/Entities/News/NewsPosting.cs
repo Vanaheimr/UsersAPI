@@ -49,9 +49,9 @@ namespace social.OpenData.UsersAPI
 
 
     /// <summary>
-    /// Extention methods for news postings.
+    /// Extension methods for news postings.
     /// </summary>
-    public static class NewsPostingExtentions
+    public static class NewsPostingExtensions
     {
 
         #region ToJSON(this News, Skip = null, Take = null, Embedded = false, ...)

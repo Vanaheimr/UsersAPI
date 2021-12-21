@@ -45,9 +45,9 @@ namespace social.OpenData.UsersAPI
 
 
     /// <summary>
-    /// Extention methods for the service ticket change set.
+    /// Extension methods for the service ticket change set.
     /// </summary>
-    public static partial class ServiceTicketChangeSetExtentions
+    public static partial class ServiceTicketChangeSetExtensions
     {
 
         #region ToJSON(this ServiceTicketChangeSets, Skip = null, Take = null, Embedded = false, ...)

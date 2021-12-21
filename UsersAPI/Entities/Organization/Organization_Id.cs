@@ -27,9 +27,9 @@ namespace social.OpenData.UsersAPI
 {
 
     /// <summary>
-    /// Extention methods for organization identifications.
+    /// Extension methods for organization identifications.
     /// </summary>
-    public static class OrganizationIdExtentions
+    public static class OrganizationIdExtensions
     {
 
         /// <summary>

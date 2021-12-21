@@ -54,9 +54,9 @@ namespace social.OpenData.UsersAPI.Postings
 
 
     /// <summary>
-    /// Extention methods for blog postings.
+    /// Extension methods for blog postings.
     /// </summary>
-    public static class BlogPostingExtentions
+    public static class BlogPostingExtensions
     {
 
         #region ToJSON(this BlogPostings, Skip = null, Take = null, Embedded = false, ...)

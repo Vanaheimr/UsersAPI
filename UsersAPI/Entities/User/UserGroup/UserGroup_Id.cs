@@ -27,9 +27,9 @@ namespace social.OpenData.UsersAPI
 {
 
     /// <summary>
-    /// Extention methods for user group identifications.
+    /// Extension methods for user group identifications.
     /// </summary>
-    public static class UserGroupIdExtentions
+    public static class UserGroupIdExtensions
     {
 
         /// <summary>

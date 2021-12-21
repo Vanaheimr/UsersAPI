@@ -34,9 +34,9 @@ namespace social.OpenData.UsersAPI.Notifications
 {
 
     /// <summary>
-    /// Extention methods for Telegram notifications.
+    /// Extension methods for Telegram notifications.
     /// </summary>
-    public static class TelegramNotificationExtentions
+    public static class TelegramNotificationExtensions
     {
 
         #region AddTelegramNotification(this UsersAPI, User, NotificationMessageType,  Username, TextTemplate = null)

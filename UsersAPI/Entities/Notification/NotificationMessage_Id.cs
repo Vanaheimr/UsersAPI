@@ -27,9 +27,9 @@ namespace social.OpenData.UsersAPI
 {
 
     /// <summary>
-    /// Extention methods for notification message identifications.
+    /// Extension methods for notification message identifications.
     /// </summary>
-    public static class NotificationMessageIdExtentions
+    public static class NotificationMessageIdExtensions
     {
 
         /// <summary>

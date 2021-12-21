@@ -81,9 +81,9 @@ namespace social.OpenData.UsersAPI
 
 
     /// <summary>
-    /// Extention method for the Users API.
+    /// Extension method for the Users API.
     /// </summary>
-    public static class UsersAPIExtentions
+    public static class UsersAPIExtensions
     {
 
         #region ParseUserId(this HTTPRequest, UsersAPI, out UserId,           out HTTPResponse)
