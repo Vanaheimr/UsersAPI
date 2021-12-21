@@ -14379,8 +14379,13 @@ namespace social.OpenData.UsersAPI
 
                             if (TelegramNotification.TryParse(Data, out TelegramNotification telegramNotification))
                             {
-                                await user?.        RemoveNotification(telegramNotification);
-                                await organization?.RemoveNotification(telegramNotification);
+
+                                if (user         != null)
+                                    await user.        RemoveNotification(telegramNotification);
+
+                                if (organization != null)
+                                    await organization.RemoveNotification(telegramNotification);
+
                             }
 
                             else
@@ -14393,8 +14398,13 @@ namespace social.OpenData.UsersAPI
 
                             if (TelegramGroupNotification.TryParse(Data, out TelegramGroupNotification telegramGroupNotification))
                             {
-                                await user?.        RemoveNotification(telegramGroupNotification);
-                                await organization?.RemoveNotification(telegramGroupNotification);
+
+                                if (user         != null)
+                                    await user.        RemoveNotification(telegramGroupNotification);
+
+                                if (organization != null)
+                                    await organization.RemoveNotification(telegramGroupNotification);
+
                             }
 
                             else
@@ -14407,8 +14417,13 @@ namespace social.OpenData.UsersAPI
 
                             if (SMSNotification.TryParse(Data, out SMSNotification smsNotification))
                             {
-                                await user?.        RemoveNotification(smsNotification);
-                                await organization?.RemoveNotification(smsNotification);
+
+                                if (user         != null)
+                                    await user.        RemoveNotification(smsNotification);
+
+                                if (organization != null)
+                                    await organization.RemoveNotification(smsNotification);
+
                             }
 
                             else
@@ -14421,8 +14436,13 @@ namespace social.OpenData.UsersAPI
 
                             if (HTTPSNotification.TryParse(Data, out HTTPSNotification httpsNotification))
                             {
-                                await user?.        RemoveNotification(httpsNotification);
-                                await organization?.RemoveNotification(httpsNotification);
+
+                                if (user         != null)
+                                    await user.        RemoveNotification(httpsNotification);
+
+                                if (organization != null)
+                                    await organization.RemoveNotification(httpsNotification);
+
                             }
 
                             else
@@ -14435,8 +14455,13 @@ namespace social.OpenData.UsersAPI
 
                             if (EMailNotification.TryParse(Data, out EMailNotification emailNotification))
                             {
-                                await user?.        RemoveNotification(emailNotification);
-                                await organization?.RemoveNotification(emailNotification);
+
+                                if (user         != null)
+                                    await user.        RemoveNotification(emailNotification);
+
+                                if (organization != null)
+                                    await organization.RemoveNotification(emailNotification);
+
                             }
 
                             else
