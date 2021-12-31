@@ -1512,7 +1512,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// The passphrase of the PGP/GPG secret key of the API.
         /// </summary>
-        public String                        APIPassphrase                      { get; }
+        public String                        APIRobotGPGPassphrase              { get; }
 
         /// <summary>
         /// A SMTP client to be used by the API.
@@ -2755,7 +2755,7 @@ namespace social.OpenData.UsersAPI
             CurrentAsyncLocalUserId.Value        = Robot.Id;
 
             this.AdminOrganizationId             = AdminOrganizationId            ?? DefaultAdminOrganizationId;
-            this.APIPassphrase                   = APIRobotGPGPassphrase;
+            this.APIRobotGPGPassphrase           = APIRobotGPGPassphrase;
             this.SMTPClient                      = SMTPClient                     ?? throw new ArgumentNullException(nameof(SMTPClient), "The given API SMTP client must not be null!");
 
             this.CookieName                      = CookieName                     ?? DefaultCookieName;
@@ -3266,7 +3266,7 @@ namespace social.OpenData.UsersAPI
 
                     From           = Robot.EMail,
                     To             = EMailRecipients,
-                    Passphrase     = APIPassphrase,
+                    Passphrase     = APIRobotGPGPassphrase,
                     Subject        = "Your " + ServiceName + " account has been created",
 
                     HTMLText       = String.Concat(
@@ -3307,7 +3307,7 @@ namespace social.OpenData.UsersAPI
 
                    From           = Robot.EMail,
                    To             = EMailRecipients,
-                   Passphrase     = APIPassphrase,
+                   Passphrase     = APIRobotGPGPassphrase,
                    Subject        = "Welcome to " + ServiceName + "...",
 
                    HTMLText       = String.Concat(
@@ -3349,7 +3349,7 @@ namespace social.OpenData.UsersAPI
 
                    From           = Robot.EMail,
                    To             = EMailRecipients,
-                   Passphrase     = APIPassphrase,
+                   Passphrase     = APIRobotGPGPassphrase,
                    Subject        = ServiceName + " password reset...",
 
                    HTMLText       = String.Concat(
@@ -3390,7 +3390,7 @@ namespace social.OpenData.UsersAPI
 
                    From           = Robot.EMail,
                    To             = EMailRecipients,
-                   Passphrase     = APIPassphrase,
+                   Passphrase     = APIRobotGPGPassphrase,
                    Subject        = "Your " + ServiceName + " password changed...",
 
                    HTMLText       = String.Concat(
@@ -15596,7 +15596,7 @@ namespace social.OpenData.UsersAPI
 
                                              From           = Robot.EMail,
                                              To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
-                                             Passphrase     = APIPassphrase,
+                                             Passphrase     = APIRobotGPGPassphrase,
                                              Subject        = "User " + UserTextInfo(User) + " was successfully created",
 
                                              HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
@@ -15618,7 +15618,7 @@ namespace social.OpenData.UsersAPI
 
                                              From           = Robot.EMail,
                                              To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
-                                             Passphrase     = APIPassphrase,
+                                             Passphrase     = APIRobotGPGPassphrase,
                                              Subject        = "User " + UserTextInfo(User) + " information had been successfully updated",
 
                                              HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
@@ -15829,7 +15829,7 @@ namespace social.OpenData.UsersAPI
 
                                          From           = Robot.EMail,
                                          To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
-                                         Passphrase     = APIPassphrase,
+                                         Passphrase     = APIRobotGPGPassphrase,
                                          Subject        = "User " + UserTextInfo(User) + " has been deleted",
 
                                          HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
@@ -20824,7 +20824,7 @@ namespace social.OpenData.UsersAPI
 
                                          From           = Robot.EMail,
                                          To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
-                                         Passphrase     = APIPassphrase,
+                                         Passphrase     = APIRobotGPGPassphrase,
                                          Subject        = String.Concat("User group '", UserGroup.Name.FirstText(), "' has been deleted."),
 
                                          HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
@@ -26535,7 +26535,7 @@ namespace social.OpenData.UsersAPI
 
                                              From           = Robot.EMail,
                                              To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
-                                             Passphrase     = APIPassphrase,
+                                             Passphrase     = APIRobotGPGPassphrase,
                                              Subject        = OrganizationTextInfo(Organization) + " was successfully created",
 
                                              HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
@@ -26557,7 +26557,7 @@ namespace social.OpenData.UsersAPI
 
                                              From           = Robot.EMail,
                                              To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
-                                             Passphrase     = APIPassphrase,
+                                             Passphrase     = APIRobotGPGPassphrase,
                                              Subject        = OrganizationTextInfo(Organization) + " information had been successfully updated",
 
                                              HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
@@ -26768,7 +26768,7 @@ namespace social.OpenData.UsersAPI
 
                                          From           = Robot.EMail,
                                          To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
-                                         Passphrase     = APIPassphrase,
+                                         Passphrase     = APIRobotGPGPassphrase,
                                          Subject        = OrganizationTextInfo(Organization) + " has been deleted",
 
                                          HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
@@ -31028,7 +31028,7 @@ namespace social.OpenData.UsersAPI
 
                                          From           = Robot.EMail,
                                          To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
-                                         Passphrase     = APIPassphrase,
+                                         Passphrase     = APIRobotGPGPassphrase,
                                          Subject        = String.Concat("User ", UserTextInfo(User), " was added to organization ", Organization.Name.FirstText(), membership, "."),
 
                                          HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
@@ -31049,7 +31049,7 @@ namespace social.OpenData.UsersAPI
 
                                          From           = Robot.EMail,
                                          To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
-                                         Passphrase     = APIPassphrase,
+                                         Passphrase     = APIRobotGPGPassphrase,
                                          Subject        = String.Concat("User ", UserTextInfo(User), " was removed from organization ", Organization.Name.FirstText(), "."),
 
                                          HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
@@ -31852,7 +31852,7 @@ namespace social.OpenData.UsersAPI
 
                                              From           = Robot.EMail,
                                              To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
-                                             Passphrase     = APIPassphrase,
+                                             Passphrase     = APIRobotGPGPassphrase,
                                              Subject        = String.Concat("Organization ", OrganizationTextInfo(OrganizationOut), " was linked to organization ", OrganizationTextInfo(OrganizationIn), "."),
 
                                              HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
@@ -31875,7 +31875,7 @@ namespace social.OpenData.UsersAPI
 
                                              From           = Robot.EMail,
                                              To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
-                                             Passphrase     = APIPassphrase,
+                                             Passphrase     = APIRobotGPGPassphrase,
                                              Subject        = String.Concat("Organization ", OrganizationTextInfo(OrganizationOut), " was unlinked from organization ", OrganizationTextInfo(OrganizationIn), "."),
 
                                              HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
