@@ -15019,7 +15019,7 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region VerifyMessageSignatures(JObject JSONMessage)
+        #region VerifyMessageSignatures(JSONMessage)
 
         public Boolean VerifyMessageSignatures(JObject JSONMessage)
         {
@@ -15080,7 +15080,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region SignMessage(JObject JSONMessage, params KeyPairs)
+        #region SignMessage(JSONMessage, params KeyPairs)
 
         public Boolean SignMessage(JObject JSONMessage, params AsymmetricCipherKeyPair[] KeyPairs)
         {
