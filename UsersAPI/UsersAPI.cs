@@ -3652,8 +3652,8 @@ namespace social.OpenData.UsersAPI
 
             return Task.Run(() => {
 
-                Response.AppendLogfile(this.NotificationsPath +
-                                       RemoteHost + "-Responses-" + Request.Timestamp.ToString("yyyy-MM") + ".log");
+                Response.AppendToLogfile(this.NotificationsPath +
+                                         RemoteHost + "-Responses-" + Request.Timestamp.ToString("yyyy-MM") + ".log");
 
             });
 
