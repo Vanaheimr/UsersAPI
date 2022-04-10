@@ -1,0 +1,147 @@
+﻿<link href="../../organization/address.min.css" type="text/css" rel="stylesheet" />
+
+<script type="text/javascript" src="../../organization/address.js"></script>
+
+<link  href="https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.css" rel="stylesheet" type="text/css" />
+<link  href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.5.1/mapbox-gl-geocoder.css" rel="stylesheet" type="text/css" />
+<script src="https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.js"></script>
+<script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.5.1/mapbox-gl-geocoder.min.js"></script>
+
+<div id="organization" class="entity headline">
+
+    <div id="headline">
+
+        <div id="logo">
+            <img src="/shared/UsersAPI/images/building-2696768_640.png" />
+        </div>
+
+        <div id="title">
+            <div id="name" class="I18NString">
+                <div id="language"></div>
+                <div id="I18NText"></div>
+            </div>
+            <div id="description" class="I18NString">
+                <div id="language"></div>
+                <div id="I18NText"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="data">
+
+        <div class="group">Address</div>
+
+        <div class="row">
+            <div class="subkey">Street</div>
+            <div class="value">
+                <input id="street" placeholder="The name of the street..." />
+                <div class="validationError"></div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="subkey">House number</div>
+            <div class="value">
+                <input id="houseNumber" placeholder="The house number..." />
+                <div class="validationError"></div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="subkey">Floor level</div>
+            <div class="value">
+                <input id="floorLevel" placeholder="The floor level..." />
+                <div class="validationError"></div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="subkey">Postal code</div>
+            <div class="value">
+                <input id="postalCode" placeholder="The postal code..." />
+                <div class="validationError"></div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="subkey">City</div>
+            <div class="value">
+                <input id="city" placeholder="The city..." />
+                <div class="validationError"></div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="subkey">Country</div>
+            <div class="value">
+                <input id="country" placeholder="The country..." />
+                <div class="validationError"></div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="subkey">Comment</div>
+            <div class="value">
+                <textarea id="comment" placeholder="An optional text/comment to describe the address..." type="text"></textarea>
+                <div class="validationError"></div>
+            </div>
+        </div>
+
+        <div class="group">Geo location</div>
+
+        <div class="row">
+            <div class="subkey">Latitude</div>
+            <div class="value">
+                <input id="latitude" type="number" placeholder="The latitude of the geo location" />
+                <div class="validationError"></div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="subkey">Longitude</div>
+            <div class="value">
+                <input id="longitude" type="number" placeholder="The longitude of the geo location" />
+                <div class="validationError"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="response"></div>
+
+    <div id="lowerButtons">
+        <button id="saveButton" class="button" disabled>Save changes</button>
+    </div>
+
+</div>
+
+<div id="mapArea" class="item">
+
+    <div id="map"></div>
+
+    <div id="menu">
+
+        <input id="streets-v11" type="radio" name="rtoggle"´value="streets" checked="checked" />
+        <label for="streets-v11">streets</label>
+
+        <input id="light-v10" type="radio" name="rtoggle" value="light" />
+        <label for="light-v10">light</label>
+
+        <input id="dark-v10" type="radio" name="rtoggle" value="dark" />
+        <label for="dark-v10">dark</label>
+
+        <input id="outdoors-v11" type="radio" name="rtoggle" value="outdoors" />
+        <label for="outdoors-v11">outdoors</label>
+
+        <input id="satellite-v9" type="radio" name="rtoggle" value="satellite" />
+        <label for="satellite-v9">satellite</label>
+
+    </div>
+
+</div>
+
+<script type="text/javascript">
+    StartOrganizationGeoLocation();
+</script>
+

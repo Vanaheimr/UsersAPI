@@ -1,0 +1,29 @@
+﻿<link href="notification/settings.min.css" type="text/css" rel="stylesheet" />
+
+<script type="text/javascript" src="/shared/UsersAPI/js/date.format.js"></script>
+<script type="text/javascript" src="/defaults/defaults.js"></script>
+<script type="text/javascript" src="notification/settings.js"></script>
+<script type="text/javascript" src="/shared/UsersAPI/defaults/views.js"></script>
+
+<div id="notificationSettings" class="entity headline">
+
+    <div id="headline">
+        <div id="title">
+            Your notification settings
+        </div>
+    </div>
+
+    <div id="upperButtons">
+        <button id="newNotificationButton" class="button"><i class="fa fa-plus"></i> New notification</button>
+    </div>
+
+    <div id="showNotifications"></div>
+    <div id="messages"></div>
+
+    <div id="response"></div>
+
+</div>
+
+<script type="text/javascript">
+    StartUserNotificationSettings();
+</script>

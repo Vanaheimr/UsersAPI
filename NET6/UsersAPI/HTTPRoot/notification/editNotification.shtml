@@ -1,0 +1,33 @@
+﻿<link href="/notification/editNotification.min.css" type="text/css" rel="stylesheet" />
+
+<script type="text/javascript" src="/shared/UsersAPI/js/date.format.js"></script>
+<script type="text/javascript" src="/defaults/defaults.js"></script>
+<script type="text/javascript" src="/notification/editNotification.js"></script>
+<script type="text/javascript" src="/shared/UsersAPI/defaults/views.js"></script>
+
+<div id="AddOrEditNotification" class="entity headline">
+
+    <div id="headline">
+        <div id="title">
+            Edit notification
+        </div>
+    </div>
+
+    <div id="upperButtons">
+        <button id="removeNotificationButton" class="button" disabled><i class="fas fa-trash-alt"></i> Remove</button>
+    </div>
+
+    <div id="notification"></div>
+    <div id="messages"></div>
+
+    <div id="response"></div>
+
+    <div id="lowerButtons">
+        <button id="saveNotificationButton" class="button" disabled><i class="fas fa-save"></i> Save</button>
+    </div>
+
+</div>
+
+<script type="text/javascript">
+    StartEditUserNotifications();
+</script>

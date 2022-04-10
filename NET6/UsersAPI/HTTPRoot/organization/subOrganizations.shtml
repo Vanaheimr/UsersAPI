@@ -1,0 +1,39 @@
+﻿<link href="../../organization/subOrganizations.min.css" type="text/css" rel="stylesheet" />
+
+<script type="text/javascript" src="../../organization/subOrganizations.js"></script>
+
+<div id="organization" class="entity headline">
+
+    <div id="headline">
+
+        <div id="logo">
+            <img src="/shared/UsersAPI/images/building-2696768_640.png" />
+        </div>
+
+        <div id="title">
+            <div id="name" class="I18NString">
+                <div id="language"></div>
+                <div id="I18NText"></div>
+            </div>
+            <div id="description" class="I18NString">
+                <div id="language"></div>
+                <div id="I18NText"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="upperButtons">
+        <button id="newSubOrganizationButton" class="button" disabled><i class="fas fa-plus"></i><i class="fas fa-building"></i> New sub-organization</button>
+    </div>
+
+    <div id="subOrganizations"></div>
+
+    <div id="response"></div>
+
+</div>
+
+<script type="text/javascript">
+    StartSubOrganizations();
+</script>
+

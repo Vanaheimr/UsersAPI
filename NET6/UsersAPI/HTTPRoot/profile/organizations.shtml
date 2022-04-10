@@ -1,0 +1,19 @@
+﻿<link href="../profile/organizations.min.css" type="text/css" rel="stylesheet" />
+
+<script type="text/javascript" src="/shared/UsersAPI/js/date.format.js"></script>
+<script type="text/javascript" src="/defaults/defaults.js"></script>
+<script type="text/javascript" src="../profile/organizations.js"></script>
+<script type="text/javascript" src="/shared/UsersAPI/defaults/views.js"></script>
+
+<div id="organizationsinfos">
+
+    <div id="organizations_headline" class="headline">Your Organizations</div>
+
+    <div id="organizations" class="DataTable"></div>
+    <div id="messages"></div>
+
+</div>
+
+<script type="text/javascript">
+    ShowOrganizations();
+</script>

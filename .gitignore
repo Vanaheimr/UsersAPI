@@ -21,6 +21,8 @@ build/
 bld/
 [Bb]in/
 [Oo]bj/
+NET6/*/obj
+NET6/*/bin
 
 # Visual Studio 2015 cache/options directory
 .vs/

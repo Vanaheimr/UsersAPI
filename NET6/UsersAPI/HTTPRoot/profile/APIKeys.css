@@ -1,0 +1,64 @@
+﻿/*background: lighten($bg-color, 10%);*/
+/*$CITMBlue:                  rgba( 86, 132, 204,   1);*/
+/*$CITMGray:                  rgba(143, 145, 149,   1);*/
+.fa, .far, .fas {
+  font-style: normal; }
+
+#APIKeyInfos {
+  position: relative;
+  padding: 30px 30px 20px 25px;
+  font-size: 140%; }
+  #APIKeyInfos .headline {
+    font-size: 180%;
+    padding-bottom: 25px;
+    color: #999; }
+  #APIKeyInfos #APIKeys {
+    /*background-color:   orangered;*/ }
+    #APIKeyInfos #APIKeys .APIKeyInfo {
+      display: table;
+      padding: 15px 0px 5px 20px;
+      font-size: 90%;
+      border-collapse: separate;
+      border-spacing: 4px; }
+      #APIKeyInfos #APIKeys .APIKeyInfo .row {
+        display: table-row;
+        width: 100%; }
+        #APIKeyInfos #APIKeys .APIKeyInfo .row .key {
+          display: table-cell;
+          padding: 0px 42px 0px 0px;
+          white-space: nowrap;
+          color: #666; }
+        #APIKeyInfos #APIKeys .APIKeyInfo .row .value {
+          display: table-cell;
+          width: inherit;
+          background-color: #fafafa;
+          padding: 6px 10px;
+          border-radius: 5px;
+          color: #777; }
+          #APIKeyInfos #APIKeys .APIKeyInfo .row .value .info {
+            color: #AAA;
+            font-size: 85%;
+            display: block; }
+          #APIKeyInfos #APIKeys .APIKeyInfo .row .value input, #APIKeyInfos #APIKeys .APIKeyInfo .row .value textarea, #APIKeyInfos #APIKeys .APIKeyInfo .row .value select {
+            background-color: rgba(255, 255, 255, 0.7);
+            width: calc(100% - 16px);
+            padding: 6px 8px;
+            border: 0px;
+            border-radius: 4px;
+            color: #777;
+            font-size: 100%; }
+          #APIKeyInfos #APIKeys .APIKeyInfo .row .value textarea {
+            resize: vertical;
+            min-height: 100px;
+            display: block; }
+          #APIKeyInfos #APIKeys .APIKeyInfo .row .value input[type=checkbox] {
+            width: 30px;
+            height: 18px;
+            margin-top: 8px; }
+          #APIKeyInfos #APIKeys .APIKeyInfo .row .value input[type=checkbox]:checked {
+            color: #cc2d7b; }
+          #APIKeyInfos #APIKeys .APIKeyInfo .row .value input:focus, #APIKeyInfos #APIKeys .APIKeyInfo .row .value textarea:focus {
+            outline-color: #cc2d7b;
+            border-color: #cc2d7b;
+            box-shadow: 0 0 6px #cc2d7b;
+            background: #f5eee3; }

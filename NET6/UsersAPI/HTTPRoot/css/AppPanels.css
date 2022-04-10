@@ -1,0 +1,425 @@
+
+.panel {
+    position:                   relative;
+    top:                        100px;
+    width:                      95vw;
+    margin:                     auto;
+    margin-bottom:              25px;
+    border:                     0;
+    border-radius:              4px 4px 4px 4px;
+    /*background-color:           #00FF55;*/
+    display:                    block;
+}
+
+#panel1 {
+    display:                    none;
+    height:                     calc(100% - 125px);
+    box-shadow:                 4px 4px 4px rgba(100, 100, 100, 0.7);
+}
+
+#panel2 {
+    display:                    none;
+}
+
+
+.headlinearea {
+    width:                      100%;
+    height:                     35px;
+    border-radius:              4px 4px 0px 0px;
+    background-color:           rgba(255, 255, 255, 0.95);
+    font-weight:                bold;
+    line-height:                35px;
+    border-bottom:              1px solid #B0B0B0;
+    display:                    block;
+}
+
+#headline1 {
+    background-color:           rgba(255, 255, 255, 0.95);
+}
+
+#headline2 {
+    background-color:           transparent;
+}
+
+
+.titlearea {
+    position:                   absolute;
+    top:                        0px;
+    left:                       0px;
+    width:                      calc(15vw - 10px);
+    height:                     35px;
+    padding:                    0px 0px 0px 10px;
+    font-size:                  12pt;
+    display:                    block;
+}
+
+.navigationarea {
+    position:                   absolute;
+    top:                        0px;
+    left:                       15vw;
+    width:                      80vw;
+    height:                     35px;
+    font-size:                  10pt;
+    display:                    block;
+}
+
+
+
+
+.commandarea {
+    width:                      15vw;
+    min-width:                  175px;
+    height:                     calc(100% - 36px);
+    border-radius:              0px 0px 0px 4px;
+    background-color:           rgba(255, 255, 255, 0.85);
+    display:                    block;
+    overflow:                   hidden;
+    float:                      left;
+}
+
+
+@media only screen and (max-width: 1024px) {
+
+    .commandarea {
+        width:                  25vw;
+    }
+
+}
+
+
+.colresizearea {
+    width:                      4px;
+    height:                     100%;
+    background-color:           rgba(255, 255, 255, 0.55);
+    height:                     calc(100% - 36px);
+    cursor:                     col-resize;
+    z-index:                    100;
+    float:                      left;
+}
+
+.colresizearea:hover {
+    /*width: 40px;*/
+    z-index: 100;
+    content: "<>"
+}
+
+
+.searchbar {
+    width:                      calc(100% - 18px);
+    min-height:                 21px;
+    line-height:                130%;
+    vertical-align:             middle;
+    border:                     1px #E0E0E0 solid;
+    border-radius:              3px;
+    outline:                    0px;
+    font-family:                arial, sans-serif;
+    color:                      #E0E0E0;
+    margin:                     auto;
+    margin-top:                 10px;
+    background-color:           rgba(255, 255, 255, 0.9);
+}
+
+.searchbar a:link {
+    text-decoration:            none;
+    color:                      #777777;
+}
+
+.searchslot {
+    font-size:                  75%;
+    padding:                    4px 11px 3px 8px;
+    border:                     0px;
+    width:                      calc(100% - 80px);
+    background-color:           transparent;
+    /*float:                      left;*/
+}
+
+.searchbuttongroup {
+    float:                      right;
+    clear:                      both;
+}
+
+.searchselector {
+    background-color:           rgba(75, 75, 75, 0.8);
+    border-radius:              2px;
+    font-size:                  55%;
+    line-height:                100%;
+    padding:                    3px 3px 2px 3px;
+    margin:                     4px 2px 3px 3px;
+    float:                      left;
+    display:                    inline-block;
+}
+
+.searchseparator {
+    float:                      left;
+    display:                    inline-block;
+}
+
+.searchbutton {
+    padding:                    0px 6px 0px 2px;
+    font-size:                  90%;
+    display:                    inline-block;
+}
+
+#search1 {
+    margin-bottom:              6px;
+}
+
+
+
+
+
+.resultslist {
+    /*background-color:           rgba(208, 208, 208, 0.3);*/
+    margin:                     0px 1px 0px 1px;
+    /*border-radius:              3px 3px 3px 3px;*/
+    border-bottom:              1px solid rgba(170, 170, 170, 0.5);
+    padding:                    5px 10px 5px 10px;
+    font-size:                  95%;
+}
+
+.resultslist:hover {
+    background-color:           rgba(170, 170, 170, 0.2);
+}
+
+.resultslist a {
+    color:                      rgba(50, 50, 50, 1.0);
+    text-decoration:            none;
+}
+
+.resultslist a:hover {
+    color:                      rgba(240, 180, 70, 1.0);
+}
+
+.noresults {
+    padding:                    5px 10px 5px 10px;
+}
+
+.overviewresultslist {
+    margin:                     10px 11px 10px 11px;
+    background-color:           rgba(255, 255, 255, 0.75);
+    border-radius:              3px 3px 3px 3px;
+    border:                     1px solid rgba(170, 170, 170, 0.5);
+    padding:                    5px 10px 5px 10px;
+    font-size:                  95%;
+    width:                      25%;
+    float:                      left;
+}
+
+.overviewresultslist:hover {
+    background-color:           rgba(170, 170, 170, 0.2);
+}
+
+
+
+.workareas {
+    /*position:                   absolute;
+    top:                        36px;
+    left:                       calc(15vw + 4px);*/
+    width:                      calc(80vw - 4px);
+    min-width:                  10vw;
+    height:                     calc(100% - 36px);
+    border-radius:              0px 0px 4px 4px;
+    background-color:           rgba(255, 255, 255, 0.75);
+    float:                      left;
+}
+
+#workareas1 {
+    background-color:           rgba(255, 255, 255, 0.75);
+}
+
+#workareas2 {
+    background-color:           transparent;
+}
+
+.workarea {
+    /*position:                   absolute;
+    top:                        36px;
+    left:                       15vw;
+    width:                      80vw;*/
+    height:                     100%;
+    border-radius:              0px 0px 4px 0px;
+    /*background-color:           rgba(255, 0, 0, 0.4);*/
+    display:                    block;
+}
+
+.infoview {
+    background-color:           rgba(255, 255, 255, 0.78);
+}
+
+.tableview {
+    background-color:           rgba(255, 255, 255, 0.78);
+}
+
+.textview {
+    background-color:           rgba(255, 255, 255, 0.5);
+}
+
+.textarea {
+    background-color:           rgba(255, 255, 255, 0.5);
+    height:                     calc(100% - 40px);
+    padding:                    20px 20px 20px 30px;
+    overflow-y:                 auto;
+}
+
+.failed {
+    margin:                     auto;
+}
+
+
+.panelselector {
+    height:                     100%;
+}
+
+.presentation-selection {
+    margin-left:                5px;
+    line-height:                12pt;
+    vertical-align:             middle;
+    border-radius:              4px;
+    line-height:                120%;
+    background-color:           #ffffff;
+    display:                    inline-block;
+}
+
+.presentation-selection a:link {
+    text-decoration:            none;
+    color:                      #777777;
+    padding:                    0px 10px 0px 10px;
+}
+
+.presentation-item.left {
+    border-top-left-radius:     3px;
+    border-bottom-left-radius:  3px;
+    border-left-width:          1px;
+}
+
+.presentation-item.right {
+    border-top-right-radius:    3px;
+    border-bottom-right-radius: 3px;
+    margin-left:                0px;
+}
+
+.presentation-item {
+    display:                    inline-block;
+    padding:                    1px 8px 0px 8px;
+    min-width:                  24px;
+    text-align:                 center;
+    border-radius:              0px;
+    border:                     1px solid #E0E0E0;
+    border-left-width:          0px;
+    margin:                     0px;
+    float:                      left;
+}
+
+.presentation-item:hover {
+    background-color:           #CCCCCC;
+}
+
+
+
+#list1 {
+    display:                    none;
+}
+
+#chart1 {
+    display:                    none;
+}
+
+#graph1 {
+    display:                    none;
+}
+
+#map1 {
+    display:                    block;
+}
+
+
+
+
+.leaflet-popup-content-wrapper,.leaflet-popup-content
+{
+    border-radius:              4px 4px 4px 4px !important;
+}
+
+
+
+.userprofilephotoframe {
+    margin:                     0px;
+}
+
+.userprofilephoto {
+    width:                      100%;
+    border-radius:              4px 0px 4px 4px;
+    display:                    block; /*removes those useless 4px below images!*/
+}
+
+.userprofile_name {
+    margin-top:                 8px;
+    margin-right:               8px;
+    text-align:                 right;
+    font-size:                  120%;
+}
+
+.userprofile_nick {
+    margin-right:               8px;
+    text-align:                 right;
+}
+
+.userprofile_motto {
+    margin:                     12px 8px 10px 12px;
+    text-align:                 right;
+    font-size:                  90%;
+    font-style:                 italic;
+}
+
+
+#userprofiledata {
+    margin:                     8px 8px 8px 8px;
+}
+
+.userprofile_email {
+    text-align:                 right;
+    margin-top:                 28px;
+    font-size:                  90%;
+}
+
+.userprofile_openpgpfp {
+    text-align:                 right;
+    margin-top:                 2px;
+    font-size:                  90%;
+}
+
+
+.userprofileworkarea {
+}
+
+.userprofileworkarea2 {
+    padding-top:                10px;
+    /*background-color:           rgba(255, 255, 255, 0.67);*/
+}
+
+.userprofileline {
+    width:                      100%;
+}
+
+.userprofilekey {
+    float:                      left;
+    width:                      30%;
+    padding:                    2px 10px 2px 10px;
+}
+
+.userprofilevalue {
+    padding:                    2px 10px 2px 10px;
+}
+
+
+
+#UserProfileEdit
+{
+    text-align:                 right;
+    padding:                    6px 10px 0px 10px;
+}
+
+#UserProfileEdit > button
+{
+    padding:                    6px 10px;
+}

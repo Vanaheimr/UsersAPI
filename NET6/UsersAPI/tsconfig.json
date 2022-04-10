@@ -1,0 +1,40 @@
+{
+  "compileOnSave": true,
+  "compilerOptions": {
+    "module": "system",
+    "noImplicitAny": false,
+    "sourceMap": true,
+    "allowJs": false,
+    "target": "ES2018"
+  },
+  "files": [
+    "HTTPRoot/defaults/defaults.ts",
+    "HTTPRoot/login/SignInOut.ts",
+    "HTTPRoot/defaults/search.ts",
+    "HTTPRoot/defaults/views.ts",
+    "HTTPRoot/defaults/datePicker.ts",
+
+    "HTTPRoot/profile/profile.ts",
+    "HTTPRoot/profile/APIKeys.ts",
+    "HTTPRoot/profile/password.ts",
+    "HTTPRoot/profile/organizations.ts",
+
+    "HTTPRoot/user/user.ts",
+    "HTTPRoot/user/users.ts",
+    "HTTPRoot/user/userGroup.ts",
+    "HTTPRoot/user/userGroups.ts",
+
+    "HTTPRoot/organization/organization.ts",
+    "HTTPRoot/organization/organizations.ts",
+    "HTTPRoot/organization/organizationGroups.ts",
+    "HTTPRoot/organization/address.ts",
+    "HTTPRoot/organization/members.ts",
+    "HTTPRoot/organization/newMember.ts",
+    "HTTPRoot/organization/subOrganizations.ts",
+    "HTTPRoot/organization/newSubOrganization.ts",
+
+    "HTTPRoot/notification/editNotification.ts",
+    "HTTPRoot/notification/messages.ts",
+    "HTTPRoot/notification/settings.ts"
+  ]
+}

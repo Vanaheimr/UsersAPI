@@ -1,0 +1,87 @@
+﻿<link href="../../organization/members.min.css" type="text/css" rel="stylesheet" />
+
+<script type="text/javascript" src="../../organization/members.js"></script>
+
+<div id="organization" class="entity headline">
+
+    <div id="headline">
+
+        <div id="logo">
+            <img src="/shared/UsersAPI/images/building-2696768_640.png" />
+        </div>
+
+        <div id="title">
+            <div id="name" class="I18NString">
+                <div id="language"></div>
+                <div id="I18NText"></div>
+            </div>
+            <div id="description" class="I18NString">
+                <div id="language"></div>
+                <div id="I18NText"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="upperButtons">
+        <button id="addNewMemberButton" class="button" disabled><i class="fas fa-plus"></i><i class="fas fa-user"></i> New member</button>
+    </div>
+
+    <div id="data">
+
+        <div class="row">
+            <div class="key keyTop">Admins</div>
+            <div class="value memberGroup" id="adminsDiv"></div>
+        </div>
+
+        <div class="row">
+            <div class="key keyTop">Members</div>
+            <div class="value memberGroup" id="membersDiv"></div>
+        </div>
+
+        <div class="row">
+            <div class="key keyTop">Guests</div>
+            <div class="value memberGroup" id="guestsDiv"></div>
+        </div>
+
+    </div>
+
+    <div id="response"></div>
+
+</div>
+
+<div id="confirmToRemoveUser" class="fullScreenDialog">
+    <div class="box">
+        <div id="headline">
+            Please confirm!
+        </div>
+        <div id="body">
+            <div id="confirmation">
+                Do you really want to remove this user from the organization?
+            </div>
+            <div id="buttons">
+                <button id="yes">Yes</button>
+                <button id="no">No</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="removalFailed" class="fullScreenDialog">
+    <div class="box withErrors">
+        <div id="headline">
+            Can not remove this user from the organization!
+        </div>
+        <div id="body">
+            <div id="reason"></div>
+            <div id="buttons">
+                <button id="ok">Ok</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    StartOrganizationMembers();
+</script>
+
