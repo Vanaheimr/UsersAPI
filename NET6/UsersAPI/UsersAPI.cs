@@ -18,21 +18,14 @@
 #region Usings
 
 using System;
-using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Globalization;
 using System.Net.Security;
 using System.Security.Authentication;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 
 using Newtonsoft.Json.Linq;
 
@@ -64,8 +57,6 @@ using com.GraphDefined.SMSApi.API.Response;
 using social.OpenData.UsersAPI;
 using social.OpenData.UsersAPI.Notifications;
 using social.OpenData.UsersAPI.Postings;
-
-using Telegram.Bot;
 
 #endregion
 
@@ -1399,26 +1390,25 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         public new static readonly IPPort         DefaultHTTPServerPort                = IPPort.Parse(2305);
 
-        public const               String         DefaultUsersAPI_LoggingPath          = "default";
         public const               String         DefaultUsersAPI_DatabaseFileName     = "UsersAPI.db";
         public const               String         DefaultUsersAPI_LogfileName          = "UsersAPI.log";
         public const               String         DefaultPasswordFile                  = "passwords.db";
         public const               String         DefaultHTTPCookiesFile               = "HTTPCookies.db";
         public const               String         DefaultPasswordResetsFile            = "passwordResets.db";
 
-        protected static readonly  SemaphoreSlim  ServiceTicketsSemaphore              = new SemaphoreSlim(1, 1);
-        protected static readonly  SemaphoreSlim  LogFileSemaphore                     = new SemaphoreSlim(1, 1);
-        protected static readonly  SemaphoreSlim  UsersSemaphore                       = new SemaphoreSlim(1, 1);
-        protected static readonly  SemaphoreSlim  UserGroupsSemaphore                  = new SemaphoreSlim(1, 1);
-        protected static readonly  SemaphoreSlim  APIKeysSemaphore                     = new SemaphoreSlim(1, 1);
-        protected static readonly  SemaphoreSlim  OrganizationsSemaphore               = new SemaphoreSlim(1, 1);
-        protected static readonly  SemaphoreSlim  OrganizationGroupsSemaphore          = new SemaphoreSlim(1, 1);
-        protected static readonly  SemaphoreSlim  MessagesSemaphore                    = new SemaphoreSlim(1, 1);
-        protected static readonly  SemaphoreSlim  NotificationMessagesSemaphore        = new SemaphoreSlim(1, 1);
-        protected static readonly  SemaphoreSlim  DashboardsSemaphore                  = new SemaphoreSlim(1, 1);
-        protected static readonly  SemaphoreSlim  NewsPostingsSemaphore                = new SemaphoreSlim(1, 1);
-        protected static readonly  SemaphoreSlim  NewsBannersSemaphore                 = new SemaphoreSlim(1, 1);
-        protected static readonly  SemaphoreSlim  FAQsSemaphore                        = new SemaphoreSlim(1, 1);
+        protected static readonly  SemaphoreSlim  ServiceTicketsSemaphore              = new (1, 1);
+        protected static readonly  SemaphoreSlim  LogFileSemaphore                     = new (1, 1);
+        protected static readonly  SemaphoreSlim  UsersSemaphore                       = new (1, 1);
+        protected static readonly  SemaphoreSlim  UserGroupsSemaphore                  = new (1, 1);
+        protected static readonly  SemaphoreSlim  APIKeysSemaphore                     = new (1, 1);
+        protected static readonly  SemaphoreSlim  OrganizationsSemaphore               = new (1, 1);
+        protected static readonly  SemaphoreSlim  OrganizationGroupsSemaphore          = new (1, 1);
+        protected static readonly  SemaphoreSlim  MessagesSemaphore                    = new (1, 1);
+        protected static readonly  SemaphoreSlim  NotificationMessagesSemaphore        = new (1, 1);
+        protected static readonly  SemaphoreSlim  DashboardsSemaphore                  = new (1, 1);
+        protected static readonly  SemaphoreSlim  NewsPostingsSemaphore                = new (1, 1);
+        protected static readonly  SemaphoreSlim  NewsBannersSemaphore                 = new (1, 1);
+        protected static readonly  SemaphoreSlim  FAQsSemaphore                        = new (1, 1);
 
         /// <summary>
         /// The HTTP root for embedded ressources.
@@ -1501,7 +1491,6 @@ namespace social.OpenData.UsersAPI
 
         public String                        UsersAPIPath                       { get; }
         public String                        NotificationsPath                  { get; }
-        
         public String                        SMTPLoggingPath                    { get; }
         public String                        TelegramLoggingPath                { get; }
         public String                        SMSAPILoggingPath                  { get; }
@@ -1657,7 +1646,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An event sent whenever add users request was received.
         /// </summary>
-        public HTTPRequestLogEvent OnAddUsersRequest = new HTTPRequestLogEvent();
+        public HTTPRequestLogEvent OnAddUsersRequest = new();
 
         /// <summary>
         /// An event sent whenever add users request was received.
@@ -1666,8 +1655,8 @@ namespace social.OpenData.UsersAPI
         /// <param name="API">The HTTP API.</param>
         /// <param name="Request">A HTTP request.</param>
         protected internal Task AddUsersHTTPRequest(DateTime     Timestamp,
-                                                HTTPAPI      API,
-                                                HTTPRequest  Request)
+                                                    HTTPAPI      API,
+                                                    HTTPRequest  Request)
 
             => OnAddUsersRequest?.WhenAll(Timestamp,
                                           API ?? this,
@@ -1680,7 +1669,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An event sent whenever a response on an add users request was sent.
         /// </summary>
-        public HTTPResponseLogEvent OnAddUsersResponse = new HTTPResponseLogEvent();
+        public HTTPResponseLogEvent OnAddUsersResponse = new();
 
         /// <summary>
         /// An event sent whenever a response on an add users request was sent.
@@ -1690,9 +1679,9 @@ namespace social.OpenData.UsersAPI
         /// <param name="Request">A HTTP request.</param>
         /// <param name="Response">A HTTP response.</param>
         protected internal Task AddUsersHTTPResponse(DateTime      Timestamp,
-                                                 HTTPAPI       API,
-                                                 HTTPRequest   Request,
-                                                 HTTPResponse  Response)
+                                                     HTTPAPI       API,
+                                                     HTTPRequest   Request,
+                                                     HTTPResponse  Response)
 
             => OnAddUsersResponse?.WhenAll(Timestamp,
                                            API ?? this,
@@ -1707,7 +1696,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An event sent whenever add user request was received.
         /// </summary>
-        public HTTPRequestLogEvent OnAddUserHTTPRequest = new HTTPRequestLogEvent();
+        public HTTPRequestLogEvent OnAddUserHTTPRequest = new();
 
         /// <summary>
         /// An event sent whenever add user request was received.
@@ -1730,7 +1719,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An event sent whenever a response on an add user request was sent.
         /// </summary>
-        public HTTPResponseLogEvent OnAddUserHTTPResponse = new HTTPResponseLogEvent();
+        public HTTPResponseLogEvent OnAddUserHTTPResponse = new();
 
         /// <summary>
         /// An event sent whenever a response on an add user request was sent.
@@ -1757,7 +1746,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An event sent whenever set user request was received.
         /// </summary>
-        public HTTPRequestLogEvent OnSetUserHTTPRequest = new HTTPRequestLogEvent();
+        public HTTPRequestLogEvent OnSetUserHTTPRequest = new();
 
         /// <summary>
         /// An event sent whenever set user request was received.
@@ -1780,7 +1769,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An event sent whenever a response on a set user request was sent.
         /// </summary>
-        public HTTPResponseLogEvent OnSetUserHTTPResponse = new HTTPResponseLogEvent();
+        public HTTPResponseLogEvent OnSetUserHTTPResponse = new();
 
         /// <summary>
         /// An event sent whenever a response on a set user request was sent.
@@ -2581,86 +2570,86 @@ namespace social.OpenData.UsersAPI
         /// <param name="LogfileCreator">A delegate for creating the name of the logfile for this API.</param>
         /// <param name="DNSClient">The DNS client of the API.</param>
         /// <param name="Autostart">Whether to start the API automatically.</param>
-        public UsersAPI(HTTPHostname?                        HTTPHostname                       = null,
-                        String                               ExternalDNSName                    = null,
-                        IPPort?                              HTTPServerPort                     = null,
-                        HTTPPath?                            BasePath                           = null,
-                        String                               HTTPServerName                     = DefaultHTTPServerName,
+        public UsersAPI(HTTPHostname?                         HTTPHostname                       = null,
+                        String?                               ExternalDNSName                    = null,
+                        IPPort?                               HTTPServerPort                     = null,
+                        HTTPPath?                             BasePath                           = null,
+                        String?                               HTTPServerName                     = DefaultHTTPServerName,
 
-                        HTTPPath?                            URLPathPrefix                      = null,
-                        String                               HTTPServiceName                    = DefaultHTTPServiceName,
-                        String                               HTMLTemplate                       = null,
-                        JObject                              APIVersionHashes                   = null,
+                        HTTPPath?                             URLPathPrefix                      = null,
+                        String?                               HTTPServiceName                    = DefaultHTTPServiceName,
+                        String?                               HTMLTemplate                       = null,
+                        JObject?                              APIVersionHashes                   = null,
 
-                        ServerCertificateSelectorDelegate    ServerCertificateSelector          = null,
-                        RemoteCertificateValidationCallback  ClientCertificateValidator         = null,
-                        LocalCertificateSelectionCallback    ClientCertificateSelector          = null,
-                        SslProtocols?                        AllowedTLSProtocols                = null,
+                        ServerCertificateSelectorDelegate?    ServerCertificateSelector          = null,
+                        RemoteCertificateValidationCallback?  ClientCertificateValidator         = null,
+                        LocalCertificateSelectionCallback?    ClientCertificateSelector          = null,
+                        SslProtocols?                         AllowedTLSProtocols                = null,
 
-                        String                               ServerThreadName                   = null,
-                        ThreadPriority?                      ServerThreadPriority               = null,
-                        Boolean?                             ServerThreadIsBackground           = null,
-                        ConnectionIdBuilder                  ConnectionIdBuilder                = null,
-                        ConnectionThreadsNameBuilder         ConnectionThreadsNameBuilder       = null,
-                        ConnectionThreadsPriorityBuilder     ConnectionThreadsPriorityBuilder   = null,
-                        Boolean?                             ConnectionThreadsAreBackground     = null,
-                        TimeSpan?                            ConnectionTimeout                  = null,
-                        UInt32?                              MaxClientConnections               = null,
+                        String?                               ServerThreadName                   = null,
+                        ThreadPriority?                       ServerThreadPriority               = null,
+                        Boolean?                              ServerThreadIsBackground           = null,
+                        ConnectionIdBuilder?                  ConnectionIdBuilder                = null,
+                        ConnectionThreadsNameBuilder?         ConnectionThreadsNameBuilder       = null,
+                        ConnectionThreadsPriorityBuilder?     ConnectionThreadsPriorityBuilder   = null,
+                        Boolean?                              ConnectionThreadsAreBackground     = null,
+                        TimeSpan?                             ConnectionTimeout                  = null,
+                        UInt32?                               MaxClientConnections               = null,
 
-                        Organization_Id?                     AdminOrganizationId                = null,
-                        EMailAddress                         APIRobotEMailAddress               = null,
-                        String                               APIRobotGPGPassphrase              = null,
-                        ISMTPClient                          SMTPClient                         = null,
-                        ISMSClient                           SMSClient                          = null,
-                        String                               SMSSenderName                      = null,
-                        ITelegramStore                       TelegramClient                     = null,
+                        Organization_Id?                      AdminOrganizationId                = null,
+                        EMailAddress?                         APIRobotEMailAddress               = null,
+                        String?                               APIRobotGPGPassphrase              = null,
+                        ISMTPClient?                          SMTPClient                         = null,
+                        ISMSClient?                           SMSClient                          = null,
+                        String?                               SMSSenderName                      = null,
+                        ITelegramStore?                       TelegramClient                     = null,
 
-                        PasswordQualityCheckDelegate         PasswordQualityCheck               = null,
-                        HTTPCookieName?                      CookieName                         = null,
-                        Boolean                              UseSecureCookies                   = true,
-                        TimeSpan?                            MaxSignInSessionLifetime           = null,
-                        Languages?                           DefaultLanguage                    = null,
-                        Byte?                                MinUserIdLength                    = null,
-                        Byte?                                MinRealmLength                     = null,
-                        Byte?                                MinUserNameLength                  = null,
-                        Byte?                                MinUserGroupIdLength               = null,
-                        UInt16?                              MinAPIKeyLength                    = null,
-                        Byte?                                MinMessageIdLength                 = null,
-                        Byte?                                MinOrganizationIdLength            = null,
-                        Byte?                                MinOrganizationGroupIdLength       = null,
-                        Byte?                                MinNotificationMessageIdLength     = null,
-                        Byte?                                MinNewsPostingIdLength             = null,
-                        Byte?                                MinNewsBannerIdLength              = null,
-                        Byte?                                MinFAQIdLength                     = null,
+                        PasswordQualityCheckDelegate?         PasswordQualityCheck               = null,
+                        HTTPCookieName?                       CookieName                         = null,
+                        Boolean                               UseSecureCookies                   = true,
+                        TimeSpan?                             MaxSignInSessionLifetime           = null,
+                        Languages?                            DefaultLanguage                    = null,
+                        Byte?                                 MinUserIdLength                    = null,
+                        Byte?                                 MinRealmLength                     = null,
+                        Byte?                                 MinUserNameLength                  = null,
+                        Byte?                                 MinUserGroupIdLength               = null,
+                        UInt16?                               MinAPIKeyLength                    = null,
+                        Byte?                                 MinMessageIdLength                 = null,
+                        Byte?                                 MinOrganizationIdLength            = null,
+                        Byte?                                 MinOrganizationGroupIdLength       = null,
+                        Byte?                                 MinNotificationMessageIdLength     = null,
+                        Byte?                                 MinNewsPostingIdLength             = null,
+                        Byte?                                 MinNewsBannerIdLength              = null,
+                        Byte?                                 MinFAQIdLength                     = null,
 
-                        Boolean?                             DisableMaintenanceTasks            = null,
-                        TimeSpan?                            MaintenanceInitialDelay            = null,
-                        TimeSpan?                            MaintenanceEvery                   = null,
+                        Boolean?                              DisableMaintenanceTasks            = null,
+                        TimeSpan?                             MaintenanceInitialDelay            = null,
+                        TimeSpan?                             MaintenanceEvery                   = null,
 
-                        Boolean?                             DisableWardenTasks                 = null,
-                        TimeSpan?                            WardenInitialDelay                 = null,
-                        TimeSpan?                            WardenCheckEvery                   = null,
+                        Boolean?                              DisableWardenTasks                 = null,
+                        TimeSpan?                             WardenInitialDelay                 = null,
+                        TimeSpan?                             WardenCheckEvery                   = null,
 
-                        Boolean?                             IsDevelopment                      = null,
-                        IEnumerable<String>                  DevelopmentServers                 = null,
-                        Boolean                              SkipURLTemplates                   = false,
-                        String                               DatabaseFileName                   = DefaultUsersAPI_DatabaseFileName,
-                        Boolean                              DisableNotifications               = false,
-                        Boolean                              DisableLogging                     = false,
-                        String                               LoggingPath                        = DefaultUsersAPI_LoggingPath,
-                        String                               LogfileName                        = DefaultUsersAPI_LogfileName,
-                        LogfileCreatorDelegate               LogfileCreator                     = null,
-                        DNSClient                            DNSClient                          = null,
-                        Boolean                              Autostart                          = false)
+                        Boolean?                              IsDevelopment                      = null,
+                        IEnumerable<String>?                  DevelopmentServers                 = null,
+                        Boolean                               SkipURLTemplates                   = false,
+                        String?                               DatabaseFileName                   = DefaultUsersAPI_DatabaseFileName,
+                        Boolean                               DisableNotifications               = false,
+                        Boolean                               DisableLogging                     = false,
+                        String?                               LoggingPath                        = null,
+                        String?                               LogfileName                        = DefaultUsersAPI_LogfileName,
+                        LogfileCreatorDelegate?               LogfileCreator                     = null,
+                        DNSClient?                            DNSClient                          = null,
+                        Boolean                               Autostart                          = false)
 
             : base(HTTPHostname,
                    ExternalDNSName,
                    HTTPServerPort,
                    BasePath,
-                   HTTPServerName,
+                   HTTPServerName  ?? DefaultHTTPServerName,
 
                    URLPathPrefix,
-                   HTTPServiceName,
+                   HTTPServiceName ?? DefaultHTTPServiceName,
                    HTMLTemplate,
                    APIVersionHashes,
 
@@ -2690,7 +2679,7 @@ namespace social.OpenData.UsersAPI
                    IsDevelopment,
                    DevelopmentServers,
                    DisableLogging,
-                   LoggingPath,
+                   LoggingPath ?? Path.Combine(AppContext.BaseDirectory, DefaultHTTPAPI_LoggingPath),
                    LogfileName ?? DefaultUsersAPI_LogfileName,
                    LogfileCreator,
                    DNSClient,
