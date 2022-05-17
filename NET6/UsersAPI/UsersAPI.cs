@@ -2679,7 +2679,7 @@ namespace social.OpenData.UsersAPI
                    IsDevelopment,
                    DevelopmentServers,
                    DisableLogging,
-                   LoggingPath ?? DefaultHTTPAPI_LoggingPath,
+                   LoggingPath ?? Path.Combine(AppContext.BaseDirectory, DefaultHTTPAPI_LoggingPath),
                    LogfileName ?? DefaultUsersAPI_LogfileName,
                    LogfileCreator,
                    DNSClient,
