@@ -12721,7 +12721,7 @@ namespace social.OpenData.UsersAPI
                                                  {
 
                                                      var plaintext   = reply.ToString(Newtonsoft.Json.Formatting.None);
-                                                     var SHA256Hash  = new SHA256Managed().ComputeHash(plaintext.ToUTF8Bytes());
+                                                     var SHA256Hash  = SHA256.Create().ComputeHash(plaintext.ToUTF8Bytes());
 
                                                      var signer      = SignerUtilities.GetSigner("NONEwithECDSA");
                                                      signer.Init(true, ServiceCheckPrivateKey);
