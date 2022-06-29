@@ -4426,7 +4426,7 @@ namespace social.OpenData.UsersAPI
 
         #region (protected override) GetResourceString      (ResourceName)
 
-        protected override String GetResourceString(String ResourceName)
+        protected override String? GetResourceString(String ResourceName)
 
             => GetResourceString(ResourceName,
                                  new Tuple<String, System.Reflection.Assembly>(UsersAPI.HTTPRoot, typeof(UsersAPI).Assembly),
@@ -4446,7 +4446,7 @@ namespace social.OpenData.UsersAPI
 
         #region (protected override) MixWithHTMLTemplate    (ResourceName)
 
-        protected override String MixWithHTMLTemplate(String ResourceName)
+        protected override String? MixWithHTMLTemplate(String ResourceName)
 
             => MixWithHTMLTemplate(ResourceName,
                                    new Tuple<String, System.Reflection.Assembly>(UsersAPI.HTTPRoot, typeof(UsersAPI).Assembly),
