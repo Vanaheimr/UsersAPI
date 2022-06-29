@@ -11640,45 +11640,45 @@ namespace social.OpenData.UsersAPI
 
             #region GET         ~/dashboard
 
-            // ----------------------------------------------------------------
-            // curl -v -H "Accept: text/html" http://127.0.0.1:3001/dashboard
-            // ----------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
-                                         HTTPMethod.GET,
-                                         URLPathPrefix + "dashboard",
-                                         HTTPContentType.HTML_UTF8,
-                                         HTTPDelegate: Request => {
+            //// ----------------------------------------------------------------
+            //// curl -v -H "Accept: text/html" http://127.0.0.1:3001/dashboard
+            //// ----------------------------------------------------------------
+            //HTTPServer.AddMethodCallback(Hostname,
+            //                             HTTPMethod.GET,
+            //                             URLPathPrefix + "dashboard",
+            //                             HTTPContentType.HTML_UTF8,
+            //                             HTTPDelegate: Request => {
 
-                                             #region Get HTTP user and its organizations
+            //                                 #region Get HTTP user and its organizations
 
-                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
-                                             if (!TryGetHTTPUser(Request,
-                                                                 out User                   HTTPUser,
-                                                                 out HashSet<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse.Builder   Response,
-                                                                 Recursive:                 true))
-                                             {
-                                                 return Task.FromResult(Response.AsImmutable);
-                                             }
+            //                                 // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+            //                                 if (!TryGetHTTPUser(Request,
+            //                                                     out User                   HTTPUser,
+            //                                                     out HashSet<Organization>  HTTPOrganizations,
+            //                                                     out HTTPResponse.Builder   Response,
+            //                                                     Recursive:                 true))
+            //                                 {
+            //                                     return Task.FromResult(Response.AsImmutable);
+            //                                 }
 
-                                             #endregion
+            //                                 #endregion
 
 
-                                             return Task.FromResult(
-                                                 new HTTPResponse.Builder(Request) {
-                                                     HTTPStatusCode              = HTTPStatusCode.OK,
-                                                     Server                      = HTTPServer.DefaultServerName,
-                                                     Date                        = Timestamp.Now,
-                                                     AccessControlAllowOrigin    = "*",
-                                                     AccessControlAllowMethods   = "GET",
-                                                     AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
-                                                     ContentType                 = HTTPContentType.HTML_UTF8,
-                                                     Content                     = MixWithHTMLTemplate("dashboard.dashboard.shtml").ToUTF8Bytes(),
-                                                     Connection                  = "close",
-                                                     Vary                        = "Accept"
-                                                 }.AsImmutable);
+            //                                 return Task.FromResult(
+            //                                     new HTTPResponse.Builder(Request) {
+            //                                         HTTPStatusCode              = HTTPStatusCode.OK,
+            //                                         Server                      = HTTPServer.DefaultServerName,
+            //                                         Date                        = Timestamp.Now,
+            //                                         AccessControlAllowOrigin    = "*",
+            //                                         AccessControlAllowMethods   = "GET",
+            //                                         AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+            //                                         ContentType                 = HTTPContentType.HTML_UTF8,
+            //                                         Content                     = MixWithHTMLTemplate("dashboard.dashboard.shtml").ToUTF8Bytes(),
+            //                                         Connection                  = "close",
+            //                                         Vary                        = "Accept"
+            //                                     }.AsImmutable);
 
-                                         }, AllowReplacement: URLReplacement.Allow);
+            //                             }, AllowReplacement: URLReplacement.Allow);
 
             #endregion
 
