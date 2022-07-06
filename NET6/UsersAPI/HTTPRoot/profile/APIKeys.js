@@ -1,4 +1,4 @@
-///<reference path="../../../../UsersAPI/UsersAPI/HTTPRoot/libs/date.format.ts" />
+///<reference path="../libs/date.format.ts" />
 function ShowAPIKey(parentDiv, JSON) {
     const DescriptionDiv = parentDiv.appendChild(document.createElement('div'));
     DescriptionDiv.className = "row Description";

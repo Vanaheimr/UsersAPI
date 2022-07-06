@@ -478,4 +478,8 @@
     <ProjectReference Include="..\..\..\TelegramBotAPI\NET6\TelegramBotAPI\TelegramBotAPI.csproj" />
   </ItemGroup>
 
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="tsc" />
+  </Target>
+
 </Project>
