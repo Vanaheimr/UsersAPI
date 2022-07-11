@@ -1471,6 +1471,11 @@ namespace social.OpenData.UsersAPI
         protected static readonly Char[]    Split4  = { ',' };
         protected static readonly Char[]    Split5  = { '|' };
 
+        public    static readonly User                                          Anonymous = new User(User_Id.Parse("anonymous"),
+                                                                                                     "Anonymous",
+                                                                                                     SimpleEMailAddress.Parse("anonymous@example.com"),
+                                                                                                     AcceptedEULA: Timestamp.Now);
+
         #endregion
 
         #region Properties
@@ -4458,6 +4463,111 @@ namespace social.OpenData.UsersAPI
 
         private void RegisterURLTemplates()
         {
+
+            HTTPServer.AddAuth(request => {
+
+                // Allow OPTIONS requests / call pre-flight requests in cross-origin resource sharing (CORS)
+                if (request.HTTPMethod == HTTPMethod.OPTIONS)
+                    return Anonymous;
+
+                var user = CheckHTTPCookie   (request) ??
+                           CheckHTTPAPIKey   (request) ??
+                           CheckHTTPBasicAuth(request);
+
+                if (user is not null)
+                    return user;
+
+                #region Allow some URLs for anonymous access...
+
+                if (request.Path.StartsWith(URLPathPrefix + "/shared/UsersAPI/defaults") ||
+                    request.Path.StartsWith(URLPathPrefix + "/shared/UsersAPI/webfonts") ||
+                    request.Path.StartsWith(URLPathPrefix + "/shared/UsersAPI/login")    ||
+                    request.Path.StartsWith(URLPathPrefix + "/defaults")      ||
+                    request.Path.StartsWith(URLPathPrefix + "/favicon.ico")   ||
+                    request.Path.StartsWith(URLPathPrefix + "/login")         ||
+                    request.Path.StartsWith(URLPathPrefix + "/lostPassword")  ||
+                    request.Path.StartsWith(URLPathPrefix + "/resetPassword") ||
+                    request.Path.StartsWith(URLPathPrefix + "/setPassword")   ||
+                   (request.Path.StartsWith(URLPathPrefix + "/serviceCheck")  && request.HTTPMethod.ToString() == "POST") ||
+                   (request.Path.StartsWith(URLPathPrefix + "/users/")        && request.HTTPMethod.ToString() == "AUTH"))
+                {
+                    return Anonymous;
+                }
+
+                #endregion
+
+                return null;
+
+            });
+
+            HTTPServer.AddFilter(request => {
+
+                #region Check EULA
+
+                if (request.User is User user &&
+                    (!user.AcceptedEULA.HasValue ||
+                      user.AcceptedEULA.Value > Timestamp.Now))
+                {
+                    return new HTTPResponse.Builder(request) {
+                        HTTPStatusCode            = HTTPStatusCode.FailedDependency,
+                        Date                      = Timestamp.Now,
+                        Server                    = HTTPServer.DefaultServerName,
+                        AccessControlAllowOrigin  = "*",
+                        AccessControlMaxAge       = 3600,
+                        CacheControl              = "private, max-age=0, no-cache",
+                        ContentType               = HTTPContentType.JSON_UTF8,
+                        Content                   = JSONObject.Create(new JProperty("message", "Please accept the EULA within the portal!")).ToUTF8Bytes(),
+                        Connection                = "close"
+                    };
+                }
+
+                #endregion
+
+                #region Failed/TryNextMethod... redirect web browsers to /login
+
+                if (request.User is null)
+                {
+
+                    if (request.HTTPMethod == HTTPMethod.GET &&
+                        request.Accept.BestMatchingContentType(HTTPContentType.HTML_UTF8) == HTTPContentType.HTML_UTF8)
+                    {
+                        return new HTTPResponse.Builder(request) {
+                            HTTPStatusCode      = HTTPStatusCode.TemporaryRedirect,
+                            Location            = URLPathPrefix + ("/login?redirect=" + request.Path.ToString()),
+                            Date                = Timestamp.Now,
+                            Server              = HTTPServer.DefaultServerName,
+                            //SetCookie           = String.Concat(CookieName, "=; Expires=", Timestamp.Now.ToRfc1123(),
+                            //                                    HTTPCookieDomain.IsNotNullOrEmpty()
+                            //                                        ? "; Domain=" + HTTPCookieDomain
+                            //                                        : "",
+                            //                                    "; Path=", URLPathPrefix),
+                            XLocationAfterAuth  = request.Path,
+                            CacheControl        = "private, max-age=0, no-cache",
+                            Connection          = "close"
+                        };
+                    }
+
+                    else
+                        return new HTTPResponse.Builder(request) {
+                            HTTPStatusCode            = HTTPStatusCode.Unauthorized,
+                            Date                      = Timestamp.Now,
+                            Server                    = HTTPServer.DefaultServerName,
+                            AccessControlAllowOrigin  = "*",
+                            AccessControlMaxAge       = 3600,
+                            CacheControl              = "private, max-age=0, no-cache",
+                            ContentType               = HTTPContentType.JSON_UTF8,
+                            Content                   = JSONObject.Create(new JProperty("message", "Invalid login!")).ToUTF8Bytes(),
+                            Connection                = "close"
+                        };
+
+                }
+
+                #endregion
+
+                return null;
+
+            });
+
 
             #region /shared/UsersAPI
 
@@ -15183,6 +15293,87 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
+        public User? CheckHTTPCookie(HTTPRequest Request)
+        {
+
+            if (TryGetSecurityTokenFromCookie(Request, out SecurityToken_Id securityToken) &&
+                _HTTPCookies.TryGetValue(securityToken, out SecurityToken? securityInformation) &&
+                Timestamp.Now < securityInformation.Expires &&
+                _TryGetUser(securityInformation.UserId, out User? user))
+            {
+                return user;
+            }
+
+            return null;
+
+        }
+
+        public User? CheckHTTPBasicAuth(HTTPRequest Request)
+        {
+
+            if (Request.Authorization is HTTPBasicAuthentication basicAuthentication)
+            {
+
+                // Find username or e-mail addresses...
+                var possibleUsers = new HashSet<User>();
+                var validUsers    = new HashSet<User>();
+
+                if (User_Id.TryParse   (basicAuthentication.Username, out User_Id _UserId) &&
+                    _Users. TryGetValue(_UserId,                      out User?   _User))
+                {
+                    possibleUsers.Add(_User);
+                }
+
+                if (possibleUsers.Count == 0)
+                {
+                    foreach (var user in _Users.Values)
+                    {
+                        if (String.Equals(basicAuthentication.Username,
+                                          user.EMail.Address.ToString(),
+                                          StringComparison.OrdinalIgnoreCase))
+                        {
+                            possibleUsers.Add(user);
+                        }
+                    }
+                }
+
+                if (possibleUsers.Count > 0)
+                {
+                    foreach (var possibleUser in possibleUsers)
+                    {
+                        if (_LoginPasswords.TryGetValue(possibleUser.Id, out LoginPassword loginPassword) &&
+                            loginPassword.VerifyPassword(basicAuthentication.Password))
+                        {
+                            validUsers.Add(possibleUser);
+                        }
+                    }
+                }
+
+                if (validUsers.Count == 1)
+                    return validUsers.First();
+
+            }
+
+            return null;
+
+        }
+
+        public User? CheckHTTPAPIKey(HTTPRequest Request)
+        {
+
+            if (Request.API_Key.HasValue &&
+                TryGetAPIKey(Request.API_Key.Value, out APIKey? apiKey) &&
+                APIKeyIsValid(apiKey!) &&
+                _TryGetUser(apiKey!.UserId, out User? user))
+            {
+                return user;
+            }
+
+            return null;
+
+        }
+
+
         #region Users
 
         #region Data
@@ -17538,12 +17729,11 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="UserId">The unique identification of an user.</param>
         /// <param name="User">The user.</param>
-        protected internal Boolean _TryGetUser(User_Id   UserId,
-                                               out User  User)
+        protected internal Boolean _TryGetUser(User_Id UserId, out User? User)
         {
 
             if (!UserId.IsNullOrEmpty &&
-                _Users.TryGetValue(UserId, out User user))
+                _Users.TryGetValue(UserId, out User? user))
             {
                 User = user;
                 return true;
@@ -17559,12 +17749,11 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="UserId">The unique identification of an user.</param>
         /// <param name="User">The user.</param>
-        protected internal Boolean _TryGetUser(User_Id?  UserId,
-                                               out User  User)
+        protected internal Boolean _TryGetUser(User_Id? UserId, out User? User)
         {
 
             if (UserId.IsNotNullOrEmpty() &&
-               _Users.TryGetValue(UserId.Value, out User user))
+               _Users.TryGetValue(UserId!.Value, out User? user))
             {
                 User = user;
                 return true;
@@ -17581,8 +17770,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="UserId">The unique identification of an user.</param>
         /// <param name="User">The user.</param>
-        public Boolean TryGetUser(User_Id   UserId,
-                                  out User  User)
+        public Boolean TryGetUser(User_Id UserId, out User? User)
         {
 
             if (UsersSemaphore.Wait(SemaphoreSlimTimeout))
@@ -17616,8 +17804,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="UserId">The unique identification of an user.</param>
         /// <param name="User">The user.</param>
-        public Boolean TryGetUser(User_Id?  UserId,
-                                  out User  User)
+        public Boolean TryGetUser(User_Id? UserId, out User? User)
         {
 
             if (UsersSemaphore.Wait(SemaphoreSlimTimeout))
@@ -19854,8 +20041,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="APIKey">The API key.</param>
         protected internal Boolean _APIKeyIsValid(APIKey APIKey)
 
-            =>   APIKey != null &&
-               (!APIKey.NotBefore.HasValue || Timestamp.Now >= APIKey.NotBefore) &&
+            => (!APIKey.NotBefore.HasValue || Timestamp.Now >= APIKey.NotBefore) &&
                (!APIKey.NotAfter. HasValue || Timestamp.Now <  APIKey.NotAfter)  &&
                 !APIKey.IsDisabled;
 
@@ -20035,11 +20221,11 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="APIKeyId">The unique identification of an API key.</param>
         /// <param name="APIKey">The API key.</param>
-        protected internal Boolean _TryGetAPIKey(APIKey_Id APIKeyId, out APIKey APIKey)
+        protected internal Boolean _TryGetAPIKey(APIKey_Id APIKeyId, out APIKey? APIKey)
         {
 
             if (!APIKeyId.IsNullOrEmpty &&
-                _APIKeys.TryGetValue(APIKeyId, out APIKey apiKey))
+                _APIKeys.TryGetValue(APIKeyId, out APIKey? apiKey))
             {
                 APIKey = apiKey;
                 return true;
@@ -20055,11 +20241,11 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="APIKeyId">The unique identification of an API key.</param>
         /// <param name="APIKey">The API key.</param>
-        protected internal Boolean _TryGetAPIKey(APIKey_Id? APIKeyId, out APIKey APIKey)
+        protected internal Boolean _TryGetAPIKey(APIKey_Id? APIKeyId, out APIKey? APIKey)
         {
 
             if (APIKeyId.IsNotNullOrEmpty() &&
-               _APIKeys. TryGetValue(APIKeyId.Value, out APIKey apiKey))
+               _APIKeys. TryGetValue(APIKeyId!.Value, out APIKey? apiKey))
             {
                 APIKey = apiKey;
                 return true;
@@ -20076,8 +20262,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="APIKeyId">The unique identification of an API key.</param>
         /// <param name="APIKey">The API key.</param>
-        public Boolean TryGetAPIKey(APIKey_Id   APIKeyId,
-                                    out APIKey  APIKey)
+        public Boolean TryGetAPIKey(APIKey_Id APIKeyId, out APIKey? APIKey)
         {
 
             if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
@@ -20111,8 +20296,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="APIKeyId">The unique identification of an API key.</param>
         /// <param name="APIKey">The API key.</param>
-        public Boolean TryGetAPIKey(APIKey_Id?  APIKeyId,
-                                    out APIKey  APIKey)
+        public Boolean TryGetAPIKey(APIKey_Id? APIKeyId, out APIKey? APIKey)
         {
 
             if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
@@ -20150,9 +20334,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="APIKeyId">The unique identification of the API key.</param>
         /// <param name="APIKey">The API key.</param>
-        protected internal Boolean _TryGetValidAPIKey(APIKey_Id   APIKeyId,
-                                                      out APIKey  APIKey)
-
+        protected internal Boolean _TryGetValidAPIKey(APIKey_Id APIKeyId, out APIKey? APIKey)
         {
 
             if (_APIKeys.TryGetValue(APIKeyId, out APIKey apiKey) &&
@@ -20172,13 +20354,11 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="APIKeyId">The unique identification of the API key.</param>
         /// <param name="APIKey">The API key.</param>
-        protected internal Boolean _TryGetValidAPIKey(APIKey_Id?  APIKeyId,
-                                                      out APIKey  APIKey)
-
+        protected internal Boolean _TryGetValidAPIKey(APIKey_Id? APIKeyId, out APIKey? APIKey)
         {
 
             if (APIKeyId.IsNotNullOrEmpty() &&
-                _APIKeys.TryGetValue(APIKeyId.Value, out APIKey apiKey) &&
+                _APIKeys.TryGetValue(APIKeyId!.Value, out APIKey? apiKey) &&
                 _APIKeyIsValid(apiKey))
             {
                 APIKey = apiKey;
@@ -20196,8 +20376,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="APIKeyId">The unique identification of the API key.</param>
         /// <param name="APIKey">The API key.</param>
-        public Boolean TryGetValidAPIKey(APIKey_Id   APIKeyId,
-                                         out APIKey  APIKey)
+        public Boolean TryGetValidAPIKey(APIKey_Id APIKeyId, out APIKey? APIKey)
         {
 
             if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
@@ -20231,8 +20410,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="APIKeyId">The unique identification of the API key.</param>
         /// <param name="APIKey">The API key.</param>
-        public Boolean TryGetValidAPIKey(APIKey_Id?  APIKeyId,
-                                         out APIKey  APIKey)
+        public Boolean TryGetValidAPIKey(APIKey_Id? APIKeyId, out APIKey? APIKey)
         {
 
             if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))

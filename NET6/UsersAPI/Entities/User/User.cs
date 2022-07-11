@@ -115,7 +115,8 @@ namespace social.OpenData.UsersAPI
     /// A user.
     /// </summary>
     public class User : AEntity<User_Id,
-                                User>
+                                User>,
+                        IUser
     {
 
         #region Data
