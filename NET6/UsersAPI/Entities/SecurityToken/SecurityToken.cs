@@ -29,23 +29,23 @@ namespace social.OpenData.UsersAPI
     public class SecurityToken
     {
 
-        public User_Id   UserId      { get; }
-        public DateTime  Expires     { get; }
-        public User_Id?  Astronaut   { get; }
+        public User_Id   UserId        { get; }
+        public DateTime  Expires       { get; }
+        public User_Id?  SuperUserId   { get; }
 
         public SecurityToken(User_Id   UserId,
                              DateTime  Expires,
-                             User_Id?  Astronaut = null)
+                             User_Id?  SuperUserId = null)
         {
 
-            this.UserId     = UserId;
-            this.Expires    = Expires;
-            this.Astronaut  = Astronaut;
+            this.UserId       = UserId;
+            this.Expires      = Expires;
+            this.SuperUserId  = SuperUserId;
 
         }
 
         public String ToLogLine()
-            => String.Concat(UserId, ";", Expires.ToIso8601(), Astronaut.HasValue ? ";" + Astronaut.Value : "");
+            => String.Concat(UserId, ";", Expires.ToIso8601(), SuperUserId.HasValue ? ";" + SuperUserId.Value : "");
 
     }
 
