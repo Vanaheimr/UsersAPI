@@ -1642,6 +1642,11 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         public Boolean                       DisableNotifications               { get; set; }
 
+        /// <summary>
+        /// Server for remote authorization.
+        /// </summary>
+        public List<URL>                     RemoteAuthServers                  { get; }
+
         #endregion
 
         #region Events
@@ -2780,6 +2785,8 @@ namespace social.OpenData.UsersAPI
 
             this.PasswordQualityCheck            = PasswordQualityCheck           ?? DefaultPasswordQualityCheck;
             this.MaxSignInSessionLifetime        = MaxSignInSessionLifetime       ?? DefaultMaxSignInSessionLifetime;
+
+            this.RemoteAuthServers               = new List<URL>();
 
             #endregion
 
@@ -5432,12 +5439,12 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
-                                             #region Parse securityToken    [mandatory]
+                                             #region Parse securityTokenId    [mandatory]
 
-                                             if (!JSONBody.ParseMandatory("securityToken",
-                                                                          "security token",
+                                             if (!JSONBody.ParseMandatory("securityTokenId",
+                                                                          "security token identification",
                                                                           SecurityToken_Id.TryParse,
-                                                                          out SecurityToken_Id  securityToken,
+                                                                          out SecurityToken_Id  securityTokenId,
                                                                           out String            errorDescription))
                                              {
 
@@ -5458,7 +5465,7 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
-                                             #region Parse maxHopCount      [optional]
+                                             #region Parse maxHopCount        [optional]
 
                                              if (JSONBody.ParseOptional("maxHopCount",
                                                                         "remote auth server max hop count",
@@ -5485,11 +5492,11 @@ namespace social.OpenData.UsersAPI
                                              #endregion
 
 
-                                             var (user, securityInformation) = await CheckHTTPCookie(securityToken,
-                                                                                                     maxHopCount ?? 0);
+                                             var securityToken = await CheckHTTPCookie(securityTokenId,
+                                                                                       maxHopCount ?? 0);
 
 
-                                             if (user is not null)
+                                             if (securityToken is not null)
                                                  return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode              = HTTPStatusCode.OK,
                                                             Server                      = HTTPServer.DefaultServerName,
@@ -5500,14 +5507,11 @@ namespace social.OpenData.UsersAPI
                                                             ContentType                 = HTTPContentType.JSON_UTF8,
                                                             Content                     = JSONObject.Create(
 
-                                                                                              new JProperty("userId",  user!.Id.ToString()),
+                                                                                              new JProperty("userId",   securityToken.UserId. ToString()),
+                                                                                              new JProperty("expires",  securityToken.Expires.ToIso8601()),
 
-                                                                                              securityInformation is not null
-                                                                                                  ? new JProperty("expires",     securityInformation.Expires.ToIso8601())
-                                                                                                  : null,
-
-                                                                                              securityInformation is not null && securityInformation.SuperUserId.HasValue
-                                                                                                  ? new JProperty("superUserId", securityInformation.SuperUserId.Value.ToString())
+                                                                                              securityToken.SuperUserId.HasValue
+                                                                                                  ? new JProperty("superUserId", securityToken.SuperUserId.Value.ToString())
                                                                                                   : null
 
                                                                                           ).ToUTF8Bytes(),
@@ -15430,16 +15434,27 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
+        #region Remote Authorization
 
-        #region CheckHTTPCookie(Request, RemoteAuthServersMaxHopCount = 0)
+        #region CheckHTTPCookie(Request,         RemoteAuthServersMaxHopCount = 0)
 
         public async Task<User?> CheckHTTPCookie(HTTPRequest Request,
                                                  Byte?       RemoteAuthServersMaxHopCount = 0)
         {
 
-            if (TryGetSecurityTokenFromCookie(Request, out SecurityToken_Id securityToken))
-                return (await CheckHTTPCookie(securityToken,
-                                              RemoteAuthServersMaxHopCount)).Item1;
+            if (TryGetSecurityTokenFromCookie(Request, out SecurityToken_Id securityTokenId))
+            {
+
+                var securityToken = await CheckHTTPCookie(securityTokenId,
+                                                          RemoteAuthServersMaxHopCount);
+
+                if (securityToken is not null &&
+                    _TryGetUser(securityToken.UserId, out User? user))
+                {
+                    return user;
+                }
+
+            }
 
             return null;
 
@@ -15447,122 +15462,129 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region CheckHTTPCookie(Request, RemoteAuthServersMaxHopCount = 0)
+        #region CheckHTTPCookie(securityTokenId, RemoteAuthServersMaxHopCount = 0)
 
-        public async Task<(User?, SecurityToken?)> CheckHTTPCookie(SecurityToken_Id securityToken,
-                                                                   Byte?            RemoteAuthServersMaxHopCount = 0)
+        public async Task<SecurityToken?> CheckHTTPCookie(SecurityToken_Id securityTokenId,
+                                                          Byte?            RemoteAuthServersMaxHopCount = 0)
         {
 
             User_Id? userId = null;
 
-            if (_HTTPCookies.TryGetValue(securityToken, out SecurityToken? securityInformation) &&
-                Timestamp.Now < securityInformation.Expires)
+            if (_HTTPCookies.TryGetValue(securityTokenId, out SecurityToken? securityToken) &&
+                Timestamp.Now < securityToken.Expires)
             {
-                userId = securityInformation.UserId;
+                userId = securityToken.UserId;
             }
 
-            //if (userId is null && RemoteAuthServersMaxHopCount > 0)
-            if (RemoteAuthServersMaxHopCount > 0)
+            if (userId is null && RemoteAuthServersMaxHopCount > 0)
             {
                 try
                 {
 
-                    var RemoteURL = URL.Parse("http://127.0.0.1:3004/securityToken");
+                    var jsonRequest  = JSONObject.Create(
+                                           new JProperty("securityTokenId", securityTokenId.ToString()),
+                                           new JProperty("maxHopCount",     RemoteAuthServersMaxHopCount - 1)
+                                       ).ToUTF8Bytes();
 
-                    #region Upstream HTTP request...
-
-                    var httpresult = await new HTTPClient(RemoteURL,
-                                                          //VirtualHostname,
-                                                          //Description,
-                                                          //RemoteCertificateValidator,
-                                                          //ClientCertificateSelector,
-                                                          //ClientCert,
-                                                          //HTTPUserAgent,
-                                                          //RequestTimeout,
-                                                          //TransmissionRetryDelay,
-                                                          //MaxNumberOfRetries,
-                                                          //UseHTTPPipelining,
-                                                          //HTTPLogger,
-                                                          DNSClient: DNSClient).
-
-                                               Execute(client => client.CHECKRequest(RemoteURL.Path,
-                                                                                     requestbuilder => {
-                                                                                         requestbuilder.Host         = RemoteURL.Hostname; //VirtualHostname ?? RemoteURL.Hostname;
-                                                                                         requestbuilder.Accept.Add(HTTPContentType.JSON_UTF8);
-                                                                                         requestbuilder.ContentType  = HTTPContentType.JSON_UTF8;
-                                                                                         requestbuilder.Content      = JSONObject.Create(
-                                                                                                                           new JProperty("securityToken", securityToken.ToString()),
-                                                                                                                           new JProperty("maxHopCount",   RemoteAuthServersMaxHopCount - 1)
-                                                                                                                       ).ToUTF8Bytes();
-                                                                                     }),
-
-                                                       //RequestLogDelegate:   OnGetCDRsHTTPRequest,
-                                                       //ResponseLogDelegate:  OnGetCDRsHTTPResponse,
-                                                       //CancellationToken:    CancellationToken,
-                                                       //EventTrackingId:      EventTrackingId,
-                                                       RequestTimeout:       TimeSpan.FromSeconds(5)
-                                                       ).
-
-                                               ConfigureAwait(false);
-
-                    #endregion
-
-
-                    if (httpresult.HTTPStatusCode == HTTPStatusCode.OK)
+                    foreach (var remoteURL in RemoteAuthServers)
                     {
 
-                        var JSONResponse = JObject.Parse(httpresult.HTTPBody.ToUTF8String());
+                        #region Upstream HTTP(S) request...
 
-                        #region Parse userId       [mandatory]
+                        var httpresult = await HTTPClientFactory.Create(remoteURL,
+                                                                        //VirtualHostname,
+                                                                        //Description,
+                                                                        //RemoteCertificateValidator,
+                                                                        //ClientCertificateSelector,
+                                                                        //ClientCert,
+                                                                        //HTTPUserAgent,
+                                                                        //RequestTimeout,
+                                                                        //TransmissionRetryDelay,
+                                                                        //MaxNumberOfRetries,
+                                                                        //UseHTTPPipelining,
+                                                                        //HTTPLogger,
+                                                                        DNSClient: DNSClient).
 
-                        if (JSONResponse.ParseMandatory("userId",
-                                                        "user identificcation",
-                                                        User_Id.TryParse,
-                                                        out User_Id _userId,
-                                                        out String  errorDescription))
-                        {
-                            userId = _userId;
-                        }
+                                                   Execute(client => client.CHECKRequest(remoteURL.Path,
+                                                                                         requestbuilder => {
+                                                                                             requestbuilder.Host         = remoteURL.Hostname;
+                                                                                             requestbuilder.Accept.Add(HTTPContentType.JSON_UTF8);
+                                                                                             requestbuilder.ContentType  = HTTPContentType.JSON_UTF8;
+                                                                                             requestbuilder.Content      = jsonRequest;
+                                                                                         }),
 
-                        #endregion
+                                                           //RequestLogDelegate:   OnGetCDRsHTTPRequest,
+                                                           //ResponseLogDelegate:  OnGetCDRsHTTPResponse,
+                                                           //CancellationToken:    CancellationToken,
+                                                           //EventTrackingId:      EventTrackingId,
+                                                           RequestTimeout:       TimeSpan.FromSeconds(5)).
 
-                        #region Parse expires      [optional]
-
-                        if (JSONResponse.ParseOptional("expires",
-                                                       "security token expires",
-                                                       out DateTime? expires,
-                                                       out           errorDescription))
-                        { }
-
-                        #endregion
-
-                        #region Parse superuser    [optional]
-
-                        User_Id? superuserId = null;
-
-                        if (JSONResponse.ParseOptional("superUserId",
-                                                       "super user identificcation",
-                                                       User_Id.TryParse,
-                                                       out User_Id _superuserId,
-                                                       out         errorDescription))
-                        {
-                            if (errorDescription != null)
-                                superuserId = _superuserId;
-                        }
+                                                   ConfigureAwait(false);
 
                         #endregion
 
 
-                        if (userId.HasValue && expires.HasValue)
+                        if (httpresult.HTTPStatusCode == HTTPStatusCode.OK)
                         {
-                            lock (_HTTPCookies)
+
+                            var JSONResponse = JObject.Parse(httpresult.HTTPBody.ToUTF8String());
+
+                            #region Parse userId       [mandatory]
+
+                            if (JSONResponse.ParseMandatory("userId",
+                                                            "user identificcation",
+                                                            User_Id.TryParse,
+                                                            out User_Id _userId,
+                                                            out String  errorDescription))
                             {
-                                if (!_HTTPCookies.ContainsKey(securityToken))
-                                    _HTTPCookies.Add(securityToken,
-                                                     new SecurityToken(userId.Value,
-                                                                       expires.Value,
-                                                                       superuserId));
+                                userId = _userId;
                             }
+
+                            #endregion
+
+                            #region Parse expires      [optional]
+
+                            if (JSONResponse.ParseOptional("expires",
+                                                           "security token expires",
+                                                           out DateTime? expires,
+                                                           out           errorDescription))
+                            { }
+
+                            #endregion
+
+                            #region Parse superuser    [optional]
+
+                            User_Id? superuserId = null;
+
+                            if (JSONResponse.ParseOptional("superUserId",
+                                                           "super user identificcation",
+                                                           User_Id.TryParse,
+                                                           out User_Id _superuserId,
+                                                           out         errorDescription))
+                            {
+                                if (errorDescription != null)
+                                    superuserId = _superuserId;
+                            }
+
+                            #endregion
+
+
+                            if (userId.HasValue && expires.HasValue)
+                            {
+
+                                lock (_HTTPCookies)
+                                {
+                                    if (!_HTTPCookies.ContainsKey(securityTokenId))
+                                        _HTTPCookies.Add(securityTokenId,
+                                                         new SecurityToken(userId.Value,
+                                                                           expires.Value,
+                                                                           superuserId));
+                                }
+
+                                break;
+
+                            }
+
                         }
 
                     }
@@ -15572,14 +15594,17 @@ namespace social.OpenData.UsersAPI
                 { }
             }
 
-            if (userId.HasValue && _TryGetUser(userId, out User? user))
-                return (user, securityInformation);
+            if (userId.HasValue)
+                return securityToken;
 
-            return (null, null);
+            return null;
 
         }
 
         #endregion
+
+
+        #region CheckHTTPBasicAuth(Request)
 
         public User? CheckHTTPBasicAuth(HTTPRequest Request)
         {
@@ -15631,6 +15656,11 @@ namespace social.OpenData.UsersAPI
 
         }
 
+        #endregion
+
+
+        #region CheckHTTPAPIKey(Request)
+
         public User? CheckHTTPAPIKey(HTTPRequest Request)
         {
 
@@ -15645,6 +15675,10 @@ namespace social.OpenData.UsersAPI
             return null;
 
         }
+
+        #endregion
+
+        #endregion
 
 
         #region Users
