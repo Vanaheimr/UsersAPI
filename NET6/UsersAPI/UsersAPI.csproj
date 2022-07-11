@@ -61,6 +61,7 @@
     <None Remove="HTTPRoot\libs\qrcode\qrcode.min.js" />
     <None Remove="HTTPRoot\libs\qrcode\README.md" />
     <None Remove="HTTPRoot\libs\sse.d.ts" />
+    <None Remove="HTTPRoot\login\login-de.html" />
     <None Remove="HTTPRoot\login\login-en.html" />
     <None Remove="HTTPRoot\login\login.css" />
     <None Remove="HTTPRoot\login\login.min.css" />
@@ -290,6 +291,7 @@
     <EmbeddedResource Include="HTTPRoot\libs\qrcode\qrcode.min.js" />
     <EmbeddedResource Include="HTTPRoot\libs\qrcode\README.md" />
     <EmbeddedResource Include="HTTPRoot\libs\sse.d.ts" />
+    <EmbeddedResource Include="HTTPRoot\login\login-de.html" />
     <EmbeddedResource Include="HTTPRoot\login\login-en.html" />
     <EmbeddedResource Include="HTTPRoot\login\login.css" />
     <EmbeddedResource Include="HTTPRoot\login\login.min.css" />
