@@ -4615,6 +4615,276 @@ namespace social.OpenData.UsersAPI
             #endregion
 
 
+            #region OPTIONS     ~/changeSets
+
+            // -----------------------------------------------------
+            // curl -X OPTIONS -v http://127.0.0.1:3004/changeSets
+            // -----------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.OPTIONS,
+                                         URLPathPrefix + "changeSets",
+                                         HTTPDelegate: Request => {
+
+                                             return Task.FromResult(
+                                                 new HTTPResponse.Builder(Request) {
+                                                     HTTPStatusCode             = HTTPStatusCode.OK,
+                                                     Server                     = HTTPServer.DefaultServerName,
+                                                     Date                       = Timestamp.Now,
+                                                     AccessControlAllowOrigin   = "*",
+                                                     AccessControlAllowMethods  = "GET, OPTIONS",
+                                                     AccessControlAllowHeaders  = "Authorization, X-App-Version",
+                                                     Connection                 = "close"
+                                                 }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+            #region GET         ~/changeSets
+
+            // ---------------------------------------------------------------------------------------------------------------
+            // curl -v -H "Accept: application/json" -H "API-Key: xxx" http://127.0.0.1:3004/changeSets?withMetadata\&take=2
+            // ---------------------------------------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "changeSets",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: async Request => {
+
+                                             #region Check API Key...
+
+                                             if (Request.API_Key is null || !remoteAuthAPIKeys.Contains(Request.API_Key.Value))
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode             = HTTPStatusCode.Forbidden,
+                                                            Server                     = HTTPServer.DefaultServerName,
+                                                            Date                       = Timestamp.Now,
+                                                            AccessControlAllowOrigin   = "*",
+                                                            AccessControlAllowMethods  = "GET",
+                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                            ContentType                = HTTPContentType.JSON_UTF8,
+                                                            Content                    = JSONObject.Create(
+
+                                                                                             Request.API_Key.HasValue
+                                                                                                 ? new JProperty("apiKey",  Request.API_Key?.ToString() ?? "")
+                                                                                                 : null,
+
+                                                                                             new JProperty("description",  "Please use a valid API key!")
+
+                                                                                         ).ToUTF8Bytes(),
+                                                            Connection                 = "close"
+                                                        }.AsImmutable;
+
+                                             #endregion
+
+                                             var withMetadata                            = Request.QueryString.GetBoolean ("withMetadata", false);
+                                             var since                                   = Request.QueryString.GetDateTime("since");
+                                             var skipUntil                               = Request.QueryString.GetString  ("skipUntil");
+                                             var skip                                    = Request.QueryString.GetUInt64  ("skip");
+                                             var take                                    = Request.QueryString.GetUInt64  ("take");
+                                             var match                                   = Request.QueryString.GetString  ("match");
+
+                                             var (filteredChangeSets, totalCount, ETag)  = await LoadChangeSets(since,
+                                                                                                                skipUntil,
+                                                                                                                match is not null
+                                                                                                                  ? line => line.Contains(match)
+                                                                                                                  : null,
+                                                                                                                skip,
+                                                                                                                take);
+                                             var filteredCount                           = filteredChangeSets.ULongCount();
+
+                                             var JSONResults                             = new JArray(filteredChangeSets);
+
+
+                                             return new HTTPResponse.Builder(Request) {
+                                                        HTTPStatusCode                = HTTPStatusCode.OK,
+                                                        Server                        = HTTPServer.DefaultServerName,
+                                                        Date                          = Timestamp.Now,
+                                                        AccessControlAllowOrigin      = "*",
+                                                        AccessControlAllowMethods     = "GET, OPTIONS",
+                                                        AccessControlAllowHeaders     = "Authorization, X-App-Version",
+                                                        ETag                          = ETag,
+                                                        ContentType                   = HTTPContentType.JSON_UTF8,
+                                                        Content                       = withMetadata
+                                                                                            ? JSONObject.Create(
+                                                                                                  new JProperty("totalCount",    totalCount),
+                                                                                                  new JProperty("filteredCount", filteredCount),
+                                                                                                  new JProperty("changeSets",    JSONResults)
+                                                                                              ).ToUTF8Bytes()
+                                                                                            : JSONResults.ToUTF8Bytes(),
+                                                        X_ExpectedTotalNumberOfItems  = filteredCount,
+                                                        Connection                    = "close"
+                                                    }.AsImmutable;
+
+                                         });
+
+            #endregion
+
+            #region OPTIONS     ~/securityToken
+
+            // --------------------------------------------------------
+            // curl -X OPTIONS -v http://127.0.0.1:3004/securityToken
+            // --------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.OPTIONS,
+                                         URLPathPrefix + "securityToken",
+                                         HTTPDelegate: Request => {
+
+                                             return Task.FromResult(
+                                                 new HTTPResponse.Builder(Request) {
+                                                     HTTPStatusCode             = HTTPStatusCode.OK,
+                                                     Server                     = HTTPServer.DefaultServerName,
+                                                     Date                       = Timestamp.Now,
+                                                     AccessControlAllowOrigin   = "*",
+                                                     AccessControlAllowMethods  = "CHECK, OPTIONS",
+                                                     AccessControlAllowHeaders  = "Content-Type, Accept, Authorization, X-App-Version",
+                                                     Connection                 = "close"
+                                                 }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+            #region CHECK       ~/securityToken
+
+            // ------------------------------------------------------------------------------------------------------------------------
+            // curl -v -X CHECK -H "Content-type: application/json" -H "Accept: application/json" http://127.0.0.1:3004/securityToken
+            // ------------------------------------------------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.CHECK,
+                                         URLPathPrefix + "securityToken",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: async Request => {
+
+                                             #region Check API Key...
+
+                                             if (Request.API_Key is null || !remoteAuthAPIKeys.Contains(Request.API_Key.Value))
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode             = HTTPStatusCode.Forbidden,
+                                                            Server                     = HTTPServer.DefaultServerName,
+                                                            Date                       = Timestamp.Now,
+                                                            AccessControlAllowOrigin   = "*",
+                                                            AccessControlAllowMethods  = "CHECK, OPTIONS",
+                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                            ContentType                = HTTPContentType.JSON_UTF8,
+                                                            Content                    = JSONObject.Create(
+
+                                                                                             Request.API_Key.HasValue
+                                                                                                 ? new JProperty("apiKey",  Request.API_Key?.ToString() ?? "")
+                                                                                                 : null,
+
+                                                                                             new JProperty("description",  "Please use a valid API key!")
+
+                                                                                         ).ToUTF8Bytes(),
+                                                            Connection                 = "close"
+                                                        }.AsImmutable;
+
+                                             #endregion
+
+
+                                             #region Parse JSON HTTP body...
+
+                                             if (!Request.TryParseJObjectRequestBody(out JObject JSONBody, out HTTPResponse.Builder errorResponse))
+                                                 return errorResponse.AsImmutable;
+
+                                             #endregion
+
+                                             #region Parse securityTokenId    [mandatory]
+
+                                             if (!JSONBody.ParseMandatory("securityTokenId",
+                                                                          "security token identification",
+                                                                          SecurityToken_Id.TryParse,
+                                                                          out SecurityToken_Id  securityTokenId,
+                                                                          out String            errorDescription))
+                                             {
+
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                            Server                     = HTTPServer.DefaultServerName,
+                                                            Date                       = Timestamp.Now,
+                                                            AccessControlAllowOrigin   = "*",
+                                                            AccessControlAllowMethods  = "CHECK",
+                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                            ContentType                = HTTPContentType.JSON_UTF8,
+                                                            Content                    = JSONObject.Create(
+                                                                                             new JProperty("description", errorDescription)
+                                                                                         ).ToUTF8Bytes(),
+                                                            Connection                 = "close"
+                                                        }.AsImmutable;
+
+                                             }
+
+                                             #endregion
+
+                                             #region Parse maxHopCount        [optional]
+
+                                             if (JSONBody.ParseOptional("maxHopCount",
+                                                                        "remote auth server max hop count",
+                                                                        out Byte? maxHopCount,
+                                                                        out       errorDescription))
+                                             {
+
+                                                 if (errorDescription != null)
+                                                     return new HTTPResponse.Builder(Request) {
+                                                                HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                                Server                     = HTTPServer.DefaultServerName,
+                                                                Date                       = Timestamp.Now,
+                                                                AccessControlAllowOrigin   = "*",
+                                                                AccessControlAllowMethods  = "CHECK",
+                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                ContentType                = HTTPContentType.JSON_UTF8,
+                                                                Content                    = JSONObject.Create(
+                                                                                                 new JProperty("description", errorDescription)
+                                                                                             ).ToUTF8Bytes(),
+                                                                Connection                 = "close"
+                                                            }.AsImmutable;
+
+                                             }
+
+                                             #endregion
+
+
+                                             var securityToken = await CheckHTTPCookie(securityTokenId,
+                                                                                       maxHopCount ?? 0);
+
+
+                                             if (securityToken is not null)
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode              = HTTPStatusCode.OK,
+                                                            Server                      = HTTPServer.DefaultServerName,
+                                                            Date                        = Timestamp.Now,
+                                                            AccessControlAllowOrigin    = "*",
+                                                            AccessControlAllowMethods   = "CHECK",
+                                                            AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                            ContentType                 = HTTPContentType.JSON_UTF8,
+                                                            Content                     = JSONObject.Create(
+
+                                                                                              new JProperty("userId",   securityToken.UserId. ToString()),
+                                                                                              new JProperty("expires",  securityToken.Expires.ToIso8601()),
+
+                                                                                              securityToken.SuperUserId.HasValue
+                                                                                                  ? new JProperty("superUserId", securityToken.SuperUserId.Value.ToString())
+                                                                                                  : null
+
+                                                                                          ).ToUTF8Bytes(),
+                                                            Connection                  = "close"
+                                                        }.AsImmutable;
+
+
+                                             return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode              = HTTPStatusCode.NotFound,
+                                                            Server                      = HTTPServer.DefaultServerName,
+                                                            Date                        = Timestamp.Now,
+                                                            AccessControlAllowOrigin    = "*",
+                                                            AccessControlAllowMethods   = "CHECK",
+                                                            AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                            Connection                  = "close"
+                                                        }.AsImmutable;
+
+                                         });
+
+            #endregion
+
+
             #region GET         ~/signup
 
             #region HTML_UTF8
@@ -5429,277 +5699,6 @@ namespace social.OpenData.UsersAPI
                                          },
 
                                          AllowReplacement: URLReplacement.Allow);
-
-            #endregion
-
-
-
-            #region OPTIONS     ~/changeSets
-
-            // -----------------------------------------------------
-            // curl -X OPTIONS -v http://127.0.0.1:3004/changeSets
-            // -----------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
-                                         HTTPMethod.OPTIONS,
-                                         URLPathPrefix + "changeSets",
-                                         HTTPDelegate: Request => {
-
-                                             return Task.FromResult(
-                                                 new HTTPResponse.Builder(Request) {
-                                                     HTTPStatusCode             = HTTPStatusCode.OK,
-                                                     Server                     = HTTPServer.DefaultServerName,
-                                                     Date                       = Timestamp.Now,
-                                                     AccessControlAllowOrigin   = "*",
-                                                     AccessControlAllowMethods  = "GET, OPTIONS",
-                                                     AccessControlAllowHeaders  = "Authorization, X-App-Version",
-                                                     Connection                 = "close"
-                                                 }.AsImmutable);
-
-                                         });
-
-            #endregion
-
-            #region GET         ~/changeSets
-
-            // ---------------------------------------------------------------------------------------------------------------
-            // curl -v -H "Accept: application/json" -H "API-Key: xxx" http://127.0.0.1:3004/changeSets?withMetadata\&take=2
-            // ---------------------------------------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
-                                         HTTPMethod.GET,
-                                         URLPathPrefix + "changeSets",
-                                         HTTPContentType.JSON_UTF8,
-                                         HTTPDelegate: async Request => {
-
-                                             #region Check API Key...
-
-                                             if (Request.API_Key is null || !remoteAuthAPIKeys.Contains(Request.API_Key.Value))
-                                                 return new HTTPResponse.Builder(Request) {
-                                                            HTTPStatusCode             = HTTPStatusCode.Forbidden,
-                                                            Server                     = HTTPServer.DefaultServerName,
-                                                            Date                       = Timestamp.Now,
-                                                            AccessControlAllowOrigin   = "*",
-                                                            AccessControlAllowMethods  = "GET",
-                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                            ContentType                = HTTPContentType.JSON_UTF8,
-                                                            Content                    = JSONObject.Create(
-
-                                                                                             Request.API_Key.HasValue
-                                                                                                 ? new JProperty("apiKey",  Request.API_Key?.ToString() ?? "")
-                                                                                                 : null,
-
-                                                                                             new JProperty("description",  "Please use a valid API key!")
-
-                                                                                         ).ToUTF8Bytes(),
-                                                            Connection                 = "close"
-                                                        }.AsImmutable;
-
-                                             #endregion
-
-                                             var withMetadata                            = Request.QueryString.GetBoolean ("withMetadata", false);
-                                             var since                                   = Request.QueryString.GetDateTime("since");
-                                             var skipUntil                               = Request.QueryString.GetString  ("skipUntil");
-                                             var skip                                    = Request.QueryString.GetUInt64  ("skip");
-                                             var take                                    = Request.QueryString.GetUInt64  ("take");
-                                             var match                                   = Request.QueryString.GetString  ("match");
-
-                                             var (filteredChangeSets, totalCount, ETag)  = await LoadChangeSets(since,
-                                                                                                                skipUntil,
-                                                                                                                match is not null
-                                                                                                                  ? line => line.Contains(match)
-                                                                                                                  : null,
-                                                                                                                skip,
-                                                                                                                take);
-                                             var filteredCount                           = filteredChangeSets.ULongCount();
-
-                                             var JSONResults                             = new JArray(filteredChangeSets);
-
-
-                                             return new HTTPResponse.Builder(Request) {
-                                                        HTTPStatusCode                = HTTPStatusCode.OK,
-                                                        Server                        = HTTPServer.DefaultServerName,
-                                                        Date                          = Timestamp.Now,
-                                                        AccessControlAllowOrigin      = "*",
-                                                        AccessControlAllowMethods     = "GET, OPTIONS",
-                                                        AccessControlAllowHeaders     = "Authorization, X-App-Version",
-                                                        ETag                          = ETag,
-                                                        ContentType                   = HTTPContentType.JSON_UTF8,
-                                                        Content                       = withMetadata
-                                                                                            ? JSONObject.Create(
-                                                                                                  new JProperty("totalCount",    totalCount),
-                                                                                                  new JProperty("filteredCount", filteredCount),
-                                                                                                  new JProperty("changeSets",    JSONResults)
-                                                                                              ).ToUTF8Bytes()
-                                                                                            : JSONResults.ToUTF8Bytes(),
-                                                        X_ExpectedTotalNumberOfItems  = filteredCount,
-                                                        Connection                    = "close"
-                                                    }.AsImmutable;
-
-                                         });
-
-            #endregion
-
-            #region OPTIONS     ~/securityToken
-
-            // --------------------------------------------------------
-            // curl -X OPTIONS -v http://127.0.0.1:3004/securityToken
-            // --------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
-                                         HTTPMethod.OPTIONS,
-                                         URLPathPrefix + "securityToken",
-                                         HTTPDelegate: Request => {
-
-                                             return Task.FromResult(
-                                                 new HTTPResponse.Builder(Request) {
-                                                     HTTPStatusCode             = HTTPStatusCode.OK,
-                                                     Server                     = HTTPServer.DefaultServerName,
-                                                     Date                       = Timestamp.Now,
-                                                     AccessControlAllowOrigin   = "*",
-                                                     AccessControlAllowMethods  = "CHECK, OPTIONS",
-                                                     AccessControlAllowHeaders  = "Content-Type, Accept, Authorization, X-App-Version",
-                                                     Connection                 = "close"
-                                                 }.AsImmutable);
-
-                                         });
-
-            #endregion
-
-            #region CHECK       ~/securityToken
-
-            // ------------------------------------------------------------------------------------------------------------------------
-            // curl -v -X CHECK -H "Content-type: application/json" -H "Accept: application/json" http://127.0.0.1:3004/securityToken
-            // ------------------------------------------------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
-                                         HTTPMethod.CHECK,
-                                         URLPathPrefix + "securityToken",
-                                         HTTPContentType.JSON_UTF8,
-                                         HTTPDelegate: async Request => {
-
-                                             #region Check API Key...
-
-                                             if (Request.API_Key is null || !remoteAuthAPIKeys.Contains(Request.API_Key.Value))
-                                                 return new HTTPResponse.Builder(Request) {
-                                                            HTTPStatusCode             = HTTPStatusCode.Forbidden,
-                                                            Server                     = HTTPServer.DefaultServerName,
-                                                            Date                       = Timestamp.Now,
-                                                            AccessControlAllowOrigin   = "*",
-                                                            AccessControlAllowMethods  = "CHECK, OPTIONS",
-                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                            ContentType                = HTTPContentType.JSON_UTF8,
-                                                            Content                    = JSONObject.Create(
-
-                                                                                             Request.API_Key.HasValue
-                                                                                                 ? new JProperty("apiKey",  Request.API_Key?.ToString() ?? "")
-                                                                                                 : null,
-
-                                                                                             new JProperty("description",  "Please use a valid API key!")
-
-                                                                                         ).ToUTF8Bytes(),
-                                                            Connection                 = "close"
-                                                        }.AsImmutable;
-
-                                             #endregion
-
-
-                                             #region Parse JSON HTTP body...
-
-                                             if (!Request.TryParseJObjectRequestBody(out JObject JSONBody, out HTTPResponse.Builder errorResponse))
-                                                 return errorResponse.AsImmutable;
-
-                                             #endregion
-
-                                             #region Parse securityTokenId    [mandatory]
-
-                                             if (!JSONBody.ParseMandatory("securityTokenId",
-                                                                          "security token identification",
-                                                                          SecurityToken_Id.TryParse,
-                                                                          out SecurityToken_Id  securityTokenId,
-                                                                          out String            errorDescription))
-                                             {
-
-                                                 return new HTTPResponse.Builder(Request) {
-                                                            HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                            Server                     = HTTPServer.DefaultServerName,
-                                                            Date                       = Timestamp.Now,
-                                                            AccessControlAllowOrigin   = "*",
-                                                            AccessControlAllowMethods  = "CHECK",
-                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                            ContentType                = HTTPContentType.JSON_UTF8,
-                                                            Content                    = JSONObject.Create(
-                                                                                             new JProperty("description", errorDescription)
-                                                                                         ).ToUTF8Bytes(),
-                                                            Connection                 = "close"
-                                                        }.AsImmutable;
-
-                                             }
-
-                                             #endregion
-
-                                             #region Parse maxHopCount        [optional]
-
-                                             if (JSONBody.ParseOptional("maxHopCount",
-                                                                        "remote auth server max hop count",
-                                                                        out Byte? maxHopCount,
-                                                                        out       errorDescription))
-                                             {
-
-                                                 if (errorDescription != null)
-                                                     return new HTTPResponse.Builder(Request) {
-                                                                HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                                Server                     = HTTPServer.DefaultServerName,
-                                                                Date                       = Timestamp.Now,
-                                                                AccessControlAllowOrigin   = "*",
-                                                                AccessControlAllowMethods  = "CHECK",
-                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                ContentType                = HTTPContentType.JSON_UTF8,
-                                                                Content                    = JSONObject.Create(
-                                                                                                 new JProperty("description", errorDescription)
-                                                                                             ).ToUTF8Bytes(),
-                                                                Connection                 = "close"
-                                                            }.AsImmutable;
-
-                                             }
-
-                                             #endregion
-
-
-                                             var securityToken = await CheckHTTPCookie(securityTokenId,
-                                                                                       maxHopCount ?? 0);
-
-
-                                             if (securityToken is not null)
-                                                 return new HTTPResponse.Builder(Request) {
-                                                            HTTPStatusCode              = HTTPStatusCode.OK,
-                                                            Server                      = HTTPServer.DefaultServerName,
-                                                            Date                        = Timestamp.Now,
-                                                            AccessControlAllowOrigin    = "*",
-                                                            AccessControlAllowMethods   = "CHECK",
-                                                            AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
-                                                            ContentType                 = HTTPContentType.JSON_UTF8,
-                                                            Content                     = JSONObject.Create(
-
-                                                                                              new JProperty("userId",   securityToken.UserId. ToString()),
-                                                                                              new JProperty("expires",  securityToken.Expires.ToIso8601()),
-
-                                                                                              securityToken.SuperUserId.HasValue
-                                                                                                  ? new JProperty("superUserId", securityToken.SuperUserId.Value.ToString())
-                                                                                                  : null
-
-                                                                                          ).ToUTF8Bytes(),
-                                                            Connection                  = "close"
-                                                        }.AsImmutable;
-
-
-                                             return new HTTPResponse.Builder(Request) {
-                                                            HTTPStatusCode              = HTTPStatusCode.NotFound,
-                                                            Server                      = HTTPServer.DefaultServerName,
-                                                            Date                        = Timestamp.Now,
-                                                            AccessControlAllowOrigin    = "*",
-                                                            AccessControlAllowMethods   = "CHECK",
-                                                            AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
-                                                            Connection                  = "close"
-                                                        }.AsImmutable;
-
-                                         });
 
             #endregion
 
