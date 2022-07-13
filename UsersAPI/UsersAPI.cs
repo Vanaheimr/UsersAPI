@@ -4512,15 +4512,20 @@ namespace social.OpenData.UsersAPI
                 if (request.Path.StartsWith(URLPathPrefix + "/shared/UsersAPI/defaults") ||
                     request.Path.StartsWith(URLPathPrefix + "/shared/UsersAPI/webfonts") ||
                     request.Path.StartsWith(URLPathPrefix + "/shared/UsersAPI/login")    ||
-                    request.Path.StartsWith(URLPathPrefix + "/defaults")      ||
-                    request.Path.StartsWith(URLPathPrefix + "/favicon.ico")   ||
-                    request.Path.StartsWith(URLPathPrefix + "/login")         ||
-                    request.Path.StartsWith(URLPathPrefix + "/lostPassword")  ||
-                    request.Path.StartsWith(URLPathPrefix + "/resetPassword") ||
-                    request.Path.StartsWith(URLPathPrefix + "/setPassword")   ||
+                    request.Path.StartsWith(URLPathPrefix + "/defaults")                 ||
+                    request.Path.StartsWith(URLPathPrefix + "/favicon.ico")              ||
+
+                    request.Path.StartsWith(URLPathPrefix + "/login")                                              ||
+                    request.Path.StartsWith(URLPathPrefix + "/lostPassword")                                       ||
+                    request.Path.StartsWith(URLPathPrefix + "/resetPassword")                                      ||
+                    request.Path.StartsWith(URLPathPrefix + "/setPassword")                                        ||
+                   (request.Path.StartsWith(URLPathPrefix + "/users/") && request.HTTPMethod.ToString() == "AUTH") ||
+
+                    // Special API keys!
+                    request.Path.StartsWith(URLPathPrefix + "/changeSets")    ||
                     request.Path.StartsWith(URLPathPrefix + "/securityToken") ||
-                   (request.Path.StartsWith(URLPathPrefix + "/serviceCheck")  && request.HTTPMethod.ToString() == "POST") ||
-                   (request.Path.StartsWith(URLPathPrefix + "/users/")        && request.HTTPMethod.ToString() == "AUTH"))
+
+                   (request.Path.StartsWith(URLPathPrefix + "/serviceCheck")  && request.HTTPMethod.ToString() == "POST"))
                 {
                     return Anonymous;
                 }
@@ -5429,10 +5434,139 @@ namespace social.OpenData.UsersAPI
 
 
 
+            #region OPTIONS     ~/changeSets
+
+            // -----------------------------------------------------
+            // curl -X OPTIONS -v http://127.0.0.1:3004/changeSets
+            // -----------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.OPTIONS,
+                                         URLPathPrefix + "changeSets",
+                                         HTTPDelegate: Request => {
+
+                                             return Task.FromResult(
+                                                 new HTTPResponse.Builder(Request) {
+                                                     HTTPStatusCode             = HTTPStatusCode.OK,
+                                                     Server                     = HTTPServer.DefaultServerName,
+                                                     Date                       = Timestamp.Now,
+                                                     AccessControlAllowOrigin   = "*",
+                                                     AccessControlAllowMethods  = "GET, OPTIONS",
+                                                     AccessControlAllowHeaders  = "Authorization, X-App-Version",
+                                                     Connection                 = "close"
+                                                 }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+            #region GET         ~/changeSets
+
+            // ---------------------------------------------------------------------------------------------------------------
+            // curl -v -H "Accept: application/json" -H "API-Key: xxx" http://127.0.0.1:3004/changeSets?withMetadata\&take=2
+            // ---------------------------------------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "changeSets",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: async Request => {
+
+                                             #region Check API Key...
+
+                                             if (Request.API_Key is null || !remoteAuthAPIKeys.Contains(Request.API_Key.Value))
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode             = HTTPStatusCode.Forbidden,
+                                                            Server                     = HTTPServer.DefaultServerName,
+                                                            Date                       = Timestamp.Now,
+                                                            AccessControlAllowOrigin   = "*",
+                                                            AccessControlAllowMethods  = "GET",
+                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                            ContentType                = HTTPContentType.JSON_UTF8,
+                                                            Content                    = JSONObject.Create(
+
+                                                                                             Request.API_Key.HasValue
+                                                                                                 ? new JProperty("apiKey",  Request.API_Key?.ToString() ?? "")
+                                                                                                 : null,
+
+                                                                                             new JProperty("description",  "Please use a valid API key!")
+
+                                                                                         ).ToUTF8Bytes(),
+                                                            Connection                 = "close"
+                                                        }.AsImmutable;
+
+                                             #endregion
+
+                                             var withMetadata                            = Request.QueryString.GetBoolean ("withMetadata", false);
+                                             var since                                   = Request.QueryString.GetDateTime("since");
+                                             var skipUntil                               = Request.QueryString.GetString  ("skipUntil");
+                                             var skip                                    = Request.QueryString.GetUInt64  ("skip");
+                                             var take                                    = Request.QueryString.GetUInt64  ("take");
+                                             var match                                   = Request.QueryString.GetString  ("match");
+
+                                             var (filteredChangeSets, totalCount, ETag)  = await LoadChangeSets(since,
+                                                                                                                skipUntil,
+                                                                                                                match is not null
+                                                                                                                  ? line => line.Contains(match)
+                                                                                                                  : null,
+                                                                                                                skip,
+                                                                                                                take);
+                                             var filteredCount                           = filteredChangeSets.ULongCount();
+
+                                             var JSONResults                             = new JArray(filteredChangeSets);
+
+
+                                             return new HTTPResponse.Builder(Request) {
+                                                        HTTPStatusCode                = HTTPStatusCode.OK,
+                                                        Server                        = HTTPServer.DefaultServerName,
+                                                        Date                          = Timestamp.Now,
+                                                        AccessControlAllowOrigin      = "*",
+                                                        AccessControlAllowMethods     = "GET, OPTIONS",
+                                                        AccessControlAllowHeaders     = "Authorization, X-App-Version",
+                                                        ETag                          = ETag,
+                                                        ContentType                   = HTTPContentType.JSON_UTF8,
+                                                        Content                       = withMetadata
+                                                                                            ? JSONObject.Create(
+                                                                                                  new JProperty("totalCount",    totalCount),
+                                                                                                  new JProperty("filteredCount", filteredCount),
+                                                                                                  new JProperty("changeSets",    JSONResults)
+                                                                                              ).ToUTF8Bytes()
+                                                                                            : JSONResults.ToUTF8Bytes(),
+                                                        X_ExpectedTotalNumberOfItems  = filteredCount,
+                                                        Connection                    = "close"
+                                                    }.AsImmutable;
+
+                                         });
+
+            #endregion
+
+            #region OPTIONS     ~/securityToken
+
+            // --------------------------------------------------------
+            // curl -X OPTIONS -v http://127.0.0.1:3004/securityToken
+            // --------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.OPTIONS,
+                                         URLPathPrefix + "securityToken",
+                                         HTTPDelegate: Request => {
+
+                                             return Task.FromResult(
+                                                 new HTTPResponse.Builder(Request) {
+                                                     HTTPStatusCode             = HTTPStatusCode.OK,
+                                                     Server                     = HTTPServer.DefaultServerName,
+                                                     Date                       = Timestamp.Now,
+                                                     AccessControlAllowOrigin   = "*",
+                                                     AccessControlAllowMethods  = "CHECK, OPTIONS",
+                                                     AccessControlAllowHeaders  = "Content-Type, Accept, Authorization, X-App-Version",
+                                                     Connection                 = "close"
+                                                 }.AsImmutable);
+
+                                         });
+
+            #endregion
+
             #region CHECK       ~/securityToken
 
             // ------------------------------------------------------------------------------------------------------------------------
-            // curl -v -X CHECK -H "Content-type: application/json" -H "Accept: application/json" http://127.0.0.1:2100/securityToken
+            // curl -v -X CHECK -H "Content-type: application/json" -H "Accept: application/json" http://127.0.0.1:3004/securityToken
             // ------------------------------------------------------------------------------------------------------------------------
             HTTPServer.AddMethodCallback(Hostname,
                                          HTTPMethod.CHECK,
@@ -5442,13 +5576,13 @@ namespace social.OpenData.UsersAPI
 
                                              #region Check API Key...
 
-                                             if (Request.API_Key is null || remoteAuthAPIKeys.Contains(Request.API_Key.Value))
+                                             if (Request.API_Key is null || !remoteAuthAPIKeys.Contains(Request.API_Key.Value))
                                                  return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode             = HTTPStatusCode.Forbidden,
                                                             Server                     = HTTPServer.DefaultServerName,
                                                             Date                       = Timestamp.Now,
                                                             AccessControlAllowOrigin   = "*",
-                                                            AccessControlAllowMethods  = "CHECK",
+                                                            AccessControlAllowMethods  = "CHECK, OPTIONS",
                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                             ContentType                = HTTPContentType.JSON_UTF8,
                                                             Content                    = JSONObject.Create(
@@ -13204,21 +13338,21 @@ namespace social.OpenData.UsersAPI
 
         #region Database file...
 
-        #region (protected) ReadDatabaseFile(ProcessEventDelegate, DatabaseFileName = null)
+        #region (protected) ReadDatabaseFiles(ProcessEventDelegate, DatabaseFileName = null)
 
         /// <summary>
         /// Read the database file.
         /// </summary>
         /// <param name="ProcessEventDelegate">A delegate to process each database entry.</param>
         /// <param name="DatabaseFileName">The optional database file name.</param>
-        protected async Task ReadDatabaseFile(Func<String, JObject, String, UInt64?, Task>  ProcessEventDelegate,
-                                              String                                        DatabaseFileName = null)
+        protected async Task ReadDatabaseFiles(Func<String, JObject, String, UInt64?, Task>  ProcessEventDelegate,
+                                               String?                                       DatabaseFileName = null)
         {
 
             if (DisableLogging)
                 return;
 
-            var databaseFileName = DatabaseFileName ?? this.DatabaseFileName;
+            String databaseFileName = DatabaseFileName ?? this.DatabaseFileName;
 
             DebugX.Log("Reloading database file '" + databaseFileName + "'...");
 
@@ -13227,7 +13361,6 @@ namespace social.OpenData.UsersAPI
 
                 JObject JSONLine;
                 String  JSONCommand;
-                JObject JSONObject;
 
                 File.ReadLines(databaseFileName).ForEachCounted(async (line, lineNumber) => {
 
@@ -13239,21 +13372,32 @@ namespace social.OpenData.UsersAPI
                         try
                         {
 
-                            JSONLine                  = JObject.Parse(line);
-                            JSONCommand               = (JSONLine.First as JProperty)?.Name;
-                            JSONObject                = (JSONLine.First as JProperty)?.Value as JObject;
-                            CurrentDatabaseHashValue  = JSONLine["sha256hash"]?["hashValue"]?.Value<String>();
+                            JSONLine  = JObject.Parse(line);
 
-                            if (JSONCommand.IsNotNullOrEmpty() && JSONObject != null)
-                                await ProcessEventDelegate(JSONCommand,
-                                                           JSONObject,
-                                                           databaseFileName,
-                                                           lineNumber);
+                            if (JSONLine.First is JProperty jsonProperty)
+                            {
+
+                                JSONCommand  = jsonProperty.Name;
+
+                                if (JSONCommand.IsNotNullOrEmpty() &&
+                                    jsonProperty.Value is JObject jsonObject)
+                                {
+
+                                    CurrentDatabaseHashValue = JSONLine?["sha256hash"]?["hashValue"]?.Value<String>() ?? "";
+
+                                    await ProcessEventDelegate(JSONCommand,
+                                                               jsonObject,
+                                                               databaseFileName,
+                                                               lineNumber);
+
+                                }
+
+                            }
 
                         }
                         catch (Exception e)
                         {
-                            DebugX.Log(@"Could not (re-)load database file ''" + databaseFileName + "' line " + lineNumber + ": " + e.Message);
+                            DebugX.Log("Could not (re-)load database file ''" + databaseFileName + "' line " + lineNumber + ": " + e.Message);
                         }
 
                     }
@@ -13262,10 +13406,12 @@ namespace social.OpenData.UsersAPI
 
             }
             catch (FileNotFoundException)
-            { }
+            {
+                DebugX.LogT("Could not find database file '" + databaseFileName + "'!");
+            }
             catch (Exception e)
             {
-                DebugX.LogT(@"Could not (re-)load database file '" + databaseFileName + "': " + e.Message);
+                DebugX.LogT("Could not (re-)load database file '" + databaseFileName + "': " + e.Message);
             }
 
 
@@ -13573,6 +13719,126 @@ namespace social.OpenData.UsersAPI
             #endregion
 
             DebugX.Log("Reloading of all UsersAPI database helper files finished...");
+
+        }
+
+        #endregion
+
+        #region (protected) LoadChangeSets(Since = null, SkipUntil = null, MatchFilter = null, Skip = null, Take = null, DatabaseFileName = null)
+
+        /// <summary>
+        /// Read all change sets from the database file.
+        /// </summary>
+        /// <param name="DatabaseFileName">The optional database file name.</param>
+        protected async Task<(IEnumerable<JObject>, UInt64, String)> LoadChangeSets(DateTime?               Since              = null,
+                                                                                    String?                 SkipUntil          = null,
+                                                                                    Func<String, Boolean>?  MatchFilter        = null,
+                                                                                    UInt64?                 Skip               = null,
+                                                                                    UInt64?                 Take               = null,
+                                                                                    String?                 DatabaseFileName   = null)
+        {
+
+            if (MatchFilter is null)
+                MatchFilter = line => true;
+
+            var     jsonList           = new List<JObject>();
+            String  databaseFileName   = DatabaseFileName ?? this.DatabaseFileName;
+            var     totalCount         = 0UL;
+            var     skipUntil_reached  = SkipUntil is null;
+            var     lastValidLine      = "";
+            var     ETag               = "";
+
+            try
+            {
+
+                var lines = await File.ReadAllLinesAsync(databaseFileName);
+
+                lines?.ForEachCounted((line, lineNumber) =>
+                {
+
+                    if (line.IsNeitherNullNorEmpty() &&
+                       !line.StartsWith("#")         &&
+                       !line.StartsWith("//"))
+                    {
+
+                        try
+                        {
+
+                            var jsonLine = JObject.Parse(line);
+
+                            if (jsonLine is JObject &&
+                                jsonLine.First is JProperty jsonProperty)
+                            {
+
+                                if (jsonProperty.Name.IsNotNullOrEmpty() &&
+                                    jsonProperty.Value is JObject jsonObject)
+                                {
+
+                                    totalCount++;
+                                    lastValidLine = line;
+
+                                    var skip = false;
+
+                                    if (Since is not null)
+                                    {
+
+                                        var timestamp = jsonLine["timestamp"]?.Value<DateTime>();
+
+                                        if (timestamp is not null)
+                                        {
+                                            if (timestamp < Since.Value)
+                                                skip = true;
+                                        }
+
+                                    }
+
+                                    if (skip              == false &&
+                                        skipUntil_reached == false &&
+                                        SkipUntil is not null)
+                                    {
+
+                                        var sha256hash = jsonLine["sha256hash"]?["hashValue"]?.Value<String>();
+
+                                        if (sha256hash is not null)
+                                        {
+                                            if (sha256hash == SkipUntil)
+                                                skipUntil_reached = true;
+                                        }
+
+                                    }
+
+                                    if (skip == false && skipUntil_reached && MatchFilter(line))
+                                        jsonList.Add(jsonLine);
+
+                                }
+
+                            }
+
+                        }
+                        catch (Exception e)
+                        {
+                            DebugX.Log("Could not load database file ''" + databaseFileName + "' line " + lineNumber + ": " + e.Message);
+                        }
+
+                    }
+
+                });
+
+                ETag = JObject.Parse(lastValidLine)?["sha256hash"]?["hashValue"]?.Value<String>() ?? "0";
+
+            }
+            catch (FileNotFoundException)
+            {
+                DebugX.LogT("Could not find database file '" + databaseFileName + "'!");
+            }
+            catch (Exception e)
+            {
+                DebugX.LogT("Could not (re-)load database file '" + databaseFileName + "': " + e.Message);
+            }
+
+            return (jsonList.SkipTakeFilter(Skip, Take),
+                    totalCount,
+                    ETag);
 
         }
 
