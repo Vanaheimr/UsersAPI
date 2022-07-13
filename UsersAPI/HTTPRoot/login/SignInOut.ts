@@ -623,8 +623,8 @@ function checkSignedIn(RedirectUnkownUsers: boolean) {
                        ShowElement2('#astronautFrame', 'inline-block');
 
                    if (window.matchMedia("(min-device-width : 376px)").matches) {
-                       ShowElement('#username');
-                       ShowElement('.username');
+                       ShowElement2('#username', 'inline-block');
+                       ShowElement2('.username', 'inline-block');
                    }
 
                    ShowElement('#profile');

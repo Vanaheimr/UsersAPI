@@ -18,8 +18,6 @@
 #region Usings
 
 using System;
-using System.Linq;
-using System.Collections.Generic;
 
 using Newtonsoft.Json.Linq;
 
@@ -33,7 +31,7 @@ namespace social.OpenData.UsersAPI
 {
 
     /// <summary>
-    /// An API keyrmation.
+    /// An API key.
     /// </summary>
     public class APIKey : AEntity<APIKey_Id,
                                   APIKey>
@@ -133,7 +131,7 @@ namespace social.OpenData.UsersAPI
         #region Constructor(s)
 
         /// <summary>
-        /// Create a new API keyrmation.
+        /// Create a new API key.
         /// </summary>
         /// <param name="Id">The unique identification of the API key.</param>
         /// <param name="User">The related user.</param>
@@ -628,9 +626,9 @@ namespace social.OpenData.UsersAPI
         /// <param name="APIKey">An object to compare with.</param>
         public override Int32 CompareTo(APIKey APIKey)
 
-            => APIKey is APIKey
+            => APIKey is not null
                    ? Id.CompareTo(APIKey.Id)
-                   : throw new ArgumentException("The given object is not an API key!", nameof(Object));
+                   : throw new ArgumentException("The given object is not an API key!", nameof(APIKey));
 
         #endregion
 
@@ -645,7 +643,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="Object">An object to compare with.</param>
         /// <returns>true|false</returns>
-        public override Boolean Equals(Object Object)
+        public override Boolean Equals(Object? Object)
 
             => Object is APIKey apiKey &&
                   Equals(apiKey);
@@ -657,11 +655,11 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Compares two API keys informations for equality.
         /// </summary>
-        /// <param name="APIKey">An API keyrmation to compare with.</param>
+        /// <param name="APIKey">An API key to compare with.</param>
         /// <returns>True if both match; False otherwise.</returns>
         public override Boolean Equals(APIKey APIKey)
 
-            => APIKey is APIKey &&
+            => APIKey is not null &&
                    Id.Equals(APIKey.Id);
 
         #endregion

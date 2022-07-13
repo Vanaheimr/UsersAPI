@@ -18,21 +18,14 @@
 #region Usings
 
 using System;
-using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Globalization;
 using System.Net.Security;
 using System.Security.Authentication;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 
 using Newtonsoft.Json.Linq;
 
@@ -64,8 +57,6 @@ using com.GraphDefined.SMSApi.API.Response;
 using social.OpenData.UsersAPI;
 using social.OpenData.UsersAPI.Notifications;
 using social.OpenData.UsersAPI.Postings;
-
-using Telegram.Bot;
 
 #endregion
 
@@ -1399,26 +1390,25 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         public new static readonly IPPort         DefaultHTTPServerPort                = IPPort.Parse(2305);
 
-        public const               String         DefaultUsersAPI_LoggingPath          = "default";
         public const               String         DefaultUsersAPI_DatabaseFileName     = "UsersAPI.db";
         public const               String         DefaultUsersAPI_LogfileName          = "UsersAPI.log";
         public const               String         DefaultPasswordFile                  = "passwords.db";
         public const               String         DefaultHTTPCookiesFile               = "HTTPCookies.db";
         public const               String         DefaultPasswordResetsFile            = "passwordResets.db";
 
-        protected static readonly  SemaphoreSlim  ServiceTicketsSemaphore              = new SemaphoreSlim(1, 1);
-        protected static readonly  SemaphoreSlim  LogFileSemaphore                     = new SemaphoreSlim(1, 1);
-        protected static readonly  SemaphoreSlim  UsersSemaphore                       = new SemaphoreSlim(1, 1);
-        protected static readonly  SemaphoreSlim  UserGroupsSemaphore                  = new SemaphoreSlim(1, 1);
-        protected static readonly  SemaphoreSlim  APIKeysSemaphore                     = new SemaphoreSlim(1, 1);
-        protected static readonly  SemaphoreSlim  OrganizationsSemaphore               = new SemaphoreSlim(1, 1);
-        protected static readonly  SemaphoreSlim  OrganizationGroupsSemaphore          = new SemaphoreSlim(1, 1);
-        protected static readonly  SemaphoreSlim  MessagesSemaphore                    = new SemaphoreSlim(1, 1);
-        protected static readonly  SemaphoreSlim  NotificationMessagesSemaphore        = new SemaphoreSlim(1, 1);
-        protected static readonly  SemaphoreSlim  DashboardsSemaphore                  = new SemaphoreSlim(1, 1);
-        protected static readonly  SemaphoreSlim  NewsPostingsSemaphore                = new SemaphoreSlim(1, 1);
-        protected static readonly  SemaphoreSlim  NewsBannersSemaphore                 = new SemaphoreSlim(1, 1);
-        protected static readonly  SemaphoreSlim  FAQsSemaphore                        = new SemaphoreSlim(1, 1);
+        protected static readonly  SemaphoreSlim  ServiceTicketsSemaphore              = new (1, 1);
+        protected static readonly  SemaphoreSlim  LogFileSemaphore                     = new (1, 1);
+        protected static readonly  SemaphoreSlim  UsersSemaphore                       = new (1, 1);
+        protected static readonly  SemaphoreSlim  UserGroupsSemaphore                  = new (1, 1);
+        protected static readonly  SemaphoreSlim  APIKeysSemaphore                     = new (1, 1);
+        protected static readonly  SemaphoreSlim  OrganizationsSemaphore               = new (1, 1);
+        protected static readonly  SemaphoreSlim  OrganizationGroupsSemaphore          = new (1, 1);
+        protected static readonly  SemaphoreSlim  MessagesSemaphore                    = new (1, 1);
+        protected static readonly  SemaphoreSlim  NotificationMessagesSemaphore        = new (1, 1);
+        protected static readonly  SemaphoreSlim  DashboardsSemaphore                  = new (1, 1);
+        protected static readonly  SemaphoreSlim  NewsPostingsSemaphore                = new (1, 1);
+        protected static readonly  SemaphoreSlim  NewsBannersSemaphore                 = new (1, 1);
+        protected static readonly  SemaphoreSlim  FAQsSemaphore                        = new (1, 1);
 
         /// <summary>
         /// The HTTP root for embedded ressources.
@@ -1481,6 +1471,11 @@ namespace social.OpenData.UsersAPI
         protected static readonly Char[]    Split4  = { ',' };
         protected static readonly Char[]    Split5  = { '|' };
 
+        public    static readonly User                                          Anonymous = new User(User_Id.Parse("anonymous"),
+                                                                                                     "Anonymous",
+                                                                                                     SimpleEMailAddress.Parse("anonymous@example.com"),
+                                                                                                     AcceptedEULA: Timestamp.Now);
+
         #endregion
 
         #region Properties
@@ -1488,54 +1483,53 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// The API database file.
         /// </summary>
-        public String                        DatabaseFileName                   { get; }
+        public String                         DatabaseFileName                   { get; }
 
 
         /// <summary>
         /// The API version hash (git commit hash value).
         /// </summary>
-        public String                        APIVersionHash                     { get; }
+        public String                         APIVersionHash                     { get; }
 
 
-        public Organization_Id               AdminOrganizationId                { get; }
+        public Organization_Id                AdminOrganizationId                { get; }
 
-        public String                        UsersAPIPath                       { get; }
-        public String                        NotificationsPath                  { get; }
-        
-        public String                        SMTPLoggingPath                    { get; }
-        public String                        TelegramLoggingPath                { get; }
-        public String                        SMSAPILoggingPath                  { get; }
+        public String                         UsersAPIPath                       { get; }
+        public String                         NotificationsPath                  { get; }
+        public String                         SMTPLoggingPath                    { get; }
+        public String                         TelegramLoggingPath                { get; }
+        public String                         SMSAPILoggingPath                  { get; }
 
 
         /// <summary>
         /// The mother of all organizations.
         /// </summary>
-        public Organization                  NoOwner                            { get; }
+        public Organization                   NoOwner                            { get; }
 
         /// <summary>
         /// The virtual 'robot' user.
         /// </summary>
-        public User                          Robot                              { get; }
+        public User                           Robot                              { get; }
 
         /// <summary>
         /// The passphrase of the PGP/GPG secret key of the API.
         /// </summary>
-        public String                        APIRobotGPGPassphrase              { get; }
+        public String                         APIRobotGPGPassphrase              { get; }
 
         /// <summary>
         /// A SMTP client to be used by the API.
         /// </summary>
-        public ISMTPClient                   SMTPClient                         { get; }
+        public ISMTPClient                    SMTPClient                         { get; }
 
         /// <summary>
         /// The SMSAPI.
         /// </summary>
-        public ISMSClient                    SMSClient                          { get; }
+        public ISMSClient                     SMSClient                          { get; }
 
         /// <summary>
         /// The (default) SMS sender name.
         /// </summary>
-        public String                        SMSSenderName                      { get; }
+        public String                         SMSSenderName                      { get; }
 
         ///// <summary>
         ///// The Telegram API access token of the bot.
@@ -1550,103 +1544,121 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// The Telegram user store.
         /// </summary>
-        public ITelegramStore                TelegramClient                      { get; }
+        public ITelegramStore                 TelegramClient                      { get; }
 
-        public HTTPCookieName                CookieName                         { get; }
+        public HTTPCookieName                 CookieName                         { get; }
 
-        public HTTPCookieName                SessionCookieName                  { get; }
+        public HTTPCookieName                 SessionCookieName                  { get; }
 
         /// <summary>
         /// Force the web browser to send cookies only via HTTPS.
         /// </summary>
-        public Boolean                       UseSecureCookies                   { get; }
+        public Boolean                        UseSecureCookies                   { get; }
 
 
         /// <summary>
         /// The default language used within this API.
         /// </summary>
-        public Languages                     DefaultLanguage                    { get; }
+        public Languages                      DefaultLanguage                    { get; }
 
         /// <summary>
         /// The maximum sign-in session lifetime.
         /// </summary>
-        public TimeSpan                      MaxSignInSessionLifetime           { get; }
+        public TimeSpan                       MaxSignInSessionLifetime           { get; }
 
         /// <summary>
         /// The minimal user identification length.
         /// </summary>
-        public Byte                          MinUserIdLength                    { get; }
+        public Byte                           MinUserIdLength                    { get; }
 
         /// <summary>
         /// The minimal realm length.
         /// </summary>
-        public Byte                          MinRealmLength                     { get; }
+        public Byte                           MinRealmLength                     { get; }
 
         /// <summary>
         /// A delegate to ensure a minimal password quality.
         /// </summary>
-        public PasswordQualityCheckDelegate  PasswordQualityCheck               { get; }
+        public PasswordQualityCheckDelegate   PasswordQualityCheck               { get; }
 
         /// <summary>
         /// The minimal user name length.
         /// </summary>
-        public Byte                          MinUserNameLength                  { get; }
+        public Byte                           MinUserNameLength                  { get; }
 
         /// <summary>
         /// The minimal user group identification length.
         /// </summary>
-        public Byte                          MinUserGroupIdLength               { get; }
+        public Byte                           MinUserGroupIdLength               { get; }
 
         /// <summary>
         /// The minimal API key length.
         /// </summary>
-        public UInt16                        MinAPIKeyLength                    { get; }
+        public UInt16                         MinAPIKeyLength                    { get; }
 
         /// <summary>
         /// The minimal message identification length.
         /// </summary>
-        public Byte                          MinMessageIdLength                 { get; }
+        public Byte                           MinMessageIdLength                 { get; }
 
         /// <summary>
         /// The minimal message identification length.
         /// </summary>
-        public Byte                          MinOrganizationIdLength            { get; }
+        public Byte                           MinOrganizationIdLength            { get; }
 
         /// <summary>
         /// The minimal message identification length.
         /// </summary>
-        public Byte                          MinOrganizationGroupIdLength       { get; }
+        public Byte                           MinOrganizationGroupIdLength       { get; }
 
         /// <summary>
         /// The minimal notification message identification length.
         /// </summary>
-        public Byte                          MinNotificationMessageIdLength     { get; }
+        public Byte                           MinNotificationMessageIdLength     { get; }
 
         /// <summary>
         /// The minimal news posting identification length.
         /// </summary>
-        public Byte                          MinNewsPostingIdLength             { get; }
+        public Byte                           MinNewsPostingIdLength             { get; }
 
         /// <summary>
         /// The minimal news banner identification length.
         /// </summary>
-        public Byte                          MinNewsBannerIdLength              { get; }
+        public Byte                           MinNewsBannerIdLength              { get; }
 
         /// <summary>
         /// The minimal FAQ identification length.
         /// </summary>
-        public Byte                          MinFAQIdLength                     { get; }
+        public Byte                           MinFAQIdLength                     { get; }
 
 
         /// <summary>
         /// The current hash value of the API.
         /// </summary>
-        public String                        CurrentDatabaseHashValue           { get; protected set; }
+        public String                         CurrentDatabaseHashValue           { get; protected set; }
 
         /// <summary>
         /// Disable external notifications.
         /// </summary>
-        public Boolean                       DisableNotifications               { get; set; }
+        public Boolean                        DisableNotifications               { get; set; }
+
+
+        private readonly HashSet<URLWith_APIKeyId>  remoteAuthServers;
+
+        /// <summary>
+        /// Servers for remote authorization.
+        /// </summary>
+        public IEnumerable<URLWith_APIKeyId>  RemoteAuthServers
+            => RemoteAuthServers;
+
+
+        private readonly HashSet<APIKey_Id>  remoteAuthAPIKeys;
+
+        /// <summary>
+        /// API key for incoming remote authorizations.
+        /// </summary>
+        public IEnumerable<APIKey_Id>         RemoteAuthAPIKeys
+            => remoteAuthAPIKeys;
 
         #endregion
 
@@ -1657,7 +1669,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An event sent whenever add users request was received.
         /// </summary>
-        public HTTPRequestLogEvent OnAddUsersRequest = new HTTPRequestLogEvent();
+        public HTTPRequestLogEvent OnAddUsersRequest = new();
 
         /// <summary>
         /// An event sent whenever add users request was received.
@@ -1666,8 +1678,8 @@ namespace social.OpenData.UsersAPI
         /// <param name="API">The HTTP API.</param>
         /// <param name="Request">A HTTP request.</param>
         protected internal Task AddUsersHTTPRequest(DateTime     Timestamp,
-                                                HTTPAPI      API,
-                                                HTTPRequest  Request)
+                                                    HTTPAPI      API,
+                                                    HTTPRequest  Request)
 
             => OnAddUsersRequest?.WhenAll(Timestamp,
                                           API ?? this,
@@ -1680,7 +1692,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An event sent whenever a response on an add users request was sent.
         /// </summary>
-        public HTTPResponseLogEvent OnAddUsersResponse = new HTTPResponseLogEvent();
+        public HTTPResponseLogEvent OnAddUsersResponse = new();
 
         /// <summary>
         /// An event sent whenever a response on an add users request was sent.
@@ -1690,9 +1702,9 @@ namespace social.OpenData.UsersAPI
         /// <param name="Request">A HTTP request.</param>
         /// <param name="Response">A HTTP response.</param>
         protected internal Task AddUsersHTTPResponse(DateTime      Timestamp,
-                                                 HTTPAPI       API,
-                                                 HTTPRequest   Request,
-                                                 HTTPResponse  Response)
+                                                     HTTPAPI       API,
+                                                     HTTPRequest   Request,
+                                                     HTTPResponse  Response)
 
             => OnAddUsersResponse?.WhenAll(Timestamp,
                                            API ?? this,
@@ -1707,7 +1719,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An event sent whenever add user request was received.
         /// </summary>
-        public HTTPRequestLogEvent OnAddUserHTTPRequest = new HTTPRequestLogEvent();
+        public HTTPRequestLogEvent OnAddUserHTTPRequest = new();
 
         /// <summary>
         /// An event sent whenever add user request was received.
@@ -1730,7 +1742,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An event sent whenever a response on an add user request was sent.
         /// </summary>
-        public HTTPResponseLogEvent OnAddUserHTTPResponse = new HTTPResponseLogEvent();
+        public HTTPResponseLogEvent OnAddUserHTTPResponse = new();
 
         /// <summary>
         /// An event sent whenever a response on an add user request was sent.
@@ -1757,7 +1769,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An event sent whenever set user request was received.
         /// </summary>
-        public HTTPRequestLogEvent OnSetUserHTTPRequest = new HTTPRequestLogEvent();
+        public HTTPRequestLogEvent OnSetUserHTTPRequest = new();
 
         /// <summary>
         /// An event sent whenever set user request was received.
@@ -1780,7 +1792,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An event sent whenever a response on a set user request was sent.
         /// </summary>
-        public HTTPResponseLogEvent OnSetUserHTTPResponse = new HTTPResponseLogEvent();
+        public HTTPResponseLogEvent OnSetUserHTTPResponse = new();
 
         /// <summary>
         /// An event sent whenever a response on a set user request was sent.
@@ -2570,6 +2582,9 @@ namespace social.OpenData.UsersAPI
         /// <param name="WardenInitialDelay">The initial delay of the warden tasks.</param>
         /// <param name="WardenCheckEvery">The warden intervall.</param>
         /// 
+        /// <param name="RemoteAuthServers">Servers for remote authorization.</param>
+        /// <param name="RemoteAuthAPIKeys">API keys for incoming remote authorizations.</param>
+        /// 
         /// <param name="IsDevelopment">This HTTP API runs in development mode.</param>
         /// <param name="DevelopmentServers">An enumeration of server names which will imply to run this service in development mode.</param>
         /// <param name="SkipURLTemplates">Skip URL templates.</param>
@@ -2581,86 +2596,89 @@ namespace social.OpenData.UsersAPI
         /// <param name="LogfileCreator">A delegate for creating the name of the logfile for this API.</param>
         /// <param name="DNSClient">The DNS client of the API.</param>
         /// <param name="Autostart">Whether to start the API automatically.</param>
-        public UsersAPI(HTTPHostname?                        HTTPHostname                       = null,
-                        String                               ExternalDNSName                    = null,
-                        IPPort?                              HTTPServerPort                     = null,
-                        HTTPPath?                            BasePath                           = null,
-                        String                               HTTPServerName                     = DefaultHTTPServerName,
+        public UsersAPI(HTTPHostname?                         HTTPHostname                       = null,
+                        String?                               ExternalDNSName                    = null,
+                        IPPort?                               HTTPServerPort                     = null,
+                        HTTPPath?                             BasePath                           = null,
+                        String?                               HTTPServerName                     = DefaultHTTPServerName,
 
-                        HTTPPath?                            URLPathPrefix                      = null,
-                        String                               HTTPServiceName                    = DefaultHTTPServiceName,
-                        String                               HTMLTemplate                       = null,
-                        JObject                              APIVersionHashes                   = null,
+                        HTTPPath?                             URLPathPrefix                      = null,
+                        String?                               HTTPServiceName                    = DefaultHTTPServiceName,
+                        String?                               HTMLTemplate                       = null,
+                        JObject?                              APIVersionHashes                   = null,
 
-                        ServerCertificateSelectorDelegate    ServerCertificateSelector          = null,
-                        RemoteCertificateValidationCallback  ClientCertificateValidator         = null,
-                        LocalCertificateSelectionCallback    ClientCertificateSelector          = null,
-                        SslProtocols?                        AllowedTLSProtocols                = null,
+                        ServerCertificateSelectorDelegate?    ServerCertificateSelector          = null,
+                        RemoteCertificateValidationCallback?  ClientCertificateValidator         = null,
+                        LocalCertificateSelectionCallback?    ClientCertificateSelector          = null,
+                        SslProtocols?                         AllowedTLSProtocols                = null,
 
-                        String                               ServerThreadName                   = null,
-                        ThreadPriority?                      ServerThreadPriority               = null,
-                        Boolean?                             ServerThreadIsBackground           = null,
-                        ConnectionIdBuilder                  ConnectionIdBuilder                = null,
-                        ConnectionThreadsNameBuilder         ConnectionThreadsNameBuilder       = null,
-                        ConnectionThreadsPriorityBuilder     ConnectionThreadsPriorityBuilder   = null,
-                        Boolean?                             ConnectionThreadsAreBackground     = null,
-                        TimeSpan?                            ConnectionTimeout                  = null,
-                        UInt32?                              MaxClientConnections               = null,
+                        String?                               ServerThreadName                   = null,
+                        ThreadPriority?                       ServerThreadPriority               = null,
+                        Boolean?                              ServerThreadIsBackground           = null,
+                        ConnectionIdBuilder?                  ConnectionIdBuilder                = null,
+                        ConnectionThreadsNameBuilder?         ConnectionThreadsNameBuilder       = null,
+                        ConnectionThreadsPriorityBuilder?     ConnectionThreadsPriorityBuilder   = null,
+                        Boolean?                              ConnectionThreadsAreBackground     = null,
+                        TimeSpan?                             ConnectionTimeout                  = null,
+                        UInt32?                               MaxClientConnections               = null,
 
-                        Organization_Id?                     AdminOrganizationId                = null,
-                        EMailAddress                         APIRobotEMailAddress               = null,
-                        String                               APIRobotGPGPassphrase              = null,
-                        ISMTPClient                          SMTPClient                         = null,
-                        ISMSClient                           SMSClient                          = null,
-                        String                               SMSSenderName                      = null,
-                        ITelegramStore                       TelegramClient                     = null,
+                        Organization_Id?                      AdminOrganizationId                = null,
+                        EMailAddress?                         APIRobotEMailAddress               = null,
+                        String?                               APIRobotGPGPassphrase              = null,
+                        ISMTPClient?                          SMTPClient                         = null,
+                        ISMSClient?                           SMSClient                          = null,
+                        String?                               SMSSenderName                      = null,
+                        ITelegramStore?                       TelegramClient                     = null,
 
-                        PasswordQualityCheckDelegate         PasswordQualityCheck               = null,
-                        HTTPCookieName?                      CookieName                         = null,
-                        Boolean                              UseSecureCookies                   = true,
-                        TimeSpan?                            MaxSignInSessionLifetime           = null,
-                        Languages?                           DefaultLanguage                    = null,
-                        Byte?                                MinUserIdLength                    = null,
-                        Byte?                                MinRealmLength                     = null,
-                        Byte?                                MinUserNameLength                  = null,
-                        Byte?                                MinUserGroupIdLength               = null,
-                        UInt16?                              MinAPIKeyLength                    = null,
-                        Byte?                                MinMessageIdLength                 = null,
-                        Byte?                                MinOrganizationIdLength            = null,
-                        Byte?                                MinOrganizationGroupIdLength       = null,
-                        Byte?                                MinNotificationMessageIdLength     = null,
-                        Byte?                                MinNewsPostingIdLength             = null,
-                        Byte?                                MinNewsBannerIdLength              = null,
-                        Byte?                                MinFAQIdLength                     = null,
+                        PasswordQualityCheckDelegate?         PasswordQualityCheck               = null,
+                        HTTPCookieName?                       CookieName                         = null,
+                        Boolean                               UseSecureCookies                   = true,
+                        TimeSpan?                             MaxSignInSessionLifetime           = null,
+                        Languages?                            DefaultLanguage                    = null,
+                        Byte?                                 MinUserIdLength                    = null,
+                        Byte?                                 MinRealmLength                     = null,
+                        Byte?                                 MinUserNameLength                  = null,
+                        Byte?                                 MinUserGroupIdLength               = null,
+                        UInt16?                               MinAPIKeyLength                    = null,
+                        Byte?                                 MinMessageIdLength                 = null,
+                        Byte?                                 MinOrganizationIdLength            = null,
+                        Byte?                                 MinOrganizationGroupIdLength       = null,
+                        Byte?                                 MinNotificationMessageIdLength     = null,
+                        Byte?                                 MinNewsPostingIdLength             = null,
+                        Byte?                                 MinNewsBannerIdLength              = null,
+                        Byte?                                 MinFAQIdLength                     = null,
 
-                        Boolean?                             DisableMaintenanceTasks            = null,
-                        TimeSpan?                            MaintenanceInitialDelay            = null,
-                        TimeSpan?                            MaintenanceEvery                   = null,
+                        Boolean?                              DisableMaintenanceTasks            = null,
+                        TimeSpan?                             MaintenanceInitialDelay            = null,
+                        TimeSpan?                             MaintenanceEvery                   = null,
 
-                        Boolean?                             DisableWardenTasks                 = null,
-                        TimeSpan?                            WardenInitialDelay                 = null,
-                        TimeSpan?                            WardenCheckEvery                   = null,
+                        Boolean?                              DisableWardenTasks                 = null,
+                        TimeSpan?                             WardenInitialDelay                 = null,
+                        TimeSpan?                             WardenCheckEvery                   = null,
 
-                        Boolean?                             IsDevelopment                      = null,
-                        IEnumerable<String>                  DevelopmentServers                 = null,
-                        Boolean                              SkipURLTemplates                   = false,
-                        String                               DatabaseFileName                   = DefaultUsersAPI_DatabaseFileName,
-                        Boolean                              DisableNotifications               = false,
-                        Boolean                              DisableLogging                     = false,
-                        String                               LoggingPath                        = DefaultUsersAPI_LoggingPath,
-                        String                               LogfileName                        = DefaultUsersAPI_LogfileName,
-                        LogfileCreatorDelegate               LogfileCreator                     = null,
-                        DNSClient                            DNSClient                          = null,
-                        Boolean                              Autostart                          = false)
+                        IEnumerable<URLWith_APIKeyId>?        RemoteAuthServers                  = null,
+                        IEnumerable<APIKey_Id>?               RemoteAuthAPIKeys                  = null,
+
+                        Boolean?                              IsDevelopment                      = null,
+                        IEnumerable<String>?                  DevelopmentServers                 = null,
+                        Boolean                               SkipURLTemplates                   = false,
+                        String?                               DatabaseFileName                   = DefaultUsersAPI_DatabaseFileName,
+                        Boolean                               DisableNotifications               = false,
+                        Boolean                               DisableLogging                     = false,
+                        String?                               LoggingPath                        = null,
+                        String?                               LogfileName                        = DefaultUsersAPI_LogfileName,
+                        LogfileCreatorDelegate?               LogfileCreator                     = null,
+                        DNSClient?                            DNSClient                          = null,
+                        Boolean                               Autostart                          = false)
 
             : base(HTTPHostname,
                    ExternalDNSName,
                    HTTPServerPort,
                    BasePath,
-                   HTTPServerName,
+                   HTTPServerName  ?? DefaultHTTPServerName,
 
                    URLPathPrefix,
-                   HTTPServiceName,
+                   HTTPServiceName ?? DefaultHTTPServiceName,
                    HTMLTemplate,
                    APIVersionHashes,
 
@@ -2690,7 +2708,7 @@ namespace social.OpenData.UsersAPI
                    IsDevelopment,
                    DevelopmentServers,
                    DisableLogging,
-                   LoggingPath,
+                   LoggingPath ?? Path.Combine(AppContext.BaseDirectory, DefaultHTTPAPI_LoggingPath),
                    LogfileName ?? DefaultUsersAPI_LogfileName,
                    LogfileCreator,
                    DNSClient,
@@ -2786,6 +2804,9 @@ namespace social.OpenData.UsersAPI
 
             this.PasswordQualityCheck            = PasswordQualityCheck           ?? DefaultPasswordQualityCheck;
             this.MaxSignInSessionLifetime        = MaxSignInSessionLifetime       ?? DefaultMaxSignInSessionLifetime;
+
+            this.remoteAuthServers               = RemoteAuthServers is not null   ? new HashSet<URLWith_APIKeyId>(RemoteAuthServers) : new HashSet<URLWith_APIKeyId>();
+            this.remoteAuthAPIKeys               = RemoteAuthAPIKeys is not null   ? new HashSet<APIKey_Id>       (RemoteAuthAPIKeys) : new HashSet<APIKey_Id>();
 
             #endregion
 
@@ -3712,9 +3733,9 @@ namespace social.OpenData.UsersAPI
                                                    Path           = notification.RemoteURL.Path,
                                                    Content        = new JArray(JSONNotification).ToUTF8Bytes(),
                                                    ContentType    = HTTPContentType.JSON_UTF8,
-                                                   UserAgent      = "CardiCloud Notification API",
+                                                   UserAgent      = "UsersAPI Notification API",
                                                    API_Key        = notification.APIKey.HasValue
-                                                                        ? notification.APIKey.Value.ToString()
+                                                                        ? notification.APIKey
                                                                         : null,
                                                    Authorization  = notification.BasicAuth_Login.   IsNotNullOrEmpty() &&
                                                                     notification.BasicAuth_Password.IsNotNullOrEmpty()
@@ -3885,7 +3906,7 @@ namespace social.OpenData.UsersAPI
 
         #region (protected) TryGetHTTPUser (Request, out User)
 
-        protected Boolean TryGetHTTPUser(HTTPRequest Request, out User User)
+        protected Boolean TryGetHTTPUser(HTTPRequest Request, out User? User)
         {
 
             #region Get user from cookie...
@@ -3893,7 +3914,7 @@ namespace social.OpenData.UsersAPI
             if (Request.Cookies != null                                                                             &&
                 Request.Cookies. TryGet     (SessionCookieName,           out HTTPCookie       Cookie)              &&
                 SecurityToken_Id.TryParse   (Cookie.FirstOrDefault().Key, out SecurityToken_Id SecurityTokenId)     &&
-                _HTTPCookies.    TryGetValue(SecurityTokenId,             out SecurityToken    SecurityInformation) &&
+                _HTTPCookies.    TryGetValue(SecurityTokenId,             out SecurityToken?   SecurityInformation) &&
                 Timestamp.Now < SecurityInformation.Expires                                                         &&
                 TryGetUser(SecurityInformation.UserId, out User))
             {
@@ -3913,20 +3934,20 @@ namespace social.OpenData.UsersAPI
                 var validUsers    = new HashSet<User>();
 
                 if (User_Id.TryParse   (basicAuth.Username, out User_Id _UserId) &&
-                    _Users. TryGetValue(_UserId,            out User    _User))
+                    _Users. TryGetValue(_UserId,            out User?   _User))
                 {
                     possibleUsers.Add(_User);
                 }
 
                 if (possibleUsers.Count == 0)
                 {
-                    foreach (var user in _Users.Values)
+                    foreach (var _user in _Users.Values)
                     {
                         if (String.Equals(basicAuth.Username,
-                                          user.EMail.Address.ToString(),
+                                          _user.EMail.Address.ToString(),
                                           StringComparison.OrdinalIgnoreCase))
                         {
-                            possibleUsers.Add(user);
+                            possibleUsers.Add(_user);
                         }
                     }
                 }
@@ -3947,11 +3968,13 @@ namespace social.OpenData.UsersAPI
 
                 #region HTTP Basic Auth is ok!
 
-                if (validUsers.Count == 1 &&
-                    validUsers.First().AcceptedEULA.HasValue &&
-                    validUsers.First().AcceptedEULA.Value < Timestamp.Now)
+                var user = validUsers.FirstOrDefault();
+
+                if (user is not null &&
+                    user.AcceptedEULA.HasValue &&
+                    user.AcceptedEULA.Value < Timestamp.Now)
                 {
-                    User = validUsers.First();
+                    User = user;
                     return true;
                 }
 
@@ -3963,9 +3986,10 @@ namespace social.OpenData.UsersAPI
 
             #region Get user from API Key...
 
-            if (TryGetValidAPIKey(Request.API_Key, out APIKey apiKey))
+            if (TryGetValidAPIKey(Request.API_Key, out APIKey? apiKey) &&
+                apiKey is not null &&
+                TryGetUser(apiKey.UserId, out User))
             {
-                TryGetUser(apiKey.UserId, out User);
                 return true;
             }
 
@@ -3989,7 +4013,7 @@ namespace social.OpenData.UsersAPI
                 SecurityToken_Id.TryParse   (Cookie.FirstOrDefault().Key, out SecurityToken_Id SecurityTokenId)     &&
                 _HTTPCookies.     TryGetValue(SecurityTokenId,             out SecurityToken    SecurityInformation) &&
                 Timestamp.Now < SecurityInformation.Expires                                                       &&
-                TryGetUser(SecurityInformation.Astronaut ?? SecurityInformation.UserId, out User))
+                TryGetUser(SecurityInformation.SuperUserId ?? SecurityInformation.UserId, out User))
             {
                 return true;
             }
@@ -4437,7 +4461,7 @@ namespace social.OpenData.UsersAPI
 
         #region (protected override) GetResourceString      (ResourceName)
 
-        protected override String GetResourceString(String ResourceName)
+        protected override String? GetResourceString(String ResourceName)
 
             => GetResourceString(ResourceName,
                                  new Tuple<String, System.Reflection.Assembly>(UsersAPI.HTTPRoot, typeof(UsersAPI).Assembly),
@@ -4457,7 +4481,7 @@ namespace social.OpenData.UsersAPI
 
         #region (protected override) MixWithHTMLTemplate    (ResourceName)
 
-        protected override String MixWithHTMLTemplate(String ResourceName)
+        protected override String? MixWithHTMLTemplate(String ResourceName)
 
             => MixWithHTMLTemplate(ResourceName,
                                    new Tuple<String, System.Reflection.Assembly>(UsersAPI.HTTPRoot, typeof(UsersAPI).Assembly),
@@ -4469,6 +4493,112 @@ namespace social.OpenData.UsersAPI
 
         private void RegisterURLTemplates()
         {
+
+            HTTPServer.AddAuth  (request => {
+
+                // Allow OPTIONS requests / call pre-flight requests in cross-origin resource sharing (CORS)
+                if (request.HTTPMethod == HTTPMethod.OPTIONS)
+                    return Anonymous;
+
+                var user = CheckHTTPCookie   (request, RemoteAuthServersMaxHopCount: 1).Result ??
+                           CheckHTTPAPIKey   (request) ??
+                           CheckHTTPBasicAuth(request);
+
+                if (user is not null)
+                    return user;
+
+                #region Allow some URLs for anonymous access...
+
+                if (request.Path.StartsWith(URLPathPrefix + "/shared/UsersAPI/defaults") ||
+                    request.Path.StartsWith(URLPathPrefix + "/shared/UsersAPI/webfonts") ||
+                    request.Path.StartsWith(URLPathPrefix + "/shared/UsersAPI/login")    ||
+                    request.Path.StartsWith(URLPathPrefix + "/defaults")      ||
+                    request.Path.StartsWith(URLPathPrefix + "/favicon.ico")   ||
+                    request.Path.StartsWith(URLPathPrefix + "/login")         ||
+                    request.Path.StartsWith(URLPathPrefix + "/lostPassword")  ||
+                    request.Path.StartsWith(URLPathPrefix + "/resetPassword") ||
+                    request.Path.StartsWith(URLPathPrefix + "/setPassword")   ||
+                    request.Path.StartsWith(URLPathPrefix + "/securityToken") ||
+                   (request.Path.StartsWith(URLPathPrefix + "/serviceCheck")  && request.HTTPMethod.ToString() == "POST") ||
+                   (request.Path.StartsWith(URLPathPrefix + "/users/")        && request.HTTPMethod.ToString() == "AUTH"))
+                {
+                    return Anonymous;
+                }
+
+                #endregion
+
+                return null;
+
+            });
+
+            HTTPServer.AddFilter(request => {
+
+                #region Check EULA
+
+                if (request.User is User user &&
+                    (!user.AcceptedEULA.HasValue ||
+                      user.AcceptedEULA.Value > Timestamp.Now))
+                {
+                    return new HTTPResponse.Builder(request) {
+                        HTTPStatusCode            = HTTPStatusCode.FailedDependency,
+                        Date                      = Timestamp.Now,
+                        Server                    = HTTPServer.DefaultServerName,
+                        AccessControlAllowOrigin  = "*",
+                        AccessControlMaxAge       = 3600,
+                        CacheControl              = "private, max-age=0, no-cache",
+                        ContentType               = HTTPContentType.JSON_UTF8,
+                        Content                   = JSONObject.Create(new JProperty("message", "Please accept the EULA within the portal!")).ToUTF8Bytes(),
+                        Connection                = "close"
+                    };
+                }
+
+                #endregion
+
+                #region Failed/TryNextMethod... redirect web browsers to /login
+
+                if (request.User is null)
+                {
+
+                    if (request.HTTPMethod == HTTPMethod.GET &&
+                        request.Accept.BestMatchingContentType(HTTPContentType.HTML_UTF8) == HTTPContentType.HTML_UTF8)
+                    {
+                        return new HTTPResponse.Builder(request) {
+                            HTTPStatusCode      = HTTPStatusCode.TemporaryRedirect,
+                            Location            = URLPathPrefix + ("/login?redirect=" + request.Path.ToString()),
+                            Date                = Timestamp.Now,
+                            Server              = HTTPServer.DefaultServerName,
+                            //SetCookie           = String.Concat(CookieName, "=; Expires=", Timestamp.Now.ToRfc1123(),
+                            //                                    HTTPCookieDomain.IsNotNullOrEmpty()
+                            //                                        ? "; Domain=" + HTTPCookieDomain
+                            //                                        : "",
+                            //                                    "; Path=", URLPathPrefix),
+                            XLocationAfterAuth  = request.Path,
+                            CacheControl        = "private, max-age=0, no-cache",
+                            Connection          = "close"
+                        };
+                    }
+
+                    else
+                        return new HTTPResponse.Builder(request) {
+                            HTTPStatusCode            = HTTPStatusCode.Unauthorized,
+                            Date                      = Timestamp.Now,
+                            Server                    = HTTPServer.DefaultServerName,
+                            AccessControlAllowOrigin  = "*",
+                            AccessControlMaxAge       = 3600,
+                            CacheControl              = "private, max-age=0, no-cache",
+                            ContentType               = HTTPContentType.JSON_UTF8,
+                            Content                   = JSONObject.Create(new JProperty("message", "Invalid login!")).ToUTF8Bytes(),
+                            Connection                = "close"
+                        };
+
+                }
+
+                #endregion
+
+                return null;
+
+            });
+
 
             #region /shared/UsersAPI
 
@@ -5294,6 +5424,148 @@ namespace social.OpenData.UsersAPI
                                          },
 
                                          AllowReplacement: URLReplacement.Allow);
+
+            #endregion
+
+
+
+            #region CHECK       ~/securityToken
+
+            // ------------------------------------------------------------------------------------------------------------------------
+            // curl -v -X CHECK -H "Content-type: application/json" -H "Accept: application/json" http://127.0.0.1:2100/securityToken
+            // ------------------------------------------------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.CHECK,
+                                         URLPathPrefix + "securityToken",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: async Request => {
+
+                                             #region Check API Key...
+
+                                             if (Request.API_Key is null || remoteAuthAPIKeys.Contains(Request.API_Key.Value))
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode             = HTTPStatusCode.Forbidden,
+                                                            Server                     = HTTPServer.DefaultServerName,
+                                                            Date                       = Timestamp.Now,
+                                                            AccessControlAllowOrigin   = "*",
+                                                            AccessControlAllowMethods  = "CHECK",
+                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                            ContentType                = HTTPContentType.JSON_UTF8,
+                                                            Content                    = JSONObject.Create(
+
+                                                                                             Request.API_Key.HasValue
+                                                                                                 ? new JProperty("apiKey",  Request.API_Key?.ToString() ?? "")
+                                                                                                 : null,
+
+                                                                                             new JProperty("description",  "Please use a valid API key!")
+
+                                                                                         ).ToUTF8Bytes(),
+                                                            Connection                 = "close"
+                                                        }.AsImmutable;
+
+                                             #endregion
+
+
+                                             #region Parse JSON HTTP body...
+
+                                             if (!Request.TryParseJObjectRequestBody(out JObject JSONBody, out HTTPResponse.Builder errorResponse))
+                                                 return errorResponse.AsImmutable;
+
+                                             #endregion
+
+                                             #region Parse securityTokenId    [mandatory]
+
+                                             if (!JSONBody.ParseMandatory("securityTokenId",
+                                                                          "security token identification",
+                                                                          SecurityToken_Id.TryParse,
+                                                                          out SecurityToken_Id  securityTokenId,
+                                                                          out String            errorDescription))
+                                             {
+
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                            Server                     = HTTPServer.DefaultServerName,
+                                                            Date                       = Timestamp.Now,
+                                                            AccessControlAllowOrigin   = "*",
+                                                            AccessControlAllowMethods  = "CHECK",
+                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                            ContentType                = HTTPContentType.JSON_UTF8,
+                                                            Content                    = JSONObject.Create(
+                                                                                             new JProperty("description", errorDescription)
+                                                                                         ).ToUTF8Bytes(),
+                                                            Connection                 = "close"
+                                                        }.AsImmutable;
+
+                                             }
+
+                                             #endregion
+
+                                             #region Parse maxHopCount        [optional]
+
+                                             if (JSONBody.ParseOptional("maxHopCount",
+                                                                        "remote auth server max hop count",
+                                                                        out Byte? maxHopCount,
+                                                                        out       errorDescription))
+                                             {
+
+                                                 if (errorDescription != null)
+                                                     return new HTTPResponse.Builder(Request) {
+                                                                HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                                Server                     = HTTPServer.DefaultServerName,
+                                                                Date                       = Timestamp.Now,
+                                                                AccessControlAllowOrigin   = "*",
+                                                                AccessControlAllowMethods  = "CHECK",
+                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                ContentType                = HTTPContentType.JSON_UTF8,
+                                                                Content                    = JSONObject.Create(
+                                                                                                 new JProperty("description", errorDescription)
+                                                                                             ).ToUTF8Bytes(),
+                                                                Connection                 = "close"
+                                                            }.AsImmutable;
+
+                                             }
+
+                                             #endregion
+
+
+                                             var securityToken = await CheckHTTPCookie(securityTokenId,
+                                                                                       maxHopCount ?? 0);
+
+
+                                             if (securityToken is not null)
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode              = HTTPStatusCode.OK,
+                                                            Server                      = HTTPServer.DefaultServerName,
+                                                            Date                        = Timestamp.Now,
+                                                            AccessControlAllowOrigin    = "*",
+                                                            AccessControlAllowMethods   = "CHECK",
+                                                            AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                            ContentType                 = HTTPContentType.JSON_UTF8,
+                                                            Content                     = JSONObject.Create(
+
+                                                                                              new JProperty("userId",   securityToken.UserId. ToString()),
+                                                                                              new JProperty("expires",  securityToken.Expires.ToIso8601()),
+
+                                                                                              securityToken.SuperUserId.HasValue
+                                                                                                  ? new JProperty("superUserId", securityToken.SuperUserId.Value.ToString())
+                                                                                                  : null
+
+                                                                                          ).ToUTF8Bytes(),
+                                                            Connection                  = "close"
+                                                        }.AsImmutable;
+
+
+                                             return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode              = HTTPStatusCode.NotFound,
+                                                            Server                      = HTTPServer.DefaultServerName,
+                                                            Date                        = Timestamp.Now,
+                                                            AccessControlAllowOrigin    = "*",
+                                                            AccessControlAllowMethods   = "CHECK",
+                                                            AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                            Connection                  = "close"
+                                                        }.AsImmutable;
+
+                                         });
 
             #endregion
 
@@ -11651,45 +11923,45 @@ namespace social.OpenData.UsersAPI
 
             #region GET         ~/dashboard
 
-            // ----------------------------------------------------------------
-            // curl -v -H "Accept: text/html" http://127.0.0.1:3001/dashboard
-            // ----------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
-                                         HTTPMethod.GET,
-                                         URLPathPrefix + "dashboard",
-                                         HTTPContentType.HTML_UTF8,
-                                         HTTPDelegate: Request => {
+            //// ----------------------------------------------------------------
+            //// curl -v -H "Accept: text/html" http://127.0.0.1:3001/dashboard
+            //// ----------------------------------------------------------------
+            //HTTPServer.AddMethodCallback(Hostname,
+            //                             HTTPMethod.GET,
+            //                             URLPathPrefix + "dashboard",
+            //                             HTTPContentType.HTML_UTF8,
+            //                             HTTPDelegate: Request => {
 
-                                             #region Get HTTP user and its organizations
+            //                                 #region Get HTTP user and its organizations
 
-                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
-                                             if (!TryGetHTTPUser(Request,
-                                                                 out User                   HTTPUser,
-                                                                 out HashSet<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse.Builder   Response,
-                                                                 Recursive:                 true))
-                                             {
-                                                 return Task.FromResult(Response.AsImmutable);
-                                             }
+            //                                 // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+            //                                 if (!TryGetHTTPUser(Request,
+            //                                                     out User                   HTTPUser,
+            //                                                     out HashSet<Organization>  HTTPOrganizations,
+            //                                                     out HTTPResponse.Builder   Response,
+            //                                                     Recursive:                 true))
+            //                                 {
+            //                                     return Task.FromResult(Response.AsImmutable);
+            //                                 }
 
-                                             #endregion
+            //                                 #endregion
 
 
-                                             return Task.FromResult(
-                                                 new HTTPResponse.Builder(Request) {
-                                                     HTTPStatusCode              = HTTPStatusCode.OK,
-                                                     Server                      = HTTPServer.DefaultServerName,
-                                                     Date                        = Timestamp.Now,
-                                                     AccessControlAllowOrigin    = "*",
-                                                     AccessControlAllowMethods   = "GET",
-                                                     AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
-                                                     ContentType                 = HTTPContentType.HTML_UTF8,
-                                                     Content                     = MixWithHTMLTemplate("dashboard.dashboard.shtml").ToUTF8Bytes(),
-                                                     Connection                  = "close",
-                                                     Vary                        = "Accept"
-                                                 }.AsImmutable);
+            //                                 return Task.FromResult(
+            //                                     new HTTPResponse.Builder(Request) {
+            //                                         HTTPStatusCode              = HTTPStatusCode.OK,
+            //                                         Server                      = HTTPServer.DefaultServerName,
+            //                                         Date                        = Timestamp.Now,
+            //                                         AccessControlAllowOrigin    = "*",
+            //                                         AccessControlAllowMethods   = "GET",
+            //                                         AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+            //                                         ContentType                 = HTTPContentType.HTML_UTF8,
+            //                                         Content                     = MixWithHTMLTemplate("dashboard.dashboard.shtml").ToUTF8Bytes(),
+            //                                         Connection                  = "close",
+            //                                         Vary                        = "Accept"
+            //                                     }.AsImmutable);
 
-                                         }, AllowReplacement: URLReplacement.Allow);
+            //                             }, AllowReplacement: URLReplacement.Allow);
 
             #endregion
 
@@ -12732,7 +13004,7 @@ namespace social.OpenData.UsersAPI
                                                  {
 
                                                      var plaintext   = reply.ToString(Newtonsoft.Json.Formatting.None);
-                                                     var SHA256Hash  = new SHA256Managed().ComputeHash(plaintext.ToUTF8Bytes());
+                                                     var SHA256Hash  = SHA256.Create().ComputeHash(plaintext.ToUTF8Bytes());
 
                                                      var signer      = SignerUtilities.GetSigner("NONEwithECDSA");
                                                      signer.Init(true, ServiceCheckPrivateKey);
@@ -12837,6 +13109,8 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
+
+            // Manahe this HTTP service...
 
             #region /restart
 
@@ -15190,6 +15464,289 @@ namespace social.OpenData.UsersAPI
         //var symmetricKey  = new Byte[keySize];
         //kdf.GenerateBytes(symmetricKey, 0, keySize);
         //var bigInt        = new BigInteger(1, symmetricKey);
+
+        #endregion
+
+
+        #region Remote Authorization
+
+        #region AddRemoteAuthServer(URLWithAPIKeyId)
+
+        public void AddRemoteAuthServer(URLWith_APIKeyId URLWithAPIKeyId)
+        {
+            lock (remoteAuthServers)
+            {
+                remoteAuthServers.Add(URLWithAPIKeyId);
+            }
+        }
+
+        #endregion
+
+        #region AddRemoteAuthServer(URL, APIKeyId)
+
+        public void AddRemoteAuthServer(URL        URL,
+                                        APIKey_Id  APIKeyId)
+        {
+            lock (remoteAuthServers)
+            {
+                remoteAuthServers.Add(new URLWith_APIKeyId(URL,
+                                                           APIKeyId));
+            }
+        }
+
+        #endregion
+
+
+        #region CheckHTTPCookie(Request,         RemoteAuthServersMaxHopCount = 0)
+
+        public async Task<User?> CheckHTTPCookie(HTTPRequest Request,
+                                                 Byte?       RemoteAuthServersMaxHopCount = 0)
+        {
+
+            if (TryGetSecurityTokenFromCookie(Request, out SecurityToken_Id securityTokenId))
+            {
+
+                var securityToken = await CheckHTTPCookie(securityTokenId,
+                                                          RemoteAuthServersMaxHopCount);
+
+                if (securityToken is not null &&
+                    _TryGetUser(securityToken.UserId, out User? user))
+                {
+                    return user;
+                }
+
+            }
+
+            return null;
+
+        }
+
+        #endregion
+
+        #region CheckHTTPCookie(SecurityTokenId, RemoteAuthServersMaxHopCount = 0)
+
+        public async Task<SecurityToken?> CheckHTTPCookie(SecurityToken_Id SecurityTokenId,
+                                                          Byte?            RemoteAuthServersMaxHopCount = 0)
+        {
+
+            User_Id? userId = null;
+
+            if (_HTTPCookies.TryGetValue(SecurityTokenId, out SecurityToken? securityToken) &&
+                Timestamp.Now < securityToken.Expires)
+            {
+                userId = securityToken.UserId;
+            }
+
+            //if (userId is null && RemoteAuthServersMaxHopCount > 0)
+            if (RemoteAuthServersMaxHopCount > 0)
+            {
+                try
+                {
+
+                    var jsonRequest         = JSONObject.Create(
+                                                  new JProperty("securityTokenId", SecurityTokenId.ToString()),
+                                                  new JProperty("maxHopCount",     RemoteAuthServersMaxHopCount - 1)
+                                              ).ToUTF8Bytes();
+
+                    var _remoteAuthServers  = Array.Empty<URLWith_APIKeyId>();
+
+                    lock (remoteAuthServers)
+                    {
+                        _remoteAuthServers = remoteAuthServers.ToArray();
+                    }
+
+                    foreach (var remoteAuthServer in _remoteAuthServers)
+                    {
+
+                        #region Upstream HTTP(S) request...
+
+                        var httpresult = await HTTPClientFactory.Create(remoteAuthServer.URL,
+                                                                        //VirtualHostname,
+                                                                        //Description,
+                                                                        //RemoteCertificateValidator,
+                                                                        //ClientCertificateSelector,
+                                                                        //ClientCert,
+                                                                        //HTTPUserAgent,
+                                                                        //RequestTimeout,
+                                                                        //TransmissionRetryDelay,
+                                                                        //MaxNumberOfRetries,
+                                                                        //UseHTTPPipelining,
+                                                                        //HTTPLogger,
+                                                                        DNSClient: DNSClient).
+
+                                                   Execute(client => client.CHECKRequest(remoteAuthServer.URL.Path,
+                                                                                         requestbuilder => {
+                                                                                             requestbuilder.Host         = remoteAuthServer.URL.Hostname;
+                                                                                             requestbuilder.API_Key      = remoteAuthServer.APIKeyId;
+                                                                                             requestbuilder.Accept.Add(HTTPContentType.JSON_UTF8);
+                                                                                             requestbuilder.ContentType  = HTTPContentType.JSON_UTF8;
+                                                                                             requestbuilder.Content      = jsonRequest;
+                                                                                         }),
+
+                                                           //RequestLogDelegate:   OnGetCDRsHTTPRequest,
+                                                           //ResponseLogDelegate:  OnGetCDRsHTTPResponse,
+                                                           //CancellationToken:    CancellationToken,
+                                                           //EventTrackingId:      EventTrackingId,
+                                                           RequestTimeout:       TimeSpan.FromSeconds(5)).
+
+                                                   ConfigureAwait(false);
+
+                        #endregion
+
+
+                        if (httpresult.HTTPStatusCode == HTTPStatusCode.OK)
+                        {
+
+                            var JSONResponse = JObject.Parse(httpresult.HTTPBody.ToUTF8String());
+
+                            #region Parse userId       [mandatory]
+
+                            if (JSONResponse.ParseMandatory("userId",
+                                                            "user identificcation",
+                                                            User_Id.TryParse,
+                                                            out User_Id _userId,
+                                                            out String  errorDescription))
+                            {
+                                userId = _userId;
+                            }
+
+                            #endregion
+
+                            #region Parse expires      [optional]
+
+                            if (JSONResponse.ParseOptional("expires",
+                                                           "security token expires",
+                                                           out DateTime? expires,
+                                                           out           errorDescription))
+                            { }
+
+                            #endregion
+
+                            #region Parse superuser    [optional]
+
+                            User_Id? superuserId = null;
+
+                            if (JSONResponse.ParseOptional("superUserId",
+                                                           "super user identificcation",
+                                                           User_Id.TryParse,
+                                                           out User_Id _superuserId,
+                                                           out         errorDescription))
+                            {
+                                if (errorDescription != null)
+                                    superuserId = _superuserId;
+                            }
+
+                            #endregion
+
+
+                            if (userId.HasValue && expires.HasValue)
+                            {
+
+                                lock (_HTTPCookies)
+                                {
+                                    if (!_HTTPCookies.ContainsKey(SecurityTokenId))
+                                        _HTTPCookies.Add(SecurityTokenId,
+                                                         new SecurityToken(userId.Value,
+                                                                           expires.Value,
+                                                                           superuserId));
+                                }
+
+                                break;
+
+                            }
+
+                        }
+
+                    }
+
+                }
+                catch (Exception)
+                { }
+            }
+
+            if (userId.HasValue)
+                return securityToken;
+
+            return null;
+
+        }
+
+        #endregion
+
+
+        #region CheckHTTPBasicAuth(Request)
+
+        public User? CheckHTTPBasicAuth(HTTPRequest Request)
+        {
+
+            if (Request.Authorization is HTTPBasicAuthentication basicAuthentication)
+            {
+
+                // Find username or e-mail addresses...
+                var possibleUsers = new HashSet<User>();
+                var validUsers    = new HashSet<User>();
+
+                if (User_Id.TryParse   (basicAuthentication.Username, out User_Id _UserId) &&
+                    _Users. TryGetValue(_UserId,                      out User?   _User))
+                {
+                    possibleUsers.Add(_User);
+                }
+
+                if (possibleUsers.Count == 0)
+                {
+                    foreach (var user in _Users.Values)
+                    {
+                        if (String.Equals(basicAuthentication.Username,
+                                          user.EMail.Address.ToString(),
+                                          StringComparison.OrdinalIgnoreCase))
+                        {
+                            possibleUsers.Add(user);
+                        }
+                    }
+                }
+
+                if (possibleUsers.Count > 0)
+                {
+                    foreach (var possibleUser in possibleUsers)
+                    {
+                        if (_LoginPasswords.TryGetValue(possibleUser.Id, out LoginPassword loginPassword) &&
+                            loginPassword.VerifyPassword(basicAuthentication.Password))
+                        {
+                            validUsers.Add(possibleUser);
+                        }
+                    }
+                }
+
+                if (validUsers.Count == 1)
+                    return validUsers.First();
+
+            }
+
+            return null;
+
+        }
+
+        #endregion
+
+
+        #region CheckHTTPAPIKey(Request)
+
+        public User? CheckHTTPAPIKey(HTTPRequest Request)
+        {
+
+            if (Request.API_Key.HasValue &&
+                TryGetAPIKey(Request.API_Key.Value, out APIKey? apiKey) &&
+                APIKeyIsValid(apiKey!) &&
+                _TryGetUser(apiKey!.UserId, out User? user))
+            {
+                return user;
+            }
+
+            return null;
+
+        }
+
+        #endregion
 
         #endregion
 
@@ -17549,12 +18106,11 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="UserId">The unique identification of an user.</param>
         /// <param name="User">The user.</param>
-        protected internal Boolean _TryGetUser(User_Id   UserId,
-                                               out User  User)
+        protected internal Boolean _TryGetUser(User_Id UserId, out User? User)
         {
 
             if (!UserId.IsNullOrEmpty &&
-                _Users.TryGetValue(UserId, out User user))
+                _Users.TryGetValue(UserId, out User? user))
             {
                 User = user;
                 return true;
@@ -17570,12 +18126,11 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="UserId">The unique identification of an user.</param>
         /// <param name="User">The user.</param>
-        protected internal Boolean _TryGetUser(User_Id?  UserId,
-                                               out User  User)
+        protected internal Boolean _TryGetUser(User_Id? UserId, out User? User)
         {
 
             if (UserId.IsNotNullOrEmpty() &&
-               _Users.TryGetValue(UserId.Value, out User user))
+               _Users.TryGetValue(UserId!.Value, out User? user))
             {
                 User = user;
                 return true;
@@ -17592,8 +18147,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="UserId">The unique identification of an user.</param>
         /// <param name="User">The user.</param>
-        public Boolean TryGetUser(User_Id   UserId,
-                                  out User  User)
+        public Boolean TryGetUser(User_Id UserId, out User? User)
         {
 
             if (UsersSemaphore.Wait(SemaphoreSlimTimeout))
@@ -17627,8 +18181,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="UserId">The unique identification of an user.</param>
         /// <param name="User">The user.</param>
-        public Boolean TryGetUser(User_Id?  UserId,
-                                  out User  User)
+        public Boolean TryGetUser(User_Id? UserId, out User? User)
         {
 
             if (UsersSemaphore.Wait(SemaphoreSlimTimeout))
@@ -19865,8 +20418,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="APIKey">The API key.</param>
         protected internal Boolean _APIKeyIsValid(APIKey APIKey)
 
-            =>   APIKey != null &&
-               (!APIKey.NotBefore.HasValue || Timestamp.Now >= APIKey.NotBefore) &&
+            => (!APIKey.NotBefore.HasValue || Timestamp.Now >= APIKey.NotBefore) &&
                (!APIKey.NotAfter. HasValue || Timestamp.Now <  APIKey.NotAfter)  &&
                 !APIKey.IsDisabled;
 
@@ -20046,11 +20598,11 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="APIKeyId">The unique identification of an API key.</param>
         /// <param name="APIKey">The API key.</param>
-        protected internal Boolean _TryGetAPIKey(APIKey_Id APIKeyId, out APIKey APIKey)
+        protected internal Boolean _TryGetAPIKey(APIKey_Id APIKeyId, out APIKey? APIKey)
         {
 
             if (!APIKeyId.IsNullOrEmpty &&
-                _APIKeys.TryGetValue(APIKeyId, out APIKey apiKey))
+                _APIKeys.TryGetValue(APIKeyId, out APIKey? apiKey))
             {
                 APIKey = apiKey;
                 return true;
@@ -20066,11 +20618,11 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="APIKeyId">The unique identification of an API key.</param>
         /// <param name="APIKey">The API key.</param>
-        protected internal Boolean _TryGetAPIKey(APIKey_Id? APIKeyId, out APIKey APIKey)
+        protected internal Boolean _TryGetAPIKey(APIKey_Id? APIKeyId, out APIKey? APIKey)
         {
 
             if (APIKeyId.IsNotNullOrEmpty() &&
-               _APIKeys. TryGetValue(APIKeyId.Value, out APIKey apiKey))
+               _APIKeys. TryGetValue(APIKeyId!.Value, out APIKey? apiKey))
             {
                 APIKey = apiKey;
                 return true;
@@ -20087,8 +20639,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="APIKeyId">The unique identification of an API key.</param>
         /// <param name="APIKey">The API key.</param>
-        public Boolean TryGetAPIKey(APIKey_Id   APIKeyId,
-                                    out APIKey  APIKey)
+        public Boolean TryGetAPIKey(APIKey_Id APIKeyId, out APIKey? APIKey)
         {
 
             if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
@@ -20122,8 +20673,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="APIKeyId">The unique identification of an API key.</param>
         /// <param name="APIKey">The API key.</param>
-        public Boolean TryGetAPIKey(APIKey_Id?  APIKeyId,
-                                    out APIKey  APIKey)
+        public Boolean TryGetAPIKey(APIKey_Id? APIKeyId, out APIKey? APIKey)
         {
 
             if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
@@ -20161,9 +20711,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="APIKeyId">The unique identification of the API key.</param>
         /// <param name="APIKey">The API key.</param>
-        protected internal Boolean _TryGetValidAPIKey(APIKey_Id   APIKeyId,
-                                                      out APIKey  APIKey)
-
+        protected internal Boolean _TryGetValidAPIKey(APIKey_Id APIKeyId, out APIKey? APIKey)
         {
 
             if (_APIKeys.TryGetValue(APIKeyId, out APIKey apiKey) &&
@@ -20183,13 +20731,11 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="APIKeyId">The unique identification of the API key.</param>
         /// <param name="APIKey">The API key.</param>
-        protected internal Boolean _TryGetValidAPIKey(APIKey_Id?  APIKeyId,
-                                                      out APIKey  APIKey)
-
+        protected internal Boolean _TryGetValidAPIKey(APIKey_Id? APIKeyId, out APIKey? APIKey)
         {
 
             if (APIKeyId.IsNotNullOrEmpty() &&
-                _APIKeys.TryGetValue(APIKeyId.Value, out APIKey apiKey) &&
+                _APIKeys.TryGetValue(APIKeyId!.Value, out APIKey? apiKey) &&
                 _APIKeyIsValid(apiKey))
             {
                 APIKey = apiKey;
@@ -20207,8 +20753,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="APIKeyId">The unique identification of the API key.</param>
         /// <param name="APIKey">The API key.</param>
-        public Boolean TryGetValidAPIKey(APIKey_Id   APIKeyId,
-                                         out APIKey  APIKey)
+        public Boolean TryGetValidAPIKey(APIKey_Id APIKeyId, out APIKey? APIKey)
         {
 
             if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
@@ -20242,8 +20787,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="APIKeyId">The unique identification of the API key.</param>
         /// <param name="APIKey">The API key.</param>
-        public Boolean TryGetValidAPIKey(APIKey_Id?  APIKeyId,
-                                         out APIKey  APIKey)
+        public Boolean TryGetValidAPIKey(APIKey_Id? APIKeyId, out APIKey? APIKey)
         {
 
             if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))

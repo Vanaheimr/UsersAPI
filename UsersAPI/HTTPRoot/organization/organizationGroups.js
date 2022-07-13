@@ -1,4 +1,4 @@
-///<reference path="../../../../UsersAPI/UsersAPI/HTTPRoot/libs/date.format.ts" />
+///<reference path="../libs/date.format.ts" />
 function StartOrganizationGroupSearch() {
     StartSearch("/organizationGroups", "organizationGroup", "organizationGroups", "organization groups", (organizationGroup, organizationGroupDiv) => {
         CreateDiv(organizationGroupDiv, "id", organizationGroup["@id"]);

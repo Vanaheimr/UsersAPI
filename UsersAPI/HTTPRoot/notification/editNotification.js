@@ -1,4 +1,4 @@
-///<reference path="../../../../UsersAPI/UsersAPI/HTTPRoot/libs/date.format.ts" />
+///<reference path="../libs/date.format.ts" />
 function StartEditUserNotifications() {
     const pathElements = window.location.pathname.split("/");
     const notificationId = pathElements.length > 2 ? pathElements[pathElements.length - 1] : "";

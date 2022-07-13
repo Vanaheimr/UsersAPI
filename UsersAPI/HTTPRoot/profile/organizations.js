@@ -1,4 +1,4 @@
-///<reference path="../../../../UsersAPI/UsersAPI/HTTPRoot/libs/date.format.ts" />
+///<reference path="../libs/date.format.ts" />
 function ShowOrganizations() {
     var myOrgs = [];
     function ImpersonateUser(newUserId) {

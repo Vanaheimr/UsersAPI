@@ -1,698 +1,487 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{4D5DA5F5-0DCE-4620-BCE5-74A27E5CFC47}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>social.OpenData.UsersAPI</RootNamespace>
-    <AssemblyName>social.OpenData.UsersAPI</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <LangVersion>8.0</LangVersion>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
+    <AssemblyName>social.OpenData.UsersAPI</AssemblyName>
+    <RootNamespace>social.OpenData.UsersAPI</RootNamespace>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Debug\social.OpenData.UsersAPI.xml</DocumentationFile>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <LangVersion>latest</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Styx\libs\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
+    <None Remove="HTTPRoot\admin\admin.css" />
+    <None Remove="HTTPRoot\admin\admin.min.css" />
+    <None Remove="HTTPRoot\admin\admin.scss" />
+    <None Remove="HTTPRoot\css\AppPanels.css" />
+    <None Remove="HTTPRoot\css\edgeslist.css" />
+    <None Remove="HTTPRoot\css\Infobox.css" />
+    <None Remove="HTTPRoot\css\style.css" />
+    <None Remove="HTTPRoot\css\verticeslist.css" />
+    <None Remove="HTTPRoot\defaults\datePicker.css" />
+    <None Remove="HTTPRoot\defaults\datePicker.js" />
+    <None Remove="HTTPRoot\defaults\datePicker.js.map" />
+    <None Remove="HTTPRoot\defaults\datePicker.min.css" />
+    <None Remove="HTTPRoot\defaults\datePicker.scss" />
+    <None Remove="HTTPRoot\defaults\datePicker.ts" />
+    <None Remove="HTTPRoot\defaults\defaults.js" />
+    <None Remove="HTTPRoot\defaults\defaults.js.map" />
+    <None Remove="HTTPRoot\defaults\defaults.ts" />
+    <None Remove="HTTPRoot\defaults\fontawesome-all.min.css" />
+    <None Remove="HTTPRoot\defaults\search.js" />
+    <None Remove="HTTPRoot\defaults\search.js.map" />
+    <None Remove="HTTPRoot\defaults\search.ts" />
+    <None Remove="HTTPRoot\defaults\views.js" />
+    <None Remove="HTTPRoot\defaults\views.js.map" />
+    <None Remove="HTTPRoot\defaults\views.ts" />
+    <None Remove="HTTPRoot\defaults\_defaults.scss" />
+    <None Remove="HTTPRoot\defaults\_search.scss" />
+    <None Remove="HTTPRoot\defaults\_search_old.scss" />
+    <None Remove="HTTPRoot\humans.txt" />
+    <None Remove="HTTPRoot\images\building-2696768_640.png" />
+    <None Remove="HTTPRoot\images\dummy-user-gray-150x150.png" />
+    <None Remove="HTTPRoot\index.html" />
+    <None Remove="HTTPRoot\js\date.format.js" />
+    <None Remove="HTTPRoot\js\date.js" />
+    <None Remove="HTTPRoot\js\default.js" />
+    <None Remove="HTTPRoot\js\LoadThings.js" />
+    <None Remove="HTTPRoot\js\moment-with-locales.min.js" />
+    <None Remove="HTTPRoot\js\OpenPGP.js" />
+    <None Remove="HTTPRoot\js\OpenPGP.min.js" />
+    <None Remove="HTTPRoot\libs\crypto\elliptic.js" />
+    <None Remove="HTTPRoot\libs\crypto\elliptic.min.js" />
+    <None Remove="HTTPRoot\libs\crypto\sha256.js" />
+    <None Remove="HTTPRoot\libs\date.format.js" />
+    <None Remove="HTTPRoot\libs\date.format.js.map" />
+    <None Remove="HTTPRoot\libs\date.format.ts" />
+    <None Remove="HTTPRoot\libs\EventSource.js" />
+    <None Remove="HTTPRoot\libs\EventSource.js.map" />
+    <None Remove="HTTPRoot\libs\EventSource.ts" />
+    <None Remove="HTTPRoot\libs\qrcode\LICENSE" />
+    <None Remove="HTTPRoot\libs\qrcode\qrcode.js" />
+    <None Remove="HTTPRoot\libs\qrcode\qrcode.min.js" />
+    <None Remove="HTTPRoot\libs\qrcode\README.md" />
+    <None Remove="HTTPRoot\libs\sse.d.ts" />
+    <None Remove="HTTPRoot\login\login-de.html" />
+    <None Remove="HTTPRoot\login\login-en.html" />
+    <None Remove="HTTPRoot\login\login.css" />
+    <None Remove="HTTPRoot\login\login.min.css" />
+    <None Remove="HTTPRoot\login\login.scss" />
+    <None Remove="HTTPRoot\login\lostPassword-de.html" />
+    <None Remove="HTTPRoot\login\lostPassword-en.html" />
+    <None Remove="HTTPRoot\login\setPassword-de.html" />
+    <None Remove="HTTPRoot\login\setPassword-en.html" />
+    <None Remove="HTTPRoot\login\SignInOut.js" />
+    <None Remove="HTTPRoot\login\SignInOut.js.map" />
+    <None Remove="HTTPRoot\login\SignInOut.ts" />
+    <None Remove="HTTPRoot\notification\editNotification.css" />
+    <None Remove="HTTPRoot\notification\editNotification.js" />
+    <None Remove="HTTPRoot\notification\editNotification.js.map" />
+    <None Remove="HTTPRoot\notification\editNotification.min.css" />
+    <None Remove="HTTPRoot\notification\editNotification.scss" />
+    <None Remove="HTTPRoot\notification\editNotification.shtml" />
+    <None Remove="HTTPRoot\notification\editNotification.ts" />
+    <None Remove="HTTPRoot\notification\messages.css" />
+    <None Remove="HTTPRoot\notification\messages.js" />
+    <None Remove="HTTPRoot\notification\messages.js.map" />
+    <None Remove="HTTPRoot\notification\messages.min.css" />
+    <None Remove="HTTPRoot\notification\messages.scss" />
+    <None Remove="HTTPRoot\notification\messages.shtml" />
+    <None Remove="HTTPRoot\notification\messages.ts" />
+    <None Remove="HTTPRoot\notification\settings.css" />
+    <None Remove="HTTPRoot\notification\settings.js" />
+    <None Remove="HTTPRoot\notification\settings.js.map" />
+    <None Remove="HTTPRoot\notification\settings.min.css" />
+    <None Remove="HTTPRoot\notification\settings.scss" />
+    <None Remove="HTTPRoot\notification\settings.shtml" />
+    <None Remove="HTTPRoot\notification\settings.ts" />
+    <None Remove="HTTPRoot\organization\address.css" />
+    <None Remove="HTTPRoot\organization\address.js" />
+    <None Remove="HTTPRoot\organization\address.js.map" />
+    <None Remove="HTTPRoot\organization\address.min.css" />
+    <None Remove="HTTPRoot\organization\address.scss" />
+    <None Remove="HTTPRoot\organization\address.shtml" />
+    <None Remove="HTTPRoot\organization\address.ts" />
+    <None Remove="HTTPRoot\organization\members.css" />
+    <None Remove="HTTPRoot\organization\members.js" />
+    <None Remove="HTTPRoot\organization\members.js.map" />
+    <None Remove="HTTPRoot\organization\members.min.css" />
+    <None Remove="HTTPRoot\organization\members.scss" />
+    <None Remove="HTTPRoot\organization\members.shtml" />
+    <None Remove="HTTPRoot\organization\members.ts" />
+    <None Remove="HTTPRoot\organization\newMember.css" />
+    <None Remove="HTTPRoot\organization\newMember.js" />
+    <None Remove="HTTPRoot\organization\newMember.js.map" />
+    <None Remove="HTTPRoot\organization\newMember.min.css" />
+    <None Remove="HTTPRoot\organization\newMember.scss" />
+    <None Remove="HTTPRoot\organization\newMember.shtml" />
+    <None Remove="HTTPRoot\organization\newMember.ts" />
+    <None Remove="HTTPRoot\organization\newSubOrganization.css" />
+    <None Remove="HTTPRoot\organization\newSubOrganization.js" />
+    <None Remove="HTTPRoot\organization\newSubOrganization.js.map" />
+    <None Remove="HTTPRoot\organization\newSubOrganization.min.css" />
+    <None Remove="HTTPRoot\organization\newSubOrganization.scss" />
+    <None Remove="HTTPRoot\organization\newSubOrganization.shtml" />
+    <None Remove="HTTPRoot\organization\newSubOrganization.ts" />
+    <None Remove="HTTPRoot\organization\organization.css" />
+    <None Remove="HTTPRoot\organization\organization.js" />
+    <None Remove="HTTPRoot\organization\organization.js.map" />
+    <None Remove="HTTPRoot\organization\organization.min.css" />
+    <None Remove="HTTPRoot\organization\organization.scss" />
+    <None Remove="HTTPRoot\organization\organization.shtml" />
+    <None Remove="HTTPRoot\organization\organization.ts" />
+    <None Remove="HTTPRoot\organization\organizationGroups.css" />
+    <None Remove="HTTPRoot\organization\organizationGroups.js" />
+    <None Remove="HTTPRoot\organization\organizationGroups.js.map" />
+    <None Remove="HTTPRoot\organization\organizationGroups.min.css" />
+    <None Remove="HTTPRoot\organization\organizationGroups.scss" />
+    <None Remove="HTTPRoot\organization\organizationGroups.shtml" />
+    <None Remove="HTTPRoot\organization\organizationGroups.ts" />
+    <None Remove="HTTPRoot\organization\organizations.css" />
+    <None Remove="HTTPRoot\organization\organizations.js" />
+    <None Remove="HTTPRoot\organization\organizations.js.map" />
+    <None Remove="HTTPRoot\organization\organizations.min.css" />
+    <None Remove="HTTPRoot\organization\organizations.scss" />
+    <None Remove="HTTPRoot\organization\organizations.shtml" />
+    <None Remove="HTTPRoot\organization\organizations.ts" />
+    <None Remove="HTTPRoot\organization\subOrganizations.css" />
+    <None Remove="HTTPRoot\organization\subOrganizations.js" />
+    <None Remove="HTTPRoot\organization\subOrganizations.js.map" />
+    <None Remove="HTTPRoot\organization\subOrganizations.min.css" />
+    <None Remove="HTTPRoot\organization\subOrganizations.scss" />
+    <None Remove="HTTPRoot\organization\subOrganizations.shtml" />
+    <None Remove="HTTPRoot\organization\subOrganizations.ts" />
+    <None Remove="HTTPRoot\organization\tiles.css" />
+    <None Remove="HTTPRoot\organization\tiles.min.css" />
+    <None Remove="HTTPRoot\organization\tiles.scss" />
+    <None Remove="HTTPRoot\profile\APIKeys.css" />
+    <None Remove="HTTPRoot\profile\APIKeys.js" />
+    <None Remove="HTTPRoot\profile\APIKeys.js.map" />
+    <None Remove="HTTPRoot\profile\APIKeys.min.css" />
+    <None Remove="HTTPRoot\profile\APIKeys.scss" />
+    <None Remove="HTTPRoot\profile\APIKeys.shtml" />
+    <None Remove="HTTPRoot\profile\APIKeys.ts" />
+    <None Remove="HTTPRoot\profile\organizations.css" />
+    <None Remove="HTTPRoot\profile\organizations.js" />
+    <None Remove="HTTPRoot\profile\organizations.js.map" />
+    <None Remove="HTTPRoot\profile\organizations.min.css" />
+    <None Remove="HTTPRoot\profile\organizations.scss" />
+    <None Remove="HTTPRoot\profile\organizations.shtml" />
+    <None Remove="HTTPRoot\profile\organizations.ts" />
+    <None Remove="HTTPRoot\profile\password.css" />
+    <None Remove="HTTPRoot\profile\password.js" />
+    <None Remove="HTTPRoot\profile\password.js.map" />
+    <None Remove="HTTPRoot\profile\password.min.css" />
+    <None Remove="HTTPRoot\profile\password.scss" />
+    <None Remove="HTTPRoot\profile\password.shtml" />
+    <None Remove="HTTPRoot\profile\password.ts" />
+    <None Remove="HTTPRoot\profile\profile.css" />
+    <None Remove="HTTPRoot\profile\profile.js" />
+    <None Remove="HTTPRoot\profile\profile.js.map" />
+    <None Remove="HTTPRoot\profile\profile.min.css" />
+    <None Remove="HTTPRoot\profile\profile.scss" />
+    <None Remove="HTTPRoot\profile\profile.shtml" />
+    <None Remove="HTTPRoot\profile\profile.ts" />
+    <None Remove="HTTPRoot\robots.txt" />
+    <None Remove="HTTPRoot\SignInOut\SignInOut.css" />
+    <None Remove="HTTPRoot\SignInOut\SignInOut.js" />
+    <None Remove="HTTPRoot\SignUp\SignUp-de.html" />
+    <None Remove="HTTPRoot\SignUp\SignUp-en.html" />
+    <None Remove="HTTPRoot\SignUp\SignUp.js" />
+    <None Remove="HTTPRoot\support\notifications.css" />
+    <None Remove="HTTPRoot\support\notifications.min.css" />
+    <None Remove="HTTPRoot\support\support.scss" />
+    <None Remove="HTTPRoot\template.css" />
+    <None Remove="HTTPRoot\template.min.css" />
+    <None Remove="HTTPRoot\template.scss" />
+    <None Remove="HTTPRoot\user\user.css" />
+    <None Remove="HTTPRoot\user\user.js" />
+    <None Remove="HTTPRoot\user\user.js.map" />
+    <None Remove="HTTPRoot\user\user.min.css" />
+    <None Remove="HTTPRoot\user\user.scss" />
+    <None Remove="HTTPRoot\user\user.shtml" />
+    <None Remove="HTTPRoot\user\user.ts" />
+    <None Remove="HTTPRoot\user\userGroup.css" />
+    <None Remove="HTTPRoot\user\userGroup.js" />
+    <None Remove="HTTPRoot\user\userGroup.js.map" />
+    <None Remove="HTTPRoot\user\userGroup.min.css" />
+    <None Remove="HTTPRoot\user\userGroup.scss" />
+    <None Remove="HTTPRoot\user\userGroup.shtml" />
+    <None Remove="HTTPRoot\user\userGroup.ts" />
+    <None Remove="HTTPRoot\user\userGroups.css" />
+    <None Remove="HTTPRoot\user\userGroups.js" />
+    <None Remove="HTTPRoot\user\userGroups.js.map" />
+    <None Remove="HTTPRoot\user\userGroups.min.css" />
+    <None Remove="HTTPRoot\user\userGroups.scss" />
+    <None Remove="HTTPRoot\user\userGroups.shtml" />
+    <None Remove="HTTPRoot\user\userGroups.ts" />
+    <None Remove="HTTPRoot\user\users.css" />
+    <None Remove="HTTPRoot\user\users.js" />
+    <None Remove="HTTPRoot\user\users.js.map" />
+    <None Remove="HTTPRoot\user\users.min.css" />
+    <None Remove="HTTPRoot\user\users.scss" />
+    <None Remove="HTTPRoot\user\users.shtml" />
+    <None Remove="HTTPRoot\user\users.ts" />
+    <None Remove="HTTPRoot\webfonts\fa-brands-400.eot" />
+    <None Remove="HTTPRoot\webfonts\fa-brands-400.svg" />
+    <None Remove="HTTPRoot\webfonts\fa-brands-400.ttf" />
+    <None Remove="HTTPRoot\webfonts\fa-brands-400.woff" />
+    <None Remove="HTTPRoot\webfonts\fa-brands-400.woff2" />
+    <None Remove="HTTPRoot\webfonts\fa-regular-400.eot" />
+    <None Remove="HTTPRoot\webfonts\fa-regular-400.svg" />
+    <None Remove="HTTPRoot\webfonts\fa-regular-400.ttf" />
+    <None Remove="HTTPRoot\webfonts\fa-regular-400.woff" />
+    <None Remove="HTTPRoot\webfonts\fa-regular-400.woff2" />
+    <None Remove="HTTPRoot\webfonts\fa-solid-900.eot" />
+    <None Remove="HTTPRoot\webfonts\fa-solid-900.svg" />
+    <None Remove="HTTPRoot\webfonts\fa-solid-900.ttf" />
+    <None Remove="HTTPRoot\webfonts\fa-solid-900.woff" />
+    <None Remove="HTTPRoot\webfonts\fa-solid-900.woff2" />
   </ItemGroup>
+
   <ItemGroup>
-    <Compile Include="CommonTypes\ParcelTracking_Id.cs" />
-    <Compile Include="Entities\APIKeys\APIKey.cs" />
-    <Compile Include="Entities\APIKeys\APIKeyRights.cs" />
-    <Compile Include="Entities\APIKeys\Results\AddAPIKeyIfNotExistsResult.cs" />
-    <Compile Include="Entities\APIKeys\Results\AddAPIKeyResult.cs" />
-    <Compile Include="Entities\APIKeys\Results\AddOrUpdateAPIKeyResult.cs" />
-    <Compile Include="Entities\APIKeys\Results\RemoveAPIKeyResult.cs" />
-    <Compile Include="Entities\APIKeys\Results\UpdateAPIKeyResult.cs" />
-    <Compile Include="Entities\AttachedFile\AttachedFile_Id.cs" />
-    <Compile Include="Entities\Dashboard\Dashboard.cs" />
-    <Compile Include="Entities\Dashboard\Dashboard_Id.cs" />
-    <Compile Include="Entities\FAQ\FAQ.cs" />
-    <Compile Include="Entities\FAQ\FAQ_Id.cs" />
-    <Compile Include="Entities\AGroup.cs" />
-    <Compile Include="Entities\News\NewsBanner.cs" />
-    <Compile Include="Entities\News\NewsPosting.cs" />
-    <Compile Include="Entities\News\NewsBanner_Id.cs" />
-    <Compile Include="Entities\News\NewsPosting_Id.cs" />
-    <Compile Include="Entities\Notification\NotificationMessageGroupId.cs" />
-    <Compile Include="Entities\Notification\TelegramGroupNotification.cs" />
-    <Compile Include="Entities\Notification\TelegramNotification.cs" />
-    <Compile Include="Entities\Notification\NotificationGroup_Id.cs" />
-    <Compile Include="Entities\Organization\Results\AddOrUpdateOrganizationResult.cs" />
-    <Compile Include="Entities\Organization\Results\UnlinkOrganizationsResult.cs" />
-    <Compile Include="Entities\Organization\Results\LinkOrganizationsResult.cs" />
-    <Compile Include="Entities\Organization\Results\UpdateOrganizationResult.cs" />
-    <Compile Include="Entities\Organization\Results\AddOrganizationIfNotExistsResult.cs" />
-    <Compile Include="Entities\Organization\Results\DeleteOrganizationResult.cs" />
-    <Compile Include="Entities\Organization\Group\RemoveOrganizationGroupResult.cs" />
-    <Compile Include="Entities\Organization\Group\OrganizationGroup.cs" />
-    <Compile Include="Entities\Organization\Group\OrganizationGroup_Id.cs" />
-    <Compile Include="Entities\Organization\Results\AddOrganizationResult.cs" />
-    <Compile Include="Entities\ServiceTickets\Affected.cs" />
-    <Compile Include="Entities\ServiceTickets\AGenericServiceTicket.cs" />
-    <Compile Include="Entities\ServiceTickets\AServiceTicket.cs" />
-    <Compile Include="Entities\ServiceTickets\FirstResponse.cs" />
-    <Compile Include="Entities\ServiceTickets\ServiceTicketChangeSet.cs" />
-    <Compile Include="Entities\AttachedFile\AttachedFile.cs" />
-    <Compile Include="Entities\ServiceTickets\DataFields.cs" />
-    <Compile Include="Entities\ServiceTickets\MessageHolder.cs" />
-    <Compile Include="Entities\ServiceTickets\ServiceTicket.cs" />
-    <Compile Include="Entities\ServiceTickets\ServiceTicketChangeSetReference.cs" />
-    <Compile Include="Entities\ServiceTickets\ServiceTicketChangeSet_Id.cs" />
-    <Compile Include="Entities\ServiceTickets\ServiceTicketPriorities.cs" />
-    <Compile Include="Entities\ServiceTickets\ServiceTicketReference.cs" />
-    <Compile Include="Entities\ServiceTickets\ServiceTicketStatus.cs" />
-    <Compile Include="Entities\ServiceTickets\ServiceTicketStatusTypes.cs" />
-    <Compile Include="Entities\ServiceTickets\ServiceTicket_Id.cs" />
-    <Compile Include="Entities\User\Results\AddPasswordResetResult.cs" />
-    <Compile Include="Entities\User\Results\ResetPasswordResult.cs" />
-    <Compile Include="Entities\User\Results\ChangePasswordResult.cs" />
-    <Compile Include="Entities\User\UserGroup\Results\AddOrUpdateUserGroupResult.cs" />
-    <Compile Include="Entities\User\UserGroup\Results\AddUserGroupResult.cs" />
-    <Compile Include="Entities\User\UserGroup\Results\AddUserGroupIfNotExistsResult.cs" />
-    <Compile Include="Entities\User\UserGroup\Results\DeleteUserGroupResult.cs" />
-    <Compile Include="Entities\User\UserGroup\Results\UpdateUserGroupResult.cs" />
-    <Compile Include="Entities\User\UserGroup\UserGroup.cs" />
-    <Compile Include="Entities\User\UserGroup\UserGroup_Id.cs" />
-    <Compile Include="Entities\User\Results\AddOrUpdateUserResult.cs" />
-    <Compile Include="Entities\User\Results\AddUserToUserGroupResult.cs" />
-    <Compile Include="Entities\User\Results\RemoveUserFromUserGroupResult.cs" />
-    <Compile Include="Entities\User\Results\RemoveUserFromOrganizationResult.cs" />
-    <Compile Include="Entities\User\Results\AddUserToOrganizationResult.cs" />
-    <Compile Include="Entities\User\Results\UpdateUserResult.cs" />
-    <Compile Include="Entities\AResult.cs" />
-    <Compile Include="Entities\User\Results\AddUserIfNotExistsResult.cs" />
-    <Compile Include="Entities\User\Results\DeleteUserResult.cs" />
-    <Compile Include="Entities\User\Results\AddUserResult.cs" />
-    <Compile Include="GlobalSuppressions.cs" />
-    <Compile Include="Entities\Notification\NotificationVisibility.cs" />
-    <Compile Include="Entities\Notification\NotificationTag.cs" />
-    <Compile Include="Entities\Notification\NotificationGroup.cs" />
-    <Compile Include="SMS\NullSMSAPI.cs" />
-    <Compile Include="Telegram\ITelegramStore.cs" />
-    <Compile Include="Telegram\NullTelegramStore.cs" />
-    <Compile Include="Telegram\TelegramStore.cs" />
-    <Compile Include="UsersAPILogger.cs" />
-    <Compile Include="CommonTypes\LoginPassword.cs" />
-    <Compile Include="CommonTypes\MiniEdge.cs" />
-    <Compile Include="CommonTypes\PrivacyLevel.cs" />
-    <Compile Include="CommonTypes\VerificationToken.cs" />
-    <Compile Include="Entities\BlogPosting\BlogPostingSignature.cs" />
-    <Compile Include="Entities\User\UserGroup\UserGroup2UserGroupEdge.cs" />
-    <Compile Include="Entities\Notification\ANotification.cs" />
-    <Compile Include="Entities\Notification\HTTPSNotification.cs" />
-    <Compile Include="Entities\Notification\EMailNotification.cs" />
-    <Compile Include="Entities\Notification\NotificationMessage.cs" />
-    <Compile Include="Entities\Notification\NotificationMessage_Id.cs" />
-    <Compile Include="Entities\Notification\SMSNotification.cs" />
-    <Compile Include="Entities\Notification\NotificationStore.cs" />
-    <Compile Include="Entities\Notification\NotificationMessageType.cs" />
-    <Compile Include="Entities\Organization\OrganizationInfo2.cs" />
-    <Compile Include="Entities\Organization\OrganizationInfo.cs" />
-    <Compile Include="Entities\Organization\Organization.cs" />
-    <Compile Include="Entities\Organization\Organization2OrganizationEdge.cs" />
-    <Compile Include="Entities\Organization\Organization_Id.cs" />
-    <Compile Include="Entities\Organization\Organization2UserEdgeLabel.cs" />
-    <Compile Include="Entities\Message\Message.cs" />
-    <Compile Include="Entities\Message\Message_Id.cs" />
-    <Compile Include="Entities\BlogPosting\BlogPosting.cs" />
-    <Compile Include="Entities\BlogPosting\BlogPosting_Id.cs" />
-    <Compile Include="Entities\SecurityToken\SecurityToken.cs" />
-    <Compile Include="Entities\SecurityToken\SecurityToken_Id.cs" />
-    <Compile Include="Entities\Tag\Tag.cs" />
-    <Compile Include="Entities\Tag\Tags.cs" />
-    <Compile Include="Entities\Tag\Tag_Id.cs" />
-    <Compile Include="Entities\User\Password.cs" />
-    <Compile Include="Entities\User\User.cs" />
-    <Compile Include="Entities\User\User2OrganizationEdge.cs" />
-    <Compile Include="Entities\User\User2UserGroupEdge.cs" />
-    <Compile Include="Entities\User\User2UserEdge.cs" />
-    <Compile Include="Entities\User\User_Id.cs" />
-    <Compile Include="Entities\Notification\NotificationMessageDescription.cs" />
-    <Compile Include="Entities\Notification\HTTPNotificationSender.cs" />
-    <Compile Include="Entities\Notification\ANotificationSender.cs" />
-    <Compile Include="Representations\HTTPHelper.cs" />
-    <Compile Include="Entities\User\PasswordReset.cs" />
-    <Compile Include="UsersAPI.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="HTTPRoot\css\AppPanels.css" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="HTTPRoot\notification\messages.js">
-      <DependentUpon>messages.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\notification\messages.js.map">
-      <DependentUpon>messages.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\notification\settings.js">
-      <DependentUpon>settings.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\notification\settings.js.map">
-      <DependentUpon>settings.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\organization\organizationGroups.js">
-      <DependentUpon>organizationGroups.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\organization\organizationGroups.js.map">
-      <DependentUpon>organizationGroups.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\robots.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="HTTPRoot\humans.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="HTTPRoot\index.html" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="HTTPRoot\css\edgeslist.css" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="HTTPRoot\css\Infobox.css" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="HTTPRoot\css\style.css" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="HTTPRoot\css\verticeslist.css" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="HTTPRoot\SignInOut\SignInOut.js" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="HTTPRoot\SignUp\SignUp.js" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="HTTPRoot\SignUp\SignUp-de.html" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="HTTPRoot\js\OpenPGP.min.js" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="HTTPRoot\js\OpenPGP.js" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="HTTPRoot\js\default.js" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="HTTPRoot\SignInOut\SignInOut.css" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="HTTPRoot\login\lostPassword-en.html" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="HTTPRoot\SignUp\SignUp-en.html" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="HTTPRoot\login\lostPassword-de.html" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="HTTPRoot\js\LoadThings.js" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="HTTPRoot\images\dummy-user-gray-150x150.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="HTTPRoot\login\login.scss" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="compilerconfig.json" />
-    <None Include="compilerconfig.json.defaults">
-      <DependentUpon>compilerconfig.json</DependentUpon>
-    </None>
-    <EmbeddedResource Include="HTTPRoot\defaults\_defaults.scss" />
-    <EmbeddedResource Include="HTTPRoot\template.scss" />
-    <EmbeddedResource Include="HTTPRoot\profile\profile.scss" />
+    <EmbeddedResource Include="HTTPRoot\admin\admin.css" />
+    <EmbeddedResource Include="HTTPRoot\admin\admin.min.css" />
     <EmbeddedResource Include="HTTPRoot\admin\admin.scss" />
-    <EmbeddedResource Include="HTTPRoot\libs\date.format.js.map">
-      <DependentUpon>date.format.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\defaults\defaults.js.map">
-      <DependentUpon>defaults.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\user\userGroup.js">
-      <DependentUpon>userGroup.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\user\userGroup.js.map">
-      <DependentUpon>userGroup.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\user\userGroups.js">
-      <DependentUpon>userGroups.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\user\userGroups.js.map">
-      <DependentUpon>userGroups.ts</DependentUpon>
-    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\css\AppPanels.css" />
+    <EmbeddedResource Include="HTTPRoot\css\edgeslist.css" />
+    <EmbeddedResource Include="HTTPRoot\css\Infobox.css" />
+    <EmbeddedResource Include="HTTPRoot\css\style.css" />
+    <EmbeddedResource Include="HTTPRoot\css\verticeslist.css" />
+    <EmbeddedResource Include="HTTPRoot\defaults\datePicker.css" />
+    <EmbeddedResource Include="HTTPRoot\defaults\datePicker.js" />
+    <EmbeddedResource Include="HTTPRoot\defaults\datePicker.js.map" />
+    <EmbeddedResource Include="HTTPRoot\defaults\datePicker.min.css" />
+    <EmbeddedResource Include="HTTPRoot\defaults\datePicker.scss" />
+    <EmbeddedResource Include="HTTPRoot\defaults\datePicker.ts" />
+    <EmbeddedResource Include="HTTPRoot\defaults\defaults.js" />
+    <EmbeddedResource Include="HTTPRoot\defaults\defaults.js.map" />
+    <EmbeddedResource Include="HTTPRoot\defaults\defaults.ts" />
+    <EmbeddedResource Include="HTTPRoot\defaults\fontawesome-all.min.css" />
+    <EmbeddedResource Include="HTTPRoot\defaults\search.js" />
+    <EmbeddedResource Include="HTTPRoot\defaults\search.js.map" />
+    <EmbeddedResource Include="HTTPRoot\defaults\search.ts" />
+    <EmbeddedResource Include="HTTPRoot\defaults\views.js" />
+    <EmbeddedResource Include="HTTPRoot\defaults\views.js.map" />
+    <EmbeddedResource Include="HTTPRoot\defaults\views.ts" />
+    <EmbeddedResource Include="HTTPRoot\defaults\_defaults.scss" />
+    <EmbeddedResource Include="HTTPRoot\defaults\_search.scss" />
+    <EmbeddedResource Include="HTTPRoot\defaults\_search_old.scss" />
+    <EmbeddedResource Include="HTTPRoot\humans.txt" />
+    <EmbeddedResource Include="HTTPRoot\images\building-2696768_640.png" />
+    <EmbeddedResource Include="HTTPRoot\images\dummy-user-gray-150x150.png" />
+    <EmbeddedResource Include="HTTPRoot\index.html" />
+    <EmbeddedResource Include="HTTPRoot\js\date.format.js" />
+    <EmbeddedResource Include="HTTPRoot\js\date.js" />
+    <EmbeddedResource Include="HTTPRoot\js\default.js" />
+    <EmbeddedResource Include="HTTPRoot\js\LoadThings.js" />
+    <EmbeddedResource Include="HTTPRoot\js\moment-with-locales.min.js" />
+    <EmbeddedResource Include="HTTPRoot\js\OpenPGP.js" />
+    <EmbeddedResource Include="HTTPRoot\js\OpenPGP.min.js" />
+    <EmbeddedResource Include="HTTPRoot\libs\crypto\elliptic.js" />
+    <EmbeddedResource Include="HTTPRoot\libs\crypto\elliptic.min.js" />
+    <EmbeddedResource Include="HTTPRoot\libs\crypto\sha256.js" />
+    <EmbeddedResource Include="HTTPRoot\libs\date.format.js" />
+    <EmbeddedResource Include="HTTPRoot\libs\date.format.js.map" />
+    <EmbeddedResource Include="HTTPRoot\libs\date.format.ts" />
+    <EmbeddedResource Include="HTTPRoot\libs\EventSource.js" />
+    <EmbeddedResource Include="HTTPRoot\libs\EventSource.js.map" />
+    <EmbeddedResource Include="HTTPRoot\libs\EventSource.ts" />
+    <EmbeddedResource Include="HTTPRoot\libs\qrcode\LICENSE" />
+    <EmbeddedResource Include="HTTPRoot\libs\qrcode\qrcode.js" />
+    <EmbeddedResource Include="HTTPRoot\libs\qrcode\qrcode.min.js" />
+    <EmbeddedResource Include="HTTPRoot\libs\qrcode\README.md" />
+    <EmbeddedResource Include="HTTPRoot\libs\sse.d.ts" />
+    <EmbeddedResource Include="HTTPRoot\login\login-de.html" />
+    <EmbeddedResource Include="HTTPRoot\login\login-en.html" />
+    <EmbeddedResource Include="HTTPRoot\login\login.css" />
+    <EmbeddedResource Include="HTTPRoot\login\login.min.css" />
+    <EmbeddedResource Include="HTTPRoot\login\login.scss" />
+    <EmbeddedResource Include="HTTPRoot\login\lostPassword-de.html" />
+    <EmbeddedResource Include="HTTPRoot\login\lostPassword-en.html" />
+    <EmbeddedResource Include="HTTPRoot\login\setPassword-de.html" />
+    <EmbeddedResource Include="HTTPRoot\login\setPassword-en.html" />
+    <EmbeddedResource Include="HTTPRoot\login\SignInOut.js" />
+    <EmbeddedResource Include="HTTPRoot\login\SignInOut.js.map" />
+    <EmbeddedResource Include="HTTPRoot\login\SignInOut.ts" />
+    <EmbeddedResource Include="HTTPRoot\notification\editNotification.css" />
+    <EmbeddedResource Include="HTTPRoot\notification\editNotification.js" />
+    <EmbeddedResource Include="HTTPRoot\notification\editNotification.js.map" />
+    <EmbeddedResource Include="HTTPRoot\notification\editNotification.min.css" />
+    <EmbeddedResource Include="HTTPRoot\notification\editNotification.scss" />
+    <EmbeddedResource Include="HTTPRoot\notification\editNotification.shtml" />
+    <EmbeddedResource Include="HTTPRoot\notification\editNotification.ts" />
+    <EmbeddedResource Include="HTTPRoot\notification\messages.css" />
+    <EmbeddedResource Include="HTTPRoot\notification\messages.js" />
+    <EmbeddedResource Include="HTTPRoot\notification\messages.js.map" />
+    <EmbeddedResource Include="HTTPRoot\notification\messages.min.css" />
+    <EmbeddedResource Include="HTTPRoot\notification\messages.scss" />
+    <EmbeddedResource Include="HTTPRoot\notification\messages.shtml" />
+    <EmbeddedResource Include="HTTPRoot\notification\messages.ts" />
+    <EmbeddedResource Include="HTTPRoot\notification\settings.css" />
+    <EmbeddedResource Include="HTTPRoot\notification\settings.js" />
+    <EmbeddedResource Include="HTTPRoot\notification\settings.js.map" />
+    <EmbeddedResource Include="HTTPRoot\notification\settings.min.css" />
+    <EmbeddedResource Include="HTTPRoot\notification\settings.scss" />
+    <EmbeddedResource Include="HTTPRoot\notification\settings.shtml" />
+    <EmbeddedResource Include="HTTPRoot\notification\settings.ts" />
+    <EmbeddedResource Include="HTTPRoot\organization\address.css" />
+    <EmbeddedResource Include="HTTPRoot\organization\address.js" />
+    <EmbeddedResource Include="HTTPRoot\organization\address.js.map" />
+    <EmbeddedResource Include="HTTPRoot\organization\address.min.css" />
+    <EmbeddedResource Include="HTTPRoot\organization\address.scss" />
+    <EmbeddedResource Include="HTTPRoot\organization\address.shtml" />
+    <EmbeddedResource Include="HTTPRoot\organization\address.ts" />
+    <EmbeddedResource Include="HTTPRoot\organization\members.css" />
+    <EmbeddedResource Include="HTTPRoot\organization\members.js" />
+    <EmbeddedResource Include="HTTPRoot\organization\members.js.map" />
+    <EmbeddedResource Include="HTTPRoot\organization\members.min.css" />
+    <EmbeddedResource Include="HTTPRoot\organization\members.scss" />
+    <EmbeddedResource Include="HTTPRoot\organization\members.shtml" />
+    <EmbeddedResource Include="HTTPRoot\organization\members.ts" />
+    <EmbeddedResource Include="HTTPRoot\organization\newMember.css" />
+    <EmbeddedResource Include="HTTPRoot\organization\newMember.js" />
+    <EmbeddedResource Include="HTTPRoot\organization\newMember.js.map" />
+    <EmbeddedResource Include="HTTPRoot\organization\newMember.min.css" />
+    <EmbeddedResource Include="HTTPRoot\organization\newMember.scss" />
+    <EmbeddedResource Include="HTTPRoot\organization\newMember.shtml" />
+    <EmbeddedResource Include="HTTPRoot\organization\newMember.ts" />
+    <EmbeddedResource Include="HTTPRoot\organization\newSubOrganization.css" />
+    <EmbeddedResource Include="HTTPRoot\organization\newSubOrganization.js" />
+    <EmbeddedResource Include="HTTPRoot\organization\newSubOrganization.js.map" />
+    <EmbeddedResource Include="HTTPRoot\organization\newSubOrganization.min.css" />
+    <EmbeddedResource Include="HTTPRoot\organization\newSubOrganization.scss" />
+    <EmbeddedResource Include="HTTPRoot\organization\newSubOrganization.shtml" />
+    <EmbeddedResource Include="HTTPRoot\organization\newSubOrganization.ts" />
+    <EmbeddedResource Include="HTTPRoot\organization\organization.css" />
+    <EmbeddedResource Include="HTTPRoot\organization\organization.js" />
+    <EmbeddedResource Include="HTTPRoot\organization\organization.js.map" />
+    <EmbeddedResource Include="HTTPRoot\organization\organization.min.css" />
+    <EmbeddedResource Include="HTTPRoot\organization\organization.scss" />
+    <EmbeddedResource Include="HTTPRoot\organization\organization.shtml" />
+    <EmbeddedResource Include="HTTPRoot\organization\organization.ts" />
+    <EmbeddedResource Include="HTTPRoot\organization\organizationGroups.css" />
+    <EmbeddedResource Include="HTTPRoot\organization\organizationGroups.js" />
+    <EmbeddedResource Include="HTTPRoot\organization\organizationGroups.js.map" />
+    <EmbeddedResource Include="HTTPRoot\organization\organizationGroups.min.css" />
+    <EmbeddedResource Include="HTTPRoot\organization\organizationGroups.scss" />
+    <EmbeddedResource Include="HTTPRoot\organization\organizationGroups.shtml" />
+    <EmbeddedResource Include="HTTPRoot\organization\organizationGroups.ts" />
+    <EmbeddedResource Include="HTTPRoot\organization\organizations.css" />
+    <EmbeddedResource Include="HTTPRoot\organization\organizations.js" />
+    <EmbeddedResource Include="HTTPRoot\organization\organizations.js.map" />
+    <EmbeddedResource Include="HTTPRoot\organization\organizations.min.css" />
+    <EmbeddedResource Include="HTTPRoot\organization\organizations.scss" />
+    <EmbeddedResource Include="HTTPRoot\organization\organizations.shtml" />
+    <EmbeddedResource Include="HTTPRoot\organization\organizations.ts" />
+    <EmbeddedResource Include="HTTPRoot\organization\subOrganizations.css" />
+    <EmbeddedResource Include="HTTPRoot\organization\subOrganizations.js" />
+    <EmbeddedResource Include="HTTPRoot\organization\subOrganizations.js.map" />
+    <EmbeddedResource Include="HTTPRoot\organization\subOrganizations.min.css" />
+    <EmbeddedResource Include="HTTPRoot\organization\subOrganizations.scss" />
+    <EmbeddedResource Include="HTTPRoot\organization\subOrganizations.shtml" />
+    <EmbeddedResource Include="HTTPRoot\organization\subOrganizations.ts" />
+    <EmbeddedResource Include="HTTPRoot\organization\tiles.css" />
+    <EmbeddedResource Include="HTTPRoot\organization\tiles.min.css" />
+    <EmbeddedResource Include="HTTPRoot\organization\tiles.scss" />
+    <EmbeddedResource Include="HTTPRoot\profile\APIKeys.css" />
+    <EmbeddedResource Include="HTTPRoot\profile\APIKeys.js" />
+    <EmbeddedResource Include="HTTPRoot\profile\APIKeys.js.map" />
+    <EmbeddedResource Include="HTTPRoot\profile\APIKeys.min.css" />
+    <EmbeddedResource Include="HTTPRoot\profile\APIKeys.scss" />
+    <EmbeddedResource Include="HTTPRoot\profile\APIKeys.shtml" />
+    <EmbeddedResource Include="HTTPRoot\profile\APIKeys.ts" />
+    <EmbeddedResource Include="HTTPRoot\profile\organizations.css" />
+    <EmbeddedResource Include="HTTPRoot\profile\organizations.js" />
+    <EmbeddedResource Include="HTTPRoot\profile\organizations.js.map" />
+    <EmbeddedResource Include="HTTPRoot\profile\organizations.min.css" />
+    <EmbeddedResource Include="HTTPRoot\profile\organizations.scss" />
+    <EmbeddedResource Include="HTTPRoot\profile\organizations.shtml" />
+    <EmbeddedResource Include="HTTPRoot\profile\organizations.ts" />
+    <EmbeddedResource Include="HTTPRoot\profile\password.css" />
+    <EmbeddedResource Include="HTTPRoot\profile\password.js" />
+    <EmbeddedResource Include="HTTPRoot\profile\password.js.map" />
+    <EmbeddedResource Include="HTTPRoot\profile\password.min.css" />
+    <EmbeddedResource Include="HTTPRoot\profile\password.scss" />
+    <EmbeddedResource Include="HTTPRoot\profile\password.shtml" />
+    <EmbeddedResource Include="HTTPRoot\profile\password.ts" />
+    <EmbeddedResource Include="HTTPRoot\profile\profile.css" />
+    <EmbeddedResource Include="HTTPRoot\profile\profile.js" />
+    <EmbeddedResource Include="HTTPRoot\profile\profile.js.map" />
+    <EmbeddedResource Include="HTTPRoot\profile\profile.min.css" />
+    <EmbeddedResource Include="HTTPRoot\profile\profile.scss" />
+    <EmbeddedResource Include="HTTPRoot\profile\profile.shtml" />
+    <EmbeddedResource Include="HTTPRoot\profile\profile.ts" />
+    <EmbeddedResource Include="HTTPRoot\robots.txt" />
+    <EmbeddedResource Include="HTTPRoot\SignInOut\SignInOut.css" />
+    <EmbeddedResource Include="HTTPRoot\SignInOut\SignInOut.js" />
+    <EmbeddedResource Include="HTTPRoot\SignUp\SignUp-de.html" />
+    <EmbeddedResource Include="HTTPRoot\SignUp\SignUp-en.html" />
+    <EmbeddedResource Include="HTTPRoot\SignUp\SignUp.js" />
+    <EmbeddedResource Include="HTTPRoot\support\notifications.css" />
+    <EmbeddedResource Include="HTTPRoot\support\notifications.min.css" />
+    <EmbeddedResource Include="HTTPRoot\support\support.scss" />
+    <EmbeddedResource Include="HTTPRoot\template.css" />
+    <EmbeddedResource Include="HTTPRoot\template.min.css" />
+    <EmbeddedResource Include="HTTPRoot\template.scss" />
+    <EmbeddedResource Include="HTTPRoot\user\user.css" />
+    <EmbeddedResource Include="HTTPRoot\user\user.js" />
+    <EmbeddedResource Include="HTTPRoot\user\user.js.map" />
+    <EmbeddedResource Include="HTTPRoot\user\user.min.css" />
+    <EmbeddedResource Include="HTTPRoot\user\user.scss" />
+    <EmbeddedResource Include="HTTPRoot\user\user.shtml" />
+    <EmbeddedResource Include="HTTPRoot\user\user.ts" />
+    <EmbeddedResource Include="HTTPRoot\user\userGroup.css" />
+    <EmbeddedResource Include="HTTPRoot\user\userGroup.js" />
+    <EmbeddedResource Include="HTTPRoot\user\userGroup.js.map" />
+    <EmbeddedResource Include="HTTPRoot\user\userGroup.min.css" />
+    <EmbeddedResource Include="HTTPRoot\user\userGroup.scss" />
+    <EmbeddedResource Include="HTTPRoot\user\userGroup.shtml" />
+    <EmbeddedResource Include="HTTPRoot\user\userGroup.ts" />
+    <EmbeddedResource Include="HTTPRoot\user\userGroups.css" />
+    <EmbeddedResource Include="HTTPRoot\user\userGroups.js" />
+    <EmbeddedResource Include="HTTPRoot\user\userGroups.js.map" />
+    <EmbeddedResource Include="HTTPRoot\user\userGroups.min.css" />
+    <EmbeddedResource Include="HTTPRoot\user\userGroups.scss" />
+    <EmbeddedResource Include="HTTPRoot\user\userGroups.shtml" />
+    <EmbeddedResource Include="HTTPRoot\user\userGroups.ts" />
+    <EmbeddedResource Include="HTTPRoot\user\users.css" />
+    <EmbeddedResource Include="HTTPRoot\user\users.js" />
+    <EmbeddedResource Include="HTTPRoot\user\users.js.map" />
+    <EmbeddedResource Include="HTTPRoot\user\users.min.css" />
+    <EmbeddedResource Include="HTTPRoot\user\users.scss" />
+    <EmbeddedResource Include="HTTPRoot\user\users.shtml" />
+    <EmbeddedResource Include="HTTPRoot\user\users.ts" />
     <EmbeddedResource Include="HTTPRoot\webfonts\fa-brands-400.eot" />
+    <EmbeddedResource Include="HTTPRoot\webfonts\fa-brands-400.svg" />
     <EmbeddedResource Include="HTTPRoot\webfonts\fa-brands-400.ttf" />
     <EmbeddedResource Include="HTTPRoot\webfonts\fa-brands-400.woff" />
     <EmbeddedResource Include="HTTPRoot\webfonts\fa-brands-400.woff2" />
     <EmbeddedResource Include="HTTPRoot\webfonts\fa-regular-400.eot" />
+    <EmbeddedResource Include="HTTPRoot\webfonts\fa-regular-400.svg" />
     <EmbeddedResource Include="HTTPRoot\webfonts\fa-regular-400.ttf" />
     <EmbeddedResource Include="HTTPRoot\webfonts\fa-regular-400.woff" />
     <EmbeddedResource Include="HTTPRoot\webfonts\fa-regular-400.woff2" />
     <EmbeddedResource Include="HTTPRoot\webfonts\fa-solid-900.eot" />
+    <EmbeddedResource Include="HTTPRoot\webfonts\fa-solid-900.svg" />
     <EmbeddedResource Include="HTTPRoot\webfonts\fa-solid-900.ttf" />
     <EmbeddedResource Include="HTTPRoot\webfonts\fa-solid-900.woff" />
     <EmbeddedResource Include="HTTPRoot\webfonts\fa-solid-900.woff2" />
-    <EmbeddedResource Include="HTTPRoot\defaults\views.js.map">
-      <DependentUpon>views.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\defaults\_search_old.scss" />
-    <EmbeddedResource Include="HTTPRoot\defaults\datePicker.scss" />
-    <EmbeddedResource Include="HTTPRoot\defaults\datePicker.js.map">
-      <DependentUpon>datePicker.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\defaults\search.js.map">
-      <DependentUpon>search.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\defaults\_search.scss" />
-    <None Include="HTTPRoot\libs\EventSource.js.map">
-      <DependentUpon>EventSource.ts</DependentUpon>
-    </None>
-    <EmbeddedResource Include="HTTPRoot\login\SignInOut.js.map">
-      <DependentUpon>SignInOut.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\profile\APIKeys.scss" />
-    <EmbeddedResource Include="HTTPRoot\profile\password.scss" />
-    <EmbeddedResource Include="HTTPRoot\organization\organization.scss" />
-    <None Include="HTTPRoot\libs\qrcode\LICENSE" />
-    <None Include="HTTPRoot\libs\qrcode\README.md" />
-    <EmbeddedResource Include="HTTPRoot\notification\editNotification.scss" />
-    <EmbeddedResource Include="HTTPRoot\notification\editNotification.js.map">
-      <DependentUpon>editNotification.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\notification\messages.scss" />
-    <EmbeddedResource Include="HTTPRoot\organization\address.scss" />
-    <EmbeddedResource Include="HTTPRoot\organization\members.scss" />
-    <EmbeddedResource Include="HTTPRoot\organization\newMember.scss" />
-    <EmbeddedResource Include="HTTPRoot\organization\newSubOrganization.scss" />
-    <EmbeddedResource Include="HTTPRoot\organization\subOrganizations.scss" />
-    <EmbeddedResource Include="HTTPRoot\organization\organizations.scss" />
-    <EmbeddedResource Include="HTTPRoot\support\support.scss" />
-    <EmbeddedResource Include="HTTPRoot\organization\address.js.map">
-      <DependentUpon>address.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\organization\organization.js.map">
-      <DependentUpon>organization.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\organization\members.js.map">
-      <DependentUpon>members.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\organization\newMember.js.map">
-      <DependentUpon>newMember.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\organization\newSubOrganization.js.map">
-      <DependentUpon>newSubOrganization.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\organization\organizations.js.map">
-      <DependentUpon>organizations.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\organization\subOrganizations.js.map">
-      <DependentUpon>subOrganizations.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\profile\APIKeys.js.map">
-      <DependentUpon>APIKeys.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\profile\organizations.js.map">
-      <DependentUpon>organizations.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\profile\password.js.map">
-      <DependentUpon>password.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\profile\profile.js.map">
-      <DependentUpon>profile.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\user\user.js.map">
-      <DependentUpon>user.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\user\users.js.map">
-      <DependentUpon>users.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\user\user.scss" />
-    <EmbeddedResource Include="HTTPRoot\user\users.scss" />
-    <EmbeddedResource Include="HTTPRoot\profile\organizations.scss" />
-    <EmbeddedResource Include="HTTPRoot\notification\settings.scss" />
-    <EmbeddedResource Include="HTTPRoot\organization\tiles.scss" />
-    <EmbeddedResource Include="HTTPRoot\user\userGroups.scss" />
-    <EmbeddedResource Include="HTTPRoot\organization\organizationGroups.scss" />
-    <EmbeddedResource Include="HTTPRoot\user\userGroup.scss" />
-    <None Include="README.md" />
-    <None Include="tsconfig.json" />
   </ItemGroup>
+
   <ItemGroup>
-    <EmbeddedResource Include="HTTPRoot\login\login.css">
-      <DependentUpon>login.scss</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\login\login.min.css">
-      <DependentUpon>login.css</DependentUpon>
-    </EmbeddedResource>
+    <PackageReference Include="BouncyCastle.NetCore" Version="1.9.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
+
   <ItemGroup>
-    <EmbeddedResource Include="HTTPRoot\profile\profile.css">
-      <DependentUpon>profile.scss</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\profile\profile.min.css">
-      <DependentUpon>profile.css</DependentUpon>
-    </EmbeddedResource>
+    <ProjectReference Include="..\..\..\Hermod\NET6\Hermod\Hermod.csproj" />
+    <ProjectReference Include="..\..\..\SMSAPI\NET6\SMSAPI\SMSAPI.csproj" />
+    <ProjectReference Include="..\..\..\Styx\NET6\Styx\Styx.csproj" />
+    <ProjectReference Include="..\..\..\TelegramBotAPI\NET6\TelegramBotAPI\TelegramBotAPI.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="HTTPRoot\admin\admin.css">
-      <DependentUpon>admin.scss</DependentUpon>
-    </Content>
-    <EmbeddedResource Include="HTTPRoot\user\userGroup.css">
-      <DependentUpon>userGroup.scss</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\user\userGroup.min.css">
-      <DependentUpon>userGroup.css</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\user\userGroup.shtml" />
-    <EmbeddedResource Include="HTTPRoot\organization\organizationGroups.css">
-      <DependentUpon>organizationGroups.scss</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\organization\organizationGroups.min.css">
-      <DependentUpon>organizationGroups.css</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\user\userGroups.css">
-      <DependentUpon>userGroups.scss</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\user\userGroups.min.css">
-      <DependentUpon>userGroups.css</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\organization\organizationGroups.shtml" />
-    <EmbeddedResource Include="HTTPRoot\user\userGroups.shtml" />
-    <EmbeddedResource Include="HTTPRoot\organization\tiles.min.css">
-      <DependentUpon>tiles.css</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\organization\tiles.css">
-      <DependentUpon>tiles.scss</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\template.css">
-      <DependentUpon>template.scss</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\template.min.css">
-      <DependentUpon>template.css</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\profile\organizations.css">
-      <DependentUpon>organizations.scss</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\profile\organizations.min.css">
-      <DependentUpon>organizations.css</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\profile\APIKeys.css">
-      <DependentUpon>APIKeys.scss</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\profile\APIKeys.min.css">
-      <DependentUpon>APIKeys.css</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\user\user.css">
-      <DependentUpon>user.scss</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\user\user.min.css">
-      <DependentUpon>user.css</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\user\users.css">
-      <DependentUpon>users.scss</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\user\users.min.css">
-      <DependentUpon>users.css</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\user\users.js">
-      <DependentUpon>users.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\user\users.shtml" />
-    <EmbeddedResource Include="HTTPRoot\user\user.js">
-      <DependentUpon>user.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\user\user.shtml" />
-    <EmbeddedResource Include="HTTPRoot\profile\profile.js">
-      <DependentUpon>profile.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\profile\profile.shtml" />
-    <EmbeddedResource Include="HTTPRoot\profile\password.js">
-      <DependentUpon>password.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\profile\password.shtml" />
-    <EmbeddedResource Include="HTTPRoot\profile\organizations.js">
-      <DependentUpon>organizations.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\profile\organizations.shtml" />
-    <EmbeddedResource Include="HTTPRoot\profile\APIKeys.js">
-      <DependentUpon>APIKeys.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\profile\APIKeys.shtml" />
-    <EmbeddedResource Include="HTTPRoot\organization\subOrganizations.js">
-      <DependentUpon>subOrganizations.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\organization\subOrganizations.shtml" />
-    <EmbeddedResource Include="HTTPRoot\organization\organizations.js">
-      <DependentUpon>organizations.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\organization\organizations.shtml" />
-    <EmbeddedResource Include="HTTPRoot\organization\newSubOrganization.shtml" />
-    <EmbeddedResource Include="HTTPRoot\organization\organization.shtml" />
-    <EmbeddedResource Include="HTTPRoot\organization\organization.js">
-      <DependentUpon>organization.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\support\notifications.min.css">
-      <DependentUpon>notifications.css</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\support\notifications.css">
-      <DependentUpon>support.scss</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\organization\members.css">
-      <DependentUpon>members.scss</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\organization\members.min.css">
-      <DependentUpon>members.css</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\organization\newMember.css">
-      <DependentUpon>newMember.scss</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\organization\newMember.min.css">
-      <DependentUpon>newMember.css</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\defaults\datePicker.js">
-      <DependentUpon>datePicker.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\organization\address.css">
-      <DependentUpon>address.scss</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\organization\address.min.css">
-      <DependentUpon>address.css</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\organization\address.js">
-      <DependentUpon>address.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\organization\address.shtml" />
-    <EmbeddedResource Include="HTTPRoot\organization\members.js">
-      <DependentUpon>members.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\organization\members.shtml" />
-    <EmbeddedResource Include="HTTPRoot\organization\newMember.shtml" />
-    <EmbeddedResource Include="HTTPRoot\organization\newMember.js">
-      <DependentUpon>newMember.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\defaults\search.js">
-      <DependentUpon>search.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\notification\settings.shtml" />
-    <EmbeddedResource Include="HTTPRoot\notification\messages.css">
-      <DependentUpon>messages.scss</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\notification\messages.min.css">
-      <DependentUpon>messages.css</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\login\setPassword-en.html" />
-    <Content Include="HTTPRoot\notification\settings.css">
-      <DependentUpon>settings.scss</DependentUpon>
-    </Content>
-    <Content Include="HTTPRoot\notification\settings.min.css">
-      <DependentUpon>settings.css</DependentUpon>
-    </Content>
-    <Content Include="HTTPRoot\organization\newSubOrganization.css">
-      <DependentUpon>newSubOrganization.scss</DependentUpon>
-    </Content>
-    <EmbeddedResource Include="HTTPRoot\organization\newSubOrganization.js">
-      <DependentUpon>newSubOrganization.ts</DependentUpon>
-    </EmbeddedResource>
-    <Content Include="HTTPRoot\organization\newSubOrganization.min.css">
-      <DependentUpon>newSubOrganization.css</DependentUpon>
-    </Content>
-    <EmbeddedResource Include="HTTPRoot\organization\organization.css">
-      <DependentUpon>organization.scss</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\organization\organization.min.css">
-      <DependentUpon>organization.css</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\organization\organizations.css">
-      <DependentUpon>organizations.scss</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\organization\organizations.min.css">
-      <DependentUpon>organizations.css</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\organization\subOrganizations.css">
-      <DependentUpon>subOrganizations.scss</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\organization\subOrganizations.min.css">
-      <DependentUpon>subOrganizations.css</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\notification\messages.shtml" />
-    <EmbeddedResource Include="HTTPRoot\notification\editNotification.js">
-      <DependentUpon>editNotification.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\notification\editNotification.shtml" />
-    <EmbeddedResource Include="HTTPRoot\notification\editNotification.min.css">
-      <DependentUpon>editNotification.css</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\notification\editNotification.css">
-      <DependentUpon>editNotification.scss</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\login\setPassword-de.html" />
-    <EmbeddedResource Include="HTTPRoot\login\login-en.html" />
-    <EmbeddedResource Include="HTTPRoot\images\building-2696768_640.png" />
-    <EmbeddedResource Include="HTTPRoot\defaults\datePicker.css">
-      <DependentUpon>datePicker.scss</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\defaults\datePicker.min.css">
-      <DependentUpon>datePicker.css</DependentUpon>
-    </EmbeddedResource>
-    <Content Include="HTTPRoot\libs\qrcode\qrcode.js" />
-    <EmbeddedResource Include="HTTPRoot\libs\qrcode\qrcode.min.js" />
-    <EmbeddedResource Include="HTTPRoot\profile\password.css">
-      <DependentUpon>password.scss</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\profile\password.min.css">
-      <DependentUpon>password.css</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\defaults\defaults.js">
-      <DependentUpon>defaults.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\defaults\fontawesome-all.min.css" />
-    <EmbeddedResource Include="HTTPRoot\webfonts\fa-brands-400.svg" />
-    <EmbeddedResource Include="HTTPRoot\webfonts\fa-regular-400.svg" />
-    <EmbeddedResource Include="HTTPRoot\webfonts\fa-solid-900.svg" />
-    <EmbeddedResource Include="HTTPRoot\defaults\views.js">
-      <DependentUpon>views.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\js\moment-with-locales.min.js" />
-    <EmbeddedResource Include="HTTPRoot\libs\crypto\elliptic.js" />
-    <EmbeddedResource Include="HTTPRoot\libs\crypto\elliptic.min.js" />
-    <EmbeddedResource Include="HTTPRoot\libs\crypto\sha256.js" />
-    <Content Include="HTTPRoot\libs\EventSource.js">
-      <DependentUpon>EventSource.ts</DependentUpon>
-    </Content>
-    <EmbeddedResource Include="HTTPRoot\login\SignInOut.js">
-      <DependentUpon>SignInOut.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\libs\date.format.js">
-      <DependentUpon>date.format.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\js\date.format.js" />
-    <Content Include="HTTPRoot\js\date.js" />
-    <EmbeddedResource Include="HTTPRoot\admin\admin.min.css">
-      <DependentUpon>admin.css</DependentUpon>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="HTTPRoot\libs\date.format.ts" />
-    <EmbeddedResource Include="HTTPRoot\libs\EventSource.ts" />
-    <EmbeddedResource Include="HTTPRoot\defaults\defaults.ts" />
-    <EmbeddedResource Include="HTTPRoot\defaults\views.ts" />
-    <EmbeddedResource Include="HTTPRoot\defaults\datePicker.ts" />
-    <EmbeddedResource Include="HTTPRoot\defaults\search.ts" />
-    <TypeScriptCompile Include="HTTPRoot\libs\sse.d.ts" />
-    <EmbeddedResource Include="HTTPRoot\login\SignInOut.ts" />
-    <EmbeddedResource Include="HTTPRoot\notification\editNotification.ts" />
-    <EmbeddedResource Include="HTTPRoot\notification\messages.ts" />
-    <EmbeddedResource Include="HTTPRoot\organization\address.ts" />
-    <EmbeddedResource Include="HTTPRoot\organization\organization.ts" />
-    <EmbeddedResource Include="HTTPRoot\organization\members.ts" />
-    <EmbeddedResource Include="HTTPRoot\organization\newMember.ts" />
-    <EmbeddedResource Include="HTTPRoot\organization\newSubOrganization.ts" />
-    <EmbeddedResource Include="HTTPRoot\organization\organizations.ts" />
-    <EmbeddedResource Include="HTTPRoot\organization\subOrganizations.ts" />
-    <EmbeddedResource Include="HTTPRoot\profile\APIKeys.ts" />
-    <EmbeddedResource Include="HTTPRoot\profile\organizations.ts" />
-    <EmbeddedResource Include="HTTPRoot\profile\password.ts" />
-    <EmbeddedResource Include="HTTPRoot\profile\profile.ts" />
-    <EmbeddedResource Include="HTTPRoot\user\user.ts" />
-    <EmbeddedResource Include="HTTPRoot\user\users.ts" />
-    <EmbeddedResource Include="HTTPRoot\notification\settings.ts" />
-    <EmbeddedResource Include="HTTPRoot\user\userGroups.ts" />
-    <EmbeddedResource Include="HTTPRoot\organization\organizationGroups.ts" />
-    <EmbeddedResource Include="HTTPRoot\user\userGroup.ts" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\BouncyCastle\crypto\crypto.csproj">
-      <Project>{38872a5f-e87e-4fad-b109-8eb7b2e6a4a0}</Project>
-      <Name>crypto</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Hermod\Hermod\Hermod.csproj">
-      <Project>{477efd16-3627-4473-957d-44ca9a9dfb79}</Project>
-      <Name>Hermod</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\SMSAPI\smsapi\SMSAPI2.csproj">
-      <Project>{05c2a720-2cd1-401b-a832-9ce85313c248}</Project>
-      <Name>SMSAPI2</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Styx\Styx\Styx.csproj">
-      <Project>{af76ecc0-2ca5-4cff-9e1e-ff5478c4b6e4}</Project>
-      <Name>Styx</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\TelegramBotAPI\TelegramBotAPI\TelegramBotAPI.csproj">
-      <Project>{2fee90e4-7e55-49a6-8be9-5a434ffa5a00}</Project>
-      <Name>TelegramBotAPI</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PreBuildEvent>tsc</PreBuildEvent>
-  </PropertyGroup>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="tsc" />
   </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+
 </Project>

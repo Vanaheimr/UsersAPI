@@ -89,7 +89,7 @@ namespace social.OpenData.UsersAPI
         /// The length of the user identificator.
         /// </summary>
         public UInt64 Length
-            => (UInt64) InternalId?.Length;
+            => (UInt64) (InternalId?.Length ?? 0);
 
         #endregion
 
@@ -106,7 +106,7 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (static) Random(Length)
+        #region (static) Random  (Length = 15)
 
         /// <summary>
         /// Create a new random user identification.
@@ -118,7 +118,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region Parse   (Text)
+        #region (static) Parse   (Text)
 
         /// <summary>
         /// Parse the given string as an user identification.
@@ -137,16 +137,16 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region TryParse(Text)
+        #region (static) TryParse(Text)
 
         /// <summary>
         /// Try to parse the given string as an user identification.
         /// </summary>
         /// <param name="Text">A text-representation of an user identification.</param>
-        public static User_Id? TryParse(String Text)
+        public static User_Id? TryParse(String? Text)
         {
 
-            if (TryParse(Text, out User_Id userId))
+            if (Text is not null && TryParse(Text, out User_Id userId))
                 return userId;
 
             return null;
@@ -155,7 +155,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region TryParse(Text, out UserId)
+        #region (static) TryParse(Text, out UserId)
 
         /// <summary>
         /// Try to parse the given string as an user identification.
@@ -301,7 +301,7 @@ namespace social.OpenData.UsersAPI
         /// Compares two instances of this object.
         /// </summary>
         /// <param name="Object">An object to compare with.</param>
-        public Int32 CompareTo(Object Object)
+        public Int32 CompareTo(Object? Object)
 
             => Object is User_Id userId
                    ? CompareTo(userId)
@@ -335,7 +335,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="Object">An object to compare with.</param>
         /// <returns>true|false</returns>
-        public override Boolean Equals(Object Object)
+        public override Boolean Equals(Object? Object)
 
             => Object is User_Id userId &&
                    Equals(userId);
