@@ -4683,7 +4683,7 @@ namespace social.OpenData.UsersAPI
                                              var take                                    = Request.QueryString.GetUInt64  ("take");
                                              var match                                   = Request.QueryString.GetString  ("match");
 
-                                             var (filteredChangeSets, totalCount, ETag)  = await LoadChangeSets(since,
+                                             var (filteredChangeSets, totalCount, ETag)  = await LoadChangeSetsFromDisc(since,
                                                                                                                 skipUntil,
                                                                                                                 match is not null
                                                                                                                   ? line => line.Contains(match)
@@ -13723,18 +13723,181 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
+
+
+        #region (protected) LoadChangeSetsFromAPI(ProcessEventDelegate, LastKnownSHA256HashValue = null)
+
+        /// <summary>
+        /// Read the database file.
+        /// </summary>
+        /// <param name="ProcessEventDelegate">A delegate to process each database entry.</param>
+        /// <param name="LastKnownSHA256HashValue">The optional last known SHA256 hash value.</param>
+        public async Task LoadChangeSetsFromAPI(Func<String, JObject, String, UInt64?, Task>  ProcessEventDelegate,
+                                                String?                                       LastKnownSHA256HashValue = null)
+        {
+
+            try
+            {
+
+                JArray? jsonChangeSets = null;
+
+                #region Get change sets from remote API
+
+                var retries     = -1;
+                var maxRetries  = 3;
+
+                var _remoteAuthServers = Array.Empty<URLWith_APIKeyId>();
+
+                lock (remoteAuthServers)
+                {
+                    _remoteAuthServers = remoteAuthServers.ToArray();
+                }
+
+                var usedRemoteAuthServer = _remoteAuthServers.FirstOrDefault();
+
+                do
+                {
+
+                    retries++;
+
+                    foreach (var remoteAuthServer in _remoteAuthServers)
+                    {
+
+                        try
+                        {
+
+                            #region Upstream HTTP(S) request...
+
+                            var httpresult = await HTTPClientFactory.Create(remoteAuthServer.URL,
+                                                                            //VirtualHostname,
+                                                                            //Description,
+                                                                            //RemoteCertificateValidator,
+                                                                            //ClientCertificateSelector,
+                                                                            //ClientCert,
+                                                                            //HTTPUserAgent,
+                                                                            //RequestTimeout,
+                                                                            //TransmissionRetryDelay,
+                                                                            //MaxNumberOfRetries,
+                                                                            //UseHTTPPipelining,
+                                                                            //HTTPLogger,
+                                                                            DNSClient: DNSClient).
+
+                                                        Execute(client => client.GETRequest(remoteAuthServer.URL.Path + (LastKnownSHA256HashValue is not null ? "changeSets?skipUntil=" + LastKnownSHA256HashValue : "changeSets"),
+                                                                                            requestbuilder => {
+                                                                                                requestbuilder.Host         = remoteAuthServer.URL.Hostname;
+                                                                                                requestbuilder.API_Key      = remoteAuthServer.APIKeyId;
+                                                                                                requestbuilder.Accept.Add(HTTPContentType.JSON_UTF8);
+                                                                                            }),
+
+                                                                //RequestLogDelegate:   OnGetCDRsHTTPRequest,
+                                                                //ResponseLogDelegate:  OnGetCDRsHTTPResponse,
+                                                                //CancellationToken:    CancellationToken,
+                                                                //EventTrackingId:      EventTrackingId,
+                                                                RequestTimeout: TimeSpan.FromSeconds(5)).
+
+                                                        ConfigureAwait(false);
+
+                            #endregion
+
+                            #region HTTPStatusCode.OK
+
+                            if (httpresult.HTTPStatusCode == HTTPStatusCode.OK)
+                            {
+
+                                jsonChangeSets        = JArray.Parse(httpresult.HTTPBody.ToUTF8String());
+                                usedRemoteAuthServer  = remoteAuthServer;
+
+                                DebugX.Log("Loaded " + jsonChangeSets.Count + " remote change sets from '" + remoteAuthServer.URL.ToString() + (LastKnownSHA256HashValue is not null ? "/changeSets?skipUntil=" + LastKnownSHA256HashValue : "/changeSets"));
+
+                            }
+
+                            #endregion
+
+                        }
+                        catch (Exception e)
+                        {
+                            DebugX.Log("Could not load remote change set from '" + remoteAuthServer.URL.ToString() + (LastKnownSHA256HashValue is not null ? "/changeSets?skipUntil=" + LastKnownSHA256HashValue : "/changeSets") + ": " + e.Message);
+                        }
+
+                    }
+
+                } while (jsonChangeSets is null && retries < maxRetries);
+
+                #endregion
+
+                #region Process change sets
+
+                if (jsonChangeSets is not null)
+                {
+
+                    jsonChangeSets.ForEachCounted(async (line, lineNumber) =>
+                    {
+
+                        if (line is JObject JSONLine)
+                        {
+
+                            try
+                            {
+
+                                if (JSONLine.First is JProperty jsonProperty)
+                                {
+
+                                    var JSONCommand = jsonProperty.Name;
+
+                                    if (JSONCommand.IsNotNullOrEmpty() &&
+                                        jsonProperty.Value is JObject jsonObject)
+                                    {
+
+                                        CurrentDatabaseHashValue = JSONLine?["sha256hash"]?["hashValue"]?.Value<String>() ?? "";
+
+                                        await ProcessEventDelegate(JSONCommand,
+                                                                   jsonObject,
+                                                                   usedRemoteAuthServer.URL.ToString(),
+                                                                   lineNumber);
+
+                                    }
+
+                                }
+
+                            }
+                            catch (Exception e)
+                            {
+                                DebugX.Log("Could not load remote change set from '" + usedRemoteAuthServer.URL.ToString() + (LastKnownSHA256HashValue is not null ? "/changeSets?skipUntil=" + LastKnownSHA256HashValue : "/changeSets") + "' line " + lineNumber + ": " + e.Message);
+                            }
+
+                        }
+
+                    });
+
+                }
+
+                #endregion
+
+            }
+            catch (Exception e)
+            {
+                DebugX.LogT("Could not load remote change set: " + e.Message);
+            }
+
+        }
+
+        #endregion
+
         #region (protected) LoadChangeSets(Since = null, SkipUntil = null, MatchFilter = null, Skip = null, Take = null, DatabaseFileName = null)
 
         /// <summary>
         /// Read all change sets from the database file.
         /// </summary>
         /// <param name="DatabaseFileName">The optional database file name.</param>
-        protected async Task<(IEnumerable<JObject>, UInt64, String)> LoadChangeSets(DateTime?               Since              = null,
-                                                                                    String?                 SkipUntil          = null,
-                                                                                    Func<String, Boolean>?  MatchFilter        = null,
-                                                                                    UInt64?                 Skip               = null,
-                                                                                    UInt64?                 Take               = null,
-                                                                                    String?                 DatabaseFileName   = null)
+        protected async Task<(IEnumerable<JObject>, UInt64, String)>
+
+            LoadChangeSetsFromDisc(DateTime?               Since              = null,
+                                   String?                 SkipUntil          = null,
+                                   Func<String, Boolean>?  MatchFilter        = null,
+                                   UInt64?                 Skip               = null,
+                                   UInt64?                 Take               = null,
+                                   String?                 DatabaseFileName   = null)
+
         {
 
             if (MatchFilter is null)
@@ -13816,7 +13979,7 @@ namespace social.OpenData.UsersAPI
                         }
                         catch (Exception e)
                         {
-                            DebugX.Log("Could not load database file ''" + databaseFileName + "' line " + lineNumber + ": " + e.Message);
+                            DebugX.Log("Could not load change set file ''" + databaseFileName + "' line " + lineNumber + ": " + e.Message);
                         }
 
                     }
@@ -13828,11 +13991,11 @@ namespace social.OpenData.UsersAPI
             }
             catch (FileNotFoundException)
             {
-                DebugX.LogT("Could not find database file '" + databaseFileName + "'!");
+                DebugX.LogT("Could not find change set file '" + databaseFileName + "'!");
             }
             catch (Exception e)
             {
-                DebugX.LogT("Could not (re-)load database file '" + databaseFileName + "': " + e.Message);
+                DebugX.LogT("Could not (re-)load change set file '" + databaseFileName + "': " + e.Message);
             }
 
             return (jsonList.SkipTakeFilter(Skip, Take),
@@ -15839,7 +16002,7 @@ namespace social.OpenData.UsersAPI
                                                                         //HTTPLogger,
                                                                         DNSClient: DNSClient).
 
-                                                   Execute(client => client.CHECKRequest(remoteAuthServer.URL.Path,
+                                                   Execute(client => client.CHECKRequest(remoteAuthServer.URL.Path + "securityToken",
                                                                                          requestbuilder => {
                                                                                              requestbuilder.Host         = remoteAuthServer.URL.Hostname;
                                                                                              requestbuilder.API_Key      = remoteAuthServer.APIKeyId;
