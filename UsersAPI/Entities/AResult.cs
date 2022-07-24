@@ -18,8 +18,9 @@
 #region Usings
 
 using System;
-using System.Linq;
+
 using Newtonsoft.Json.Linq;
+
 using org.GraphDefined.Vanaheimr.Illias;
 
 #endregion
@@ -52,7 +53,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// The object of the operation.
         /// </summary>
-        protected T                 Object              { get; }
+        protected T?                Object              { get; }
 
         /// <summary>
         /// The unique event tracking identification for correlating this request with other events.
@@ -64,9 +65,9 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         public    Boolean           IsSuccess           { get; }
 
-        public    String            Argument            { get; }
+        public    String?           Argument            { get; }
 
-        public    I18NString        ErrorDescription    { get; }
+        public    I18NString?       ErrorDescription    { get; }
 
         #endregion
 
@@ -80,11 +81,11 @@ namespace social.OpenData.UsersAPI
         /// <param name="IsSuccess">Whether the operation was successful, or not.</param>
         /// <param name="Argument"></param>
         /// <param name="ErrorDescription"></param>
-        public AResult(T                 Object,
+        public AResult(T?                Object,
                        EventTracking_Id  EventTrackingId,
                        Boolean           IsSuccess,
-                       String            Argument          = null,
-                       I18NString        ErrorDescription  = null)
+                       String?           Argument           = null,
+                       I18NString?       ErrorDescription   = null)
         {
 
             this.Object            = Object;
@@ -102,9 +103,11 @@ namespace social.OpenData.UsersAPI
         public JObject ToJSON()
 
             => JSONObject.Create(
-                   ErrorDescription.Count == 1
-                       ? new JProperty("description",  ErrorDescription.FirstText())
-                       : new JProperty("description",  ErrorDescription.ToJSON())
+                   ErrorDescription is not null
+                       ? ErrorDescription.Count == 1
+                             ? new JProperty("description",  ErrorDescription.FirstText())
+                             : new JProperty("description",  ErrorDescription.ToJSON())
+                       : null
                );
 
 
@@ -112,9 +115,9 @@ namespace social.OpenData.UsersAPI
 
             => IsSuccess
                     ? "Success"
-                    : "Failed" + (ErrorDescription.IsNullOrEmpty()
-                                        ? ": " + ErrorDescription.FirstText()
-                                        : "!");
+                    : "Failed" + (ErrorDescription is not null && ErrorDescription.IsNullOrEmpty()
+                                      ? ": " + ErrorDescription.FirstText()
+                                      : "!");
 
     }
 
@@ -189,9 +192,11 @@ namespace social.OpenData.UsersAPI
         public JObject ToJSON()
 
             => JSONObject.Create(
-                   ErrorDescription.Count == 1
-                       ? new JProperty("description",  ErrorDescription.FirstText())
-                       : new JProperty("description",  ErrorDescription.ToJSON())
+                   ErrorDescription is not null
+                       ? ErrorDescription.Count == 1
+                             ? new JProperty("description",  ErrorDescription.FirstText())
+                             : new JProperty("description",  ErrorDescription.ToJSON())
+                       : null
                );
 
 
@@ -199,9 +204,9 @@ namespace social.OpenData.UsersAPI
 
             => IsSuccess
                     ? "Success"
-                    : "Failed" + (ErrorDescription.IsNullOrEmpty()
-                                        ? ": " + ErrorDescription.FirstText()
-                                        : "!");
+                    : "Failed" + (ErrorDescription is not null && ErrorDescription.IsNullOrEmpty()
+                                      ? ": " + ErrorDescription.FirstText()
+                                      : "!");
 
     }
 
