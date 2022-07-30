@@ -2611,6 +2611,8 @@ namespace social.OpenData.UsersAPI
                         RemoteCertificateValidationCallback?  ClientCertificateValidator         = null,
                         LocalCertificateSelectionCallback?    ClientCertificateSelector          = null,
                         SslProtocols?                         AllowedTLSProtocols                = null,
+                        Boolean?                              ClientCertificateRequired          = null,
+                        Boolean?                              CheckCertificateRevocation         = null,
 
                         String?                               ServerThreadName                   = null,
                         ThreadPriority?                       ServerThreadPriority               = null,
@@ -2686,6 +2688,8 @@ namespace social.OpenData.UsersAPI
                    ClientCertificateValidator,
                    ClientCertificateSelector,
                    AllowedTLSProtocols,
+                   ClientCertificateRequired,
+                   CheckCertificateRevocation,
 
                    ServerThreadName,
                    ServerThreadPriority,
