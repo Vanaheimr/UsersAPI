@@ -298,9 +298,9 @@ namespace social.OpenData.UsersAPI
                 #region Parse Created                   [mandatory]
 
                 if (!JSON.ParseMandatory("created",
-                                               "creation timestamp",
-                                               out DateTime Created,
-                                               out ErrorResponse))
+                                         "creation timestamp",
+                                         out DateTime Created,
+                                         out ErrorResponse))
                 {
                     return false;
                 }

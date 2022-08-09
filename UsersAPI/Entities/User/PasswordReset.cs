@@ -180,8 +180,8 @@ namespace social.OpenData.UsersAPI
 
         public static Boolean TryParseJSON(JObject               JSONObject,
                                            UserProviderDelegate  UserProvider,
-                                           out PasswordReset     PasswordReset,
-                                           out String            ErrorResponse,
+                                           out PasswordReset?    PasswordReset,
+                                           out String?           ErrorResponse,
                                            Boolean               IgnoreContextMismatches = true)
 
         {
@@ -189,9 +189,9 @@ namespace social.OpenData.UsersAPI
             try
             {
 
-                PasswordReset = null;
+                PasswordReset = default;
 
-                if (JSONObject == null)
+                if (JSONObject is null)
                 {
                     ErrorResponse = "The given JSON object must not be null!";
                     return false;
@@ -226,7 +226,7 @@ namespace social.OpenData.UsersAPI
                 if (!JSONObject.ParseMandatory("timestamp",
                                                "timestamp",
                                                out DateTime Timestamp,
-                                               out          ErrorResponse))
+                                               out ErrorResponse))
                 {
                     return false;
                 }
