@@ -15730,7 +15730,7 @@ namespace social.OpenData.UsersAPI
         public Boolean VerifyMessageSignatures(JObject JSONMessage)
         {
 
-            if (JSONMessage == null)
+            if (JSONMessage is null)
                 return false;
 
             if (!(JSONMessage["signatures"] is JArray signaturesJSON) || signaturesJSON.Type != JTokenType.Array || signaturesJSON.Count < 1)
@@ -15772,7 +15772,7 @@ namespace social.OpenData.UsersAPI
             var ecParams      = new ECDomainParameters(ecp.Curve, ecp.G, ecp.N, ecp.H, ecp.GetSeed());
             var pubKeyParams  = new ECPublicKeyParameters("ECDSA", ecParams.Curve.DecodePoint(pubKey), ecParams);
 
-            var SHA256Hash    = new SHA256Managed().ComputeHash(plainText);
+            var SHA256Hash    = SHA256.Create().ComputeHash(plainText);
             var BlockSize     = 32;
 
             var verifier      = SignerUtilities.GetSigner("NONEwithECDSA");
@@ -15791,13 +15791,13 @@ namespace social.OpenData.UsersAPI
         public Boolean SignMessage(JObject JSONMessage, params AsymmetricCipherKeyPair[] KeyPairs)
         {
 
-            if (JSONMessage == null || KeyPairs == null || !KeyPairs.Any())
+            if (JSONMessage is null || KeyPairs is null || !KeyPairs.Any())
                 return false;
 
             foreach (var KeyPair in KeyPairs)
             {
 
-                if (KeyPair == null)
+                if (KeyPair is null)
                     continue;
 
                 var privateKey  = KeyPair?.Private as ECPrivateKeyParameters;
@@ -15810,8 +15810,11 @@ namespace social.OpenData.UsersAPI
                     continue;
 
 
-                if (JSONMessage["signatures"] != null && JSONMessage["signatures"].Type != JTokenType.Array)
+                if (JSONMessage["signatures"] is not null &&
+                    JSONMessage["signatures"]?.Type != JTokenType.Array)
+                {
                     return false;
+                }
 
                 var messageText  = JSONMessage.ToString(Newtonsoft.Json.Formatting.None);
                 var messageJSON  = JObject.Parse(messageText);
@@ -15822,10 +15825,10 @@ namespace social.OpenData.UsersAPI
                 };
 
                 var plainText    = messageJSON.ToString(Newtonsoft.Json.Formatting.None, cc);
-                var SHA256Hash   = new SHA256Managed().ComputeHash(plainText.ToUTF8Bytes());
+                var SHA256Hash   = SHA256.Create().ComputeHash(plainText.ToUTF8Bytes());
                 var BlockSize    = 32;
 
-                if (!(JSONMessage["signatures"] is JArray signaturesJSON))
+                if (JSONMessage["signatures"] is not JArray signaturesJSON)
                 {
                     signaturesJSON = new JArray();
                     JSONMessage.Add("signatures", signaturesJSON);
@@ -15847,10 +15850,9 @@ namespace social.OpenData.UsersAPI
                 signatureJSON.Add(new JProperty("signatureHEX", signature.ToHexString()));
 
 
-                Console.WriteLine();
-                Console.WriteLine("Response: "  + JSONMessage.ToString(Newtonsoft.Json.Formatting.None));
-                Console.WriteLine("PlainText: " + plainText);
-                Console.WriteLine("sha256: "    + SHA256Hash.ToHexString());
+                DebugX.Log("Response: "  + JSONMessage.ToString(Newtonsoft.Json.Formatting.None));
+                DebugX.Log("PlainText: " + plainText);
+                DebugX.Log("sha256: "    + SHA256Hash.ToHexString());
 
                 //// Re-Verify...
                 //{
@@ -15867,10 +15869,8 @@ namespace social.OpenData.UsersAPI
                     var verifier      = SignerUtilities.GetSigner("NONEwithECDSA");
                     verifier.Init(false, pubKeyParams);
                     verifier.BlockUpdate(SHA256Hash, 0, BlockSize);
-                    Console.WriteLine("Signature Verification(2): " + (verifier.VerifySignature(signature) ? "ok" : "failed!"));
+                    DebugX.Log("Signature Verification(2): " + (verifier.VerifySignature(signature) ? "ok" : "failed!"));
                 }
-
-                Console.WriteLine();
 
             }
 
