@@ -4520,6 +4520,7 @@ namespace social.OpenData.UsersAPI
                     request.Path.StartsWith(URLPathPrefix + "/favicon.ico")              ||
 
                     request.Path.StartsWith(URLPathPrefix + "/login")                                              ||
+                    request.Path.StartsWith(URLPathPrefix + "/css/login")                                          ||
                     request.Path.StartsWith(URLPathPrefix + "/lostPassword")                                       ||
                     request.Path.StartsWith(URLPathPrefix + "/resetPassword")                                      ||
                     request.Path.StartsWith(URLPathPrefix + "/setPassword")                                        ||
@@ -14023,8 +14024,8 @@ namespace social.OpenData.UsersAPI
         /// <param name="LineNumber">The event line number within the event file.</param>
         protected virtual async Task ProcessEvent(String   Command,
                                                   JObject  Data,
-                                                  String   Sender     = null,
-                                                  UInt64?  LineNumber = null)
+                                                  String?  Sender       = null,
+                                                  UInt64?  LineNumber   = null)
         {
 
             #region Initial checks

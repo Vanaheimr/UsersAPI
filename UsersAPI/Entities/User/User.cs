@@ -829,9 +829,7 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
-            this.EMail                        = Name.IsNotNullOrEmpty()
-                                                    ? new EMailAddress(Name, EMail, SecretKeyRing, PublicKeyRing)
-                                                    : new EMailAddress(      EMail, SecretKeyRing, PublicKeyRing);
+            this.EMail                        = new EMailAddress(EMail, Name, SecretKeyRing, PublicKeyRing);
             this.Name                         = Name;
             this.PublicKeyRing                = PublicKeyRing;
             this.SecretKeyRing                = SecretKeyRing;
