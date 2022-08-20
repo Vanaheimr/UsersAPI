@@ -13248,7 +13248,7 @@ namespace social.OpenData.UsersAPI
             #endregion
 
 
-            // Manahe this HTTP service...
+            // Manage this HTTP service...
 
             #region /restart
 
