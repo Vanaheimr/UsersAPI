@@ -4530,9 +4530,11 @@ namespace social.OpenData.UsersAPI
                     request.Path.StartsWith(URLPathPrefix + "/changeSets")    ||
                     request.Path.StartsWith(URLPathPrefix + "/securityToken") ||
 
-                   (request.Path.StartsWith(URLPathPrefix + "/serviceCheck")  && request.HTTPMethod.ToString() == "POST"))
-                {
+                   (request.Path.StartsWith(URLPathPrefix + "/serviceCheck")  && request.HTTPMethod.ToString() == "GET") ||
+                   (request.Path.StartsWith(URLPathPrefix + "/serviceCheck")  && request.HTTPMethod.ToString() == "POST")) {
+
                     return Anonymous;
+
                 }
 
                 #endregion
@@ -13084,72 +13086,44 @@ namespace social.OpenData.UsersAPI
             #endregion
 
 
-            #region POST        ~/serviceCheck
+            #region GET   ~/serviceCheck
 
-            // curl -X POST -H "Content-Type: application/json" -d "{\"content\": \"123\"}" http://127.0.0.1:2000/serviceCheck
-            // {
-            //      "timestamp":  "2019-11-28T19:07:52.6430383Z",
-            //      "instance":   "ZBOOK",
-            //      "content":    "321",
-            //      "signature":  "3044022048ffa223332a3e22735c4c9ac2..."
-            // }
-
-            // -------------------------------------------------------------------
-            // curl -v -H "Accept: text/html" http://127.0.0.1:2100/serviceCheck
-            // -------------------------------------------------------------------
+            // -----------------------------------------
+            // curl http://127.0.0.1:2000/serviceCheck
+            // -----------------------------------------
             HTTPServer.AddMethodCallback(HTTPHostname.Any,
-                                         HTTPMethod.POST,
+                                         HTTPMethod.GET,
                                          URLPathPrefix + "serviceCheck",
-                                         HTTPContentType.JSON_UTF8,
                                          HTTPDelegate: Request => {
 
                                              try
                                              {
 
-                                                 #region Parse JSON
+                                                 var jsonResponse  = JSONObject.Create(
+                                                                         new JProperty("timestamp",  Timestamp.Now),
+                                                                         new JProperty("instance",   Environment.MachineName),
+                                                                         new JProperty("content",    _Random.RandomString(20))
+                                                                     );
 
-                                                 if (!Request.TryParseJObjectRequestBody(out JObject JSONObj, out HTTPResponse.Builder response))
-                                                     return Task.FromResult(response.AsImmutable);
-
-                                                 var content = JSONObj["content"]?.Value<String>() ?? "";
-
-                                                 #endregion
-
-                                                 var reply       = JSONObject.Create(
-                                                                       new JProperty("timestamp",  Timestamp.Now),
-                                                                       new JProperty("instance",   Environment.MachineName),
-                                                                       new JProperty("content",    content.Reverse())
-                                                                   );
-
-                                                 //var ECP         = ECNamedCurveTable.GetByName("secp256r1");
-                                                 //var ECSpec      = new ECDomainParameters(ECP.Curve, ECP.G, ECP.N, ECP.H, ECP.GetSeed());
-                                                 //var C           = (FpCurve) ECSpec.Curve;
-
-                                                 //var g           = GeneratorUtilities.GetKeyPairGenerator("ECDH");
-                                                 //g.Init(new ECKeyGenerationParameters(ECSpec, new SecureRandom()));
-                                                 //var keyPair     = g.GenerateKeyPair();
-
-                                                 //var privateKey  = (keyPair.Private as ECPrivateKeyParameters);//.D.ToByteArray().ToHexString();
-                                                 //var publicKey   = (keyPair.Public  as ECPublicKeyParameters);//. Q.GetEncoded(). ToHexString();
-
-                                                 //var skHEX       = privateKey.D.ToByteArray().ToHexString();
-                                                 //var pkHEX       = publicKey.Q.GetEncoded().ToHexString();
-
-                                                 if (ServiceCheckPublicKey != null)
-                                                     reply.Add("publicKey", ServiceCheckPublicKey.Q.GetEncoded().ToHexString());
-
-                                                 if (ServiceCheckPrivateKey != null)
+                                                 if (ServiceCheckPublicKey is not null)
                                                  {
 
-                                                     var plaintext   = reply.ToString(Newtonsoft.Json.Formatting.None);
-                                                     var SHA256Hash  = SHA256.Create().ComputeHash(plaintext.ToUTF8Bytes());
+                                                     jsonResponse.Add("publicKey", ServiceCheckPublicKey.Q.GetEncoded().ToHexString());
 
-                                                     var signer      = SignerUtilities.GetSigner("NONEwithECDSA");
-                                                     signer.Init(true, ServiceCheckPrivateKey);
-                                                     signer.BlockUpdate(SHA256Hash, 0, SHA256Hash.Length);
-                                                     var signature   = signer.GenerateSignature().ToHexString();
+                                                     if (ServiceCheckPrivateKey is not null)
+                                                     {
 
-                                                     reply.Add("signature", signature);
+                                                         var plaintext   = jsonResponse.ToString(Newtonsoft.Json.Formatting.None);
+                                                         var SHA256Hash  = SHA256.Create().ComputeHash(plaintext.ToUTF8Bytes());
+
+                                                         var signer      = SignerUtilities.GetSigner("NONEwithECDSA");
+                                                         signer.Init(true, ServiceCheckPrivateKey);
+                                                         signer.BlockUpdate(SHA256Hash, 0, SHA256Hash.Length);
+                                                         var signature   = signer.GenerateSignature().ToHexString();
+
+                                                         jsonResponse.Add("signature", signature);
+
+                                                     }
 
                                                  }
 
@@ -13162,7 +13136,94 @@ namespace social.OpenData.UsersAPI
                                                          AccessControlAllowMethods  = "POST",
                                                          AccessControlAllowHeaders  = "Content-Type, Accept",
                                                          ContentType                = HTTPContentType.JSON_UTF8,
-                                                         Content                    = reply.ToUTF8Bytes(),
+                                                         Content                    = jsonResponse.ToUTF8Bytes(),
+                                                         Connection                 = "close"
+                                                     }.AsImmutable);
+
+                                             }
+                                             catch (Exception e)
+                                             {
+
+                                                 return Task.FromResult(
+                                                     new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode             = HTTPStatusCode.InternalServerError,
+                                                         Server                     = HTTPServer.DefaultServerName,
+                                                         Date                       = Timestamp.Now,
+                                                         AccessControlAllowOrigin   = "*",
+                                                         AccessControlAllowMethods  = "POST",
+                                                         AccessControlAllowHeaders  = "Content-Type, Accept",
+                                                         ContentType                = HTTPContentType.TEXT_UTF8,
+                                                         Content                    = (e.Message + Environment.NewLine + Environment.NewLine + e.StackTrace).ToUTF8Bytes(),
+                                                         Connection                 = "close"
+                                                     }.AsImmutable);
+
+                                             }
+
+                                         }, AllowReplacement: URLReplacement.Allow);
+
+            #endregion
+
+            #region POST  ~/serviceCheck
+
+            // -----------------------------------------------------------------------------------------------------------------
+            // curl -X POST -H "Content-Type: application/json" -d "{\"content\": \"123\"}" http://127.0.0.1:2000/serviceCheck
+            // -----------------------------------------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(HTTPHostname.Any,
+                                         HTTPMethod.POST,
+                                         URLPathPrefix + "serviceCheck",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             try
+                                             {
+
+                                                 #region Parse JSON
+
+                                                 if (!Request.TryParseJObjectRequestBody(out JObject JSONObj, out HTTPResponse.Builder httpResponse))
+                                                     return Task.FromResult(httpResponse.AsImmutable);
+
+                                                 var content       = JSONObj["content"]?.Value<String>() ?? _Random.RandomString(20);
+
+                                                 #endregion
+
+                                                 var jsonResponse  = JSONObject.Create(
+                                                                         new JProperty("timestamp",  Timestamp.Now),
+                                                                         new JProperty("instance",   Environment.MachineName),
+                                                                         new JProperty("content",    content.Reverse())
+                                                                     );
+
+                                                 if (ServiceCheckPublicKey is not null)
+                                                 {
+
+                                                     jsonResponse.Add("publicKey", ServiceCheckPublicKey.Q.GetEncoded().ToHexString());
+
+                                                     if (ServiceCheckPrivateKey is not null)
+                                                     {
+
+                                                         var plaintext   = jsonResponse.ToString(Newtonsoft.Json.Formatting.None);
+                                                         var SHA256Hash  = SHA256.Create().ComputeHash(plaintext.ToUTF8Bytes());
+
+                                                         var signer      = SignerUtilities.GetSigner("NONEwithECDSA");
+                                                         signer.Init(true, ServiceCheckPrivateKey);
+                                                         signer.BlockUpdate(SHA256Hash, 0, SHA256Hash.Length);
+                                                         var signature   = signer.GenerateSignature().ToHexString();
+
+                                                         jsonResponse.Add("signature", signature);
+
+                                                     }
+
+                                                 }
+
+                                                 return Task.FromResult(
+                                                     new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode             = HTTPStatusCode.OK,
+                                                         Server                     = HTTPServer.DefaultServerName,
+                                                         Date                       = Timestamp.Now,
+                                                         AccessControlAllowOrigin   = "*",
+                                                         AccessControlAllowMethods  = "POST",
+                                                         AccessControlAllowHeaders  = "Content-Type, Accept",
+                                                         ContentType                = HTTPContentType.JSON_UTF8,
+                                                         Content                    = jsonResponse.ToUTF8Bytes(),
                                                          Connection                 = "close"
                                                      }.AsImmutable);
 
@@ -15504,9 +15565,9 @@ namespace social.OpenData.UsersAPI
 
         #region ECC cryptography...
 
-        #region GenerateKeys(ECParameters)
+        #region (static) GenerateKeys(ECParameters)
 
-        public AsymmetricCipherKeyPair GenerateKeys(X9ECParameters ECParameters)
+        public static AsymmetricCipherKeyPair GenerateKeys(X9ECParameters ECParameters)
         {
 
             var EllipticCurveSpec = new ECDomainParameters(ECParameters.Curve,
@@ -15525,24 +15586,24 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region SerializePrivateKey (PrivateKey)
+        #region (static) SerializePrivateKey (PrivateKey)
 
-        public Byte[] SerializePrivateKey(ECPrivateKeyParameters PrivateKey)
+        public static Byte[] SerializePrivateKey(ECPrivateKeyParameters PrivateKey)
             => PrivateKey.D.ToByteArray();
 
         #endregion
 
-        #region SerializePublicKey  (PublicKey)
+        #region (static) SerializePublicKey  (PublicKey)
 
-        public Byte[] SerializePublicKey(ECPublicKeyParameters PublicKey)
+        public static Byte[] SerializePublicKey(ECPublicKeyParameters PublicKey)
 
             => PublicKey.Q.GetEncoded();
 
         #endregion
 
-        #region SerializePublicKeyXY(PublicKey)
+        #region (static) SerializePublicKeyXY(PublicKey)
 
-        public Tuple<Byte[], Byte[]> SerializePublicKeyXY(ECPublicKeyParameters PublicKey)
+        public static Tuple<Byte[], Byte[]> SerializePublicKeyXY(ECPublicKeyParameters PublicKey)
 
             => new Tuple<Byte[], Byte[]>(PublicKey.Q.XCoord.ToBigInteger().ToByteArray(),
                                          PublicKey.Q.YCoord.ToBigInteger().ToByteArray());
@@ -15550,10 +15611,10 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region ParsePrivateKeyBytes (ECParameters,      PrivateKeyBytes)
+        #region (static) ParsePrivateKeyBytes (ECParameters,      PrivateKeyBytes)
 
-        public ECPrivateKeyParameters ParsePrivateKeyBytes(X9ECParameters  ECParameters,
-                                                           Byte[]          PrivateKeyBytes)
+        public static ECPrivateKeyParameters ParsePrivateKeyBytes(X9ECParameters  ECParameters,
+                                                                  Byte[]          PrivateKeyBytes)
 
             => ParsePrivateKeyBytes(new ECDomainParameters(ECParameters.Curve,
                                                            ECParameters.G,
@@ -15564,21 +15625,20 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region ParsePrivateKeyBytes (EllipticCurveSpec, PrivateKeyBytes)
+        #region (static) ParsePrivateKeyBytes (EllipticCurveSpec, PrivateKeyBytes)
 
-        public ECPrivateKeyParameters ParsePrivateKeyBytes(ECDomainParameters  EllipticCurveSpec,
-                                                           Byte[]              PrivateKeyBytes)
+        public static ECPrivateKeyParameters ParsePrivateKeyBytes(ECDomainParameters  EllipticCurveSpec,
+                                                                  Byte[]              PrivateKeyBytes)
 
-            => new ECPrivateKeyParameters(
-                   new BigInteger(PrivateKeyBytes),
-                   EllipticCurveSpec);
+            => new (new BigInteger(PrivateKeyBytes),
+                    EllipticCurveSpec);
 
 
         #endregion
 
-        #region ParsePrivateKeyHEX   (ECParameters,      PrivateKeyHEX)
+        #region (static) ParsePrivateKeyHEX   (ECParameters,      PrivateKeyHEX)
 
-        public ECPrivateKeyParameters ParsePrivateKeyHEX(X9ECParameters  ECParameters,
+        public static ECPrivateKeyParameters ParsePrivateKeyHEX(X9ECParameters  ECParameters,
                                                          String          PrivateKeyHEX)
 
             => ParsePrivateKeyHEX(new ECDomainParameters(ECParameters.Curve,
@@ -15590,22 +15650,21 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region ParsePrivateKeyHEX   (EllipticCurveSpec, PrivateKeyHEX)
+        #region (static) ParsePrivateKeyHEX   (EllipticCurveSpec, PrivateKeyHEX)
 
-        public ECPrivateKeyParameters ParsePrivateKeyHEX(ECDomainParameters  EllipticCurveSpec,
-                                                         String              PrivateKeyHEX)
+        public static ECPrivateKeyParameters ParsePrivateKeyHEX(ECDomainParameters  EllipticCurveSpec,
+                                                                String              PrivateKeyHEX)
 
-            => new ECPrivateKeyParameters(
-                   new BigInteger(PrivateKeyHEX, 16),
-                   EllipticCurveSpec);
+            => new (new BigInteger(PrivateKeyHEX, 16),
+                    EllipticCurveSpec);
 
 
         #endregion
 
-        #region ParsePrivateKeyBase64(ECParameters,      PrivateKeyBase64)
+        #region (static) ParsePrivateKeyBase64(ECParameters,      PrivateKeyBase64)
 
-        public ECPrivateKeyParameters ParsePrivateKeyBase64(X9ECParameters  ECParameters,
-                                                            String          PrivateKeyBase64)
+        public static ECPrivateKeyParameters ParsePrivateKeyBase64(X9ECParameters  ECParameters,
+                                                                   String          PrivateKeyBase64)
 
             => ParsePrivateKeyBase64(new ECDomainParameters(ECParameters.Curve,
                                                             ECParameters.G,
@@ -15616,112 +15675,111 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region ParsePrivateKeyBase64(EllipticCurveSpec, PrivateKeyBase64)
+        #region (static) ParsePrivateKeyBase64(EllipticCurveSpec, PrivateKeyBase64)
 
-        public ECPrivateKeyParameters ParsePrivateKeyBase64(ECDomainParameters  EllipticCurveSpec,
-                                                            String              PrivateKeyBase64)
+        public static ECPrivateKeyParameters ParsePrivateKeyBase64(ECDomainParameters  EllipticCurveSpec,
+                                                                   String              PrivateKeyBase64)
 
-            => new ECPrivateKeyParameters(
-                   new BigInteger(PrivateKeyBase64.FromBase64()),
-                   EllipticCurveSpec);
-
-        #endregion
-
-
-        #region ParsePublicKey       (ECParameters,      PublicKey)
-
-        public ECPublicKeyParameters ParsePublicKey(X9ECParameters  ECParameters,
-                                                    Byte[]          PublicKey)
-
-            => new ECPublicKeyParameters("ECDSA",
-                                         ECParameters.Curve.DecodePoint(PublicKey),
-                                         new ECDomainParameters(ECParameters.Curve,
-                                                                ECParameters.G,
-                                                                ECParameters.N,
-                                                                ECParameters.H,
-                                                                ECParameters.GetSeed()));
-
-        #endregion
-
-        #region ParsePublicKey       (EllipticCurveSpec, PublicKey)
-
-        public ECPublicKeyParameters ParsePublicKey(ECDomainParameters  EllipticCurveSpec,
-                                                    Byte[]              PublicKey)
-
-            => new ECPublicKeyParameters("ECDSA",
-                                         EllipticCurveSpec.Curve.DecodePoint(PublicKey),
-                                         EllipticCurveSpec);
-
-        #endregion
-
-        #region ParsePublicKeyHEX    (ECParameters,      PublicKeyHEX)
-
-        public ECPublicKeyParameters ParsePublicKeyHEX(X9ECParameters ECParameters,
-                                                       String         PublicKeyHEX)
-
-            => new ECPublicKeyParameters("ECDSA",
-                                         ECParameters.Curve.DecodePoint(PublicKeyHEX.HexStringToByteArray()),
-                                         new ECDomainParameters(ECParameters.Curve,
-                                                                ECParameters.G,
-                                                                ECParameters.N,
-                                                                ECParameters.H,
-                                                                ECParameters.GetSeed()));
-
-        #endregion
-
-        #region ParsePublicKeyHEX    (EllipticCurveSpec, PublicKeyHEX)
-
-        public ECPublicKeyParameters ParsePublicKeyHEX(ECDomainParameters  EllipticCurveSpec,
-                                                       String              PublicKeyHEX)
-
-            => new ECPublicKeyParameters("ECDSA",
-                                         EllipticCurveSpec.Curve.DecodePoint(PublicKeyHEX.HexStringToByteArray()),
-                                         EllipticCurveSpec);
-
-        #endregion
-
-        #region ParsePublicKeyBase64 (ECParameters,      PublicKeyBase64)
-
-        public ECPublicKeyParameters ParsePublicKeyBase64(X9ECParameters ECParameters,
-                                                          String         PublicKeyBase64)
-
-            => new ECPublicKeyParameters("ECDSA",
-                                         ECParameters.Curve.DecodePoint(PublicKeyBase64.FromBase64()),
-                                         new ECDomainParameters(ECParameters.Curve,
-                                                                ECParameters.G,
-                                                                ECParameters.N,
-                                                                ECParameters.H,
-                                                                ECParameters.GetSeed()));
-
-        #endregion
-
-        #region ParsePublicKeyBase64 (EllipticCurveSpec, PublicKeyBase64)
-
-        public ECPublicKeyParameters ParsePublicKeyBase64(ECDomainParameters  EllipticCurveSpec,
-                                                          String              PublicKeyBase64)
-
-            => new ECPublicKeyParameters("ECDSA",
-                                         EllipticCurveSpec.Curve.DecodePoint(PublicKeyBase64.FromBase64()),
-                                         EllipticCurveSpec);
+            => new (new BigInteger(PrivateKeyBase64.FromBase64()),
+                    EllipticCurveSpec);
 
         #endregion
 
 
-        #region CalculatePublicKey(PrivateKey)
+        #region (static) ParsePublicKey       (ECParameters,      PublicKey)
+
+        public static ECPublicKeyParameters ParsePublicKey(X9ECParameters  ECParameters,
+                                                           Byte[]          PublicKey)
+
+            => new ("ECDSA",
+                    ECParameters.Curve.DecodePoint(PublicKey),
+                    new ECDomainParameters(ECParameters.Curve,
+                                           ECParameters.G,
+                                           ECParameters.N,
+                                           ECParameters.H,
+                                           ECParameters.GetSeed()));
+
+        #endregion
+
+        #region (static) ParsePublicKey       (EllipticCurveSpec, PublicKey)
+
+        public static  ECPublicKeyParameters ParsePublicKey(ECDomainParameters  EllipticCurveSpec,
+                                                            Byte[]              PublicKey)
+
+            => new ("ECDSA",
+                    EllipticCurveSpec.Curve.DecodePoint(PublicKey),
+                    EllipticCurveSpec);
+
+        #endregion
+
+        #region (static) ParsePublicKeyHEX    (ECParameters,      PublicKeyHEX)
+
+        public static ECPublicKeyParameters ParsePublicKeyHEX(X9ECParameters ECParameters,
+                                                              String         PublicKeyHEX)
+
+            => new ("ECDSA",
+                    ECParameters.Curve.DecodePoint(PublicKeyHEX.HexStringToByteArray()),
+                    new ECDomainParameters(ECParameters.Curve,
+                                           ECParameters.G,
+                                           ECParameters.N,
+                                           ECParameters.H,
+                                           ECParameters.GetSeed()));
+
+        #endregion
+
+        #region (static) ParsePublicKeyHEX    (EllipticCurveSpec, PublicKeyHEX)
+
+        public static ECPublicKeyParameters ParsePublicKeyHEX(ECDomainParameters  EllipticCurveSpec,
+                                                              String              PublicKeyHEX)
+
+            => new ("ECDSA",
+                    EllipticCurveSpec.Curve.DecodePoint(PublicKeyHEX.HexStringToByteArray()),
+                    EllipticCurveSpec);
+
+        #endregion
+
+        #region (static) ParsePublicKeyBase64 (ECParameters,      PublicKeyBase64)
+
+        public static ECPublicKeyParameters ParsePublicKeyBase64(X9ECParameters ECParameters,
+                                                                 String         PublicKeyBase64)
+
+            => new ("ECDSA",
+                    ECParameters.Curve.DecodePoint(PublicKeyBase64.FromBase64()),
+                    new ECDomainParameters(ECParameters.Curve,
+                                           ECParameters.G,
+                                           ECParameters.N,
+                                           ECParameters.H,
+                                           ECParameters.GetSeed()));
+
+        #endregion
+
+        #region (static) ParsePublicKeyBase64 (EllipticCurveSpec, PublicKeyBase64)
+
+        public static ECPublicKeyParameters ParsePublicKeyBase64(ECDomainParameters  EllipticCurveSpec,
+                                                                 String              PublicKeyBase64)
+
+            => new ("ECDSA",
+                    EllipticCurveSpec.Curve.DecodePoint(PublicKeyBase64.FromBase64()),
+                    EllipticCurveSpec);
+
+        #endregion
+
+
+        #region (static) CalculatePublicKey(PrivateKey)
 
         /// <summary>
         /// Calculate the public key only using domainParams.getG() and private key.
         /// </summary>
         /// <param name="PrivateKey"></param>
-        public ECPublicKeyParameters CalculatePublicKey(ECPrivateKeyParameters PrivateKey)
+        public static ECPublicKeyParameters CalculatePublicKey(ECPrivateKeyParameters PrivateKey)
 
-            => new ECPublicKeyParameters("ECDSA",
-                                         PrivateKey.Parameters.Curve.DecodePoint(
-                                             PrivateKey.Parameters.G.Multiply(
-                                                 new BigInteger(PrivateKey.D.ToByteArray()
-                                             )
-                                         ).GetEncoded()),
-                                         PrivateKey.Parameters);
+            => new ("ECDSA",
+                    PrivateKey.Parameters.Curve.DecodePoint(
+                        PrivateKey.Parameters.G.Multiply(
+                            new BigInteger(PrivateKey.D.ToByteArray()
+                        )
+                    ).GetEncoded()),
+                    PrivateKey.Parameters);
 
         #endregion
 
