@@ -13137,6 +13137,7 @@ namespace social.OpenData.UsersAPI
                                                          AccessControlAllowHeaders  = "Content-Type, Accept",
                                                          ContentType                = HTTPContentType.JSON_UTF8,
                                                          Content                    = jsonResponse.ToUTF8Bytes(),
+                                                         CacheControl               = "no-cache",
                                                          Connection                 = "close"
                                                      }.AsImmutable);
 
@@ -13154,6 +13155,7 @@ namespace social.OpenData.UsersAPI
                                                          AccessControlAllowHeaders  = "Content-Type, Accept",
                                                          ContentType                = HTTPContentType.TEXT_UTF8,
                                                          Content                    = (e.Message + Environment.NewLine + Environment.NewLine + e.StackTrace).ToUTF8Bytes(),
+                                                         CacheControl               = "no-cache",
                                                          Connection                 = "close"
                                                      }.AsImmutable);
 
@@ -13224,6 +13226,7 @@ namespace social.OpenData.UsersAPI
                                                          AccessControlAllowHeaders  = "Content-Type, Accept",
                                                          ContentType                = HTTPContentType.JSON_UTF8,
                                                          Content                    = jsonResponse.ToUTF8Bytes(),
+                                                         CacheControl               = "no-cache",
                                                          Connection                 = "close"
                                                      }.AsImmutable);
 
@@ -13241,6 +13244,7 @@ namespace social.OpenData.UsersAPI
                                                          AccessControlAllowHeaders  = "Content-Type, Accept",
                                                          ContentType                = HTTPContentType.TEXT_UTF8,
                                                          Content                    = (e.Message + Environment.NewLine + Environment.NewLine + e.StackTrace).ToUTF8Bytes(),
+                                                         CacheControl               = "no-cache",
                                                          Connection                 = "close"
                                                      }.AsImmutable);
 
