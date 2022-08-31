@@ -17,28 +17,19 @@
 
 #region Usings
 
-using System;
-using System.Linq;
-using System.Collections.Generic;
+using System.Security.Cryptography;
 
+using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Security;
+
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-
-using Org.BouncyCastle.Bcpg.OpenPgp;
-
-using social.OpenData.UsersAPI.Notifications;
 
 using org.GraphDefined.Vanaheimr.Aegir;
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod;
-using org.GraphDefined.Vanaheimr.Hermod.Mail;
-
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 using org.GraphDefined.Vanaheimr.Styx.Arrows;
-using org.GraphDefined.Vanaheimr.BouncyCastle;
-using System.Security.Cryptography;
-using Org.BouncyCastle.Security;
-using Org.BouncyCastle.Crypto;
-using Newtonsoft.Json;
 
 #endregion
 
@@ -119,12 +110,12 @@ namespace social.OpenData.UsersAPI.Postings
 
         #region API
 
-        private Object _API;
+        private Object? _API;
 
         /// <summary>
         /// The PostingsAPI of this Posting.
         /// </summary>
-        internal Object API
+        internal Object? API
         {
 
             get
@@ -154,6 +145,12 @@ namespace social.OpenData.UsersAPI.Postings
         /// </summary>
         [Mandatory]
         public I18NString                         Text                  { get; }
+
+        /// <summary>
+        /// The optional authors of this blog posting.
+        /// </summary>
+        [Optional]
+        public IEnumerable<User>                  Authors               { get; }
 
         /// <summary>
         /// The timestamp of the publication of this blog posting.
@@ -200,9 +197,10 @@ namespace social.OpenData.UsersAPI.Postings
         #region Constructor(s)
 
         /// <summary>
-        /// Create a new Open Data blog posting.
+        /// Create a new blog posting.
         /// </summary>
         /// <param name="Text">The (multi-language) text of this blog posting.</param>
+        /// <param name="Authors">The optional authors of this blog posting.</param>
         /// <param name="PublicationDate">The timestamp of the publication of this blog posting.</param>
         /// <param name="GeoLocation">An optional geographical location of this blog posting.</param>
         /// <param name="Tags">An enumeration of multi-language tags and their relevance.</param>
@@ -210,17 +208,19 @@ namespace social.OpenData.UsersAPI.Postings
         /// <param name="IsHidden">The blog posting is hidden.</param>
         /// <param name="Signatures">All signatures of this blog posting.</param>
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
-        public BlogPosting(I18NString                         Text,
-                           DateTime?                          PublicationDate   = null,
-                           GeoCoordinate?                     GeoLocation       = null,
-                           IEnumerable<TagRelevance>          Tags              = null,
-                           PrivacyLevel?                      PrivacyLevel      = null,
-                           Boolean                            IsHidden          = false,
-                           IEnumerable<BlogPostingSignature>  Signatures        = null,
-                           String                             DataSource        = "")
+        public BlogPosting(I18NString                          Text,
+                           IEnumerable<User>?                  Authors           = null,
+                           DateTime?                           PublicationDate   = null,
+                           GeoCoordinate?                      GeoLocation       = null,
+                           IEnumerable<TagRelevance>?          Tags              = null,
+                           PrivacyLevel?                       PrivacyLevel      = null,
+                           Boolean                             IsHidden          = false,
+                           IEnumerable<BlogPostingSignature>?  Signatures        = null,
+                           String                              DataSource        = "")
 
             : this(BlogPosting_Id.Random(),
                    Text,
+                   Authors,
                    PublicationDate,
                    GeoLocation,
                    Tags,
@@ -233,10 +233,11 @@ namespace social.OpenData.UsersAPI.Postings
 
 
         /// <summary>
-        /// Create a new Open Data blog posting.
+        /// Create a new blog posting.
         /// </summary>
         /// <param name="Id">The unique identification of this blog posting.</param>
         /// <param name="Text">The (multi-language) text of this blog posting.</param>
+        /// <param name="Authors">The optional authors of this blog posting.</param>
         /// <param name="PublicationDate">The timestamp of the publication of this blog posting.</param>
         /// <param name="GeoLocation">An optional geographical location of this blog posting.</param>
         /// <param name="Tags">An enumeration of multi-language tags and their relevance.</param>
@@ -244,15 +245,16 @@ namespace social.OpenData.UsersAPI.Postings
         /// <param name="IsHidden">The blog posting is hidden.</param>
         /// <param name="Signatures">All signatures of this blog posting.</param>
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
-        public BlogPosting(BlogPosting_Id                     Id,
-                           I18NString                         Text,
-                           DateTime?                          PublicationDate   = null,
-                           GeoCoordinate?                     GeoLocation       = null,
-                           IEnumerable<TagRelevance>          Tags              = null,
-                           PrivacyLevel?                      PrivacyLevel      = null,
-                           Boolean                            IsHidden          = false,
-                           IEnumerable<BlogPostingSignature>  Signatures        = null,
-                           String                             DataSource        = "")
+        public BlogPosting(BlogPosting_Id                      Id,
+                           I18NString                          Text,
+                           IEnumerable<User>?                  Authors           = null,
+                           DateTime?                           PublicationDate   = null,
+                           GeoCoordinate?                      GeoLocation       = null,
+                           IEnumerable<TagRelevance>?          Tags              = null,
+                           PrivacyLevel?                       PrivacyLevel      = null,
+                           Boolean                             IsHidden          = false,
+                           IEnumerable<BlogPostingSignature>?  Signatures        = null,
+                           String                              DataSource        = "")
 
             : base(Id,
                    DefaultJSONLDContext,
@@ -262,12 +264,13 @@ namespace social.OpenData.UsersAPI.Postings
         {
 
             this.Text             = Text;
-            this.PublicationDate  = PublicationDate ?? DateTime.Now;
+            this.Authors          = Authors         ?? Array.Empty<User>();
+            this.PublicationDate  = PublicationDate ?? Timestamp.Now;
             this.GeoLocation      = GeoLocation;
-            this.Tags             = Tags            ?? new TagRelevance[0];
-            this.PrivacyLevel     = PrivacyLevel    ?? social.OpenData.UsersAPI.PrivacyLevel.Private;
+            this.Tags             = Tags            ?? Array.Empty<TagRelevance>();
+            this.PrivacyLevel     = PrivacyLevel    ?? OpenData.UsersAPI.PrivacyLevel.Private;
             this.IsHidden         = false;
-            this.Signatures       = Signatures      ?? new BlogPostingSignature[0];
+            this.Signatures       = Signatures      ?? Array.Empty<BlogPostingSignature>();
 
             CalcHash();
 
@@ -334,16 +337,16 @@ namespace social.OpenData.UsersAPI.Postings
 
         #region (static) TryParseJSON(JSONObject, ..., out Posting, out ErrorResponse)
 
-        public static Boolean TryParseJSON(JObject          JSONObject,
-                                           out BlogPosting  Posting,
-                                           out String       ErrorResponse,
-                                           BlogPosting_Id?  PostingIdURL  = null)
+        public static Boolean TryParseJSON(JObject           JSONObject,
+                                           out BlogPosting?  Posting,
+                                           out String?       ErrorResponse,
+                                           BlogPosting_Id?   PostingIdURL   = null)
         {
 
             try
             {
 
-                Posting = null;
+                Posting = default;
 
                 #region Parse PostingId        [optional]
 
@@ -407,7 +410,7 @@ namespace social.OpenData.UsersAPI.Postings
 
                 #endregion
 
-                var PublicationDate  = DateTime.Now;
+                var PublicationDate  = Timestamp.Now;
 
                 #region Parse GeoLocation      [optional]
 
@@ -461,6 +464,7 @@ namespace social.OpenData.UsersAPI.Postings
 
                 Posting = new BlogPosting(PostingIdBody ?? PostingIdURL.Value,
                                           Text,
+                                          null,
                                           PublicationDate,
                                           GeoLocation,
                                           Tags,
@@ -476,7 +480,7 @@ namespace social.OpenData.UsersAPI.Postings
             catch (Exception e)
             {
                 ErrorResponse  = e.Message;
-                Posting           = null;
+                Posting        = null;
                 return false;
             }
 
@@ -724,15 +728,16 @@ namespace social.OpenData.UsersAPI.Postings
         /// <param name="NewPostingId">An optional new Posting identification.</param>
         public Builder ToBuilder(BlogPosting_Id? NewPostingId = null)
 
-            => new Builder(NewPostingId ?? Id,
-                           Text,
-                           PublicationDate,
-                           GeoLocation,
-                           Tags,
-                           PrivacyLevel,
-                           IsHidden,
-                           Signatures,
-                           DataSource);
+            => new (NewPostingId ?? Id,
+                    Text,
+                    Authors,
+                    PublicationDate,
+                    GeoLocation,
+                    Tags,
+                    PrivacyLevel,
+                    IsHidden,
+                    Signatures,
+                    DataSource);
 
         #endregion
 
@@ -741,7 +746,7 @@ namespace social.OpenData.UsersAPI.Postings
         /// <summary>
         /// An Open Data blog posting builder.
         /// </summary>
-        public class Builder
+        public new class Builder
         {
 
             #region Properties
@@ -756,6 +761,12 @@ namespace social.OpenData.UsersAPI.Postings
             /// </summary>
             [Mandatory]
             public I18NString                         Text                  { get; set; }
+
+            /// <summary>
+            /// The optional authors of this blog posting.
+            /// </summary>
+            [Optional]
+            public HashSet<User>                      Authors               { get; }
 
             /// <summary>
             /// The timestamp of the publication of this blog posting.
@@ -807,6 +818,7 @@ namespace social.OpenData.UsersAPI.Postings
             /// Create a new Posting builder.
             /// </summary>
             /// <param name="Text">The (multi-language) text of this blog posting.</param>
+            /// <param name="Authors">The optional authors of this blog posting.</param>
             /// <param name="PublicationDate">The timestamp of the publication of this blog posting.</param>
             /// <param name="GeoLocation">An optional geographical location of this blog posting.</param>
             /// <param name="Tags">An enumeration of multi-language tags and their relevance.</param>
@@ -814,17 +826,19 @@ namespace social.OpenData.UsersAPI.Postings
             /// <param name="IsHidden">The blog posting is hidden.</param>
             /// <param name="Signatures">All signatures of this blog posting.</param>
             /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
-            public Builder(I18NString                         Text,
-                           DateTime?                          PublicationDate  = null,
-                           GeoCoordinate?                     GeoLocation      = null,
-                           IEnumerable<TagRelevance>          Tags             = null,
-                           PrivacyLevel?                      PrivacyLevel     = null,
-                           Boolean                            IsHidden         = false,
-                           IEnumerable<BlogPostingSignature>  Signatures       = null,
-                           String                             DataSource       = "")
+            public Builder(I18NString                          Text,
+                           IEnumerable<User>?                  Authors           = null,
+                           DateTime?                           PublicationDate   = null,
+                           GeoCoordinate?                      GeoLocation       = null,
+                           IEnumerable<TagRelevance>?          Tags              = null,
+                           PrivacyLevel?                       PrivacyLevel      = null,
+                           Boolean                             IsHidden          = false,
+                           IEnumerable<BlogPostingSignature>?  Signatures        = null,
+                           String                              DataSource        = "")
 
                 : this(BlogPosting_Id.Random(),
                        Text,
+                       Authors,
                        PublicationDate,
                        GeoLocation,
                        Tags,
@@ -841,6 +855,7 @@ namespace social.OpenData.UsersAPI.Postings
             /// </summary>
             /// <param name="Id">The unique identification of this blog posting.</param>
             /// <param name="Text">The (multi-language) text of this blog posting.</param>
+            /// <param name="Authors">The optional authors of this blog posting.</param>
             /// <param name="PublicationDate">The timestamp of the publication of this blog posting.</param>
             /// <param name="GeoLocation">An optional geographical location of this blog posting.</param>
             /// <param name="Tags">An enumeration of multi-language tags and their relevance.</param>
@@ -848,26 +863,28 @@ namespace social.OpenData.UsersAPI.Postings
             /// <param name="IsHidden">The blog posting is hidden.</param>
             /// <param name="Signatures">All signatures of this blog posting.</param>
             /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
-            public Builder(BlogPosting_Id                     Id,
-                           I18NString                         Text,
-                           DateTime?                          PublicationDate  = null,
-                           GeoCoordinate?                     GeoLocation      = null,
-                           IEnumerable<TagRelevance>          Tags             = null,
-                           PrivacyLevel?                      PrivacyLevel     = null,
-                           Boolean                            IsHidden         = false,
-                           IEnumerable<BlogPostingSignature>  Signatures       = null,
-                           String                             DataSource       = "")
+            public Builder(BlogPosting_Id                      Id,
+                           I18NString                          Text,
+                           IEnumerable<User>?                  Authors           = null,
+                           DateTime?                           PublicationDate   = null,
+                           GeoCoordinate?                      GeoLocation       = null,
+                           IEnumerable<TagRelevance>?          Tags              = null,
+                           PrivacyLevel?                       PrivacyLevel      = null,
+                           Boolean                             IsHidden          = false,
+                           IEnumerable<BlogPostingSignature>?  Signatures        = null,
+                           String                              DataSource        = "")
 
             {
 
                 this.Id               = Id;
                 this.Text             = Text;
-                this.PublicationDate  = PublicationDate ?? DateTime.Now;
+                this.Authors          = Authors         is not null ? new HashSet<User>(Authors)                    : new HashSet<User>();
+                this.PublicationDate  = PublicationDate ?? Timestamp.Now;
                 this.GeoLocation      = GeoLocation;
-                this.Tags             = Tags         ?? new TagRelevance[0];
-                this.PrivacyLevel     = PrivacyLevel ?? social.OpenData.UsersAPI.PrivacyLevel.Private;
-                this.IsHidden         = false;
-                this.Signatures       = Signatures   ?? new BlogPostingSignature[0];
+                this.Tags             = Tags            is not null ? new HashSet<TagRelevance>(Tags)               : new HashSet<TagRelevance>();
+                this.PrivacyLevel     = PrivacyLevel    ?? OpenData.UsersAPI.PrivacyLevel.Private;
+                this.IsHidden         = IsHidden;
+                this.Signatures       = Signatures      is not null ? new HashSet<BlogPostingSignature>(Signatures) : new HashSet<BlogPostingSignature>();
                 this.DataSource       = DataSource;
 
             }
@@ -880,6 +897,7 @@ namespace social.OpenData.UsersAPI.Postings
 
                 var posting     = new BlogPosting(Id,
                                                   Text,
+                                                  null,
                                                   PublicationDate,
                                                   GeoLocation,
                                                   Tags,
@@ -890,7 +908,7 @@ namespace social.OpenData.UsersAPI.Postings
 
                 var ctext       = posting.ToJSON(Embedded:           false,
                                                  ExpandTags:         InfoStatus.ShowIdOnly,
-                                                 IncludeCryptoHash:  false).ToString(Newtonsoft.Json.Formatting.None);
+                                                 IncludeCryptoHash:  false).ToString(Formatting.None);
 
                 var BlockSize   = 32;
 
@@ -906,6 +924,7 @@ namespace social.OpenData.UsersAPI.Postings
 
                 return new BlogPosting(Id,
                                        Text,
+                                       null,
                                        PublicationDate,
                                        GeoLocation,
                                        Tags,
@@ -933,15 +952,16 @@ namespace social.OpenData.UsersAPI.Postings
             /// </summary>
             public BlogPosting ToImmutable
 
-                => new BlogPosting(Id,
-                                   Text,
-                                   PublicationDate,
-                                   GeoLocation,
-                                   Tags,
-                                   PrivacyLevel,
-                                   IsHidden,
-                                   Signatures,
-                                   DataSource);
+                => new (Id,
+                        Text,
+                        Authors,
+                        PublicationDate,
+                        GeoLocation,
+                        Tags,
+                        PrivacyLevel,
+                        IsHidden,
+                        Signatures,
+                        DataSource);
 
             #endregion
 

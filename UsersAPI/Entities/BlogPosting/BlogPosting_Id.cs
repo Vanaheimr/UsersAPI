@@ -27,64 +27,94 @@ namespace social.OpenData.UsersAPI.Postings
 {
 
     /// <summary>
+    /// Extension methods for blog posting identifications.
+    /// </summary>
+    public static class BlogPostingIdExtensions
+    {
+
+        /// <summary>
+        /// Indicates whether this blog posting identification is null or empty.
+        /// </summary>
+        /// <param name="BlogPostingId">A blog posting identification.</param>
+        public static Boolean IsNullOrEmpty(this BlogPosting_Id? BlogPostingId)
+            => !BlogPostingId.HasValue || BlogPostingId.Value.IsNullOrEmpty;
+
+        /// <summary>
+        /// Indicates whether this blog posting identification is null or empty.
+        /// </summary>
+        /// <param name="BlogPostingId">A blog posting identification.</param>
+        public static Boolean IsNotNullOrEmpty(this BlogPosting_Id? BlogPostingId)
+            => BlogPostingId.HasValue && BlogPostingId.Value.IsNotNullOrEmpty;
+
+    }
+
+
+    /// <summary>
     /// The unique identification of a blog posting.
     /// </summary>
-    public struct BlogPosting_Id : IId,
-                                   IEquatable<BlogPosting_Id>,
-                                   IComparable<BlogPosting_Id>
-
+    public readonly struct BlogPosting_Id : IId,
+                                            IEquatable<BlogPosting_Id>,
+                                            IComparable<BlogPosting_Id>
     {
 
         #region Data
 
-        private static readonly Random _random = new Random();
+        /// <summary>
+        /// The internal blog posting identification.
+        /// </summary>
+        private readonly String InternalId;
 
         /// <summary>
-        /// The internal identification.
+        /// Private non-cryptographic random number generator.
         /// </summary>
-        private readonly String  InternalId;
+        private static readonly Random _random = new Random();
 
         #endregion
 
         #region Properties
 
         /// <summary>
-        /// Indicates whether this identification is null or empty.
+        /// Indicates whether this blog posting identification is null or empty.
         /// </summary>
         public Boolean IsNullOrEmpty
             => InternalId.IsNullOrEmpty();
 
         /// <summary>
-        /// The length of the posting identification.
+        /// Indicates whether this blog posting identification is NOT null or empty.
+        /// </summary>
+        public Boolean IsNotNullOrEmpty
+            => InternalId.IsNotNullOrEmpty();
+
+        /// <summary>
+        /// The length of the blog posting identificator.
         /// </summary>
         public UInt64 Length
-            => (UInt64) InternalId.Length;
+            => (UInt64) (InternalId?.Length ?? 0);
 
         #endregion
 
         #region Constructor(s)
 
         /// <summary>
-        /// Create a new posting identification based on the given string.
+        /// Create a new blog posting identification based on the given string.
         /// </summary>
-        /// <param name="String">The string representation of the posting identification.</param>
-        private BlogPosting_Id(String  String)
+        private BlogPosting_Id(String Text)
         {
-            this.InternalId  = String.ToLower();
+            InternalId = Text;
         }
 
         #endregion
 
 
-        #region (static) Random  (Size)
+        #region (static) Random  (Length = 15)
 
         /// <summary>
-        /// Create a random blog posting identification.
+        /// Create a new random blog posting identification.
         /// </summary>
-        /// <param name="Size">The expected size of the blog posting identification.</param>
-        public static BlogPosting_Id Random(UInt16? Size = 64)
+        /// <param name="Length">The expected length of the random blog posting identification.</param>
+        public static BlogPosting_Id Random(Byte Length = 15)
 
-            => new BlogPosting_Id(_random.RandomString(Size ?? 64));
+            => new BlogPosting_Id(_random.RandomString(Length).ToUpper());
 
         #endregion
 
@@ -93,21 +123,15 @@ namespace social.OpenData.UsersAPI.Postings
         /// <summary>
         /// Parse the given string as a blog posting identification.
         /// </summary>
-        /// <param name="Text">A text representation of a blog posting identification.</param>
+        /// <param name="Text">A text-representation of a blog posting identification.</param>
         public static BlogPosting_Id Parse(String Text)
         {
 
-            #region Initial checks
+            if (TryParse(Text, out BlogPosting_Id blogPostingId))
+                return blogPostingId;
 
-            if (Text != null)
-                Text = Text.Trim();
-
-            if (Text.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Text), "The given text representation of a blog posting identification must not be null or empty!");
-
-            #endregion
-
-            return new BlogPosting_Id(Text);
+            throw new ArgumentException("Invalid text-representation of a blog posting identification: '" + Text + "'!",
+                                        nameof(Text));
 
         }
 
@@ -118,61 +142,44 @@ namespace social.OpenData.UsersAPI.Postings
         /// <summary>
         /// Try to parse the given string as a blog posting identification.
         /// </summary>
-        /// <param name="Text">A text representation of a blog posting identification.</param>
-        public static BlogPosting_Id? TryParse(String Text)
+        /// <param name="Text">A text-representation of a blog posting identification.</param>
+        public static BlogPosting_Id? TryParse(String? Text)
         {
 
-            #region Initial checks
+            if (Text is not null && TryParse(Text, out BlogPosting_Id blogPostingId))
+                return blogPostingId;
 
-            if (Text != null)
-                Text = Text.Trim();
-
-            if (Text.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Text), "The given text representation of a blog posting identification must not be null or empty!");
-
-            #endregion
-
-            if (TryParse(Text, out BlogPosting_Id _PostingId))
-                return _PostingId;
-
-            return new BlogPosting_Id?();
+            return null;
 
         }
 
         #endregion
 
-        #region (static) TryParse(Text, out PostingId)
+        #region (static) TryParse(Text, out BlogPostingId)
 
         /// <summary>
         /// Try to parse the given string as a blog posting identification.
         /// </summary>
-        /// <param name="Text">A text representation of a blog posting identification.</param>
-        /// <param name="PostingId">The parsed posting identification.</param>
-        public static Boolean TryParse(String Text, out BlogPosting_Id PostingId)
+        /// <param name="Text">A text-representation of a blog posting identification.</param>
+        /// <param name="BlogPostingId">The parsed blog posting identification.</param>
+        public static Boolean TryParse(String Text, out BlogPosting_Id BlogPostingId)
         {
 
-            #region Initial checks
+            Text = Text?.Trim();
 
-            if (Text != null)
-                Text = Text.Trim();
-
-            if (Text.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Text), "The given text representation of a blog posting identification must not be null or empty!");
-
-            String Realm = null;
-
-            #endregion
-
-            try
+            if (Text.IsNotNullOrEmpty())
             {
-                PostingId = new BlogPosting_Id(Text);
-                return true;
+                try
+                {
+                    BlogPostingId = new BlogPosting_Id(Text);
+                    return true;
+                }
+                catch
+                { }
             }
-            catch (Exception)
-            {
-                PostingId = default(BlogPosting_Id);
-                return false;
-            }
+
+            BlogPostingId = default;
+            return false;
 
         }
 
@@ -181,125 +188,112 @@ namespace social.OpenData.UsersAPI.Postings
         #region Clone
 
         /// <summary>
-        /// Clone this posting identification.
+        /// Clone this blog posting identification.
         /// </summary>
-
         public BlogPosting_Id Clone
 
-            => new BlogPosting_Id(new String(InternalId.ToCharArray()));
+            => new BlogPosting_Id(
+                   new String(InternalId?.ToCharArray())
+               );
 
         #endregion
 
 
         #region Operator overloading
 
-        #region Operator == (PostingId1, PostingId2)
+        #region Operator == (BlogPostingId1, BlogPostingId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="PostingId1">a blog posting identification.</param>
-        /// <param name="PostingId2">Another posting identification.</param>
+        /// <param name="BlogPostingId1">A blog posting identification.</param>
+        /// <param name="BlogPostingId2">Another blog posting identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator == (BlogPosting_Id PostingId1, BlogPosting_Id PostingId2)
-        {
+        public static Boolean operator == (BlogPosting_Id BlogPostingId1,
+                                           BlogPosting_Id BlogPostingId2)
 
-            // If both are null, or both are same instance, return true.
-            if (Object.ReferenceEquals(PostingId1, PostingId2))
-                return true;
-
-            // If one is null, but not both, return false.
-            if (((Object) PostingId1 == null) || ((Object) PostingId2 == null))
-                return false;
-
-            return PostingId1.Equals(PostingId2);
-
-        }
+            => BlogPostingId1.Equals(BlogPostingId2);
 
         #endregion
 
-        #region Operator != (PostingId1, PostingId2)
+        #region Operator != (BlogPostingId1, BlogPostingId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="PostingId1">a blog posting identification.</param>
-        /// <param name="PostingId2">Another posting identification.</param>
+        /// <param name="BlogPostingId1">A blog posting identification.</param>
+        /// <param name="BlogPostingId2">Another blog posting identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator != (BlogPosting_Id PostingId1, BlogPosting_Id PostingId2)
-            => !(PostingId1 == PostingId2);
+        public static Boolean operator != (BlogPosting_Id BlogPostingId1,
+                                           BlogPosting_Id BlogPostingId2)
+
+            => !BlogPostingId1.Equals(BlogPostingId2);
 
         #endregion
 
-        #region Operator <  (PostingId1, PostingId2)
+        #region Operator <  (BlogPostingId1, BlogPostingId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="PostingId1">a blog posting identification.</param>
-        /// <param name="PostingId2">Another posting identification.</param>
+        /// <param name="BlogPostingId1">A blog posting identification.</param>
+        /// <param name="BlogPostingId2">Another blog posting identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator < (BlogPosting_Id PostingId1, BlogPosting_Id PostingId2)
-        {
+        public static Boolean operator < (BlogPosting_Id BlogPostingId1,
+                                          BlogPosting_Id BlogPostingId2)
 
-            if ((Object) PostingId1 == null)
-                throw new ArgumentNullException(nameof(PostingId1), "The given PostingId1 must not be null!");
-
-            return PostingId1.CompareTo(PostingId2) < 0;
-
-        }
+            => BlogPostingId1.CompareTo(BlogPostingId2) < 0;
 
         #endregion
 
-        #region Operator <= (PostingId1, PostingId2)
+        #region Operator <= (BlogPostingId1, BlogPostingId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="PostingId1">a blog posting identification.</param>
-        /// <param name="PostingId2">Another posting identification.</param>
+        /// <param name="BlogPostingId1">A blog posting identification.</param>
+        /// <param name="BlogPostingId2">Another blog posting identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator <= (BlogPosting_Id PostingId1, BlogPosting_Id PostingId2)
-            => !(PostingId1 > PostingId2);
+        public static Boolean operator <= (BlogPosting_Id BlogPostingId1,
+                                           BlogPosting_Id BlogPostingId2)
+
+            => BlogPostingId1.CompareTo(BlogPostingId2) <= 0;
 
         #endregion
 
-        #region Operator >  (PostingId1, PostingId2)
+        #region Operator >  (BlogPostingId1, BlogPostingId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="PostingId1">a blog posting identification.</param>
-        /// <param name="PostingId2">Another posting identification.</param>
+        /// <param name="BlogPostingId1">A blog posting identification.</param>
+        /// <param name="BlogPostingId2">Another blog posting identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator > (BlogPosting_Id PostingId1, BlogPosting_Id PostingId2)
-        {
+        public static Boolean operator > (BlogPosting_Id BlogPostingId1,
+                                          BlogPosting_Id BlogPostingId2)
 
-            if ((Object) PostingId1 == null)
-                throw new ArgumentNullException(nameof(PostingId1), "The given PostingId1 must not be null!");
-
-            return PostingId1.CompareTo(PostingId2) > 0;
-
-        }
+            => BlogPostingId1.CompareTo(BlogPostingId2) > 0;
 
         #endregion
 
-        #region Operator >= (PostingId1, PostingId2)
+        #region Operator >= (BlogPostingId1, BlogPostingId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="PostingId1">a blog posting identification.</param>
-        /// <param name="PostingId2">Another posting identification.</param>
+        /// <param name="BlogPostingId1">A blog posting identification.</param>
+        /// <param name="BlogPostingId2">Another blog posting identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator >= (BlogPosting_Id PostingId1, BlogPosting_Id PostingId2)
-            => !(PostingId1 < PostingId2);
+        public static Boolean operator >= (BlogPosting_Id BlogPostingId1,
+                                           BlogPosting_Id BlogPostingId2)
+
+            => BlogPostingId1.CompareTo(BlogPostingId2) >= 0;
 
         #endregion
 
         #endregion
 
-        #region IComparable<PostingId> Members
+        #region IComparable<BlogPosting_Id> Members
 
         #region CompareTo(Object)
 
@@ -307,43 +301,32 @@ namespace social.OpenData.UsersAPI.Postings
         /// Compares two instances of this object.
         /// </summary>
         /// <param name="Object">An object to compare with.</param>
-        public Int32 CompareTo(Object Object)
-        {
+        public Int32 CompareTo(Object? Object)
 
-            if (Object == null)
-                throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
-
-            if (!(Object is BlogPosting_Id))
-                throw new ArgumentException("The given object is not a blog posting identification!",
-                                            nameof(Object));
-
-            return CompareTo((BlogPosting_Id) Object);
-
-        }
+            => Object is BlogPosting_Id blogPostingId
+                   ? CompareTo(blogPostingId)
+                   : throw new ArgumentException("The given object is not a blog posting identification!",
+                                                 nameof(Object));
 
         #endregion
 
-        #region CompareTo(PostingId)
+        #region CompareTo(BlogPostingId)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="PostingId">An object to compare with.</param>
-        public Int32 CompareTo(BlogPosting_Id PostingId)
-        {
+        /// <param name="BlogPostingId">An object to compare with.</param>
+        public Int32 CompareTo(BlogPosting_Id BlogPostingId)
 
-            if ((Object) PostingId == null)
-                throw new ArgumentNullException(nameof(PostingId),  "The given posting identification must not be null!");
-
-            return String.Compare(InternalId, PostingId.InternalId, StringComparison.OrdinalIgnoreCase);
-
-        }
+            => String.Compare(InternalId,
+                              BlogPostingId.InternalId,
+                              StringComparison.OrdinalIgnoreCase);
 
         #endregion
 
         #endregion
 
-        #region IEquatable<PostingId> Members
+        #region IEquatable<BlogPosting_Id> Members
 
         #region Equals(Object)
 
@@ -352,37 +335,25 @@ namespace social.OpenData.UsersAPI.Postings
         /// </summary>
         /// <param name="Object">An object to compare with.</param>
         /// <returns>true|false</returns>
-        public override Boolean Equals(Object Object)
-        {
+        public override Boolean Equals(Object? Object)
 
-            if (Object == null)
-                return false;
-
-            if (!(Object is BlogPosting_Id))
-                return false;
-
-            return Equals((BlogPosting_Id) Object);
-
-        }
+            => Object is BlogPosting_Id blogPostingId &&
+                   Equals(blogPostingId);
 
         #endregion
 
-        #region Equals(PostingId)
+        #region Equals(BlogPostingId)
 
         /// <summary>
-        /// Compares two posting identifications for equality.
+        /// Compares two blog posting identifications for equality.
         /// </summary>
-        /// <param name="PostingId">a blog posting identification to compare with.</param>
+        /// <param name="BlogPostingId">A blog posting identification to compare with.</param>
         /// <returns>True if both match; False otherwise.</returns>
-        public Boolean Equals(BlogPosting_Id PostingId)
-        {
+        public Boolean Equals(BlogPosting_Id BlogPostingId)
 
-            if ((Object) PostingId == null)
-                return false;
-
-            return InternalId.Equals(PostingId.InternalId, StringComparison.OrdinalIgnoreCase);
-
-        }
+            => String.Equals(InternalId,
+                             BlogPostingId.InternalId,
+                             StringComparison.OrdinalIgnoreCase);
 
         #endregion
 
@@ -391,23 +362,23 @@ namespace social.OpenData.UsersAPI.Postings
         #region GetHashCode()
 
         /// <summary>
-        /// Return the HashCode of this object.
+        /// Return the hash code of this object.
         /// </summary>
-        /// <returns>The HashCode of this object.</returns>
+        /// <returns>The hash code of this object.</returns>
         public override Int32 GetHashCode()
 
-            => InternalId.ToLower().GetHashCode();
+            => InternalId?.ToLower().GetHashCode() ?? 0;
 
         #endregion
 
         #region (override) ToString()
 
         /// <summary>
-        /// Return a text representation of this object.
+        /// Return a text-representation of this object.
         /// </summary>
         public override String ToString()
 
-            => InternalId;
+            => InternalId ?? "";
 
         #endregion
 
