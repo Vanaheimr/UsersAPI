@@ -17,8 +17,6 @@
 
 #region Usings
 
-using System;
-
 using org.GraphDefined.Vanaheimr.Illias;
 
 #endregion
@@ -67,7 +65,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Private non-cryptographic random number generator.
         /// </summary>
-        private static readonly Random _random = new Random();
+        private static readonly Random random = new ();
 
         #endregion
 
@@ -114,7 +112,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="Length">The expected length of the random user identification.</param>
         public static User_Id Random(Byte Length = 15)
 
-            => new User_Id(_random.RandomString(Length).ToUpper());
+            => new (random.RandomString(Length).ToUpper());
 
         #endregion
 
@@ -165,7 +163,7 @@ namespace social.OpenData.UsersAPI
         public static Boolean TryParse(String Text, out User_Id UserId)
         {
 
-            Text = Text?.Trim();
+            Text = Text.Trim();
 
             if (Text.IsNotNullOrEmpty())
             {
@@ -192,7 +190,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         public User_Id Clone
 
-            => new User_Id(
+            => new (
                    new String(InternalId?.ToCharArray())
                );
 

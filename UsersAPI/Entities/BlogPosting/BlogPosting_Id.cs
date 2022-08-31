@@ -17,8 +17,6 @@
 
 #region Usings
 
-using System;
-
 using org.GraphDefined.Vanaheimr.Illias;
 
 #endregion
@@ -67,7 +65,7 @@ namespace social.OpenData.UsersAPI.Postings
         /// <summary>
         /// Private non-cryptographic random number generator.
         /// </summary>
-        private static readonly Random _random = new Random();
+        private static readonly Random random = new ();
 
         #endregion
 
@@ -114,7 +112,7 @@ namespace social.OpenData.UsersAPI.Postings
         /// <param name="Length">The expected length of the random blog posting identification.</param>
         public static BlogPosting_Id Random(Byte Length = 15)
 
-            => new BlogPosting_Id(_random.RandomString(Length).ToUpper());
+            => new (random.RandomString(Length).ToUpper());
 
         #endregion
 
@@ -165,7 +163,7 @@ namespace social.OpenData.UsersAPI.Postings
         public static Boolean TryParse(String Text, out BlogPosting_Id BlogPostingId)
         {
 
-            Text = Text?.Trim();
+            Text = Text.Trim();
 
             if (Text.IsNotNullOrEmpty())
             {
@@ -192,7 +190,7 @@ namespace social.OpenData.UsersAPI.Postings
         /// </summary>
         public BlogPosting_Id Clone
 
-            => new BlogPosting_Id(
+            => new (
                    new String(InternalId?.ToCharArray())
                );
 
