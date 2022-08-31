@@ -13101,6 +13101,7 @@ namespace social.OpenData.UsersAPI
 
                                                  var jsonResponse  = JSONObject.Create(
                                                                          new JProperty("timestamp",  Timestamp.Now),
+                                                                         new JProperty("service",    HTTPServer.ServiceName),
                                                                          new JProperty("instance",   Environment.MachineName),
                                                                          new JProperty("content",    _Random.RandomString(20))
                                                                      );
@@ -13190,6 +13191,7 @@ namespace social.OpenData.UsersAPI
 
                                                  var jsonResponse  = JSONObject.Create(
                                                                          new JProperty("timestamp",  Timestamp.Now),
+                                                                         new JProperty("service",    HTTPServer.ServiceName),
                                                                          new JProperty("instance",   Environment.MachineName),
                                                                          new JProperty("content",    content.Reverse())
                                                                      );
