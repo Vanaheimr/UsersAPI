@@ -104,13 +104,13 @@ namespace social.OpenData.UsersAPI.Postings
         #endregion
 
 
-        #region (static) Random  (Length = 15)
+        #region (static) Random  (Length = 23)
 
         /// <summary>
         /// Create a new random blog posting identification.
         /// </summary>
         /// <param name="Length">The expected length of the random blog posting identification.</param>
-        public static BlogPosting_Id Random(Byte Length = 15)
+        public static BlogPosting_Id Random(Byte Length = 23)
 
             => new (random.RandomString(Length).ToUpper());
 

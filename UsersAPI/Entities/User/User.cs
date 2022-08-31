@@ -17,11 +17,6 @@
 
 #region Usings
 
-using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
 using Newtonsoft.Json.Linq;
 
 using Org.BouncyCastle.Bcpg.OpenPgp;
@@ -1710,7 +1705,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="User">An user object to compare with.</param>
         public override Int32 CompareTo(User User)
 
-            => User is User
+            => User is not null
                    ? Id.CompareTo(User.Id)
                    : throw new ArgumentException("The given object is not an user!", nameof(Object));
 
@@ -1727,7 +1722,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="Object">An object to compare with.</param>
         /// <returns>true|false</returns>
-        public override Boolean Equals(Object Object)
+        public override Boolean Equals(Object? Object)
 
             => Object is User User &&
                   Equals(User);
@@ -1743,7 +1738,7 @@ namespace social.OpenData.UsersAPI
         /// <returns>True if both match; False otherwise.</returns>
         public override Boolean Equals(User User)
 
-            => User is User &&
+            => User is not null &&
                    Id.Equals(User.Id);
 
         #endregion
@@ -2790,10 +2785,9 @@ namespace social.OpenData.UsersAPI
             /// <param name="Object">An object to compare with.</param>
             public override Int32 CompareTo(Object Object)
 
-                => Object is Builder Builder
-                       ? CompareTo(Builder)
+                => Object is Builder builder
+                       ? CompareTo(builder)
                        : throw new ArgumentException("The given object is not an user!");
-
 
             #endregion
 
@@ -2805,9 +2799,9 @@ namespace social.OpenData.UsersAPI
             /// <param name="Builder">An user object to compare with.</param>
             public Int32 CompareTo(Builder Builder)
 
-                => Builder is null
-                       ? throw new ArgumentNullException(nameof(Builder), "The given user must not be null!")
-                       : Id.CompareTo(Builder.Id);
+                => Builder is not null
+                       ? Id.CompareTo(Builder.Id)
+                       : throw new ArgumentNullException(nameof(Builder), "The given user must not be null!");
 
             #endregion
 
@@ -2822,10 +2816,10 @@ namespace social.OpenData.UsersAPI
             /// </summary>
             /// <param name="Object">An object to compare with.</param>
             /// <returns>true|false</returns>
-            public override Boolean Equals(Object Object)
+            public override Boolean Equals(Object? Object)
 
-                => Object is Builder Builder &&
-                      Equals(Builder);
+                => Object is Builder builder &&
+                      Equals(builder);
 
             #endregion
 
@@ -2838,7 +2832,7 @@ namespace social.OpenData.UsersAPI
             /// <returns>True if both match; False otherwise.</returns>
             public Boolean Equals(Builder Builder)
 
-                => Builder is Builder &&
+                => Builder is not null &&
                        Id.Equals(Builder.Id);
 
             #endregion
@@ -2851,6 +2845,7 @@ namespace social.OpenData.UsersAPI
             /// Get the hashcode of this object.
             /// </summary>
             public override Int32 GetHashCode()
+
                 => Id.GetHashCode();
 
             #endregion
@@ -2861,6 +2856,7 @@ namespace social.OpenData.UsersAPI
             /// Return a text representation of this object.
             /// </summary>
             public override String ToString()
+
                 => Id.ToString();
 
             #endregion

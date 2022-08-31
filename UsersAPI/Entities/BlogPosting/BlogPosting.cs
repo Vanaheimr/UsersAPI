@@ -36,7 +36,7 @@ using org.GraphDefined.Vanaheimr.Styx.Arrows;
 namespace social.OpenData.UsersAPI.Postings
 {
 
-//    public delegate Boolean PostingProviderDelegate(BlogPosting_Id PostingId, out BlogPosting Posting);
+//    public delegate Boolean PostingProviderDelegate(BlogPosting_Id BlogPostingId, out BlogPosting Posting);
 
     public delegate JObject BlogPostingToJSONDelegate(BlogPosting  BlogPosting,
                                                       Boolean      Embedded            = false,
@@ -141,6 +141,12 @@ namespace social.OpenData.UsersAPI.Postings
         #endregion
 
         /// <summary>
+        /// The (multi-language) title of this blog posting.
+        /// </summary>
+        [Mandatory]
+        public I18NString                         Title                 { get; }
+
+        /// <summary>
         /// The (multi-language) text of this blog posting.
         /// </summary>
         [Mandatory]
@@ -157,6 +163,12 @@ namespace social.OpenData.UsersAPI.Postings
         /// </summary>
         [Mandatory]
         public DateTime                           PublicationDate       { get; }
+
+        /// <summary>
+        /// The timestamp of the last change of this blog posting.
+        /// </summary>
+        [Mandatory]
+        public DateTime                           LastChangeDate        { get; }
 
         /// <summary>
         /// An optional geographical location of this blog posting.
@@ -199,44 +211,9 @@ namespace social.OpenData.UsersAPI.Postings
         /// <summary>
         /// Create a new blog posting.
         /// </summary>
+        /// <param name="Title">The (multi-language) title of this blog posting.</param>
         /// <param name="Text">The (multi-language) text of this blog posting.</param>
-        /// <param name="Authors">The optional authors of this blog posting.</param>
-        /// <param name="PublicationDate">The timestamp of the publication of this blog posting.</param>
-        /// <param name="GeoLocation">An optional geographical location of this blog posting.</param>
-        /// <param name="Tags">An enumeration of multi-language tags and their relevance.</param>
-        /// <param name="PrivacyLevel">Whether the blog posting will be shown in blog posting listings, or not.</param>
-        /// <param name="IsHidden">The blog posting is hidden.</param>
-        /// <param name="Signatures">All signatures of this blog posting.</param>
-        /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
-        public BlogPosting(I18NString                          Text,
-                           IEnumerable<User>?                  Authors           = null,
-                           DateTime?                           PublicationDate   = null,
-                           GeoCoordinate?                      GeoLocation       = null,
-                           IEnumerable<TagRelevance>?          Tags              = null,
-                           PrivacyLevel?                       PrivacyLevel      = null,
-                           Boolean                             IsHidden          = false,
-                           IEnumerable<BlogPostingSignature>?  Signatures        = null,
-                           String                              DataSource        = "")
-
-            : this(BlogPosting_Id.Random(),
-                   Text,
-                   Authors,
-                   PublicationDate,
-                   GeoLocation,
-                   Tags,
-                   PrivacyLevel,
-                   IsHidden,
-                   Signatures,
-                   DataSource)
-
-        { }
-
-
-        /// <summary>
-        /// Create a new blog posting.
-        /// </summary>
         /// <param name="Id">The unique identification of this blog posting.</param>
-        /// <param name="Text">The (multi-language) text of this blog posting.</param>
         /// <param name="Authors">The optional authors of this blog posting.</param>
         /// <param name="PublicationDate">The timestamp of the publication of this blog posting.</param>
         /// <param name="GeoLocation">An optional geographical location of this blog posting.</param>
@@ -245,31 +222,35 @@ namespace social.OpenData.UsersAPI.Postings
         /// <param name="IsHidden">The blog posting is hidden.</param>
         /// <param name="Signatures">All signatures of this blog posting.</param>
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
-        public BlogPosting(BlogPosting_Id                      Id,
+        public BlogPosting(I18NString                          Title,
                            I18NString                          Text,
+                           BlogPosting_Id?                     Id                = null,
                            IEnumerable<User>?                  Authors           = null,
                            DateTime?                           PublicationDate   = null,
+                           DateTime?                           LastChangeDate    = null,
                            GeoCoordinate?                      GeoLocation       = null,
                            IEnumerable<TagRelevance>?          Tags              = null,
                            PrivacyLevel?                       PrivacyLevel      = null,
                            Boolean                             IsHidden          = false,
                            IEnumerable<BlogPostingSignature>?  Signatures        = null,
-                           String                              DataSource        = "")
+                           String?                             DataSource        = null)
 
-            : base(Id,
+            : base(Id ?? BlogPosting_Id.Random(),
                    DefaultJSONLDContext,
                    null,
                    DataSource)
 
         {
 
+            this.Title            = Title;
             this.Text             = Text;
             this.Authors          = Authors         ?? Array.Empty<User>();
             this.PublicationDate  = PublicationDate ?? Timestamp.Now;
+            this.LastChangeDate   = LastChangeDate  ?? Timestamp.Now;
             this.GeoLocation      = GeoLocation;
             this.Tags             = Tags            ?? Array.Empty<TagRelevance>();
             this.PrivacyLevel     = PrivacyLevel    ?? OpenData.UsersAPI.PrivacyLevel.Private;
-            this.IsHidden         = false;
+            this.IsHidden         = IsHidden;
             this.Signatures       = Signatures      ?? Array.Empty<BlogPostingSignature>();
 
             CalcHash();
@@ -335,27 +316,27 @@ namespace social.OpenData.UsersAPI.Postings
 
         #endregion
 
-        #region (static) TryParseJSON(JSONObject, ..., out Posting, out ErrorResponse)
+        #region (static) TryParseJSON(JSONObject, ..., out BlogPosting, out ErrorResponse)
 
         public static Boolean TryParseJSON(JObject           JSONObject,
-                                           out BlogPosting?  Posting,
+                                           out BlogPosting?  BlogPosting,
                                            out String?       ErrorResponse,
-                                           BlogPosting_Id?   PostingIdURL   = null)
+                                           BlogPosting_Id?   BlogPostingIdURL   = null)
         {
 
             try
             {
 
-                Posting = default;
+                BlogPosting = default;
 
-                #region Parse PostingId        [optional]
+                #region Parse BlogPostingId        [optional]
 
-                // Verify that a given Posting identification
+                // Verify that a given blog posting identification
                 //   is at least valid.
                 if (JSONObject.ParseOptionalStruct("@id",
-                                                   "Posting identification",
+                                                   "blog posting identification",
                                                    BlogPosting_Id.TryParse,
-                                                   out BlogPosting_Id? PostingIdBody,
+                                                   out BlogPosting_Id? BlogPostingIdBody,
                                                    out ErrorResponse))
                 {
 
@@ -364,15 +345,15 @@ namespace social.OpenData.UsersAPI.Postings
 
                 }
 
-                if (!PostingIdURL.HasValue && !PostingIdBody.HasValue)
+                if (!BlogPostingIdURL.HasValue && !BlogPostingIdBody.HasValue)
                 {
-                    ErrorResponse = "The Posting identification is missing!";
+                    ErrorResponse = "The blog posting identification is missing!";
                     return false;
                 }
 
-                if (PostingIdURL.HasValue && PostingIdBody.HasValue && PostingIdURL.Value != PostingIdBody.Value)
+                if (BlogPostingIdURL.HasValue && BlogPostingIdBody.HasValue && BlogPostingIdURL.Value != BlogPostingIdBody.Value)
                 {
-                    ErrorResponse = "The optional Posting identification given within the JSON body does not match the one given in the URI!";
+                    ErrorResponse = "The optional blog posting identification given within the JSON body does not match the one given in the URI!";
                     return false;
                 }
 
@@ -398,6 +379,18 @@ namespace social.OpenData.UsersAPI.Postings
 
                 #endregion
 
+                #region Parse Title            [mandatory]
+
+                if (!JSONObject.ParseMandatory("title",
+                                               "blog posting title",
+                                               out I18NString Title,
+                                               out ErrorResponse))
+                {
+                    return false;
+                }
+
+                #endregion
+
                 #region Parse Text             [mandatory]
 
                 if (!JSONObject.ParseMandatory("text",
@@ -411,6 +404,8 @@ namespace social.OpenData.UsersAPI.Postings
                 #endregion
 
                 var PublicationDate  = Timestamp.Now;
+
+                var LastChangeDate   = Timestamp.Now;
 
                 #region Parse GeoLocation      [optional]
 
@@ -462,10 +457,12 @@ namespace social.OpenData.UsersAPI.Postings
                 #endregion
 
 
-                Posting = new BlogPosting(PostingIdBody ?? PostingIdURL.Value,
+                BlogPosting = new BlogPosting(Title,
                                           Text,
+                                          BlogPostingIdBody ?? BlogPostingIdURL ?? BlogPosting_Id.Random(),
                                           null,
                                           PublicationDate,
+                                          LastChangeDate,
                                           GeoLocation,
                                           Tags,
                                           PrivacyLevel,
@@ -480,7 +477,7 @@ namespace social.OpenData.UsersAPI.Postings
             catch (Exception e)
             {
                 ErrorResponse  = e.Message;
-                Posting        = null;
+                BlogPosting        = null;
                 return false;
             }
 
@@ -503,113 +500,113 @@ namespace social.OpenData.UsersAPI.Postings
 
         #region Operator overloading
 
-        #region Operator == (PostingId1, PostingId2)
+        #region Operator == (BlogPostingId1, BlogPostingId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="PostingId1">A Posting identification.</param>
-        /// <param name="PostingId2">Another Posting identification.</param>
+        /// <param name="BlogPostingId1">A blog posting identification.</param>
+        /// <param name="BlogPostingId2">Another blog posting identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator == (BlogPosting PostingId1, BlogPosting PostingId2)
+        public static Boolean operator == (BlogPosting BlogPostingId1, BlogPosting BlogPostingId2)
         {
 
             // If both are null, or both are same instance, return true.
-            if (Object.ReferenceEquals(PostingId1, PostingId2))
+            if (Object.ReferenceEquals(BlogPostingId1, BlogPostingId2))
                 return true;
 
             // If one is null, but not both, return false.
-            if (((Object) PostingId1 == null) || ((Object) PostingId2 == null))
+            if (BlogPostingId1 is null || BlogPostingId2 is null)
                 return false;
 
-            return PostingId1.Equals(PostingId2);
+            return BlogPostingId1.Equals(BlogPostingId2);
 
         }
 
         #endregion
 
-        #region Operator != (PostingId1, PostingId2)
+        #region Operator != (BlogPostingId1, BlogPostingId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="PostingId1">A Posting identification.</param>
-        /// <param name="PostingId2">Another Posting identification.</param>
+        /// <param name="BlogPostingId1">A blog posting identification.</param>
+        /// <param name="BlogPostingId2">Another blog posting identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator != (BlogPosting PostingId1, BlogPosting PostingId2)
-            => !(PostingId1 == PostingId2);
+        public static Boolean operator != (BlogPosting BlogPostingId1, BlogPosting BlogPostingId2)
+            => !(BlogPostingId1 == BlogPostingId2);
 
         #endregion
 
-        #region Operator <  (PostingId1, PostingId2)
+        #region Operator <  (BlogPostingId1, BlogPostingId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="PostingId1">A Posting identification.</param>
-        /// <param name="PostingId2">Another Posting identification.</param>
+        /// <param name="BlogPostingId1">A blog posting identification.</param>
+        /// <param name="BlogPostingId2">Another blog posting identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator < (BlogPosting PostingId1, BlogPosting PostingId2)
+        public static Boolean operator < (BlogPosting BlogPostingId1, BlogPosting BlogPostingId2)
         {
 
-            if ((Object) PostingId1 == null)
-                throw new ArgumentNullException(nameof(PostingId1), "The given PostingId1 must not be null!");
+            if (BlogPostingId1 is null)
+                throw new ArgumentNullException(nameof(BlogPostingId1), "The given BlogPostingId1 must not be null!");
 
-            return PostingId1.CompareTo(PostingId2) < 0;
+            return BlogPostingId1.CompareTo(BlogPostingId2) < 0;
 
         }
 
         #endregion
 
-        #region Operator <= (PostingId1, PostingId2)
+        #region Operator <= (BlogPostingId1, BlogPostingId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="PostingId1">A Posting identification.</param>
-        /// <param name="PostingId2">Another Posting identification.</param>
+        /// <param name="BlogPostingId1">A blog posting identification.</param>
+        /// <param name="BlogPostingId2">Another blog posting identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator <= (BlogPosting PostingId1, BlogPosting PostingId2)
-            => !(PostingId1 > PostingId2);
+        public static Boolean operator <= (BlogPosting BlogPostingId1, BlogPosting BlogPostingId2)
+            => !(BlogPostingId1 > BlogPostingId2);
 
         #endregion
 
-        #region Operator >  (PostingId1, PostingId2)
+        #region Operator >  (BlogPostingId1, BlogPostingId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="PostingId1">A Posting identification.</param>
-        /// <param name="PostingId2">Another Posting identification.</param>
+        /// <param name="BlogPostingId1">A blog posting identification.</param>
+        /// <param name="BlogPostingId2">Another blog posting identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator > (BlogPosting PostingId1, BlogPosting PostingId2)
+        public static Boolean operator > (BlogPosting BlogPostingId1, BlogPosting BlogPostingId2)
         {
 
-            if ((Object) PostingId1 == null)
-                throw new ArgumentNullException(nameof(PostingId1), "The given PostingId1 must not be null!");
+            if (BlogPostingId1 is null)
+                throw new ArgumentNullException(nameof(BlogPostingId1), "The given BlogPostingId1 must not be null!");
 
-            return PostingId1.CompareTo(PostingId2) > 0;
+            return BlogPostingId1.CompareTo(BlogPostingId2) > 0;
 
         }
 
         #endregion
 
-        #region Operator >= (PostingId1, PostingId2)
+        #region Operator >= (BlogPostingId1, BlogPostingId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="PostingId1">A Posting identification.</param>
-        /// <param name="PostingId2">Another Posting identification.</param>
+        /// <param name="BlogPostingId1">A blog posting identification.</param>
+        /// <param name="BlogPostingId2">Another blog posting identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator >= (BlogPosting PostingId1, BlogPosting PostingId2)
-            => !(PostingId1 < PostingId2);
+        public static Boolean operator >= (BlogPosting BlogPostingId1, BlogPosting BlogPostingId2)
+            => !(BlogPostingId1 < BlogPostingId2);
 
         #endregion
 
         #endregion
 
-        #region IComparable<Posting> Members
+        #region IComparable<BlogPosting> Members
 
         #region CompareTo(Object)
 
@@ -618,42 +615,30 @@ namespace social.OpenData.UsersAPI.Postings
         /// </summary>
         /// <param name="Object">An object to compare with.</param>
         public override Int32 CompareTo(Object Object)
-        {
 
-            if (Object == null)
-                throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
-
-            var Posting = Object as BlogPosting;
-            if ((Object) Posting == null)
-                throw new ArgumentException("The given object is not an Posting!");
-
-            return CompareTo(Posting);
-
-        }
+            => Object is BlogPosting blogPosting
+                   ? CompareTo(blogPosting)
+                   : throw new ArgumentException("The given object is not a blog posting!", nameof(Object));
 
         #endregion
 
-        #region CompareTo(Posting)
+        #region CompareTo(BlogPosting)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="Posting">An Posting object to compare with.</param>
-        public override Int32 CompareTo(BlogPosting Posting)
-        {
+        /// <param name="Posting">A blog posting object to compare with.</param>
+        public override Int32 CompareTo(BlogPosting BlogPosting)
 
-            if ((Object) Posting == null)
-                throw new ArgumentNullException("The given Posting must not be null!");
-
-            return Id.CompareTo(Posting.Id);
-
-        }
+            => BlogPosting is not null
+                   ? Id.CompareTo(BlogPosting.Id)
+                   : throw new ArgumentException("The given object is not a blog posting!", nameof(Object));
 
         #endregion
 
         #endregion
 
-        #region IEquatable<Posting> Members
+        #region IEquatable<BlogPosting> Members
 
         #region Equals(Object)
 
@@ -662,38 +647,24 @@ namespace social.OpenData.UsersAPI.Postings
         /// </summary>
         /// <param name="Object">An object to compare with.</param>
         /// <returns>true|false</returns>
-        public override Boolean Equals(Object Object)
-        {
+        public override Boolean Equals(Object? Object)
 
-            if (Object == null)
-                return false;
-
-            var Posting = Object as BlogPosting;
-            if ((Object) Posting == null)
-                return false;
-
-            return Equals(Posting);
-
-        }
+            => Object is BlogPosting blogPosting &&
+                  Equals(blogPosting);
 
         #endregion
 
-        #region Equals(Posting)
+        #region Equals(BlogPosting)
 
         /// <summary>
         /// Compares two Postings for equality.
         /// </summary>
-        /// <param name="Posting">An Posting to compare with.</param>
+        /// <param name="Posting">A blog posting to compare with.</param>
         /// <returns>True if both match; False otherwise.</returns>
-        public override Boolean Equals(BlogPosting Posting)
-        {
+        public override Boolean Equals(BlogPosting BlogPosting)
 
-            if ((Object) Posting == null)
-                return false;
-
-            return Id.Equals(Posting.Id);
-
-        }
+            => BlogPosting is not null &&
+                   Id.Equals(BlogPosting.Id);
 
         #endregion
 
@@ -705,6 +676,7 @@ namespace social.OpenData.UsersAPI.Postings
         /// Get the hashcode of this object.
         /// </summary>
         public override Int32 GetHashCode()
+
             => Id.GetHashCode();
 
         #endregion
@@ -715,23 +687,26 @@ namespace social.OpenData.UsersAPI.Postings
         /// Return a text representation of this object.
         /// </summary>
         public override String ToString()
+
             => Id.ToString();
 
         #endregion
 
 
-        #region ToBuilder(NewPostingId = null)
+        #region ToBuilder(NewBlogPostingId = null)
 
         /// <summary>
-        /// Return a builder for this Posting.
+        /// Return a builder for this blog posting.
         /// </summary>
-        /// <param name="NewPostingId">An optional new Posting identification.</param>
-        public Builder ToBuilder(BlogPosting_Id? NewPostingId = null)
+        /// <param name="NewBlogPostingId">An optional new blog posting identification.</param>
+        public Builder ToBuilder(BlogPosting_Id? NewBlogPostingId = null)
 
-            => new (NewPostingId ?? Id,
+            => new (NewBlogPostingId ?? Id,
+                    Title,
                     Text,
                     Authors,
                     PublicationDate,
+                    LastChangeDate,
                     GeoLocation,
                     Tags,
                     PrivacyLevel,
@@ -744,7 +719,7 @@ namespace social.OpenData.UsersAPI.Postings
         #region (class) Builder
 
         /// <summary>
-        /// An Open Data blog posting builder.
+        /// A blog posting builder.
         /// </summary>
         public new class Builder
         {
@@ -757,10 +732,16 @@ namespace social.OpenData.UsersAPI.Postings
             public BlogPosting_Id                     Id                    { get; set; }
 
             /// <summary>
+            /// The (multi-language) title of this blog posting.
+            /// </summary>
+            [Mandatory]
+            public I18NString?                        Title                 { get; set; }
+
+            /// <summary>
             /// The (multi-language) text of this blog posting.
             /// </summary>
             [Mandatory]
-            public I18NString                         Text                  { get; set; }
+            public I18NString?                        Text                  { get; set; }
 
             /// <summary>
             /// The optional authors of this blog posting.
@@ -773,6 +754,12 @@ namespace social.OpenData.UsersAPI.Postings
             /// </summary>
             [Mandatory]
             public DateTime                           PublicationDate       { get; set; }
+
+            /// <summary>
+            /// The timestamp of the last change of this blog posting.
+            /// </summary>
+            [Mandatory]
+            public DateTime                           LastChangeDate        { get; set; }
 
             /// <summary>
             /// An optional geographical location of this blog posting.
@@ -808,52 +795,17 @@ namespace social.OpenData.UsersAPI.Postings
             /// The source of this information, e.g. an automatic importer.
             /// </summary>
             [Optional]
-            public String                             DataSource            { get; set; }
+            public String?                            DataSource            { get; set; }
 
             #endregion
 
             #region Constructor(s)
 
             /// <summary>
-            /// Create a new Posting builder.
-            /// </summary>
-            /// <param name="Text">The (multi-language) text of this blog posting.</param>
-            /// <param name="Authors">The optional authors of this blog posting.</param>
-            /// <param name="PublicationDate">The timestamp of the publication of this blog posting.</param>
-            /// <param name="GeoLocation">An optional geographical location of this blog posting.</param>
-            /// <param name="Tags">An enumeration of multi-language tags and their relevance.</param>
-            /// <param name="PrivacyLevel">Whether the blog posting will be shown in blog posting listings, or not.</param>
-            /// <param name="IsHidden">The blog posting is hidden.</param>
-            /// <param name="Signatures">All signatures of this blog posting.</param>
-            /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
-            public Builder(I18NString                          Text,
-                           IEnumerable<User>?                  Authors           = null,
-                           DateTime?                           PublicationDate   = null,
-                           GeoCoordinate?                      GeoLocation       = null,
-                           IEnumerable<TagRelevance>?          Tags              = null,
-                           PrivacyLevel?                       PrivacyLevel      = null,
-                           Boolean                             IsHidden          = false,
-                           IEnumerable<BlogPostingSignature>?  Signatures        = null,
-                           String                              DataSource        = "")
-
-                : this(BlogPosting_Id.Random(),
-                       Text,
-                       Authors,
-                       PublicationDate,
-                       GeoLocation,
-                       Tags,
-                       PrivacyLevel,
-                       IsHidden,
-                       Signatures,
-                       DataSource)
-
-            { }
-
-
-            /// <summary>
-            /// Create a new Posting builder.
+            /// Create a new blog posting builder.
             /// </summary>
             /// <param name="Id">The unique identification of this blog posting.</param>
+            /// <param name="Title">The (multi-language) title of this blog posting.</param>
             /// <param name="Text">The (multi-language) text of this blog posting.</param>
             /// <param name="Authors">The optional authors of this blog posting.</param>
             /// <param name="PublicationDate">The timestamp of the publication of this blog posting.</param>
@@ -863,23 +815,27 @@ namespace social.OpenData.UsersAPI.Postings
             /// <param name="IsHidden">The blog posting is hidden.</param>
             /// <param name="Signatures">All signatures of this blog posting.</param>
             /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
-            public Builder(BlogPosting_Id                      Id,
-                           I18NString                          Text,
+            public Builder(BlogPosting_Id?                     Id                = null,
+                           I18NString?                         Title             = null,
+                           I18NString?                         Text              = null,
                            IEnumerable<User>?                  Authors           = null,
                            DateTime?                           PublicationDate   = null,
+                           DateTime?                           LastChangeDate    = null,
                            GeoCoordinate?                      GeoLocation       = null,
                            IEnumerable<TagRelevance>?          Tags              = null,
                            PrivacyLevel?                       PrivacyLevel      = null,
                            Boolean                             IsHidden          = false,
                            IEnumerable<BlogPostingSignature>?  Signatures        = null,
-                           String                              DataSource        = "")
+                           String?                             DataSource        = null)
 
             {
 
-                this.Id               = Id;
+                this.Id               = Id              ?? BlogPosting_Id.Random();
+                this.Title            = Title;
                 this.Text             = Text;
                 this.Authors          = Authors         is not null ? new HashSet<User>(Authors)                    : new HashSet<User>();
                 this.PublicationDate  = PublicationDate ?? Timestamp.Now;
+                this.LastChangeDate   = LastChangeDate  ?? Timestamp.Now;
                 this.GeoLocation      = GeoLocation;
                 this.Tags             = Tags            is not null ? new HashSet<TagRelevance>(Tags)               : new HashSet<TagRelevance>();
                 this.PrivacyLevel     = PrivacyLevel    ?? OpenData.UsersAPI.PrivacyLevel.Private;
@@ -895,10 +851,12 @@ namespace social.OpenData.UsersAPI.Postings
             public BlogPosting Sign(ICipherParameters PrivateKey)
             {
 
-                var posting     = new BlogPosting(Id,
+                var posting     = new BlogPosting(Title,
                                                   Text,
+                                                  Id,
                                                   null,
                                                   PublicationDate,
+                                                  LastChangeDate,
                                                   GeoLocation,
                                                   Tags,
                                                   PrivacyLevel,
@@ -922,10 +880,12 @@ namespace social.OpenData.UsersAPI.Postings
                 var signatures  = new List<BlogPostingSignature>(Signatures);
                 signatures.Add(new BlogPostingSignature("json", "secp256k1", "DER+HEX", signature));
 
-                return new BlogPosting(Id,
+                return new BlogPosting(Title,
                                        Text,
+                                       Id,
                                        null,
                                        PublicationDate,
+                                       LastChangeDate,
                                        GeoLocation,
                                        Tags,
                                        PrivacyLevel,
@@ -939,29 +899,43 @@ namespace social.OpenData.UsersAPI.Postings
             #region ToImmutable
 
             /// <summary>
-            /// Return an immutable version of the Posting.
+            /// Return an immutable version of the blog posting.
             /// </summary>
-            /// <param name="Builder">A Posting builder.</param>
+            /// <param name="Builder">A blog posting builder.</param>
             public static implicit operator BlogPosting(Builder Builder)
 
-                => Builder?.ToImmutable;
+                => Builder.ToImmutable;
 
 
             /// <summary>
-            /// Return an immutable version of the Posting.
+            /// Return an immutable version of the blog posting.
             /// </summary>
             public BlogPosting ToImmutable
+            {
+                get
+                {
 
-                => new (Id,
-                        Text,
-                        Authors,
-                        PublicationDate,
-                        GeoLocation,
-                        Tags,
-                        PrivacyLevel,
-                        IsHidden,
-                        Signatures,
-                        DataSource);
+                    if (Title is null || Title.IsNullOrEmpty())
+                        throw new ArgumentNullException(nameof(Title), "The given title must not be null or empty!");
+
+                    if (Text  is null || Text. IsNullOrEmpty())
+                        throw new ArgumentNullException(nameof(Text),  "The given text must not be null or empty!");
+
+                    return new (Title,
+                                Text,
+                                Id,
+                                Authors,
+                                PublicationDate,
+                                LastChangeDate,
+                                GeoLocation,
+                                Tags,
+                                PrivacyLevel,
+                                IsHidden,
+                                Signatures,
+                                DataSource);
+
+                }
+            }
 
             #endregion
 
