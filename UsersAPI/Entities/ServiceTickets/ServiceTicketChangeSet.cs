@@ -272,6 +272,8 @@ namespace social.OpenData.UsersAPI
 
             : base(Id            ?? ServiceTicketChangeSet_Id.Random(),
                    JSONLDContext ?? DefaultJSONLDContext,
+                   Timestamp,
+                   null,
                    CustomData,
                    DataSource)
 
@@ -1350,6 +1352,8 @@ namespace social.OpenData.UsersAPI
 
                 : base(Id            ?? ServiceTicketChangeSet_Id.Random(),
                        JSONLDContext ?? DefaultJSONLDContext,
+                       Timestamp,
+                       null,
                        CustomData,
                        DataSource)
 

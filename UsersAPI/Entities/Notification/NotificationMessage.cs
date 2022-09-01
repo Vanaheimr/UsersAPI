@@ -164,9 +164,10 @@ namespace social.OpenData.UsersAPI.Notifications
 
             : base(Id,
                    DefaultJSONLDContext,
+                   LastChange,
+                   Signatures,
                    CustomData,
-                   DataSource,
-                   LastChange)
+                   DataSource)
 
         {
 
@@ -175,8 +176,6 @@ namespace social.OpenData.UsersAPI.Notifications
             this.Data          = Data;
             this.Owners        = Owners == null ? new Organization_Id[0] : Owners;
             this.Signatures    = Signatures    ?? new Signature[0];
-
-            CalcHash();
 
         }
 
@@ -674,7 +673,7 @@ namespace social.OpenData.UsersAPI.Notifications
 
                            CustomData,
                            DataSource,
-                           LastChange);
+                           LastChangeDate);
 
         #endregion
 
@@ -739,9 +738,10 @@ namespace social.OpenData.UsersAPI.Notifications
 
                 : base(Id ?? NotificationMessage_Id.Random(),
                        DefaultJSONLDContext,
+                       LastChange,
+                       null,
                        CustomData,
-                       DataSource,
-                       LastChange)
+                       DataSource)
 
             {
 
@@ -830,7 +830,7 @@ namespace social.OpenData.UsersAPI.Notifications
 
                                            CustomData,
                                            DataSource,
-                                           LastChange);
+                                           LastChangeDate);
 
             #endregion
 

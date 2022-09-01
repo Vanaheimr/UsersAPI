@@ -672,9 +672,10 @@ namespace social.OpenData.UsersAPI
 
             : base(Id,
                    JSONLDContext ?? DefaultJSONLDContext,
+                   LastChange,
+                   null,
                    CustomData,
-                   DataSource,
-                   LastChange)
+                   DataSource)
 
         {
 
@@ -698,8 +699,6 @@ namespace social.OpenData.UsersAPI
             this._User2Organization_Edges             = User2OrganizationEdges.           IsNeitherNullNorEmpty() ? new List<User2OrganizationEdge>        (User2OrganizationEdges)            : new List<User2OrganizationEdge>();
             this._Organization2Organization_InEdges   = Organization2OrganizationInEdges. IsNeitherNullNorEmpty() ? new List<Organization2OrganizationEdge>(Organization2OrganizationInEdges)  : new List<Organization2OrganizationEdge>();
             this._Organization2Organization_OutEdges  = Organization2OrganizationOutEdges.IsNeitherNullNorEmpty() ? new List<Organization2OrganizationEdge>(Organization2OrganizationOutEdges) : new List<Organization2OrganizationEdge>();
-
-            CalcHash();
 
         }
 
@@ -1466,7 +1465,7 @@ namespace social.OpenData.UsersAPI
                            AttachedFiles,
                            JSONLDContext,
                            DataSource,
-                           LastChange);
+                           LastChangeDate);
 
         #endregion
 
@@ -1804,9 +1803,10 @@ namespace social.OpenData.UsersAPI
 
                 : base(Id,
                        JSONLDContext ?? DefaultJSONLDContext,
+                       LastChange,
+                       null,
                        CustomData,
-                       DataSource,
-                       LastChange)
+                       DataSource)
 
             {
 
@@ -2017,7 +2017,7 @@ namespace social.OpenData.UsersAPI
                                             AttachedFiles,
                                             JSONLDContext,
                                             DataSource,
-                                            LastChange);
+                                            LastChangeDate);
 
                 }
             }

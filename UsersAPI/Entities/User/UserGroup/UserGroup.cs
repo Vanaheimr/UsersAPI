@@ -534,8 +534,6 @@ namespace social.OpenData.UsersAPI
             this._UserGroup2UserGroup_InEdges   = User2GroupInEdges != null ? new List<UserGroup2UserGroupEdge>(UserGroup2UserGroupInEdges)  : new List<UserGroup2UserGroupEdge>();
             this._UserGroup2UserGroup_OutEdges  = User2GroupInEdges != null ? new List<UserGroup2UserGroupEdge>(UserGroup2UserGroupOutEdges) : new List<UserGroup2UserGroupEdge>();
 
-            CalcHash();
-
         }
 
         #endregion
@@ -1128,7 +1126,7 @@ namespace social.OpenData.UsersAPI
                            AttachedFiles,
                            JSONLDContext,
                            DataSource,
-                           LastChange);
+                           LastChangeDate);
 
         #endregion
 
@@ -1265,7 +1263,7 @@ namespace social.OpenData.UsersAPI
                                  AttachedFiles,
                                  JSONLDContext,
                                  DataSource,
-                                 LastChange);
+                                 LastChangeDate);
 
             #endregion
 

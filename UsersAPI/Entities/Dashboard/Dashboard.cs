@@ -228,6 +228,8 @@ namespace social.OpenData.UsersAPI
             : base(Id,
                    DefaultJSONLDContext,
                    null,
+                   null,
+                   null,
                    DataSource)
 
         {
@@ -237,8 +239,6 @@ namespace social.OpenData.UsersAPI
             this.CreationDate  = CreationDate ?? DateTime.Now;
             this.Tags          = Tags         ?? new TagRelevance[0];
             this.IsDisabled    = IsDisabled   ?? false;
-
-            CalcHash();
 
         }
 

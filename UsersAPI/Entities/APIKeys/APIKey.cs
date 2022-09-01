@@ -166,9 +166,10 @@ namespace social.OpenData.UsersAPI
 
             : base(Id,
                    JSONLDContext ?? DefaultJSONLDContext,
+                   LastChange,
+                   null,
                    CustomData,
-                   DataSource,
-                   LastChange)
+                   DataSource)
 
         {
 
@@ -479,7 +480,7 @@ namespace social.OpenData.UsersAPI
                           CustomData,
                           JSONLDContext,
                           DataSource,
-                          LastChange);
+                          LastChangeDate);
 
         #endregion
 
@@ -715,7 +716,7 @@ namespace social.OpenData.UsersAPI
                            CustomData,
                            JSONLDContext,
                            DataSource,
-                           LastChange);
+                           LastChangeDate);
 
         #endregion
 
@@ -815,9 +816,10 @@ namespace social.OpenData.UsersAPI
 
                 : base(Id,
                        JSONLDContext ?? DefaultJSONLDContext,
+                       LastChange,
+                       null,
                        CustomData,
-                       DataSource,
-                       LastChange)
+                       DataSource)
 
             {
 
@@ -883,7 +885,7 @@ namespace social.OpenData.UsersAPI
                                       CustomData,
                                       JSONLDContext,
                                       DataSource,
-                                      LastChange);
+                                      LastChangeDate);
 
                 }
             }

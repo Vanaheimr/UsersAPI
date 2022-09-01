@@ -112,7 +112,7 @@ namespace social.OpenData.UsersAPI
                    organization.AttachedFiles,
                    organization.JSONLDContext,
                    organization.DataSource,
-                   organization.LastChange)
+                   organization.LastChangeDate)
 
         {
 

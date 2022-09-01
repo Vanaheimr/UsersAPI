@@ -259,9 +259,10 @@ namespace social.OpenData.UsersAPI
 
             : base(Id,
                    DefaultJSONLDContext,
+                   LastChange,
+                   null,
                    CustomData,
-                   DataSource,
-                   LastChange)
+                   DataSource)
 
         {
 
@@ -273,8 +274,6 @@ namespace social.OpenData.UsersAPI
             this.IsHidden         = IsHidden;
 
             this.Signatures       = Signatures      ?? new Signature[0];
-
-            CalcHash();
 
         }
 
@@ -790,7 +789,7 @@ namespace social.OpenData.UsersAPI
 
                            CustomData,
                            DataSource,
-                           LastChange);
+                           LastChangeDate);
 
         #endregion
 
@@ -876,9 +875,10 @@ namespace social.OpenData.UsersAPI
 
                 : base(Id ?? FAQ_Id.Random(),
                        DefaultJSONLDContext,
+                       LastChange,
+                       null,
                        CustomData,
-                       DataSource,
-                       LastChange)
+                       DataSource)
 
             {
 
@@ -915,7 +915,7 @@ namespace social.OpenData.UsersAPI
 
                                          CustomData,
                                          DataSource,
-                                         LastChange);;
+                                         LastChangeDate);;
 
                 var ctext       = FAQ.ToJSON(Embedded:           false,
                                              ExpandTags:         InfoStatus.ShowIdOnly,
@@ -944,7 +944,7 @@ namespace social.OpenData.UsersAPI
 
                                CustomData,
                                DataSource,
-                               LastChange);
+                               LastChangeDate);
 
             }
 
@@ -986,7 +986,7 @@ namespace social.OpenData.UsersAPI
 
                            CustomData,
                            DataSource,
-                           LastChange);
+                           LastChangeDate);
 
             #endregion
 

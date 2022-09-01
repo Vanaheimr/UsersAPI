@@ -167,11 +167,7 @@ namespace social.OpenData.UsersAPI
                    DataSource,
                    LastChange)
 
-        {
-
-            CalcHash();
-
-        }
+        { }
 
         #endregion
 
@@ -729,7 +725,7 @@ namespace social.OpenData.UsersAPI
                            AttachedFiles,
                            JSONLDContext,
                            DataSource,
-                           LastChange);
+                           LastChangeDate);
 
         #endregion
 
@@ -832,7 +828,7 @@ namespace social.OpenData.UsersAPI
                                          AttachedFiles,
                                          JSONLDContext,
                                          DataSource,
-                                         LastChange);
+                                         LastChangeDate);
 
             #endregion
 

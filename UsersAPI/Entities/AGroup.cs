@@ -175,9 +175,10 @@ namespace social.OpenData.UsersAPI
 
             : base(Id,
                    JSONLDContext ?? DefaultJSONLDContext,
+                   LastChange,
+                   null,
                    CustomData,
-                   DataSource,
-                   LastChange)
+                   DataSource)
 
         {
 
@@ -323,9 +324,10 @@ namespace social.OpenData.UsersAPI
 
                 : base(Id,
                        JSONLDContext,
+                       LastChange,
+                       null,
                        CustomData,
-                       DataSource,
-                       LastChange)
+                       DataSource)
 
             {
 

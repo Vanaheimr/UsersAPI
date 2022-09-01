@@ -542,6 +542,161 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
+        #region ParseBlogPostingId(this HTTPRequest, UsersAPI, out BlogPostingId,                  out HTTPResponse)
+
+        /// <summary>
+        /// Parse the given HTTP request and return the Blog identification
+        /// for the given HTTP hostname and HTTP query parameter
+        /// or an HTTP error response.
+        /// </summary>
+        /// <param name="HTTPRequest">A HTTP request.</param>
+        /// <param name="UsersAPI">The UsersAPI.</param>
+        /// <param name="BlogPostingId">The parsed unique blog posting identification.</param>
+        /// <param name="HTTPResponse">A HTTP error response.</param>
+        /// <returns>True, when Blog identification was found; false else.</returns>
+        public static Boolean ParseBlogPostingId(this HTTPRequest          HTTPRequest,
+                                                 UsersAPI                  UsersAPI,
+                                                 out BlogPosting_Id?       BlogPostingId,
+                                                 out HTTPResponse.Builder  HTTPResponse)
+        {
+
+            #region Initial checks
+
+            if (HTTPRequest == null)
+                throw new ArgumentNullException(nameof(HTTPRequest),  "The given HTTP request must not be null!");
+
+            if (UsersAPI     == null)
+                throw new ArgumentNullException(nameof(UsersAPI),     "The given UsersAPI must not be null!");
+
+            #endregion
+
+            BlogPostingId  = null;
+            HTTPResponse   = null;
+
+            if (HTTPRequest.ParsedURLParameters.Length < 1)
+            {
+
+                HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
+                    HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                    Server          = UsersAPI.HTTPServer.DefaultServerName,
+                    Date            = Timestamp.Now,
+                    Connection      = "close"
+                };
+
+                return false;
+
+            }
+
+            BlogPostingId = BlogPosting_Id.TryParse(HTTPRequest.ParsedURLParameters[0]);
+
+            if (!BlogPostingId.HasValue)
+            {
+
+                HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
+                    HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                    Server          = UsersAPI.HTTPServer.DefaultServerName,
+                    Date            = Timestamp.Now,
+                    ContentType     = HTTPContentType.JSON_UTF8,
+                    Content         = @"{ ""description"": ""Invalid BlogId!"" }".ToUTF8Bytes(),
+                    Connection      = "close"
+                };
+
+                return false;
+
+            }
+
+            return true;
+
+        }
+
+        #endregion
+
+        #region ParseBlogPosting  (this HTTPRequest, UsersAPI, out BlogPostingId, out BlogPosting, out HTTPResponse)
+
+        /// <summary>
+        /// Parse the given HTTP request and return the Blog identification
+        /// for the given HTTP hostname and HTTP query parameter
+        /// or an HTTP error response.
+        /// </summary>
+        /// <param name="HTTPRequest">A HTTP request.</param>
+        /// <param name="UsersAPI">The UsersAPI.</param>
+        /// <param name="BlogPostingId">The parsed unique blog posting identification.</param>
+        /// <param name="BlogPosting">The resolved Blog.</param>
+        /// <param name="HTTPResponse">A HTTP error response.</param>
+        /// <returns>True, when Blog identification was found; false else.</returns>
+        public static Boolean ParseBlogPosting(this HTTPRequest          HTTPRequest,
+                                               UsersAPI                  UsersAPI,
+                                               out BlogPosting_Id?       BlogPostingId,
+                                               out BlogPosting           BlogPosting,
+                                               out HTTPResponse.Builder  HTTPResponse)
+        {
+
+            #region Initial checks
+
+            if (HTTPRequest == null)
+                throw new ArgumentNullException(nameof(HTTPRequest),  "The given HTTP request must not be null!");
+
+            if (UsersAPI     == null)
+                throw new ArgumentNullException(nameof(UsersAPI),     "The given UsersAPI must not be null!");
+
+            #endregion
+
+            BlogPostingId  = null;
+            BlogPosting    = null;
+            HTTPResponse   = null;
+
+            if (HTTPRequest.ParsedURLParameters.Length < 1) {
+
+                HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
+                    HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                    Server          = UsersAPI.HTTPServer.DefaultServerName,
+                    Date            = Timestamp.Now,
+                    Connection      = "close"
+                };
+
+                return false;
+
+            }
+
+            BlogPostingId = BlogPosting_Id.TryParse(HTTPRequest.ParsedURLParameters[0]);
+
+            if (!BlogPostingId.HasValue) {
+
+                HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
+                    HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                    Server          = UsersAPI.HTTPServer.DefaultServerName,
+                    Date            = Timestamp.Now,
+                    ContentType     = HTTPContentType.JSON_UTF8,
+                    Content         = @"{ ""description"": ""Invalid BlogId!"" }".ToUTF8Bytes(),
+                    Connection      = "close"
+                };
+
+                return false;
+
+            }
+
+            if (!UsersAPI.TryGetBlogPosting(BlogPostingId.Value, out BlogPosting)) {
+
+                HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
+                    HTTPStatusCode  = HTTPStatusCode.NotFound,
+                    Server          = UsersAPI.HTTPServer.DefaultServerName,
+                    Date            = Timestamp.Now,
+                    ContentType     = HTTPContentType.JSON_UTF8,
+                    Content         = @"{ ""description"": ""Unknown BlogId!"" }".ToUTF8Bytes(),
+                    Connection      = "close"
+                };
+
+                return false;
+
+            }
+
+            return true;
+
+        }
+
+        #endregion
+
+
         #region ParseNewsPostingId(this HTTPRequest, UsersAPI, out NewsPostingId,                  out HTTPResponse)
 
         /// <summary>
@@ -1406,6 +1561,7 @@ namespace social.OpenData.UsersAPI
         protected static readonly  SemaphoreSlim  MessagesSemaphore                    = new (1, 1);
         protected static readonly  SemaphoreSlim  NotificationMessagesSemaphore        = new (1, 1);
         protected static readonly  SemaphoreSlim  DashboardsSemaphore                  = new (1, 1);
+        protected static readonly  SemaphoreSlim  BlogPostingsSemaphore                = new (1, 1);
         protected static readonly  SemaphoreSlim  NewsPostingsSemaphore                = new (1, 1);
         protected static readonly  SemaphoreSlim  NewsBannersSemaphore                 = new (1, 1);
         protected static readonly  SemaphoreSlim  FAQsSemaphore                        = new (1, 1);
@@ -1615,6 +1771,11 @@ namespace social.OpenData.UsersAPI
         /// The minimal notification message identification length.
         /// </summary>
         public Byte                           MinNotificationMessageIdLength     { get; }
+
+        /// <summary>
+        /// The minimal blog posting identification length.
+        /// </summary>
+        public Byte                           MinBlogPostingIdLength             { get; }
 
         /// <summary>
         /// The minimal news posting identification length.
@@ -3119,6 +3280,12 @@ namespace social.OpenData.UsersAPI
         public static NotificationMessageType addOrUpdateDashboard_MessageType                = NotificationMessageType.Parse("addOrUpdateDashboard");
         public static NotificationMessageType updateDashboard_MessageType                     = NotificationMessageType.Parse("updateDashboard");
         public static NotificationMessageType removeDashboard_MessageType                     = NotificationMessageType.Parse("removeDashboard");
+
+        public static NotificationMessageType addBlogPosting_MessageType                      = NotificationMessageType.Parse("addBlogPosting");
+        public static NotificationMessageType addBlogPostingIfNotExists_MessageType           = NotificationMessageType.Parse("addBlogPostingIfNotExists");
+        public static NotificationMessageType addOrUpdateBlogPosting_MessageType              = NotificationMessageType.Parse("addOrUpdateBlogPosting");
+        public static NotificationMessageType updateBlogPosting_MessageType                   = NotificationMessageType.Parse("updateBlogPosting");
+        public static NotificationMessageType removeBlogPosting_MessageType                   = NotificationMessageType.Parse("removeBlogPosting");
 
         public static NotificationMessageType addNewsPosting_MessageType                      = NotificationMessageType.Parse("addNewsPosting");
         public static NotificationMessageType addNewsPostingIfNotExists_MessageType           = NotificationMessageType.Parse("addNewsPostingIfNotExists");
@@ -6732,7 +6899,7 @@ namespace social.OpenData.UsersAPI
                                                               AccessControlAllowOrigin    = "*",
                                                               AccessControlAllowMethods   = "GET, SET",
                                                               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
-                                                              ETag                        = _User.HashValue,
+                                                              //ETag                        = _User.HashValue,
                                                               ContentType                 = HTTPContentType.JSON_UTF8,
                                                               Content                     = _User.ToJSON().ToUTF8Bytes(),
                                                               Connection                  = "close"
@@ -12108,6 +12275,355 @@ namespace social.OpenData.UsersAPI
             #endregion
 
 
+            #region ~/blogPostings
+
+            #region OPTIONS     ~/blogPostings
+
+            // ---------------------------------------------------------
+            // curl -X OPTIONS -v http://127.0.0.1:3001/blogPostings
+            // ---------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.OPTIONS,
+                                         URLPathPrefix + "blogPostings",
+                                         HTTPDelegate: Request => {
+
+                                             return Task.FromResult(
+                                                 new HTTPResponse.Builder(Request) {
+                                                     HTTPStatusCode             = HTTPStatusCode.OK,
+                                                     Server                     = HTTPServer.DefaultServerName,
+                                                     Date                       = Timestamp.Now,
+                                                     AccessControlAllowOrigin   = "*",
+                                                     AccessControlAllowMethods  = "GET, COUNT, SEARCH, OPTIONS",
+                                                     AccessControlAllowHeaders  = "X-PINGOTHER, Content-Type, Accept, Authorization, X-App-Version",
+                                                     Connection                 = "close"
+                                                 }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+            #region GET         ~/blogPostings
+
+            #region JSON
+
+            // ------------------------------------------------------------------
+            // curl -v -H "Accept: application/json" http://127.0.0.1:3001/blogPostings
+            // ------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "blogPostings",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             TryGetHTTPUser(Request,
+                                                            out User                   HTTPUser,
+                                                            out HashSet<Organization>  HTTPOrganizations,
+                                                            out HTTPResponse.Builder   Response,
+                                                            Recursive:                 true);
+
+                                             #endregion
+
+
+                                             var withMetadata        = Request.QueryString.GetBoolean    ("withMetadata", false);
+                                             var matchFilter         = Request.QueryString.CreateStringFilter<BlogPosting>("match",
+                                                                                                                           (blogPosting, pattern) => blogPosting.Id.ToString().Contains(pattern) ||
+                                                                                                                                                     blogPosting.Title.Matches(pattern, IgnoreCase: true) ||
+                                                                                                                                                     blogPosting.Text. Matches(pattern, IgnoreCase: true));
+
+                                             var from                = Request.QueryString.TryGetDateTime("from");
+                                             var to                  = Request.QueryString.TryGetDateTime("to");
+                                             var skip                = Request.QueryString.GetUInt64     ("skip");
+                                             var take                = Request.QueryString.GetUInt64     ("take");
+
+                                             var includeCryptoHash   = Request.QueryString.GetBoolean    ("includeCryptoHash", true);
+
+                                             var expand              = Request.QueryString.GetStrings    ("expand");
+                                             var expandTags          = expand.ContainsIgnoreCase("tags")     ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
+                                             var expandAuthorId      = expand.ContainsIgnoreCase("authorId") ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
+
+                                             var now                 = Timestamp.Now;
+
+                                             var allBlog             = _BlogPostings.Values.
+                                                                           Where(posting => posting.PublicationDate <= now).
+                                                                           ToArray();
+                                             var totalCount          = _BlogPostings.ULongCount();
+
+                                             var filteredBlog        = allBlog.
+                                                                           Where(posting => !from.HasValue || posting.PublicationDate >= from.Value).
+                                                                           Where(posting => !to.  HasValue || posting.PublicationDate <  to.  Value).
+                                                                           Where(matchFilter).
+                                                                           ToArray();
+                                             var filteredCount       = filteredBlog.ULongCount();
+
+                                             var JSONResults         = filteredBlog.
+                                                                           OrderByDescending(posting => posting.PublicationDate).
+                                                                           ToJSON(skip,
+                                                                                  take,
+                                                                                  false, //Embedded
+                                                                                  expandTags,
+                                                                                  expandAuthorId,
+                                                                                  GetBlogPostingSerializator(Request, HTTPUser));
+
+
+                                             return Task.FromResult(
+                                                        new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode                = HTTPStatusCode.OK,
+                                                            Server                        = HTTPServer.DefaultServerName,
+                                                            Date                          = Timestamp.Now,
+                                                            AccessControlAllowOrigin      = "*",
+                                                            AccessControlAllowMethods     = "GET",
+                                                            AccessControlAllowHeaders     = "Content-Type, Accept, Authorization",
+                                                            ContentType                   = HTTPContentType.JSON_UTF8,
+                                                            Content                       = withMetadata
+                                                                                                ? JSONObject.Create(
+                                                                                                      new JProperty("totalCount",     totalCount),
+                                                                                                      new JProperty("filteredCount",  filteredCount),
+                                                                                                      new JProperty("blogPostings",   JSONResults)
+                                                                                                  ).ToUTF8Bytes()
+                                                                                                : JSONResults.ToUTF8Bytes(),
+                                                            X_ExpectedTotalNumberOfItems  = filteredCount,
+                                                            Connection                    = "close",
+                                                            Vary                          = "Accept"
+                                                        }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+            #region HTML
+
+            // -----------------------------------------------------------
+            // curl -v -H "Accept: text/html" http://127.0.0.1:3001/blogPostings
+            // -----------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "blogPostings",
+                                         HTTPContentType.HTML_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse.Builder   Response,
+                                                                 Recursive:                 true))
+                                             {
+                                                 return Task.FromResult(Response.AsImmutable);
+                                             }
+
+                                             #endregion
+
+                                             return Task.FromResult(
+                                                 new HTTPResponse.Builder(Request) {
+                                                     HTTPStatusCode             = HTTPStatusCode.OK,
+                                                     Server                     = HTTPServer.DefaultServerName,
+                                                     Date                       = Timestamp.Now,
+                                                     AccessControlAllowOrigin   = "*",
+                                                     AccessControlAllowMethods  = "GET",
+                                                     AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                     ContentType                = HTTPContentType.HTML_UTF8,
+                                                     Content                    = MixWithHTMLTemplate("blogPosting.blogPostings.shtml").ToUTF8Bytes(),
+                                                     Connection                 = "close",
+                                                     Vary                       = "Accept"
+                                                 }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+            #endregion
+
+            #region COUNT       ~/blogPostings
+
+            // ---------------------------------------------------------------------------
+            // curl -v -X COUNT -H "Accept: application/json" http://127.0.0.1:3001/blogPostings
+            // ---------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.COUNT,
+                                         URLPathPrefix + "blogPostings",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             var since  = Request.QueryString.GetDateTime("since");
+
+                                             return Task.FromResult(
+                                                        new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode                = HTTPStatusCode.OK,
+                                                            Server                        = HTTPServer.DefaultServerName,
+                                                            Date                          = Timestamp.Now,
+                                                            AccessControlAllowOrigin      = "*",
+                                                            AccessControlAllowMethods     = "GET",
+                                                            AccessControlAllowHeaders     = "Content-Type, Accept, Authorization",
+                                                            ContentType                   = HTTPContentType.JSON_UTF8,
+                                                            Content                       = JSONObject.Create(
+                                                                                                new JProperty("count",
+                                                                                                              _BlogPostings.Values.ULongCount(blog => !since.HasValue || blog.PublicationDate >= since.Value))
+                                                                                            ).ToUTF8Bytes(),
+                                                            Connection                    = "close"
+                                                     }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+
+            #region OPTIONS          ~/blogPostings/{postingId}
+
+            // -------------------------------------------------------------------
+            // curl -X OPTIONS -v http://127.0.0.1:3001/blogPostings/214080158
+            // -------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.OPTIONS,
+                                         URLPathPrefix + "blogPostings/{postingId}",
+                                         HTTPDelegate: Request => {
+
+                                             return Task.FromResult(
+                                                 new HTTPResponse.Builder(Request) {
+                                                     HTTPStatusCode             = HTTPStatusCode.OK,
+                                                     Server                     = HTTPServer.DefaultServerName,
+                                                     Date                       = Timestamp.Now,
+                                                     AccessControlAllowOrigin   = "*",
+                                                     AccessControlAllowMethods  = "GET, COUNT, SEARCH, OPTIONS",
+                                                     AccessControlAllowHeaders  = "X-PINGOTHER, Content-Type, Accept, Authorization, X-App-Version",
+                                                     Connection                 = "close"
+                                                 }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+            #region GET              ~/blogPostings/{postingId}
+
+            #region JSON
+
+            // --------------------------------------------------------------------------------------
+            // curl -v -H "Accept: application/json" http://127.0.0.1:3001/blogPostings/214080158
+            // --------------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "blogPostings/{postingId}",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Check BlogPostingId URI parameter
+
+                                             if (!Request.ParseBlogPosting(this,
+                                                                           out BlogPosting_Id?       BlogPostingId,
+                                                                           out BlogPosting           BlogPosting,
+                                                                           out HTTPResponse.Builder  HTTPResponse))
+                                             {
+                                                 return Task.FromResult(HTTPResponse.AsImmutable);
+                                             }
+
+                                             #endregion
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse.Builder   Response,
+                                                                 Recursive:                 true))
+                                             {
+                                                 return Task.FromResult(Response.AsImmutable);
+                                             }
+
+                                             #endregion
+
+
+                                             var expand             = Request.QueryString.GetStrings("expand");
+                                             var expandTags         = expand.ContainsIgnoreCase("tags")     ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
+                                             var expandAuthorId     = expand.ContainsIgnoreCase("authorId") ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
+
+                                             return Task.FromResult(
+                                                        new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode             = HTTPStatusCode.OK,
+                                                            Server                     = HTTPServer.DefaultServerName,
+                                                            Date                       = Timestamp.Now,
+                                                            AccessControlAllowOrigin   = "*",
+                                                            AccessControlAllowMethods  = "GET, SET",
+                                                            AccessControlAllowHeaders  = "X-PINGOTHER, Content-Type, Accept, Authorization, X-App-Version",
+                                                            ETag                       = "1",
+                                                            ContentType                = HTTPContentType.JSON_UTF8,
+                                                            Content                    = GetBlogPostingSerializator(Request, HTTPUser)
+                                                                                                            (BlogPosting,
+                                                                                                             false, //Embedded
+                                                                                                             expandTags,
+                                                                                                             expandAuthorId).
+                                                                                                         ToUTF8Bytes(),
+                                                            Connection                 = "close",
+                                                            Vary                       = "Accept"
+                                                        }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+            #region HTML
+
+            // --------------------------------------------------------------------------------------
+            // curl -v -H "Accept: text/html" http://127.0.0.1:3001/blogPostings/214080158
+            // --------------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "blogPostings/{postingId}",
+                                         HTTPContentType.HTML_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse.Builder   Response,
+                                                                 Recursive:                 true))
+                                             {
+                                                 return Task.FromResult(Response.AsImmutable);
+                                             }
+
+                                             #endregion
+
+                                             #region Check BlogPostingId URI parameter
+
+                                             if (!Request.ParseBlogPosting(this,
+                                                                           out BlogPosting_Id?       BlogPostingId,
+                                                                           out BlogPosting           BlogPosting,
+                                                                           out HTTPResponse.Builder  HTTPResponse))
+                                             {
+                                                 return Task.FromResult(HTTPResponse.AsImmutable);
+                                             }
+
+                                             #endregion
+
+
+                                             return Task.FromResult(
+                                                 new HTTPResponse.Builder(Request) {
+                                                     HTTPStatusCode             = HTTPStatusCode.OK,
+                                                     Server                     = HTTPServer.DefaultServerName,
+                                                     Date                       = Timestamp.Now,
+                                                     AccessControlAllowOrigin   = "*",
+                                                     AccessControlAllowMethods  = "GET",
+                                                     AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                     ContentType                = HTTPContentType.HTML_UTF8,
+                                                     Content                    = MixWithHTMLTemplate("Blog.Blog.shtml").ToUTF8Bytes(),
+                                                     Connection                 = "close",
+                                                     Vary                       = "Accept"
+                                                 }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+            #endregion
+
+            #endregion
+
             #region ~/newsPostings
 
             #region OPTIONS     ~/newsPostings
@@ -12197,8 +12713,7 @@ namespace social.OpenData.UsersAPI
                                                                                   false, //Embedded
                                                                                   expandTags,
                                                                                   expandAuthorId,
-                                                                                  GetNewsPostingSerializator(Request, HTTPUser),
-                                                                                  includeCryptoHash);
+                                                                                  GetNewsPostingSerializator(Request, HTTPUser));
 
 
                                              return Task.FromResult(
@@ -34046,6 +34561,1185 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
+        #region BlogPostings
+
+        #region Data
+
+        /// <summary>
+        /// An enumeration of all blog postings.
+        /// </summary>
+        protected internal readonly Dictionary<BlogPosting_Id, BlogPosting> _BlogPostings;
+
+        /// <summary>
+        /// An enumeration of all blog postings.
+        /// </summary>
+        public IEnumerable<BlogPosting> BlogPostings
+        {
+            get
+            {
+                try
+                {
+                    return BlogPostingsSemaphore.Wait(SemaphoreSlimTimeout)
+                               ? _BlogPostings.Values.ToArray()
+                               : new BlogPosting[0];
+                }
+                finally
+                {
+                    try
+                    {
+                        BlogPostingsSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
+            }
+        }
+
+        #endregion
+
+
+        #region (protected internal) WriteToDatabaseFileAndNotify(BlogPosting, MessageType,  OldBlogPosting = null, ...)
+
+        /// <summary>
+        /// Write the given blog posting to the database and send out notifications.
+        /// </summary>
+        /// <param name="BlogPosting">The blog posting.</param>
+        /// <param name="MessageType">The user notification.</param>
+        /// <param name="OldBlogPosting">The old/updated blog posting.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        protected internal async Task WriteToDatabaseFileAndNotify(BlogPosting              BlogPosting,
+                                                          NotificationMessageType  MessageType,
+                                                          BlogPosting              OldBlogPosting    = null,
+                                                          EventTracking_Id         EventTrackingId   = null,
+                                                          User_Id?                 CurrentUserId     = null)
+        {
+
+            if (BlogPosting is null)
+                throw new ArgumentNullException(nameof(BlogPosting),  "The given blog posting must not be null or empty!");
+
+            if (MessageType.IsNullOrEmpty)
+                throw new ArgumentNullException(nameof(MessageType),  "The given message type must not be null or empty!");
+
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            await WriteToDatabaseFile(MessageType,
+                                      BlogPosting.ToJSON(false, true),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            await SendNotifications(BlogPosting,
+                                    MessageType,
+                                    OldBlogPosting,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+        }
+
+        #endregion
+
+        #region (protected internal) SendNotifications           (BlogPosting, MessageTypes, OldBlogPosting = null, ...)
+
+        /// <summary>
+        /// Send blog posting notifications.
+        /// </summary>
+        /// <param name="BlogPosting">The blog posting.</param>
+        /// <param name="MessageType">The user notification.</param>
+        /// <param name="OldBlogPosting">The old/updated blog posting.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        protected internal async Task SendNotifications(BlogPosting              BlogPosting,
+                                               NotificationMessageType  MessageType,
+                                               BlogPosting              OldBlogPosting    = null,
+                                               EventTracking_Id         EventTrackingId   = null,
+                                               User_Id?                 CurrentUserId     = null)
+        {
+
+            if (BlogPosting is null)
+                throw new ArgumentNullException(nameof(BlogPosting),  "The given blog posting must not be null or empty!");
+
+            if (MessageType.IsNullOrEmpty)
+                throw new ArgumentNullException(nameof(MessageType),  "The given message type must not be null or empty!");
+
+
+            await SendNotifications(BlogPosting,
+                                    new NotificationMessageType[] { MessageType },
+                                    OldBlogPosting,
+                                    EventTrackingId,
+                                    CurrentUserId);
+
+        }
+
+
+        /// <summary>
+        /// Send blog posting notifications.
+        /// </summary>
+        /// <param name="BlogPosting">The blog posting.</param>
+        /// <param name="MessageTypes">The user notifications.</param>
+        /// <param name="OldBlogPosting">The old/updated blog posting.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        protected internal async Task SendNotifications(BlogPosting                           BlogPosting,
+                                               IEnumerable<NotificationMessageType>  MessageTypes,
+                                               BlogPosting                           OldBlogPosting    = null,
+                                               EventTracking_Id                      EventTrackingId   = null,
+                                               User_Id?                              CurrentUserId     = null)
+        {
+
+            if (BlogPosting is null)
+                throw new ArgumentNullException(nameof(BlogPosting),   "The given blog posting must not be null or empty!");
+
+            var messageTypesHash = new HashSet<NotificationMessageType>(MessageTypes.Where(messageType => !messageType.IsNullOrEmpty));
+
+            if (messageTypesHash.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(MessageTypes),  "The given enumeration of message types must not be null or empty!");
+
+            if (messageTypesHash.Contains(addUserIfNotExists_MessageType))
+                messageTypesHash.Add(addUser_MessageType);
+
+            if (messageTypesHash.Contains(addOrUpdateUser_MessageType))
+                messageTypesHash.Add(OldBlogPosting == null
+                                       ? addUser_MessageType
+                                       : updateUser_MessageType);
+
+            var messageTypes = messageTypesHash.ToArray();
+
+
+            if (!DisableNotifications)
+            {
+
+
+            }
+
+        }
+
+        #endregion
+
+        #region (protected internal) GetBlogPostingSerializator(Request, User)
+
+        protected internal BlogPostingToJSONDelegate GetBlogPostingSerializator(HTTPRequest  Request,
+                                                                                User         User)
+        {
+
+            switch (User?.Id.ToString())
+            {
+
+                default:
+                    return (blogPosting,
+                            embedded,
+                            ExpandTags,
+                            ExpandAuthorId)
+
+                            => blogPosting.ToJSON(embedded,
+                                                  ExpandTags,
+                                                  ExpandAuthorId);
+
+            }
+
+        }
+
+        #endregion
+
+
+        #region AddBlogPosting           (BlogPosting, OnAdded = null,                   CurrentUserId = null)
+
+        /// <summary>
+        /// A delegate called whenever a blog posting was added.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp when the blog posting was added.</param>
+        /// <param name="BlogPosting">The added blog posting.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public delegate Task OnBlogPostingAddedDelegate(DateTime          Timestamp,
+                                                        BlogPosting       BlogPosting,
+                                                        EventTracking_Id  EventTrackingId   = null,
+                                                        User_Id?          CurrentUserId     = null);
+
+        /// <summary>
+        /// An event fired whenever a blog posting was added.
+        /// </summary>
+        public event OnBlogPostingAddedDelegate OnBlogPostingAdded;
+
+
+        #region (protected internal) _AddBlogPosting(BlogPosting,                                OnAdded = null, ...)
+
+        /// <summary>
+        /// Add the given blog posting to the API.
+        /// </summary>
+        /// <param name="BlogPosting">A new blog posting to be added to this API.</param>
+        /// <param name="OnAdded">A delegate run whenever the blog posting had been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        protected internal async Task<BlogPosting> _AddBlogPosting(BlogPosting                            BlogPosting,
+                                                          Action<BlogPosting, EventTracking_Id>  OnAdded           = null,
+                                                          EventTracking_Id                       EventTrackingId   = null,
+                                                          User_Id?                               CurrentUserId     = null)
+        {
+
+            if (BlogPosting is null)
+                throw new ArgumentNullException(nameof(BlogPosting),
+                                                "The given blog posting must not be null!");
+
+            if (BlogPosting.API != null && BlogPosting.API != this)
+                throw new ArgumentException    ("The given blog posting is already attached to another API!",
+                                                nameof(BlogPosting));
+
+            if (_BlogPostings.ContainsKey(BlogPosting.Id))
+                throw new ArgumentException    ("User group identification '" + BlogPosting.Id + "' already exists!",
+                                                nameof(BlogPosting));
+
+            if (BlogPosting.Id.Length < MinBlogPostingIdLength)
+                throw new ArgumentException    ("User group identification '" + BlogPosting.Id + "' is too short!",
+                                                nameof(BlogPosting));
+
+            BlogPosting.API = this;
+
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            await WriteToDatabaseFile(addBlogPosting_MessageType,
+                                      BlogPosting.ToJSON(false, true),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            _BlogPostings.Add(BlogPosting.Id, BlogPosting);
+
+
+            var OnBlogPostingAddedLocal = OnBlogPostingAdded;
+            if (OnBlogPostingAddedLocal != null)
+                await OnBlogPostingAddedLocal?.Invoke(Timestamp.Now,
+                                                      BlogPosting,
+                                                      eventTrackingId,
+                                                      CurrentUserId);
+
+            await SendNotifications(BlogPosting,
+                                    addUser_MessageType,
+                                    null,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+            OnAdded?.Invoke(BlogPosting,
+                            eventTrackingId);
+
+            return BlogPosting;
+
+        }
+
+        #endregion
+
+        #region AddBlogPosting             (BlogPosting,                                OnAdded = null, ...)
+
+        /// <summary>
+        /// Add the given blog posting.
+        /// </summary>
+        /// <param name="BlogPosting">A new blog posting.</param>
+        /// <param name="OnAdded">A delegate run whenever the blog posting had been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<BlogPosting> AddBlogPosting(BlogPosting                            BlogPosting,
+                                                      Action<BlogPosting, EventTracking_Id>  OnAdded           = null,
+                                                      EventTracking_Id                       EventTrackingId   = null,
+                                                      User_Id?                               CurrentUserId     = null)
+        {
+
+            if (BlogPosting is null)
+                throw new ArgumentNullException(nameof(BlogPosting), "The given blog posting must not be null!");
+
+            try
+            {
+
+                return (await BlogPostingsSemaphore.WaitAsync(SemaphoreSlimTimeout))
+
+                            ? await _AddBlogPosting(BlogPosting,
+                                                    OnAdded,
+                                                    EventTrackingId,
+                                                    CurrentUserId)
+
+                            : null;
+
+            }
+            finally
+            {
+                try
+                {
+                    BlogPostingsSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
+        #region AddBlogPostingIfNotExists(BlogPosting, OnAdded = null,                   CurrentUserId = null)
+
+        #region (protected internal) _AddBlogPostingIfNotExists(BlogPosting,                                OnAdded = null, ...)
+
+        /// <summary>
+        /// When it has not been created before, add the given blog posting to the API.
+        /// </summary>
+        /// <param name="BlogPosting">A new blog posting to be added to this API.</param>
+        /// <param name="OnAdded">A delegate run whenever the blog posting had been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        protected internal async Task<BlogPosting> _AddBlogPostingIfNotExists(BlogPosting                            BlogPosting,
+                                                                     Action<BlogPosting, EventTracking_Id>  OnAdded           = null,
+                                                                     EventTracking_Id                       EventTrackingId   = null,
+                                                                     User_Id?                               CurrentUserId     = null)
+        {
+
+            if (BlogPosting is null)
+                throw new ArgumentNullException(nameof(BlogPosting),
+                                                "The given blog posting must not be null!");
+
+            if (BlogPosting.API != null && BlogPosting.API != this)
+                throw new ArgumentException    ("The given blog posting is already attached to another API!",
+                                                nameof(BlogPosting));
+
+            if (_BlogPostings.ContainsKey(BlogPosting.Id))
+                return _BlogPostings[BlogPosting.Id];
+
+            if (BlogPosting.Id.Length < MinBlogPostingIdLength)
+                throw new ArgumentException    ("User group identification '" + BlogPosting.Id + "' is too short!",
+                                                nameof(BlogPosting));
+
+            BlogPosting.API = this;
+
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            await WriteToDatabaseFile(addBlogPostingIfNotExists_MessageType,
+                                      BlogPosting.ToJSON(false, true),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            _BlogPostings.Add(BlogPosting.Id, BlogPosting);
+
+            var OnBlogPostingAddedLocal = OnBlogPostingAdded;
+            if (OnBlogPostingAddedLocal != null)
+                await OnBlogPostingAddedLocal?.Invoke(Timestamp.Now,
+                                                      BlogPosting,
+                                                      eventTrackingId,
+                                                      CurrentUserId);
+
+            await SendNotifications(BlogPosting,
+                                    addBlogPostingIfNotExists_MessageType,
+                                    null,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+            OnAdded?.Invoke(BlogPosting,
+                            eventTrackingId);
+
+            return BlogPosting;
+
+        }
+
+        #endregion
+
+        #region AddBlogPostingIfNotExists             (BlogPosting,                                OnAdded = null, ...)
+
+        /// <summary>
+        /// Add the given blog posting.
+        /// </summary>
+        /// <param name="BlogPosting">A new blog posting.</param>
+        /// <param name="OnAdded">A delegate run whenever the blog posting had been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<BlogPosting> AddBlogPostingIfNotExists(BlogPosting                            BlogPosting,
+                                                                 Action<BlogPosting, EventTracking_Id>  OnAdded           = null,
+                                                                 EventTracking_Id                       EventTrackingId   = null,
+                                                                 User_Id?                               CurrentUserId     = null)
+        {
+
+            try
+            {
+
+                return (await BlogPostingsSemaphore.WaitAsync(SemaphoreSlimTimeout))
+
+                            ? await _AddBlogPostingIfNotExists(BlogPosting,
+                                                             OnAdded,
+                                                             EventTrackingId,
+                                                             CurrentUserId)
+
+                            : null;
+
+            }
+            finally
+            {
+                try
+                {
+                    BlogPostingsSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
+        #region AddOrUpdateBlogPosting   (BlogPosting, OnAdded = null, OnUpdated = null, ...)
+
+        #region (protected internal) _AddOrUpdateBlogPosting   (BlogPosting,   OnAdded = null, OnUpdated = null, ...)
+
+        /// <summary>
+        /// Add or update the given blog posting to/within the API.
+        /// </summary>
+        /// <param name="BlogPosting">A blog posting.</param>
+        /// <param name="OnAdded">A delegate run whenever the blog posting had been added successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the blog posting had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional blog posting identification initiating this command/request.</param>
+        protected internal async Task<BlogPosting> _AddOrUpdateBlogPosting(BlogPosting                            BlogPosting,
+                                                                           Action<BlogPosting, EventTracking_Id>  OnAdded           = null,
+                                                                           Action<BlogPosting, EventTracking_Id>  OnUpdated         = null,
+                                                                           EventTracking_Id                       EventTrackingId   = null,
+                                                                           User_Id?                               CurrentUserId     = null)
+        {
+
+            if (BlogPosting is null)
+                throw new ArgumentNullException(nameof(BlogPosting),
+                                                "The given blog posting must not be null!");
+
+            if (BlogPosting.API != null && BlogPosting.API != this)
+                throw new ArgumentException    ("The given blog posting is already attached to another API!",
+                                                nameof(BlogPosting));
+
+            if (_BlogPostings.ContainsKey(BlogPosting.Id))
+                return _BlogPostings[BlogPosting.Id];
+
+            if (BlogPosting.Id.Length < MinBlogPostingIdLength)
+                throw new ArgumentException    ("BlogPosting identification '" + BlogPosting.Id + "' is too short!",
+                                                nameof(BlogPosting));
+
+            BlogPosting.API = this;
+
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            await WriteToDatabaseFile(addOrUpdateBlogPosting_MessageType,
+                                      BlogPosting.ToJSON(false, true),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            if (_BlogPostings.TryGetValue(BlogPosting.Id, out BlogPosting OldBlogPosting))
+            {
+                _BlogPostings.Remove(OldBlogPosting.Id);
+                BlogPosting.CopyAllLinkedDataFrom(OldBlogPosting);
+            }
+
+            _BlogPostings.Add(BlogPosting.Id, BlogPosting);
+
+            if (OldBlogPosting != null)
+            {
+
+                var OnBlogPostingUpdatedLocal = OnBlogPostingUpdated;
+                if (OnBlogPostingUpdatedLocal != null)
+                    await OnBlogPostingUpdatedLocal?.Invoke(Timestamp.Now,
+                                                            BlogPosting,
+                                                            OldBlogPosting,
+                                                            eventTrackingId,
+                                                            CurrentUserId);
+
+                await SendNotifications(BlogPosting,
+                                        updateBlogPosting_MessageType,
+                                        OldBlogPosting,
+                                        eventTrackingId,
+                                        CurrentUserId);
+
+                OnUpdated?.Invoke(BlogPosting,
+                                  eventTrackingId);
+
+            }
+            else
+            {
+
+                var OnBlogPostingAddedLocal = OnBlogPostingAdded;
+                if (OnBlogPostingAddedLocal != null)
+                    await OnBlogPostingAddedLocal?.Invoke(Timestamp.Now,
+                                                          BlogPosting,
+                                                          eventTrackingId,
+                                                          CurrentUserId);
+
+                await SendNotifications(BlogPosting,
+                                        addBlogPosting_MessageType,
+                                        null,
+                                        eventTrackingId,
+                                        CurrentUserId);
+
+                OnAdded?.Invoke(BlogPosting,
+                                eventTrackingId);
+
+            }
+
+            return BlogPosting;
+
+        }
+
+        #endregion
+
+        #region AddOrUpdateBlogPosting   (BlogPosting,   OnAdded = null, OnUpdated = null, ...)
+
+        /// <summary>
+        /// Add or update the given blog posting to/within the API.
+        /// </summary>
+        /// <param name="BlogPosting">A blog posting.</param>
+        /// <param name="OnAdded">A delegate run whenever the blog posting had been added successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the blog posting had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional blog posting identification initiating this command/request.</param>
+        public async Task<BlogPosting> AddOrUpdateBlogPosting(BlogPosting                            BlogPosting,
+                                                              Action<BlogPosting, EventTracking_Id>  OnAdded           = null,
+                                                              Action<BlogPosting, EventTracking_Id>  OnUpdated         = null,
+                                                              EventTracking_Id                       EventTrackingId   = null,
+                                                              User_Id?                               CurrentUserId     = null)
+        {
+
+            if (BlogPosting is null)
+                throw new ArgumentNullException(nameof(BlogPosting), "The given blog posting must not be null!");
+
+            try
+            {
+
+                return (await BlogPostingsSemaphore.WaitAsync(SemaphoreSlimTimeout))
+
+                            ? await _AddOrUpdateBlogPosting(BlogPosting,
+                                                            OnAdded,
+                                                            OnUpdated,
+                                                            EventTrackingId,
+                                                            CurrentUserId)
+
+                            : null;
+
+            }
+            finally
+            {
+                try
+                {
+                    BlogPostingsSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
+        #region UpdateBlogPosting        (BlogPosting,                 OnUpdated = null, ...)
+
+        /// <summary>
+        /// A delegate called whenever a blog posting was updated.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp when the blog posting was updated.</param>
+        /// <param name="BlogPosting">The updated blog posting.</param>
+        /// <param name="OldBlogPosting">The old blog posting.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking blog posting identification</param>
+        public delegate Task OnBlogPostingUpdatedDelegate(DateTime          Timestamp,
+                                                          BlogPosting       BlogPosting,
+                                                          BlogPosting       OldBlogPosting,
+                                                          EventTracking_Id  EventTrackingId   = null,
+                                                          User_Id?          CurrentUserId     = null);
+
+        /// <summary>
+        /// An event fired whenever a blog posting was updated.
+        /// </summary>
+        public event OnBlogPostingUpdatedDelegate OnBlogPostingUpdated;
+
+
+        #region (protected internal) _UpdateBlogPosting(BlogPosting, OnUpdated = null, ...)
+
+        /// <summary>
+        /// Update the given blog posting to/within the API.
+        /// </summary>
+        /// <param name="BlogPosting">A blog posting.</param>
+        /// <param name="OnUpdated">A delegate run whenever the blog posting had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional blog posting identification initiating this command/request.</param>
+        protected internal async Task<BlogPosting> _UpdateBlogPosting(BlogPosting                            BlogPosting,
+                                                             Action<BlogPosting, EventTracking_Id>  OnUpdated         = null,
+                                                             EventTracking_Id                       EventTrackingId   = null,
+                                                             User_Id?                               CurrentUserId     = null)
+        {
+
+            if (BlogPosting is null)
+                throw new ArgumentNullException(nameof(BlogPosting),
+                                                "The given blog posting must not be null!");
+
+            if (BlogPosting.API != null && BlogPosting.API != this)
+                throw new ArgumentException    ("The given blog posting is already attached to another API!",
+                                                nameof(BlogPosting));
+
+            if (!_BlogPostings.TryGetValue(BlogPosting.Id, out BlogPosting OldBlogPosting))
+                throw new ArgumentException    ("The given blog posting '" + BlogPosting.Id + "' does not exists in this API!",
+                                                nameof(BlogPosting));
+
+            BlogPosting.API = this;
+
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            await WriteToDatabaseFile(updateBlogPosting_MessageType,
+                                      BlogPosting.ToJSON(),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            _BlogPostings.Remove(OldBlogPosting.Id);
+            BlogPosting.CopyAllLinkedDataFrom(OldBlogPosting);
+
+
+            var OnBlogPostingUpdatedLocal = OnBlogPostingUpdated;
+            if (OnBlogPostingUpdatedLocal != null)
+                await OnBlogPostingUpdatedLocal?.Invoke(Timestamp.Now,
+                                                        BlogPosting,
+                                                        OldBlogPosting,
+                                                        eventTrackingId,
+                                                        CurrentUserId);
+
+            await SendNotifications(BlogPosting,
+                                    updateBlogPosting_MessageType,
+                                    OldBlogPosting,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+            OnUpdated?.Invoke(BlogPosting,
+                              eventTrackingId);
+
+            return BlogPosting;
+
+        }
+
+        #endregion
+
+        #region UpdateBlogPosting             (BlogPosting, OnUpdated = null, ...)
+
+        /// <summary>
+        /// Update the given blog posting to/within the API.
+        /// </summary>
+        /// <param name="BlogPosting">A blog posting.</param>
+        /// <param name="OnUpdated">A delegate run whenever the blog posting had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional blog posting identification initiating this command/request.</param>
+        public async Task<BlogPosting> UpdateBlogPosting(BlogPosting                            BlogPosting,
+                                                         Action<BlogPosting, EventTracking_Id>  OnUpdated         = null,
+                                                         EventTracking_Id                       EventTrackingId   = null,
+                                                         User_Id?                               CurrentUserId     = null)
+        {
+
+            if (BlogPosting is null)
+                throw new ArgumentNullException(nameof(BlogPosting), "The given blog posting must not be null!");
+
+            try
+            {
+
+                return (await BlogPostingsSemaphore.WaitAsync(SemaphoreSlimTimeout))
+
+                            ? await _UpdateBlogPosting(BlogPosting,
+                                                       OnUpdated,
+                                                       EventTrackingId,
+                                                       CurrentUserId)
+
+                            : null;
+
+            }
+            finally
+            {
+                try
+                {
+                    BlogPostingsSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+        }
+
+        #endregion
+
+
+        #region (protected internal) _UpdateBlogPosting(BlogPostingId, UpdateDelegate, OnUpdated = null, ...)
+
+        /// <summary>
+        /// Update the given blog posting.
+        /// </summary>
+        /// <param name="BlogPostingId">An blog posting identification.</param>
+        /// <param name="UpdateDelegate">A delegate to update the given blog posting.</param>
+        /// <param name="OnUpdated">A delegate run whenever the blog posting had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional blog posting identification initiating this command/request.</param>
+        protected internal async Task<BlogPosting> _UpdateBlogPosting(BlogPosting_Id                         BlogPostingId,
+                                                             Action<BlogPosting.Builder>            UpdateDelegate,
+                                                             Action<BlogPosting, EventTracking_Id>  OnUpdated         = null,
+                                                             EventTracking_Id                       EventTrackingId   = null,
+                                                             User_Id?                               CurrentUserId     = null)
+        {
+
+            if (BlogPostingId.IsNullOrEmpty)
+                throw new ArgumentNullException(nameof(BlogPostingId),
+                                                "The given blog posting identification must not be null or empty!");
+
+            if (UpdateDelegate == null)
+                throw new ArgumentNullException(nameof(UpdateDelegate),
+                                                "The given update delegate must not be null!");
+
+            if (!_BlogPostings.TryGetValue(BlogPostingId, out BlogPosting OldBlogPosting))
+                throw new ArgumentException    ("The given blog posting '" + BlogPostingId + "' does not exists in this API!",
+                                                nameof(BlogPostingId));
+
+            var Builder = OldBlogPosting.ToBuilder();
+            UpdateDelegate(Builder);
+            var NewBlogPosting = Builder.ToImmutable;
+
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            await WriteToDatabaseFile(updateBlogPosting_MessageType,
+                                      NewBlogPosting.ToJSON(),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            _BlogPostings.Remove(OldBlogPosting.Id);
+            NewBlogPosting.CopyAllLinkedDataFrom(OldBlogPosting);
+
+
+            var OnBlogPostingUpdatedLocal = OnBlogPostingUpdated;
+            if (OnBlogPostingUpdatedLocal != null)
+                await OnBlogPostingUpdatedLocal?.Invoke(Timestamp.Now,
+                                                        NewBlogPosting,
+                                                        OldBlogPosting,
+                                                        eventTrackingId,
+                                                        CurrentUserId);
+
+            await SendNotifications(NewBlogPosting,
+                                    updateBlogPosting_MessageType,
+                                    OldBlogPosting,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+            OnUpdated?.Invoke(NewBlogPosting,
+                              eventTrackingId);
+
+            return NewBlogPosting;
+
+        }
+
+        #endregion
+
+        #region UpdateBlogPosting             (BlogPostingId, UpdateDelegate, OnUpdated = null, ...)
+
+        /// <summary>
+        /// Update the given blog posting.
+        /// </summary>
+        /// <param name="BlogPostingId">An blog posting identification.</param>
+        /// <param name="UpdateDelegate">A delegate to update the given blog posting.</param>
+        /// <param name="OnUpdated">A delegate run whenever the blog posting had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional blog posting identification initiating this command/request.</param>
+        public async Task<BlogPosting> UpdateBlogPosting(BlogPosting_Id                         BlogPostingId,
+                                                         Action<BlogPosting.Builder>            UpdateDelegate,
+                                                         Action<BlogPosting, EventTracking_Id>  OnUpdated         = null,
+                                                         EventTracking_Id                       EventTrackingId   = null,
+                                                         User_Id?                               CurrentUserId     = null)
+        {
+
+            if (BlogPostingId.IsNullOrEmpty)
+                throw new ArgumentNullException(nameof(BlogPostingId), "The given blog posting identification must not be null or empty!");
+
+            try
+            {
+
+                return (await BlogPostingsSemaphore.WaitAsync(SemaphoreSlimTimeout))
+
+                            ? await _UpdateBlogPosting(BlogPostingId,
+                                                       UpdateDelegate,
+                                                       OnUpdated,
+                                                       EventTrackingId,
+                                                       CurrentUserId)
+
+                            : null;
+
+            }
+            finally
+            {
+                try
+                {
+                    BlogPostingsSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
+
+        #region BlogPostingExists(BlogPostingId)
+
+        /// <summary>
+        /// Determines whether the given blog posting identification exists within this API.
+        /// </summary>
+        /// <param name="BlogPostingId">The unique identification of an blog posting.</param>
+        protected internal Boolean _BlogPostingExists(BlogPosting_Id BlogPostingId)
+
+            => !BlogPostingId.IsNullOrEmpty && _BlogPostings.ContainsKey(BlogPostingId);
+
+
+        /// <summary>
+        /// Determines whether the given blog posting identification exists within this API.
+        /// </summary>
+        /// <param name="BlogPostingId">The unique identification of an blog posting.</param>
+        public Boolean BlogPostingExists(BlogPosting_Id BlogPostingId)
+        {
+
+            try
+            {
+
+                if (BlogPostingsSemaphore.Wait(SemaphoreSlimTimeout) &&
+                    _BlogPostingExists(BlogPostingId))
+                {
+                    return true;
+                }
+
+            }
+            catch
+            { }
+            finally
+            {
+                try
+                {
+                    BlogPostingsSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+            return false;
+
+        }
+
+        #endregion
+
+        #region GetBlogPosting   (BlogPostingId)
+
+        /// <summary>
+        /// Get the blog posting having the given unique identification.
+        /// </summary>
+        /// <param name="BlogPostingId">The unique identification of an blog posting.</param>
+        protected internal BlogPosting _GetBlogPosting(BlogPosting_Id BlogPostingId)
+        {
+
+            if (!BlogPostingId.IsNullOrEmpty && _BlogPostings.TryGetValue(BlogPostingId, out BlogPosting blogPosting))
+                return blogPosting;
+
+            return null;
+
+        }
+
+
+        /// <summary>
+        /// Get the blog posting having the given unique identification.
+        /// </summary>
+        /// <param name="BlogPostingId">The unique identification of the blog posting.</param>
+        public BlogPosting GetBlogPosting(BlogPosting_Id BlogPostingId)
+        {
+
+            try
+            {
+
+                if (BlogPostingsSemaphore.Wait(SemaphoreSlimTimeout))
+                    return _GetBlogPosting(BlogPostingId);
+
+            }
+            catch
+            { }
+            finally
+            {
+                try
+                {
+                    BlogPostingsSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+            return null;
+
+        }
+
+        #endregion
+
+        #region TryGetBlogPosting(BlogPostingId, out BlogPosting)
+
+        /// <summary>
+        /// Try to get the blog posting having the given unique identification.
+        /// </summary>
+        /// <param name="BlogPostingId">The unique identification of an blog posting.</param>
+        /// <param name="BlogPosting">The blog posting.</param>
+        protected internal Boolean _TryGetBlogPosting(BlogPosting_Id BlogPostingId, out BlogPosting BlogPosting)
+        {
+
+            if (!BlogPostingId.IsNullOrEmpty && _BlogPostings.TryGetValue(BlogPostingId, out BlogPosting blogPosting))
+            {
+                BlogPosting = blogPosting;
+                return true;
+            }
+
+            BlogPosting = null;
+            return false;
+
+        }
+
+
+        /// <summary>
+        /// Try to get the blog posting having the given unique identification.
+        /// </summary>
+        /// <param name="BlogPostingId">The unique identification of an blog posting.</param>
+        /// <param name="BlogPosting">The blog posting.</param>
+        public Boolean TryGetBlogPosting(BlogPosting_Id   BlogPostingId,
+                                         out BlogPosting  BlogPosting)
+        {
+
+            try
+            {
+
+                if (BlogPostingsSemaphore.Wait(SemaphoreSlimTimeout) &&
+                    _TryGetBlogPosting(BlogPostingId, out BlogPosting blogPosting))
+                {
+                    BlogPosting = blogPosting;
+                    return true;
+                }
+
+            }
+            catch
+            { }
+            finally
+            {
+                try
+                {
+                    BlogPostingsSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+            BlogPosting = null;
+            return false;
+
+        }
+
+        #endregion
+
+
+        #region RemoveBlogPosting(BlogPosting, OnRemoved = null, ...)
+
+        /// <summary>
+        /// A delegate called whenever a blog posting was removed.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp when the blog posting was removed.</param>
+        /// <param name="BlogPosting">The removed blog posting.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking blog posting identification</param>
+        public delegate Task OnBlogPostingRemovedDelegate(DateTime          Timestamp,
+                                                          BlogPosting       BlogPosting,
+                                                          EventTracking_Id  EventTrackingId   = null,
+                                                          User_Id?          CurrentUserId     = null);
+
+        /// <summary>
+        /// An event fired whenever a blog posting was removed.
+        /// </summary>
+        public event OnBlogPostingRemovedDelegate OnBlogPostingRemoved;
+
+
+        #region (class) DeleteBlogPostingResult
+
+        public class DeleteBlogPostingResult
+        {
+
+            public Boolean     IsSuccess           { get; }
+
+            public I18NString  ErrorDescription    { get; }
+
+
+            private DeleteBlogPostingResult(Boolean     IsSuccess,
+                                          I18NString  ErrorDescription  = null)
+            {
+                this.IsSuccess         = IsSuccess;
+                this.ErrorDescription  = ErrorDescription;
+            }
+
+
+            public static DeleteBlogPostingResult Success
+
+                => new DeleteBlogPostingResult(true);
+
+            public static DeleteBlogPostingResult Failed(I18NString Reason)
+
+                => new DeleteBlogPostingResult(false,
+                                             Reason);
+
+            public static DeleteBlogPostingResult Failed(Exception Exception)
+
+                => new DeleteBlogPostingResult(false,
+                                             I18NString.Create(Languages.en,
+                                                               Exception.Message));
+
+            public override String ToString()
+
+                => IsSuccess
+                       ? "Success"
+                       : "Failed" + (ErrorDescription.IsNullOrEmpty()
+                                         ? ": " + ErrorDescription.FirstText()
+                                         : "!");
+
+        }
+
+        #endregion
+
+        #region (protected internal virtual) CanDeleteBlogPosting(BlogPosting)
+
+        /// <summary>
+        /// Determines whether the blog posting can safely be removed from the API.
+        /// </summary>
+        /// <param name="BlogPosting">The blog posting to be removed.</param>
+        protected internal virtual I18NString CanDeleteBlogPosting(BlogPosting BlogPosting)
+        {
+            return new I18NString(Languages.en, "Currently not possible!");
+        }
+
+        #endregion
+
+
+        #region (protected internal) _RemoveBlogPosting(BlogPosting, OnRemoved = null, ...)
+
+        /// <summary>
+        /// Remove the given blog posting from the API.
+        /// </summary>
+        /// <param name="BlogPosting">The blog posting to be removed from this API.</param>
+        /// <param name="OnRemoved">A delegate run whenever the blog posting had been removed successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional blog posting identification initiating this command/request.</param>
+        protected internal async Task<DeleteBlogPostingResult> _RemoveBlogPosting(BlogPosting                            BlogPosting,
+                                                                         Action<BlogPosting, EventTracking_Id>  OnRemoved         = null,
+                                                                         EventTracking_Id                       EventTrackingId   = null,
+                                                                         User_Id?                               CurrentUserId     = null)
+        {
+
+            if (BlogPosting is null)
+                throw new ArgumentNullException(nameof(BlogPosting),
+                                                "The given blog posting must not be null!");
+
+            if (BlogPosting.API != this || !_BlogPostings.TryGetValue(BlogPosting.Id, out BlogPosting BlogPostingToBeRemoved))
+                throw new ArgumentException    ("The given blog posting '" + BlogPosting.Id + "' does not exists in this API!",
+                                                nameof(BlogPosting));
+
+
+            var result = CanDeleteBlogPosting(BlogPosting);
+
+            if (result == null)
+            {
+
+                var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+                await WriteToDatabaseFile(removeBlogPosting_MessageType,
+                                          BlogPosting.ToJSON(false, true),
+                                          eventTrackingId,
+                                          CurrentUserId);
+
+                _BlogPostings.Remove(BlogPosting.Id);
+
+
+                var OnBlogPostingRemovedLocal = OnBlogPostingRemoved;
+                if (OnBlogPostingRemovedLocal != null)
+                    await OnBlogPostingRemovedLocal?.Invoke(Timestamp.Now,
+                                                            BlogPosting,
+                                                            eventTrackingId,
+                                                            CurrentUserId);
+
+                await SendNotifications(BlogPosting,
+                                        removeBlogPosting_MessageType,
+                                        null,
+                                        eventTrackingId,
+                                        CurrentUserId);
+
+                OnRemoved?.Invoke(BlogPosting,
+                                  eventTrackingId);
+
+                return DeleteBlogPostingResult.Success;
+
+            }
+            else
+                return DeleteBlogPostingResult.Failed(result);
+
+        }
+
+        #endregion
+
+        #region RemoveBlogPosting             (BlogPosting, OnRemoved = null, ...)
+
+        /// <summary>
+        /// Remove the given blog posting from the API.
+        /// </summary>
+        /// <param name="BlogPosting">The blog posting to be removed from this API.</param>
+        /// <param name="OnRemoved">A delegate run whenever the blog posting had been removed successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional blog posting identification initiating this command/request.</param>
+        public async Task<DeleteBlogPostingResult> RemoveBlogPosting(BlogPosting                            BlogPosting,
+                                                                     Action<BlogPosting, EventTracking_Id>  OnRemoved         = null,
+                                                                     EventTracking_Id                       EventTrackingId   = null,
+                                                                     User_Id?                               CurrentUserId     = null)
+        {
+
+            if (BlogPosting is null)
+                throw new ArgumentNullException(nameof(BlogPosting), "The given blog posting must not be null!");
+
+            try
+            {
+
+                return (await BlogPostingsSemaphore.WaitAsync(SemaphoreSlimTimeout))
+
+                            ? await _RemoveBlogPosting(BlogPosting,
+                                                       OnRemoved,
+                                                       EventTrackingId,
+                                                       CurrentUserId)
+
+                            : null;
+
+            }
+            catch (Exception e)
+            {
+                return DeleteBlogPostingResult.Failed(e);
+            }
+            finally
+            {
+                try
+                {
+                    BlogPostingsSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
+        #endregion
+
         #region NewsPostings
 
         #region Data
@@ -34204,7 +35898,7 @@ namespace social.OpenData.UsersAPI
         #region (protected internal) GetNewsPostingSerializator(Request, User)
 
         protected internal NewsPostingToJSONDelegate GetNewsPostingSerializator(HTTPRequest  Request,
-                                                                       User         User)
+                                                                                User         User)
         {
 
             switch (User?.Id.ToString())
@@ -34214,13 +35908,11 @@ namespace social.OpenData.UsersAPI
                     return (newsPosting,
                             embedded,
                             ExpandTags,
-                            ExpandAuthorId,
-                            includeCryptoHash)
+                            ExpandAuthorId)
 
                             => newsPosting.ToJSON(embedded,
                                                   ExpandTags,
-                                                  ExpandAuthorId,
-                                                  includeCryptoHash);
+                                                  ExpandAuthorId);
 
             }
 

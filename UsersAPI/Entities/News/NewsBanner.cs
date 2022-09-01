@@ -229,9 +229,10 @@ namespace social.OpenData.UsersAPI
 
             : base(Id,
                    DefaultJSONLDContext,
+                   LastChange,
+                   null,
                    CustomData,
-                   DataSource,
-                   LastChange)
+                   DataSource)
 
         {
 
@@ -243,8 +244,6 @@ namespace social.OpenData.UsersAPI
             this.EndTimestamp    = EndTimestamp;
             this.Author          = Author ?? throw new ArgumentNullException(nameof(Author), "The given author must not be null!");
             this.IsHidden        = IsHidden;
-
-            CalcHash();
 
         }
 
@@ -744,7 +743,7 @@ namespace social.OpenData.UsersAPI
 
                            CustomData,
                            DataSource,
-                           LastChange);
+                           LastChangeDate);
 
         #endregion
 
@@ -848,9 +847,10 @@ namespace social.OpenData.UsersAPI
 
                 : base(Id ?? NewsBanner_Id.Random(),
                        DefaultJSONLDContext,
+                       LastChange,
+                       null,
                        CustomData,
-                       DataSource,
-                       LastChange)
+                       DataSource)
 
             {
 
@@ -901,7 +901,7 @@ namespace social.OpenData.UsersAPI
 
                                   CustomData,
                                   DataSource,
-                                  LastChange);
+                                  LastChangeDate);
 
             #endregion
 

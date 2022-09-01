@@ -809,9 +809,10 @@ namespace social.OpenData.UsersAPI
 
             : base(Id,
                    JSONLDContext ?? DefaultJSONLDContext,
+                   LastChange,
+                   null,
                    CustomData,
-                   DataSource,
-                   LastChange)
+                   DataSource)
 
         {
 
@@ -850,8 +851,6 @@ namespace social.OpenData.UsersAPI
             this._User2User_Edges             = User2UserEdges.        IsNeitherNullNorEmpty() ? new List<User2UserEdge>        (User2UserEdges)         : new List<User2UserEdge>();
             this._User2UserGroup_Edges        = User2UserGroupEdges.   IsNeitherNullNorEmpty() ? new List<User2UserGroupEdge>   (User2UserGroupEdges)    : new List<User2UserGroupEdge>();
             this._User2Organization_Edges     = User2OrganizationEdges.IsNeitherNullNorEmpty() ? new List<User2OrganizationEdge>(User2OrganizationEdges) : new List<User2OrganizationEdge>();
-
-            CalcHash();
 
         }
 
@@ -1525,7 +1524,7 @@ namespace social.OpenData.UsersAPI
                         AttachedFiles,
                         JSONLDContext,
                         DataSource,
-                        LastChange);
+                        LastChangeDate);
 
         #endregion
 
@@ -1804,7 +1803,7 @@ namespace social.OpenData.UsersAPI
                            AttachedFiles,
                            JSONLDContext,
                            DataSource,
-                           LastChange);
+                           LastChangeDate);
 
         #endregion
 
@@ -2359,9 +2358,10 @@ namespace social.OpenData.UsersAPI
 
                 : base(Id,
                        JSONLDContext ?? DefaultJSONLDContext,
+                       LastChange,
+                       null,
                        CustomData,
-                       DataSource,
-                       LastChange)
+                       DataSource)
 
             {
 
@@ -2660,7 +2660,7 @@ namespace social.OpenData.UsersAPI
                                     AttachedFiles,
                                     JSONLDContext,
                                     DataSource,
-                                    LastChange);
+                                    LastChangeDate);
                 }
             }
 
