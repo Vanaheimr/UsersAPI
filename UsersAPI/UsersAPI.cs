@@ -2906,6 +2906,7 @@ namespace social.OpenData.UsersAPI
             this._Organizations                  = new Dictionary<Organization_Id,            Organization>();
             this._OrganizationGroups             = new Dictionary<OrganizationGroup_Id,       OrganizationGroup>();
             this._ServiceTickets                 = new ConcurrentDictionary<ServiceTicket_Id, ServiceTicket>();
+            this._BlogPostings                   = new Dictionary<BlogPosting_Id,             BlogPosting>();
             this._NewsPostings                   = new Dictionary<NewsPosting_Id,             NewsPosting>();
             this._NewsBanners                    = new Dictionary<NewsBanner_Id,              NewsBanner>();
             this._FAQs                           = new Dictionary<FAQ_Id,                     FAQ>();
