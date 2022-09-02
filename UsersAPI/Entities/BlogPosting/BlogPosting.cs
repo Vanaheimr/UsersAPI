@@ -33,7 +33,7 @@ using org.GraphDefined.Vanaheimr.Styx.Arrows;
 
 #endregion
 
-namespace social.OpenData.UsersAPI.Postings
+namespace social.OpenData.UsersAPI
 {
 
 //    public delegate Boolean PostingProviderDelegate(BlogPosting_Id BlogPostingId, out BlogPosting Posting);
@@ -89,7 +89,7 @@ namespace social.OpenData.UsersAPI.Postings
     }
 
     /// <summary>
-    /// An Open Data blog posting.
+    /// A blog posting.
     /// </summary>
     public class BlogPosting : AEntity<BlogPosting_Id,
                                        BlogPosting>
@@ -151,6 +151,12 @@ namespace social.OpenData.UsersAPI.Postings
         public I18NString                         Teaser                { get; }
 
         /// <summary>
+        /// The teaser image of this blog posting.
+        /// </summary>
+        [Mandatory]
+        public URL                                TeaserImage           { get; }
+
+        /// <summary>
         /// The (multi-language) text of this blog posting.
         /// </summary>
         [Mandatory]
@@ -173,6 +179,12 @@ namespace social.OpenData.UsersAPI.Postings
         /// </summary>
         [Optional]
         public GeoCoordinate?                     GeoLocation           { get; }
+
+        /// <summary>
+        /// The optinal category of the blog posting.
+        /// </summary>
+        [Optional]
+        public I18NString?                        Category              { get; }
 
         /// <summary>
         /// An enumeration of multi-language tags and their relevance.
@@ -205,25 +217,31 @@ namespace social.OpenData.UsersAPI.Postings
         /// </summary>
         /// <param name="Title">The (multi-language) title of this blog posting.</param>
         /// <param name="Teaser">The (multi-language) teaser of this blog posting.</param>
+        /// <param name="TeaserImage">The teaser image of this blog posting.</param>
         /// <param name="Text">The (multi-language) text of this blog posting.</param>
         /// <param name="Id">The unique identification of this blog posting.</param>
         /// <param name="Authors">The optional authors of this blog posting.</param>
         /// <param name="PublicationDate">The timestamp of the publication of this blog posting.</param>
         /// <param name="LastChangeDate">The timestamp of the last change of this blog posting.</param>
         /// <param name="GeoLocation">An optional geographical location of this blog posting.</param>
+        /// <param name="Category">The optinal category of the blog posting.</param>
         /// <param name="Tags">An enumeration of multi-language tags and their relevance.</param>
         /// <param name="PrivacyLevel">Whether the blog posting will be shown in blog posting listings, or not.</param>
         /// <param name="IsHidden">The blog posting is hidden.</param>
+        /// 
         /// <param name="Signatures">All signatures of this blog posting.</param>
+        /// <param name="CustomData">Custom data stored within this entity.</param>
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
         public BlogPosting(I18NString                  Title,
                            I18NString                  Teaser,
+                           URL                         TeaserImage,
                            I18NString                  Text,
                            BlogPosting_Id?             Id                = null,
                            IEnumerable<User>?          Authors           = null,
                            DateTime?                   PublicationDate   = null,
                            DateTime?                   LastChangeDate    = null,
                            GeoCoordinate?              GeoLocation       = null,
+                           I18NString?                 Category          = null,
                            IEnumerable<TagRelevance>?  Tags              = null,
                            PrivacyLevel?               PrivacyLevel      = null,
                            Boolean                     IsHidden          = false,
@@ -243,10 +261,12 @@ namespace social.OpenData.UsersAPI.Postings
 
             this.Title            = Title;
             this.Teaser           = Teaser;
+            this.TeaserImage      = TeaserImage;
             this.Text             = Text;
             this.Authors          = Authors         ?? Array.Empty<User>();
             this.PublicationDate  = PublicationDate ?? Timestamp.Now;
             this.GeoLocation      = GeoLocation;
+            this.Category         = Category;
             this.Tags             = Tags            ?? Array.Empty<TagRelevance>();
             this.PrivacyLevel     = PrivacyLevel    ?? OpenData.UsersAPI.PrivacyLevel.Private;
             this.IsHidden         = IsHidden;
@@ -287,9 +307,10 @@ namespace social.OpenData.UsersAPI.Postings
                        ? new JProperty("@context",       JSONLDContext.ToString())
                        : null,
 
-                   new JProperty("title",                Title. ToJSON()),
-                   new JProperty("teaser",               Teaser.ToJSON()),
-                   new JProperty("text",                 Text.  ToJSON()),
+                   new JProperty("title",                Title.      ToJSON()),
+                   new JProperty("teaser",               Teaser.     ToJSON()),
+                   new JProperty("teaserImage",          TeaserImage.ToString()),
+                   new JProperty("text",                 Text.       ToJSON()),
 
                    new JProperty("authors",              new JArray(Authors.Select(author => JSONObject.Create(
                                                                                                  new JProperty("@id",  author.Id.ToString()),
@@ -301,6 +322,10 @@ namespace social.OpenData.UsersAPI.Postings
 
                    GeoLocation.HasValue
                        ? new JProperty("geoLocation",    GeoLocation.Value.ToJSON())
+                       : null,
+
+                   Category is not null && Category.IsNeitherNullNorEmpty()
+                       ? new JProperty("category",       Category.ToJSON())
                        : null,
 
                    Tags is not null && Tags.Any()
@@ -404,6 +429,19 @@ namespace social.OpenData.UsersAPI.Postings
 
                 #endregion
 
+                #region Parse TeaserImage        [mandatory]
+
+                if (!JSONObject.ParseMandatory("teaserImage",
+                                               "blog posting teaser image",
+                                               URL.TryParse,
+                                               out URL TeaserImage,
+                                               out ErrorResponse))
+                {
+                    return false;
+                }
+
+                #endregion
+
                 #region Parse Text               [mandatory]
 
                 if (!JSONObject.ParseMandatory("text",
@@ -456,7 +494,19 @@ namespace social.OpenData.UsersAPI.Postings
 
                 #endregion
 
-                var Tags             = new TagRelevance[0];
+                #region Parse Category           [mandatory]
+
+                if (!JSONObject.ParseMandatory("category",
+                                               "blog posting category",
+                                               out I18NString Category,
+                                               out ErrorResponse))
+                {
+                    return false;
+                }
+
+                #endregion
+
+                var Tags             = Array.Empty<TagRelevance>();
 
                 #region Parse PrivacyLevel       [optional]
 
@@ -475,7 +525,7 @@ namespace social.OpenData.UsersAPI.Postings
 
                 var IsHidden         = JSONObject["isHidden"]?.     Value<Boolean>();
 
-                var Signatures       = new Signature[0];
+                var Signatures       = Array.Empty<Signature>();
 
                 #region Get   DataSource         [optional]
 
@@ -488,15 +538,17 @@ namespace social.OpenData.UsersAPI.Postings
 
                 BlogPosting = new BlogPosting(Title,
                                               Teaser,
+                                              TeaserImage,
                                               Text,
                                               BlogPostingIdBody ?? BlogPostingIdURL ?? BlogPosting_Id.Random(),
                                               null,
                                               PublicationDate,
                                               LastChangeDate,
                                               GeoLocation,
+                                              Category,
                                               Tags,
                                               PrivacyLevel,
-                                              IsHidden      ?? false,
+                                              IsHidden          ?? false,
                                               Signatures,
                                               CustomData,
                                               DataSource);
@@ -735,11 +787,13 @@ namespace social.OpenData.UsersAPI.Postings
             => new (NewBlogPostingId ?? Id,
                     Title,
                     Teaser,
+                    TeaserImage,
                     Text,
                     Authors,
                     PublicationDate,
                     LastChangeDate,
                     GeoLocation,
+                    Category,
                     Tags,
                     PrivacyLevel,
                     IsHidden,
@@ -765,6 +819,12 @@ namespace social.OpenData.UsersAPI.Postings
             /// </summary>
             [Mandatory]
             public I18NString?                        Title                 { get; set; }
+
+            /// <summary>
+            /// The teaser image of this blog posting.
+            /// </summary>
+            [Mandatory]
+            public URL?                               TeaserImage           { get; set; }
 
             /// <summary>
             /// The (multi-language) teaser of this blog posting.
@@ -797,6 +857,12 @@ namespace social.OpenData.UsersAPI.Postings
             public GeoCoordinate?                     GeoLocation           { get; set; }
 
             /// <summary>
+            /// The optional category of the blog posting.
+            /// </summary>
+            [Optional]
+            public I18NString?                        Category              { get; set; }
+
+            /// <summary>
             /// An enumeration of multi-language tags and their relevance.
             /// </summary>
             [Optional]
@@ -824,27 +890,34 @@ namespace social.OpenData.UsersAPI.Postings
             /// <param name="Id">The unique identification of this blog posting.</param>
             /// <param name="Title">The (multi-language) title of this blog posting.</param>
             /// <param name="Teaser">The (multi-language) teaser of this blog posting.</param>
+            /// <param name="TeaserImage">The teaser image of this blog posting.</param>
             /// <param name="Text">The (multi-language) text of this blog posting.</param>
             /// <param name="Authors">The optional authors of this blog posting.</param>
             /// <param name="PublicationDate">The timestamp of the publication of this blog posting.</param>
             /// <param name="LastChangeDate">The timestamp of the last change of this blog posting.</param>
             /// <param name="GeoLocation">An optional geographical location of this blog posting.</param>
+            /// <param name="Category">The optinal category of the blog posting.</param>
             /// <param name="Tags">An enumeration of multi-language tags and their relevance.</param>
             /// <param name="PrivacyLevel">Whether the blog posting will be shown in blog posting listings, or not.</param>
             /// <param name="IsHidden">The blog posting is hidden.</param>
+            /// 
             /// <param name="Signatures">All signatures of this blog posting.</param>
+            /// <param name="CustomData">Custom data stored within this entity.</param>
             /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
             public Builder(BlogPosting_Id?             Id                = null,
-                           I18NString?                 Teaser            = null,
                            I18NString?                 Title             = null,
+                           I18NString?                 Teaser            = null,
+                           URL?                        TeaserImage       = null,
                            I18NString?                 Text              = null,
                            IEnumerable<User>?          Authors           = null,
                            DateTime?                   PublicationDate   = null,
                            DateTime?                   LastChangeDate    = null,
                            GeoCoordinate?              GeoLocation       = null,
+                           I18NString?                 Category          = null,
                            IEnumerable<TagRelevance>?  Tags              = null,
                            PrivacyLevel?               PrivacyLevel      = null,
                            Boolean                     IsHidden          = false,
+
                            IEnumerable<Signature>?     Signatures        = null,
                            JObject?                    CustomData        = null,
                            String?                     DataSource        = null)
@@ -861,11 +934,17 @@ namespace social.OpenData.UsersAPI.Postings
                 this.Id               = Id              ?? BlogPosting_Id.Random();
                 this.Title            = Title;
                 this.Teaser           = Teaser;
+                this.TeaserImage      = TeaserImage;
                 this.Text             = Text;
-                this.Authors          = Authors         is not null ? new HashSet<User>(Authors)                    : new HashSet<User>();
+                this.Authors          = Authors is not null
+                                            ? new HashSet<User>(Authors)
+                                            : new HashSet<User>();
                 this.PublicationDate  = PublicationDate ?? Timestamp.Now;
                 this.GeoLocation      = GeoLocation;
-                this.Tags             = Tags            is not null ? new HashSet<TagRelevance>(Tags)               : new HashSet<TagRelevance>();
+                this.Category         = Category;
+                this.Tags             = Tags is not null
+                                            ? new HashSet<TagRelevance>(Tags)
+                                            : new HashSet<TagRelevance>();
                 this.PrivacyLevel     = PrivacyLevel    ?? OpenData.UsersAPI.PrivacyLevel.Private;
                 this.IsHidden         = IsHidden;
 
@@ -879,12 +958,14 @@ namespace social.OpenData.UsersAPI.Postings
 
                 var posting     = new BlogPosting(Title,
                                                   Teaser,
+                                                  TeaserImage.Value,
                                                   Text,
                                                   Id,
                                                   null,
                                                   PublicationDate,
                                                   LastChangeDate,
                                                   GeoLocation,
+                                                  Category,
                                                   Tags,
                                                   PrivacyLevel,
                                                   IsHidden,
@@ -909,12 +990,14 @@ namespace social.OpenData.UsersAPI.Postings
 
                 return new BlogPosting(Title,
                                        Teaser,
+                                       TeaserImage.Value,
                                        Text,
                                        Id,
                                        null,
                                        PublicationDate,
                                        LastChangeDate,
                                        GeoLocation,
+                                       Category,
                                        Tags,
                                        PrivacyLevel,
                                        IsHidden,
@@ -954,23 +1037,28 @@ namespace social.OpenData.UsersAPI.Postings
                 get
                 {
 
-                    if (Title  is null || Title. IsNullOrEmpty())
-                        throw new ArgumentNullException(nameof(Title), "The given title must not be null or empty!");
+                    if (Title  is null        || Title.      IsNullOrEmpty())
+                        throw new ArgumentNullException(nameof(Title),       "The given title must not be null or empty!");
 
-                    if (Teaser is null || Teaser.IsNullOrEmpty())
-                        throw new ArgumentNullException(nameof(Text),  "The given teaser must not be null or empty!");
+                    if (Teaser is null        || Teaser.     IsNullOrEmpty())
+                        throw new ArgumentNullException(nameof(Teaser),      "The given teaser must not be null or empty!");
 
-                    if (Text   is null || Text.  IsNullOrEmpty())
-                        throw new ArgumentNullException(nameof(Text),  "The given text must not be null or empty!");
+                    if (!TeaserImage.HasValue || TeaserImage.IsNullOrEmpty())
+                        throw new ArgumentNullException(nameof(TeaserImage), "The given teaser image must not be null or empty!");
+
+                    if (Text   is null        || Text.       IsNullOrEmpty())
+                        throw new ArgumentNullException(nameof(Text),        "The given text must not be null or empty!");
 
                     return new (Title,
                                 Teaser,
+                                TeaserImage.Value,
                                 Text,
                                 Id,
                                 Authors,
                                 PublicationDate,
                                 LastChangeDate,
                                 GeoLocation,
+                                Category,
                                 Tags,
                                 PrivacyLevel,
                                 IsHidden,

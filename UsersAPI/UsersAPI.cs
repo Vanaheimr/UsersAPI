@@ -56,7 +56,6 @@ using com.GraphDefined.SMSApi.API.Response;
 
 using social.OpenData.UsersAPI;
 using social.OpenData.UsersAPI.Notifications;
-using social.OpenData.UsersAPI.Postings;
 
 #endregion
 
