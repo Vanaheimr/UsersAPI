@@ -56,6 +56,7 @@ using com.GraphDefined.SMSApi.API.Response;
 
 using social.OpenData.UsersAPI;
 using social.OpenData.UsersAPI.Notifications;
+using org.GraphDefined.Vanaheimr.Hermod.Logging;
 
 #endregion
 
