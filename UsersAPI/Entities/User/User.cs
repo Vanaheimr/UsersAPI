@@ -132,12 +132,12 @@ namespace social.OpenData.UsersAPI
 
         #region API
 
-        private UsersAPI _API;
+        private UsersAPI? _API;
 
         /// <summary>
         /// The UsersAPI of this user.
         /// </summary>
-        internal UsersAPI API
+        internal UsersAPI? API
         {
 
             get
@@ -151,7 +151,7 @@ namespace social.OpenData.UsersAPI
                 if (_API == value)
                     return;
 
-                if (_API != null)
+                if (_API is not null)
                     throw new ArgumentException("Illegal attempt to change the API of this user!");
 
                 _API = value ?? throw new ArgumentException("Illegal attempt to delete the API reference of this user!");
@@ -178,13 +178,13 @@ namespace social.OpenData.UsersAPI
         /// The PGP/GPG public keyring of the user.
         /// </summary>
         [Optional]
-        public PgpPublicKeyRing           PublicKeyRing        { get; }
+        public PgpPublicKeyRing?          PublicKeyRing        { get; }
 
         /// <summary>
         /// The PGP/GPG secret keyring of the user.
         /// </summary>
         [Optional]
-        public PgpSecretKeyRing           SecretKeyRing        { get; }
+        public PgpSecretKeyRing?          SecretKeyRing        { get; }
 
         /// <summary>
         /// The language setting of the user.
@@ -213,13 +213,13 @@ namespace social.OpenData.UsersAPI
         /// The telegram user name.
         /// </summary>
         [Optional]
-        public String                     Telegram             { get; }
+        public String?                    Telegram             { get; }
 
         /// <summary>
         /// The homepage of the user.
         /// </summary>
         [Optional]
-        public String                     Homepage             { get; }
+        public String?                    Homepage             { get; }
 
         /// <summary>
         /// An optional (multi-language) description of the user.
@@ -236,7 +236,7 @@ namespace social.OpenData.UsersAPI
         /// The optional address of the organization.
         /// </summary>
         [Optional]
-        public Address                    Address              { get; }
+        public Address?                   Address              { get; }
 
         /// <summary>
         /// Whether the user will be shown in user listings, or not.
@@ -776,36 +776,36 @@ namespace social.OpenData.UsersAPI
         /// <param name="JSONLDContext">The JSON-LD context of this user.</param>
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
         /// <param name="LastChange">The timestamp of the last changes within this user. Can e.g. be used as a HTTP ETag.</param>
-        public User(User_Id                             Id,
-                    String                              Name,
-                    SimpleEMailAddress                  EMail,
+        public User(User_Id                              Id,
+                    String                               Name,
+                    SimpleEMailAddress                   EMail,
 
-                    I18NString                          Description              = null,
-                    PgpPublicKeyRing                    PublicKeyRing            = null,
-                    PgpSecretKeyRing                    SecretKeyRing            = null,
-                    Languages                           UserLanguage             = Languages.en,
-                    PhoneNumber?                        Telephone                = null,
-                    PhoneNumber?                        MobilePhone              = null,
-                    Use2AuthFactor                      Use2AuthFactor           = Use2AuthFactor.None,
-                    String                              Telegram                 = null,
-                    String                              Homepage                 = null,
-                    GeoCoordinate?                      GeoLocation              = null,
-                    Address                             Address                  = null,
-                    DateTime?                           AcceptedEULA             = null,
-                    Boolean                             IsDisabled               = false,
-                    Boolean                             IsAuthenticated          = false,
+                    I18NString?                          Description              = null,
+                    PgpPublicKeyRing?                    PublicKeyRing            = null,
+                    PgpSecretKeyRing?                    SecretKeyRing            = null,
+                    Languages                            UserLanguage             = Languages.en,
+                    PhoneNumber?                         Telephone                = null,
+                    PhoneNumber?                         MobilePhone              = null,
+                    Use2AuthFactor                       Use2AuthFactor           = Use2AuthFactor.None,
+                    String?                              Telegram                 = null,
+                    String?                              Homepage                 = null,
+                    GeoCoordinate?                       GeoLocation              = null,
+                    Address?                             Address                  = null,
+                    DateTime?                            AcceptedEULA             = null,
+                    Boolean                              IsDisabled               = false,
+                    Boolean                              IsAuthenticated          = false,
 
-                    IEnumerable<ANotification>          Notifications            = null,
+                    IEnumerable<ANotification>?          Notifications            = null,
 
-                    IEnumerable<User2UserEdge>          User2UserEdges           = null,
-                    IEnumerable<User2UserGroupEdge>     User2UserGroupEdges      = null,
-                    IEnumerable<User2OrganizationEdge>  User2OrganizationEdges   = null,
+                    IEnumerable<User2UserEdge>?          User2UserEdges           = null,
+                    IEnumerable<User2UserGroupEdge>?     User2UserGroupEdges      = null,
+                    IEnumerable<User2OrganizationEdge>?  User2OrganizationEdges   = null,
 
-                    JObject                             CustomData               = default,
-                    IEnumerable<AttachedFile>           AttachedFiles            = default,
-                    JSONLDContext?                      JSONLDContext            = default,
-                    String                              DataSource               = default,
-                    DateTime?                           LastChange               = default)
+                    JObject?                             CustomData               = default,
+                    IEnumerable<AttachedFile>?           AttachedFiles            = default,
+                    JSONLDContext?                       JSONLDContext            = default,
+                    String?                              DataSource               = default,
+                    DateTime?                            LastChange               = default)
 
             : base(Id,
                    JSONLDContext ?? DefaultJSONLDContext,
@@ -818,39 +818,39 @@ namespace social.OpenData.UsersAPI
 
             #region Initial checks
 
-            Name = Name?.Trim();
+            Name = Name.Trim();
 
             if (Name.IsNullOrEmpty())
                 throw new ArgumentNullException(nameof(Name), "The given username must not be null or empty!");
 
             #endregion
 
-            this.EMail                        = new EMailAddress(EMail, Name, SecretKeyRing, PublicKeyRing);
-            this.Name                         = Name;
-            this.PublicKeyRing                = PublicKeyRing;
-            this.SecretKeyRing                = SecretKeyRing;
-            this.UserLanguage                 = UserLanguage;
-            this.Telephone                    = Telephone;
-            this.MobilePhone                  = MobilePhone;
-            this.Use2AuthFactor               = Use2AuthFactor;
-            this.Telegram                     = Telegram;
-            this.Homepage                     = Homepage;
-            this.Description                  = Description   ?? new I18NString();
-            this.GeoLocation                  = GeoLocation;
-            this.Address                      = Address;
-            this.AcceptedEULA                 = AcceptedEULA;
-            this.IsAuthenticated              = IsAuthenticated;
-            this.IsDisabled                   = IsDisabled;
-            this.AttachedFiles                = AttachedFiles ?? new AttachedFile[0];
+            this.EMail                     = new EMailAddress(EMail, Name, SecretKeyRing, PublicKeyRing);
+            this.Name                      = Name;
+            this.PublicKeyRing             = PublicKeyRing;
+            this.SecretKeyRing             = SecretKeyRing;
+            this.UserLanguage              = UserLanguage;
+            this.Telephone                 = Telephone;
+            this.MobilePhone               = MobilePhone;
+            this.Use2AuthFactor            = Use2AuthFactor;
+            this.Telegram                  = Telegram;
+            this.Homepage                  = Homepage;
+            this.Description               = Description   ?? new I18NString();
+            this.GeoLocation               = GeoLocation;
+            this.Address                   = Address;
+            this.AcceptedEULA              = AcceptedEULA;
+            this.IsAuthenticated           = IsAuthenticated;
+            this.IsDisabled                = IsDisabled;
+            this.AttachedFiles             = AttachedFiles ?? Array.Empty<AttachedFile>();
 
-            this._NotificationStore           = new NotificationStore();
+            this._NotificationStore        = new NotificationStore();
 
-            if (Notifications.SafeAny())
+            if (Notifications is not null && Notifications.SafeAny())
                 _NotificationStore.Add(Notifications);
 
-            this._User2User_Edges             = User2UserEdges.        IsNeitherNullNorEmpty() ? new List<User2UserEdge>        (User2UserEdges)         : new List<User2UserEdge>();
-            this._User2UserGroup_Edges        = User2UserGroupEdges.   IsNeitherNullNorEmpty() ? new List<User2UserGroupEdge>   (User2UserGroupEdges)    : new List<User2UserGroupEdge>();
-            this._User2Organization_Edges     = User2OrganizationEdges.IsNeitherNullNorEmpty() ? new List<User2OrganizationEdge>(User2OrganizationEdges) : new List<User2OrganizationEdge>();
+            this._User2User_Edges          = User2UserEdges         is not null && User2UserEdges.        IsNeitherNullNorEmpty() ? new List<User2UserEdge>        (User2UserEdges)         : new List<User2UserEdge>();
+            this._User2UserGroup_Edges     = User2UserGroupEdges    is not null && User2UserGroupEdges.   IsNeitherNullNorEmpty() ? new List<User2UserGroupEdge>   (User2UserGroupEdges)    : new List<User2UserGroupEdge>();
+            this._User2Organization_Edges  = User2OrganizationEdges is not null && User2OrganizationEdges.IsNeitherNullNorEmpty() ? new List<User2OrganizationEdge>(User2OrganizationEdges) : new List<User2OrganizationEdge>();
 
         }
 

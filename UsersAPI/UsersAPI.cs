@@ -57,6 +57,7 @@ using com.GraphDefined.SMSApi.API.Response;
 using social.OpenData.UsersAPI;
 using social.OpenData.UsersAPI.Notifications;
 using org.GraphDefined.Vanaheimr.Hermod.Logging;
+using static System.Net.Mime.MediaTypeNames;
 
 #endregion
 
@@ -1037,32 +1038,32 @@ namespace social.OpenData.UsersAPI
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async static Task<User> CreateUser(this UsersAPI       UsersAPI,
-                                                  User_Id             Id,
-                                                  String              Name,
-                                                  SimpleEMailAddress  EMail,
-                                                  Password?           Password                   = null,
-                                                  I18NString          Description                = null,
-                                                  PgpPublicKeyRing    PublicKeyRing              = null,
-                                                  PgpSecretKeyRing    SecretKeyRing              = null,
-                                                  Languages           UserLanguage               = Languages.en,
-                                                  PhoneNumber?        Telephone                  = null,
-                                                  PhoneNumber?        MobilePhone                = null,
-                                                  Use2AuthFactor      Use2AuthFactor             = Use2AuthFactor.None,
-                                                  String              Telegram                   = null,
-                                                  String              Homepage                   = null,
-                                                  GeoCoordinate?      GeoLocation                = null,
-                                                  Address             Address                    = null,
-                                                  Boolean             SkipDefaultNotifications   = false,
-                                                  Boolean             SkipNewUserEMail           = false,
-                                                  Boolean             SkipNewUserNotifications   = false,
-                                                  DateTime?           AcceptedEULA               = null,
-                                                  Boolean             IsAuthenticated            = false,
-                                                  Boolean             IsDisabled                 = false,
+        public async static Task<User?> CreateUser(this UsersAPI       UsersAPI,
+                                                   User_Id             Id,
+                                                   String              Name,
+                                                   SimpleEMailAddress  EMail,
+                                                   Password?           Password                   = null,
+                                                   I18NString?         Description                = null,
+                                                   PgpPublicKeyRing?   PublicKeyRing              = null,
+                                                   PgpSecretKeyRing?   SecretKeyRing              = null,
+                                                   Languages           UserLanguage               = Languages.en,
+                                                   PhoneNumber?        Telephone                  = null,
+                                                   PhoneNumber?        MobilePhone                = null,
+                                                   Use2AuthFactor      Use2AuthFactor             = Use2AuthFactor.None,
+                                                   String?             Telegram                   = null,
+                                                   String?             Homepage                   = null,
+                                                   GeoCoordinate?      GeoLocation                = null,
+                                                   Address?            Address                    = null,
+                                                   Boolean             SkipDefaultNotifications   = false,
+                                                   Boolean             SkipNewUserEMail           = false,
+                                                   Boolean             SkipNewUserNotifications   = false,
+                                                   DateTime?           AcceptedEULA               = null,
+                                                   Boolean             IsAuthenticated            = false,
+                                                   Boolean             IsDisabled                 = false,
 
-                                                  String              DataSource                 = "",
-                                                  EventTracking_Id    EventTrackingId            = null,
-                                                  User_Id?            CurrentUserId              = null)
+                                                   String              DataSource                 = "",
+                                                   EventTracking_Id?   EventTrackingId            = null,
+                                                   User_Id?            CurrentUserId              = null)
         {
 
             var addUserResult = await UsersAPI.AddUser(new User(Id,
@@ -1089,7 +1090,7 @@ namespace social.OpenData.UsersAPI
                                                        SkipNewUserNotifications,
 
                                                        async (_user, _eventTrackingId) => {
-                                                           if (Password.HasValue) {
+                                                           if (Password.HasValue && _user.API is not null) {
                                                                var result = await _user.API._ChangePassword(_user,
                                                                                                             Password.Value,
                                                                                                             null,
@@ -1141,34 +1142,34 @@ namespace social.OpenData.UsersAPI
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async static Task<User> CreateUser(this UsersAPI               UsersAPI,
-                                                  User_Id                     Id,
-                                                  String                      Name,
-                                                  SimpleEMailAddress          EMail,
-                                                  User2OrganizationEdgeLabel  AccessRight,
-                                                  Organization                Organization,
-                                                  Password?                   Password                   = null,
-                                                  I18NString                  Description                = null,
-                                                  PgpPublicKeyRing            PublicKeyRing              = null,
-                                                  PgpSecretKeyRing            SecretKeyRing              = null,
-                                                  Languages                   UserLanguage               = Languages.en,
-                                                  PhoneNumber?                Telephone                  = null,
-                                                  PhoneNumber?                MobilePhone                = null,
-                                                  Use2AuthFactor              Use2AuthFactor             = Use2AuthFactor.None,
-                                                  String                      Telegram                   = null,
-                                                  String                      Homepage                   = null,
-                                                  GeoCoordinate?              GeoLocation                = null,
-                                                  Address                     Address                    = null,
-                                                  Boolean                     SkipDefaultNotifications   = false,
-                                                  Boolean                     SkipNewUserEMail           = false,
-                                                  Boolean                     SkipNewUserNotifications   = false,
-                                                  DateTime?                   AcceptedEULA               = null,
-                                                  Boolean                     IsAuthenticated            = false,
-                                                  Boolean                     IsDisabled                 = false,
+        public async static Task<User?> CreateUser(this UsersAPI               UsersAPI,
+                                                   User_Id                     Id,
+                                                   String                      Name,
+                                                   SimpleEMailAddress          EMail,
+                                                   User2OrganizationEdgeLabel  AccessRight,
+                                                   Organization                Organization,
+                                                   Password?                   Password                   = null,
+                                                   I18NString?                 Description                = null,
+                                                   PgpPublicKeyRing?           PublicKeyRing              = null,
+                                                   PgpSecretKeyRing?           SecretKeyRing              = null,
+                                                   Languages                   UserLanguage               = Languages.en,
+                                                   PhoneNumber?                Telephone                  = null,
+                                                   PhoneNumber?                MobilePhone                = null,
+                                                   Use2AuthFactor              Use2AuthFactor             = Use2AuthFactor.None,
+                                                   String?                     Telegram                   = null,
+                                                   String?                     Homepage                   = null,
+                                                   GeoCoordinate?              GeoLocation                = null,
+                                                   Address?                    Address                    = null,
+                                                   Boolean                     SkipDefaultNotifications   = false,
+                                                   Boolean                     SkipNewUserEMail           = false,
+                                                   Boolean                     SkipNewUserNotifications   = false,
+                                                   DateTime?                   AcceptedEULA               = null,
+                                                   Boolean                     IsAuthenticated            = false,
+                                                   Boolean                     IsDisabled                 = false,
 
-                                                  String                      DataSource                 = "",
-                                                  EventTracking_Id            EventTrackingId            = null,
-                                                  User_Id?                    CurrentUserId              = null)
+                                                   String                      DataSource                 = "",
+                                                   EventTracking_Id?           EventTrackingId            = null,
+                                                   User_Id?                    CurrentUserId              = null)
         {
 
             var addUserResult = await UsersAPI.AddUser(new User(Id,
@@ -1198,7 +1199,7 @@ namespace social.OpenData.UsersAPI
                                                        SkipNewUserNotifications,
 
                                                        async (_user, _eventTrackingId) => {
-                                                           if (Password.HasValue) {
+                                                           if (Password.HasValue && _user.API is not null) {
                                                                var result = await _user.API._ChangePassword(_user,
                                                                                                             Password.Value,
                                                                                                             null,
@@ -1248,32 +1249,32 @@ namespace social.OpenData.UsersAPI
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async static Task<User> CreateUserIfNotExists(this UsersAPI       UsersAPI,
-                                                             User_Id             Id,
-                                                             String              Name,
-                                                             SimpleEMailAddress  EMail,
-                                                             Password?           Password                   = null,
-                                                             I18NString          Description                = null,
-                                                             PgpPublicKeyRing    PublicKeyRing              = null,
-                                                             PgpSecretKeyRing    SecretKeyRing              = null,
-                                                             Languages           UserLanguage               = Languages.en,
-                                                             PhoneNumber?        Telephone                  = null,
-                                                             PhoneNumber?        MobilePhone                = null,
-                                                             Use2AuthFactor      Use2AuthFactor             = Use2AuthFactor.None,
-                                                             String              Telegram                   = null,
-                                                             String              Homepage                   = null,
-                                                             GeoCoordinate?      GeoLocation                = null,
-                                                             Address             Address                    = null,
-                                                             Boolean             SkipDefaultNotifications   = false,
-                                                             Boolean             SkipNewUserEMail           = false,
-                                                             Boolean             SkipNewUserNotifications   = false,
-                                                             DateTime?           AcceptedEULA               = null,
-                                                             Boolean             IsAuthenticated            = false,
-                                                             Boolean             IsDisabled                 = false,
+        public async static Task<User?> CreateUserIfNotExists(this UsersAPI       UsersAPI,
+                                                              User_Id             Id,
+                                                              String              Name,
+                                                              SimpleEMailAddress  EMail,
+                                                              Password?           Password                   = null,
+                                                              I18NString?         Description                = null,
+                                                              PgpPublicKeyRing?   PublicKeyRing              = null,
+                                                              PgpSecretKeyRing?   SecretKeyRing              = null,
+                                                              Languages           UserLanguage               = Languages.en,
+                                                              PhoneNumber?        Telephone                  = null,
+                                                              PhoneNumber?        MobilePhone                = null,
+                                                              Use2AuthFactor      Use2AuthFactor             = Use2AuthFactor.None,
+                                                              String?             Telegram                   = null,
+                                                              String?             Homepage                   = null,
+                                                              GeoCoordinate?      GeoLocation                = null,
+                                                              Address?            Address                    = null,
+                                                              Boolean             SkipDefaultNotifications   = false,
+                                                              Boolean             SkipNewUserEMail           = false,
+                                                              Boolean             SkipNewUserNotifications   = false,
+                                                              DateTime?           AcceptedEULA               = null,
+                                                              Boolean             IsAuthenticated            = false,
+                                                              Boolean             IsDisabled                 = false,
 
-                                                             String              DataSource                 = "",
-                                                             EventTracking_Id    EventTrackingId            = null,
-                                                             User_Id?            CurrentUserId              = null)
+                                                              String              DataSource                 = "",
+                                                              EventTracking_Id?   EventTrackingId            = null,
+                                                              User_Id?            CurrentUserId              = null)
         {
 
             var addUserResult = await UsersAPI.AddUserIfNotExists(new User(Id,
@@ -1300,7 +1301,7 @@ namespace social.OpenData.UsersAPI
                                                                   SkipNewUserNotifications,
 
                                                                   async (_user, _eventTrackingId) => {
-                                                                      if (Password.HasValue) {
+                                                                      if (Password.HasValue && _user.API is not null) {
                                                                           var result = await _user.API._ChangePassword(_user,
                                                                                                                        Password.Value,
                                                                                                                        null,
@@ -1352,34 +1353,34 @@ namespace social.OpenData.UsersAPI
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async static Task<User> CreateUserIfNotExists(this UsersAPI               UsersAPI,
-                                                             User_Id                     Id,
-                                                             String                      Name,
-                                                             SimpleEMailAddress          EMail,
-                                                             User2OrganizationEdgeLabel  AccessRight,
-                                                             Organization                Organization,
-                                                             Password?                   Password                   = null,
-                                                             I18NString                  Description                = null,
-                                                             PgpPublicKeyRing            PublicKeyRing              = null,
-                                                             PgpSecretKeyRing            SecretKeyRing              = null,
-                                                             Languages                   UserLanguage               = Languages.en,
-                                                             PhoneNumber?                Telephone                  = null,
-                                                             PhoneNumber?                MobilePhone                = null,
-                                                             Use2AuthFactor              Use2AuthFactor             = Use2AuthFactor.None,
-                                                             String                      Telegram                   = null,
-                                                             String                      Homepage                   = null,
-                                                             GeoCoordinate?              GeoLocation                = null,
-                                                             Address                     Address                    = null,
-                                                             Boolean                     SkipDefaultNotifications   = false,
-                                                             Boolean                     SkipNewUserEMail           = false,
-                                                             Boolean                     SkipNewUserNotifications   = false,
-                                                             DateTime?                   AcceptedEULA               = null,
-                                                             Boolean                     IsAuthenticated            = false,
-                                                             Boolean                     IsDisabled                 = false,
+        public async static Task<User?> CreateUserIfNotExists(this UsersAPI               UsersAPI,
+                                                              User_Id                     Id,
+                                                              String                      Name,
+                                                              SimpleEMailAddress          EMail,
+                                                              User2OrganizationEdgeLabel  AccessRight,
+                                                              Organization                Organization,
+                                                              Password?                   Password                   = null,
+                                                              I18NString?                 Description                = null,
+                                                              PgpPublicKeyRing?           PublicKeyRing              = null,
+                                                              PgpSecretKeyRing?           SecretKeyRing              = null,
+                                                              Languages                   UserLanguage               = Languages.en,
+                                                              PhoneNumber?                Telephone                  = null,
+                                                              PhoneNumber?                MobilePhone                = null,
+                                                              Use2AuthFactor              Use2AuthFactor             = Use2AuthFactor.None,
+                                                              String?                     Telegram                   = null,
+                                                              String?                     Homepage                   = null,
+                                                              GeoCoordinate?              GeoLocation                = null,
+                                                              Address?                    Address                    = null,
+                                                              Boolean                     SkipDefaultNotifications   = false,
+                                                              Boolean                     SkipNewUserEMail           = false,
+                                                              Boolean                     SkipNewUserNotifications   = false,
+                                                              DateTime?                   AcceptedEULA               = null,
+                                                              Boolean                     IsAuthenticated            = false,
+                                                              Boolean                     IsDisabled                 = false,
 
-                                                             String                      DataSource                 = "",
-                                                             EventTracking_Id            EventTrackingId            = null,
-                                                             User_Id?                    CurrentUserId              = null)
+                                                              String                      DataSource                 = "",
+                                                              EventTracking_Id?           EventTrackingId            = null,
+                                                              User_Id?                    CurrentUserId              = null)
         {
 
             var addUserResult = await UsersAPI.AddUserIfNotExists(new User(Id,
@@ -1409,7 +1410,7 @@ namespace social.OpenData.UsersAPI
                                                                   SkipNewUserNotifications,
 
                                                                   async (_user, _eventTrackingId) => {
-                                                                      if (Password.HasValue) {
+                                                                      if (Password.HasValue && _user.API is not null) {
                                                                           var result = await _user.API._ChangePassword(_user,
                                                                                                                        Password.Value,
                                                                                                                        null,
@@ -4739,6 +4740,9 @@ namespace social.OpenData.UsersAPI
                 if (request.User is null)
                 {
 
+                    if (request.HTTPMethod == HTTPMethod.AUTH)
+                        return null;
+
                     if (request.HTTPMethod == HTTPMethod.GET &&
                         request.Accept.BestMatchingContentType(HTTPContentType.HTML_UTF8) == HTTPContentType.HTML_UTF8)
                     {
@@ -5308,7 +5312,7 @@ namespace social.OpenData.UsersAPI
 
                                              #region Verify the password
 
-                                             if (!loginData.TryGetValue("password", out String password) ||
+                                             if (!loginData.TryGetValue("password", out String? password) ||
                                                  password.  IsNullOrEmpty())
                                              {
 
@@ -5471,8 +5475,7 @@ namespace social.OpenData.UsersAPI
                                              #region Register security token
 
                                              var validUser        = possibleUsers.First();
-                                             var SHA256Hash       = new SHA256Managed();
-                                             var securityTokenId  = SecurityToken_Id.Parse(SHA256Hash.ComputeHash(
+                                             var securityTokenId  = SecurityToken_Id.Parse(SHA256.HashData(
                                                                                                String.Concat(Guid.NewGuid().ToString(),
                                                                                                              validUser.Id).
                                                                                                ToUTF8Bytes()

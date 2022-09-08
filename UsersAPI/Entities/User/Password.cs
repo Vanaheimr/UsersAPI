@@ -17,7 +17,6 @@
 
 #region Usings
 
-using System;
 using System.Text;
 using System.Security;
 using System.Security.Cryptography;
@@ -63,12 +62,17 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Private non-cryptographic random number generator.
         /// </summary>
-        private static readonly Random _random = new Random();
+        private static readonly Random random = new();
 
         /// <summary>
         /// The internal identification.
         /// </summary>
         private readonly SecureString InternalPassword;
+
+        /// <summary>
+        /// The default length of the password hash.
+        /// </summary>
+        public const Byte DefaultLengthOfSalt = 16;
 
         #endregion
 
@@ -134,81 +138,68 @@ namespace social.OpenData.UsersAPI
         /// <param name="PasswordLength">The expected length of the password.</param>
         /// <param name="LengthOfSalt">The optional length of the random salt.</param>
         public static Password Random(Byte PasswordLength  = 16,
-                                      Byte LengthOfSalt    = 16)
+                                      Byte LengthOfSalt    = DefaultLengthOfSalt)
 
-            => Parse(_random.RandomString(PasswordLength),
+            => Parse(random.RandomString(PasswordLength),
+                     null,
                      LengthOfSalt);
 
         #endregion
 
-        #region (static) Parse   (Text, LengthOfSalt = 16)
+        #region (static) Parse   (Text,               PasswordQualityCheck = null, LengthOfSalt = 16)
 
         /// <summary>
         /// Parse the given string as a password.
         /// </summary>
         /// <param name="Text">A text representation of a password.</param>
         /// <param name="LengthOfSalt">The optional length of the random salt.</param>
-        public static Password Parse(String  Text,
-                                     Byte    LengthOfSalt = 16)
+        public static Password Parse(String                         Text,
+                                     PasswordQualityCheckDelegate?  PasswordQualityCheck   = null,
+                                     Byte                           LengthOfSalt           = DefaultLengthOfSalt)
         {
 
-            #region Initial checks
+            if (TryParse(Text,
+                         out Password password,
+                         PasswordQualityCheck,
+                         LengthOfSalt))
+            {
+                return password;
+            }
 
-            if (Text != null)
-                Text = Text.Trim();
-
-            if (Text.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Text), "The given text representation of a password must not be null or empty!");
-
-            #endregion
-
-            // Salt...
-            var Salt            = _random.RandomString(LengthOfSalt);
-            var SecureSalt      = new SecureString();
-
-            foreach (var character in Salt)
-                SecureSalt.AppendChar(character);
-
-            // Password...
-            var SecurePassword  = new SecureString();
-            var HashAlgorithm   = new SHA256Managed();
-            var HashedPassword  = HashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes(Salt + ":" + Text));
-
-            foreach (var character in HashedPassword.ToHexString(ToLower: true))
-                SecurePassword.AppendChar(character);
-
-            return new Password(SecureSalt,
-                                SecurePassword);
+            throw new ArgumentException("Invalid text-representation of a password: '" + Text + "'!",
+                                        nameof(Text));
 
         }
 
         #endregion
 
-        #region (static) TryParse(Text, LengthOfSalt = 16)
+        #region (static) TryParse(Text,               PasswordQualityCheck = null, LengthOfSalt = 16)
 
         /// <summary>
         /// Try to parse the given string as a password.
         /// </summary>
         /// <param name="Text">A text representation of a password.</param>
         /// <param name="LengthOfSalt">The optional length of the random salt.</param>
-        public static Password? TryParse(String  Text,
-                                         Byte    LengthOfSalt = 16)
+        public static Password? TryParse(String                         Text,
+                                         PasswordQualityCheckDelegate?  PasswordQualityCheck   = null,
+                                         Byte                           LengthOfSalt           = DefaultLengthOfSalt)
         {
 
             if (TryParse(Text,
-                         out Password _Password,
+                         out Password password,
+                         PasswordQualityCheck,
                          LengthOfSalt))
             {
-                return _Password;
+                return password;
             }
 
-            return new Password?();
+            return null;
 
         }
 
         #endregion
 
-        #region (static) TryParse(Text, out Password, LengthOfSalt = 16)
+        #region (static) TryParse(Text, out Password, PasswordQualityCheck = null, LengthOfSalt = 16)
 
         /// <summary>
         /// Try to parse the given string as a password.
@@ -220,7 +211,8 @@ namespace social.OpenData.UsersAPI
 
             => TryParse(Text,
                         out Password,
-                        16);
+                        null,
+                        DefaultLengthOfSalt);
 
         /// <summary>
         /// Try to parse the given string as a password.
@@ -228,33 +220,51 @@ namespace social.OpenData.UsersAPI
         /// <param name="Text">A text representation of a password.</param>
         /// <param name="Password">The parsed password.</param>
         /// <param name="LengthOfSalt">The optional length of the random salt.</param>
-        public static Boolean TryParse(String        Text,
-                                       out Password  Password,
-                                       Byte          LengthOfSalt)
+        public static Boolean TryParse(String                         Text,
+                                       out Password                   Password,
+                                       PasswordQualityCheckDelegate?  PasswordQualityCheck   = null,
+                                       Byte                           LengthOfSalt           = DefaultLengthOfSalt)
         {
 
             #region Initial checks
 
-            if (Text != null)
+            if (Text is not null)
                 Text = Text.Trim();
 
-            if (Text.IsNullOrEmpty())
+            if (Text is null || Text.IsNullOrEmpty())
                 throw new ArgumentNullException(nameof(Text), "The given text representation of a password must not be null or empty!");
+
+            if (PasswordQualityCheck is not null && PasswordQualityCheck(Text) < 1.0)
+                throw new ArgumentException("The given password '" + Text + "' does not match the password quality criteria!", nameof(Text));
 
             #endregion
 
             try
             {
 
-                Password = Parse(Text,
-                                 LengthOfSalt);
+                // Salt...
+                var Salt            = random.RandomString(LengthOfSalt);
+                var SecureSalt      = new SecureString();
+
+                foreach (var character in Salt)
+                    SecureSalt.AppendChar(character);
+
+                // Password...
+                var SecurePassword  = new SecureString();
+                var HashedPassword  = SHA256.HashData(Encoding.UTF8.GetBytes(Salt + ":" + Text));
+
+                foreach (var character in HashedPassword.ToHexString(ToLower: true))
+                    SecurePassword.AppendChar(character);
+
+                Password            = new Password(SecureSalt,
+                                                   SecurePassword);
 
                 return true;
 
             }
             catch (Exception)
             {
-                Password = default(Password);
+                Password = default;
                 return false;
             }
 
@@ -389,13 +399,11 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Verify the given password.
         /// </summary>
-        /// <param name="PlainPassword"></param>
+        /// <param name="PlainPassword">A password.</param>
         public Boolean Verify(String PlainPassword)
         {
 
-            var CheckPassword   = new SecureString();
-            var HashAlgorithm   = new SHA256Managed();
-            var HashedPassword  = HashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes(Salt.UnsecureString() + ":" + PlainPassword));
+            var HashedPassword = SHA256.HashData(Encoding.UTF8.GetBytes(Salt.UnsecureString() + ":" + PlainPassword));
 
             return InternalPassword.UnsecureString().Equals(HashedPassword.ToHexString(ToLower: true));
 
@@ -445,7 +453,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="Object">An object to compare with.</param>
         /// <returns>true|false</returns>
-        public override Boolean Equals(Object Object)
+        public override Boolean Equals(Object? Object)
 
             => Object is Password password &&
                    Equals(password);
@@ -528,7 +536,8 @@ namespace social.OpenData.UsersAPI
         /// Return a text representation of this object.
         /// </summary>
         public override String ToString()
-            => nameof(Password);
+
+            => nameof(Password); // We do not know anything else!
 
         #endregion
 

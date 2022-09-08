@@ -65,7 +65,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Private non-cryptographic random number generator.
         /// </summary>
-        private static readonly Random random = new ();
+        private static readonly Random random = new();
 
         #endregion
 
