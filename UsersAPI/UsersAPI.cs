@@ -1822,6 +1822,12 @@ namespace social.OpenData.UsersAPI
         public IEnumerable<APIKey_Id>         RemoteAuthAPIKeys
             => remoteAuthAPIKeys;
 
+
+        /// <summary>
+        /// An optional HTML template.
+        /// </summary>
+        public String                         BlogTemplate                       { get; protected set; }
+
         #endregion
 
         #region Events
@@ -12279,16 +12285,16 @@ namespace social.OpenData.UsersAPI
             #endregion
 
 
-            #region ~/blogPostings
+            #region ~/blog
 
-            #region OPTIONS     ~/blogPostings
+            #region OPTIONS     ~/blog
 
-            // ---------------------------------------------------------
-            // curl -X OPTIONS -v http://127.0.0.1:3001/blogPostings
-            // ---------------------------------------------------------
+            // -----------------------------------------------
+            // curl -X OPTIONS -v http://127.0.0.1:3001/blog
+            // -----------------------------------------------
             HTTPServer.AddMethodCallback(Hostname,
                                          HTTPMethod.OPTIONS,
-                                         URLPathPrefix + "blogPostings",
+                                         URLPathPrefix + "blog",
                                          HTTPDelegate: Request => {
 
                                              return Task.FromResult(
@@ -12297,7 +12303,7 @@ namespace social.OpenData.UsersAPI
                                                      Server                     = HTTPServer.DefaultServerName,
                                                      Date                       = Timestamp.Now,
                                                      AccessControlAllowOrigin   = "*",
-                                                     AccessControlAllowMethods  = "GET, COUNT, SEARCH, OPTIONS",
+                                                     AccessControlAllowMethods  = "GET, OPTIONS",
                                                      AccessControlAllowHeaders  = "X-PINGOTHER, Content-Type, Accept, Authorization, X-App-Version",
                                                      Connection                 = "close"
                                                  }.AsImmutable);
@@ -12306,16 +12312,85 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
-            #region GET         ~/blogPostings
+            #region GET         ~/blog
+
+            // ------------------------------------
+            // curl -v http://127.0.0.1:4100/blog
+            // ------------------------------------
+            HTTPServer.AddMethodCallback(HTTPHostname.Any,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "/blog",
+                                         HTTPContentType.HTML_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             //if (!TryGetHTTPUser(Request,
+                                             //                    out User                   HTTPUser,
+                                             //                    out HashSet<Organization>  HTTPOrganizations,
+                                             //                    out HTTPResponse.Builder   Response,
+                                             //                    Recursive:                 true))
+                                             //{
+                                             //    return Task.FromResult(Response.AsImmutable);
+                                             //}
+
+                                             #endregion
+
+                                             return Task.FromResult(
+                                                     new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode             = HTTPStatusCode.OK,
+                                                         Server                     = HTTPServer.DefaultServerName,
+                                                         Date                       = Timestamp.Now,
+                                                         AccessControlAllowOrigin   = "*",
+                                                         AccessControlAllowMethods  = "GET, OPTIONS",
+                                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                         ContentType                = HTTPContentType.HTML_UTF8,
+                                                         Content                    = MixWithHTMLTemplate(BlogTemplate, "blog.blogPostings.shtml").ToUTF8Bytes(),
+                                                         Connection                 = "close",
+                                                         Vary                       = "Accept"
+                                                     }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+
+            #region OPTIONS     ~/blog/postings
+
+            // --------------------------------------------------------
+            // curl -X OPTIONS -v http://127.0.0.1:3001/blog/postings
+            // --------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.OPTIONS,
+                                         URLPathPrefix + "blog/postings",
+                                         HTTPDelegate: Request => {
+
+                                             return Task.FromResult(
+                                                 new HTTPResponse.Builder(Request) {
+                                                     HTTPStatusCode             = HTTPStatusCode.OK,
+                                                     Server                     = HTTPServer.DefaultServerName,
+                                                     Date                       = Timestamp.Now,
+                                                     AccessControlAllowOrigin   = "*",
+                                                     AccessControlAllowMethods  = "GET, COUNT, OPTIONS",
+                                                     AccessControlAllowHeaders  = "X-PINGOTHER, Content-Type, Accept, Authorization, X-App-Version",
+                                                     Connection                 = "close"
+                                                 }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+            #region GET         ~/blog/postings
 
             #region JSON
 
-            // ------------------------------------------------------------------
-            // curl -v -H "Accept: application/json" http://127.0.0.1:3001/blogPostings
-            // ------------------------------------------------------------------
+            // ---------------------------------------------------------------------------
+            // curl -v -H "Accept: application/json" http://127.0.0.1:3001/blog/postings
+            // ---------------------------------------------------------------------------
             HTTPServer.AddMethodCallback(Hostname,
                                          HTTPMethod.GET,
-                                         URLPathPrefix + "blogPostings",
+                                         URLPathPrefix + "blog/postings",
                                          HTTPContentType.JSON_UTF8,
                                          HTTPDelegate: Request => {
 
@@ -12377,7 +12452,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                        = HTTPServer.DefaultServerName,
                                                             Date                          = Timestamp.Now,
                                                             AccessControlAllowOrigin      = "*",
-                                                            AccessControlAllowMethods     = "GET",
+                                                            AccessControlAllowMethods     = "GET, COUNT, OPTIONS",
                                                             AccessControlAllowHeaders     = "Content-Type, Accept, Authorization",
                                                             ContentType                   = HTTPContentType.JSON_UTF8,
                                                             Content                       = withMetadata
@@ -12398,42 +12473,42 @@ namespace social.OpenData.UsersAPI
 
             #region HTML
 
-            // -----------------------------------------------------------
-            // curl -v -H "Accept: text/html" http://127.0.0.1:3001/blogPostings
-            // -----------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            // ---------------------------------------------
+            // curl -v http://127.0.0.1:4100/blog/postings
+            // ---------------------------------------------
+            HTTPServer.AddMethodCallback(HTTPHostname.Any,
                                          HTTPMethod.GET,
-                                         URLPathPrefix + "blogPostings",
+                                         URLPathPrefix + "/blog/postings",
                                          HTTPContentType.HTML_UTF8,
                                          HTTPDelegate: Request => {
 
                                              #region Get HTTP user and its organizations
 
                                              // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
-                                             if (!TryGetHTTPUser(Request,
-                                                                 out User                   HTTPUser,
-                                                                 out HashSet<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse.Builder   Response,
-                                                                 Recursive:                 true))
-                                             {
-                                                 return Task.FromResult(Response.AsImmutable);
-                                             }
+                                             //if (!TryGetHTTPUser(Request,
+                                             //                    out User                   HTTPUser,
+                                             //                    out HashSet<Organization>  HTTPOrganizations,
+                                             //                    out HTTPResponse.Builder   Response,
+                                             //                    Recursive:                 true))
+                                             //{
+                                             //    return Task.FromResult(Response.AsImmutable);
+                                             //}
 
                                              #endregion
 
                                              return Task.FromResult(
-                                                 new HTTPResponse.Builder(Request) {
-                                                     HTTPStatusCode             = HTTPStatusCode.OK,
-                                                     Server                     = HTTPServer.DefaultServerName,
-                                                     Date                       = Timestamp.Now,
-                                                     AccessControlAllowOrigin   = "*",
-                                                     AccessControlAllowMethods  = "GET",
-                                                     AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                     ContentType                = HTTPContentType.HTML_UTF8,
-                                                     Content                    = MixWithHTMLTemplate("blogPosting.blogPostings.shtml").ToUTF8Bytes(),
-                                                     Connection                 = "close",
-                                                     Vary                       = "Accept"
-                                                 }.AsImmutable);
+                                                     new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode             = HTTPStatusCode.OK,
+                                                         Server                     = HTTPServer.DefaultServerName,
+                                                         Date                       = Timestamp.Now,
+                                                         AccessControlAllowOrigin   = "*",
+                                                         AccessControlAllowMethods  = "GET, COUNT, OPTIONS",
+                                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                         ContentType                = HTTPContentType.HTML_UTF8,
+                                                         Content                    = MixWithHTMLTemplate(BlogTemplate, "blog.blogPostings.shtml").ToUTF8Bytes(),
+                                                         Connection                 = "close",
+                                                         Vary                       = "Accept"
+                                                     }.AsImmutable);
 
                                          });
 
@@ -12441,14 +12516,14 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
-            #region COUNT       ~/blogPostings
+            #region COUNT       ~/blog/postings
 
-            // ---------------------------------------------------------------------------
-            // curl -v -X COUNT -H "Accept: application/json" http://127.0.0.1:3001/blogPostings
-            // ---------------------------------------------------------------------------
+            // ------------------------------------------------------
+            // curl -v -X COUNT http://127.0.0.1:3001/blog/postings
+            // ------------------------------------------------------
             HTTPServer.AddMethodCallback(Hostname,
                                          HTTPMethod.COUNT,
-                                         URLPathPrefix + "blogPostings",
+                                         URLPathPrefix + "blog",
                                          HTTPContentType.JSON_UTF8,
                                          HTTPDelegate: Request => {
 
@@ -12460,7 +12535,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                        = HTTPServer.DefaultServerName,
                                                             Date                          = Timestamp.Now,
                                                             AccessControlAllowOrigin      = "*",
-                                                            AccessControlAllowMethods     = "GET",
+                                                            AccessControlAllowMethods     = "GET, COUNT, OPTIONS",
                                                             AccessControlAllowHeaders     = "Content-Type, Accept, Authorization",
                                                             ContentType                   = HTTPContentType.JSON_UTF8,
                                                             Content                       = JSONObject.Create(
@@ -12475,14 +12550,14 @@ namespace social.OpenData.UsersAPI
             #endregion
 
 
-            #region OPTIONS          ~/blogPostings/{postingId}
+            #region OPTIONS     ~/blog/postings/{postingId}
 
             // -------------------------------------------------------------------
-            // curl -X OPTIONS -v http://127.0.0.1:3001/blogPostings/214080158
+            // curl -X OPTIONS -v http://127.0.0.1:3001/blog/postings/214080158
             // -------------------------------------------------------------------
             HTTPServer.AddMethodCallback(Hostname,
                                          HTTPMethod.OPTIONS,
-                                         URLPathPrefix + "blogPostings/{postingId}",
+                                         URLPathPrefix + "blog/postings/{postingId}",
                                          HTTPDelegate: Request => {
 
                                              return Task.FromResult(
@@ -12500,16 +12575,16 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
-            #region GET              ~/blogPostings/{postingId}
+            #region GET         ~/blog/postings/{postingId}
 
             #region JSON
 
             // --------------------------------------------------------------------------------------
-            // curl -v -H "Accept: application/json" http://127.0.0.1:3001/blogPostings/214080158
+            // curl -v -H "Accept: application/json" http://127.0.0.1:3001/blog/postings/214080158
             // --------------------------------------------------------------------------------------
             HTTPServer.AddMethodCallback(Hostname,
                                          HTTPMethod.GET,
-                                         URLPathPrefix + "blogPostings/{postingId}",
+                                         URLPathPrefix + "blog/postings/{postingId}",
                                          HTTPContentType.JSON_UTF8,
                                          HTTPDelegate: Request => {
 
@@ -12571,11 +12646,11 @@ namespace social.OpenData.UsersAPI
             #region HTML
 
             // --------------------------------------------------------------------------------------
-            // curl -v -H "Accept: text/html" http://127.0.0.1:3001/blogPostings/214080158
+            // curl -v -H "Accept: text/html" http://127.0.0.1:3001/blog/postings/214080158
             // --------------------------------------------------------------------------------------
             HTTPServer.AddMethodCallback(Hostname,
                                          HTTPMethod.GET,
-                                         URLPathPrefix + "blogPostings/{postingId}",
+                                         URLPathPrefix + "blog/postings/{postingId}",
                                          HTTPContentType.HTML_UTF8,
                                          HTTPDelegate: Request => {
 
