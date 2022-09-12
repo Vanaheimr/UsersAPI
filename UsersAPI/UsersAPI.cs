@@ -12603,14 +12603,14 @@ namespace social.OpenData.UsersAPI
                                              #region Get HTTP user and its organizations
 
                                              // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
-                                             if (!TryGetHTTPUser(Request,
-                                                                 out User                   HTTPUser,
-                                                                 out HashSet<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse.Builder   Response,
-                                                                 Recursive:                 true))
-                                             {
-                                                 return Task.FromResult(Response.AsImmutable);
-                                             }
+                                             //if (!TryGetHTTPUser(Request,
+                                             //                    out User                   HTTPUser,
+                                             //                    out HashSet<Organization>  HTTPOrganizations,
+                                             //                    out HTTPResponse.Builder   Response,
+                                             //                    Recursive:                 true))
+                                             //{
+                                             //    return Task.FromResult(Response.AsImmutable);
+                                             //}
 
                                              #endregion
 
@@ -12629,7 +12629,7 @@ namespace social.OpenData.UsersAPI
                                                             AccessControlAllowHeaders  = "X-PINGOTHER, Content-Type, Accept, Authorization, X-App-Version",
                                                             ETag                       = "1",
                                                             ContentType                = HTTPContentType.JSON_UTF8,
-                                                            Content                    = GetBlogPostingSerializator(Request, HTTPUser)
+                                                            Content                    = GetBlogPostingSerializator(Request, Anonymous)
                                                                                                             (BlogPosting,
                                                                                                              false, //Embedded
                                                                                                              expandTags,
@@ -12657,14 +12657,14 @@ namespace social.OpenData.UsersAPI
                                              #region Get HTTP user and its organizations
 
                                              // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
-                                             if (!TryGetHTTPUser(Request,
-                                                                 out User                   HTTPUser,
-                                                                 out HashSet<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse.Builder   Response,
-                                                                 Recursive:                 true))
-                                             {
-                                                 return Task.FromResult(Response.AsImmutable);
-                                             }
+                                             //if (!TryGetHTTPUser(Request,
+                                             //                    out User                   HTTPUser,
+                                             //                    out HashSet<Organization>  HTTPOrganizations,
+                                             //                    out HTTPResponse.Builder   Response,
+                                             //                    Recursive:                 true))
+                                             //{
+                                             //    return Task.FromResult(Response.AsImmutable);
+                                             //}
 
                                              #endregion
 
@@ -12690,7 +12690,7 @@ namespace social.OpenData.UsersAPI
                                                      AccessControlAllowMethods  = "GET",
                                                      AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                      ContentType                = HTTPContentType.HTML_UTF8,
-                                                     Content                    = MixWithHTMLTemplate("Blog.Blog.shtml").ToUTF8Bytes(),
+                                                     Content                    = MixWithHTMLTemplate(BlogTemplate, "blog.blogPosting.shtml").ToUTF8Bytes(),
                                                      Connection                 = "close",
                                                      Vary                       = "Accept"
                                                  }.AsImmutable);

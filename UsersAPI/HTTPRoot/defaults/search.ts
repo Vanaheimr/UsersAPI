@@ -216,7 +216,7 @@ function StartSearch2<TMetadata extends TMetadataDefaults, TSearchResult>(reques
                                         searchResultDiv.className  = "searchResult " + nameOfItem;
 
                                         if (typeof linkPrefix !== 'undefined' && linkPrefix && linkPrefix(searchResult) != null)
-                                            searchResultDiv.href   = linkPrefix(searchResult) + nameOfItems + "/" + searchResult["@id"];
+                                            searchResultDiv.href   = linkPrefix(searchResult) + searchResult["@id"];
 
                                         try
                                         {
