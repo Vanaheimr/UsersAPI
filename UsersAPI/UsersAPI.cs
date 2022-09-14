@@ -13622,7 +13622,7 @@ namespace social.OpenData.UsersAPI
                                                                          new JProperty("timestamp",  Timestamp.Now),
                                                                          new JProperty("service",    HTTPServer.ServiceName),
                                                                          new JProperty("instance",   Environment.MachineName),
-                                                                         new JProperty("content",    _Random.RandomString(20))
+                                                                         new JProperty("content",    RandomExtensions.RandomString(20))
                                                                      );
 
                                                  if (ServiceCheckPublicKey is not null)
@@ -13704,7 +13704,7 @@ namespace social.OpenData.UsersAPI
                                                  if (!Request.TryParseJObjectRequestBody(out JObject JSONObj, out HTTPResponse.Builder httpResponse))
                                                      return Task.FromResult(httpResponse.AsImmutable);
 
-                                                 var content       = JSONObj["content"]?.Value<String>() ?? _Random.RandomString(20);
+                                                 var content       = JSONObj["content"]?.Value<String>() ?? RandomExtensions.RandomString(20);
 
                                                  #endregion
 
@@ -19925,9 +19925,9 @@ namespace social.OpenData.UsersAPI
             var result = await _AddPasswordReset(
                                    new PasswordReset(
                                        User,
-                                       SecurityToken_Id.Random(40, _Random),
+                                       SecurityToken_Id.Random(40),
                                        User.Use2AuthFactor == Use2AuthFactor.MobilePhoneSMS && User.MobilePhone.HasValue
-                                           ? SecurityToken_Id.Parse(_Random.RandomString(5) + "-" + _Random.RandomString(5))
+                                           ? SecurityToken_Id.Parse(RandomExtensions.RandomString(5) + "-" + RandomExtensions.RandomString(5))
                                            : new SecurityToken_Id?(),
                                        eventTrackingId
                                    ),
@@ -20015,9 +20015,9 @@ namespace social.OpenData.UsersAPI
             var result = await _AddPasswordReset(
                                    new PasswordReset(
                                        Users,
-                                       SecurityToken_Id.Random(40, _Random),
+                                       SecurityToken_Id.Random(40),
                                        Users.Any(user => user.Use2AuthFactor == Use2AuthFactor.MobilePhoneSMS && user.MobilePhone.HasValue)
-                                           ? SecurityToken_Id.Parse(_Random.RandomString(5) + "-" + _Random.RandomString(5))
+                                           ? SecurityToken_Id.Parse(RandomExtensions.RandomString(5) + "-" + RandomExtensions.RandomString(5))
                                            : new SecurityToken_Id?(),
                                        eventTrackingId
                                    ),

@@ -17,8 +17,6 @@
 
 #region Usings
 
-using System;
-
 using org.GraphDefined.Vanaheimr.Illias;
 
 #endregion
@@ -64,11 +62,6 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         private readonly String  InternalId;
 
-        /// <summary>
-        /// Private non-cryptographic random number generator.
-        /// </summary>
-        private static readonly Random _random = new Random();
-
         #endregion
 
         #region Properties
@@ -107,17 +100,15 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (static) Random  (Length = 40, SourceOfRandomness = null)
+        #region (static) Random  (Length = 40)
 
         /// <summary>
         /// Generate a new random security token identification.
         /// </summary>
         /// <param name="Length">The expected length of the random string.</param>
-        /// <param name="SourceOfRandomness">The source of randomness.</param>
-        public static SecurityToken_Id Random(UInt16  Length              = 40,
-                                              Random  SourceOfRandomness  = null)
+        public static SecurityToken_Id Random(UInt16 Length   = 40)
 
-            => new SecurityToken_Id((SourceOfRandomness ?? _random).RandomString(Length));
+            => new (RandomExtensions.RandomString(Length));
 
         #endregion
 

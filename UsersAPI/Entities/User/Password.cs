@@ -60,11 +60,6 @@ namespace social.OpenData.UsersAPI
         #region Data
 
         /// <summary>
-        /// Private non-cryptographic random number generator.
-        /// </summary>
-        private static readonly Random random = new();
-
-        /// <summary>
         /// The internal identification.
         /// </summary>
         private readonly SecureString InternalPassword;
@@ -140,7 +135,7 @@ namespace social.OpenData.UsersAPI
         public static Password Random(Byte PasswordLength  = 16,
                                       Byte LengthOfSalt    = DefaultLengthOfSalt)
 
-            => Parse(random.RandomString(PasswordLength),
+            => Parse(RandomExtensions.RandomString(PasswordLength),
                      null,
                      LengthOfSalt);
 
@@ -243,7 +238,7 @@ namespace social.OpenData.UsersAPI
             {
 
                 // Salt...
-                var Salt            = random.RandomString(LengthOfSalt);
+                var Salt            = RandomExtensions.RandomString(LengthOfSalt);
                 var SecureSalt      = new SecureString();
 
                 foreach (var character in Salt)

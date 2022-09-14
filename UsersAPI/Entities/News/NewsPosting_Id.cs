@@ -86,7 +86,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="Length">The expected length of the news posting identification.</param>
         public static NewsPosting_Id Random(Byte Length = 15)
 
-            => new NewsPosting_Id(_random.RandomString(Length));
+            => new NewsPosting_Id(RandomExtensions.RandomString(Length));
 
         #endregion
 

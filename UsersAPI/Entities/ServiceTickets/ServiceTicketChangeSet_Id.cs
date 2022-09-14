@@ -17,8 +17,6 @@
 
 #region Usings
 
-using System;
-
 using org.GraphDefined.Vanaheimr.Illias;
 
 #endregion
@@ -40,11 +38,6 @@ namespace social.OpenData.UsersAPI
         /// The internal identification.
         /// </summary>
         private readonly String InternalId;
-
-        /// <summary>
-        /// Private non-cryptographic random number generator.
-        /// </summary>
-        private static readonly Random _random = new Random();
 
         #endregion
 
@@ -85,7 +78,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="Length">The expected length of the service ticket change set identification.</param>
         public static ServiceTicketChangeSet_Id Random(Byte Length = 15)
 
-            => new ServiceTicketChangeSet_Id(_random.RandomString(Length).ToUpper());
+            => new (RandomExtensions.RandomString(Length).ToUpper());
 
         #endregion
 

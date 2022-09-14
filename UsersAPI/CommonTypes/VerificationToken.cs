@@ -17,17 +17,9 @@
 
 #region Usings
 
-using System;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
+using System.Security.Cryptography;
 
 using org.GraphDefined.Vanaheimr.Illias;
-using org.GraphDefined.Vanaheimr.Illias.Votes;
-using org.GraphDefined.Vanaheimr.Styx.Arrows;
-using System.Security.Cryptography;
 
 #endregion
 
@@ -47,12 +39,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// The internal identification.
         /// </summary>
-        private readonly String   InternalId;
-
-        /// <summary>
-        /// Private non-cryptographic random number generator.
-        /// </summary>
-        private static readonly Random _random = new Random();
+        private readonly String  InternalId;
 
         #endregion
 
@@ -64,7 +51,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="Seed">The cryptographic seed.</param>
         public VerificationToken(String Seed)
         {
-            this.InternalId  = new SHA256Managed().ComputeHash((_random.RandomString(32) + Seed).ToUTF8Bytes()).ToHexString();
+            this.InternalId  = SHA256.HashData((RandomExtensions.RandomString(32) + Seed).ToUTF8Bytes()).ToHexString();
         }
 
         #endregion
@@ -117,8 +104,6 @@ namespace social.OpenData.UsersAPI
         public static Boolean TryParse(String Text, out VerificationToken VerificationToken)
         {
 
-            Text = Text?.Trim();
-
             if (Text.IsNotNullOrEmpty())
             {
                 try
@@ -144,7 +129,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         public VerificationToken Clone
 
-            => new VerificationToken(
+            => new (
                    new String(InternalId?.ToCharArray())
                );
 

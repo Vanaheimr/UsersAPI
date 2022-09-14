@@ -62,11 +62,6 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         private readonly String InternalId;
 
-        /// <summary>
-        /// Private non-cryptographic random number generator.
-        /// </summary>
-        private static readonly Random random = new();
-
         #endregion
 
         #region Properties
@@ -112,7 +107,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="Length">The expected length of the random user identification.</param>
         public static User_Id Random(Byte Length = 15)
 
-            => new (random.RandomString(Length).ToUpper());
+            => new (RandomExtensions.RandomString(Length).ToUpper());
 
         #endregion
 

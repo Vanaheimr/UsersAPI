@@ -17,8 +17,6 @@
 
 #region Usings
 
-using System;
-
 using org.GraphDefined.Vanaheimr.Illias;
 
 #endregion
@@ -63,11 +61,6 @@ namespace social.OpenData.UsersAPI
         /// The internal notification group identification.
         /// </summary>
         private readonly String InternalId;
-
-        /// <summary>
-        /// Private non-cryptographic random number generator.
-        /// </summary>
-        private static readonly Random _random = new Random();
 
         #endregion
 
@@ -114,7 +107,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="Length">The expected length of the random notification group identification.</param>
         public static NotificationGroup_Id Random(Byte Length = 15)
 
-            => new NotificationGroup_Id(_random.RandomString(Length).ToUpper());
+            => new (RandomExtensions.RandomString(Length).ToUpper());
 
         #endregion
 

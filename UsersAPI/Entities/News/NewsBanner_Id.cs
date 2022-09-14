@@ -17,8 +17,6 @@
 
 #region Usings
 
-using System;
-
 using org.GraphDefined.Vanaheimr.Illias;
 
 #endregion
@@ -86,7 +84,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="Length">The expected length of the news banner identification.</param>
         public static NewsBanner_Id Random(Byte Length = 15)
 
-            => new NewsBanner_Id(_random.RandomString(Length).ToUpper());
+            => new (RandomExtensions.RandomString(Length).ToUpper());
 
         #endregion
 
