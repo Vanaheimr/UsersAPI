@@ -154,7 +154,7 @@ namespace social.OpenData.UsersAPI
         /// The teaser image of this blog posting.
         /// </summary>
         [Mandatory]
-        public URL                                TeaserImage           { get; }
+        public String                             TeaserImage           { get; }
 
         /// <summary>
         /// The (multi-language) text of this blog posting.
@@ -234,7 +234,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
         public BlogPosting(I18NString                  Title,
                            I18NString                  Teaser,
-                           URL                         TeaserImage,
+                           String                      TeaserImage,
                            I18NString                  Text,
                            BlogPosting_Id?             Id                = null,
                            IEnumerable<User>?          Authors           = null,
@@ -309,7 +309,7 @@ namespace social.OpenData.UsersAPI
 
                    new JProperty("title",                Title.      ToJSON()),
                    new JProperty("teaser",               Teaser.     ToJSON()),
-                   new JProperty("teaserImage",          TeaserImage.ToString()),
+                   new JProperty("teaserImage",          TeaserImage),
                    new JProperty("text",                 Text.       ToJSON()),
 
                    new JProperty("authors",              new JArray(Authors.Select(author => JSONObject.Create(
@@ -431,14 +431,16 @@ namespace social.OpenData.UsersAPI
 
                 #region Parse TeaserImage        [mandatory]
 
-                if (!JSONObject.ParseMandatory("teaserImage",
-                                               "blog posting teaser image",
-                                               URL.TryParse,
-                                               out URL TeaserImage,
-                                               out ErrorResponse))
-                {
-                    return false;
-                }
+                var TeaserImage = JSONObject.GetString("teaserImage");
+
+                //if (!JSONObject.ParseMandatory("teaserImage",
+                //                               "blog posting teaser image",
+                //                               URL.TryParse,
+                //                               out URL TeaserImage,
+                //                               out ErrorResponse))
+                //{
+                //    return false;
+                //}
 
                 #endregion
 
@@ -824,7 +826,7 @@ namespace social.OpenData.UsersAPI
             /// The teaser image of this blog posting.
             /// </summary>
             [Mandatory]
-            public URL?                               TeaserImage           { get; set; }
+            public String?                            TeaserImage           { get; set; }
 
             /// <summary>
             /// The (multi-language) teaser of this blog posting.
@@ -907,7 +909,7 @@ namespace social.OpenData.UsersAPI
             public Builder(BlogPosting_Id?             Id                = null,
                            I18NString?                 Title             = null,
                            I18NString?                 Teaser            = null,
-                           URL?                        TeaserImage       = null,
+                           String?                     TeaserImage       = null,
                            I18NString?                 Text              = null,
                            IEnumerable<User>?          Authors           = null,
                            DateTime?                   PublicationDate   = null,
@@ -958,7 +960,7 @@ namespace social.OpenData.UsersAPI
 
                 var posting     = new BlogPosting(Title,
                                                   Teaser,
-                                                  TeaserImage.Value,
+                                                  TeaserImage,
                                                   Text,
                                                   Id,
                                                   null,
@@ -976,21 +978,19 @@ namespace social.OpenData.UsersAPI
                 var ctext       = posting.ToJSON(Embedded:    false,
                                                  ExpandTags:  InfoStatus.ShowIdOnly).ToString(Formatting.None);
 
-                var BlockSize   = 32;
-
-                var SHA256      = new SHA256Managed();
-                var SHA256Hash  = SHA256.ComputeHash(ctext.ToUTF8Bytes());
+                var SHA256Hash  = SHA256.HashData(ctext.ToUTF8Bytes());
                 var signer      = SignerUtilities.GetSigner("NONEwithECDSA");
                 signer.Init(true, PrivateKey);
-                signer.BlockUpdate(SHA256Hash, 0, BlockSize);
+                signer.BlockUpdate(SHA256Hash, 0, 32);
 
                 var signature   = signer.GenerateSignature().ToHexString();
-                var signatures  = new List<Signature>(Signatures);
-                signatures.Add(new Signature("json", "secp256k1", "DER+HEX", signature));
+                var signatures  = new List<Signature>(Signatures) {
+                                      new Signature("json", "secp256k1", "DER+HEX", signature)
+                                  };
 
                 return new BlogPosting(Title,
                                        Teaser,
-                                       TeaserImage.Value,
+                                       TeaserImage,
                                        Text,
                                        Id,
                                        null,
@@ -1037,21 +1037,21 @@ namespace social.OpenData.UsersAPI
                 get
                 {
 
-                    if (Title  is null        || Title.      IsNullOrEmpty())
+                    if (Title       is null || Title.      IsNullOrEmpty())
                         throw new ArgumentNullException(nameof(Title),       "The given title must not be null or empty!");
 
-                    if (Teaser is null        || Teaser.     IsNullOrEmpty())
+                    if (Teaser      is null || Teaser.     IsNullOrEmpty())
                         throw new ArgumentNullException(nameof(Teaser),      "The given teaser must not be null or empty!");
 
-                    if (!TeaserImage.HasValue || TeaserImage.IsNullOrEmpty())
+                    if (TeaserImage is null || TeaserImage.IsNullOrEmpty())
                         throw new ArgumentNullException(nameof(TeaserImage), "The given teaser image must not be null or empty!");
 
-                    if (Text   is null        || Text.       IsNullOrEmpty())
+                    if (Text        is null || Text.       IsNullOrEmpty())
                         throw new ArgumentNullException(nameof(Text),        "The given text must not be null or empty!");
 
                     return new (Title,
                                 Teaser,
-                                TeaserImage.Value,
+                                TeaserImage,
                                 Text,
                                 Id,
                                 Authors,
