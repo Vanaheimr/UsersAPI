@@ -908,7 +908,8 @@ namespace social.OpenData.UsersAPI
                                            ? new JProperty("telephone",         Telephone.Value.ToString())
                                            : null,
 
-                                       Address?.    ToJSON("address"),
+                                       new JProperty("address",                 Address.ToJSON()),
+
                                        GeoLocation?.ToJSON("geoLocation"),
 
                                        Tags.Any()

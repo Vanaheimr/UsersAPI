@@ -62,7 +62,8 @@ namespace social.OpenData.UsersAPI
                                    Timestamped<ServiceTicketStatusTypes>  Status,
                                    IReadOnlyDictionary<String, Object>    CustomData  = null)
 
-            : base(CustomData)
+            : base(null,
+                   CustomData)
 
         {
 
