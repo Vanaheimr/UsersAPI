@@ -17,11 +17,9 @@
 
 #region Usings
 
-using System;
-using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 
 using org.GraphDefined.Vanaheimr.Illias;
-using org.GraphDefined.Vanaheimr.Hermod;
 
 #endregion
 
@@ -41,12 +39,12 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// The unique identification of the service ticket.
         /// </summary>
-        public ServiceTicket_Id                       Id       { get; }
+        public ServiceTicket_Id                       Id        { get; }
 
         /// <summary>
         /// The current status of the service ticket.
         /// </summary>
-        public Timestamped<ServiceTicketStatusTypes>  Status   { get; }
+        public Timestamped<ServiceTicketStatusTypes>  Status    { get; }
 
         #endregion
 
@@ -60,10 +58,11 @@ namespace social.OpenData.UsersAPI
         /// <param name="CustomData">An optional dictionary of customer-specific data.</param>
         public ServiceTicketStatus(ServiceTicket_Id                       Id,
                                    Timestamped<ServiceTicketStatusTypes>  Status,
-                                   IReadOnlyDictionary<String, Object>    CustomData  = null)
+                                   JObject?                               CustomData     = null,
+                                   UserDefinedDictionary?                 InternalData   = null)
 
-            : base(null,
-                   CustomData)
+            : base(CustomData,
+                   InternalData)
 
         {
 
