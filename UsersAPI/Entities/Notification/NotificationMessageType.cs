@@ -150,8 +150,8 @@ namespace social.OpenData.UsersAPI.Notifications
         /// </summary>
         public NotificationMessageType Clone
 
-            => new NotificationMessageType(
-                   new String(InternalId.ToCharArray())
+            => new (
+                   new String(InternalId?.ToCharArray())
                );
 
         #endregion

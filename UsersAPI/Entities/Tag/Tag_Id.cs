@@ -163,7 +163,10 @@ namespace social.OpenData.UsersAPI
         /// </summary>
 
         public Tag_Id Clone
-            => new Tag_Id(new String(InternalId.ToCharArray()));
+
+            => new (
+                   new String(InternalId?.ToCharArray())
+               );
 
         #endregion
 

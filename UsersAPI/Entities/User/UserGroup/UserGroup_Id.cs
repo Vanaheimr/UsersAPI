@@ -183,7 +183,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         public UserGroup_Id Clone
 
-            => new UserGroup_Id(
+            => new (
                    new String(InternalId?.ToCharArray())
                );
 

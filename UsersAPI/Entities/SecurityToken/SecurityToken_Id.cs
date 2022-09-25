@@ -189,8 +189,8 @@ namespace social.OpenData.UsersAPI
 
         public SecurityToken_Id Clone
 
-            => new SecurityToken_Id(
-                   new String(InternalId.ToCharArray())
+            => new (
+                   new String(InternalId?.ToCharArray())
                );
 
         #endregion
