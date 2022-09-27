@@ -2900,7 +2900,7 @@ namespace social.OpenData.UsersAPI
 
             #region Init data
 
-            this._DataLicenses                   = new Dictionary<DataLicense_Id,             DataLicense>();
+            this.dataLicenses                   = new Dictionary<DataLicense_Id,             DataLicense>();
             this._Users                          = new Dictionary<User_Id,                    User>();
             this._VerificationTokens             = new Dictionary<VerificationToken,          User>();
             this._LoginPasswords                 = new Dictionary<User_Id,                    LoginPassword>();
@@ -2992,7 +2992,7 @@ namespace social.OpenData.UsersAPI
                                                             Cast<DataLicense>())
             {
 
-                _DataLicenses.Add(dataLicense.Id,
+                dataLicenses.Add(dataLicense.Id,
                                   dataLicense);
 
             }
@@ -39362,13 +39362,13 @@ namespace social.OpenData.UsersAPI
 
         #region DataLicenses
 
-        protected internal readonly Dictionary<DataLicense_Id, DataLicense> _DataLicenses;
+        protected internal readonly Dictionary<DataLicense_Id, DataLicense> dataLicenses;
 
         /// <summary>
         /// Return an enumeration of all data licenses.
         /// </summary>
         public IEnumerable<DataLicense> DataLicenses
-            => _DataLicenses.Values;
+            => dataLicenses.Values;
 
 
         #region CreateDataLicense           (Id, Description, URLs)
@@ -39378,16 +39378,16 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="Id">The unique identification of the data license.</param>
         /// <param name="Description">The description of the data license.</param>
-        /// <param name="URLs">Optional URLs for more information.</param>
-        public DataLicense CreateDataLicense(DataLicense_Id   Id,
-                                             String           Description,
-                                             params String[]  URLs)
+        /// <param name="URLs">Optional URLs for more information on the data license.</param>
+        public DataLicense CreateDataLicense(DataLicense_Id  Id,
+                                             String          Description,
+                                             params URL[]    URLs)
         {
 
-            lock (_DataLicenses)
+            lock (dataLicenses)
             {
 
-                if (_DataLicenses.ContainsKey(Id))
+                if (dataLicenses.ContainsKey(Id))
                     throw new ArgumentException("The given data license already exists!", nameof(Id));
 
 
@@ -39400,7 +39400,7 @@ namespace social.OpenData.UsersAPI
                                     EventTracking_Id.New,
                                     Robot.Id);
 
-                return _DataLicenses.AddAndReturnValue(DataLicense.Id, DataLicense);
+                return dataLicenses.AddAndReturnValue(DataLicense.Id, DataLicense);
 
             }
 
@@ -39415,17 +39415,17 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="Id">The unique identification of the data license.</param>
         /// <param name="Description">The description of the data license.</param>
-        /// <param name="URLs">Optional URLs for more information.</param>
-        public DataLicense CreateDataLicenseIfNotExists(DataLicense_Id   Id,
-                                                        String           Description,
-                                                        params String[]  URLs)
+        /// <param name="URLs">Optional URLs for more information on the data license.</param>
+        public DataLicense CreateDataLicenseIfNotExists(DataLicense_Id  Id,
+                                                        String          Description,
+                                                        params URL[]    URLs)
         {
 
-            lock (_DataLicenses)
+            lock (dataLicenses)
             {
 
-                if (_DataLicenses.ContainsKey(Id))
-                    return _DataLicenses[Id];
+                if (dataLicenses.ContainsKey(Id))
+                    return dataLicenses[Id];
 
                 return CreateDataLicense(Id,
                                          Description,
@@ -39444,19 +39444,17 @@ namespace social.OpenData.UsersAPI
         /// Get the data license having the given unique identification.
         /// </summary>
         /// <param name="DataLicenseId">The unique identification of the data license.</param>
-        public DataLicense GetDataLicense(DataLicense_Id  DataLicenseId)
+        public DataLicense? GetDataLicense(DataLicense_Id  DataLicenseId)
         {
-
-            lock (_DataLicenses)
+            lock (dataLicenses)
             {
 
-                if (_DataLicenses.TryGetValue(DataLicenseId, out DataLicense DataLicense))
-                    return DataLicense;
+                if (dataLicenses.TryGetValue(DataLicenseId, out var dataLicense))
+                    return dataLicense;
 
                 return null;
 
             }
-
         }
 
         #endregion
@@ -39468,15 +39466,13 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="DataLicenseId">The unique identification of the data license.</param>
         /// <param name="DataLicense">The data license.</param>
-        public Boolean TryGetDataLicense(DataLicense_Id   DataLicenseId,
-                                         out DataLicense  DataLicense)
+        public Boolean TryGetDataLicense(DataLicense_Id    DataLicenseId,
+                                         out DataLicense?  DataLicense)
         {
-
-            lock (_DataLicenses)
+            lock (dataLicenses)
             {
-                return _DataLicenses.TryGetValue(DataLicenseId, out DataLicense);
+                return dataLicenses.TryGetValue(DataLicenseId, out DataLicense);
             }
-
         }
 
         #endregion

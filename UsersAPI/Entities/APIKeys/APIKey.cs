@@ -397,7 +397,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Return a JSON representation of this object.
         /// </summary>
-        /// <param name="Embedded">Whether this data is embedded into another data structure.</param>
+        /// <param name="Embedded">Whether this data structure is embedded into another data structure.</param>
         /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
         public override JObject ToJSON(Boolean Embedded           = false,
                                        Boolean IncludeCryptoHash  = false)
@@ -411,7 +411,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Return a JSON representation of this object.
         /// </summary>
-        /// <param name="Embedded">Whether this data is embedded into another data structure.</param>
+        /// <param name="Embedded">Whether this data structure is embedded into another data structure.</param>
         /// <param name="IncludeLastChange">Whether to include the lastChange timestamp of this object.</param>
         /// <param name="IncludeCryptoHash">Whether to include the cryptograhical hash value of this object.</param>
         /// <param name="CustomAPIKeySerializer">A delegate to serialize custom API key JSON objects.</param>

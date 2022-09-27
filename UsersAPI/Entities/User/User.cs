@@ -60,7 +60,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="Users">An enumeration of Users.</param>
         /// <param name="Skip">The optional number of Users to skip.</param>
         /// <param name="Take">The optional number of Users to return.</param>
-        /// <param name="Embedded">Whether this data is embedded into another data structure.</param>
+        /// <param name="Embedded">Whether this data structure is embedded into another data structure.</param>
         public static JArray ToJSON(this IEnumerable<User>  Users,
                                     UInt64?                 Skip                = null,
                                     UInt64?                 Take                = null,
@@ -1389,7 +1389,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Return a JSON representation of this object.
         /// </summary>
-        /// <param name="Embedded">Whether this data is embedded into another data structure.</param>
+        /// <param name="Embedded">Whether this data structure is embedded into another data structure.</param>
         /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
         public override JObject ToJSON(Boolean Embedded           = false,
                                        Boolean IncludeCryptoHash  = false)
@@ -1404,7 +1404,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Return a JSON representation of this object.
         /// </summary>
-        /// <param name="Embedded">Whether this data is embedded into another data structure.</param>
+        /// <param name="Embedded">Whether this data structure is embedded into another data structure.</param>
         /// <param name="ExpandOrganizations">Whether to expand the organizations this user is a member of.</param>
         /// <param name="ExpandGroups">Whether to expand the groups this user is a member of.</param>
         /// <param name="IncludeLastChange">Whether to include the lastChange timestamp of this object.</param>

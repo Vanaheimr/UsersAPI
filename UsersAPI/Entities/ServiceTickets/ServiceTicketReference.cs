@@ -83,7 +83,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Return a JSON representation of this object.
         /// </summary>
-        /// <param name="Embedded">Whether this data is embedded into another data structure.</param>
+        /// <param name="Embedded">Whether this data structure is embedded into another data structure.</param>
         public JObject ToJSON(Boolean Embedded  = false)
 
             => JSONObject.Create(

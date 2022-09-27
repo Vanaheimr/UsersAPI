@@ -65,7 +65,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="Organizations">An enumeration of organizations.</param>
         /// <param name="Skip">The optional number of organizations to skip.</param>
         /// <param name="Take">The optional number of organizations to return.</param>
-        /// <param name="Embedded">Whether this data is embedded into another data structure.</param>
+        /// <param name="Embedded">Whether this data structure is embedded into another data structure.</param>
         public static JArray ToJSON(this IEnumerable<Organization>  Organizations,
                                     UInt64?                         Skip                     = null,
                                     UInt64?                         Take                     = null,
@@ -856,7 +856,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Return a JSON representation of this object.
         /// </summary>
-        /// <param name="Embedded">Whether this data is embedded into another data structure.</param>
+        /// <param name="Embedded">Whether this data structure is embedded into another data structure.</param>
         /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
         public override JObject ToJSON(Boolean  Embedded           = false,
                                        Boolean  IncludeCryptoHash  = false)
@@ -871,7 +871,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Return a JSON representation of this object.
         /// </summary>
-        /// <param name="Embedded">Whether this data is embedded into another data structure.</param>
+        /// <param name="Embedded">Whether this data structure is embedded into another data structure.</param>
         /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
         public JObject ToJSON(Boolean                                        Embedded                       = false,
                               InfoStatus                                     ExpandMembers                  = InfoStatus.ShowIdOnly,
