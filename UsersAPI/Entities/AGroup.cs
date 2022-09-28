@@ -202,11 +202,11 @@ namespace social.OpenData.UsersAPI
         public JObject ToJSON()
             => new JObject();
 
-        protected JObject ToJSON(String                  JSONLDContext,
-                                 Boolean                 Embedded                        = false,
-                                 InfoStatus              ExpandAttachedFiles             = InfoStatus.ShowIdOnly,
-                                 InfoStatus              IncludeAttachedFileSignatures   = InfoStatus.ShowIdOnly,
-                                 Func<JObject, JObject>  CustomAGroupSerializer          = null)
+        protected JObject ToJSON(String                   JSONLDContext,
+                                 Boolean                  Embedded                        = false,
+                                 InfoStatus               ExpandAttachedFiles             = InfoStatus.ShowIdOnly,
+                                 InfoStatus               IncludeAttachedFileSignatures   = InfoStatus.ShowIdOnly,
+                                 Func<JObject, JObject>?  CustomAGroupSerializer          = null)
         {
 
             var JSON = JSONObject.Create(
@@ -229,13 +229,13 @@ namespace social.OpenData.UsersAPI
                                 () => new JProperty("attachedFiles",    new JArray(AttachedFiles.SafeSelect(attachedFile => attachedFile.   ToJSON(Embedded:           true,
                                                                                                                                                    IncludeSignatures:  IncludeAttachedFileSignatures,
                                                                                                                                                    IncludeCryptoHash:  true)))))
-                        : null,
+                        : null
 
-                    DataSource?. ToJSON("dataSource")
+                    //DataSource?. ToJSON("dataSource")
 
                 );
 
-            return CustomAGroupSerializer != null
+            return CustomAGroupSerializer is not null
                        ? CustomAGroupSerializer(JSON)
                        : JSON ;
 

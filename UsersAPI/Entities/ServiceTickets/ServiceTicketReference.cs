@@ -88,14 +88,14 @@ namespace social.OpenData.UsersAPI
 
             => JSONObject.Create(
 
-                   Id.ToJSON("@id"),
+                   new JProperty("@id", Id.ToString()),
 
                    Embedded
                        ? null
                        : new JProperty("@context",  JSONLDContext.ToString()),
 
                    Description.IsNeitherNullNorEmpty()
-                          ? Description.ToJSON("description")
+                          ? new JProperty("description", Description.ToJSON())
                           : null
 
                );

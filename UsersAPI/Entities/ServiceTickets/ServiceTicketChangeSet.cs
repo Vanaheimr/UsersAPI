@@ -335,7 +335,7 @@ namespace social.OpenData.UsersAPI
 
             var JSON = JSONObject.Create(
 
-                Id.ToJSON("@id"),
+                new JProperty("@id", Id.ToString()),
 
                 new JProperty("@context",                        JSONLDContext.ToString()),
 
@@ -367,7 +367,7 @@ namespace social.OpenData.UsersAPI
                     : null,
 
                 Location.IsNeitherNullNorEmpty()
-                    ? Location.ToJSON("location")
+                    ? new JProperty("location",                  Location.ToJSON())
                     : null,
 
                 GeoLocation.HasValue
@@ -393,7 +393,7 @@ namespace social.OpenData.UsersAPI
                     : null,
 
                 AdditionalInfo.IsNeitherNullNorEmpty()
-                    ? AdditionalInfo.ToJSON("additionalInfo")
+                    ? new JProperty("additionalInfo",            AdditionalInfo.ToJSON())
                     : null,
 
                 AttachedFiles.SafeAny()
@@ -407,11 +407,11 @@ namespace social.OpenData.UsersAPI
 
 
                 Comment.IsNeitherNullNorEmpty()
-                    ? Comment.ToJSON("comment")
+                    ? new JProperty("comment",                   Comment.ToJSON())
                     : null,
 
                 InReplyTo.HasValue
-                    ? InReplyTo.Value.ToJSON("inReplyTo")
+                    ? new JProperty("inReplyTo",                 InReplyTo.Value.ToString())
                     : null,
 
                 CommentReferences.SafeAny()

@@ -461,7 +461,7 @@ namespace social.OpenData.UsersAPI
                                        new JProperty("priority", Priority.ToString().ToLower()),
 
                                        Location.IsNeitherNullNorEmpty()
-                                           ? Location.ToJSON("location")
+                                           ? new JProperty("location", Location.ToJSON())
                                            : null,
 
                                        GeoLocation?.ToJSON("geoLocation"),
@@ -485,7 +485,7 @@ namespace social.OpenData.UsersAPI
                                            : null,
 
                                        AdditionalInfo.IsNeitherNullNorEmpty()
-                                           ? AdditionalInfo.ToJSON("additionalInfo")
+                                           ? new JProperty("additionalInfo", AdditionalInfo.ToJSON())
                                            : null,
 
                                        AttachedFiles.SafeAny()
