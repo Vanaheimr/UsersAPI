@@ -18,7 +18,7 @@ function StartProfile() {
         // email
         if ((UserProfileJSON.email !== undefined ? UserProfileJSON.email : "") !== eMail.value) {
 
-            if (eMail.value == "" || eMail.value.length < 6 || eMail.value.indexOf("@") < 1 || eMail.value.indexOf(".") < 4) {
+            if (eMail.value == "" || eMail.value.length < 6 || eMail.value.indexOf("@") < 1 || eMail.value.indexOf(".") < 1 || eMail.value.indexOf("@") > eMail.value.lastIndexOf(".")) {
                 responseDiv.innerHTML = "<div class=\"HTTP Error\">Users must have a valid e-mail address!</div>";
                 return false;
             }
