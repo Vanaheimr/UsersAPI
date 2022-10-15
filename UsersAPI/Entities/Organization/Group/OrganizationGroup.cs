@@ -17,13 +17,8 @@
 
 #region Usings
 
-using System;
-using System.Linq;
-using System.Collections.Generic;
-
 using Newtonsoft.Json.Linq;
 
-using org.GraphDefined.Vanaheimr.Aegir;
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
@@ -41,8 +36,7 @@ namespace social.OpenData.UsersAPI
                                                             InfoStatus         ExpandParentGroup               = InfoStatus.ShowIdOnly,
                                                             InfoStatus         ExpandSubgroups                 = InfoStatus.ShowIdOnly,
                                                             InfoStatus         ExpandAttachedFiles             = InfoStatus.ShowIdOnly,
-                                                            InfoStatus         IncludeAttachedFileSignatures   = InfoStatus.ShowIdOnly,
-                                                            Boolean            IncludeCryptoHash               = true);
+                                                            InfoStatus         IncludeAttachedFileSignatures   = InfoStatus.ShowIdOnly);
 
 
     /// <summary>
@@ -61,16 +55,15 @@ namespace social.OpenData.UsersAPI
         /// <param name="Take">The optional number of organization groups to return.</param>
         /// <param name="Embedded">Whether this data is embedded into another data structure, e.g. into a organization group.</param>
         public static JArray ToJSON(this IEnumerable<OrganizationGroup>  OrganizationGroups,
-                                    UInt64?                              Skip                           = null,
-                                    UInt64?                              Take                           = null,
-                                    Boolean                              Embedded                       = false,
-                                    InfoStatus                           ExpandOrganizations            = InfoStatus.ShowIdOnly,
-                                    InfoStatus                           ExpandParentGroup              = InfoStatus.ShowIdOnly,
-                                    InfoStatus                           ExpandSubgroups                = InfoStatus.ShowIdOnly,
-                                    InfoStatus                           ExpandAttachedFiles            = InfoStatus.ShowIdOnly,
-                                    InfoStatus                           IncludeAttachedFileSignatures  = InfoStatus.ShowIdOnly,
-                                    OrganizationGroupToJSONDelegate      OrganizationGroupToJSON        = null,
-                                    Boolean                              IncludeCryptoHash              = true)
+                                    UInt64?                              Skip                            = null,
+                                    UInt64?                              Take                            = null,
+                                    Boolean                              Embedded                        = false,
+                                    InfoStatus                           ExpandOrganizations             = InfoStatus.ShowIdOnly,
+                                    InfoStatus                           ExpandParentGroup               = InfoStatus.ShowIdOnly,
+                                    InfoStatus                           ExpandSubgroups                 = InfoStatus.ShowIdOnly,
+                                    InfoStatus                           ExpandAttachedFiles             = InfoStatus.ShowIdOnly,
+                                    InfoStatus                           IncludeAttachedFileSignatures   = InfoStatus.ShowIdOnly,
+                                    OrganizationGroupToJSONDelegate?     OrganizationGroupToJSON         = null)
 
 
             => OrganizationGroups?.Any() != true
@@ -87,16 +80,14 @@ namespace social.OpenData.UsersAPI
                                                                                                        ExpandParentGroup,
                                                                                                        ExpandSubgroups,
                                                                                                        ExpandAttachedFiles,
-                                                                                                       IncludeAttachedFileSignatures,
-                                                                                                       IncludeCryptoHash)
+                                                                                                       IncludeAttachedFileSignatures)
 
                                                                             : organizationGroup.ToJSON(Embedded,
                                                                                                        ExpandOrganizations,
                                                                                                        ExpandParentGroup,
                                                                                                        ExpandSubgroups,
                                                                                                        ExpandAttachedFiles,
-                                                                                                       IncludeAttachedFileSignatures,
-                                                                                                       IncludeCryptoHash)));
+                                                                                                       IncludeAttachedFileSignatures)));
 
         #endregion
 
@@ -178,57 +169,50 @@ namespace social.OpenData.UsersAPI
         /// Return a JSON representation of this object.
         /// </summary>
         /// <param name="Embedded">Whether this data structure is embedded into another data structure.</param>
-        /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
-        public override JObject ToJSON(Boolean Embedded           = false,
-                                       Boolean IncludeCryptoHash  = false)
+        public override JObject ToJSON(Boolean Embedded = false)
 
             => ToJSON(Embedded:                       false,
                       ExpandOrganizations:            InfoStatus.ShowIdOnly,
                       ExpandParentGroup:              InfoStatus.ShowIdOnly,
                       ExpandSubgroups:                InfoStatus.ShowIdOnly,
                       ExpandAttachedFiles:            InfoStatus.ShowIdOnly,
-                      IncludeAttachedFileSignatures:  InfoStatus.ShowIdOnly,
-                      IncludeCryptoHash:              true);
+                      IncludeAttachedFileSignatures:  InfoStatus.ShowIdOnly);
 
 
         /// <summary>
         /// Return a JSON representation of this object.
         /// </summary>
         /// <param name="Embedded">Whether this data is embedded into another data structure, e.g. into a OrganizationGroup.</param>
-        /// <param name="IncludeCryptoHash">Whether to include the cryptograhical hash value of this object.</param>
         public virtual JObject ToJSON(Boolean     Embedded                        = false,
                                       InfoStatus  ExpandOrganizations             = InfoStatus.ShowIdOnly,
                                       InfoStatus  ExpandParentGroup               = InfoStatus.ShowIdOnly,
                                       InfoStatus  ExpandSubgroups                 = InfoStatus.ShowIdOnly,
                                       InfoStatus  ExpandAttachedFiles             = InfoStatus.ShowIdOnly,
-                                      InfoStatus  IncludeAttachedFileSignatures   = InfoStatus.ShowIdOnly,
-                                      Boolean     IncludeCryptoHash               = true)
+                                      InfoStatus  IncludeAttachedFileSignatures   = InfoStatus.ShowIdOnly)
         {
 
             var JSON = JSONObject.Create(
 
-                           Members.SafeAny() && ExpandOrganizations != InfoStatus.Hidden
+                           Members.SafeAny()       && ExpandOrganizations != InfoStatus.Hidden
                                ? ExpandSubgroups.Switch(
                                        () => new JProperty("memberIds",      new JArray(Members.SafeSelect(organization => organization.Id.ToString()))),
-                                       () => new JProperty("members",        new JArray(Members.SafeSelect(organization => organization.   ToJSON(Embedded: true,
+                                       () => new JProperty("members",        new JArray(Members.SafeSelect(organization => organization.   ToJSON(Embedded: true)))))
                                                                                                                                             //ExpandParentGroup:  InfoStatus.Hidden,
-                                                                                                                                            //ExpandSubgroups:    InfoStatus.Expand,
-                                                                                                                                            IncludeCryptoHash:  IncludeCryptoHash)))))
+                                                                                                                                            //ExpandSubgroups:    InfoStatus.Expand)))))
                                : null,
 
-                           ParentGroup != null      && ExpandParentGroup  != InfoStatus.Hidden
+                           ParentGroup is not null && ExpandParentGroup  != InfoStatus.Hidden
                                ? ExpandParentGroup.Switch(
                                        () => new JProperty("parentGroupId",  ParentGroup.Id.ToString()),
                                        () => new JProperty("parentGroup",    ParentGroup.   ToJSON()))
                                : null,
 
-                           Subgroups.SafeAny()      && ExpandSubgroups    != InfoStatus.Hidden
+                           Subgroups.SafeAny()     && ExpandSubgroups    != InfoStatus.Hidden
                                ? ExpandSubgroups.Switch(
                                        () => new JProperty("subgroupsIds",   new JArray(Subgroups.SafeSelect(subgroup => subgroup.Id.ToString()))),
                                        () => new JProperty("subgroups",      new JArray(Subgroups.SafeSelect(subgroup => subgroup.   ToJSON(Embedded:           true,
                                                                                                                                             ExpandParentGroup:  InfoStatus.Hidden,
-                                                                                                                                            ExpandSubgroups:    InfoStatus.Expanded,
-                                                                                                                                            IncludeCryptoHash:  IncludeCryptoHash)))))
+                                                                                                                                            ExpandSubgroups:    InfoStatus.Expanded)))))
                                : null
 
                        );

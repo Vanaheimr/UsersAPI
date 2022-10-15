@@ -1434,24 +1434,24 @@ namespace social.OpenData.UsersAPI
 
         #region CreateOrganization           (Id, Name = null, Description = null, ParentOrganization = null)
 
-        public async static Task<Organization> CreateOrganization(this UsersAPI             UsersAPI,
+        public async static Task<Organization> CreateOrganization(this UsersAPI              UsersAPI,
 
-                                                                  Organization_Id           Id,
-                                                                  I18NString                Name                 = null,
-                                                                  I18NString                Description          = null,
-                                                                  String                    Website              = null,
-                                                                  EMailAddress              EMail                = null,
-                                                                  PhoneNumber?              Telephone            = null,
-                                                                  Address                   Address              = null,
-                                                                  GeoCoordinate?            GeoLocation          = null,
-                                                                  Func<Tags.Builder, Tags>  Tags                 = null,
-                                                                  Boolean                   IsDisabled           = false,
+                                                                  Organization_Id            Id,
+                                                                  I18NString?                Name                 = null,
+                                                                  I18NString?                Description          = null,
+                                                                  String?                    Website              = null,
+                                                                  EMailAddress?              EMail                = null,
+                                                                  PhoneNumber?               Telephone            = null,
+                                                                  Address?                   Address              = null,
+                                                                  GeoCoordinate?             GeoLocation          = null,
+                                                                  Func<Tags.Builder, Tags>?  Tags                 = null,
+                                                                  Boolean                    IsDisabled           = false,
 
-                                                                  Organization              ParentOrganization   = null,
+                                                                  Organization?              ParentOrganization   = null,
 
-                                                                  String                    DataSource           = "",
-                                                                  EventTracking_Id          EventTrackingId      = null,
-                                                                  User_Id?                  CurrentUserId        = null)
+                                                                  String                     DataSource           = "",
+                                                                  EventTracking_Id?          EventTrackingId      = null,
+                                                                  User_Id?                   CurrentUserId        = null)
         {
 
             var addOrganizationResult = await UsersAPI.AddOrganization(new Organization(Id,
@@ -1478,24 +1478,24 @@ namespace social.OpenData.UsersAPI
 
         #region CreateOrganizationIfNotExists(Id, Name = null, Description = null, ParentOrganization = null)
 
-        public async static Task<Organization> CreateOrganizationIfNotExists(this UsersAPI             UsersAPI,
+        public async static Task<Organization> CreateOrganizationIfNotExists(this UsersAPI              UsersAPI,
 
-                                                                             Organization_Id           Id,
-                                                                             I18NString                Name                 = null,
-                                                                             I18NString                Description          = null,
-                                                                             String                    Website              = null,
-                                                                             EMailAddress              EMail                = null,
-                                                                             PhoneNumber?              Telephone            = null,
-                                                                             Address                   Address              = null,
-                                                                             GeoCoordinate?            GeoLocation          = null,
-                                                                             Func<Tags.Builder, Tags>  Tags                 = null,
-                                                                             Boolean                   IsDisabled           = false,
+                                                                             Organization_Id            Id,
+                                                                             I18NString?                Name                 = null,
+                                                                             I18NString?                Description          = null,
+                                                                             String?                    Website              = null,
+                                                                             EMailAddress?              EMail                = null,
+                                                                             PhoneNumber?               Telephone            = null,
+                                                                             Address?                   Address              = null,
+                                                                             GeoCoordinate?             GeoLocation          = null,
+                                                                             Func<Tags.Builder, Tags>?  Tags                 = null,
+                                                                             Boolean                    IsDisabled           = false,
 
-                                                                             Organization              ParentOrganization   = null,
+                                                                             Organization?              ParentOrganization   = null,
 
-                                                                             String                    DataSource           = "",
-                                                                             EventTracking_Id          EventTrackingId      = null,
-                                                                             User_Id?                  CurrentUserId        = null)
+                                                                             String                     DataSource           = "",
+                                                                             EventTracking_Id?          EventTrackingId      = null,
+                                                                             User_Id?                   CurrentUserId        = null)
         {
 
             var addOrganizationResult = await UsersAPI.AddOrganizationIfNotExists(new Organization(Id,
@@ -6011,8 +6011,6 @@ namespace social.OpenData.UsersAPI
                                              var skip                   = Request.QueryString.GetUInt64 ("skip");
                                              var take                   = Request.QueryString.GetUInt64 ("take");
 
-                                             var includeCryptoHash      = Request.QueryString.GetBoolean("includeCryptoHash", true);
-
                                              var expand                 = Request.QueryString.GetStrings("expand");
                                              //var expandTags             = expand.ContainsIgnoreCase("tags")              ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
 
@@ -6030,8 +6028,7 @@ namespace social.OpenData.UsersAPI
                                                                               ToJSON(skip,
                                                                                      take,
                                                                                      false, //Embedded
-                                                                                     GetUserSerializator(Request, HTTPUser),
-                                                                                     includeCryptoHash);
+                                                                                     GetUserSerializator(Request, HTTPUser));
 
 
                                              return Task.FromResult(
@@ -9060,8 +9057,6 @@ namespace social.OpenData.UsersAPI
                                              var skip                   = Request.QueryString.GetUInt64 ("skip");
                                              var take                   = Request.QueryString.GetUInt64 ("take");
 
-                                             var includeCryptoHash      = Request.QueryString.GetBoolean("includeCryptoHash", true);
-
                                              //var expand                 = Request.QueryString.GetStrings("expand");
                                              //var expandTags             = expand.ContainsIgnoreCase("tags")              ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
 
@@ -9083,8 +9078,7 @@ namespace social.OpenData.UsersAPI
                                                                                      InfoStatus.ShowIdOnly,
                                                                                      InfoStatus.ShowIdOnly,
                                                                                      InfoStatus.ShowIdOnly,
-                                                                                     GetUserGroupSerializator(Request, HTTPUser),
-                                                                                     includeCryptoHash);
+                                                                                     GetUserGroupSerializator(Request, HTTPUser));
 
 
                                              return Task.FromResult(
@@ -11865,8 +11859,6 @@ namespace social.OpenData.UsersAPI
                                              var skip                   = Request.QueryString.GetUInt64 ("skip");
                                              var take                   = Request.QueryString.GetUInt64 ("take");
 
-                                             var includeCryptoHash      = Request.QueryString.GetBoolean("includeCryptoHash", true);
-
                                              var expand                 = Request.QueryString.GetStrings("expand");
                                              //var expandTags             = expand.ContainsIgnoreCase("tags")              ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
 
@@ -11887,8 +11879,7 @@ namespace social.OpenData.UsersAPI
                                                                                      InfoStatus.ShowIdOnly,
                                                                                      InfoStatus.ShowIdOnly,
                                                                                      InfoStatus.ShowIdOnly,
-                                                                                     GetOrganizationGroupSerializator(Request, HTTPUser),
-                                                                                     includeCryptoHash);
+                                                                                     GetOrganizationGroupSerializator(Request, HTTPUser));
 
 
                                              return Task.FromResult(
@@ -13114,8 +13105,6 @@ namespace social.OpenData.UsersAPI
                                              var skip                = Request.QueryString.GetUInt64     ("skip");
                                              var take                = Request.QueryString.GetUInt64     ("take");
 
-                                             var includeCryptoHash   = Request.QueryString.GetBoolean    ("includeCryptoHash", true);
-
                                              var expand              = Request.QueryString.GetStrings    ("expand");
                                              var expandTags          = expand.ContainsIgnoreCase("tags")         ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
                                              var expandDataLicenses  = expand.ContainsIgnoreCase("dataLicenses") ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
@@ -13141,8 +13130,7 @@ namespace social.OpenData.UsersAPI
                                                                                   false, //Embedded
                                                                                   expandTags,
                                                                                   expandOwnerId,
-                                                                                  GetNewsBannerSerializator(Request, HTTPUser),
-                                                                                  includeCryptoHash);
+                                                                                  GetNewsBannerSerializator(Request, HTTPUser));
 
 
                                              return Task.FromResult(
@@ -13313,7 +13301,7 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
-                                             var includeCryptoHash   = Request.QueryString.GetBoolean("includeCryptoHash", true);
+                                             //var includeCryptoHash   = Request.QueryString.GetBoolean("includeCryptoHash", true);
 
                                              var expand              = Request.QueryString.GetStrings("expand");
                                              var expandTags          = expand.ContainsIgnoreCase("tags")         ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
@@ -13333,8 +13321,7 @@ namespace social.OpenData.UsersAPI
                                                                                                                        (NewsBanner,
                                                                                                                         false, //Embedded
                                                                                                                         expandTags,
-                                                                                                                        expandOwnerId,
-                                                                                                                        includeCryptoHash).
+                                                                                                                        expandOwnerId).
                                                                                                                     ToUTF8Bytes(),
                                                                 Connection                 = "close",
                                                                 Vary                       = "Accept"
@@ -13467,8 +13454,6 @@ namespace social.OpenData.UsersAPI
                                              var skip                = Request.QueryString.GetUInt64     ("skip");
                                              var take                = Request.QueryString.GetUInt64     ("take");
 
-                                             var includeCryptoHash   = Request.QueryString.GetBoolean    ("includeCryptoHash", true);
-
                                              var expand              = Request.QueryString.GetStrings    ("expand");
                                              var expandTags          = expand.ContainsIgnoreCase("tags")     ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
                                              var expandAuthorId      = expand.ContainsIgnoreCase("authorId") ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
@@ -13494,8 +13479,7 @@ namespace social.OpenData.UsersAPI
                                                                                   false, //Embedded
                                                                                   expandTags,
                                                                                   expandAuthorId,
-                                                                                  GetFAQSerializator(Request, HTTPUser),
-                                                                                  includeCryptoHash);
+                                                                                  GetFAQSerializator(Request, HTTPUser));
 
 
                                              return Task.FromResult(
@@ -17497,11 +17481,9 @@ namespace social.OpenData.UsersAPI
 
                 default:
                     return (user,
-                            embedded,
-                            includeCryptoHash)
+                            embedded)
 
-                            => user.ToJSON(embedded,
-                                           includeCryptoHash);
+                            => user.ToJSON(embedded);
 
             }
 
@@ -17591,7 +17573,7 @@ namespace social.OpenData.UsersAPI
 
 
             await WriteToDatabaseFile(addUser_MessageType,
-                                      User.ToJSON(false, true),
+                                      User.ToJSON(false),
                                       eventTrackingId,
                                       CurrentUserId);
 
@@ -18005,7 +17987,7 @@ namespace social.OpenData.UsersAPI
 
 
             await WriteToDatabaseFile(addUserIfNotExists_MessageType,
-                                      User.ToJSON(false, true),
+                                      User.ToJSON(false),
                                       eventTrackingId,
                                       CurrentUserId);
 
@@ -18420,7 +18402,7 @@ namespace social.OpenData.UsersAPI
 
 
             await WriteToDatabaseFile(addOrUpdateUser_MessageType,
-                                      User.ToJSON(false, true),
+                                      User.ToJSON(false),
                                       eventTrackingId,
                                       CurrentUserId);
 
@@ -19501,7 +19483,7 @@ namespace social.OpenData.UsersAPI
                                            ToArray();
 
             await WriteToDatabaseFile(deleteUser_MessageType,
-                                      User.ToJSON(false, true),
+                                      User.ToJSON(false),
                                       eventTrackingId,
                                       CurrentUserId);
 
@@ -22226,7 +22208,7 @@ namespace social.OpenData.UsersAPI
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             await WriteToDatabaseFile(MessageType,
-                                      UserGroup.ToJSON(false, true),
+                                      UserGroup.ToJSON(false),
                                       eventTrackingId,
                                       CurrentUserId);
 
@@ -22530,16 +22512,14 @@ namespace social.OpenData.UsersAPI
                             expandParentGroup,
                             expandSubgroups,
                             expandAttachedFiles,
-                            includeAttachedFileSignatures,
-                            includeCryptoHash)
+                            includeAttachedFileSignatures)
 
                             => userGroup.ToJSON(embedded,
                                                 expandUsers,
                                                 expandParentGroup,
                                                 expandSubgroups,
                                                 expandAttachedFiles,
-                                                includeAttachedFileSignatures,
-                                                includeCryptoHash);
+                                                includeAttachedFileSignatures);
 
             }
 
@@ -22625,7 +22605,7 @@ namespace social.OpenData.UsersAPI
 
 
             await WriteToDatabaseFile(addUserGroup_MessageType,
-                                      UserGroup.ToJSON(false, true),
+                                      UserGroup.ToJSON(false),
                                       eventTrackingId,
                                       CurrentUserId);
 
@@ -22774,7 +22754,7 @@ namespace social.OpenData.UsersAPI
 
 
             await WriteToDatabaseFile(addUserGroupIfNotExists_MessageType,
-                                      UserGroup.ToJSON(false, true),
+                                      UserGroup.ToJSON(false),
                                       eventTrackingId,
                                       CurrentUserId);
 
@@ -22919,7 +22899,7 @@ namespace social.OpenData.UsersAPI
 
 
             await WriteToDatabaseFile(addOrUpdateUserGroup_MessageType,
-                                      UserGroup.ToJSON(false, true),
+                                      UserGroup.ToJSON(false),
                                       eventTrackingId,
                                       CurrentUserId);
 
@@ -23851,7 +23831,7 @@ namespace social.OpenData.UsersAPI
 
 
             await WriteToDatabaseFile(deleteUserGroup_MessageType,
-                                      UserGroup.ToJSON(false, true),
+                                      UserGroup.ToJSON(false),
                                       eventTrackingId,
                                       CurrentUserId);
 
@@ -24010,7 +23990,7 @@ namespace social.OpenData.UsersAPI
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             await WriteToDatabaseFile(MessageType,
-                                      Message.ToJSON(false, true),
+                                      Message.ToJSON(false),
                                       eventTrackingId,
                                       CurrentUserId);
 
@@ -24186,7 +24166,7 @@ namespace social.OpenData.UsersAPI
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             await WriteToDatabaseFile(addMessage_MessageType,
-                                      Message.ToJSON(false, true),
+                                      Message.ToJSON(false),
                                       eventTrackingId,
                                       CurrentUserId);
 
@@ -24300,7 +24280,7 @@ namespace social.OpenData.UsersAPI
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             await WriteToDatabaseFile(addMessageIfNotExists_MessageType,
-                                      Message.ToJSON(false, true),
+                                      Message.ToJSON(false),
                                       eventTrackingId,
                                       CurrentUserId);
 
@@ -24412,7 +24392,7 @@ namespace social.OpenData.UsersAPI
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             await WriteToDatabaseFile(addOrUpdateMessage_MessageType,
-                                      Message.ToJSON(false, true),
+                                      Message.ToJSON(false),
                                       eventTrackingId,
                                       CurrentUserId);
 
@@ -25041,7 +25021,7 @@ namespace social.OpenData.UsersAPI
                 var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
                 await WriteToDatabaseFile(removeMessage_MessageType,
-                                          Message.ToJSON(false, true),
+                                          Message.ToJSON(false),
                                           eventTrackingId,
                                           CurrentUserId);
 
@@ -26315,7 +26295,7 @@ namespace social.OpenData.UsersAPI
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             await WriteToDatabaseFile(MessageType,
-                                      NotificationMessage.ToJSON(false, true),
+                                      NotificationMessage.ToJSON(false),
                                       eventTrackingId,
                                       CurrentUserId);
 
@@ -26491,7 +26471,7 @@ namespace social.OpenData.UsersAPI
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             await WriteToDatabaseFile(addNotificationMessage_MessageType,
-                                      NotificationMessage.ToJSON(false, true),
+                                      NotificationMessage.ToJSON(false),
                                       eventTrackingId,
                                       CurrentUserId);
 
@@ -26605,7 +26585,7 @@ namespace social.OpenData.UsersAPI
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             await WriteToDatabaseFile(addNotificationMessageIfNotExists_MessageType,
-                                      NotificationMessage.ToJSON(false, true),
+                                      NotificationMessage.ToJSON(false),
                                       eventTrackingId,
                                       CurrentUserId);
 
@@ -26717,7 +26697,7 @@ namespace social.OpenData.UsersAPI
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             await WriteToDatabaseFile(addOrUpdateNotificationMessage_MessageType,
-                                      NotificationMessage.ToJSON(false, true),
+                                      NotificationMessage.ToJSON(false),
                                       eventTrackingId,
                                       CurrentUserId);
 
@@ -27371,7 +27351,7 @@ namespace social.OpenData.UsersAPI
                 var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
                 await WriteToDatabaseFile(removeNotificationMessage_MessageType,
-                                          NotificationMessage.ToJSON(false, true),
+                                          NotificationMessage.ToJSON(false),
                                           eventTrackingId,
                                           CurrentUserId);
 
@@ -28525,7 +28505,7 @@ namespace social.OpenData.UsersAPI
 
 
             await WriteToDatabaseFile(addOrganization_MessageType,
-                                      Organization.ToJSON(false, true),
+                                      Organization.ToJSON(false),
                                       eventTrackingId,
                                       CurrentUserId);
 
@@ -28729,7 +28709,7 @@ namespace social.OpenData.UsersAPI
 
 
             await WriteToDatabaseFile(addOrganizationIfNotExists_MessageType,
-                                      Organization.ToJSON(false, true),
+                                      Organization.ToJSON(false),
                                       eventTrackingId,
                                       CurrentUserId);
 
@@ -28783,8 +28763,7 @@ namespace social.OpenData.UsersAPI
                 try
                 {
 
-                    if (ParentOrganization is null)
-                        ParentOrganization = NoOwner;
+                    ParentOrganization ??= NoOwner;
 
                     if (!_Organizations.ContainsKey(ParentOrganization.Id))
                         return AddOrganizationIfNotExistsResult.ArgumentError(Organization,
@@ -28932,7 +28911,7 @@ namespace social.OpenData.UsersAPI
 
 
             await WriteToDatabaseFile(addOrUpdateOrganization_MessageType,
-                                      Organization.ToJSON(false, true),
+                                      Organization.ToJSON(false),
                                       eventTrackingId,
                                       CurrentUserId);
 
@@ -30149,7 +30128,7 @@ namespace social.OpenData.UsersAPI
 
 
             await WriteToDatabaseFile(deleteOrganization_MessageType,
-                                      Organization.ToJSON(false, true),
+                                      Organization.ToJSON(false),
                                       eventTrackingId,
                                       CurrentUserId);
 
@@ -30305,7 +30284,7 @@ namespace social.OpenData.UsersAPI
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             await WriteToDatabaseFile(MessageType,
-                                      OrganizationGroup.ToJSON(false, true),
+                                      OrganizationGroup.ToJSON(false),
                                       eventTrackingId,
                                       CurrentUserId);
 
@@ -30412,16 +30391,14 @@ namespace social.OpenData.UsersAPI
                             expandParentGroup,
                             expandSubgroups,
                             expandAttachedFiles,
-                            includeAttachedFileSignatures,
-                            includeCryptoHash)
+                            includeAttachedFileSignatures)
 
                             => organizationGroup.ToJSON(embedded,
                                                         expandUsers,
                                                         expandParentGroup,
                                                         expandSubgroups,
                                                         expandAttachedFiles,
-                                                        includeAttachedFileSignatures,
-                                                        includeCryptoHash);
+                                                        includeAttachedFileSignatures);
 
             }
 
@@ -30487,7 +30464,7 @@ namespace social.OpenData.UsersAPI
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             await WriteToDatabaseFile(addOrganizationGroup_MessageType,
-                                      OrganizationGroup.ToJSON(false, true),
+                                      OrganizationGroup.ToJSON(false),
                                       eventTrackingId,
                                       CurrentUserId);
 
@@ -30601,7 +30578,7 @@ namespace social.OpenData.UsersAPI
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             await WriteToDatabaseFile(addOrganizationGroupIfNotExists_MessageType,
-                                      OrganizationGroup.ToJSON(false, true),
+                                      OrganizationGroup.ToJSON(false),
                                       eventTrackingId,
                                       CurrentUserId);
 
@@ -30713,7 +30690,7 @@ namespace social.OpenData.UsersAPI
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             await WriteToDatabaseFile(addOrUpdateOrganizationGroup_MessageType,
-                                      OrganizationGroup.ToJSON(false, true),
+                                      OrganizationGroup.ToJSON(false),
                                       eventTrackingId,
                                       CurrentUserId);
 
@@ -31423,7 +31400,7 @@ namespace social.OpenData.UsersAPI
             {
 
                 await WriteToDatabaseFile(removeOrganizationGroup_MessageType,
-                                          OrganizationGroup.ToJSON(false, true),
+                                          OrganizationGroup.ToJSON(false),
                                           eventTrackingId,
                                           CurrentUserId);
 
@@ -33816,7 +33793,7 @@ namespace social.OpenData.UsersAPI
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             await WriteToDatabaseFile(MessageType,
-                                      ServiceTicket.ToJSON(false, true),
+                                      ServiceTicket.ToJSON(false),
                                       eventTrackingId,
                                       CurrentUserId);
 
@@ -34705,7 +34682,7 @@ namespace social.OpenData.UsersAPI
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             await WriteToDatabaseFile(MessageType,
-                                      BlogPosting.ToJSON(false, true),
+                                      BlogPosting.ToJSON(false),
                                       eventTrackingId,
                                       CurrentUserId);
 
@@ -34879,7 +34856,7 @@ namespace social.OpenData.UsersAPI
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             await WriteToDatabaseFile(addBlogPosting_MessageType,
-                                      BlogPosting.ToJSON(false, true),
+                                      BlogPosting.ToJSON(false),
                                       eventTrackingId,
                                       CurrentUserId);
 
@@ -34993,7 +34970,7 @@ namespace social.OpenData.UsersAPI
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             await WriteToDatabaseFile(addBlogPostingIfNotExists_MessageType,
-                                      BlogPosting.ToJSON(false, true),
+                                      BlogPosting.ToJSON(false),
                                       eventTrackingId,
                                       CurrentUserId);
 
@@ -35105,7 +35082,7 @@ namespace social.OpenData.UsersAPI
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             await WriteToDatabaseFile(addOrUpdateBlogPosting_MessageType,
-                                      BlogPosting.ToJSON(false, true),
+                                      BlogPosting.ToJSON(false),
                                       eventTrackingId,
                                       CurrentUserId);
 
@@ -35734,7 +35711,7 @@ namespace social.OpenData.UsersAPI
                 var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
                 await WriteToDatabaseFile(removeBlogPosting_MessageType,
-                                          BlogPosting.ToJSON(false, true),
+                                          BlogPosting.ToJSON(false),
                                           eventTrackingId,
                                           CurrentUserId);
 
@@ -35884,7 +35861,7 @@ namespace social.OpenData.UsersAPI
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             await WriteToDatabaseFile(MessageType,
-                                      NewsPosting.ToJSON(false, true),
+                                      NewsPosting.ToJSON(false),
                                       eventTrackingId,
                                       CurrentUserId);
 
@@ -36058,7 +36035,7 @@ namespace social.OpenData.UsersAPI
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             await WriteToDatabaseFile(addNewsPosting_MessageType,
-                                      NewsPosting.ToJSON(false, true),
+                                      NewsPosting.ToJSON(false),
                                       eventTrackingId,
                                       CurrentUserId);
 
@@ -36172,7 +36149,7 @@ namespace social.OpenData.UsersAPI
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             await WriteToDatabaseFile(addNewsPostingIfNotExists_MessageType,
-                                      NewsPosting.ToJSON(false, true),
+                                      NewsPosting.ToJSON(false),
                                       eventTrackingId,
                                       CurrentUserId);
 
@@ -36284,7 +36261,7 @@ namespace social.OpenData.UsersAPI
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             await WriteToDatabaseFile(addOrUpdateNewsPosting_MessageType,
-                                      NewsPosting.ToJSON(false, true),
+                                      NewsPosting.ToJSON(false),
                                       eventTrackingId,
                                       CurrentUserId);
 
@@ -36913,7 +36890,7 @@ namespace social.OpenData.UsersAPI
                 var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
                 await WriteToDatabaseFile(removeNewsPosting_MessageType,
-                                          NewsPosting.ToJSON(false, true),
+                                          NewsPosting.ToJSON(false),
                                           eventTrackingId,
                                           CurrentUserId);
 
@@ -37063,7 +37040,7 @@ namespace social.OpenData.UsersAPI
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             await WriteToDatabaseFile(MessageType,
-                                      NewsBanner.ToJSON(false, true),
+                                      NewsBanner.ToJSON(false),
                                       eventTrackingId,
                                       CurrentUserId);
 
@@ -37157,7 +37134,7 @@ namespace social.OpenData.UsersAPI
         #region (protected internal) GetNewsBannerSerializator(Request, User)
 
         protected internal NewsBannerToJSONDelegate GetNewsBannerSerializator(HTTPRequest  Request,
-                                                                       User         User)
+                                                                              User         User)
         {
 
             switch (User?.Id.ToString())
@@ -37167,13 +37144,11 @@ namespace social.OpenData.UsersAPI
                     return (newsBanner,
                             embedded,
                             ExpandTags,
-                            ExpandAuthorId,
-                            includeCryptoHash)
+                            ExpandAuthorId)
 
                             => newsBanner.ToJSON(embedded,
                                                   ExpandTags,
-                                                  ExpandAuthorId,
-                                                  includeCryptoHash);
+                                                  ExpandAuthorId);
 
             }
 
@@ -37239,7 +37214,7 @@ namespace social.OpenData.UsersAPI
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             await WriteToDatabaseFile(addNewsBanner_MessageType,
-                                      NewsBanner.ToJSON(false, true),
+                                      NewsBanner.ToJSON(false),
                                       eventTrackingId,
                                       CurrentUserId);
 
@@ -37353,7 +37328,7 @@ namespace social.OpenData.UsersAPI
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             await WriteToDatabaseFile(addNewsBannerIfNotExists_MessageType,
-                                      NewsBanner.ToJSON(false, true),
+                                      NewsBanner.ToJSON(false),
                                       eventTrackingId,
                                       CurrentUserId);
 
@@ -37465,7 +37440,7 @@ namespace social.OpenData.UsersAPI
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             await WriteToDatabaseFile(addOrUpdateNewsBanner_MessageType,
-                                      NewsBanner.ToJSON(false, true),
+                                      NewsBanner.ToJSON(false),
                                       eventTrackingId,
                                       CurrentUserId);
 
@@ -38094,7 +38069,7 @@ namespace social.OpenData.UsersAPI
                 var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
                 await WriteToDatabaseFile(removeNewsBanner_MessageType,
-                                          NewsBanner.ToJSON(false, true),
+                                          NewsBanner.ToJSON(false),
                                           eventTrackingId,
                                           CurrentUserId);
 
@@ -38244,7 +38219,7 @@ namespace social.OpenData.UsersAPI
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             await WriteToDatabaseFile(MessageType,
-                                      FAQ.ToJSON(false, true),
+                                      FAQ.ToJSON(false),
                                       eventTrackingId,
                                       CurrentUserId);
 
@@ -38338,7 +38313,7 @@ namespace social.OpenData.UsersAPI
         #region (protected internal) GetFAQSerializator(Request, User)
 
         protected internal FAQToJSONDelegate GetFAQSerializator(HTTPRequest  Request,
-                                                                       User         User)
+                                                                User         User)
         {
 
             switch (User?.Id.ToString())
@@ -38348,13 +38323,11 @@ namespace social.OpenData.UsersAPI
                     return (faq,
                             embedded,
                             ExpandTags,
-                            ExpandAuthorId,
-                            includeCryptoHash)
+                            ExpandAuthorId)
 
                             => faq.ToJSON(embedded,
-                                                  ExpandTags,
-                                                  ExpandAuthorId,
-                                                  includeCryptoHash);
+                                          ExpandTags,
+                                          ExpandAuthorId);
 
             }
 
@@ -38420,7 +38393,7 @@ namespace social.OpenData.UsersAPI
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             await WriteToDatabaseFile(addFAQ_MessageType,
-                                      FAQ.ToJSON(false, true),
+                                      FAQ.ToJSON(false),
                                       eventTrackingId,
                                       CurrentUserId);
 
@@ -38534,7 +38507,7 @@ namespace social.OpenData.UsersAPI
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             await WriteToDatabaseFile(addFAQIfNotExists_MessageType,
-                                      FAQ.ToJSON(false, true),
+                                      FAQ.ToJSON(false),
                                       eventTrackingId,
                                       CurrentUserId);
 
@@ -38646,7 +38619,7 @@ namespace social.OpenData.UsersAPI
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             await WriteToDatabaseFile(addOrUpdateFAQ_MessageType,
-                                      FAQ.ToJSON(false, true),
+                                      FAQ.ToJSON(false),
                                       eventTrackingId,
                                       CurrentUserId);
 
@@ -39275,7 +39248,7 @@ namespace social.OpenData.UsersAPI
                 var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
                 await WriteToDatabaseFile(removeFAQ_MessageType,
-                                          FAQ.ToJSON(false, true),
+                                          FAQ.ToJSON(false),
                                           eventTrackingId,
                                           CurrentUserId);
 

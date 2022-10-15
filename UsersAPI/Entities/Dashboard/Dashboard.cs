@@ -17,24 +17,12 @@
 
 #region Usings
 
-using System;
-using System.Linq;
-using System.Collections.Generic;
-
 using Newtonsoft.Json.Linq;
 
-using org.GraphDefined.Vanaheimr.Aegir;
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod;
-
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 using org.GraphDefined.Vanaheimr.Styx.Arrows;
-
-using System.Security.Cryptography;
-using Org.BouncyCastle.Security;
-using Org.BouncyCastle.Crypto;
-
-using social.OpenData.UsersAPI;
 
 #endregion
 
@@ -44,9 +32,8 @@ namespace social.OpenData.UsersAPI
 //    public delegate Boolean DashboardProviderDelegate(Dashboard_Id DashboardId, out Dashboard Dashboard);
 
     public delegate JObject DashboardToJSONDelegate(Dashboard   Dashboard,
-                                                    Boolean     Embedded            = false,
-                                                    InfoStatus  ExpandTags          = InfoStatus.ShowIdOnly,
-                                                    Boolean     IncludeCryptoHash   = true);
+                                                    Boolean     Embedded     = false,
+                                                    InfoStatus  ExpandTags   = InfoStatus.ShowIdOnly);
 
 
     /// <summary>
@@ -65,12 +52,11 @@ namespace social.OpenData.UsersAPI
         /// <param name="Take">The optional number of dashboards to return.</param>
         /// <param name="Embedded">Whether this data structure is embedded into another data structure.</param>
         public static JArray ToJSON(this IEnumerable<Dashboard>  Dashboard,
-                                    UInt64?                      Skip                = null,
-                                    UInt64?                      Take                = null,
-                                    Boolean                      Embedded            = false,
-                                    InfoStatus                   ExpandTags          = InfoStatus.ShowIdOnly,
-                                    DashboardToJSONDelegate      DashboardToJSON     = null,
-                                    Boolean                      IncludeCryptoHash   = true)
+                                    UInt64?                      Skip              = null,
+                                    UInt64?                      Take              = null,
+                                    Boolean                      Embedded          = false,
+                                    InfoStatus                   ExpandTags        = InfoStatus.ShowIdOnly,
+                                    DashboardToJSONDelegate?     DashboardToJSON   = null)
 
 
             => Dashboard?.Any() != true
@@ -78,18 +64,15 @@ namespace social.OpenData.UsersAPI
                    ? new JArray()
 
                    : new JArray(Dashboard.
-                                    Where            (dashboard => dashboard != null).
+                                    Where            (dashboard => dashboard is not null).
                                     OrderByDescending(dashboard => dashboard.CreationDate).
                                     SkipTakeFilter   (Skip, Take).
-                                    SafeSelect       (dashboard    => DashboardToJSON != null
-                                                                     ? DashboardToJSON (dashboard,
-                                                                                        Embedded,
-                                                                                        ExpandTags,
-                                                                                        IncludeCryptoHash)
-
-                                                                     : dashboard.ToJSON(Embedded,
-                                                                                        ExpandTags,
-                                                                                        IncludeCryptoHash)));
+                                    SafeSelect       (dashboard => DashboardToJSON is not null
+                                                                       ? DashboardToJSON (dashboard,
+                                                                                          Embedded,
+                                                                                          ExpandTags)
+                                                                       : dashboard.ToJSON(Embedded,
+                                                                                          ExpandTags)));
 
         #endregion
 
@@ -245,29 +228,24 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region ToJSON(Embedded = false, IncludeCryptoHash = false)
+        #region ToJSON(Embedded = false)
 
         /// <summary>
         /// Return a JSON representation of this object.
         /// </summary>
         /// <param name="Embedded">Whether this data structure is embedded into another data structure.</param>
-        /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
-        public override JObject ToJSON(Boolean Embedded           = false,
-                                       Boolean IncludeCryptoHash  = false)
+        public override JObject ToJSON(Boolean Embedded = false)
 
-            => ToJSON(Embedded:            false,
-                      ExpandTags:          InfoStatus.ShowIdOnly,
-                      IncludeCryptoHash:   true);
+            => ToJSON(Embedded:    false,
+                      ExpandTags:  InfoStatus.ShowIdOnly);
 
 
         /// <summary>
         /// Return a JSON representation of this object.
         /// </summary>
         /// <param name="Embedded">Whether this data structure is embedded into another data structure.</param>
-        /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
-        public JObject ToJSON(Boolean     Embedded            = false,
-                              InfoStatus  ExpandTags          = InfoStatus.ShowIdOnly,
-                              Boolean     IncludeCryptoHash   = false)
+        public JObject ToJSON(Boolean     Embedded    = false,
+                              InfoStatus  ExpandTags  = InfoStatus.ShowIdOnly)
 
             => JSONObject.Create(
 

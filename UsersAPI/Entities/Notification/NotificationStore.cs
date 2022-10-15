@@ -17,11 +17,7 @@
 
 #region Usings
 
-using System;
-using System.Linq;
 using System.Collections;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 using Newtonsoft.Json.Linq;
 
@@ -40,10 +36,10 @@ namespace social.OpenData.UsersAPI.Notifications
 
         #region Data
 
-        private readonly List<ANotification> _NotificationTypes;
+        private readonly List<ANotification> notifications;
 
         public IEnumerable<ANotification> NotificationTypes
-            => _NotificationTypes;
+            => notifications;
 
         #endregion
 
@@ -52,9 +48,14 @@ namespace social.OpenData.UsersAPI.Notifications
         /// <summary>
         /// Create a new notification store.
         /// </summary>
-        public NotificationStore()
+        public NotificationStore(IEnumerable<ANotification>? Notifications = null)
         {
-            this._NotificationTypes  = new List<ANotification>();
+
+            this.notifications = new List<ANotification>();
+
+            if (Notifications is not null && Notifications.Any())
+                notifications.AddRange(Notifications);
+
         }
 
         #endregion
@@ -69,15 +70,15 @@ namespace social.OpenData.UsersAPI.Notifications
 
         {
 
-            lock (_NotificationTypes)
+            lock (notifications)
             {
 
-                var notification = _NotificationTypes.OfType<T>().FirstOrDefault(typeT => typeT.Equals(NotificationType));
+                var notification = notifications.OfType<T>().FirstOrDefault(typeT => typeT.Equals(NotificationType));
 
                 // Create a new notification...
                 if (notification == null)
                 {
-                    _NotificationTypes.Add(NotificationType);
+                    notifications.Add(NotificationType);
                     notification = NotificationType;
                     OnUpdate?.Invoke(notification);
                 }
@@ -91,8 +92,8 @@ namespace social.OpenData.UsersAPI.Notifications
                     if (!NotificationType.OptionalEquals(notification))
                     {
 
-                        _NotificationTypes.Remove(notification);
-                        _NotificationTypes.Add   (NotificationType);
+                        notifications.Remove(notification);
+                        notifications.Add   (NotificationType);
 
                         OnUpdate?.Invoke(NotificationType);
 
@@ -138,14 +139,14 @@ namespace social.OpenData.UsersAPI.Notifications
 
         {
 
-            lock (_NotificationTypes)
+            lock (notifications)
             {
 
-                var notification = _NotificationTypes.OfType<T>().FirstOrDefault(typeT => typeT.Equals(NotificationType));
+                var notification = notifications.OfType<T>().FirstOrDefault(typeT => typeT.Equals(NotificationType));
 
                 if (notification == null)
                 {
-                    _NotificationTypes.Add(NotificationType);
+                    notifications.Add(NotificationType);
                     notification = NotificationType;
                 }
 
@@ -170,14 +171,14 @@ namespace social.OpenData.UsersAPI.Notifications
 
         {
 
-            lock (_NotificationTypes)
+            lock (notifications)
             {
 
-                var notification = _NotificationTypes.OfType<T>().FirstOrDefault(typeT => typeT.Equals(NotificationType));
+                var notification = notifications.OfType<T>().FirstOrDefault(typeT => typeT.Equals(NotificationType));
 
                 if (notification == null)
                 {
-                    _NotificationTypes.Add(NotificationType);
+                    notifications.Add(NotificationType);
                     notification = NotificationType;
                 }
 
@@ -198,9 +199,9 @@ namespace social.OpenData.UsersAPI.Notifications
             where T : ANotification
         {
 
-            lock (_NotificationTypes)
+            lock (notifications)
             {
-                _NotificationTypes.AddRange(Notifications);
+                notifications.AddRange(Notifications);
             }
 
         }
@@ -213,12 +214,12 @@ namespace social.OpenData.UsersAPI.Notifications
         public IEnumerable<ANotification> GetNotifications(NotificationMessageType?  NotificationMessageType = null)
         {
 
-            lock (_NotificationTypes)
+            lock (notifications)
             {
 
                 var results = NotificationMessageType.HasValue
-                                  ? _NotificationTypes.Where(typeT => typeT.Contains(NotificationMessageType.Value)).ToArray()
-                                  : _NotificationTypes.ToArray();
+                                  ? notifications.Where(typeT => typeT.Contains(NotificationMessageType.Value)).ToArray()
+                                  : notifications.ToArray();
 
                 //// When no specialized notification was found... return a general notification!
                 //return results.Length > 0
@@ -241,12 +242,12 @@ namespace social.OpenData.UsersAPI.Notifications
 
         {
 
-            lock (_NotificationTypes)
+            lock (notifications)
             {
 
                 var results = NotificationMessageTypes != null && NotificationMessageTypes.Length > 0
-                                  ? _NotificationTypes.OfType<T>().Where(typeT => typeT.Contains(NotificationMessageTypes)).ToArray()
-                                  : _NotificationTypes.OfType<T>().ToArray();
+                                  ? notifications.OfType<T>().Where(typeT => typeT.Contains(NotificationMessageTypes)).ToArray()
+                                  : notifications.OfType<T>().ToArray();
 
                 //// When no specialized notification was found... return a general notification!
                 //return results.Length > 0
@@ -266,13 +267,13 @@ namespace social.OpenData.UsersAPI.Notifications
         public IEnumerable<ANotification> GetNotifications(Func<NotificationMessageType, Boolean>  NotificationMessageTypeFilter)
         {
 
-            lock (_NotificationTypes)
+            lock (notifications)
             {
 
                 if (NotificationMessageTypeFilter == null)
                     NotificationMessageTypeFilter = (_ => true);
 
-                var results = _NotificationTypes.Where(typeT => typeT.Any(NotificationMessageTypeFilter)).ToArray();
+                var results = notifications.Where(typeT => typeT.Any(NotificationMessageTypeFilter)).ToArray();
 
                 //// When no specialized notification was found... return a general notification!
                 //return results.Length > 0
@@ -295,13 +296,13 @@ namespace social.OpenData.UsersAPI.Notifications
 
         {
 
-            lock (_NotificationTypes)
+            lock (notifications)
             {
 
                 if (NotificationMessageTypeFilter == null)
                     NotificationMessageTypeFilter = (_ => true);
 
-                var results = _NotificationTypes.OfType<T>().Where(typeT => typeT.Any(NotificationMessageTypeFilter)).ToArray();
+                var results = notifications.OfType<T>().Where(typeT => typeT.Any(NotificationMessageTypeFilter)).ToArray();
 
                 //// When no specialized notification was found... return a general notification!
                 //return results.Length > 0
@@ -326,11 +327,11 @@ namespace social.OpenData.UsersAPI.Notifications
 
         {
 
-            lock (_NotificationTypes)
+            lock (notifications)
             {
-                foreach (var notification in _NotificationTypes.OfType<T>().Where(typeT => typeT.Equals(NotificationType)).ToArray())
+                foreach (var notification in notifications.OfType<T>().Where(typeT => typeT.Equals(NotificationType)).ToArray())
                 {
-                    _NotificationTypes.Remove(notification);
+                    notifications.Remove(notification);
                     OnRemoval?.Invoke(notification);
                 }
             }
@@ -342,14 +343,14 @@ namespace social.OpenData.UsersAPI.Notifications
 
         public JArray ToJSON()
 
-            => new JArray(_NotificationTypes.
+            => new JArray(notifications.
                               OrderBy   (notification => notification.SortKey).
                               SafeSelect(notification => notification.ToJSON(false)));
 
 
         public JObject ToJSON(UInt32 Number)
 
-            => _NotificationTypes.
+            => notifications.
                   OrderBy(notification => notification.SortKey).
                    Skip(Number - 1).
                    FirstOrDefault()?.
@@ -359,17 +360,17 @@ namespace social.OpenData.UsersAPI.Notifications
 
         public IEnumerator<ANotification> GetEnumerator()
         {
-            lock (_NotificationTypes)
+            lock (notifications)
             {
-                return new List<ANotification>(_NotificationTypes).GetEnumerator();
+                return new List<ANotification>(notifications).GetEnumerator();
             }
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            lock (_NotificationTypes)
+            lock (notifications)
             {
-                return new List<ANotification>(_NotificationTypes).GetEnumerator();
+                return new List<ANotification>(notifications).GetEnumerator();
             }
         }
 

@@ -187,9 +187,7 @@ namespace social.OpenData.UsersAPI.Notifications
         /// <summary>
         /// Return a JSON representation of this object.
         /// </summary>
-        /// <param name="IncludeCryptoHash">Include the hash value of this object.</param>
-        public override JObject ToJSON(Boolean Embedded           = true,
-                                       Boolean IncludeCryptoHash  = true)
+        public override JObject ToJSON(Boolean Embedded = true)
 
             => JSONObject.Create(
 

@@ -17,22 +17,17 @@
 
 #region Usings
 
-using System;
-using System.Linq;
-using System.Collections.Generic;
+using System.Security.Cryptography;
 
 using Newtonsoft.Json.Linq;
 
-using org.GraphDefined.Vanaheimr.Aegir;
-using org.GraphDefined.Vanaheimr.Illias;
-using org.GraphDefined.Vanaheimr.Hermod;
-
-using org.GraphDefined.Vanaheimr.Hermod.HTTP;
-using org.GraphDefined.Vanaheimr.Styx.Arrows;
-using System.Security.Cryptography;
 using Org.BouncyCastle.Security;
 using Org.BouncyCastle.Crypto;
-using social.OpenData.UsersAPI;
+
+using org.GraphDefined.Vanaheimr.Illias;
+using org.GraphDefined.Vanaheimr.Hermod;
+using org.GraphDefined.Vanaheimr.Hermod.HTTP;
+using org.GraphDefined.Vanaheimr.Styx.Arrows;
 
 #endregion
 
@@ -42,10 +37,9 @@ namespace social.OpenData.UsersAPI
 //    public delegate Boolean FAQProviderDelegate(FAQ_Id FAQId, out FAQ FAQ);
 
     public delegate JObject FAQToJSONDelegate(FAQ         FAQ,
-                                              Boolean     Embedded            = false,
-                                              InfoStatus  ExpandTags          = InfoStatus.ShowIdOnly,
-                                              InfoStatus  ExpandAuthorId      = InfoStatus.ShowIdOnly,
-                                              Boolean     IncludeCryptoHash   = true);
+                                              Boolean     Embedded         = false,
+                                              InfoStatus  ExpandTags       = InfoStatus.ShowIdOnly,
+                                              InfoStatus  ExpandAuthorId   = InfoStatus.ShowIdOnly);
 
 
     /// <summary>
@@ -64,13 +58,12 @@ namespace social.OpenData.UsersAPI
         /// <param name="Take">The optional number of FAQs to return.</param>
         /// <param name="Embedded">Whether this data structure is embedded into another data structure.</param>
         public static JArray ToJSON(this IEnumerable<FAQ>  FAQ,
-                                    UInt64?                Skip                 = null,
-                                    UInt64?                Take                 = null,
-                                    Boolean                Embedded             = false,
-                                    InfoStatus             ExpandTags           = InfoStatus.ShowIdOnly,
-                                    InfoStatus             ExpandAuthorId       = InfoStatus.ShowIdOnly,
-                                    FAQToJSONDelegate      FAQToJSON            = null,
-                                    Boolean                IncludeCryptoHash    = true)
+                                    UInt64?                Skip             = null,
+                                    UInt64?                Take             = null,
+                                    Boolean                Embedded         = false,
+                                    InfoStatus             ExpandTags       = InfoStatus.ShowIdOnly,
+                                    InfoStatus             ExpandAuthorId   = InfoStatus.ShowIdOnly,
+                                    FAQToJSONDelegate?     FAQToJSON        = null)
 
 
             => FAQ?.Any() != true
@@ -78,20 +71,17 @@ namespace social.OpenData.UsersAPI
                    ? new JArray()
 
                    : new JArray(FAQ.
-                                    Where            (dataSet =>  dataSet != null).
+                                    Where            (dataSet =>  dataSet is not null).
                                     //OrderByDescending(dataSet => dataSet.PublicationDate).
                                     SkipTakeFilter   (Skip, Take).
-                                    SafeSelect       (faq     => FAQToJSON != null
+                                    SafeSelect       (faq     => FAQToJSON is not null
                                                                      ? FAQToJSON (faq,
                                                                                   Embedded,
                                                                                   ExpandTags,
-                                                                                  ExpandAuthorId,
-                                                                                  IncludeCryptoHash)
-
+                                                                                  ExpandAuthorId)
                                                                      : faq.ToJSON(Embedded,
                                                                                   ExpandTags,
-                                                                                  ExpandAuthorId,
-                                                                                  IncludeCryptoHash)));
+                                                                                  ExpandAuthorId)));
 
         #endregion
 
@@ -280,30 +270,26 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region ToJSON(Embedded = false, IncludeCryptoHash = false)
+        #region ToJSON(Embedded = false)
+
+        /// <summary>
+        /// Return a JSON representation of this object.
+        /// </summary>
+        /// <param name="Embedded">Whether this data structure is embedded into another data structure.</param>
+        public override JObject ToJSON(Boolean Embedded = false)
+
+            => ToJSON(Embedded:    false,
+                      ExpandTags:  InfoStatus.ShowIdOnly);
+
 
         /// <summary>
         /// Return a JSON representation of this object.
         /// </summary>
         /// <param name="Embedded">Whether this data structure is embedded into another data structure.</param>
         /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
-        public override JObject ToJSON(Boolean Embedded           = false,
-                                       Boolean IncludeCryptoHash  = false)
-
-            => ToJSON(Embedded:            false,
-                      ExpandTags:          InfoStatus.ShowIdOnly,
-                      IncludeCryptoHash:   true);
-
-
-        /// <summary>
-        /// Return a JSON representation of this object.
-        /// </summary>
-        /// <param name="Embedded">Whether this data structure is embedded into another data structure.</param>
-        /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
-        public JObject ToJSON(Boolean     Embedded            = false,
-                              InfoStatus  ExpandTags          = InfoStatus.ShowIdOnly,
-                              InfoStatus  ExpandAuthorId      = InfoStatus.ShowIdOnly,
-                              Boolean     IncludeCryptoHash   = false)
+        public JObject ToJSON(Boolean     Embedded        = false,
+                              InfoStatus  ExpandTags      = InfoStatus.ShowIdOnly,
+                              InfoStatus  ExpandAuthorId  = InfoStatus.ShowIdOnly)
 
             => JSONObject.Create(
 
@@ -917,9 +903,9 @@ namespace social.OpenData.UsersAPI
                                          DataSource,
                                          LastChangeDate);;
 
-                var ctext       = FAQ.ToJSON(Embedded:           false,
-                                             ExpandTags:         InfoStatus.ShowIdOnly,
-                                             IncludeCryptoHash:  false).ToString(Newtonsoft.Json.Formatting.None);
+                var ctext       = FAQ.ToJSON  (Embedded:   false,
+                                               ExpandTags: InfoStatus.ShowIdOnly).
+                                      ToString(Newtonsoft.Json.Formatting.None);
 
                 var BlockSize   = 32;
 

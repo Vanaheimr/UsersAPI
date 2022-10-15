@@ -17,20 +17,14 @@
 
 #region Usings
 
-using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
 using Newtonsoft.Json.Linq;
 
 using org.GraphDefined.Vanaheimr.Aegir;
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod;
-using org.GraphDefined.Vanaheimr.Styx.Arrows;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 using org.GraphDefined.Vanaheimr.Hermod.Mail;
-using org.GraphDefined.Vanaheimr.Hermod.JSON;
+using org.GraphDefined.Vanaheimr.Styx.Arrows;
 
 using social.OpenData.UsersAPI;
 using social.OpenData.UsersAPI.Notifications;
@@ -131,12 +125,12 @@ namespace social.OpenData.UsersAPI
 
         #region API
 
-        private UsersAPI _API;
+        private UsersAPI? _API;
 
         /// <summary>
         /// The UsersAPI of this organization.
         /// </summary>
-        internal UsersAPI API
+        internal UsersAPI? API
         {
 
             get
@@ -150,7 +144,7 @@ namespace social.OpenData.UsersAPI
                 if (_API == value)
                     return;
 
-                if (_API != null)
+                if (_API is not null)
                     throw new ArgumentException("Illegal attempt to change the API of this organization!");
 
                 _API = value ?? throw new ArgumentException("Illegal attempt to delete the API reference of this organization!");
@@ -178,13 +172,13 @@ namespace social.OpenData.UsersAPI
         /// The website of the organization.
         /// </summary>
         [Optional]
-        public String                     Website              { get; }
+        public String?                    Website              { get; }
 
         /// <summary>
         /// The primary E-Mail address of the organization.
         /// </summary>
         [Optional]
-        public EMailAddress               EMail                { get; }
+        public EMailAddress?              EMail                { get; }
 
         /// <summary>
         /// The telephone number of the organization.
@@ -196,7 +190,7 @@ namespace social.OpenData.UsersAPI
         /// The optional address of the organization.
         /// </summary>
         [Optional]
-        public Address                    Address              { get; }
+        public Address?                   Address              { get; }
 
         /// <summary>
         /// The geographical location of this organization.
@@ -207,7 +201,7 @@ namespace social.OpenData.UsersAPI
         /// An collection of multi-language tags and their relevance.
         /// </summary>
         [Optional]
-        public Tags                       Tags                 { get; }
+        public Tags?                      Tags                 { get; }
 
         /// <summary>
         /// The user will be shown in organization listings.
@@ -647,28 +641,28 @@ namespace social.OpenData.UsersAPI
         /// <param name="JSONLDContext">The JSON-LD context of this organization.</param>
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
         /// <param name="LastChange">The timestamp of the last changes within this organization. Can e.g. be used as a HTTP ETag.</param>
-        public Organization(Organization_Id                             Id,
-                            I18NString                                  Name                                = null,
-                            I18NString                                  Description                         = null,
-                            String                                      Website                             = null,
-                            EMailAddress                                EMail                               = null,
-                            PhoneNumber?                                Telephone                           = null,
-                            Address                                     Address                             = null,
-                            GeoCoordinate?                              GeoLocation                         = null,
-                            Func<Tags.Builder, Tags>                    Tags                                = null,
-                            Boolean                                     IsDisabled                          = false,
+        public Organization(Organization_Id                              Id,
+                            I18NString?                                  Name                                = null,
+                            I18NString?                                  Description                         = null,
+                            String?                                      Website                             = null,
+                            EMailAddress?                                EMail                               = null,
+                            PhoneNumber?                                 Telephone                           = null,
+                            Address?                                     Address                             = null,
+                            GeoCoordinate?                               GeoLocation                         = null,
+                            Func<Tags.Builder, Tags>?                    Tags                                = null,
+                            Boolean                                      IsDisabled                          = false,
 
-                            IEnumerable<ANotification>                  Notifications                       = null,
+                            IEnumerable<ANotification>?                  Notifications                       = null,
 
-                            IEnumerable<User2OrganizationEdge>          User2OrganizationEdges              = null,
-                            IEnumerable<Organization2OrganizationEdge>  Organization2OrganizationInEdges    = null,
-                            IEnumerable<Organization2OrganizationEdge>  Organization2OrganizationOutEdges   = null,
+                            IEnumerable<User2OrganizationEdge>?          User2OrganizationEdges              = null,
+                            IEnumerable<Organization2OrganizationEdge>?  Organization2OrganizationInEdges    = null,
+                            IEnumerable<Organization2OrganizationEdge>?  Organization2OrganizationOutEdges   = null,
 
-                            JObject                                     CustomData                          = default,
-                            IEnumerable<AttachedFile>                   AttachedFiles                       = default,
-                            JSONLDContext?                              JSONLDContext                       = default,
-                            String                                      DataSource                          = default,
-                            DateTime?                                   LastChange                          = default)
+                            JObject?                                     CustomData                          = default,
+                            IEnumerable<AttachedFile>?                   AttachedFiles                       = default,
+                            JSONLDContext?                               JSONLDContext                       = default,
+                            String?                                      DataSource                          = default,
+                            DateTime?                                    LastChange                          = default)
 
             : base(Id,
                    JSONLDContext ?? DefaultJSONLDContext,
@@ -679,26 +673,33 @@ namespace social.OpenData.UsersAPI
 
         {
 
-            this.Name                                 = Name         ?? new I18NString();
-            this.Description                          = Description  ?? new I18NString();
+            this.Name                                 = Name          ?? new I18NString();
+            this.Description                          = Description   ?? new I18NString();
             this.Website                              = Website;
             this.EMail                                = EMail;
             this.Telephone                            = Telephone;
             this.Address                              = Address;
             this.GeoLocation                          = GeoLocation;
             var _TagsBuilder                          = new Tags.Builder();
-            this.Tags                                 = Tags != null ? Tags(_TagsBuilder) : _TagsBuilder;
+            this.Tags                                 = Tags is not null
+                                                            ? Tags(_TagsBuilder)
+                                                            : _TagsBuilder;
             this.IsDisabled                           = IsDisabled;
-            this.AttachedFiles                        = AttachedFiles ?? new AttachedFile[0];
+            this.AttachedFiles                        = AttachedFiles ?? Array.Empty<AttachedFile>();
 
-            this._Notifications                       = new NotificationStore();
+            this.notifications                        = new NotificationStore(Notifications);
 
-            if (Notifications.SafeAny())
-                _Notifications.Add(Notifications);
+            this._User2Organization_Edges             = User2OrganizationEdges            is not null && User2OrganizationEdges.           IsNeitherNullNorEmpty()
+                                                            ? new List<User2OrganizationEdge>        (User2OrganizationEdges)
+                                                            : new List<User2OrganizationEdge>();
 
-            this._User2Organization_Edges             = User2OrganizationEdges.           IsNeitherNullNorEmpty() ? new List<User2OrganizationEdge>        (User2OrganizationEdges)            : new List<User2OrganizationEdge>();
-            this._Organization2Organization_InEdges   = Organization2OrganizationInEdges. IsNeitherNullNorEmpty() ? new List<Organization2OrganizationEdge>(Organization2OrganizationInEdges)  : new List<Organization2OrganizationEdge>();
-            this._Organization2Organization_OutEdges  = Organization2OrganizationOutEdges.IsNeitherNullNorEmpty() ? new List<Organization2OrganizationEdge>(Organization2OrganizationOutEdges) : new List<Organization2OrganizationEdge>();
+            this._Organization2Organization_InEdges   = Organization2OrganizationInEdges  is not null && Organization2OrganizationInEdges. IsNeitherNullNorEmpty()
+                                                            ? new List<Organization2OrganizationEdge>(Organization2OrganizationInEdges)
+                                                            : new List<Organization2OrganizationEdge>();
+
+            this._Organization2Organization_OutEdges  = Organization2OrganizationOutEdges is not null && Organization2OrganizationOutEdges.IsNeitherNullNorEmpty()
+                                                            ? new List<Organization2OrganizationEdge>(Organization2OrganizationOutEdges)
+                                                            : new List<Organization2OrganizationEdge>();
 
         }
 
@@ -707,7 +708,7 @@ namespace social.OpenData.UsersAPI
 
         #region Notifications
 
-        private readonly NotificationStore _Notifications;
+        private readonly NotificationStore notifications;
 
         #region (internal) AddNotification(Notification,                           OnUpdate = null)
 
@@ -716,7 +717,7 @@ namespace social.OpenData.UsersAPI
 
             where T : ANotification
 
-            => _Notifications.Add(Notification,
+            => notifications.Add(Notification,
                                   OnUpdate);
 
         #endregion
@@ -729,7 +730,7 @@ namespace social.OpenData.UsersAPI
 
             where T : ANotification
 
-            => _Notifications.Add(Notification,
+            => notifications.Add(Notification,
                                   NotificationMessageType,
                                   OnUpdate);
 
@@ -743,7 +744,7 @@ namespace social.OpenData.UsersAPI
 
             where T : ANotification
 
-            => _Notifications.Add(Notification,
+            => notifications.Add(Notification,
                                   NotificationMessageTypes,
                                   OnUpdate);
 
@@ -754,9 +755,9 @@ namespace social.OpenData.UsersAPI
 
         public IEnumerable<ANotification> GetNotifications(NotificationMessageType?  NotificationMessageType = null)
         {
-            lock (_Notifications)
+            lock (notifications)
             {
-                return _Notifications.GetNotifications(NotificationMessageType);
+                return notifications.GetNotifications(NotificationMessageType);
             }
         }
 
@@ -770,10 +771,10 @@ namespace social.OpenData.UsersAPI
 
         {
 
-            lock (_Notifications)
+            lock (notifications)
             {
 
-                var organizationNotifications  = _Notifications.GetNotificationsOf<T>(NotificationMessageTypes);
+                var organizationNotifications  = notifications.GetNotificationsOf<T>(NotificationMessageTypes);
 
                 var userNotifications          = GetMeAndAllMyParents(parent => parent.Id.ToString() != "NoOwner").
                                                  SelectMany          (parent => parent.User2OrganizationEdges).
@@ -791,9 +792,9 @@ namespace social.OpenData.UsersAPI
 
         public IEnumerable<ANotification> GetNotifications(Func<NotificationMessageType, Boolean> NotificationMessageTypeFilter)
         {
-            lock (_Notifications)
+            lock (notifications)
             {
-                return _Notifications.GetNotifications(NotificationMessageTypeFilter);
+                return notifications.GetNotifications(NotificationMessageTypeFilter);
             }
         }
 
@@ -807,9 +808,9 @@ namespace social.OpenData.UsersAPI
 
         {
 
-            lock (_Notifications)
+            lock (notifications)
             {
-                return _Notifications.GetNotificationsOf<T>(NotificationMessageTypeFilter);
+                return notifications.GetNotificationsOf<T>(NotificationMessageTypeFilter);
             }
 
         }
@@ -831,7 +832,7 @@ namespace social.OpenData.UsersAPI
                                      //    : null
 
                                  )),
-                                 new JProperty("notifications",  _Notifications.ToJSON()));
+                                 new JProperty("notifications",  notifications.ToJSON()));
 
         #endregion
 
@@ -843,7 +844,7 @@ namespace social.OpenData.UsersAPI
 
             where T : ANotification
 
-            => _Notifications.Remove(NotificationType,
+            => notifications.Remove(NotificationType,
                                      OnRemoval);
 
         #endregion
@@ -851,44 +852,38 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region ToJSON(Embedded = false, IncludeCryptoHash = false)
+        #region ToJSON(Embedded = false)
 
         /// <summary>
         /// Return a JSON representation of this object.
         /// </summary>
         /// <param name="Embedded">Whether this data structure is embedded into another data structure.</param>
-        /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
-        public override JObject ToJSON(Boolean  Embedded           = false,
-                                       Boolean  IncludeCryptoHash  = false)
+        public override JObject ToJSON(Boolean  Embedded   = false)
 
             => ToJSON(Embedded:                false,
                       ExpandParents:           InfoStatus.ShowIdOnly,
                       ExpandSubOrganizations:  InfoStatus.ShowIdOnly,
-                      ExpandTags:              InfoStatus.ShowIdOnly,
-                      IncludeCryptoHash:       true);
+                      ExpandTags:              InfoStatus.ShowIdOnly);
 
 
         /// <summary>
         /// Return a JSON representation of this object.
         /// </summary>
         /// <param name="Embedded">Whether this data structure is embedded into another data structure.</param>
-        /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
-        public JObject ToJSON(Boolean                                        Embedded                       = false,
-                              InfoStatus                                     ExpandMembers                  = InfoStatus.ShowIdOnly,
-                              InfoStatus                                     ExpandParents                  = InfoStatus.ShowIdOnly,
-                              InfoStatus                                     ExpandSubOrganizations         = InfoStatus.ShowIdOnly,
-                              InfoStatus                                     ExpandTags                     = InfoStatus.ShowIdOnly,
-                              Boolean                                        IncludeLastChange              = true,
-                              Boolean                                        IncludeCryptoHash              = true,
-                              CustomJObjectSerializerDelegate<Organization>  CustomOrganizationSerializer   = null)
+        public JObject ToJSON(Boolean                                         Embedded                       = false,
+                              InfoStatus                                      ExpandMembers                  = InfoStatus.ShowIdOnly,
+                              InfoStatus                                      ExpandParents                  = InfoStatus.ShowIdOnly,
+                              InfoStatus                                      ExpandSubOrganizations         = InfoStatus.ShowIdOnly,
+                              InfoStatus                                      ExpandTags                     = InfoStatus.ShowIdOnly,
+                              Boolean                                         IncludeLastChange              = true,
+                              CustomJObjectSerializerDelegate<Organization>?  CustomOrganizationSerializer   = null)
 
         {
 
             var JSON = base.ToJSON(Embedded,
                                    IncludeLastChange,
-                                   IncludeCryptoHash,
                                    null,
-                                   new JProperty[] {
+                                   new JProperty?[] {
 
                                        new JProperty("name",                    Name.           ToJSON()),
 
@@ -896,11 +891,11 @@ namespace social.OpenData.UsersAPI
                                            ? new JProperty("description",       Description.    ToJSON())
                                            : null,
 
-                                       Website.IsNeitherNullNorEmpty()
+                                       Website is not null && Website.IsNeitherNullNorEmpty()
                                            ? new JProperty("website",           Website)
                                            : null,
 
-                                       EMail != null
+                                       EMail is not null
                                            ? new JProperty("email",             EMail.Address.  ToString())
                                            : null,
 
@@ -908,11 +903,13 @@ namespace social.OpenData.UsersAPI
                                            ? new JProperty("telephone",         Telephone.Value.ToString())
                                            : null,
 
-                                       new JProperty("address",                 Address.ToJSON()),
+                                       Address is not null
+                                           ? new JProperty("address",           Address.ToJSON())
+                                           : null,
 
                                        GeoLocation?.ToJSON("geoLocation"),
 
-                                       Tags.Any()
+                                       Tags is not null && Tags.Any()
                                            ? new JProperty("tags",              Tags.ToJSON(ExpandTags))
                                            : null,
 
@@ -958,7 +955,7 @@ namespace social.OpenData.UsersAPI
                                     });
 
 
-            return CustomOrganizationSerializer != null
+            return CustomOrganizationSerializer is not null
                        ? CustomOrganizationSerializer(this, JSON)
                        : JSON;
 
@@ -968,10 +965,10 @@ namespace social.OpenData.UsersAPI
 
         #region (static) TryParseJSON(JSONObject, ..., out Organization, out ErrorResponse)
 
-        public static Boolean TryParseJSON(JObject           JSONObject,
-                                           out Organization  Organization,
-                                           out String        ErrorResponse,
-                                           Organization_Id?  OrganizationIdURL = null)
+        public static Boolean TryParseJSON(JObject            JSONObject,
+                                           out Organization?  Organization,
+                                           out String?        ErrorResponse,
+                                           Organization_Id?   OrganizationIdURL   = null)
         {
 
             try
@@ -1192,7 +1189,7 @@ namespace social.OpenData.UsersAPI
             catch (Exception e)
             {
                 ErrorResponse  = e.Message;
-                Organization  = null;
+                Organization   = null;
                 return false;
             }
 
@@ -1236,8 +1233,8 @@ namespace social.OpenData.UsersAPI
 
             }
 
-            if (OldOrganization._Notifications.SafeAny() && !_Notifications.SafeAny())
-                _Notifications.Add(OldOrganization._Notifications);
+            if (OldOrganization.notifications.SafeAny() && !notifications.SafeAny())
+                notifications.Add(OldOrganization.notifications);
 
         }
 
@@ -1456,7 +1453,7 @@ namespace social.OpenData.UsersAPI
                            _ => Tags,
                            IsDisabled,
 
-                           _Notifications,
+                           notifications,
 
                            _User2Organization_Edges,
                            _Organization2Organization_InEdges,
@@ -1823,10 +1820,7 @@ namespace social.OpenData.UsersAPI
                 this.IsDisabled                           = IsDisabled;
                 this.AttachedFiles                        = AttachedFiles.SafeAny() ? new HashSet<AttachedFile>(AttachedFiles) : new HashSet<AttachedFile>();
 
-                this._Notifications                       = new NotificationStore();
-
-                if (Notifications.SafeAny())
-                    _Notifications.Add(Notifications);
+                this.notifications                        = new NotificationStore(Notifications);
 
                 this._User2Organization_Edges             = User2OrganizationEdges.           IsNeitherNullNorEmpty() ? new List<User2OrganizationEdge>        (User2OrganizationEdges)            : new List<User2OrganizationEdge>();
                 this._Organization2Organization_InEdges   = Organization2OrganizationInEdges. IsNeitherNullNorEmpty() ? new List<Organization2OrganizationEdge>(Organization2OrganizationInEdges)  : new List<Organization2OrganizationEdge>();
@@ -1839,7 +1833,7 @@ namespace social.OpenData.UsersAPI
 
             #region Notifications
 
-            private readonly NotificationStore _Notifications;
+            private readonly NotificationStore notifications;
 
             #region (internal) AddNotification(Notification,                           OnUpdate = null)
 
@@ -1848,7 +1842,7 @@ namespace social.OpenData.UsersAPI
 
                 where T : ANotification
 
-                => _Notifications.Add(Notification,
+                => notifications.Add(Notification,
                                       OnUpdate);
 
             #endregion
@@ -1861,7 +1855,7 @@ namespace social.OpenData.UsersAPI
 
                 where T : ANotification
 
-                => _Notifications.Add(Notification,
+                => notifications.Add(Notification,
                                       NotificationMessageType,
                                       OnUpdate);
 
@@ -1875,7 +1869,7 @@ namespace social.OpenData.UsersAPI
 
                 where T : ANotification
 
-                => _Notifications.Add(Notification,
+                => notifications.Add(Notification,
                                       NotificationMessageTypes,
                                       OnUpdate);
 
@@ -1886,9 +1880,9 @@ namespace social.OpenData.UsersAPI
 
             public IEnumerable<ANotification> GetNotifications(NotificationMessageType?  NotificationMessageType = null)
             {
-                lock (_Notifications)
+                lock (notifications)
                 {
-                    return _Notifications.GetNotifications(NotificationMessageType);
+                    return notifications.GetNotifications(NotificationMessageType);
                 }
             }
 
@@ -1902,9 +1896,9 @@ namespace social.OpenData.UsersAPI
 
             {
 
-                lock (_Notifications)
+                lock (notifications)
                 {
-                    return _Notifications.GetNotificationsOf<T>(NotificationMessageTypes);
+                    return notifications.GetNotificationsOf<T>(NotificationMessageTypes);
                 }
 
             }
@@ -1915,9 +1909,9 @@ namespace social.OpenData.UsersAPI
 
             public IEnumerable<ANotification> GetNotifications(Func<NotificationMessageType, Boolean> NotificationMessageTypeFilter)
             {
-                lock (_Notifications)
+                lock (notifications)
                 {
-                    return _Notifications.GetNotifications(NotificationMessageTypeFilter);
+                    return notifications.GetNotifications(NotificationMessageTypeFilter);
                 }
             }
 
@@ -1931,9 +1925,9 @@ namespace social.OpenData.UsersAPI
 
             {
 
-                lock (_Notifications)
+                lock (notifications)
                 {
-                    return _Notifications.GetNotificationsOf<T>(NotificationMessageTypeFilter);
+                    return notifications.GetNotificationsOf<T>(NotificationMessageTypeFilter);
                 }
 
             }
@@ -1955,7 +1949,7 @@ namespace social.OpenData.UsersAPI
                                          //    : null
 
                                      )),
-                                     new JProperty("notifications",  _Notifications.ToJSON()));
+                                     new JProperty("notifications",  notifications.ToJSON()));
 
             #endregion
 
@@ -1967,7 +1961,7 @@ namespace social.OpenData.UsersAPI
 
                 where T : ANotification
 
-                => _Notifications.Remove(NotificationType,
+                => notifications.Remove(NotificationType,
                                          OnRemoval);
 
             #endregion
@@ -2008,7 +2002,7 @@ namespace social.OpenData.UsersAPI
                                             _ => Tags,
                                             IsDisabled,
 
-                                            _Notifications,
+                                            notifications,
 
                                             _User2Organization_Edges,
                                             _Organization2Organization_InEdges,
@@ -2061,8 +2055,8 @@ namespace social.OpenData.UsersAPI
 
                 }
 
-                if (OldOrganization._Notifications.SafeAny() && !_Notifications.SafeAny())
-                    _Notifications.Add(OldOrganization._Notifications);
+                if (OldOrganization.notifications.SafeAny() && !notifications.SafeAny())
+                    notifications.Add(OldOrganization.notifications);
 
             }
 

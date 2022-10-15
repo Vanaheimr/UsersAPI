@@ -392,19 +392,16 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region ToJSON(Embedded = false, IncludeCryptoHash = true)
+        #region ToJSON(Embedded = false)
 
         /// <summary>
         /// Return a JSON representation of this object.
         /// </summary>
         /// <param name="Embedded">Whether this data structure is embedded into another data structure.</param>
-        /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
-        public override JObject ToJSON(Boolean Embedded           = false,
-                                       Boolean IncludeCryptoHash  = false)
+        public override JObject ToJSON(Boolean Embedded = false)
 
             => ToJSON(Embedded,
                       true,
-                      IncludeCryptoHash,
                       null);
 
 
@@ -413,20 +410,17 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="Embedded">Whether this data structure is embedded into another data structure.</param>
         /// <param name="IncludeLastChange">Whether to include the lastChange timestamp of this object.</param>
-        /// <param name="IncludeCryptoHash">Whether to include the cryptograhical hash value of this object.</param>
         /// <param name="CustomAPIKeySerializer">A delegate to serialize custom API key JSON objects.</param>
         public JObject ToJSON(Boolean                                  Embedded,
                               Boolean                                  IncludeLastChange,
-                              Boolean                                  IncludeCryptoHash,
                               CustomJObjectSerializerDelegate<APIKey>  CustomAPIKeySerializer)
 
         {
 
             var JSON = base.ToJSON(Embedded,
                                    IncludeLastChange,
-                                   IncludeCryptoHash,
                                    null,
-                                   new JProperty[] {
+                                   new JProperty?[] {
 
                                        new JProperty("userId",                        UserId.         ToString()),
                                        new JProperty("description",                   Description.    ToJSON()),
@@ -451,7 +445,7 @@ namespace social.OpenData.UsersAPI
 
                                    });
 
-            return CustomAPIKeySerializer != null
+            return CustomAPIKeySerializer is not null
                        ? CustomAPIKeySerializer(this, JSON)
                        : JSON;
 

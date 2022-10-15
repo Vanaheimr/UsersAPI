@@ -17,22 +17,17 @@
 
 #region Usings
 
-using System;
-using System.Linq;
-using System.Collections.Generic;
 using System.Security.Cryptography;
 
 using Newtonsoft.Json.Linq;
 
-using org.GraphDefined.Vanaheimr.Aegir;
-using org.GraphDefined.Vanaheimr.Illias;
-using org.GraphDefined.Vanaheimr.Hermod;
-
-using org.GraphDefined.Vanaheimr.Hermod.HTTP;
-using org.GraphDefined.Vanaheimr.Styx.Arrows;
-
 using Org.BouncyCastle.Security;
 using Org.BouncyCastle.Crypto;
+
+using org.GraphDefined.Vanaheimr.Illias;
+using org.GraphDefined.Vanaheimr.Hermod;
+using org.GraphDefined.Vanaheimr.Hermod.HTTP;
+using org.GraphDefined.Vanaheimr.Styx.Arrows;
 
 #endregion
 
@@ -239,15 +234,13 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region ToJSON(Embedded = false, IncludeCryptoHash = false)
+        #region ToJSON(Embedded = false)
 
         /// <summary>
         /// Return a JSON representation of this object.
         /// </summary>
         /// <param name="Embedded">Whether this data structure is embedded into another data structure.</param>
-        /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
-        public override JObject ToJSON(Boolean Embedded           = false,
-                                       Boolean IncludeCryptoHash  = false)
+        public override JObject ToJSON(Boolean Embedded = false)
 
             => ToJSON(Embedded:            false,
                       ExpandTags:          InfoStatus.ShowIdOnly);

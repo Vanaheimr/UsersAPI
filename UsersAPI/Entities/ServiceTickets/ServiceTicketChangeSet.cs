@@ -64,8 +64,7 @@ namespace social.OpenData.UsersAPI
                                     InfoStatus                                ExpandDataLicenses             = InfoStatus.ShowIdOnly,
                                     InfoStatus                                ExpandOwnerId                  = InfoStatus.ShowIdOnly,
                                     InfoStatus                                ExpandCommunicatorId           = InfoStatus.ShowIdOnly,
-                                    ServiceTicketChangeSetToJSONDelegate      ServiceTicketChangeSetToJSON   = null,
-                                    Boolean                                   IncludeCryptoHash              = true)
+                                    ServiceTicketChangeSetToJSONDelegate?     ServiceTicketChangeSetToJSON   = null)
 
 
             => ServiceTicketChangeSets?.Any() != true
@@ -73,19 +72,17 @@ namespace social.OpenData.UsersAPI
                     ? new JArray()
 
                     : new JArray(ServiceTicketChangeSets.
-                                    Where(history => history != null).
-                                    SkipTakeFilter(Skip, Take).
-                                    SafeSelect(serviceTicketChangeSet => ServiceTicketChangeSetToJSON != null
-                                                                             ? ServiceTicketChangeSetToJSON (serviceTicketChangeSet,
-                                                                                                             ExpandDataLicenses,
-                                                                                                             ExpandOwnerId,
-                                                                                                             ExpandCommunicatorId,
-                                                                                                             IncludeCryptoHash)
+                                     Where         (changeSet => changeSet is not null).
+                                     SkipTakeFilter(Skip, Take).
+                                     SafeSelect    (serviceTicketChangeSet => ServiceTicketChangeSetToJSON is not null
+                                                                                  ? ServiceTicketChangeSetToJSON (serviceTicketChangeSet,
+                                                                                                                  ExpandDataLicenses,
+                                                                                                                  ExpandOwnerId,
+                                                                                                                  ExpandCommunicatorId)
 
-                                                                             : serviceTicketChangeSet.ToJSON(ExpandDataLicenses,
-                                                                                                             ExpandOwnerId,
-                                                                                                             ExpandCommunicatorId,
-                                                                                                             IncludeCryptoHash)));
+                                                                                  : serviceTicketChangeSet.ToJSON(ExpandDataLicenses,
+                                                                                                                  ExpandOwnerId,
+                                                                                                                  ExpandCommunicatorId)));
 
         #endregion
 
@@ -311,26 +308,21 @@ namespace social.OpenData.UsersAPI
         /// Return a JSON representation of this object.
         /// </summary>
         /// <param name="Embedded">Whether this data structure is embedded into another data structure.</param>
-        /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
-        public override JObject ToJSON(Boolean Embedded           = false,
-                                       Boolean IncludeCryptoHash  = false)
+        public override JObject ToJSON(Boolean Embedded = false)
 
-            => ToJSON(ExpandAuthorId:        InfoStatus.ShowIdOnly,
-                      ExpandReactions:       InfoStatus.ShowIdOnly,
-                      ExpandDataLicenses:    InfoStatus.ShowIdOnly,
-                      IncludeCryptoHash:     true);
+            => ToJSON(ExpandAuthorId:      InfoStatus.ShowIdOnly,
+                      ExpandReactions:     InfoStatus.ShowIdOnly,
+                      ExpandDataLicenses:  InfoStatus.ShowIdOnly);
 
 
         /// <summary>
         /// Return a JSON representation of this object.
         /// </summary>
-        /// <param name="IncludeCryptoHash">Whether to include the cryptograhical hash value of this object.</param>
-        public JObject ToJSON(InfoStatus                                      ExpandAuthorId                  = InfoStatus.ShowIdOnly,
-                              InfoStatus                                      ExpandReactions                 = InfoStatus.ShowIdOnly,
-                              InfoStatus                                      ExpandDataLicenses              = InfoStatus.ShowIdOnly,
-                              Boolean                                         IncludeCryptoHash               = true,
-                              Action<JObject>                                 Configurator                    = null,
-                              CustomJObjectSerializerDelegate<FirstResponse>  CustomFirstResponseSerializer   = null)
+        public JObject ToJSON(InfoStatus                                       ExpandAuthorId                  = InfoStatus.ShowIdOnly,
+                              InfoStatus                                       ExpandReactions                 = InfoStatus.ShowIdOnly,
+                              InfoStatus                                       ExpandDataLicenses              = InfoStatus.ShowIdOnly,
+                              Action<JObject>?                                 Configurator                    = null,
+                              CustomJObjectSerializerDelegate<FirstResponse>?  CustomFirstResponseSerializer   = null)
         {
 
             var JSON = JSONObject.Create(

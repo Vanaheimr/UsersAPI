@@ -17,9 +17,7 @@
 
 #region Usings
 
-using System;
-using System.Linq;
-using System.Collections.Generic;
+using System.Data;
 
 using Newtonsoft.Json.Linq;
 
@@ -30,8 +28,6 @@ using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod;
 using org.GraphDefined.Vanaheimr.Styx.Arrows;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
-using System.Data;
-using org.GraphDefined.Vanaheimr.Hermod.JSON;
 
 #endregion
 
@@ -385,16 +381,13 @@ namespace social.OpenData.UsersAPI
         /// Return a JSON representation of this object.
         /// </summary>
         /// <param name="Embedded">Whether this data structure is embedded into another data structure.</param>
-        /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
-        public override JObject ToJSON(Boolean Embedded           = false,
-                                       Boolean IncludeCryptoHash  = false)
+        public override JObject ToJSON(Boolean Embedded = false)
 
-            => ToJSON(Embedded:               false,
-                      MaxStatus:              null,
-                      ExpandDataLicenses:     InfoStatus.ShowIdOnly,
-                      ExpandAuthorId:         InfoStatus.ShowIdOnly,
-                      IncludeChangeSets:      true,
-                      IncludeCryptoHash:      true);
+            => ToJSON(Embedded:            false,
+                      MaxStatus:           null,
+                      ExpandDataLicenses:  InfoStatus.ShowIdOnly,
+                      ExpandAuthorId:      InfoStatus.ShowIdOnly,
+                      IncludeChangeSets:   true);
 
 
         /// <summary>
@@ -402,15 +395,14 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="Embedded">Whether this data is embedded into another data structure, e.g. into a service ticket.</param>
         /// <param name="IncludeCryptoHash">Whether to include the cryptograhical hash value of this object.</param>
-        public JObject ToJSON(Boolean                                         Embedded                        = false,
-                              UInt16?                                         MaxStatus                       = null,
-                              InfoStatus                                      ExpandDataLicenses              = InfoStatus.ShowIdOnly,
-                              InfoStatus                                      ExpandAuthorId                  = InfoStatus.ShowIdOnly,
-                              InfoStatus                                      ExpandReactions                 = InfoStatus.ShowIdOnly,
-                              Boolean                                         IncludeChangeSets               = true,
-                              Boolean                                         IncludeCryptoHash               = true,
-                              CustomJObjectSerializerDelegate<ServiceTicket>  CustomServiceTicketSerializer   = null,
-                              CustomJObjectSerializerDelegate<FirstResponse>  CustomFirstResponseSerializer   = null)
+        public JObject ToJSON(Boolean                                          Embedded                        = false,
+                              UInt16?                                          MaxStatus                       = null,
+                              InfoStatus                                       ExpandDataLicenses              = InfoStatus.ShowIdOnly,
+                              InfoStatus                                       ExpandAuthorId                  = InfoStatus.ShowIdOnly,
+                              InfoStatus                                       ExpandReactions                 = InfoStatus.ShowIdOnly,
+                              Boolean                                          IncludeChangeSets               = true,
+                              CustomJObjectSerializerDelegate<ServiceTicket>?  CustomServiceTicketSerializer   = null,
+                              CustomJObjectSerializerDelegate<FirstResponse>?  CustomFirstResponseSerializer   = null)
 
         {
 
@@ -430,9 +422,8 @@ namespace social.OpenData.UsersAPI
 
             var JSON = base.ToJSON(Embedded,
                                    false, // IncludeLastChange
-                                   false, // IncludeCryptoHash
                                    null,
-                                   new JProperty[] {
+                                   new JProperty?[] {
 
                                        new JProperty("title",                      Title.ToJSON()),
 
@@ -514,7 +505,7 @@ namespace social.OpenData.UsersAPI
                                     });
 
 
-            return CustomServiceTicketSerializer != null
+            return CustomServiceTicketSerializer is not null
                        ? CustomServiceTicketSerializer(this, JSON)
                        : JSON;
 

@@ -17,10 +17,6 @@
 
 #region Usings
 
-using System;
-using System.Linq;
-using System.Collections.Generic;
-
 using Newtonsoft.Json.Linq;
 
 using org.GraphDefined.Vanaheimr.Illias;
@@ -36,10 +32,9 @@ namespace social.OpenData.UsersAPI
 //    public delegate Boolea news bannerProviderDelegate(News_Id NewsBannerId, out News News);
 
     public delegate JObject NewsBannerToJSONDelegate(NewsBanner  NewsBanner,
-                                                     Boolean     Embedded            = false,
-                                                     InfoStatus  ExpandTags          = InfoStatus.ShowIdOnly,
-                                                     InfoStatus  ExpandAuthorId      = InfoStatus.ShowIdOnly,
-                                                     Boolean     IncludeCryptoHash   = true);
+                                                     Boolean     Embedded         = false,
+                                                     InfoStatus  ExpandTags       = InfoStatus.ShowIdOnly,
+                                                     InfoStatus  ExpandAuthorId   = InfoStatus.ShowIdOnly);
 
 
     /// <summary>
@@ -58,13 +53,12 @@ namespace social.OpenData.UsersAPI
         /// <param name="Take">The optional number of news banners to return.</param>
         /// <param name="Embedded">Whether this data structure is embedded into another data structure.</param>
         public static JArray ToJSON(this IEnumerable<NewsBanner>  NewsBanner,
-                                    UInt64?                       Skip                = null,
-                                    UInt64?                       Take                = null,
-                                    Boolean                       Embedded            = false,
-                                    InfoStatus                    ExpandTags          = InfoStatus.ShowIdOnly,
-                                    InfoStatus                    ExpandAuthorId      = InfoStatus.ShowIdOnly,
-                                    NewsBannerToJSONDelegate      NewsBannerToJSON    = null,
-                                    Boolean                       IncludeCryptoHash   = true)
+                                    UInt64?                       Skip               = null,
+                                    UInt64?                       Take               = null,
+                                    Boolean                       Embedded           = false,
+                                    InfoStatus                    ExpandTags         = InfoStatus.ShowIdOnly,
+                                    InfoStatus                    ExpandAuthorId     = InfoStatus.ShowIdOnly,
+                                    NewsBannerToJSONDelegate?     NewsBannerToJSON   = null)
 
 
             => NewsBanner?.Any() != true
@@ -72,20 +66,17 @@ namespace social.OpenData.UsersAPI
                    ? new JArray()
 
                    : new JArray(NewsBanner.
-                                    Where         (dataSet =>  dataSet != null).
+                                    Where         (dataSet =>  dataSet is not null).
                                     //OrderByDescending(dataSet => dataSet.PublicationDate).
                                     SkipTakeFilter(Skip, Take).
-                                    SafeSelect    (newsBanner => NewsBannerToJSON != null
+                                    SafeSelect    (newsBanner => NewsBannerToJSON is not null
                                                                      ? NewsBannerToJSON (newsBanner,
                                                                                          Embedded,
                                                                                          ExpandTags,
-                                                                                         ExpandAuthorId,
-                                                                                         IncludeCryptoHash)
-
+                                                                                         ExpandAuthorId)
                                                                      : newsBanner.ToJSON(Embedded,
                                                                                          ExpandTags,
-                                                                                         ExpandAuthorId,
-                                                                                         IncludeCryptoHash)));
+                                                                                         ExpandAuthorId)));
 
         #endregion
 
@@ -250,31 +241,26 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region ToJSON(Embedded = false, IncludeCryptoHash = false)
+        #region ToJSON(Embedded = false)
 
         /// <summary>
         /// Return a JSON representation of this object.
         /// </summary>
         /// <param name="Embedded">Whether this data structure is embedded into another data structure.</param>
-        /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
-        public override JObject ToJSON(Boolean  Embedded            = false,
-                                       Boolean  IncludeCryptoHash   = false)
+        public override JObject ToJSON(Boolean Embedded = false)
 
-            => ToJSON(Embedded:           false,
-                      ExpandTags:         InfoStatus.ShowIdOnly,
-                      ExpandAuthorId:     InfoStatus.ShowIdOnly,
-                      IncludeCryptoHash:  true);
+            => ToJSON(Embedded:        false,
+                      ExpandTags:      InfoStatus.ShowIdOnly,
+                      ExpandAuthorId:  InfoStatus.ShowIdOnly);
 
 
         /// <summary>
         /// Return a JSON representation of this object.
         /// </summary>
         /// <param name="Embedded">Whether this data structure is embedded into another data structure.</param>
-        /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
-        public JObject ToJSON(Boolean     Embedded            = false,
-                              InfoStatus  ExpandTags          = InfoStatus.ShowIdOnly,
-                              InfoStatus  ExpandAuthorId      = InfoStatus.ShowIdOnly,
-                              Boolean     IncludeCryptoHash   = false)
+        public JObject ToJSON(Boolean     Embedded        = false,
+                              InfoStatus  ExpandTags      = InfoStatus.ShowIdOnly,
+                              InfoStatus  ExpandAuthorId  = InfoStatus.ShowIdOnly)
 
             => JSONObject.Create(
 

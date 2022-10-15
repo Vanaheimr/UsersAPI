@@ -40,8 +40,7 @@ namespace social.OpenData.UsersAPI
     public delegate Boolean UserProviderDelegate(User_Id UserId, out User User);
 
     public delegate JObject UserToJSONDelegate(User     User,
-                                               Boolean  Embedded            = false,
-                                               Boolean  IncludeCryptoHash   = true);
+                                               Boolean  Embedded   = false);
 
     public delegate User OverwriteUserDelegate(User User);
 
@@ -62,11 +61,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="Take">The optional number of Users to return.</param>
         /// <param name="Embedded">Whether this data structure is embedded into another data structure.</param>
         public static JArray ToJSON(this IEnumerable<User>  Users,
-                                    UInt64?                 Skip                = null,
-                                    UInt64?                 Take                = null,
-                                    Boolean                 Embedded            = false,
-                                    UserToJSONDelegate      UserToJSON          = null,
-                                    Boolean                 IncludeCryptoHash   = true)
+                                    UInt64?                 Skip         = null,
+                                    UInt64?                 Take         = null,
+                                    Boolean                 Embedded     = false,
+                                    UserToJSONDelegate?     UserToJSON   = null)
 
 
             => Users?.Any() != true
@@ -74,16 +72,13 @@ namespace social.OpenData.UsersAPI
                    ? new JArray()
 
                    : new JArray(Users.
-                                    Where     (dataSet =>  dataSet != null).
+                                    Where     (dataSet =>  dataSet is not null).
                                     OrderBy   (dataSet => dataSet.Id).
                                     SkipTakeFilter(Skip, Take).
-                                    SafeSelect(User => UserToJSON != null
+                                    SafeSelect(User => UserToJSON is not null
                                                                     ? UserToJSON (User,
-                                                                                  Embedded,
-                                                                                  IncludeCryptoHash)
-
-                                                                    : User.ToJSON(Embedded,
-                                                                                  IncludeCryptoHash)));
+                                                                                  Embedded)
+                                                                    : User.ToJSON(Embedded)));
 
         #endregion
 
@@ -843,10 +838,7 @@ namespace social.OpenData.UsersAPI
             this.IsDisabled                = IsDisabled;
             this.AttachedFiles             = AttachedFiles ?? Array.Empty<AttachedFile>();
 
-            this._NotificationStore        = new NotificationStore();
-
-            if (Notifications is not null && Notifications.SafeAny())
-                _NotificationStore.Add(Notifications);
+            this.notificationStore         = new NotificationStore(Notifications);
 
             this._User2User_Edges          = User2UserEdges         is not null && User2UserEdges.        IsNeitherNullNorEmpty() ? new List<User2UserEdge>        (User2UserEdges)         : new List<User2UserEdge>();
             this._User2UserGroup_Edges     = User2UserGroupEdges    is not null && User2UserGroupEdges.   IsNeitherNullNorEmpty() ? new List<User2UserGroupEdge>   (User2UserGroupEdges)    : new List<User2UserGroupEdge>();
@@ -859,7 +851,7 @@ namespace social.OpenData.UsersAPI
 
         #region Notifications
 
-        private readonly NotificationStore _NotificationStore;
+        private readonly NotificationStore notificationStore;
 
         #region (internal) AddNotification(Notification,                           OnUpdate = null)
 
@@ -868,7 +860,7 @@ namespace social.OpenData.UsersAPI
 
             where T : ANotification
 
-            => _NotificationStore.Add(Notification,
+            => notificationStore.Add(Notification,
                                   OnUpdate);
 
         #endregion
@@ -881,7 +873,7 @@ namespace social.OpenData.UsersAPI
 
             where T : ANotification
 
-            => _NotificationStore.Add(Notification,
+            => notificationStore.Add(Notification,
                                   NotificationMessageType,
                                   OnUpdate);
 
@@ -895,7 +887,7 @@ namespace social.OpenData.UsersAPI
 
             where T : ANotification
 
-            => _NotificationStore.Add(Notification,
+            => notificationStore.Add(Notification,
                                   NotificationMessageTypes,
                                   OnUpdate);
 
@@ -906,9 +898,9 @@ namespace social.OpenData.UsersAPI
 
         public IEnumerable<ANotification> GetNotifications(NotificationMessageType?  NotificationMessageType = null)
         {
-            lock (_NotificationStore)
+            lock (notificationStore)
             {
-                return _NotificationStore.GetNotifications(NotificationMessageType);
+                return notificationStore.GetNotifications(NotificationMessageType);
             }
         }
 
@@ -922,9 +914,9 @@ namespace social.OpenData.UsersAPI
 
         {
 
-            lock (_NotificationStore)
+            lock (notificationStore)
             {
-                return _NotificationStore.GetNotificationsOf<T>(NotificationMessageTypes);
+                return notificationStore.GetNotificationsOf<T>(NotificationMessageTypes);
             }
 
         }
@@ -935,9 +927,9 @@ namespace social.OpenData.UsersAPI
 
         public IEnumerable<ANotification> GetNotifications(Func<NotificationMessageType, Boolean> NotificationMessageTypeFilter)
         {
-            lock (_NotificationStore)
+            lock (notificationStore)
             {
-                return _NotificationStore.GetNotifications(NotificationMessageTypeFilter);
+                return notificationStore.GetNotifications(NotificationMessageTypeFilter);
             }
         }
 
@@ -951,9 +943,9 @@ namespace social.OpenData.UsersAPI
 
         {
 
-            lock (_NotificationStore)
+            lock (notificationStore)
             {
-                return _NotificationStore.GetNotificationsOf<T>(NotificationMessageTypeFilter);
+                return notificationStore.GetNotificationsOf<T>(NotificationMessageTypeFilter);
             }
 
         }
@@ -966,7 +958,7 @@ namespace social.OpenData.UsersAPI
         public JObject GetNotificationInfo(UInt32 NotificationId)
         {
 
-            var notification = _NotificationStore.ToJSON(NotificationId);
+            var notification = notificationStore.ToJSON(NotificationId);
 
             notification.Add(new JProperty("user", JSONObject.Create(
 
@@ -999,7 +991,7 @@ namespace social.OpenData.UsersAPI
                                          : null
 
                                  )),
-                                 new JProperty("notifications",  _NotificationStore.ToJSON()));
+                                 new JProperty("notifications",  notificationStore.ToJSON()));
 
         #endregion
 
@@ -1011,7 +1003,7 @@ namespace social.OpenData.UsersAPI
 
             where T : ANotification
 
-            => _NotificationStore.Remove(NotificationType,
+            => notificationStore.Remove(NotificationType,
                                          OnRemoval);
 
         #endregion
@@ -1384,21 +1376,18 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region ToJSON(Embedded = false, IncludeCryptoHash = false)
+        #region ToJSON(Embedded = false)
 
         /// <summary>
         /// Return a JSON representation of this object.
         /// </summary>
         /// <param name="Embedded">Whether this data structure is embedded into another data structure.</param>
-        /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
-        public override JObject ToJSON(Boolean Embedded           = false,
-                                       Boolean IncludeCryptoHash  = false)
+        public override JObject ToJSON(Boolean Embedded = false)
 
             => ToJSON(Embedded,
                       InfoStatus.Hidden,
                       InfoStatus.Hidden,
-                      true,
-                      IncludeCryptoHash);
+                      true);
 
 
         /// <summary>
@@ -1410,20 +1399,18 @@ namespace social.OpenData.UsersAPI
         /// <param name="IncludeLastChange">Whether to include the lastChange timestamp of this object.</param>
         /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
         /// <param name="CustomUserSerializer">A delegate to serialize custom user JSON objects.</param>
-        public JObject ToJSON(Boolean                                Embedded               = false,
-                              InfoStatus                             ExpandOrganizations    = InfoStatus.Hidden,
-                              InfoStatus                             ExpandGroups           = InfoStatus.Hidden,
-                              Boolean                                IncludeLastChange      = true,
-                              Boolean                                IncludeCryptoHash      = true,
-                              CustomJObjectSerializerDelegate<User>  CustomUserSerializer   = null)
+        public JObject ToJSON(Boolean                                 Embedded               = false,
+                              InfoStatus                              ExpandOrganizations    = InfoStatus.Hidden,
+                              InfoStatus                              ExpandGroups           = InfoStatus.Hidden,
+                              Boolean                                 IncludeLastChange      = true,
+                              CustomJObjectSerializerDelegate<User>?  CustomUserSerializer   = null)
 
         {
 
             var JSON = base.ToJSON(Embedded,
                                    IncludeLastChange,
-                                   IncludeCryptoHash,
                                    null,
-                                   new JProperty[] {
+                                   new JProperty?[] {
 
                                        new JProperty("name",                   Name),
 
@@ -1433,11 +1420,11 @@ namespace social.OpenData.UsersAPI
 
                                        new JProperty("email",                  EMail.Address.ToString()),
 
-                                       PublicKeyRing != null
+                                       PublicKeyRing is not null
                                            ? new JProperty("publicKeyRing",    PublicKeyRing.GetEncoded().ToHexString())
                                            : null,
 
-                                       SecretKeyRing != null
+                                       SecretKeyRing is not null
                                            ? new JProperty("secretKeyRing",    SecretKeyRing.GetEncoded().ToHexString())
                                            : null,
 
@@ -1459,7 +1446,7 @@ namespace social.OpenData.UsersAPI
                                            ? new JProperty("telegram",         Telegram)
                                            : null,
 
-                                       Homepage.IsNotNullOrEmpty()
+                                       Homepage is not null && Homepage.IsNotNullOrEmpty()
                                            ? new JProperty("homepage",         Homepage.ToString())
                                            : null,
 
@@ -1480,7 +1467,7 @@ namespace social.OpenData.UsersAPI
 
                                    });
 
-            return CustomUserSerializer != null
+            return CustomUserSerializer is not null
                        ? CustomUserSerializer(this, JSON)
                        : JSON;
 
@@ -1514,7 +1501,7 @@ namespace social.OpenData.UsersAPI
                         IsDisabled,
                         IsAuthenticated,
 
-                        _NotificationStore,
+                        notificationStore,
 
                         _User2User_Edges,
                         _User2UserGroup_Edges,
@@ -1564,8 +1551,8 @@ namespace social.OpenData.UsersAPI
 
             }
 
-            if (OldUser._NotificationStore.SafeAny() && !_NotificationStore.SafeAny())
-                _NotificationStore.Add(OldUser._NotificationStore);
+            if (OldUser.notificationStore.SafeAny() && !notificationStore.SafeAny())
+                notificationStore.Add(OldUser.notificationStore);
 
         }
 
@@ -1793,7 +1780,7 @@ namespace social.OpenData.UsersAPI
                            IsDisabled,
                            IsAuthenticated,
 
-                           _NotificationStore,
+                           notificationStore,
 
                            _User2User_Edges,
                            _User2UserGroup_Edges,
@@ -1828,7 +1815,7 @@ namespace social.OpenData.UsersAPI
             /// The offical public name of the user.
             /// </summary>
             [Optional]
-            public String                 Name                 { get; set; }
+            public String?                Name                 { get; set; }
 
             /// <summary>
             /// An optional (multi-language) description of the user.
@@ -1840,13 +1827,13 @@ namespace social.OpenData.UsersAPI
             /// The PGP/GPG public keyring of the user.
             /// </summary>
             [Optional]
-            public PgpPublicKeyRing       PublicKeyRing        { get; set; }
+            public PgpPublicKeyRing?      PublicKeyRing        { get; set; }
 
             /// <summary>
             /// The PGP/GPG secret keyring of the user.
             /// </summary>
             [Optional]
-            public PgpSecretKeyRing       SecretKeyRing        { get; set; }
+            public PgpSecretKeyRing?      SecretKeyRing        { get; set; }
 
             /// <summary>
             /// The language setting of the user.
@@ -1875,13 +1862,13 @@ namespace social.OpenData.UsersAPI
             /// The telegram user name.
             /// </summary>
             [Optional]
-            public String                 Telegram             { get; set; }
+            public String?                Telegram             { get; set; }
 
             /// <summary>
             /// An optional homepage of the user.
             /// </summary>
             [Optional]
-            public String                 Homepage             { get; set; }
+            public String?                Homepage             { get; set; }
 
             /// <summary>
             /// The geographical location of this organization.
@@ -1892,7 +1879,7 @@ namespace social.OpenData.UsersAPI
             /// The optional address of the organization.
             /// </summary>
             [Optional]
-            public Address                Address              { get; set; }
+            public Address?               Address              { get; set; }
 
             /// <summary>
             /// Timestamp when the user accepted the End-User-License-Agreement.
@@ -2326,35 +2313,35 @@ namespace social.OpenData.UsersAPI
             /// <param name="JSONLDContext">The JSON-LD context of this user.</param>
             /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
             /// <param name="LastChange">The timestamp of the last changes within this user. Can e.g. be used as a HTTP ETag.</param>
-            public Builder(User_Id                             Id,
-                           SimpleEMailAddress                  EMail,
-                           String                              Name                     = null,
-                           I18NString                          Description              = null,
-                           PgpPublicKeyRing                    PublicKeyRing            = null,
-                           PgpSecretKeyRing                    SecretKeyRing            = null,
-                           Languages                           UserLanguage             = Languages.en,
-                           PhoneNumber?                        Telephone                = null,
-                           PhoneNumber?                        MobilePhone              = null,
-                           Use2AuthFactor?                     Use2AuthFactor           = null,
-                           String                              Telegram                 = null,
-                           String                              Homepage                 = null,
-                           GeoCoordinate?                      GeoLocation              = null,
-                           Address                             Address                  = null,
-                           DateTime?                           AcceptedEULA             = null,
-                           Boolean                             IsDisabled               = false,
-                           Boolean                             IsAuthenticated          = false,
+            public Builder(User_Id                              Id,
+                           SimpleEMailAddress                   EMail,
+                           String?                              Name                     = null,
+                           I18NString?                          Description              = null,
+                           PgpPublicKeyRing?                    PublicKeyRing            = null,
+                           PgpSecretKeyRing?                    SecretKeyRing            = null,
+                           Languages                            UserLanguage             = Languages.en,
+                           PhoneNumber?                         Telephone                = null,
+                           PhoneNumber?                         MobilePhone              = null,
+                           Use2AuthFactor?                      Use2AuthFactor           = null,
+                           String?                              Telegram                 = null,
+                           String?                              Homepage                 = null,
+                           GeoCoordinate?                       GeoLocation              = null,
+                           Address?                             Address                  = null,
+                           DateTime?                            AcceptedEULA             = null,
+                           Boolean                              IsDisabled               = false,
+                           Boolean                              IsAuthenticated          = false,
 
-                           IEnumerable<ANotification>          Notifications            = null,
+                           IEnumerable<ANotification>?          Notifications            = null,
 
-                           IEnumerable<User2UserEdge>          User2UserEdges           = null,
-                           IEnumerable<User2UserGroupEdge>     User2GroupEdges          = null,
-                           IEnumerable<User2OrganizationEdge>  User2OrganizationEdges   = null,
+                           IEnumerable<User2UserEdge>?          User2UserEdges           = null,
+                           IEnumerable<User2UserGroupEdge>?     User2GroupEdges          = null,
+                           IEnumerable<User2OrganizationEdge>?  User2OrganizationEdges   = null,
 
-                           JObject                             CustomData               = default,
-                           IEnumerable<AttachedFile>           AttachedFiles            = default,
-                           JSONLDContext?                      JSONLDContext            = default,
-                           String                              DataSource               = default,
-                           DateTime?                           LastChange               = default)
+                           JObject?                             CustomData               = default,
+                           IEnumerable<AttachedFile>?           AttachedFiles            = default,
+                           JSONLDContext?                       JSONLDContext            = default,
+                           String?                              DataSource               = default,
+                           DateTime?                            LastChange               = default)
 
                 : base(Id,
                        JSONLDContext ?? DefaultJSONLDContext,
@@ -2365,12 +2352,10 @@ namespace social.OpenData.UsersAPI
 
             {
 
-                this.EMail                        = Name.IsNotNullOrEmpty()
+                this.EMail                        = Name is not null && Name.IsNotNullOrEmpty()
                                                         ? new EMailAddress(Name, EMail, null, null)
                                                         : new EMailAddress(      EMail, null, null);
-                this.Name                         = Name.IsNotNullOrEmpty()
-                                                        ? Name
-                                                        : "";
+                this.Name                         = Name;
                 this.Description                  = Description ?? new I18NString();
                 this.PublicKeyRing                = PublicKeyRing;
                 this.SecretKeyRing                = SecretKeyRing;
@@ -2385,20 +2370,15 @@ namespace social.OpenData.UsersAPI
                 this.AcceptedEULA                 = AcceptedEULA;
                 this.IsDisabled                   = IsDisabled;
                 this.IsAuthenticated              = IsAuthenticated;
-                this.AttachedFiles                = AttachedFiles.SafeAny() ? new HashSet<AttachedFile>(AttachedFiles) : new HashSet<AttachedFile>();
+                this.AttachedFiles                = AttachedFiles is not null && AttachedFiles.Any()
+                                                        ? new HashSet<AttachedFile>(AttachedFiles)
+                                                        : new HashSet<AttachedFile>();
 
-                this._NotificationStore           = new NotificationStore();
+                this.notificationStore            = new NotificationStore(Notifications);
 
-                if (Notifications.SafeAny())
-                    _NotificationStore.Add(Notifications);
-
-                // Init edges
-                this._User2UserEdges              = User2UserEdges.        IsNeitherNullNorEmpty() ? new List<User2UserEdge>        (User2UserEdges)         : new List<User2UserEdge>();
-                this._User2Group_OutEdges         = User2GroupEdges.       IsNeitherNullNorEmpty() ? new List<User2UserGroupEdge>   (User2GroupEdges)        : new List<User2UserGroupEdge>();
-                this._User2Organization_OutEdges  = User2OrganizationEdges.IsNeitherNullNorEmpty() ? new List<User2OrganizationEdge>(User2OrganizationEdges) : new List<User2OrganizationEdge>();
-
-                //if (Notifications.SafeAny())
-                //    _NotificationStore.Add(Notifications);
+                this._User2UserEdges              = User2UserEdges         is not null && User2UserEdges.        IsNeitherNullNorEmpty() ? new List<User2UserEdge>        (User2UserEdges)         : new List<User2UserEdge>();
+                this._User2Group_OutEdges         = User2GroupEdges        is not null && User2GroupEdges.       IsNeitherNullNorEmpty() ? new List<User2UserGroupEdge>   (User2GroupEdges)        : new List<User2UserGroupEdge>();
+                this._User2Organization_OutEdges  = User2OrganizationEdges is not null && User2OrganizationEdges.IsNeitherNullNorEmpty() ? new List<User2OrganizationEdge>(User2OrganizationEdges) : new List<User2OrganizationEdge>();
 
             }
 
@@ -2407,7 +2387,7 @@ namespace social.OpenData.UsersAPI
 
             #region Notifications
 
-            private readonly NotificationStore _NotificationStore;
+            private readonly NotificationStore notificationStore;
 
             #region (internal) AddNotification(Notification,                           OnUpdate = null)
 
@@ -2416,7 +2396,7 @@ namespace social.OpenData.UsersAPI
 
                 where T : ANotification
 
-                => _NotificationStore.Add(Notification,
+                => notificationStore.Add(Notification,
                                       OnUpdate);
 
             #endregion
@@ -2429,7 +2409,7 @@ namespace social.OpenData.UsersAPI
 
                 where T : ANotification
 
-                => _NotificationStore.Add(Notification,
+                => notificationStore.Add(Notification,
                                       NotificationMessageType,
                                       OnUpdate);
 
@@ -2443,7 +2423,7 @@ namespace social.OpenData.UsersAPI
 
                 where T : ANotification
 
-                => _NotificationStore.Add(Notification,
+                => notificationStore.Add(Notification,
                                       NotificationMessageTypes,
                                       OnUpdate);
 
@@ -2454,9 +2434,9 @@ namespace social.OpenData.UsersAPI
 
             public IEnumerable<ANotification> GetNotifications(NotificationMessageType?  NotificationMessageType = null)
             {
-                lock (_NotificationStore)
+                lock (notificationStore)
                 {
-                    return _NotificationStore.GetNotifications(NotificationMessageType);
+                    return notificationStore.GetNotifications(NotificationMessageType);
                 }
             }
 
@@ -2470,9 +2450,9 @@ namespace social.OpenData.UsersAPI
 
             {
 
-                lock (_NotificationStore)
+                lock (notificationStore)
                 {
-                    return _NotificationStore.GetNotificationsOf<T>(NotificationMessageTypes);
+                    return notificationStore.GetNotificationsOf<T>(NotificationMessageTypes);
                 }
 
             }
@@ -2483,9 +2463,9 @@ namespace social.OpenData.UsersAPI
 
             public IEnumerable<ANotification> GetNotifications(Func<NotificationMessageType, Boolean> NotificationMessageTypeFilter)
             {
-                lock (_NotificationStore)
+                lock (notificationStore)
                 {
-                    return _NotificationStore.GetNotifications(NotificationMessageTypeFilter);
+                    return notificationStore.GetNotifications(NotificationMessageTypeFilter);
                 }
             }
 
@@ -2499,9 +2479,9 @@ namespace social.OpenData.UsersAPI
 
             {
 
-                lock (_NotificationStore)
+                lock (notificationStore)
                 {
-                    return _NotificationStore.GetNotificationsOf<T>(NotificationMessageTypeFilter);
+                    return notificationStore.GetNotificationsOf<T>(NotificationMessageTypeFilter);
                 }
 
             }
@@ -2514,7 +2494,7 @@ namespace social.OpenData.UsersAPI
             public JObject GetNotificationInfo(UInt32 NotificationId)
             {
 
-                var notification = _NotificationStore.ToJSON(NotificationId);
+                var notification = notificationStore.ToJSON(NotificationId);
 
                 notification.Add(new JProperty("user", JSONObject.Create(
 
@@ -2547,7 +2527,7 @@ namespace social.OpenData.UsersAPI
                                              : null
 
                                      )),
-                                     new JProperty("notifications",  _NotificationStore.ToJSON()));
+                                     new JProperty("notifications",  notificationStore.ToJSON()));
 
             #endregion
 
@@ -2559,7 +2539,7 @@ namespace social.OpenData.UsersAPI
 
                 where T : ANotification
 
-                => _NotificationStore.Remove(NotificationType,
+                => notificationStore.Remove(NotificationType,
                                              OnRemoval);
 
             #endregion
@@ -2602,8 +2582,8 @@ namespace social.OpenData.UsersAPI
 
                 }
 
-                if (OldUser._NotificationStore.SafeAny() && !_NotificationStore.SafeAny())
-                    _NotificationStore.Add(OldUser._NotificationStore);
+                if (OldUser.notificationStore.SafeAny() && !notificationStore.SafeAny())
+                    notificationStore.Add(OldUser.notificationStore);
 
             }
 
@@ -2650,7 +2630,7 @@ namespace social.OpenData.UsersAPI
                                     IsDisabled,
                                     IsAuthenticated,
 
-                                    _NotificationStore,
+                                    notificationStore,
 
                                     _User2UserEdges,
                                     _User2Group_OutEdges,

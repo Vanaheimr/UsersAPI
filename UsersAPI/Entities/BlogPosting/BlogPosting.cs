@@ -276,28 +276,26 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region ToJSON(Embedded = false, IncludeCryptoHash = false)
+        #region ToJSON(Embedded = false)
+
+        /// <summary>
+        /// Return a JSON representation of this object.
+        /// </summary>
+        /// <param name="Embedded">Whether this data structure is embedded into another data structure.</param>
+        public override JObject ToJSON(Boolean Embedded = false)
+
+            => ToJSON(Embedded:    false,
+                      ExpandTags:  InfoStatus.ShowIdOnly);
+
 
         /// <summary>
         /// Return a JSON representation of this object.
         /// </summary>
         /// <param name="Embedded">Whether this data structure is embedded into another data structure.</param>
         /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
-        public override JObject ToJSON(Boolean Embedded           = false,
-                                       Boolean IncludeCryptoHash  = false)
-
-            => ToJSON(Embedded:            false,
-                      ExpandTags:          InfoStatus.ShowIdOnly);
-
-
-        /// <summary>
-        /// Return a JSON representation of this object.
-        /// </summary>
-        /// <param name="Embedded">Whether this data structure is embedded into another data structure.</param>
-        /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
-        public JObject ToJSON(Boolean     Embedded            = false,
-                              InfoStatus  ExpandTags          = InfoStatus.ShowIdOnly,
-                              InfoStatus  ExpandAuthorId      = InfoStatus.ShowIdOnly)
+        public JObject ToJSON(Boolean     Embedded        = false,
+                              InfoStatus  ExpandTags      = InfoStatus.ShowIdOnly,
+                              InfoStatus  ExpandAuthorId  = InfoStatus.ShowIdOnly)
 
             => JSONObject.Create(
 

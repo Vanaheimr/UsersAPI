@@ -177,16 +177,13 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="Embedded">Whether this data structure is embedded into another data structure.</param>
         /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
-        public override JObject ToJSON(Boolean Embedded           = false,
-                                       Boolean IncludeCryptoHash  = false)
+        public override JObject ToJSON(Boolean Embedded = false)
 
             => JSONObject.Create(
-
                    new JProperty("@id",         Id.     ToString()),
                    new JProperty("sender",      Sender. ToString()),
                    new JProperty("subject",     Subject.ToJSON()),
                    new JProperty("text",        Text.   ToJSON())
-
                );
 
         #endregion
