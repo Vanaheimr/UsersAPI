@@ -2987,13 +2987,14 @@ namespace social.OpenData.UsersAPI
 
             foreach (var dataLicense in typeof(DataLicense).GetFields(System.Reflection.BindingFlags.Public |
                                                                       System.Reflection.BindingFlags.Static).
-                                                            Where (fieldinfo => fieldinfo.ReflectedType == typeof(DataLicense)).
+                                                            Where (fieldinfo => fieldinfo.ReflectedType == typeof(DataLicense) &&
+                                                                                fieldinfo.FieldType     == typeof(DataLicense)).
                                                             Select(fieldinfo => fieldinfo.GetValue(DataLicense.None)).
                                                             Cast<DataLicense>())
             {
 
                 dataLicenses.Add(dataLicense.Id,
-                                  dataLicense);
+                                 dataLicense);
 
             }
 
