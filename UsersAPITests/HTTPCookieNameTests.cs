@@ -17,9 +17,6 @@
 
 #region Usings
 
-using System;
-using System.Collections.Generic;
-
 using NUnit.Framework;
 
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
@@ -61,7 +58,7 @@ namespace social.OpenData.users.api.tests
             Assert.IsNull  (HTTPCookieName.TryParse(null));
             Assert.IsFalse (HTTPCookieName.TryParse(null).HasValue);
 
-            Assert.IsFalse (HTTPCookieName.TryParse(null, out HTTPCookieName httpCookieName));
+            Assert.IsFalse (HTTPCookieName.TryParse(null, out var httpCookieName));
             Assert.IsTrue  (httpCookieName.IsNullOrEmpty);
             Assert.AreEqual(0,  httpCookieName.Length);
             Assert.AreEqual("", httpCookieName.ToString());
@@ -75,7 +72,7 @@ namespace social.OpenData.users.api.tests
             Assert.IsNull  (HTTPCookieName.TryParse(""));
             Assert.IsFalse (HTTPCookieName.TryParse("").HasValue);
 
-            Assert.IsFalse (HTTPCookieName.TryParse("", out HTTPCookieName httpCookieName));
+            Assert.IsFalse (HTTPCookieName.TryParse("", out var httpCookieName));
             Assert.IsTrue  (httpCookieName.IsNullOrEmpty);
             Assert.AreEqual(0,  httpCookieName.Length);
             Assert.AreEqual("", httpCookieName.ToString());
@@ -89,7 +86,7 @@ namespace social.OpenData.users.api.tests
             Assert.IsNull  (HTTPCookieName.TryParse("   "));
             Assert.IsFalse (HTTPCookieName.TryParse("   ").HasValue);
 
-            Assert.IsFalse (HTTPCookieName.TryParse("   ", out HTTPCookieName httpCookieName));
+            Assert.IsFalse (HTTPCookieName.TryParse("   ", out var httpCookieName));
             Assert.IsTrue  (httpCookieName.IsNullOrEmpty);
             Assert.AreEqual(0,  httpCookieName.Length);
             Assert.AreEqual("", httpCookieName.ToString());
@@ -176,9 +173,14 @@ namespace social.OpenData.users.api.tests
             var cookie2  = HTTPCookieName.Parse("def");
             var text     = "123";
 
-            Assert.AreEqual("abcdef", cookie1 + cookie2);
-            Assert.AreEqual("abc123", cookie1 + text);
-            Assert.AreEqual("123def", text    + cookie2);
+            Assert.AreEqual(HTTPCookieName.Parse("abcdef"),  cookie1 + cookie2);
+            Assert.AreEqual("abcdef",                       (cookie1 + cookie2).ToString());
+
+            Assert.AreEqual(HTTPCookieName.Parse("abc123"),  cookie1 + text);
+            Assert.AreEqual("abc123",                       (cookie1 + text).   ToString());
+
+            Assert.AreEqual(HTTPCookieName.Parse("123def"),  text    + cookie2);
+            Assert.AreEqual("123def",                       (text    + cookie2).ToString());
 
         }
 
