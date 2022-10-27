@@ -907,7 +907,9 @@ namespace social.OpenData.UsersAPI
                                            ? new JProperty("address",           Address.ToJSON())
                                            : null,
 
-                                       GeoLocation?.ToJSON("geoLocation"),
+                                       GeoLocation.HasValue
+                                           ? new JProperty("geoLocation",       GeoLocation.Value.ToJSON())
+                                           : null,
 
                                        Tags is not null && Tags.Any()
                                            ? new JProperty("tags",              Tags.ToJSON(ExpandTags))

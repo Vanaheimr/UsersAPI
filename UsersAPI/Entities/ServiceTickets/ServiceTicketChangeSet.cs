@@ -363,12 +363,12 @@ namespace social.OpenData.UsersAPI
                     : null,
 
                 GeoLocation.HasValue
-                    ? GeoLocation.Value.ToJSON("geoLocation")
+                    ? new JProperty("geoLocation",               GeoLocation.Value.ToJSON())
                     : null,
 
                 ProblemDescriptions.IsNeitherNullNorEmpty()
-                       ? new JProperty("problemDescriptions",    new JArray(ProblemDescriptions.Select(problemDescription => problemDescription.ToJSON())))
-                       : null,
+                    ? new JProperty("problemDescriptions",       new JArray(ProblemDescriptions.Select(problemDescription => problemDescription.ToJSON())))
+                    : null,
 
                 StatusIndicators.SafeAny()
                     ? new JProperty("statusIndicators",          new JArray(StatusIndicators.   Select(statusIndicator    => statusIndicator.Id.ToString())))

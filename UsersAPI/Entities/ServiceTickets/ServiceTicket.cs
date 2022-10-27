@@ -452,10 +452,12 @@ namespace social.OpenData.UsersAPI
                                        new JProperty("priority", Priority.ToString().ToLower()),
 
                                        Location.IsNeitherNullNorEmpty()
-                                           ? new JProperty("location", Location.ToJSON())
+                                           ? new JProperty("location",     Location.ToJSON())
                                            : null,
 
-                                       GeoLocation?.ToJSON("geoLocation"),
+                                       GeoLocation.HasValue
+                                           ? new JProperty("geoLocation",  GeoLocation.Value.ToJSON())
+                                           : null,
 
                                        ProblemDescriptions.IsNeitherNullNorEmpty()
                                            ? new JProperty("problemDescriptions",  new JArray(ProblemDescriptions.  Select(problemDescription => problemDescription.ToJSON())))
