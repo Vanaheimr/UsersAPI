@@ -116,14 +116,14 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Parse the given string as a notification group identification.
         /// </summary>
-        /// <param name="Text">A text-representation of a notification group identification.</param>
+        /// <param name="Text">A text representation of a notification group identification.</param>
         public static NotificationGroup_Id Parse(String Text)
         {
 
             if (TryParse(Text, out NotificationGroup_Id notificationGroupId))
                 return notificationGroupId;
 
-            throw new ArgumentException("Invalid text-representation of a notification group identification: '" + Text + "'!",
+            throw new ArgumentException("Invalid text representation of a notification group identification: '" + Text + "'!",
                                         nameof(Text));
 
         }
@@ -135,7 +135,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Try to parse the given string as a notification group identification.
         /// </summary>
-        /// <param name="Text">A text-representation of a notification group identification.</param>
+        /// <param name="Text">A text representation of a notification group identification.</param>
         public static NotificationGroup_Id? TryParse(String Text)
         {
 
@@ -153,7 +153,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Try to parse the given string as a notification group identification.
         /// </summary>
-        /// <param name="Text">A text-representation of a notification group identification.</param>
+        /// <param name="Text">A text representation of a notification group identification.</param>
         /// <param name="NotificationGroupId">The parsed notification group identification.</param>
         public static Boolean TryParse(String Text, out NotificationGroup_Id NotificationGroupId)
         {
@@ -367,7 +367,7 @@ namespace social.OpenData.UsersAPI
         #region (override) ToString()
 
         /// <summary>
-        /// Return a text-representation of this object.
+        /// Return a text representation of this object.
         /// </summary>
         public override String ToString()
 

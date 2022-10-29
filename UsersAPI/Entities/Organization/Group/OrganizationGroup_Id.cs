@@ -85,14 +85,14 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Parse the given string as an organization group identification.
         /// </summary>
-        /// <param name="Text">A text-representation of an organization group identification.</param>
+        /// <param name="Text">A text representation of an organization group identification.</param>
         public static OrganizationGroup_Id Parse(String Text)
         {
 
             if (TryParse(Text, out OrganizationGroup_Id organizationGroupId))
                 return organizationGroupId;
 
-            throw new ArgumentException("Invalid text-representation of an organization group identification: '" + Text + "'!",
+            throw new ArgumentException("Invalid text representation of an organization group identification: '" + Text + "'!",
                                         nameof(Text));
 
         }
@@ -104,7 +104,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Try to parse the given string as an organization group identification.
         /// </summary>
-        /// <param name="Text">A text-representation of an organization group identification.</param>
+        /// <param name="Text">A text representation of an organization group identification.</param>
         public static OrganizationGroup_Id? TryParse(String Text)
         {
 
@@ -122,7 +122,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Try to parse the given string as an organization group identification.
         /// </summary>
-        /// <param name="Text">A text-representation of an organization group identification.</param>
+        /// <param name="Text">A text representation of an organization group identification.</param>
         /// <param name="OrganizationGroupId">The parsed organization group identification.</param>
         public static Boolean TryParse(String Text, out OrganizationGroup_Id OrganizationGroupId)
         {
@@ -336,7 +336,7 @@ namespace social.OpenData.UsersAPI
         #region (override) ToString()
 
         /// <summary>
-        /// Return a text-representation of this object.
+        /// Return a text representation of this object.
         /// </summary>
         public override String ToString()
 

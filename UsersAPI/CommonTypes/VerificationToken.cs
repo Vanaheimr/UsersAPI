@@ -62,14 +62,14 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Parse the given string as a verification token.
         /// </summary>
-        /// <param name="Text">A text-representation of a verification token.</param>
+        /// <param name="Text">A text representation of a verification token.</param>
         public static VerificationToken Parse(String Text)
         {
 
             if (TryParse(Text, out VerificationToken verificationToken))
                 return verificationToken;
 
-            throw new ArgumentException("Invalid text-representation of a verification token: '" + Text + "'!",
+            throw new ArgumentException("Invalid text representation of a verification token: '" + Text + "'!",
                                         nameof(Text));
 
         }
@@ -81,7 +81,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Try to parse the given string as a verification token.
         /// </summary>
-        /// <param name="Text">A text-representation of a verification token.</param>
+        /// <param name="Text">A text representation of a verification token.</param>
         public static VerificationToken? TryParse(String Text)
         {
 
@@ -99,7 +99,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Try to parse the given string as a verification token.
         /// </summary>
-        /// <param name="Text">A text-representation of a verification token.</param>
+        /// <param name="Text">A text representation of a verification token.</param>
         /// <param name="VerificationToken">The parsed verification token.</param>
         public static Boolean TryParse(String Text, out VerificationToken VerificationToken)
         {
@@ -311,7 +311,7 @@ namespace social.OpenData.UsersAPI
         #region (override) ToString()
 
         /// <summary>
-        /// Return a text-representation of this object.
+        /// Return a text representation of this object.
         /// </summary>
         public override String ToString()
 

@@ -89,14 +89,14 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Parse the given string as a service ticket identification.
         /// </summary>
-        /// <param name="Text">A text-representation of a service ticket identification.</param>
+        /// <param name="Text">A text representation of a service ticket identification.</param>
         public static ServiceTicket_Id Parse(String Text)
         {
 
             if (TryParse(Text, out ServiceTicket_Id serviceTicketId))
                 return serviceTicketId;
 
-            throw new ArgumentException("Invalid text-representation of a service ticket identification: '" + Text + "'!",
+            throw new ArgumentException("Invalid text representation of a service ticket identification: '" + Text + "'!",
                                         nameof(Text));
 
         }
@@ -108,7 +108,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Try to parse the given string as a service ticket identification.
         /// </summary>
-        /// <param name="Text">A text-representation of a service ticket identification.</param>
+        /// <param name="Text">A text representation of a service ticket identification.</param>
         public static ServiceTicket_Id? TryParse(String Text)
         {
 
@@ -126,7 +126,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Try to parse the given string as a service ticket identification.
         /// </summary>
-        /// <param name="Text">A text-representation of a service ticket identification.</param>
+        /// <param name="Text">A text representation of a service ticket identification.</param>
         /// <param name="ServiceTicketId">The parsed service ticket identification.</param>
         public static Boolean TryParse(String Text, out ServiceTicket_Id ServiceTicketId)
         {
@@ -340,7 +340,7 @@ namespace social.OpenData.UsersAPI
         #region (override) ToString()
 
         /// <summary>
-        /// Return a text-representation of this object.
+        /// Return a text representation of this object.
         /// </summary>
         public override String ToString()
 

@@ -114,14 +114,14 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Parse the given string as an user group identification.
         /// </summary>
-        /// <param name="Text">A text-representation of an user group identification.</param>
+        /// <param name="Text">A text representation of an user group identification.</param>
         public static UserGroup_Id Parse(String Text)
         {
 
             if (TryParse(Text, out UserGroup_Id userGroupId))
                 return userGroupId;
 
-            throw new ArgumentException("Invalid text-representation of an user group identification: '" + Text + "'!",
+            throw new ArgumentException("Invalid text representation of an user group identification: '" + Text + "'!",
                                         nameof(Text));
 
         }
@@ -133,7 +133,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Try to parse the given string as an user group identification.
         /// </summary>
-        /// <param name="Text">A text-representation of an user group identification.</param>
+        /// <param name="Text">A text representation of an user group identification.</param>
         public static UserGroup_Id? TryParse(String Text)
         {
 
@@ -151,7 +151,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Try to parse the given string as an user group identification.
         /// </summary>
-        /// <param name="Text">A text-representation of an user group identification.</param>
+        /// <param name="Text">A text representation of an user group identification.</param>
         /// <param name="UserGroupId">The parsed user group identification.</param>
         public static Boolean TryParse(String Text, out UserGroup_Id UserGroupId)
         {
@@ -365,7 +365,7 @@ namespace social.OpenData.UsersAPI
         #region (override) ToString()
 
         /// <summary>
-        /// Return a text-representation of this object.
+        /// Return a text representation of this object.
         /// </summary>
         public override String ToString()
 

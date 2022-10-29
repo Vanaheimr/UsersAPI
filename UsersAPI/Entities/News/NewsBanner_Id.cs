@@ -93,14 +93,14 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Parse the given string as a news banner identification.
         /// </summary>
-        /// <param name="Text">A text-representation of a news banner identification.</param>
+        /// <param name="Text">A text representation of a news banner identification.</param>
         public static NewsBanner_Id Parse(String Text)
         {
 
             if (TryParse(Text, out NewsBanner_Id newsBannerId))
                 return newsBannerId;
 
-            throw new ArgumentException("Invalid text-representation of a news banner identification: '" + Text + "'!",
+            throw new ArgumentException("Invalid text representation of a news banner identification: '" + Text + "'!",
                                         nameof(Text));
 
         }
@@ -112,7 +112,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Try to parse the given string as a news banner identification.
         /// </summary>
-        /// <param name="Text">A text-representation of a news banner identification.</param>
+        /// <param name="Text">A text representation of a news banner identification.</param>
         public static NewsBanner_Id? TryParse(String Text)
         {
 
@@ -130,7 +130,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Try to parse the given string as a news banner identification.
         /// </summary>
-        /// <param name="Text">A text-representation of a news banner identification.</param>
+        /// <param name="Text">A text representation of a news banner identification.</param>
         /// <param name="NewsBannerId">The parsed news banner identification.</param>
         public static Boolean TryParse(String Text, out NewsBanner_Id NewsBannerId)
         {
@@ -344,7 +344,7 @@ namespace social.OpenData.UsersAPI
         #region (override) ToString()
 
         /// <summary>
-        /// Return a text-representation of this object.
+        /// Return a text representation of this object.
         /// </summary>
         public override String ToString()
 

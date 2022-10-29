@@ -87,14 +87,14 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Parse the given string as a service ticket change set identification.
         /// </summary>
-        /// <param name="Text">A text-representation of a service ticket change set identification.</param>
+        /// <param name="Text">A text representation of a service ticket change set identification.</param>
         public static ServiceTicketChangeSet_Id Parse(String Text)
         {
 
             if (TryParse(Text, out ServiceTicketChangeSet_Id serviceTicketChangeSetId))
                 return serviceTicketChangeSetId;
 
-            throw new ArgumentException("Invalid text-representation of a service ticket change set identification: '" + Text + "'!",
+            throw new ArgumentException("Invalid text representation of a service ticket change set identification: '" + Text + "'!",
                                         nameof(Text));
 
         }
@@ -106,7 +106,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Try to parse the given string as a service ticket change set identification.
         /// </summary>
-        /// <param name="Text">A text-representation of a service ticket change set identification.</param>
+        /// <param name="Text">A text representation of a service ticket change set identification.</param>
         public static ServiceTicketChangeSet_Id? TryParse(String Text)
         {
 
@@ -124,7 +124,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Try to parse the given string as a service ticket change set identification.
         /// </summary>
-        /// <param name="Text">A text-representation of a service ticket change set identification.</param>
+        /// <param name="Text">A text representation of a service ticket change set identification.</param>
         /// <param name="ServiceTicketChangeSetId">The parsed service ticket change set identification.</param>
         public static Boolean TryParse(String Text, out ServiceTicketChangeSet_Id ServiceTicketChangeSetId)
         {
@@ -338,7 +338,7 @@ namespace social.OpenData.UsersAPI
         #region (override) ToString()
 
         /// <summary>
-        /// Return a text-representation of this object.
+        /// Return a text representation of this object.
         /// </summary>
         public override String ToString()
 

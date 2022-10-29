@@ -116,14 +116,14 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Parse the given string as an user identification.
         /// </summary>
-        /// <param name="Text">A text-representation of an user identification.</param>
+        /// <param name="Text">A text representation of an user identification.</param>
         public static User_Id Parse(String Text)
         {
 
             if (TryParse(Text, out User_Id userId))
                 return userId;
 
-            throw new ArgumentException("Invalid text-representation of an user identification: '" + Text + "'!",
+            throw new ArgumentException("Invalid text representation of an user identification: '" + Text + "'!",
                                         nameof(Text));
 
         }
@@ -135,7 +135,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Try to parse the given string as an user identification.
         /// </summary>
-        /// <param name="Text">A text-representation of an user identification.</param>
+        /// <param name="Text">A text representation of an user identification.</param>
         public static User_Id? TryParse(String? Text)
         {
 
@@ -153,7 +153,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Try to parse the given string as an user identification.
         /// </summary>
-        /// <param name="Text">A text-representation of an user identification.</param>
+        /// <param name="Text">A text representation of an user identification.</param>
         /// <param name="UserId">The parsed user identification.</param>
         public static Boolean TryParse(String Text, out User_Id UserId)
         {
@@ -367,7 +367,7 @@ namespace social.OpenData.UsersAPI
         #region (override) ToString()
 
         /// <summary>
-        /// Return a text-representation of this object.
+        /// Return a text representation of this object.
         /// </summary>
         public override String ToString()
 

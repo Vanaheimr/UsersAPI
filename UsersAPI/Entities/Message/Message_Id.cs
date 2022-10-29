@@ -77,14 +77,14 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Parse the given string as a message identification.
         /// </summary>
-        /// <param name="Text">A text-representation of a message identification.</param>
+        /// <param name="Text">A text representation of a message identification.</param>
         public static Message_Id Parse(String Text)
         {
 
             if (TryParse(Text, out Message_Id messageId))
                 return messageId;
 
-            throw new ArgumentException("Invalid text-representation of a message identification: '" + Text + "'!",
+            throw new ArgumentException("Invalid text representation of a message identification: '" + Text + "'!",
                                         nameof(Text));
 
         }
@@ -96,7 +96,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Try to parse the given string as a message identification.
         /// </summary>
-        /// <param name="Text">A text-representation of a message identification.</param>
+        /// <param name="Text">A text representation of a message identification.</param>
         public static Message_Id? TryParse(String Text)
         {
 
@@ -114,7 +114,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Try to parse the given string as a message identification.
         /// </summary>
-        /// <param name="Text">A text-representation of a message identification.</param>
+        /// <param name="Text">A text representation of a message identification.</param>
         /// <param name="MessageId">The parsed message identification.</param>
         public static Boolean TryParse(String Text, out Message_Id MessageId)
         {
@@ -328,7 +328,7 @@ namespace social.OpenData.UsersAPI
         #region (override) ToString()
 
         /// <summary>
-        /// Return a text-representation of this object.
+        /// Return a text representation of this object.
         /// </summary>
         public override String ToString()
 

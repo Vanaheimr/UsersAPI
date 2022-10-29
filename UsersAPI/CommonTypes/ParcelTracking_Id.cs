@@ -75,14 +75,14 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Parse the given string as a parcel tracking identification.
         /// </summary>
-        /// <param name="Text">A text-representation of a parcel tracking identification.</param>
+        /// <param name="Text">A text representation of a parcel tracking identification.</param>
         public static ParcelTracking_Id Parse(String Text)
         {
 
             if (TryParse(Text, out ParcelTracking_Id parcelTrackingId))
                 return parcelTrackingId;
 
-            throw new ArgumentException("Invalid text-representation of a parcel tracking identification: '" + Text + "'!",
+            throw new ArgumentException("Invalid text representation of a parcel tracking identification: '" + Text + "'!",
                                         nameof(Text));
 
         }
@@ -94,7 +94,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Try to parse the given string as a parcel tracking identification.
         /// </summary>
-        /// <param name="Text">A text-representation of a parcel tracking identification.</param>
+        /// <param name="Text">A text representation of a parcel tracking identification.</param>
         public static ParcelTracking_Id? TryParse(String Text)
         {
 
@@ -112,7 +112,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Try to parse the given string as a parcel tracking identification.
         /// </summary>
-        /// <param name="Text">A text-representation of a parcel tracking identification.</param>
+        /// <param name="Text">A text representation of a parcel tracking identification.</param>
         /// <param name="ParcelTrackingId">The parsed parcel tracking identification.</param>
         public static Boolean TryParse(String Text, out ParcelTracking_Id ParcelTrackingId)
         {
@@ -326,7 +326,7 @@ namespace social.OpenData.UsersAPI
         #region (override) ToString()
 
         /// <summary>
-        /// Return a text-representation of this object.
+        /// Return a text representation of this object.
         /// </summary>
         public override String ToString()
 

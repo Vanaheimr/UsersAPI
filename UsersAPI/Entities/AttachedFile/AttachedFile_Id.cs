@@ -87,14 +87,14 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Parse the given string as an attached file identification.
         /// </summary>
-        /// <param name="Text">A text-representation of an attached file identification.</param>
+        /// <param name="Text">A text representation of an attached file identification.</param>
         public static AttachedFile_Id Parse(String Text)
         {
 
             if (TryParse(Text, out AttachedFile_Id attachedFileId))
                 return attachedFileId;
 
-            throw new ArgumentException("Invalid text-representation of an attached file identification: '" + Text + "'!",
+            throw new ArgumentException("Invalid text representation of an attached file identification: '" + Text + "'!",
                                         nameof(Text));
 
         }
@@ -106,7 +106,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Try to parse the given string as an attached file identification.
         /// </summary>
-        /// <param name="Text">A text-representation of an attached file identification.</param>
+        /// <param name="Text">A text representation of an attached file identification.</param>
         public static AttachedFile_Id? TryParse(String Text)
         {
 
@@ -124,7 +124,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Try to parse the given string as an attached file identification.
         /// </summary>
-        /// <param name="Text">A text-representation of an attached file identification.</param>
+        /// <param name="Text">A text representation of an attached file identification.</param>
         /// <param name="AttachedFileId">The parsed attached file identification.</param>
         public static Boolean TryParse(String Text, out AttachedFile_Id AttachedFileId)
         {
@@ -338,7 +338,7 @@ namespace social.OpenData.UsersAPI
         #region (override) ToString()
 
         /// <summary>
-        /// Return a text-representation of this object.
+        /// Return a text representation of this object.
         /// </summary>
         public override String ToString()
 

@@ -161,7 +161,7 @@ namespace social.OpenData.UsersAPI
                 return password;
             }
 
-            throw new ArgumentException("Invalid text-representation of a password: '" + Text + "'!",
+            throw new ArgumentException("Invalid text representation of a password: '" + Text + "'!",
                                         nameof(Text));
 
         }

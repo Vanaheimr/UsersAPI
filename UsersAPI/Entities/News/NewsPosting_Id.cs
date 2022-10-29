@@ -95,14 +95,14 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Parse the given string as a news posting identification.
         /// </summary>
-        /// <param name="Text">A text-representation of a news posting identification.</param>
+        /// <param name="Text">A text representation of a news posting identification.</param>
         public static NewsPosting_Id Parse(String Text)
         {
 
             if (TryParse(Text, out NewsPosting_Id newsPostingId))
                 return newsPostingId;
 
-            throw new ArgumentException("Invalid text-representation of a news posting identification: '" + Text + "'!",
+            throw new ArgumentException("Invalid text representation of a news posting identification: '" + Text + "'!",
                                         nameof(Text));
 
         }
@@ -114,7 +114,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Try to parse the given string as a news posting identification.
         /// </summary>
-        /// <param name="Text">A text-representation of a news posting identification.</param>
+        /// <param name="Text">A text representation of a news posting identification.</param>
         public static NewsPosting_Id? TryParse(String Text)
         {
 
@@ -132,7 +132,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Try to parse the given string as a news posting identification.
         /// </summary>
-        /// <param name="Text">A text-representation of a news posting identification.</param>
+        /// <param name="Text">A text representation of a news posting identification.</param>
         /// <param name="NewsPostingId">The parsed news posting identification.</param>
         public static Boolean TryParse(String Text, out NewsPosting_Id NewsPostingId)
         {
@@ -346,7 +346,7 @@ namespace social.OpenData.UsersAPI
         #region (override) ToString()
 
         /// <summary>
-        /// Return a text-representation of this object.
+        /// Return a text representation of this object.
         /// </summary>
         public override String ToString()
 
