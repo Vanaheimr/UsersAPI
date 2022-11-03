@@ -4692,6 +4692,7 @@ namespace social.OpenData.UsersAPI
                 if (request.Path.StartsWith(URLPathPrefix + "/shared/UsersAPI/defaults") ||
                     request.Path.StartsWith(URLPathPrefix + "/shared/UsersAPI/webfonts") ||
                     request.Path.StartsWith(URLPathPrefix + "/shared/UsersAPI/login")    ||
+                    request.Path.StartsWith(URLPathPrefix + "/shared/UsersAPI/js")       ||
                     request.Path.StartsWith(URLPathPrefix + "/defaults")                 ||
                     request.Path.StartsWith(URLPathPrefix + "/favicon.ico")              ||
 
