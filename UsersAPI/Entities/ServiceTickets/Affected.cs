@@ -253,7 +253,7 @@ namespace social.OpenData.UsersAPI
                                                     out ErrorResponse))
                 {
 
-                    if (ErrorResponse != null)
+                    if (ErrorResponse is not null)
                         return false;
 
                     if (ServiceTicketProvider != null)
@@ -276,7 +276,7 @@ namespace social.OpenData.UsersAPI
                                                     out ErrorResponse))
                 {
 
-                    if (ErrorResponse != null)
+                    if (ErrorResponse is not null)
                         return false;
 
                     if (UserProvider != null)
@@ -299,7 +299,7 @@ namespace social.OpenData.UsersAPI
                                                     out ErrorResponse))
                 {
 
-                    if (ErrorResponse != null)
+                    if (ErrorResponse is not null)
                         return false;
 
                     if (OrganizationProvider != null)

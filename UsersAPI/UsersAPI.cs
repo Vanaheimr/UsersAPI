@@ -5805,7 +5805,7 @@ namespace social.OpenData.UsersAPI
                                                                        Request,
                                                                        out ErrorResponse))
                                              {
-                                                 if (ErrorResponse != null)
+                                                 if (ErrorResponse is not null)
                                                     return HTTPResponse;
                                              }
 
@@ -6106,7 +6106,7 @@ namespace social.OpenData.UsersAPI
                                                                                Request,
                                                                                out errorResponse))
                                              {
-                                                 if (errorResponse != null)
+                                                 if (errorResponse is not null)
                                                      return errorResponse;
                                              }
 
@@ -6148,7 +6148,7 @@ namespace social.OpenData.UsersAPI
                                                                         Request,
                                                                         out errorResponse))
                                              {
-                                                 if (errorResponse != null)
+                                                 if (errorResponse is not null)
                                                      return errorResponse;
                                              }
 
@@ -6427,7 +6427,7 @@ namespace social.OpenData.UsersAPI
                                                                                Request,
                                                                                out errorResponse))
                                              {
-                                                 if (errorResponse != null)
+                                                 if (errorResponse is not null)
                                                      return errorResponse;
                                              }
 
@@ -6488,7 +6488,7 @@ namespace social.OpenData.UsersAPI
                                                                      Request,
                                                                      out errorResponse))
                                              {
-                                                 if (errorResponse != null)
+                                                 if (errorResponse is not null)
                                                      return errorResponse;
                                              }
 

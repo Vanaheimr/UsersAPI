@@ -134,7 +134,7 @@ namespace social.OpenData.UsersAPI
                                              out ErrorResponse))
                 {
 
-                    if (ErrorResponse != null)
+                    if (ErrorResponse is not null)
                         return false;
 
                     if (Context != JSONLDContext)
@@ -168,7 +168,7 @@ namespace social.OpenData.UsersAPI
                                              out ErrorResponse))
                 {
 
-                    if (ErrorResponse != null)
+                    if (ErrorResponse is not null)
                         return false;
 
                 }

@@ -242,7 +242,7 @@ namespace social.OpenData.UsersAPI.Notifications
                                                    out ErrorResponse))
                 {
 
-                    if (ErrorResponse != null)
+                    if (ErrorResponse is not null)
                         return false;
 
                 }
@@ -359,7 +359,7 @@ namespace social.OpenData.UsersAPI.Notifications
                                              out ErrorResponse))
                 {
 
-                    if (ErrorResponse != null)
+                    if (ErrorResponse is not null)
                         return false;
 
                 }

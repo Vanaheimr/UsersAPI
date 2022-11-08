@@ -304,7 +304,7 @@ namespace social.OpenData.UsersAPI
                                                    out SecurityToken_Id? SecurityToken2,
                                                    out ErrorResponse))
                 {
-                    if (ErrorResponse != null)
+                    if (ErrorResponse is not null)
                         return false;
                 }
 
@@ -318,7 +318,7 @@ namespace social.OpenData.UsersAPI
                                              out EventTracking_Id EventTrackingId,
                                              out ErrorResponse))
                 {
-                    if (ErrorResponse != null)
+                    if (ErrorResponse is not null)
                         return false;
                 }
 

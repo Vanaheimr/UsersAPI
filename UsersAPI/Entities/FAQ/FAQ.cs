@@ -346,7 +346,7 @@ namespace social.OpenData.UsersAPI
                                                    out ErrorResponse))
                 {
 
-                    if (ErrorResponse != null)
+                    if (ErrorResponse is not null)
                         return false;
 
                 }
@@ -421,7 +421,7 @@ namespace social.OpenData.UsersAPI
                                               out ErrorResponse))
                 {
 
-                    if (ErrorResponse != null)
+                    if (ErrorResponse is not null)
                         return false;
 
                     if (!UserProvider(AuthorId, out Author))
@@ -459,7 +459,7 @@ namespace social.OpenData.UsersAPI
                                              out ErrorResponse))
                 {
 
-                    if (ErrorResponse != null)
+                    if (ErrorResponse is not null)
                         return false;
 
                 }
@@ -484,7 +484,7 @@ namespace social.OpenData.UsersAPI
                                              out ErrorResponse))
                 {
 
-                    if (ErrorResponse != null)
+                    if (ErrorResponse is not null)
                         return false;
 
                 }

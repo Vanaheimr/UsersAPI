@@ -588,7 +588,7 @@ namespace social.OpenData.UsersAPI
                                                    out ErrorResponse))
                 {
 
-                    if (ErrorResponse != null)
+                    if (ErrorResponse is not null)
                         return false;
 
                 }
@@ -621,7 +621,7 @@ namespace social.OpenData.UsersAPI
                                                    out ErrorResponse))
                 {
 
-                    if (ErrorResponse != null)
+                    if (ErrorResponse is not null)
                         return false;
 
                     if (UserId.HasValue &&
@@ -648,7 +648,7 @@ namespace social.OpenData.UsersAPI
                                               out ErrorResponse))
                 {
 
-                    if (ErrorResponse != null)
+                    if (ErrorResponse is not null)
                         return false;
 
                 }
@@ -665,7 +665,7 @@ namespace social.OpenData.UsersAPI
                                              out ErrorResponse))
                 {
 
-                    if (ErrorResponse != null)
+                    if (ErrorResponse is not null)
                         return false;
 
                     if (AffectedJSON != null)
@@ -704,7 +704,7 @@ namespace social.OpenData.UsersAPI
                                                  out ErrorResponse))
                 {
 
-                    if (ErrorResponse != null)
+                    if (ErrorResponse is not null)
                         return false;
 
                 }
@@ -719,7 +719,7 @@ namespace social.OpenData.UsersAPI
                                              out ErrorResponse))
                 {
 
-                    if (ErrorResponse != null)
+                    if (ErrorResponse is not null)
                         return false;
 
                 }
@@ -735,7 +735,7 @@ namespace social.OpenData.UsersAPI
                                                    out ErrorResponse))
                 {
 
-                    if (ErrorResponse != null)
+                    if (ErrorResponse is not null)
                         return false;
 
                 }
@@ -751,7 +751,7 @@ namespace social.OpenData.UsersAPI
                                                   out ErrorResponse))
                 {
 
-                    if (ErrorResponse != null)
+                    if (ErrorResponse is not null)
                         return false;
 
                 }
@@ -768,7 +768,7 @@ namespace social.OpenData.UsersAPI
                                              out ErrorResponse))
                 {
 
-                    if (ErrorResponse != null)
+                    if (ErrorResponse is not null)
                         return false;
 
                     if (statusIndicatorsJSON != null)
@@ -805,7 +805,7 @@ namespace social.OpenData.UsersAPI
                                                  out ErrorResponse))
                 {
 
-                    if (ErrorResponse != null)
+                    if (ErrorResponse is not null)
                         return false;
 
                 }
@@ -822,7 +822,7 @@ namespace social.OpenData.UsersAPI
                                              out ErrorResponse))
                 {
 
-                    if (ErrorResponse != null)
+                    if (ErrorResponse is not null)
                         return false;
 
                 }
@@ -838,7 +838,7 @@ namespace social.OpenData.UsersAPI
                                                     out ErrorResponse))
                 {
 
-                    if (ErrorResponse != null)
+                    if (ErrorResponse is not null)
                         return false;
 
                 }
@@ -856,7 +856,7 @@ namespace social.OpenData.UsersAPI
                                              out ErrorResponse))
                 {
 
-                    if (ErrorResponse != null)
+                    if (ErrorResponse is not null)
                         return false;
 
                 }
@@ -912,7 +912,7 @@ namespace social.OpenData.UsersAPI
                                              out ErrorResponse))
                 {
 
-                    if (ErrorResponse != null)
+                    if (ErrorResponse is not null)
                         return false;
 
                     if (ChangeSetsJSON != null)
