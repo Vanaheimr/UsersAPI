@@ -17611,11 +17611,11 @@ namespace social.OpenData.UsersAPI
                             eventTrackingId);
 
             var OnUserAddedLocal = OnUserAdded;
-            if (OnUserAddedLocal != null)
-                await OnUserAddedLocal?.Invoke(Timestamp.Now,
-                                               User,
-                                               eventTrackingId,
-                                               CurrentUserId);
+            if (OnUserAddedLocal is not null)
+                await OnUserAddedLocal.Invoke(Timestamp.Now,
+                                              User,
+                                              eventTrackingId,
+                                              CurrentUserId);
 
             var resetPasswordResult = await _ResetPassword(User,
                                                            SuppressNotifications: true,
