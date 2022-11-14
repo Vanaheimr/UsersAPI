@@ -3469,7 +3469,7 @@ namespace social.OpenData.UsersAPI
                                                        SecurityToken_Id  SecurityToken,
                                                        Boolean           Use2FactorAuth,
                                                        Languages         Language,
-                                                       EventTracking_Id  EventTrackingId)
+                                                       EventTracking_Id? EventTrackingId)
 
             =>  new HTMLEMailBuilder() {
 
@@ -3510,7 +3510,7 @@ namespace social.OpenData.UsersAPI
         public virtual EMail NewUserWelcomeEMailCreator(User              User,
                                                         EMailAddressList  EMailRecipients,
                                                         Languages         Language,
-                                                        EventTracking_Id  EventTrackingId)
+                                                        EventTracking_Id? EventTrackingId)
 
             => new HTMLEMailBuilder() {
 
@@ -3552,7 +3552,7 @@ namespace social.OpenData.UsersAPI
                                                        SecurityToken_Id  SecurityToken,
                                                        Boolean           Use2FactorAuth,
                                                        Languages         Language,
-                                                       EventTracking_Id  EventTrackingId)
+                                                       EventTracking_Id? EventTrackingId)
 
             => new HTMLEMailBuilder() {
 
@@ -3593,7 +3593,7 @@ namespace social.OpenData.UsersAPI
         public virtual EMail PasswordChangedEMailCreator(User              User,
                                                          EMailAddressList  EMailRecipients,
                                                          Languages         Language,
-                                                         EventTracking_Id  EventTrackingId)
+                                                         EventTracking_Id? EventTrackingId)
 
             => new HTMLEMailBuilder() {
 
@@ -15881,7 +15881,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         protected internal Task WriteToDatabaseFile(NotificationMessageType  MessageType,
                                                     JObject                  JSONData,
-                                                    EventTracking_Id         EventTrackingId,
+                                                    EventTracking_Id?        EventTrackingId,
                                                     User_Id?                 CurrentUserId   = null)
 
             => WriteToDatabaseFile(DatabaseFileName,
@@ -15905,7 +15905,7 @@ namespace social.OpenData.UsersAPI
         protected internal async Task WriteToDatabaseFile(String                   DatabaseFile,
                                                           NotificationMessageType  MessageType,
                                                           JObject                  JSONData,
-                                                          EventTracking_Id         EventTrackingId,
+                                                          EventTracking_Id?        EventTrackingId,
                                                           User_Id?                 CurrentUserId     = null)
         {
 
@@ -16014,7 +16014,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task WriteCommentToDatabaseFile(String            Comment           = null,
                                                      String            DatabaseFile      = null,
-                                                     EventTracking_Id  EventTrackingId   = null,
+                                                     EventTracking_Id? EventTrackingId   = null,
                                                      User_Id?          CurrentUserId     = null)
         {
 
@@ -16974,7 +16974,7 @@ namespace social.OpenData.UsersAPI
         protected internal virtual Task SendNotifications(User                     User,
                                                           NotificationMessageType  MessageType,
                                                           User                     OldUser           = null,
-                                                          EventTracking_Id         EventTrackingId   = null,
+                                                          EventTracking_Id?        EventTrackingId   = null,
                                                           User_Id?                 CurrentUserId     = null)
 
             => SendNotifications(User,
@@ -16995,7 +16995,7 @@ namespace social.OpenData.UsersAPI
         protected internal async virtual Task SendNotifications(User                                  User,
                                                                 IEnumerable<NotificationMessageType>  MessageTypes,
                                                                 User                                  OldUser           = null,
-                                                                EventTracking_Id                      EventTrackingId   = null,
+                                                                EventTracking_Id?                     EventTrackingId   = null,
                                                                 User_Id?                              CurrentUserId     = null)
         {
 
@@ -17277,7 +17277,7 @@ namespace social.OpenData.UsersAPI
         protected internal virtual Task SendNotifications(User                       User,
                                                           IEnumerable<Organization>  ParentOrganizations,
                                                           NotificationMessageType    MessageType,
-                                                          EventTracking_Id           EventTrackingId   = null,
+                                                          EventTracking_Id?          EventTrackingId   = null,
                                                           User_Id?                   CurrentUserId     = null)
 
             => SendNotifications(User,
@@ -17298,7 +17298,7 @@ namespace social.OpenData.UsersAPI
         protected internal async virtual Task SendNotifications(User                                  User,
                                                                 IEnumerable<Organization>             ParentOrganizations,
                                                                 IEnumerable<NotificationMessageType>  MessageTypes,
-                                                                EventTracking_Id                      EventTrackingId   = null,
+                                                                EventTracking_Id?                     EventTrackingId   = null,
                                                                 User_Id?                              CurrentUserId     = null)
         {
 
@@ -17502,10 +17502,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="User">The added user.</param>
         /// <param name="EventTrackingId">An unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public delegate Task OnUserAddedDelegate(DateTime          Timestamp,
-                                                 User              User,
-                                                 EventTracking_Id  EventTrackingId   = null,
-                                                 User_Id?          CurrentUserId     = null);
+        public delegate Task OnUserAddedDelegate(DateTime           Timestamp,
+                                                 User               User,
+                                                 EventTracking_Id?  EventTrackingId   = null,
+                                                 User_Id?           CurrentUserId     = null);
 
         /// <summary>
         /// An event fired whenever a user was added.
@@ -17523,13 +17523,13 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnAdded">A delegate run whenever the user has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected internal async Task<AddUserResult> _AddUser(User                            User,
-                                                              Boolean                         SkipDefaultNotifications   = false,
-                                                              Boolean                         SkipNewUserEMail           = false,
-                                                              Boolean                         SkipNewUserNotifications   = false,
-                                                              Action<User, EventTracking_Id>  OnAdded                    = null,
-                                                              EventTracking_Id                EventTrackingId            = null,
-                                                              User_Id?                        CurrentUserId              = null)
+        protected internal async Task<AddUserResult> _AddUser(User                             User,
+                                                              Boolean                          SkipDefaultNotifications   = false,
+                                                              Boolean                          SkipNewUserEMail           = false,
+                                                              Boolean                          SkipNewUserNotifications   = false,
+                                                              Action<User, EventTracking_Id>?  OnAdded                    = null,
+                                                              EventTracking_Id?                EventTrackingId            = null,
+                                                              User_Id?                         CurrentUserId              = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -17540,7 +17540,7 @@ namespace social.OpenData.UsersAPI
                                                    nameof(User),
                                                    "The given user must not be null!");
 
-            if (User.API != null && User.API != this)
+            if (User.API is not null && User.API != this)
                 return AddUserResult.ArgumentError(User,
                                                    eventTrackingId,
                                                    nameof(User),
@@ -17654,13 +17654,13 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnAdded">A delegate run whenever the user has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<AddUserResult> AddUser(User                            User,
-                                                 Boolean                         SkipDefaultNotifications   = false,
-                                                 Boolean                         SkipNewUserEMail           = false,
-                                                 Boolean                         SkipNewUserNotifications   = false,
-                                                 Action<User, EventTracking_Id>  OnAdded                    = null,
-                                                 EventTracking_Id                EventTrackingId            = null,
-                                                 User_Id?                        CurrentUserId              = null)
+        public async Task<AddUserResult> AddUser(User                             User,
+                                                 Boolean                          SkipDefaultNotifications   = false,
+                                                 Boolean                          SkipNewUserEMail           = false,
+                                                 Boolean                          SkipNewUserNotifications   = false,
+                                                 Action<User, EventTracking_Id>?  OnAdded                    = null,
+                                                 EventTracking_Id?                EventTrackingId            = null,
+                                                 User_Id?                         CurrentUserId              = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -17720,15 +17720,15 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnAdded">A delegate run whenever the user has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<AddUserResult> AddUser(User                            User,
-                                                 User2OrganizationEdgeLabel      AccessRight,
-                                                 Organization                    Organization,
-                                                 Boolean                         SkipDefaultNotifications   = false,
-                                                 Boolean                         SkipNewUserEMail           = false,
-                                                 Boolean                         SkipNewUserNotifications   = false,
-                                                 Action<User, EventTracking_Id>  OnAdded                    = null,
-                                                 EventTracking_Id                EventTrackingId            = null,
-                                                 User_Id?                        CurrentUserId              = null)
+        public async Task<AddUserResult> AddUser(User                             User,
+                                                 User2OrganizationEdgeLabel       AccessRight,
+                                                 Organization                     Organization,
+                                                 Boolean                          SkipDefaultNotifications   = false,
+                                                 Boolean                          SkipNewUserEMail           = false,
+                                                 Boolean                          SkipNewUserNotifications   = false,
+                                                 Action<User, EventTracking_Id>?  OnAdded                    = null,
+                                                 EventTracking_Id?                EventTrackingId            = null,
+                                                 User_Id?                         CurrentUserId              = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -17828,8 +17828,8 @@ namespace social.OpenData.UsersAPI
                                                  Boolean                                                       SkipDefaultNotifications   = false,
                                                  Boolean                                                       SkipNewUserEMail           = false,
                                                  Boolean                                                       SkipNewUserNotifications   = false,
-                                                 Action<User, EventTracking_Id>                                OnAdded                    = null,
-                                                 EventTracking_Id                                              EventTrackingId            = null,
+                                                 Action<User, EventTracking_Id>?                               OnAdded                    = null,
+                                                 EventTracking_Id?                                             EventTrackingId            = null,
                                                  User_Id?                                                      CurrentUserId              = null)
         {
 
@@ -17938,13 +17938,13 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnAdded">A delegate run whenever the user has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected internal async Task<AddUserIfNotExistsResult> _AddUserIfNotExists(User                            User,
-                                                                                    Boolean                         SkipDefaultNotifications   = false,
-                                                                                    Boolean                         SkipNewUserEMail           = false,
-                                                                                    Boolean                         SkipNewUserNotifications   = false,
-                                                                                    Action<User, EventTracking_Id>  OnAdded                    = null,
-                                                                                    EventTracking_Id                EventTrackingId            = null,
-                                                                                    User_Id?                        CurrentUserId              = null)
+        protected internal async Task<AddUserIfNotExistsResult> _AddUserIfNotExists(User                             User,
+                                                                                    Boolean                          SkipDefaultNotifications   = false,
+                                                                                    Boolean                          SkipNewUserEMail           = false,
+                                                                                    Boolean                          SkipNewUserNotifications   = false,
+                                                                                    Action<User, EventTracking_Id>?  OnAdded                    = null,
+                                                                                    EventTracking_Id?                EventTrackingId            = null,
+                                                                                    User_Id?                         CurrentUserId              = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -17955,7 +17955,7 @@ namespace social.OpenData.UsersAPI
                                                               nameof(User),
                                                               "The given user must not be null!");
 
-            if (User.API != null && User.API != this)
+            if (User.API is not null && User.API != this)
                 return AddUserIfNotExistsResult.ArgumentError(User,
                                                               eventTrackingId,
                                                               nameof(User),
@@ -18024,7 +18024,7 @@ namespace social.OpenData.UsersAPI
                             eventTrackingId);
 
             var OnUserAddedLocal = OnUserAdded;
-            if (OnUserAddedLocal != null)
+            if (OnUserAddedLocal is not null)
                 await OnUserAddedLocal?.Invoke(Timestamp.Now,
                                                User,
                                                eventTrackingId,
@@ -18068,13 +18068,13 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnAdded">A delegate run whenever the user has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<AddUserIfNotExistsResult> AddUserIfNotExists(User                            User,
-                                                                       Boolean                         SkipDefaultNotifications   = false,
-                                                                       Boolean                         SkipNewUserEMail           = false,
-                                                                       Boolean                         SkipNewUserNotifications   = false,
-                                                                       Action<User, EventTracking_Id>  OnAdded                    = null,
-                                                                       EventTracking_Id                EventTrackingId            = null,
-                                                                       User_Id?                        CurrentUserId              = null)
+        public async Task<AddUserIfNotExistsResult> AddUserIfNotExists(User                             User,
+                                                                       Boolean                          SkipDefaultNotifications   = false,
+                                                                       Boolean                          SkipNewUserEMail           = false,
+                                                                       Boolean                          SkipNewUserNotifications   = false,
+                                                                       Action<User, EventTracking_Id>?  OnAdded                    = null,
+                                                                       EventTracking_Id?                EventTrackingId            = null,
+                                                                       User_Id?                         CurrentUserId              = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -18134,15 +18134,15 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnAdded">A delegate run whenever the user has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<AddUserIfNotExistsResult> AddUserIfNotExists(User                            User,
-                                                                       User2OrganizationEdgeLabel      AccessRight,
-                                                                       Organization                    Organization,
-                                                                       Boolean                         SkipDefaultNotifications   = false,
-                                                                       Boolean                         SkipNewUserEMail           = false,
-                                                                       Boolean                         SkipNewUserNotifications   = false,
-                                                                       Action<User, EventTracking_Id>  OnAdded                    = null,
-                                                                       EventTracking_Id                EventTrackingId            = null,
-                                                                       User_Id?                        CurrentUserId              = null)
+        public async Task<AddUserIfNotExistsResult> AddUserIfNotExists(User                             User,
+                                                                       User2OrganizationEdgeLabel       AccessRight,
+                                                                       Organization                     Organization,
+                                                                       Boolean                          SkipDefaultNotifications   = false,
+                                                                       Boolean                          SkipNewUserEMail           = false,
+                                                                       Boolean                          SkipNewUserNotifications   = false,
+                                                                       Action<User, EventTracking_Id>?  OnAdded                    = null,
+                                                                       EventTracking_Id?                EventTrackingId            = null,
+                                                                       User_Id?                         CurrentUserId              = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -18243,8 +18243,8 @@ namespace social.OpenData.UsersAPI
                                                                        Boolean                                                       SkipDefaultNotifications   = false,
                                                                        Boolean                                                       SkipNewUserEMail           = false,
                                                                        Boolean                                                       SkipNewUserNotifications   = false,
-                                                                       Action<User, EventTracking_Id>                                OnAdded                    = null,
-                                                                       EventTracking_Id                                              EventTrackingId            = null,
+                                                                       Action<User, EventTracking_Id>?                               OnAdded                    = null,
+                                                                       EventTracking_Id?                                             EventTrackingId            = null,
                                                                        User_Id?                                                      CurrentUserId              = null)
         {
 
@@ -18356,15 +18356,15 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnUpdated">A delegate run whenever the user has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected internal async Task<AddOrUpdateUserResult> _AddOrUpdateUser(User                            User,
-                                                                              Boolean                         SkipDefaultNotifications       = false,
-                                                                              Boolean                         SkipNewUserEMail               = false,
-                                                                              Boolean                         SkipNewUserNotifications       = false,
-                                                                              Boolean                         SkipUserUpdatedNotifications   = false,
-                                                                              Action<User, EventTracking_Id>  OnAdded                        = null,
-                                                                              Action<User, EventTracking_Id>  OnUpdated                      = null,
-                                                                              EventTracking_Id                EventTrackingId                = null,
-                                                                              User_Id?                        CurrentUserId                  = null)
+        protected internal async Task<AddOrUpdateUserResult> _AddOrUpdateUser(User                             User,
+                                                                              Boolean                          SkipDefaultNotifications       = false,
+                                                                              Boolean                          SkipNewUserEMail               = false,
+                                                                              Boolean                          SkipNewUserNotifications       = false,
+                                                                              Boolean                          SkipUserUpdatedNotifications   = false,
+                                                                              Action<User, EventTracking_Id>?  OnAdded                        = null,
+                                                                              Action<User, EventTracking_Id>?  OnUpdated                      = null,
+                                                                              EventTracking_Id?                EventTrackingId                = null,
+                                                                              User_Id?                         CurrentUserId                  = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -18375,7 +18375,7 @@ namespace social.OpenData.UsersAPI
                                                            nameof(User),
                                                            "The given user must not be null!");
 
-            if (User.API != null && User.API != this)
+            if (User.API is not null && User.API != this)
                 return AddOrUpdateUserResult.ArgumentError(User,
                                                            eventTrackingId,
                                                            nameof(User.API),
@@ -18407,7 +18407,7 @@ namespace social.OpenData.UsersAPI
                                       eventTrackingId,
                                       CurrentUserId);
 
-            if (_Users.TryGetValue(User.Id, out User OldUser))
+            if (_Users.TryGetValue(User.Id, out var OldUser))
             {
                 _Users.Remove(OldUser.Id);
                 User.CopyAllLinkedDataFrom(OldUser);
@@ -18448,7 +18448,7 @@ namespace social.OpenData.UsersAPI
                                 eventTrackingId);
 
                 var OnUserAddedLocal = OnUserAdded;
-                if (OnUserAddedLocal != null)
+                if (OnUserAddedLocal is not null)
                     await OnUserAddedLocal?.Invoke(Timestamp.Now,
                                                    User,
                                                    eventTrackingId,
@@ -18485,12 +18485,12 @@ namespace social.OpenData.UsersAPI
                                   eventTrackingId);
 
                 var OnUserUpdatedLocal = OnUserUpdated;
-                if (OnUserUpdatedLocal != null)
-                    await OnUserUpdatedLocal?.Invoke(Timestamp.Now,
-                                                     User,
-                                                     OldUser,
-                                                     eventTrackingId,
-                                                     CurrentUserId);
+                if (OnUserUpdatedLocal is not null)
+                    await OnUserUpdatedLocal.Invoke(Timestamp.Now,
+                                                    User,
+                                                    OldUser,
+                                                    eventTrackingId,
+                                                    CurrentUserId);
 
                 if (!SkipUserUpdatedNotifications)
                     await SendNotifications(User,
@@ -18520,15 +18520,15 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnUpdated">A delegate run whenever the user has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<AddOrUpdateUserResult> AddOrUpdateUser(User                            User,
-                                                                 Boolean                         SkipDefaultNotifications       = false,
-                                                                 Boolean                         SkipNewUserEMail               = false,
-                                                                 Boolean                         SkipNewUserNotifications       = false,
-                                                                 Boolean                         SkipUserUpdatedNotifications   = false,
-                                                                 Action<User, EventTracking_Id>  OnAdded                        = null,
-                                                                 Action<User, EventTracking_Id>  OnUpdated                      = null,
-                                                                 EventTracking_Id                EventTrackingId                = null,
-                                                                 User_Id?                        CurrentUserId                  = null)
+        public async Task<AddOrUpdateUserResult> AddOrUpdateUser(User                             User,
+                                                                 Boolean                          SkipDefaultNotifications       = false,
+                                                                 Boolean                          SkipNewUserEMail               = false,
+                                                                 Boolean                          SkipNewUserNotifications       = false,
+                                                                 Boolean                          SkipUserUpdatedNotifications   = false,
+                                                                 Action<User, EventTracking_Id>?  OnAdded                        = null,
+                                                                 Action<User, EventTracking_Id>?  OnUpdated                      = null,
+                                                                 EventTracking_Id?                EventTrackingId                = null,
+                                                                 User_Id?                         CurrentUserId                  = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -18591,17 +18591,17 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnUpdated">A delegate run whenever the user has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<AddOrUpdateUserResult> AddOrUpdateUser(User                            User,
-                                                                 User2OrganizationEdgeLabel      AccessRight,
-                                                                 Organization                    Organization,
-                                                                 Boolean                         SkipDefaultNotifications       = false,
-                                                                 Boolean                         SkipNewUserEMail               = false,
-                                                                 Boolean                         SkipNewUserNotifications       = false,
-                                                                 Boolean                         SkipUserUpdatedNotifications   = false,
-                                                                 Action<User, EventTracking_Id>  OnAdded                        = null,
-                                                                 Action<User, EventTracking_Id>  OnUpdated                      = null,
-                                                                 EventTracking_Id                EventTrackingId                = null,
-                                                                 User_Id?                        CurrentUserId                  = null)
+        public async Task<AddOrUpdateUserResult> AddOrUpdateUser(User                             User,
+                                                                 User2OrganizationEdgeLabel       AccessRight,
+                                                                 Organization                     Organization,
+                                                                 Boolean                          SkipDefaultNotifications       = false,
+                                                                 Boolean                          SkipNewUserEMail               = false,
+                                                                 Boolean                          SkipNewUserNotifications       = false,
+                                                                 Boolean                          SkipUserUpdatedNotifications   = false,
+                                                                 Action<User, EventTracking_Id>?  OnAdded                        = null,
+                                                                 Action<User, EventTracking_Id>?  OnUpdated                      = null,
+                                                                 EventTracking_Id?                EventTrackingId                = null,
+                                                                 User_Id?                         CurrentUserId                  = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -18702,7 +18702,7 @@ namespace social.OpenData.UsersAPI
         public delegate Task OnUserUpdatedDelegate(DateTime          Timestamp,
                                                    User              User,
                                                    User              OldUser,
-                                                   EventTracking_Id  EventTrackingId   = null,
+                                                   EventTracking_Id? EventTrackingId   = null,
                                                    User_Id?          CurrentUserId     = null);
 
         /// <summary>
@@ -18720,11 +18720,11 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnUpdated">A delegate run whenever the user has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected internal async Task<UpdateUserResult> _UpdateUser(User                            User,
-                                                                    Boolean                         SkipUserUpdatedNotifications   = false,
-                                                                    Action<User, EventTracking_Id>  OnUpdated                      = null,
-                                                                    EventTracking_Id                EventTrackingId                = null,
-                                                                    User_Id?                        CurrentUserId                  = null)
+        protected internal async Task<UpdateUserResult> _UpdateUser(User                             User,
+                                                                    Boolean                          SkipUserUpdatedNotifications   = false,
+                                                                    Action<User, EventTracking_Id>?  OnUpdated                      = null,
+                                                                    EventTracking_Id?                EventTrackingId                = null,
+                                                                    User_Id?                         CurrentUserId                  = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -18735,13 +18735,13 @@ namespace social.OpenData.UsersAPI
                                                       nameof(User),
                                                       "The given user must not be null!");
 
-            if (!_TryGetUser(User.Id, out User OldUser))
+            if (!_TryGetUser(User.Id, out var OldUser))
                 return UpdateUserResult.ArgumentError(User,
                                                       eventTrackingId,
                                                       nameof(User),
                                                       "The given user '" + User.Id + "' does not exists in this API!");
 
-            if (User.API != null && User.API != this)
+            if (User.API is not null && User.API != this)
                 return UpdateUserResult.ArgumentError(User,
                                                       eventTrackingId,
                                                       nameof(User.API),
@@ -18763,12 +18763,12 @@ namespace social.OpenData.UsersAPI
                               eventTrackingId);
 
             var OnUserUpdatedLocal = OnUserUpdated;
-            if (OnUserUpdatedLocal != null)
-                await OnUserUpdatedLocal?.Invoke(Timestamp.Now,
-                                                 User,
-                                                 OldUser,
-                                                 eventTrackingId,
-                                                 CurrentUserId);
+            if (OnUserUpdatedLocal is not null)
+                await OnUserUpdatedLocal.Invoke(Timestamp.Now,
+                                                User,
+                                                OldUser,
+                                                eventTrackingId,
+                                                CurrentUserId);
 
             if (!SkipUserUpdatedNotifications)
                 await SendNotifications(User,
@@ -18793,11 +18793,11 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnUpdated">A delegate run whenever the user has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<UpdateUserResult> UpdateUser(User                            User,
-                                                       Boolean                         SkipUserUpdatedNotifications   = false,
-                                                       Action<User, EventTracking_Id>  OnUpdated                      = null,
-                                                       EventTracking_Id                EventTrackingId                = null,
-                                                       User_Id?                        CurrentUserId                  = null)
+        public async Task<UpdateUserResult> UpdateUser(User                             User,
+                                                       Boolean                          SkipUserUpdatedNotifications   = false,
+                                                       Action<User, EventTracking_Id>?  OnUpdated                      = null,
+                                                       EventTracking_Id?                EventTrackingId                = null,
+                                                       User_Id?                         CurrentUserId                  = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -18854,12 +18854,12 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnUpdated">A delegate run whenever the user has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected internal async Task<UpdateUserResult> _UpdateUser(User                            User,
-                                                                    Action<User.Builder>            UpdateDelegate,
-                                                                    Boolean                         SkipUserUpdatedNotifications   = false,
-                                                                    Action<User, EventTracking_Id>  OnUpdated                      = null,
-                                                                    EventTracking_Id                EventTrackingId                = null,
-                                                                    User_Id?                        CurrentUserId                  = null)
+        protected internal async Task<UpdateUserResult> _UpdateUser(User                             User,
+                                                                    Action<User.Builder>             UpdateDelegate,
+                                                                    Boolean                          SkipUserUpdatedNotifications   = false,
+                                                                    Action<User, EventTracking_Id>?  OnUpdated                      = null,
+                                                                    EventTracking_Id?                EventTrackingId                = null,
+                                                                    User_Id?                         CurrentUserId                  = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -18906,12 +18906,12 @@ namespace social.OpenData.UsersAPI
                               eventTrackingId);
 
             var OnUserUpdatedLocal = OnUserUpdated;
-            if (OnUserUpdatedLocal != null)
-                await OnUserUpdatedLocal?.Invoke(Timestamp.Now,
-                                                 updatedUser,
-                                                 User,
-                                                 eventTrackingId,
-                                                 CurrentUserId);
+            if (OnUserUpdatedLocal is not null)
+                await OnUserUpdatedLocal.Invoke(Timestamp.Now,
+                                                updatedUser,
+                                                User,
+                                                eventTrackingId,
+                                                CurrentUserId);
 
             if (!SkipUserUpdatedNotifications)
                 await SendNotifications(updatedUser,
@@ -18937,12 +18937,12 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnUpdated">A delegate run whenever the user has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<UpdateUserResult> UpdateUser(User                            User,
-                                                       Action<User.Builder>            UpdateDelegate,
-                                                       Boolean                         SkipUserUpdatedNotifications   = false,
-                                                       Action<User, EventTracking_Id>  OnUpdated                      = null,
-                                                       EventTracking_Id                EventTrackingId                = null,
-                                                       User_Id?                        CurrentUserId                  = null)
+        public async Task<UpdateUserResult> UpdateUser(User                             User,
+                                                       Action<User.Builder>             UpdateDelegate,
+                                                       Boolean                          SkipUserUpdatedNotifications   = false,
+                                                       Action<User, EventTracking_Id>?  OnUpdated                      = null,
+                                                       EventTracking_Id?                EventTrackingId                = null,
+                                                       User_Id?                         CurrentUserId                  = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -19086,7 +19086,7 @@ namespace social.OpenData.UsersAPI
         protected internal User _GetUser(User_Id UserId)
         {
 
-            if (!UserId.IsNullOrEmpty && _Users.TryGetValue(UserId, out User user))
+            if (!UserId.IsNullOrEmpty && _Users.TryGetValue(UserId, out var user))
                 return user;
 
             return null;
@@ -19100,7 +19100,7 @@ namespace social.OpenData.UsersAPI
         protected internal User _GetUser(User_Id? UserId)
         {
 
-            if (UserId.IsNotNullOrEmpty() && _Users.TryGetValue(UserId.Value, out User user))
+            if (UserId.IsNotNullOrEmpty() && _Users.TryGetValue(UserId.Value, out var user))
                 return user;
 
             return null;
@@ -19185,7 +19185,7 @@ namespace social.OpenData.UsersAPI
         {
 
             if (!UserId.IsNullOrEmpty &&
-                _Users.TryGetValue(UserId, out User? user))
+                _Users.TryGetValue(UserId, out var user))
             {
                 User = user;
                 return true;
@@ -19205,7 +19205,7 @@ namespace social.OpenData.UsersAPI
         {
 
             if (UserId.IsNotNullOrEmpty() &&
-               _Users.TryGetValue(UserId!.Value, out User? user))
+               _Users.TryGetValue(UserId!.Value, out var user))
             {
                 User = user;
                 return true;
@@ -19329,7 +19329,7 @@ namespace social.OpenData.UsersAPI
                 }
             }
 
-            return new User[0];
+            return Array.Empty<User>();
 
         }
 
@@ -19387,7 +19387,7 @@ namespace social.OpenData.UsersAPI
                 }
             }
 
-            Users = null;
+            Users = Array.Empty<User>();
             return false;
 
         }
@@ -19404,10 +19404,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="User">The user to be deleted.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public delegate Task OnUserDeletedDelegate(DateTime          Timestamp,
-                                                   User              User,
-                                                   EventTracking_Id  EventTrackingId   = null,
-                                                   User_Id?          CurrentUserId     = null);
+        public delegate Task OnUserDeletedDelegate(DateTime           Timestamp,
+                                                   User               User,
+                                                   EventTracking_Id?  EventTrackingId   = null,
+                                                   User_Id?           CurrentUserId     = null);
 
         /// <summary>
         /// An event fired whenever a user was deleted.
@@ -19421,7 +19421,7 @@ namespace social.OpenData.UsersAPI
         /// Determines whether the user can safely be deleted from the API.
         /// </summary>
         /// <param name="User">The user to be deleted.</param>
-        protected internal virtual I18NString _CanDeleteUser(User User)
+        protected internal virtual I18NString? _CanDeleteUser(User User)
         {
 
             if (User.User2Organization_OutEdges.Any())
@@ -19442,11 +19442,11 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnDeleted">A delegate run whenever the user has been deleted successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected internal async Task<DeleteUserResult> _DeleteUser(User                            User,
-                                                                    Boolean                         SkipUserDeletedNotifications   = false,
-                                                                    Action<User, EventTracking_Id>  OnDeleted                      = null,
-                                                                    EventTracking_Id                EventTrackingId                = null,
-                                                                    User_Id?                        CurrentUserId                  = null)
+        protected internal async Task<DeleteUserResult> _DeleteUser(User                             User,
+                                                                    Boolean                          SkipUserDeletedNotifications   = false,
+                                                                    Action<User, EventTracking_Id>?  OnDeleted                      = null,
+                                                                    EventTracking_Id?                EventTrackingId                = null,
+                                                                    User_Id?                         CurrentUserId                  = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -19463,7 +19463,7 @@ namespace social.OpenData.UsersAPI
                                                       nameof(User),
                                                       "The given user is not attached to this API!");
 
-            if (!_Users.TryGetValue(User.Id, out User UserToBeRemoved))
+            if (!_Users.ContainsKey(User.Id))
                 return DeleteUserResult.ArgumentError(User,
                                                       eventTrackingId,
                                                       nameof(User),
@@ -19472,7 +19472,7 @@ namespace social.OpenData.UsersAPI
 
             var result = _CanDeleteUser(User);
 
-            if (result != null)
+            if (result is not null)
                 return DeleteUserResult.Failed(User,
                                                eventTrackingId,
                                                result);
@@ -19498,11 +19498,11 @@ namespace social.OpenData.UsersAPI
                               eventTrackingId);
 
             var OnUserDeletedLocal = OnUserDeleted;
-            if (OnUserDeletedLocal != null)
-                await OnUserDeletedLocal?.Invoke(Timestamp.Now,
-                                                 User,
-                                                 eventTrackingId,
-                                                 CurrentUserId);
+            if (OnUserDeletedLocal is not null)
+                await OnUserDeletedLocal.Invoke(Timestamp.Now,
+                                                User,
+                                                eventTrackingId,
+                                                CurrentUserId);
 
             if (!SkipUserDeletedNotifications)
                 await SendNotifications(User,
@@ -19528,11 +19528,11 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnDeleted">A delegate run whenever the user has been deleted successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<DeleteUserResult> DeleteUser(User                            User,
-                                                       Boolean                         SkipUserDeletedNotifications   = false,
-                                                       Action<User, EventTracking_Id>  OnDeleted                      = null,
-                                                       EventTracking_Id                EventTrackingId                = null,
-                                                       User_Id?                        CurrentUserId                  = null)
+        public async Task<DeleteUserResult> DeleteUser(User                             User,
+                                                       Boolean                          SkipUserDeletedNotifications   = false,
+                                                       Action<User, EventTracking_Id>?  OnDeleted                      = null,
+                                                       EventTracking_Id?                EventTrackingId                = null,
+                                                       User_Id?                         CurrentUserId                  = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -19573,7 +19573,6 @@ namespace social.OpenData.UsersAPI
             return DeleteUserResult.Failed(User,
                                            eventTrackingId,
                                            "Internal locking failed!");
-
 
         }
 
@@ -19654,7 +19653,7 @@ namespace social.OpenData.UsersAPI
                                                                             Password          NewPassword,
                                                                             Password?         CurrentPassword         = null,
                                                                             Boolean           SuppressNotifications   = false,
-                                                                            EventTracking_Id  EventTrackingId         = null,
+                                                                            EventTracking_Id? EventTrackingId         = null,
                                                                             User_Id?          CurrentUserId           = null)
         {
 
@@ -19769,7 +19768,7 @@ namespace social.OpenData.UsersAPI
                                                                Password          NewPassword,
                                                                Password?         CurrentPassword         = null,
                                                                Boolean           SuppressNotifications   = false,
-                                                               EventTracking_Id  EventTrackingId         = null,
+                                                               EventTracking_Id? EventTrackingId         = null,
                                                                User_Id?          CurrentUserId           = null)
         {
 
@@ -19833,7 +19832,7 @@ namespace social.OpenData.UsersAPI
                                                                             Password           NewPassword,
                                                                             Password?          CurrentPassword         = null,
                                                                             Boolean            SuppressNotifications   = false,
-                                                                            EventTracking_Id   EventTrackingId         = null,
+                                                                            EventTracking_Id?  EventTrackingId         = null,
                                                                             User_Id?           CurrentUserId           = null)
         {
 
@@ -19917,7 +19916,7 @@ namespace social.OpenData.UsersAPI
                                                                Password           NewPassword,
                                                                Password?          CurrentPassword         = null,
                                                                Boolean            SuppressNotifications   = false,
-                                                               EventTracking_Id   EventTrackingId         = null,
+                                                               EventTracking_Id?  EventTrackingId         = null,
                                                                User_Id?           CurrentUserId           = null)
         {
 
@@ -19976,7 +19975,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         protected internal async Task<ResetPasswordResult> _ResetPassword(User              User,
                                                                           Boolean           SuppressNotifications   = false,
-                                                                          EventTracking_Id  EventTrackingId         = null)
+                                                                          EventTracking_Id? EventTrackingId         = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -20011,7 +20010,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         public async Task<ResetPasswordResult> ResetPassword(User              User,
                                                              Boolean           SuppressNotifications   = false,
-                                                             EventTracking_Id  EventTrackingId         = null)
+                                                             EventTracking_Id? EventTrackingId         = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -20066,7 +20065,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         protected internal async Task<ResetPasswordResult> _ResetPassword(IEnumerable<User>  Users,
                                                                           Boolean            SuppressNotifications   = false,
-                                                                          EventTracking_Id   EventTrackingId         = null)
+                                                                          EventTracking_Id?  EventTrackingId         = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -20101,7 +20100,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         public async Task<ResetPasswordResult> ResetPassword(IEnumerable<User>  Users,
                                                              Boolean            SuppressNotifications   = false,
-                                                             EventTracking_Id   EventTrackingId         = null)
+                                                             EventTracking_Id?  EventTrackingId         = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -20156,7 +20155,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         protected internal async Task<AddPasswordResetResult> _AddPasswordReset(PasswordReset     PasswordReset,
                                                                                 Boolean           SuppressNotifications   = false,
-                                                                                EventTracking_Id  EventTrackingId         = null)
+                                                                                EventTracking_Id? EventTrackingId         = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -20206,7 +20205,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         public async Task<AddPasswordResetResult> AddPasswordReset(PasswordReset     PasswordReset,
                                                                    Boolean           SuppressNotifications   = false,
-                                                                   EventTracking_Id  EventTrackingId         = null)
+                                                                   EventTracking_Id? EventTrackingId         = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -20264,7 +20263,7 @@ namespace social.OpenData.UsersAPI
         protected internal async Task<ResetPasswordResult> _ResetPassword(SecurityToken_Id   SecurityTokenId1,
                                                                           Password           NewPassword,
                                                                           SecurityToken_Id?  SecurityTokenId2   = null,
-                                                                          EventTracking_Id   EventTrackingId    = null,
+                                                                          EventTracking_Id?  EventTrackingId    = null,
                                                                           User_Id?           CurrentUserId      = null)
         {
 
@@ -20361,7 +20360,7 @@ namespace social.OpenData.UsersAPI
         public async Task<ResetPasswordResult> ResetPassword(SecurityToken_Id   SecurityTokenId1,
                                                              Password           NewPassword,
                                                              SecurityToken_Id?  SecurityTokenId2   = null,
-                                                             EventTracking_Id   EventTrackingId    = null,
+                                                             EventTracking_Id?  EventTrackingId    = null,
                                                              User_Id?           CurrentUserId      = null)
         {
 
@@ -20418,7 +20417,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional organization identification initiating this command/request.</param>
         protected internal async Task<Boolean> _RemovePasswordReset(PasswordReset     PasswordReset,
-                                                                    EventTracking_Id  EventTrackingId   = null,
+                                                                    EventTracking_Id? EventTrackingId   = null,
                                                                     User_Id?          CurrentUserId     = null)
         {
 
@@ -20442,7 +20441,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional organization identification initiating this command/request.</param>
         public async Task<Boolean> RemovePasswordReset(PasswordReset     PasswordReset,
-                                                       EventTracking_Id  EventTrackingId   = null,
+                                                       EventTracking_Id? EventTrackingId   = null,
                                                        User_Id?          CurrentUserId     = null)
         {
 
@@ -20543,7 +20542,7 @@ namespace social.OpenData.UsersAPI
         protected internal async Task WriteToDatabaseFileAndNotify(APIKey                   APIKey,
                                                                    NotificationMessageType  MessageType,
                                                                    APIKey                   OldAPIKey     = null,
-                                                                   EventTracking_Id         EventTrackingId   = null,
+                                                                   EventTracking_Id?        EventTrackingId   = null,
                                                                    User_Id?                 CurrentUserId     = null)
         {
 
@@ -20584,7 +20583,7 @@ namespace social.OpenData.UsersAPI
         protected internal async Task SendNotifications(APIKey                   APIKey,
                                                         NotificationMessageType  MessageType,
                                                         APIKey                   OldAPIKey     = null,
-                                                        EventTracking_Id         EventTrackingId   = null,
+                                                        EventTracking_Id?        EventTrackingId   = null,
                                                         User_Id?                 CurrentUserId     = null)
         {
 
@@ -20615,7 +20614,7 @@ namespace social.OpenData.UsersAPI
         protected internal async Task SendNotifications(APIKey                            APIKey,
                                                         IEnumerable<NotificationMessageType>  MessageTypes,
                                                         APIKey                            OldAPIKey     = null,
-                                                        EventTracking_Id                      EventTrackingId   = null,
+                                                        EventTracking_Id?                     EventTrackingId   = null,
                                                         User_Id?                              CurrentUserId     = null)
         {
 
@@ -20661,7 +20660,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public delegate Task OnAPIKeyAddedDelegate(DateTime          Timestamp,
                                                    APIKey            APIKey,
-                                                   EventTracking_Id  EventTrackingId   = null,
+                                                   EventTracking_Id? EventTrackingId   = null,
                                                    User_Id?          CurrentUserId     = null);
 
         /// <summary>
@@ -20681,7 +20680,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         protected internal async Task<AddAPIKeyResult> _AddAPIKey(APIKey                            APIKey,
                                                                   Action<APIKey, EventTracking_Id>  OnAdded           = null,
-                                                                  EventTracking_Id                  EventTrackingId   = null,
+                                                                  EventTracking_Id?                 EventTrackingId   = null,
                                                                   User_Id?                          CurrentUserId     = null)
         {
 
@@ -20725,7 +20724,7 @@ namespace social.OpenData.UsersAPI
                             eventTrackingId);
 
             var OnAPIKeyAddedLocal = OnAPIKeyAdded;
-            if (OnAPIKeyAddedLocal != null)
+            if (OnAPIKeyAddedLocal is not null)
                 await OnAPIKeyAddedLocal?.Invoke(Timestamp.Now,
                                                  APIKey,
                                                  eventTrackingId,
@@ -20755,7 +20754,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<AddAPIKeyResult> AddAPIKey(APIKey                            APIKey,
                                                      Action<APIKey, EventTracking_Id>  OnAdded           = null,
-                                                     EventTracking_Id                  EventTrackingId   = null,
+                                                     EventTracking_Id?                 EventTrackingId   = null,
                                                      User_Id?                          CurrentUserId     = null)
         {
 
@@ -20816,7 +20815,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         protected internal async Task<AddAPIKeyIfNotExistsResult> _AddAPIKeyIfNotExists(APIKey                            APIKey,
                                                                                         Action<APIKey, EventTracking_Id>  OnAdded           = null,
-                                                                                        EventTracking_Id                  EventTrackingId   = null,
+                                                                                        EventTracking_Id?                 EventTrackingId   = null,
                                                                                         User_Id?                          CurrentUserId     = null)
         {
 
@@ -20859,7 +20858,7 @@ namespace social.OpenData.UsersAPI
                             eventTrackingId);
 
             var OnAPIKeyAddedLocal = OnAPIKeyAdded;
-            if (OnAPIKeyAddedLocal != null)
+            if (OnAPIKeyAddedLocal is not null)
                 await OnAPIKeyAddedLocal?.Invoke(Timestamp.Now,
                                                  APIKey,
                                                  eventTrackingId,
@@ -20890,7 +20889,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<AddAPIKeyIfNotExistsResult> AddAPIKeyIfNotExists(APIKey                            APIKey,
                                                                            Action<APIKey, EventTracking_Id>  OnAdded           = null,
-                                                                           EventTracking_Id                  EventTrackingId   = null,
+                                                                           EventTracking_Id?                 EventTrackingId   = null,
                                                                            User_Id?                          CurrentUserId     = null)
         {
 
@@ -20953,7 +20952,7 @@ namespace social.OpenData.UsersAPI
         protected internal async Task<AddOrUpdateAPIKeyResult> _AddOrUpdateAPIKey(APIKey                            APIKey,
                                                                                   Action<APIKey, EventTracking_Id>  OnAdded           = null,
                                                                                   Action<APIKey, EventTracking_Id>  OnUpdated         = null,
-                                                                                  EventTracking_Id                  EventTrackingId   = null,
+                                                                                  EventTracking_Id?                 EventTrackingId   = null,
                                                                                   User_Id?                          CurrentUserId     = null)
         {
 
@@ -21000,7 +20999,7 @@ namespace social.OpenData.UsersAPI
                                   eventTrackingId);
 
                 var OnAPIKeyUpdatedLocal = OnAPIKeyUpdated;
-                if (OnAPIKeyUpdatedLocal != null)
+                if (OnAPIKeyUpdatedLocal is not null)
                     await OnAPIKeyUpdatedLocal?.Invoke(Timestamp.Now,
                                                        APIKey,
                                                        OldAPIKey,
@@ -21021,7 +21020,7 @@ namespace social.OpenData.UsersAPI
                                 eventTrackingId);
 
                 var OnAPIKeyAddedLocal = OnAPIKeyAdded;
-                if (OnAPIKeyAddedLocal != null)
+                if (OnAPIKeyAddedLocal is not null)
                     await OnAPIKeyAddedLocal?.Invoke(Timestamp.Now,
                                                      APIKey,
                                                      eventTrackingId,
@@ -21056,7 +21055,7 @@ namespace social.OpenData.UsersAPI
         public async Task<AddOrUpdateAPIKeyResult> AddOrUpdateAPIKey(APIKey                            APIKey,
                                                                      Action<APIKey, EventTracking_Id>  OnAdded           = null,
                                                                      Action<APIKey, EventTracking_Id>  OnUpdated         = null,
-                                                                     EventTracking_Id                  EventTrackingId   = null,
+                                                                     EventTracking_Id?                 EventTrackingId   = null,
                                                                      User_Id?                          CurrentUserId     = null)
         {
 
@@ -21118,7 +21117,7 @@ namespace social.OpenData.UsersAPI
         public delegate Task OnAPIKeyUpdatedDelegate(DateTime          Timestamp,
                                                      APIKey            APIKey,
                                                      APIKey            OldAPIKey,
-                                                     EventTracking_Id  EventTrackingId   = null,
+                                                     EventTracking_Id? EventTrackingId   = null,
                                                      User_Id?          CurrentUserId     = null);
 
         /// <summary>
@@ -21138,7 +21137,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional API key identification initiating this command/request.</param>
         protected internal async Task<UpdateAPIKeyResult> _UpdateAPIKey(APIKey                            APIKey,
                                                                         Action<APIKey, EventTracking_Id>  OnUpdated         = null,
-                                                                        EventTracking_Id                  EventTrackingId   = null,
+                                                                        EventTracking_Id?                 EventTrackingId   = null,
                                                                         User_Id?                          CurrentUserId     = null)
         {
 
@@ -21178,7 +21177,7 @@ namespace social.OpenData.UsersAPI
                               eventTrackingId);
 
             var OnAPIKeyUpdatedLocal = OnAPIKeyUpdated;
-            if (OnAPIKeyUpdatedLocal != null)
+            if (OnAPIKeyUpdatedLocal is not null)
                 await OnAPIKeyUpdatedLocal?.Invoke(Timestamp.Now,
                                                  APIKey,
                                                  OldAPIKey,
@@ -21209,7 +21208,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional API key identification initiating this command/request.</param>
         public async Task<UpdateAPIKeyResult> UpdateAPIKey(APIKey                            APIKey,
                                                            Action<APIKey, EventTracking_Id>  OnUpdated         = null,
-                                                           EventTracking_Id                  EventTrackingId   = null,
+                                                           EventTracking_Id?                 EventTrackingId   = null,
                                                            User_Id?                          CurrentUserId     = null)
         {
 
@@ -21269,7 +21268,7 @@ namespace social.OpenData.UsersAPI
         protected internal async Task<UpdateAPIKeyResult> _UpdateAPIKey(APIKey                            APIKey,
                                                                         Action<APIKey.Builder>            UpdateDelegate,
                                                                         Action<APIKey, EventTracking_Id>  OnUpdated         = null,
-                                                                        EventTracking_Id                  EventTrackingId   = null,
+                                                                        EventTracking_Id?                 EventTrackingId   = null,
                                                                         User_Id?                          CurrentUserId     = null)
         {
 
@@ -21317,7 +21316,7 @@ namespace social.OpenData.UsersAPI
                               eventTrackingId);
 
             var OnAPIKeyUpdatedLocal = OnAPIKeyUpdated;
-            if (OnAPIKeyUpdatedLocal != null)
+            if (OnAPIKeyUpdatedLocal is not null)
                 await OnAPIKeyUpdatedLocal?.Invoke(Timestamp.Now,
                                                    updatedAPIKey,
                                                    APIKey,
@@ -21350,7 +21349,7 @@ namespace social.OpenData.UsersAPI
         public async Task<UpdateAPIKeyResult> UpdateAPIKey(APIKey                            APIKey,
                                                            Action<APIKey.Builder>            UpdateDelegate,
                                                            Action<APIKey, EventTracking_Id>  OnUpdated         = null,
-                                                           EventTracking_Id                  EventTrackingId   = null,
+                                                           EventTracking_Id?                 EventTrackingId   = null,
                                                            User_Id?                          CurrentUserId     = null)
         {
 
@@ -22001,7 +22000,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">The invoking API key identification</param>
         public delegate Task OnAPIKeyRemovedDelegate(DateTime          Timestamp,
                                                      APIKey            APIKey,
-                                                     EventTracking_Id  EventTrackingId   = null,
+                                                     EventTracking_Id? EventTrackingId   = null,
                                                      User_Id?          CurrentUserId     = null);
 
         /// <summary>
@@ -22021,7 +22020,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional API key identification initiating this command/request.</param>
         protected internal async Task<RemoveAPIKeyResult> _RemoveAPIKey(APIKey                            APIKey,
                                                                         Action<APIKey, EventTracking_Id>  OnRemoved         = null,
-                                                                        EventTracking_Id                  EventTrackingId   = null,
+                                                                        EventTracking_Id?                 EventTrackingId   = null,
                                                                         User_Id?                          CurrentUserId     = null)
         {
 
@@ -22057,7 +22056,7 @@ namespace social.OpenData.UsersAPI
                               eventTrackingId);
 
             var OnAPIKeyRemovedLocal = OnAPIKeyRemoved;
-            if (OnAPIKeyRemovedLocal != null)
+            if (OnAPIKeyRemovedLocal is not null)
                 await OnAPIKeyRemovedLocal?.Invoke(Timestamp.Now,
                                                    APIKey,
                                                    eventTrackingId,
@@ -22087,7 +22086,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional API key identification initiating this command/request.</param>
         public async Task<RemoveAPIKeyResult> RemoveAPIKey(APIKey                            APIKey,
                                                            Action<APIKey, EventTracking_Id>  OnRemoved         = null,
-                                                           EventTracking_Id                  EventTrackingId   = null,
+                                                           EventTracking_Id?                 EventTrackingId   = null,
                                                            User_Id?                          CurrentUserId     = null)
         {
 
@@ -22195,7 +22194,7 @@ namespace social.OpenData.UsersAPI
         protected internal async Task WriteToDatabaseFileAndNotify(UserGroup                UserGroup,
                                                                    NotificationMessageType  MessageType,
                                                                    UserGroup                OldUserGroup      = null,
-                                                                   EventTracking_Id         EventTrackingId   = null,
+                                                                   EventTracking_Id?        EventTrackingId   = null,
                                                                    User_Id?                 CurrentUserId     = null)
         {
 
@@ -22236,7 +22235,7 @@ namespace social.OpenData.UsersAPI
         protected internal Task SendNotifications(UserGroup                UserGroup,
                                                   NotificationMessageType  MessageType,
                                                   UserGroup                OldUserGroup      = null,
-                                                  EventTracking_Id         EventTrackingId   = null,
+                                                  EventTracking_Id?        EventTrackingId   = null,
                                                   User_Id?                 CurrentUserId     = null)
 
             => SendNotifications(UserGroup,
@@ -22257,7 +22256,7 @@ namespace social.OpenData.UsersAPI
         protected internal async Task SendNotifications(UserGroup                             UserGroup,
                                                         IEnumerable<NotificationMessageType>  MessageTypes,
                                                         UserGroup                             OldUserGroup      = null,
-                                                        EventTracking_Id                      EventTrackingId   = null,
+                                                        EventTracking_Id?                     EventTrackingId   = null,
                                                         User_Id?                              CurrentUserId     = null)
         {
 
@@ -22303,7 +22302,7 @@ namespace social.OpenData.UsersAPI
         protected internal virtual Task SendNotifications(UserGroup                UserGroup,
                                                           IEnumerable<UserGroup>   ParentUserGroups,
                                                           NotificationMessageType  MessageType,
-                                                          EventTracking_Id         EventTrackingId   = null,
+                                                          EventTracking_Id?        EventTrackingId   = null,
                                                           User_Id?                 CurrentUserId     = null)
 
             => SendNotifications(UserGroup,
@@ -22324,7 +22323,7 @@ namespace social.OpenData.UsersAPI
         protected internal async virtual Task SendNotifications(UserGroup                             UserGroup,
                                                                 IEnumerable<UserGroup>                ParentUserGroups,
                                                                 IEnumerable<NotificationMessageType>  MessageTypes,
-                                                                EventTracking_Id                      EventTrackingId   = null,
+                                                                EventTracking_Id?                     EventTrackingId   = null,
                                                                 User_Id?                              CurrentUserId     = null)
         {
 
@@ -22540,7 +22539,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public delegate Task OnUserGroupAddedDelegate(DateTime          Timestamp,
                                                       UserGroup         UserGroup,
-                                                      EventTracking_Id  EventTrackingId   = null,
+                                                      EventTracking_Id? EventTrackingId   = null,
                                                       User_Id?          CurrentUserId     = null);
 
         /// <summary>
@@ -22560,7 +22559,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         protected internal async Task<AddUserGroupResult> _AddUserGroup(UserGroup                            UserGroup,
                                                                         Action<UserGroup, EventTracking_Id>  OnAdded           = null,
-                                                                        EventTracking_Id                     EventTrackingId   = null,
+                                                                        EventTracking_Id?                    EventTrackingId   = null,
                                                                         User_Id?                             CurrentUserId     = null)
         {
 
@@ -22617,7 +22616,7 @@ namespace social.OpenData.UsersAPI
                             eventTrackingId);
 
             var OnUserGroupAddedLocal = OnUserGroupAdded;
-            if (OnUserGroupAddedLocal != null)
+            if (OnUserGroupAddedLocal is not null)
                 await OnUserGroupAddedLocal?.Invoke(Timestamp.Now,
                                                     UserGroup,
                                                     eventTrackingId,
@@ -22648,7 +22647,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<AddUserGroupResult> AddUserGroup(UserGroup                            UserGroup,
                                                            Action<UserGroup, EventTracking_Id>  OnAdded           = null,
-                                                           EventTracking_Id                     EventTrackingId   = null,
+                                                           EventTracking_Id?                    EventTrackingId   = null,
                                                            User_Id?                             CurrentUserId     = null)
         {
 
@@ -22709,7 +22708,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         protected internal async Task<AddUserGroupIfNotExistsResult> _AddUserGroupIfNotExists(UserGroup                            UserGroup,
                                                                                               Action<UserGroup, EventTracking_Id>  OnAdded           = null,
-                                                                                              EventTracking_Id                     EventTrackingId   = null,
+                                                                                              EventTracking_Id?                    EventTrackingId   = null,
                                                                                               User_Id?                             CurrentUserId     = null)
         {
 
@@ -22765,7 +22764,7 @@ namespace social.OpenData.UsersAPI
                             eventTrackingId);
 
             var OnUserGroupAddedLocal = OnUserGroupAdded;
-            if (OnUserGroupAddedLocal != null)
+            if (OnUserGroupAddedLocal is not null)
                 await OnUserGroupAddedLocal?.Invoke(Timestamp.Now,
                                                     UserGroup,
                                                     eventTrackingId,
@@ -22797,7 +22796,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<AddUserGroupIfNotExistsResult> AddUserGroupIfNotExists(UserGroup                            UserGroup,
                                                                                  Action<UserGroup, EventTracking_Id>  OnAdded           = null,
-                                                                                 EventTracking_Id                     EventTrackingId   = null,
+                                                                                 EventTracking_Id?                    EventTrackingId   = null,
                                                                                  User_Id?                             CurrentUserId     = null)
         {
 
@@ -22860,7 +22859,7 @@ namespace social.OpenData.UsersAPI
         protected internal async Task<AddOrUpdateUserGroupResult> _AddOrUpdateUserGroup(UserGroup                            UserGroup,
                                                                                         Action<UserGroup, EventTracking_Id>  OnAdded           = null,
                                                                                         Action<UserGroup, EventTracking_Id>  OnUpdated         = null,
-                                                                                        EventTracking_Id                     EventTrackingId   = null,
+                                                                                        EventTracking_Id?                    EventTrackingId   = null,
                                                                                         User_Id?                             CurrentUserId     = null)
         {
 
@@ -22919,7 +22918,7 @@ namespace social.OpenData.UsersAPI
                                 eventTrackingId);
 
                 var OnUserGroupAddedLocal = OnUserGroupAdded;
-                if (OnUserGroupAddedLocal != null)
+                if (OnUserGroupAddedLocal is not null)
                     await OnUserGroupAddedLocal?.Invoke(Timestamp.Now,
                                                         UserGroup,
                                                         eventTrackingId,
@@ -22943,7 +22942,7 @@ namespace social.OpenData.UsersAPI
                                   eventTrackingId);
 
                 var OnUserGroupUpdatedLocal = OnUserGroupUpdated;
-                if (OnUserGroupUpdatedLocal != null)
+                if (OnUserGroupUpdatedLocal is not null)
                     await OnUserGroupUpdatedLocal?.Invoke(Timestamp.Now,
                                                           UserGroup,
                                                           OldUserGroup,
@@ -22979,7 +22978,7 @@ namespace social.OpenData.UsersAPI
         public async Task<AddOrUpdateUserGroupResult> AddOrUpdateUserGroup(UserGroup                            UserGroup,
                                                                            Action<UserGroup, EventTracking_Id>  OnAdded           = null,
                                                                            Action<UserGroup, EventTracking_Id>  OnUpdated         = null,
-                                                                           EventTracking_Id                     EventTrackingId   = null,
+                                                                           EventTracking_Id?                    EventTrackingId   = null,
                                                                            User_Id?                             CurrentUserId     = null)
         {
 
@@ -23041,7 +23040,7 @@ namespace social.OpenData.UsersAPI
         public delegate Task OnUserGroupUpdatedDelegate(DateTime          Timestamp,
                                                         UserGroup         UserGroup,
                                                         UserGroup         OldUserGroup,
-                                                        EventTracking_Id  EventTrackingId   = null,
+                                                        EventTracking_Id? EventTrackingId   = null,
                                                         User_Id?          CurrentUserId     = null);
 
         /// <summary>
@@ -23061,7 +23060,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user group identification initiating this command/request.</param>
         protected internal async Task<UpdateUserGroupResult> _UpdateUserGroup(UserGroup                            UserGroup,
                                                                               Action<UserGroup, EventTracking_Id>  OnUpdated         = null,
-                                                                              EventTracking_Id                     EventTrackingId   = null,
+                                                                              EventTracking_Id?                    EventTrackingId   = null,
                                                                               User_Id?                             CurrentUserId     = null)
         {
 
@@ -23101,7 +23100,7 @@ namespace social.OpenData.UsersAPI
                               eventTrackingId);
 
             var OnUserGroupUpdatedLocal = OnUserGroupUpdated;
-            if (OnUserGroupUpdatedLocal != null)
+            if (OnUserGroupUpdatedLocal is not null)
                 await OnUserGroupUpdatedLocal?.Invoke(Timestamp.Now,
                                                       UserGroup,
                                                       OldUserGroup,
@@ -23132,7 +23131,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user group identification initiating this command/request.</param>
         public async Task<UpdateUserGroupResult> UpdateUserGroup(UserGroup                            UserGroup,
                                                                  Action<UserGroup, EventTracking_Id>  OnUpdated         = null,
-                                                                 EventTracking_Id                     EventTrackingId   = null,
+                                                                 EventTracking_Id?                    EventTrackingId   = null,
                                                                  User_Id?                             CurrentUserId     = null)
         {
 
@@ -23192,7 +23191,7 @@ namespace social.OpenData.UsersAPI
         protected internal async Task<UpdateUserGroupResult> _UpdateUserGroup(UserGroup                            UserGroup,
                                                                               Action<UserGroup.Builder>            UpdateDelegate,
                                                                               Action<UserGroup, EventTracking_Id>  OnUpdated         = null,
-                                                                              EventTracking_Id                     EventTrackingId   = null,
+                                                                              EventTracking_Id?                    EventTrackingId   = null,
                                                                               User_Id?                             CurrentUserId     = null)
         {
 
@@ -23240,7 +23239,7 @@ namespace social.OpenData.UsersAPI
                               eventTrackingId);
 
             var OnUserGroupUpdatedLocal = OnUserGroupUpdated;
-            if (OnUserGroupUpdatedLocal != null)
+            if (OnUserGroupUpdatedLocal is not null)
                 await OnUserGroupUpdatedLocal?.Invoke(Timestamp.Now,
                                                  updatedUserGroup,
                                                  UserGroup,
@@ -23273,7 +23272,7 @@ namespace social.OpenData.UsersAPI
         public async Task<UpdateUserGroupResult> UpdateUserGroup(UserGroup                            UserGroup,
                                                                  Action<UserGroup.Builder>            UpdateDelegate,
                                                                  Action<UserGroup, EventTracking_Id>  OnUpdated         = null,
-                                                                 EventTracking_Id                     EventTrackingId   = null,
+                                                                 EventTracking_Id?                    EventTrackingId   = null,
                                                                  User_Id?                             CurrentUserId     = null)
         {
 
@@ -23741,7 +23740,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">The invoking user group identification</param>
         public delegate Task OnUserGroupDeletedDelegate(DateTime          Timestamp,
                                                         UserGroup         UserGroup,
-                                                        EventTracking_Id  EventTrackingId   = null,
+                                                        EventTracking_Id? EventTrackingId   = null,
                                                         User_Id?          CurrentUserId     = null);
 
         /// <summary>
@@ -23774,7 +23773,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user group identification initiating this command/request.</param>
         protected internal async Task<DeleteUserGroupResult> _DeleteUserGroup(UserGroup                            UserGroup,
                                                                               Action<UserGroup, EventTracking_Id>  OnDeleted         = null,
-                                                                              EventTracking_Id                     EventTrackingId   = null,
+                                                                              EventTracking_Id?                    EventTrackingId   = null,
                                                                               User_Id?                             CurrentUserId     = null)
         {
 
@@ -23842,7 +23841,7 @@ namespace social.OpenData.UsersAPI
                               eventTrackingId);
 
             var OnUserGroupDeletedLocal = OnUserGroupDeleted;
-            if (OnUserGroupDeletedLocal != null)
+            if (OnUserGroupDeletedLocal is not null)
                 await OnUserGroupDeletedLocal?.Invoke(Timestamp.Now,
                                                       UserGroup,
                                                       eventTrackingId,
@@ -23874,7 +23873,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user group identification initiating this command/request.</param>
         public async Task<DeleteUserGroupResult> DeleteUserGroup(UserGroup                            UserGroup,
                                                                  Action<UserGroup, EventTracking_Id>  OnDeleted         = null,
-                                                                 EventTracking_Id                     EventTrackingId   = null,
+                                                                 EventTracking_Id?                    EventTrackingId   = null,
                                                                  User_Id?                             CurrentUserId     = null)
         {
 
@@ -23977,7 +23976,7 @@ namespace social.OpenData.UsersAPI
         protected internal async Task WriteToDatabaseFileAndNotify(Message              Message,
                                                           NotificationMessageType  MessageType,
                                                           Message              OldMessage    = null,
-                                                          EventTracking_Id         EventTrackingId   = null,
+                                                          EventTracking_Id?        EventTrackingId   = null,
                                                           User_Id?                 CurrentUserId     = null)
         {
 
@@ -24018,7 +24017,7 @@ namespace social.OpenData.UsersAPI
         protected internal async Task SendNotifications(Message              Message,
                                                NotificationMessageType  MessageType,
                                                Message              OldMessage    = null,
-                                               EventTracking_Id         EventTrackingId   = null,
+                                               EventTracking_Id?        EventTrackingId   = null,
                                                User_Id?                 CurrentUserId     = null)
         {
 
@@ -24049,7 +24048,7 @@ namespace social.OpenData.UsersAPI
         protected internal async Task SendNotifications(Message                           Message,
                                                IEnumerable<NotificationMessageType>  MessageTypes,
                                                Message                           OldMessage    = null,
-                                               EventTracking_Id                      EventTrackingId   = null,
+                                               EventTracking_Id?                     EventTrackingId   = null,
                                                User_Id?                              CurrentUserId     = null)
         {
 
@@ -24121,7 +24120,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public delegate Task OnMessageAddedDelegate(DateTime          Timestamp,
                                                         Message       Message,
-                                                        EventTracking_Id  EventTrackingId   = null,
+                                                        EventTracking_Id? EventTrackingId   = null,
                                                         User_Id?          CurrentUserId     = null);
 
         /// <summary>
@@ -24141,7 +24140,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         protected internal async Task<Message> _AddMessage(Message                            Message,
                                                           Action<Message, EventTracking_Id>  OnAdded           = null,
-                                                          EventTracking_Id                       EventTrackingId   = null,
+                                                          EventTracking_Id?                      EventTrackingId   = null,
                                                           User_Id?                               CurrentUserId     = null)
         {
 
@@ -24175,7 +24174,7 @@ namespace social.OpenData.UsersAPI
 
 
             var OnMessageAddedLocal = OnMessageAdded;
-            if (OnMessageAddedLocal != null)
+            if (OnMessageAddedLocal is not null)
                 await OnMessageAddedLocal?.Invoke(Timestamp.Now,
                                                       Message,
                                                       eventTrackingId,
@@ -24207,7 +24206,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<Message> AddMessage(Message                            Message,
                                                       Action<Message, EventTracking_Id>  OnAdded           = null,
-                                                      EventTracking_Id                       EventTrackingId   = null,
+                                                      EventTracking_Id?                      EventTrackingId   = null,
                                                       User_Id?                               CurrentUserId     = null)
         {
 
@@ -24256,7 +24255,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         protected internal async Task<Message> _AddMessageIfNotExists(Message                            Message,
                                                                      Action<Message, EventTracking_Id>  OnAdded           = null,
-                                                                     EventTracking_Id                       EventTrackingId   = null,
+                                                                     EventTracking_Id?                      EventTrackingId   = null,
                                                                      User_Id?                               CurrentUserId     = null)
         {
 
@@ -24288,7 +24287,7 @@ namespace social.OpenData.UsersAPI
             _Messages.Add(Message.Id, Message);
 
             var OnMessageAddedLocal = OnMessageAdded;
-            if (OnMessageAddedLocal != null)
+            if (OnMessageAddedLocal is not null)
                 await OnMessageAddedLocal?.Invoke(Timestamp.Now,
                                                       Message,
                                                       eventTrackingId,
@@ -24320,7 +24319,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<Message> AddMessageIfNotExists(Message                            Message,
                                                                  Action<Message, EventTracking_Id>  OnAdded           = null,
-                                                                 EventTracking_Id                       EventTrackingId   = null,
+                                                                 EventTracking_Id?                      EventTrackingId   = null,
                                                                  User_Id?                               CurrentUserId     = null)
         {
 
@@ -24368,7 +24367,7 @@ namespace social.OpenData.UsersAPI
         protected internal async Task<Message> _AddOrUpdateMessage(Message                            Message,
                                                                   Action<Message, EventTracking_Id>  OnAdded           = null,
                                                                   Action<Message, EventTracking_Id>  OnUpdated         = null,
-                                                                  EventTracking_Id                       EventTrackingId   = null,
+                                                                  EventTracking_Id?                      EventTrackingId   = null,
                                                                   User_Id?                               CurrentUserId     = null)
         {
 
@@ -24409,7 +24408,7 @@ namespace social.OpenData.UsersAPI
             {
 
                 var OnMessageUpdatedLocal = OnMessageUpdated;
-                if (OnMessageUpdatedLocal != null)
+                if (OnMessageUpdatedLocal is not null)
                     await OnMessageUpdatedLocal?.Invoke(Timestamp.Now,
                                                             Message,
                                                             OldMessage,
@@ -24430,7 +24429,7 @@ namespace social.OpenData.UsersAPI
             {
 
                 var OnMessageAddedLocal = OnMessageAdded;
-                if (OnMessageAddedLocal != null)
+                if (OnMessageAddedLocal is not null)
                     await OnMessageAddedLocal?.Invoke(Timestamp.Now,
                                                           Message,
                                                           eventTrackingId,
@@ -24466,7 +24465,7 @@ namespace social.OpenData.UsersAPI
         public async Task<Message> AddOrUpdateMessage(Message                            Message,
                                                               Action<Message, EventTracking_Id>  OnAdded           = null,
                                                               Action<Message, EventTracking_Id>  OnUpdated         = null,
-                                                              EventTracking_Id                       EventTrackingId   = null,
+                                                              EventTracking_Id?                      EventTrackingId   = null,
                                                               User_Id?                               CurrentUserId     = null)
         {
 
@@ -24516,7 +24515,7 @@ namespace social.OpenData.UsersAPI
         public delegate Task OnMessageUpdatedDelegate(DateTime          Timestamp,
                                                           Message       Message,
                                                           Message       OldMessage,
-                                                          EventTracking_Id  EventTrackingId   = null,
+                                                          EventTracking_Id? EventTrackingId   = null,
                                                           User_Id?          CurrentUserId     = null);
 
         /// <summary>
@@ -24536,7 +24535,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional message identification initiating this command/request.</param>
         protected internal async Task<Message> _UpdateMessage(Message                            Message,
                                                              Action<Message, EventTracking_Id>  OnUpdated         = null,
-                                                             EventTracking_Id                       EventTrackingId   = null,
+                                                             EventTracking_Id?                      EventTrackingId   = null,
                                                              User_Id?                               CurrentUserId     = null)
         {
 
@@ -24567,7 +24566,7 @@ namespace social.OpenData.UsersAPI
 
 
             var OnMessageUpdatedLocal = OnMessageUpdated;
-            if (OnMessageUpdatedLocal != null)
+            if (OnMessageUpdatedLocal is not null)
                 await OnMessageUpdatedLocal?.Invoke(Timestamp.Now,
                                                         Message,
                                                         OldMessage,
@@ -24600,7 +24599,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional message identification initiating this command/request.</param>
         public async Task<Message> UpdateMessage(Message                            Message,
                                                          Action<Message, EventTracking_Id>  OnUpdated         = null,
-                                                         EventTracking_Id                       EventTrackingId   = null,
+                                                         EventTracking_Id?                      EventTrackingId   = null,
                                                          User_Id?                               CurrentUserId     = null)
         {
 
@@ -24648,7 +24647,7 @@ namespace social.OpenData.UsersAPI
         protected internal async Task<Message> _UpdateMessage(Message_Id                         MessageId,
                                                              Action<Message.Builder>            UpdateDelegate,
                                                              Action<Message, EventTracking_Id>  OnUpdated         = null,
-                                                             EventTracking_Id                       EventTrackingId   = null,
+                                                             EventTracking_Id?                      EventTrackingId   = null,
                                                              User_Id?                               CurrentUserId     = null)
         {
 
@@ -24681,7 +24680,7 @@ namespace social.OpenData.UsersAPI
 
 
             var OnMessageUpdatedLocal = OnMessageUpdated;
-            if (OnMessageUpdatedLocal != null)
+            if (OnMessageUpdatedLocal is not null)
                 await OnMessageUpdatedLocal?.Invoke(Timestamp.Now,
                                                         NewMessage,
                                                         OldMessage,
@@ -24716,7 +24715,7 @@ namespace social.OpenData.UsersAPI
         public async Task<Message> UpdateMessage(Message_Id                         MessageId,
                                                          Action<Message.Builder>            UpdateDelegate,
                                                          Action<Message, EventTracking_Id>  OnUpdated         = null,
-                                                         EventTracking_Id                       EventTrackingId   = null,
+                                                         EventTracking_Id?                      EventTrackingId   = null,
                                                          User_Id?                               CurrentUserId     = null)
         {
 
@@ -24922,7 +24921,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">The invoking message identification</param>
         public delegate Task OnMessageRemovedDelegate(DateTime          Timestamp,
                                                           Message       Message,
-                                                          EventTracking_Id  EventTrackingId   = null,
+                                                          EventTracking_Id? EventTrackingId   = null,
                                                           User_Id?          CurrentUserId     = null);
 
         /// <summary>
@@ -25001,7 +25000,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional message identification initiating this command/request.</param>
         protected internal async Task<DeleteMessageResult> _RemoveMessage(Message                            Message,
                                                                          Action<Message, EventTracking_Id>  OnRemoved         = null,
-                                                                         EventTracking_Id                       EventTrackingId   = null,
+                                                                         EventTracking_Id?                      EventTrackingId   = null,
                                                                          User_Id?                               CurrentUserId     = null)
         {
 
@@ -25030,7 +25029,7 @@ namespace social.OpenData.UsersAPI
 
 
                 var OnMessageRemovedLocal = OnMessageRemoved;
-                if (OnMessageRemovedLocal != null)
+                if (OnMessageRemovedLocal is not null)
                     await OnMessageRemovedLocal?.Invoke(Timestamp.Now,
                                                             Message,
                                                             eventTrackingId,
@@ -25066,7 +25065,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional message identification initiating this command/request.</param>
         public async Task<DeleteMessageResult> RemoveMessage(Message                            Message,
                                                                      Action<Message, EventTracking_Id>  OnRemoved         = null,
-                                                                     EventTracking_Id                       EventTrackingId   = null,
+                                                                     EventTracking_Id?                      EventTrackingId   = null,
                                                                      User_Id?                               CurrentUserId     = null)
         {
 
@@ -25168,7 +25167,7 @@ namespace social.OpenData.UsersAPI
 
         protected async Task _AddNotification<T>(User              User,
                                                  T                 NotificationType,
-                                                 EventTracking_Id  EventTrackingId   = null,
+                                                 EventTracking_Id? EventTrackingId   = null,
                                                  User_Id?          CurrentUserId     = null)
 
             where T : ANotification
@@ -25186,7 +25185,7 @@ namespace social.OpenData.UsersAPI
 
         public async Task AddNotification<T>(User              User,
                                              T                 NotificationType,
-                                             EventTracking_Id  EventTrackingId   = null,
+                                             EventTracking_Id? EventTrackingId   = null,
                                              User_Id?          CurrentUserId     = null)
 
             where T : ANotification
@@ -25217,7 +25216,7 @@ namespace social.OpenData.UsersAPI
 
         public async Task AddNotification<T>(User_Id           UserId,
                                              T                 NotificationType,
-                                             EventTracking_Id  EventTrackingId   = null,
+                                             EventTracking_Id? EventTrackingId   = null,
                                              User_Id?          CurrentUserId     = null)
 
             where T : ANotification
@@ -25255,7 +25254,7 @@ namespace social.OpenData.UsersAPI
         public async Task AddNotification<T>(User                     User,
                                              T                        NotificationType,
                                              NotificationMessageType  NotificationMessageType,
-                                             EventTracking_Id         EventTrackingId   = null,
+                                             EventTracking_Id?        EventTrackingId   = null,
                                              User_Id?                 CurrentUserId     = null)
 
             where T : ANotification
@@ -25289,7 +25288,7 @@ namespace social.OpenData.UsersAPI
         public async Task AddNotification<T>(User_Id                  UserId,
                                              T                        NotificationType,
                                              NotificationMessageType  NotificationMessageType,
-                                             EventTracking_Id         EventTrackingId   = null,
+                                             EventTracking_Id?        EventTrackingId   = null,
                                              User_Id?                 CurrentUserId     = null)
 
             where T : ANotification
@@ -25331,7 +25330,7 @@ namespace social.OpenData.UsersAPI
         public async Task AddNotification<T>(User                                  User,
                                              T                                     NotificationType,
                                              IEnumerable<NotificationMessageType>  NotificationMessageTypes,
-                                             EventTracking_Id                      EventTrackingId   = null,
+                                             EventTracking_Id?                     EventTrackingId   = null,
                                              User_Id?                              CurrentUserId     = null)
 
             where T : ANotification
@@ -25365,7 +25364,7 @@ namespace social.OpenData.UsersAPI
         public async Task AddNotification<T>(User_Id                               UserId,
                                              T                                     NotificationType,
                                              IEnumerable<NotificationMessageType>  NotificationMessageTypes,
-                                             EventTracking_Id                      EventTrackingId   = null,
+                                             EventTracking_Id?                     EventTrackingId   = null,
                                              User_Id?                              CurrentUserId     = null)
 
             where T : ANotification
@@ -25407,7 +25406,7 @@ namespace social.OpenData.UsersAPI
 
         public async Task AddNotification<T>(Organization      Organization,
                                              T                 NotificationType,
-                                             EventTracking_Id  EventTrackingId   = null,
+                                             EventTracking_Id? EventTrackingId   = null,
                                              User_Id?          CurrentUserId     = null)
 
             where T : ANotification
@@ -25439,7 +25438,7 @@ namespace social.OpenData.UsersAPI
 
         public async Task AddNotification<T>(Organization_Id   OrganizationId,
                                              T                 NotificationType,
-                                             EventTracking_Id  EventTrackingId   = null,
+                                             EventTracking_Id? EventTrackingId   = null,
                                              User_Id?          CurrentUserId     = null)
 
             where T : ANotification
@@ -25477,7 +25476,7 @@ namespace social.OpenData.UsersAPI
         public async Task AddNotification<T>(Organization             Organization,
                                              T                        NotificationType,
                                              NotificationMessageType  NotificationMessageType,
-                                             EventTracking_Id         EventTrackingId   = null,
+                                             EventTracking_Id?        EventTrackingId   = null,
                                              User_Id?                 CurrentUserId     = null)
 
             where T : ANotification
@@ -25511,7 +25510,7 @@ namespace social.OpenData.UsersAPI
         public async Task AddNotification<T>(Organization_Id          OrganizationId,
                                              T                        NotificationType,
                                              NotificationMessageType  NotificationMessageType,
-                                             EventTracking_Id         EventTrackingId   = null,
+                                             EventTracking_Id?        EventTrackingId   = null,
                                              User_Id?                 CurrentUserId     = null)
 
             where T : ANotification
@@ -25553,7 +25552,7 @@ namespace social.OpenData.UsersAPI
         public async Task AddNotification<T>(Organization                          Organization,
                                              T                                     NotificationType,
                                              IEnumerable<NotificationMessageType>  NotificationMessageTypes,
-                                             EventTracking_Id                      EventTrackingId   = null,
+                                             EventTracking_Id?                     EventTrackingId   = null,
                                              User_Id?                              CurrentUserId     = null)
 
             where T : ANotification
@@ -25587,7 +25586,7 @@ namespace social.OpenData.UsersAPI
         public async Task AddNotification<T>(Organization_Id                       OrganizationId,
                                              T                                     NotificationType,
                                              IEnumerable<NotificationMessageType>  NotificationMessageTypes,
-                                             EventTracking_Id                      EventTrackingId   = null,
+                                             EventTracking_Id?                     EventTrackingId   = null,
                                              User_Id?                              CurrentUserId     = null)
 
             where T : ANotification
@@ -26025,7 +26024,7 @@ namespace social.OpenData.UsersAPI
 
         public async Task RemoveNotification<T>(User              User,
                                                 T                 NotificationType,
-                                                EventTracking_Id  EventTrackingId   = null,
+                                                EventTracking_Id? EventTrackingId   = null,
                                                 User_Id?          CurrentUserId     = null)
 
             where T : ANotification
@@ -26057,7 +26056,7 @@ namespace social.OpenData.UsersAPI
 
         public async Task RemoveNotification<T>(User_Id           UserId,
                                                 T                 NotificationType,
-                                                EventTracking_Id  EventTrackingId   = null,
+                                                EventTracking_Id? EventTrackingId   = null,
                                                 User_Id?          CurrentUserId     = null)
 
             where T : ANotification
@@ -26095,7 +26094,7 @@ namespace social.OpenData.UsersAPI
 
         public async Task RemoveNotification<T>(Organization      Organization,
                                                 T                 NotificationType,
-                                                EventTracking_Id  EventTrackingId   = null,
+                                                EventTracking_Id? EventTrackingId   = null,
                                                 User_Id?          CurrentUserId     = null)
 
             where T : ANotification
@@ -26127,7 +26126,7 @@ namespace social.OpenData.UsersAPI
 
         public async Task RemoveNotification<T>(Organization_Id   UserId,
                                                 T                 NotificationType,
-                                                EventTracking_Id  EventTrackingId   = null,
+                                                EventTracking_Id? EventTrackingId   = null,
                                                 User_Id?          CurrentUserId     = null)
 
             where T : ANotification
@@ -26282,7 +26281,7 @@ namespace social.OpenData.UsersAPI
         protected async Task WriteToDatabaseFileAndNotify(NotificationMessage              NotificationMessage,
                                                           NotificationMessageType  MessageType,
                                                           NotificationMessage              OldNotificationMessage    = null,
-                                                          EventTracking_Id         EventTrackingId   = null,
+                                                          EventTracking_Id?        EventTrackingId   = null,
                                                           User_Id?                 CurrentUserId     = null)
         {
 
@@ -26323,7 +26322,7 @@ namespace social.OpenData.UsersAPI
         protected async Task SendNotifications(NotificationMessage              NotificationMessage,
                                                NotificationMessageType  MessageType,
                                                NotificationMessage              OldNotificationMessage    = null,
-                                               EventTracking_Id         EventTrackingId   = null,
+                                               EventTracking_Id?        EventTrackingId   = null,
                                                User_Id?                 CurrentUserId     = null)
         {
 
@@ -26354,7 +26353,7 @@ namespace social.OpenData.UsersAPI
         protected async Task SendNotifications(NotificationMessage                           NotificationMessage,
                                                IEnumerable<NotificationMessageType>  MessageTypes,
                                                NotificationMessage                           OldNotificationMessage    = null,
-                                               EventTracking_Id                      EventTrackingId   = null,
+                                               EventTracking_Id?                     EventTrackingId   = null,
                                                User_Id?                              CurrentUserId     = null)
         {
 
@@ -26426,7 +26425,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public delegate Task OnNotificationMessageAddedDelegate(DateTime          Timestamp,
                                                         NotificationMessage       NotificationMessage,
-                                                        EventTracking_Id  EventTrackingId   = null,
+                                                        EventTracking_Id? EventTrackingId   = null,
                                                         User_Id?          CurrentUserId     = null);
 
         /// <summary>
@@ -26446,7 +26445,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         protected async Task<NotificationMessage> _AddNotificationMessage(NotificationMessage                            NotificationMessage,
                                                           Action<NotificationMessage, EventTracking_Id>  OnAdded           = null,
-                                                          EventTracking_Id                       EventTrackingId   = null,
+                                                          EventTracking_Id?                      EventTrackingId   = null,
                                                           User_Id?                               CurrentUserId     = null)
         {
 
@@ -26480,7 +26479,7 @@ namespace social.OpenData.UsersAPI
 
 
             var OnNotificationMessageAddedLocal = OnNotificationMessageAdded;
-            if (OnNotificationMessageAddedLocal != null)
+            if (OnNotificationMessageAddedLocal is not null)
                 await OnNotificationMessageAddedLocal?.Invoke(Timestamp.Now,
                                                       NotificationMessage,
                                                       eventTrackingId,
@@ -26512,7 +26511,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<NotificationMessage> AddNotificationMessage(NotificationMessage                            NotificationMessage,
                                                       Action<NotificationMessage, EventTracking_Id>  OnAdded           = null,
-                                                      EventTracking_Id                       EventTrackingId   = null,
+                                                      EventTracking_Id?                      EventTrackingId   = null,
                                                       User_Id?                               CurrentUserId     = null)
         {
 
@@ -26561,7 +26560,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         protected async Task<NotificationMessage> _AddNotificationMessageIfNotExists(NotificationMessage                            NotificationMessage,
                                                                      Action<NotificationMessage, EventTracking_Id>  OnAdded           = null,
-                                                                     EventTracking_Id                       EventTrackingId   = null,
+                                                                     EventTracking_Id?                      EventTrackingId   = null,
                                                                      User_Id?                               CurrentUserId     = null)
         {
 
@@ -26593,7 +26592,7 @@ namespace social.OpenData.UsersAPI
             _NotificationMessages.Add(NotificationMessage.Id, NotificationMessage);
 
             var OnNotificationMessageAddedLocal = OnNotificationMessageAdded;
-            if (OnNotificationMessageAddedLocal != null)
+            if (OnNotificationMessageAddedLocal is not null)
                 await OnNotificationMessageAddedLocal?.Invoke(Timestamp.Now,
                                                       NotificationMessage,
                                                       eventTrackingId,
@@ -26625,7 +26624,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<NotificationMessage> AddNotificationMessageIfNotExists(NotificationMessage                            NotificationMessage,
                                                                  Action<NotificationMessage, EventTracking_Id>  OnAdded           = null,
-                                                                 EventTracking_Id                       EventTrackingId   = null,
+                                                                 EventTracking_Id?                      EventTrackingId   = null,
                                                                  User_Id?                               CurrentUserId     = null)
         {
 
@@ -26673,7 +26672,7 @@ namespace social.OpenData.UsersAPI
         protected async Task<NotificationMessage> _AddOrUpdateNotificationMessage(NotificationMessage                            NotificationMessage,
                                                                   Action<NotificationMessage, EventTracking_Id>  OnAdded           = null,
                                                                   Action<NotificationMessage, EventTracking_Id>  OnUpdated         = null,
-                                                                  EventTracking_Id                       EventTrackingId   = null,
+                                                                  EventTracking_Id?                      EventTrackingId   = null,
                                                                   User_Id?                               CurrentUserId     = null)
         {
 
@@ -26714,7 +26713,7 @@ namespace social.OpenData.UsersAPI
             {
 
                 var OnNotificationMessageUpdatedLocal = OnNotificationMessageUpdated;
-                if (OnNotificationMessageUpdatedLocal != null)
+                if (OnNotificationMessageUpdatedLocal is not null)
                     await OnNotificationMessageUpdatedLocal?.Invoke(Timestamp.Now,
                                                             NotificationMessage,
                                                             OldNotificationMessage,
@@ -26735,7 +26734,7 @@ namespace social.OpenData.UsersAPI
             {
 
                 var OnNotificationMessageAddedLocal = OnNotificationMessageAdded;
-                if (OnNotificationMessageAddedLocal != null)
+                if (OnNotificationMessageAddedLocal is not null)
                     await OnNotificationMessageAddedLocal?.Invoke(Timestamp.Now,
                                                           NotificationMessage,
                                                           eventTrackingId,
@@ -26771,7 +26770,7 @@ namespace social.OpenData.UsersAPI
         public async Task<NotificationMessage> AddOrUpdateNotificationMessage(NotificationMessage                            NotificationMessage,
                                                               Action<NotificationMessage, EventTracking_Id>  OnAdded           = null,
                                                               Action<NotificationMessage, EventTracking_Id>  OnUpdated         = null,
-                                                              EventTracking_Id                       EventTrackingId   = null,
+                                                              EventTracking_Id?                      EventTrackingId   = null,
                                                               User_Id?                               CurrentUserId     = null)
         {
 
@@ -26821,7 +26820,7 @@ namespace social.OpenData.UsersAPI
         public delegate Task OnNotificationMessageUpdatedDelegate(DateTime          Timestamp,
                                                           NotificationMessage       NotificationMessage,
                                                           NotificationMessage       OldNotificationMessage,
-                                                          EventTracking_Id  EventTrackingId   = null,
+                                                          EventTracking_Id? EventTrackingId   = null,
                                                           User_Id?          CurrentUserId     = null);
 
         /// <summary>
@@ -26841,7 +26840,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional notification message identification initiating this command/request.</param>
         protected async Task<NotificationMessage> _UpdateNotificationMessage(NotificationMessage                            NotificationMessage,
                                                              Action<NotificationMessage, EventTracking_Id>  OnUpdated         = null,
-                                                             EventTracking_Id                       EventTrackingId   = null,
+                                                             EventTracking_Id?                      EventTrackingId   = null,
                                                              User_Id?                               CurrentUserId     = null)
         {
 
@@ -26872,7 +26871,7 @@ namespace social.OpenData.UsersAPI
 
 
             var OnNotificationMessageUpdatedLocal = OnNotificationMessageUpdated;
-            if (OnNotificationMessageUpdatedLocal != null)
+            if (OnNotificationMessageUpdatedLocal is not null)
                 await OnNotificationMessageUpdatedLocal?.Invoke(Timestamp.Now,
                                                         NotificationMessage,
                                                         OldNotificationMessage,
@@ -26905,7 +26904,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional notification message identification initiating this command/request.</param>
         public async Task<NotificationMessage> UpdateNotificationMessage(NotificationMessage                            NotificationMessage,
                                                          Action<NotificationMessage, EventTracking_Id>  OnUpdated         = null,
-                                                         EventTracking_Id                       EventTrackingId   = null,
+                                                         EventTracking_Id?                      EventTrackingId   = null,
                                                          User_Id?                               CurrentUserId     = null)
         {
 
@@ -26953,7 +26952,7 @@ namespace social.OpenData.UsersAPI
         protected async Task<NotificationMessage> _UpdateNotificationMessage(NotificationMessage_Id                         NotificationMessageId,
                                                              Action<NotificationMessage.Builder>            UpdateDelegate,
                                                              Action<NotificationMessage, EventTracking_Id>  OnUpdated         = null,
-                                                             EventTracking_Id                       EventTrackingId   = null,
+                                                             EventTracking_Id?                      EventTrackingId   = null,
                                                              User_Id?                               CurrentUserId     = null)
         {
 
@@ -26986,7 +26985,7 @@ namespace social.OpenData.UsersAPI
 
 
             var OnNotificationMessageUpdatedLocal = OnNotificationMessageUpdated;
-            if (OnNotificationMessageUpdatedLocal != null)
+            if (OnNotificationMessageUpdatedLocal is not null)
                 await OnNotificationMessageUpdatedLocal?.Invoke(Timestamp.Now,
                                                         NewNotificationMessage,
                                                         OldNotificationMessage,
@@ -27021,7 +27020,7 @@ namespace social.OpenData.UsersAPI
         public async Task<NotificationMessage> UpdateNotificationMessage(NotificationMessage_Id                         NotificationMessageId,
                                                          Action<NotificationMessage.Builder>            UpdateDelegate,
                                                          Action<NotificationMessage, EventTracking_Id>  OnUpdated         = null,
-                                                         EventTracking_Id                       EventTrackingId   = null,
+                                                         EventTracking_Id?                      EventTrackingId   = null,
                                                          User_Id?                               CurrentUserId     = null)
         {
 
@@ -27252,7 +27251,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">The invoking notification message identification</param>
         public delegate Task OnNotificationMessageRemovedDelegate(DateTime          Timestamp,
                                                           NotificationMessage       NotificationMessage,
-                                                          EventTracking_Id  EventTrackingId   = null,
+                                                          EventTracking_Id? EventTrackingId   = null,
                                                           User_Id?          CurrentUserId     = null);
 
         /// <summary>
@@ -27331,7 +27330,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional notification message identification initiating this command/request.</param>
         protected async Task<DeleteNotificationMessageResult> _RemoveNotificationMessage(NotificationMessage                            NotificationMessage,
                                                                          Action<NotificationMessage, EventTracking_Id>  OnRemoved         = null,
-                                                                         EventTracking_Id                       EventTrackingId   = null,
+                                                                         EventTracking_Id?                      EventTrackingId   = null,
                                                                          User_Id?                               CurrentUserId     = null)
         {
 
@@ -27360,7 +27359,7 @@ namespace social.OpenData.UsersAPI
 
 
                 var OnNotificationMessageRemovedLocal = OnNotificationMessageRemoved;
-                if (OnNotificationMessageRemovedLocal != null)
+                if (OnNotificationMessageRemovedLocal is not null)
                     await OnNotificationMessageRemovedLocal?.Invoke(Timestamp.Now,
                                                             NotificationMessage,
                                                             eventTrackingId,
@@ -27396,7 +27395,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional notification message identification initiating this command/request.</param>
         public async Task<DeleteNotificationMessageResult> RemoveNotificationMessage(NotificationMessage                            NotificationMessage,
                                                                      Action<NotificationMessage, EventTracking_Id>  OnRemoved         = null,
-                                                                     EventTracking_Id                       EventTrackingId   = null,
+                                                                     EventTracking_Id?                      EventTrackingId   = null,
                                                                      User_Id?                               CurrentUserId     = null)
         {
 
@@ -27954,7 +27953,7 @@ namespace social.OpenData.UsersAPI
         protected internal virtual Task SendNotifications(Organization             Organization,
                                                           NotificationMessageType  MessageType,
                                                           Organization             OldOrganization   = null,
-                                                          EventTracking_Id         EventTrackingId   = null,
+                                                          EventTracking_Id?        EventTrackingId   = null,
                                                           User_Id?                 CurrentUserId     = null)
 
             => SendNotifications(Organization,
@@ -27975,7 +27974,7 @@ namespace social.OpenData.UsersAPI
         protected internal async virtual Task SendNotifications(Organization                          Organization,
                                                                 IEnumerable<NotificationMessageType>  MessageTypes,
                                                                 Organization                          OldOrganization   = null,
-                                                                EventTracking_Id                      EventTrackingId   = null,
+                                                                EventTracking_Id?                     EventTrackingId   = null,
                                                                 User_Id?                              CurrentUserId     = null)
         {
 
@@ -28204,7 +28203,7 @@ namespace social.OpenData.UsersAPI
         protected internal virtual Task SendNotifications(Organization               Organization,
                                                           IEnumerable<Organization>  ParentOrganizations,
                                                           NotificationMessageType    MessageType,
-                                                          EventTracking_Id           EventTrackingId   = null,
+                                                          EventTracking_Id?          EventTrackingId   = null,
                                                           User_Id?                   CurrentUserId     = null)
 
             => SendNotifications(Organization,
@@ -28225,7 +28224,7 @@ namespace social.OpenData.UsersAPI
         protected internal async virtual Task SendNotifications(Organization                          Organization,
                                                                 IEnumerable<Organization>             ParentOrganizations,
                                                                 IEnumerable<NotificationMessageType>  MessageTypes,
-                                                                EventTracking_Id                      EventTrackingId   = null,
+                                                                EventTracking_Id?                     EventTrackingId   = null,
                                                                 User_Id?                              CurrentUserId     = null)
         {
 
@@ -28441,7 +28440,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional organization identification initiating this command/request.</param>
         public delegate Task OnOrganizationAddedDelegate(DateTime          Timestamp,
                                                          Organization      Organization,
-                                                         EventTracking_Id  EventTrackingId   = null,
+                                                         EventTracking_Id? EventTrackingId   = null,
                                                          User_Id?          CurrentUserId     = null);
 
         /// <summary>
@@ -28461,7 +28460,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional organization identification initiating this command/request.</param>
         protected internal async Task<AddOrganizationResult> _AddOrganization(Organization                            Organization,
                                                                               Action<Organization, EventTracking_Id>  OnAdded           = null,
-                                                                              EventTracking_Id                        EventTrackingId   = null,
+                                                                              EventTracking_Id?                       EventTrackingId   = null,
                                                                               User_Id?                                CurrentUserId     = null)
         {
 
@@ -28516,7 +28515,7 @@ namespace social.OpenData.UsersAPI
                             eventTrackingId);
 
             var OnOrganizationAddedLocal = OnOrganizationAdded;
-            if (OnOrganizationAddedLocal != null)
+            if (OnOrganizationAddedLocal is not null)
                 await OnOrganizationAddedLocal?.Invoke(Timestamp.Now,
                                                        Organization,
                                                        eventTrackingId,
@@ -28548,7 +28547,7 @@ namespace social.OpenData.UsersAPI
         public async Task<AddOrganizationResult> AddOrganization(Organization                            Organization,
                                                                  Organization                            ParentOrganization   = null,
                                                                  Action<Organization, EventTracking_Id>  OnAdded              = null,
-                                                                 EventTracking_Id                        EventTrackingId      = null,
+                                                                 EventTracking_Id?                       EventTrackingId      = null,
                                                                  User_Id?                                CurrentUserId        = null)
         {
 
@@ -28666,7 +28665,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional organization identification initiating this command/request.</param>
         protected internal async Task<AddOrganizationIfNotExistsResult> _AddOrganizationIfNotExists(Organization                            Organization,
                                                                                                     Action<Organization, EventTracking_Id>  OnAdded           = null,
-                                                                                                    EventTracking_Id                        EventTrackingId   = null,
+                                                                                                    EventTracking_Id?                       EventTrackingId   = null,
                                                                                                     User_Id?                                CurrentUserId     = null)
         {
 
@@ -28720,7 +28719,7 @@ namespace social.OpenData.UsersAPI
                             eventTrackingId);
 
             var OnOrganizationAddedLocal = OnOrganizationAdded;
-            if (OnOrganizationAddedLocal != null)
+            if (OnOrganizationAddedLocal is not null)
                 await OnOrganizationAddedLocal?.Invoke(Timestamp.Now,
                                                Organization,
                                                eventTrackingId,
@@ -28753,7 +28752,7 @@ namespace social.OpenData.UsersAPI
         public async Task<AddOrganizationIfNotExistsResult> AddOrganizationIfNotExists(Organization                            Organization,
                                                                                        Organization                            ParentOrganization,
                                                                                        Action<Organization, EventTracking_Id>  OnAdded           = null,
-                                                                                       EventTracking_Id                        EventTrackingId   = null,
+                                                                                       EventTracking_Id?                       EventTrackingId   = null,
                                                                                        User_Id?                                CurrentUserId     = null)
         {
 
@@ -28872,7 +28871,7 @@ namespace social.OpenData.UsersAPI
         protected internal async Task<AddOrUpdateOrganizationResult> _AddOrUpdateOrganization(Organization                            Organization,
                                                                                               Action<Organization, EventTracking_Id>  OnAdded           = null,
                                                                                               Action<Organization, EventTracking_Id>  OnUpdated         = null,
-                                                                                              EventTracking_Id                        EventTrackingId   = null,
+                                                                                              EventTracking_Id?                       EventTrackingId   = null,
                                                                                               User_Id?                                CurrentUserId     = null)
         {
 
@@ -28931,7 +28930,7 @@ namespace social.OpenData.UsersAPI
                                 eventTrackingId);
 
                 var OnOrganizationAddedLocal = OnOrganizationAdded;
-                if (OnOrganizationAddedLocal != null)
+                if (OnOrganizationAddedLocal is not null)
                     await OnOrganizationAddedLocal?.Invoke(Timestamp.Now,
                                                            Organization,
                                                            eventTrackingId,
@@ -28955,7 +28954,7 @@ namespace social.OpenData.UsersAPI
                                 eventTrackingId);
 
                 var OnOrganizationUpdatedLocal = OnOrganizationUpdated;
-                if (OnOrganizationUpdatedLocal != null)
+                if (OnOrganizationUpdatedLocal is not null)
                     await OnOrganizationUpdatedLocal?.Invoke(Timestamp.Now,
                                                              Organization,
                                                              OldOrganization,
@@ -28991,7 +28990,7 @@ namespace social.OpenData.UsersAPI
         public async Task<AddOrUpdateOrganizationResult> AddOrUpdateOrganization(Organization                            Organization,
                                                                                  Action<Organization, EventTracking_Id>  OnAdded           = null,
                                                                                  Action<Organization, EventTracking_Id>  OnUpdated         = null,
-                                                                                 EventTracking_Id                        EventTrackingId   = null,
+                                                                                 EventTracking_Id?                       EventTrackingId   = null,
                                                                                  User_Id?                                CurrentUserId     = null)
         {
 
@@ -29053,7 +29052,7 @@ namespace social.OpenData.UsersAPI
                                                                                  Organization                            ParentOrganization,
                                                                                  Action<Organization, EventTracking_Id>  OnAdded           = null,
                                                                                  Action<Organization, EventTracking_Id>  OnUpdated         = null,
-                                                                                 EventTracking_Id                        EventTrackingId   = null,
+                                                                                 EventTracking_Id?                       EventTrackingId   = null,
                                                                                  User_Id?                                CurrentUserId     = null)
         {
 
@@ -29174,7 +29173,7 @@ namespace social.OpenData.UsersAPI
         public delegate Task OnOrganizationUpdatedDelegate(DateTime          Timestamp,
                                                            Organization      Organization,
                                                            Organization      OldOrganization,
-                                                           EventTracking_Id  EventTrackingId   = null,
+                                                           EventTracking_Id? EventTrackingId   = null,
                                                            User_Id?          CurrentUserId     = null);
 
         /// <summary>
@@ -29194,7 +29193,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional organization identification initiating this command/request.</param>
         protected internal async Task<UpdateOrganizationResult> _UpdateOrganization(Organization                            Organization,
                                                                                     Action<Organization, EventTracking_Id>  OnUpdated         = null,
-                                                                                    EventTracking_Id                        EventTrackingId   = null,
+                                                                                    EventTracking_Id?                       EventTrackingId   = null,
                                                                                     User_Id?                                CurrentUserId     = null)
         {
 
@@ -29234,7 +29233,7 @@ namespace social.OpenData.UsersAPI
                               eventTrackingId);
 
             var OnOrganizationUpdatedLocal = OnOrganizationUpdated;
-            if (OnOrganizationUpdatedLocal != null)
+            if (OnOrganizationUpdatedLocal is not null)
                 await OnOrganizationUpdatedLocal?.Invoke(Timestamp.Now,
                                                          Organization,
                                                          OldOrganization,
@@ -29265,7 +29264,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional organization identification initiating this command/request.</param>
         public async Task<UpdateOrganizationResult> UpdateOrganization(Organization                            Organization,
                                                                        Action<Organization, EventTracking_Id>  OnUpdated         = null,
-                                                                       EventTracking_Id                        EventTrackingId   = null,
+                                                                       EventTracking_Id?                       EventTrackingId   = null,
                                                                        User_Id?                                CurrentUserId     = null)
         {
 
@@ -29325,7 +29324,7 @@ namespace social.OpenData.UsersAPI
         protected internal async Task<UpdateOrganizationResult> _UpdateOrganization(Organization                            Organization,
                                                                                     Action<Organization.Builder>            UpdateDelegate,
                                                                                     Action<Organization, EventTracking_Id>  OnUpdated         = null,
-                                                                                    EventTracking_Id                        EventTrackingId   = null,
+                                                                                    EventTracking_Id?                       EventTrackingId   = null,
                                                                                     User_Id?                                CurrentUserId     = null)
         {
 
@@ -29373,7 +29372,7 @@ namespace social.OpenData.UsersAPI
                               eventTrackingId);
 
             var OnOrganizationUpdatedLocal = OnOrganizationUpdated;
-            if (OnOrganizationUpdatedLocal != null)
+            if (OnOrganizationUpdatedLocal is not null)
                 await OnOrganizationUpdatedLocal?.Invoke(Timestamp.Now,
                                                          updatedOrganization,
                                                          Organization,
@@ -29406,7 +29405,7 @@ namespace social.OpenData.UsersAPI
         public async Task<UpdateOrganizationResult> UpdateOrganization(Organization                            Organization,
                                                                        Action<Organization.Builder>            UpdateDelegate,
                                                                        Action<Organization, EventTracking_Id>  OnUpdated         = null,
-                                                                       EventTracking_Id                        EventTrackingId   = null,
+                                                                       EventTracking_Id?                       EventTrackingId   = null,
                                                                        User_Id?                                CurrentUserId     = null)
         {
 
@@ -30029,7 +30028,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public delegate Task OnOrganizationDeletedDelegate(DateTime          Timestamp,
                                                            Organization      Organization,
-                                                           EventTracking_Id  EventTrackingId   = null,
+                                                           EventTracking_Id? EventTrackingId   = null,
                                                            User_Id?          CurrentUserId     = null);
 
         /// <summary>
@@ -30070,7 +30069,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         protected internal async Task<DeleteOrganizationResult> _DeleteOrganization(Organization                            Organization,
                                                                                     Action<Organization, EventTracking_Id>  OnDeleted         = null,
-                                                                                    EventTracking_Id                        EventTrackingId   = null,
+                                                                                    EventTracking_Id?                       EventTrackingId   = null,
                                                                                     User_Id?                                CurrentUserId     = null)
         {
 
@@ -30139,7 +30138,7 @@ namespace social.OpenData.UsersAPI
                               eventTrackingId);
 
             var OnOrganizationDeletedLocal = OnOrganizationDeleted;
-            if (OnOrganizationDeletedLocal != null)
+            if (OnOrganizationDeletedLocal is not null)
                 await OnOrganizationDeletedLocal?.Invoke(Timestamp.Now,
                                                          Organization,
                                                          eventTrackingId,
@@ -30170,7 +30169,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<DeleteOrganizationResult> DeleteOrganization(Organization                            Organization,
                                                                        Action<Organization, EventTracking_Id>  OnDeleted         = null,
-                                                                       EventTracking_Id                        EventTrackingId   = null,
+                                                                       EventTracking_Id?                       EventTrackingId   = null,
                                                                        User_Id?                                CurrentUserId     = null)
         {
 
@@ -30271,7 +30270,7 @@ namespace social.OpenData.UsersAPI
         protected internal async Task WriteToDatabaseFileAndNotify(OrganizationGroup        OrganizationGroup,
                                                                    NotificationMessageType  MessageType,
                                                                    OrganizationGroup        OldOrganizationGroup   = null,
-                                                                   EventTracking_Id         EventTrackingId        = null,
+                                                                   EventTracking_Id?        EventTrackingId        = null,
                                                                    User_Id?                 CurrentUserId          = null)
         {
 
@@ -30312,7 +30311,7 @@ namespace social.OpenData.UsersAPI
         protected internal async Task SendNotifications(OrganizationGroup        OrganizationGroup,
                                                         NotificationMessageType  MessageType,
                                                         OrganizationGroup        OldOrganizationGroup   = null,
-                                                        EventTracking_Id         EventTrackingId        = null,
+                                                        EventTracking_Id?        EventTrackingId        = null,
                                                         User_Id?                 CurrentUserId          = null)
         {
 
@@ -30343,7 +30342,7 @@ namespace social.OpenData.UsersAPI
         protected internal async Task SendNotifications(OrganizationGroup                     OrganizationGroup,
                                                         IEnumerable<NotificationMessageType>  MessageTypes,
                                                         OrganizationGroup                     OldOrganizationGroup   = null,
-                                                        EventTracking_Id                      EventTrackingId        = null,
+                                                        EventTracking_Id?                     EventTrackingId        = null,
                                                         User_Id?                              CurrentUserId          = null)
         {
 
@@ -30419,7 +30418,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public delegate Task OnOrganizationGroupAddedDelegate(DateTime           Timestamp,
                                                               OrganizationGroup  OrganizationGroup,
-                                                              EventTracking_Id   EventTrackingId   = null,
+                                                              EventTracking_Id?  EventTrackingId   = null,
                                                               User_Id?           CurrentUserId     = null);
 
         /// <summary>
@@ -30439,7 +30438,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         protected internal async Task<OrganizationGroup> _AddOrganizationGroup(OrganizationGroup                            OrganizationGroup,
                                                                                Action<OrganizationGroup, EventTracking_Id>  OnAdded           = null,
-                                                                               EventTracking_Id                             EventTrackingId   = null,
+                                                                               EventTracking_Id?                            EventTrackingId   = null,
                                                                                User_Id?                                     CurrentUserId     = null)
         {
 
@@ -30473,7 +30472,7 @@ namespace social.OpenData.UsersAPI
 
 
             var OnOrganizationGroupAddedLocal = OnOrganizationGroupAdded;
-            if (OnOrganizationGroupAddedLocal != null)
+            if (OnOrganizationGroupAddedLocal is not null)
                 await OnOrganizationGroupAddedLocal?.Invoke(Timestamp.Now,
                                                             OrganizationGroup,
                                                             eventTrackingId,
@@ -30505,7 +30504,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<OrganizationGroup> AddOrganizationGroup(OrganizationGroup                            OrganizationGroup,
                                                                   Action<OrganizationGroup, EventTracking_Id>  OnAdded           = null,
-                                                                  EventTracking_Id                             EventTrackingId   = null,
+                                                                  EventTracking_Id?                            EventTrackingId   = null,
                                                                   User_Id?                                     CurrentUserId     = null)
         {
 
@@ -30554,7 +30553,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         protected internal async Task<OrganizationGroup> _AddOrganizationGroupIfNotExists(OrganizationGroup                            OrganizationGroup,
                                                                                           Action<OrganizationGroup, EventTracking_Id>  OnAdded           = null,
-                                                                                          EventTracking_Id                             EventTrackingId   = null,
+                                                                                          EventTracking_Id?                            EventTrackingId   = null,
                                                                                           User_Id?                                     CurrentUserId     = null)
         {
 
@@ -30586,7 +30585,7 @@ namespace social.OpenData.UsersAPI
             _OrganizationGroups.Add(OrganizationGroup.Id, OrganizationGroup);
 
             var OnOrganizationGroupAddedLocal = OnOrganizationGroupAdded;
-            if (OnOrganizationGroupAddedLocal != null)
+            if (OnOrganizationGroupAddedLocal is not null)
                 await OnOrganizationGroupAddedLocal?.Invoke(Timestamp.Now,
                                                             OrganizationGroup,
                                                             eventTrackingId,
@@ -30618,7 +30617,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<OrganizationGroup> AddOrganizationGroupIfNotExists(OrganizationGroup                            OrganizationGroup,
                                                                              Action<OrganizationGroup, EventTracking_Id>  OnAdded           = null,
-                                                                             EventTracking_Id                             EventTrackingId   = null,
+                                                                             EventTracking_Id?                            EventTrackingId   = null,
                                                                              User_Id?                                     CurrentUserId     = null)
         {
 
@@ -30666,7 +30665,7 @@ namespace social.OpenData.UsersAPI
         protected internal async Task<OrganizationGroup> _AddOrUpdateOrganizationGroup(OrganizationGroup                            OrganizationGroup,
                                                                                        Action<OrganizationGroup, EventTracking_Id>  OnAdded           = null,
                                                                                        Action<OrganizationGroup, EventTracking_Id>  OnUpdated         = null,
-                                                                                       EventTracking_Id                             EventTrackingId   = null,
+                                                                                       EventTracking_Id?                            EventTrackingId   = null,
                                                                                        User_Id?                                     CurrentUserId     = null)
         {
 
@@ -30707,7 +30706,7 @@ namespace social.OpenData.UsersAPI
             {
 
                 var OnOrganizationGroupUpdatedLocal = OnOrganizationGroupUpdated;
-                if (OnOrganizationGroupUpdatedLocal != null)
+                if (OnOrganizationGroupUpdatedLocal is not null)
                     await OnOrganizationGroupUpdatedLocal?.Invoke(Timestamp.Now,
                                                                   OrganizationGroup,
                                                                   OldOrganizationGroup,
@@ -30728,7 +30727,7 @@ namespace social.OpenData.UsersAPI
             {
 
                 var OnOrganizationGroupAddedLocal = OnOrganizationGroupAdded;
-                if (OnOrganizationGroupAddedLocal != null)
+                if (OnOrganizationGroupAddedLocal is not null)
                     await OnOrganizationGroupAddedLocal?.Invoke(Timestamp.Now,
                                                                 OrganizationGroup,
                                                                 eventTrackingId,
@@ -30764,7 +30763,7 @@ namespace social.OpenData.UsersAPI
         public async Task<OrganizationGroup> AddOrUpdateOrganizationGroup(OrganizationGroup                            OrganizationGroup,
                                                                           Action<OrganizationGroup, EventTracking_Id>  OnAdded           = null,
                                                                           Action<OrganizationGroup, EventTracking_Id>  OnUpdated         = null,
-                                                                          EventTracking_Id                             EventTrackingId   = null,
+                                                                          EventTracking_Id?                            EventTrackingId   = null,
                                                                           User_Id?                                     CurrentUserId     = null)
         {
 
@@ -30814,7 +30813,7 @@ namespace social.OpenData.UsersAPI
         public delegate Task OnOrganizationGroupUpdatedDelegate(DateTime           Timestamp,
                                                                 OrganizationGroup  OrganizationGroup,
                                                                 OrganizationGroup  OldOrganizationGroup,
-                                                                EventTracking_Id   EventTrackingId   = null,
+                                                                EventTracking_Id?  EventTrackingId   = null,
                                                                 User_Id?           CurrentUserId     = null);
 
         /// <summary>
@@ -30834,7 +30833,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional organization group identification initiating this command/request.</param>
         protected internal async Task<OrganizationGroup> _UpdateOrganizationGroup(OrganizationGroup                            OrganizationGroup,
                                                                                   Action<OrganizationGroup, EventTracking_Id>  OnUpdated         = null,
-                                                                                  EventTracking_Id                             EventTrackingId   = null,
+                                                                                  EventTracking_Id?                            EventTrackingId   = null,
                                                                                   User_Id?                                     CurrentUserId     = null)
         {
 
@@ -30865,7 +30864,7 @@ namespace social.OpenData.UsersAPI
 
 
             var OnOrganizationGroupUpdatedLocal = OnOrganizationGroupUpdated;
-            if (OnOrganizationGroupUpdatedLocal != null)
+            if (OnOrganizationGroupUpdatedLocal is not null)
                 await OnOrganizationGroupUpdatedLocal?.Invoke(Timestamp.Now,
                                                               OrganizationGroup,
                                                               OldOrganizationGroup,
@@ -30898,7 +30897,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional organization group identification initiating this command/request.</param>
         public async Task<OrganizationGroup> UpdateOrganizationGroup(OrganizationGroup                            OrganizationGroup,
                                                                      Action<OrganizationGroup, EventTracking_Id>  OnUpdated         = null,
-                                                                     EventTracking_Id                             EventTrackingId   = null,
+                                                                     EventTracking_Id?                            EventTrackingId   = null,
                                                                      User_Id?                                     CurrentUserId     = null)
         {
 
@@ -30946,7 +30945,7 @@ namespace social.OpenData.UsersAPI
         protected internal async Task<OrganizationGroup> _UpdateOrganizationGroup(OrganizationGroup_Id                         OrganizationGroupId,
                                                                                   Action<OrganizationGroup.Builder>            UpdateDelegate,
                                                                                   Action<OrganizationGroup, EventTracking_Id>  OnUpdated         = null,
-                                                                                  EventTracking_Id                             EventTrackingId   = null,
+                                                                                  EventTracking_Id?                            EventTrackingId   = null,
                                                                                   User_Id?                                     CurrentUserId     = null)
         {
 
@@ -30979,7 +30978,7 @@ namespace social.OpenData.UsersAPI
 
 
             var OnOrganizationGroupUpdatedLocal = OnOrganizationGroupUpdated;
-            if (OnOrganizationGroupUpdatedLocal != null)
+            if (OnOrganizationGroupUpdatedLocal is not null)
                 await OnOrganizationGroupUpdatedLocal?.Invoke(Timestamp.Now,
                                                               NewOrganizationGroup,
                                                               OldOrganizationGroup,
@@ -31014,7 +31013,7 @@ namespace social.OpenData.UsersAPI
         public async Task<OrganizationGroup> UpdateOrganizationGroup(OrganizationGroup_Id                         OrganizationGroupId,
                                                                      Action<OrganizationGroup.Builder>            UpdateDelegate,
                                                                      Action<OrganizationGroup, EventTracking_Id>  OnUpdated         = null,
-                                                                     EventTracking_Id                             EventTrackingId   = null,
+                                                                     EventTracking_Id?                            EventTrackingId   = null,
                                                                      User_Id?                                     CurrentUserId     = null)
         {
 
@@ -31347,7 +31346,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">The invoking organization group identification</param>
         public delegate Task OnOrganizationGroupRemovedDelegate(DateTime           Timestamp,
                                                                 OrganizationGroup  OrganizationGroup,
-                                                                EventTracking_Id   EventTrackingId   = null,
+                                                                EventTracking_Id?  EventTrackingId   = null,
                                                                 User_Id?           CurrentUserId     = null);
 
         /// <summary>
@@ -31380,7 +31379,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional organization group identification initiating this command/request.</param>
         protected internal async Task<RemoveOrganizationGroupResult> _RemoveOrganizationGroup(OrganizationGroup                            OrganizationGroup,
                                                                                               Action<OrganizationGroup, EventTracking_Id>  OnRemoved         = null,
-                                                                                              EventTracking_Id                             EventTrackingId   = null,
+                                                                                              EventTracking_Id?                            EventTrackingId   = null,
                                                                                               User_Id?                                     CurrentUserId     = null)
         {
 
@@ -31409,7 +31408,7 @@ namespace social.OpenData.UsersAPI
 
 
                 var OnOrganizationGroupRemovedLocal = OnOrganizationGroupRemoved;
-                if (OnOrganizationGroupRemovedLocal != null)
+                if (OnOrganizationGroupRemovedLocal is not null)
                     await OnOrganizationGroupRemovedLocal?.Invoke(Timestamp.Now,
                                                           OrganizationGroup,
                                                           eventTrackingId,
@@ -31448,7 +31447,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional organization group identification initiating this command/request.</param>
         public async Task<RemoveOrganizationGroupResult> RemoveOrganizationGroup(OrganizationGroup                            OrganizationGroup,
                                                                                  Action<OrganizationGroup, EventTracking_Id>  OnRemoved         = null,
-                                                                                 EventTracking_Id                             EventTrackingId   = null,
+                                                                                 EventTracking_Id?                            EventTrackingId   = null,
                                                                                  User_Id?                                     CurrentUserId     = null)
         {
 
@@ -31510,7 +31509,7 @@ namespace social.OpenData.UsersAPI
                                                           User2UserGroupEdgeLabel  EdgeLabel,
                                                           UserGroup                UserGroup,
                                                           NotificationMessageType  MessageType,
-                                                          EventTracking_Id         EventTrackingId    = null,
+                                                          EventTracking_Id?        EventTrackingId    = null,
                                                           User_Id?                 CurrentUserId      = null)
 
             => SendNotifications(User,
@@ -31534,7 +31533,7 @@ namespace social.OpenData.UsersAPI
                                                                 User2UserGroupEdgeLabel               EdgeLabel,
                                                                 UserGroup                             UserGroup,
                                                                 IEnumerable<NotificationMessageType>  MessageTypes,
-                                                                EventTracking_Id                      EventTrackingId   = null,
+                                                                EventTracking_Id?                     EventTrackingId   = null,
                                                                 User_Id?                              CurrentUserId     = null)
         {
 
@@ -31745,7 +31744,7 @@ namespace social.OpenData.UsersAPI
         protected async Task<AddUserToUserGroupResult> _AddUserToUserGroup(User                     User,
                                                                            User2UserGroupEdgeLabel  EdgeLabel,
                                                                            UserGroup                UserGroup,
-                                                                           EventTracking_Id         EventTrackingId         = null,
+                                                                           EventTracking_Id?        EventTrackingId         = null,
                                                                            Boolean                  SuppressNotifications   = false,
                                                                            User_Id?                 CurrentUserId           = null)
         {
@@ -31760,7 +31759,7 @@ namespace social.OpenData.UsersAPI
                                                               nameof(User),
                                                               "The given user must not be null!");
 
-            if (User.API != null && User.API != this)
+            if (User.API is not null && User.API != this)
                 return AddUserToUserGroupResult.ArgumentError(User,
                                                               EdgeLabel,
                                                               UserGroup,
@@ -31860,7 +31859,7 @@ namespace social.OpenData.UsersAPI
         public async Task<AddUserToUserGroupResult> AddUserToUserGroup(User                     User,
                                                                        User2UserGroupEdgeLabel  EdgeLabel,
                                                                        UserGroup                UserGroup,
-                                                                       EventTracking_Id         EventTrackingId   = null,
+                                                                       EventTracking_Id?        EventTrackingId   = null,
                                                                        User_Id?                 CurrentUserId     = null)
         {
 
@@ -31930,7 +31929,7 @@ namespace social.OpenData.UsersAPI
         protected async Task<RemoveUserFromUserGroupResult> _RemoveUserFromUserGroup(User                     User,
                                                                                      User2UserGroupEdgeLabel  EdgeLabel,
                                                                                      UserGroup                UserGroup,
-                                                                                     EventTracking_Id         EventTrackingId         = null,
+                                                                                     EventTracking_Id?        EventTrackingId         = null,
                                                                                      Boolean                  SuppressNotifications   = false,
                                                                                      User_Id?                 CurrentUserId           = null)
         {
@@ -31945,7 +31944,7 @@ namespace social.OpenData.UsersAPI
                                                                    nameof(User),
                                                                    "The given user must not be null!");
 
-            if (User.API != null && User.API != this)
+            if (User.API is not null && User.API != this)
                 return RemoveUserFromUserGroupResult.ArgumentError(User,
                                                                    EdgeLabel,
                                                                    UserGroup,
@@ -32052,7 +32051,7 @@ namespace social.OpenData.UsersAPI
         public async Task<RemoveUserFromUserGroupResult> RemoveUserFromUserGroup(User                     User,
                                                                                  User2UserGroupEdgeLabel  EdgeLabel,
                                                                                  UserGroup                UserGroup,
-                                                                                 EventTracking_Id         EventTrackingId   = null,
+                                                                                 EventTracking_Id?        EventTrackingId   = null,
                                                                                  User_Id?                 CurrentUserId     = null)
         {
 
@@ -32121,7 +32120,7 @@ namespace social.OpenData.UsersAPI
 
         protected async Task<RemoveUserFromUserGroupResult> _RemoveUserFromUserGroup(User              User,
                                                                                      UserGroup         UserGroup,
-                                                                                     EventTracking_Id  EventTrackingId         = null,
+                                                                                     EventTracking_Id? EventTrackingId         = null,
                                                                                      Boolean           SuppressNotifications   = false,
                                                                                      User_Id?          CurrentUserId           = null)
         {
@@ -32135,7 +32134,7 @@ namespace social.OpenData.UsersAPI
                                                                    nameof(User),
                                                                    "The given user must not be null!");
 
-            if (User.API != null && User.API != this)
+            if (User.API is not null && User.API != this)
                 return RemoveUserFromUserGroupResult.ArgumentError(User,
                                                                    UserGroup,
                                                                    eventTrackingId,
@@ -32224,7 +32223,7 @@ namespace social.OpenData.UsersAPI
 
         public async Task<RemoveUserFromUserGroupResult> RemoveUserFromUserGroup(User              User,
                                                                                  UserGroup         UserGroup,
-                                                                                 EventTracking_Id  EventTrackingId   = null,
+                                                                                 EventTracking_Id? EventTrackingId   = null,
                                                                                  User_Id?          CurrentUserId     = null)
         {
 
@@ -32444,7 +32443,7 @@ namespace social.OpenData.UsersAPI
                                                           User2OrganizationEdgeLabel  EdgeLabel,
                                                           Organization                Organization,
                                                           NotificationMessageType     MessageType,
-                                                          EventTracking_Id            EventTrackingId    = null,
+                                                          EventTracking_Id?           EventTrackingId    = null,
                                                           User_Id?                    CurrentUserId      = null)
 
             => SendNotifications(User,
@@ -32468,7 +32467,7 @@ namespace social.OpenData.UsersAPI
                                                                 User2OrganizationEdgeLabel            EdgeLabel,
                                                                 Organization                          Organization,
                                                                 IEnumerable<NotificationMessageType>  MessageTypes,
-                                                                EventTracking_Id                      EventTrackingId   = null,
+                                                                EventTracking_Id?                     EventTrackingId   = null,
                                                                 User_Id?                              CurrentUserId     = null)
         {
 
@@ -32681,7 +32680,7 @@ namespace social.OpenData.UsersAPI
         protected async Task<AddUserToOrganizationResult> _AddUserToOrganization(User                        User,
                                                                                  User2OrganizationEdgeLabel  EdgeLabel,
                                                                                  Organization                Organization,
-                                                                                 EventTracking_Id            EventTrackingId         = null,
+                                                                                 EventTracking_Id?           EventTrackingId         = null,
                                                                                  Boolean                     SuppressNotifications   = false,
                                                                                  User_Id?                    CurrentUserId           = null)
         {
@@ -32696,7 +32695,7 @@ namespace social.OpenData.UsersAPI
                                                                  nameof(User),
                                                                  "The given user must not be null!");
 
-            if (User.API != null && User.API != this)
+            if (User.API is not null && User.API != this)
                 return AddUserToOrganizationResult.ArgumentError(User,
                                                                  EdgeLabel,
                                                                  Organization,
@@ -32796,7 +32795,7 @@ namespace social.OpenData.UsersAPI
         public async Task<AddUserToOrganizationResult> AddUserToOrganization(User                        User,
                                                                              User2OrganizationEdgeLabel  EdgeLabel,
                                                                              Organization                Organization,
-                                                                             EventTracking_Id            EventTrackingId   = null,
+                                                                             EventTracking_Id?           EventTrackingId   = null,
                                                                              User_Id?                    CurrentUserId     = null)
         {
 
@@ -32866,7 +32865,7 @@ namespace social.OpenData.UsersAPI
         protected async Task<RemoveUserFromOrganizationResult> _RemoveUserFromOrganization(User                        User,
                                                                                            User2OrganizationEdgeLabel  EdgeLabel,
                                                                                            Organization                Organization,
-                                                                                           EventTracking_Id            EventTrackingId         = null,
+                                                                                           EventTracking_Id?           EventTrackingId         = null,
                                                                                            Boolean                     SuppressNotifications   = false,
                                                                                            User_Id?                    CurrentUserId           = null)
         {
@@ -32881,7 +32880,7 @@ namespace social.OpenData.UsersAPI
                                                                       nameof(User),
                                                                       "The given user must not be null!");
 
-            if (User.API != null && User.API != this)
+            if (User.API is not null && User.API != this)
                 return RemoveUserFromOrganizationResult.ArgumentError(User,
                                                                       EdgeLabel,
                                                                       Organization,
@@ -32988,7 +32987,7 @@ namespace social.OpenData.UsersAPI
         public async Task<RemoveUserFromOrganizationResult> RemoveUserFromOrganization(User                        User,
                                                                                        User2OrganizationEdgeLabel  EdgeLabel,
                                                                                        Organization                Organization,
-                                                                                       EventTracking_Id            EventTrackingId   = null,
+                                                                                       EventTracking_Id?           EventTrackingId   = null,
                                                                                        User_Id?                    CurrentUserId     = null)
         {
 
@@ -33057,7 +33056,7 @@ namespace social.OpenData.UsersAPI
 
         protected async Task<RemoveUserFromOrganizationResult> _RemoveUserFromOrganization(User              User,
                                                                                            Organization      Organization,
-                                                                                           EventTracking_Id  EventTrackingId         = null,
+                                                                                           EventTracking_Id? EventTrackingId         = null,
                                                                                            Boolean           SuppressNotifications   = false,
                                                                                            User_Id?          CurrentUserId           = null)
         {
@@ -33071,7 +33070,7 @@ namespace social.OpenData.UsersAPI
                                                                       nameof(User),
                                                                       "The given user must not be null!");
 
-            if (User.API != null && User.API != this)
+            if (User.API is not null && User.API != this)
                 return RemoveUserFromOrganizationResult.ArgumentError(User,
                                                                       Organization,
                                                                       eventTrackingId,
@@ -33160,7 +33159,7 @@ namespace social.OpenData.UsersAPI
 
         public async Task<RemoveUserFromOrganizationResult> RemoveUserFromOrganization(User              User,
                                                                                        Organization      Organization,
-                                                                                       EventTracking_Id  EventTrackingId   = null,
+                                                                                       EventTracking_Id? EventTrackingId   = null,
                                                                                        User_Id?          CurrentUserId     = null)
         {
 
@@ -33240,7 +33239,7 @@ namespace social.OpenData.UsersAPI
                                                           Organization2OrganizationEdgeLabel  EdgeLabel,
                                                           Organization                        OrganizationIn,
                                                           NotificationMessageType             MessageType,
-                                                          EventTracking_Id                    EventTrackingId    = null,
+                                                          EventTracking_Id?                   EventTrackingId    = null,
                                                           User_Id?                            CurrentUserId      = null)
 
             => SendNotifications(OrganizationOut,
@@ -33264,7 +33263,7 @@ namespace social.OpenData.UsersAPI
                                                                 Organization2OrganizationEdgeLabel    EdgeLabel,
                                                                 Organization                          OrganizationIn,
                                                                 IEnumerable<NotificationMessageType>  MessageTypes,
-                                                                EventTracking_Id                      EventTrackingId   = null,
+                                                                EventTracking_Id?                     EventTrackingId   = null,
                                                                 User_Id?                              CurrentUserId     = null)
         {
 
@@ -33509,7 +33508,7 @@ namespace social.OpenData.UsersAPI
         protected async Task<LinkOrganizationsResult> _LinkOrganizations(Organization                        OrganizationOut,
                                                                          Organization2OrganizationEdgeLabel  EdgeLabel,
                                                                          Organization                        OrganizationIn,
-                                                                         EventTracking_Id                    EventTrackingId         = null,
+                                                                         EventTracking_Id?                   EventTrackingId         = null,
                                                                          Boolean                             SuppressNotifications   = false,
                                                                          User_Id?                            CurrentUserId           = null)
         {
@@ -33571,7 +33570,7 @@ namespace social.OpenData.UsersAPI
         public async Task<LinkOrganizationsResult> LinkOrganizations(Organization                        OrganizationOut,
                                                                      Organization2OrganizationEdgeLabel  EdgeLabel,
                                                                      Organization                        OrganizationIn,
-                                                                     EventTracking_Id                    EventTrackingId   = null,
+                                                                     EventTracking_Id?                   EventTrackingId   = null,
                                                                      User_Id?                            CurrentUserId     = null)
         {
 
@@ -33629,7 +33628,7 @@ namespace social.OpenData.UsersAPI
         protected async Task<UnlinkOrganizationsResult> _UnlinkOrganizations(Organization                        OrganizationOut,
                                                                              Organization2OrganizationEdgeLabel  EdgeLabel,
                                                                              Organization                        OrganizationIn,
-                                                                             EventTracking_Id                    EventTrackingId         = null,
+                                                                             EventTracking_Id?                   EventTrackingId         = null,
                                                                              Boolean                             SuppressNotifications   = false,
                                                                              User_Id?                            CurrentUserId           = null)
         {
@@ -33691,7 +33690,7 @@ namespace social.OpenData.UsersAPI
         public async Task<UnlinkOrganizationsResult> UnlinkOrganizations(Organization                        OrganizationOut,
                                                                          Organization2OrganizationEdgeLabel  EdgeLabel,
                                                                          Organization                        OrganizationIn,
-                                                                         EventTracking_Id                    EventTrackingId   = null,
+                                                                         EventTracking_Id?                   EventTrackingId   = null,
                                                                          User_Id?                            CurrentUserId     = null)
         {
 
@@ -33780,7 +33779,7 @@ namespace social.OpenData.UsersAPI
         protected internal async Task WriteToDatabaseFileAndNotify(ServiceTicket            ServiceTicket,
                                                                    NotificationMessageType  MessageType,
                                                                    ServiceTicket            OldServiceTicket   = null,
-                                                                   EventTracking_Id         EventTrackingId    = null,
+                                                                   EventTracking_Id?        EventTrackingId    = null,
                                                                    User_Id?                 CurrentUserId      = null)
         {
 
@@ -33821,7 +33820,7 @@ namespace social.OpenData.UsersAPI
         protected internal virtual Task SendNotifications(ServiceTicket            ServiceTicket,
                                                           NotificationMessageType  MessageType,
                                                           ServiceTicket            OldServiceTicket   = null,
-                                                          EventTracking_Id         EventTrackingId    = null,
+                                                          EventTracking_Id?        EventTrackingId    = null,
                                                           User_Id?                 CurrentUserId      = null)
 
             => SendNotifications(ServiceTicket,
@@ -33842,7 +33841,7 @@ namespace social.OpenData.UsersAPI
         protected internal async virtual Task SendNotifications(ServiceTicket                         ServiceTicket,
                                                                 IEnumerable<NotificationMessageType>  MessageTypes,
                                                                 ServiceTicket                         OldServiceTicket   = null,
-                                                                EventTracking_Id                      EventTrackingId    = null,
+                                                                EventTracking_Id?                     EventTrackingId    = null,
                                                                 User_Id?                              CurrentUserId      = null)
         {
 
@@ -34072,7 +34071,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<TServiceTicket> AddServiceTicket<TServiceTicket>(TServiceTicket          ServiceTicket,
                                                                            Action<TServiceTicket>  AfterAddition     = null,
-                                                                           EventTracking_Id        EventTrackingId   = null,
+                                                                           EventTracking_Id?       EventTrackingId   = null,
                                                                            User_Id?                CurrentUserId     = null)
 
             where TServiceTicket : ServiceTicket
@@ -34669,7 +34668,7 @@ namespace social.OpenData.UsersAPI
         protected internal async Task WriteToDatabaseFileAndNotify(BlogPosting              BlogPosting,
                                                           NotificationMessageType  MessageType,
                                                           BlogPosting              OldBlogPosting    = null,
-                                                          EventTracking_Id         EventTrackingId   = null,
+                                                          EventTracking_Id?        EventTrackingId   = null,
                                                           User_Id?                 CurrentUserId     = null)
         {
 
@@ -34710,7 +34709,7 @@ namespace social.OpenData.UsersAPI
         protected internal async Task SendNotifications(BlogPosting              BlogPosting,
                                                NotificationMessageType  MessageType,
                                                BlogPosting              OldBlogPosting    = null,
-                                               EventTracking_Id         EventTrackingId   = null,
+                                               EventTracking_Id?        EventTrackingId   = null,
                                                User_Id?                 CurrentUserId     = null)
         {
 
@@ -34741,7 +34740,7 @@ namespace social.OpenData.UsersAPI
         protected internal async Task SendNotifications(BlogPosting                           BlogPosting,
                                                IEnumerable<NotificationMessageType>  MessageTypes,
                                                BlogPosting                           OldBlogPosting    = null,
-                                               EventTracking_Id                      EventTrackingId   = null,
+                                               EventTracking_Id?                     EventTrackingId   = null,
                                                User_Id?                              CurrentUserId     = null)
         {
 
@@ -34811,7 +34810,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public delegate Task OnBlogPostingAddedDelegate(DateTime          Timestamp,
                                                         BlogPosting       BlogPosting,
-                                                        EventTracking_Id  EventTrackingId   = null,
+                                                        EventTracking_Id? EventTrackingId   = null,
                                                         User_Id?          CurrentUserId     = null);
 
         /// <summary>
@@ -34831,7 +34830,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         protected internal async Task<BlogPosting> _AddBlogPosting(BlogPosting                            BlogPosting,
                                                           Action<BlogPosting, EventTracking_Id>  OnAdded           = null,
-                                                          EventTracking_Id                       EventTrackingId   = null,
+                                                          EventTracking_Id?                      EventTrackingId   = null,
                                                           User_Id?                               CurrentUserId     = null)
         {
 
@@ -34865,7 +34864,7 @@ namespace social.OpenData.UsersAPI
 
 
             var OnBlogPostingAddedLocal = OnBlogPostingAdded;
-            if (OnBlogPostingAddedLocal != null)
+            if (OnBlogPostingAddedLocal is not null)
                 await OnBlogPostingAddedLocal?.Invoke(Timestamp.Now,
                                                       BlogPosting,
                                                       eventTrackingId,
@@ -34897,7 +34896,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<BlogPosting> AddBlogPosting(BlogPosting                            BlogPosting,
                                                       Action<BlogPosting, EventTracking_Id>  OnAdded           = null,
-                                                      EventTracking_Id                       EventTrackingId   = null,
+                                                      EventTracking_Id?                      EventTrackingId   = null,
                                                       User_Id?                               CurrentUserId     = null)
         {
 
@@ -34946,7 +34945,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         protected internal async Task<BlogPosting> _AddBlogPostingIfNotExists(BlogPosting                            BlogPosting,
                                                                      Action<BlogPosting, EventTracking_Id>  OnAdded           = null,
-                                                                     EventTracking_Id                       EventTrackingId   = null,
+                                                                     EventTracking_Id?                      EventTrackingId   = null,
                                                                      User_Id?                               CurrentUserId     = null)
         {
 
@@ -34978,7 +34977,7 @@ namespace social.OpenData.UsersAPI
             _BlogPostings.Add(BlogPosting.Id, BlogPosting);
 
             var OnBlogPostingAddedLocal = OnBlogPostingAdded;
-            if (OnBlogPostingAddedLocal != null)
+            if (OnBlogPostingAddedLocal is not null)
                 await OnBlogPostingAddedLocal?.Invoke(Timestamp.Now,
                                                       BlogPosting,
                                                       eventTrackingId,
@@ -35010,7 +35009,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<BlogPosting> AddBlogPostingIfNotExists(BlogPosting                            BlogPosting,
                                                                  Action<BlogPosting, EventTracking_Id>  OnAdded           = null,
-                                                                 EventTracking_Id                       EventTrackingId   = null,
+                                                                 EventTracking_Id?                      EventTrackingId   = null,
                                                                  User_Id?                               CurrentUserId     = null)
         {
 
@@ -35058,7 +35057,7 @@ namespace social.OpenData.UsersAPI
         protected internal async Task<BlogPosting> _AddOrUpdateBlogPosting(BlogPosting                            BlogPosting,
                                                                            Action<BlogPosting, EventTracking_Id>  OnAdded           = null,
                                                                            Action<BlogPosting, EventTracking_Id>  OnUpdated         = null,
-                                                                           EventTracking_Id                       EventTrackingId   = null,
+                                                                           EventTracking_Id?                      EventTrackingId   = null,
                                                                            User_Id?                               CurrentUserId     = null)
         {
 
@@ -35099,7 +35098,7 @@ namespace social.OpenData.UsersAPI
             {
 
                 var OnBlogPostingUpdatedLocal = OnBlogPostingUpdated;
-                if (OnBlogPostingUpdatedLocal != null)
+                if (OnBlogPostingUpdatedLocal is not null)
                     await OnBlogPostingUpdatedLocal?.Invoke(Timestamp.Now,
                                                             BlogPosting,
                                                             OldBlogPosting,
@@ -35120,7 +35119,7 @@ namespace social.OpenData.UsersAPI
             {
 
                 var OnBlogPostingAddedLocal = OnBlogPostingAdded;
-                if (OnBlogPostingAddedLocal != null)
+                if (OnBlogPostingAddedLocal is not null)
                     await OnBlogPostingAddedLocal?.Invoke(Timestamp.Now,
                                                           BlogPosting,
                                                           eventTrackingId,
@@ -35156,7 +35155,7 @@ namespace social.OpenData.UsersAPI
         public async Task<BlogPosting> AddOrUpdateBlogPosting(BlogPosting                            BlogPosting,
                                                               Action<BlogPosting, EventTracking_Id>  OnAdded           = null,
                                                               Action<BlogPosting, EventTracking_Id>  OnUpdated         = null,
-                                                              EventTracking_Id                       EventTrackingId   = null,
+                                                              EventTracking_Id?                      EventTrackingId   = null,
                                                               User_Id?                               CurrentUserId     = null)
         {
 
@@ -35206,7 +35205,7 @@ namespace social.OpenData.UsersAPI
         public delegate Task OnBlogPostingUpdatedDelegate(DateTime          Timestamp,
                                                           BlogPosting       BlogPosting,
                                                           BlogPosting       OldBlogPosting,
-                                                          EventTracking_Id  EventTrackingId   = null,
+                                                          EventTracking_Id? EventTrackingId   = null,
                                                           User_Id?          CurrentUserId     = null);
 
         /// <summary>
@@ -35226,7 +35225,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional blog posting identification initiating this command/request.</param>
         protected internal async Task<BlogPosting> _UpdateBlogPosting(BlogPosting                            BlogPosting,
                                                              Action<BlogPosting, EventTracking_Id>  OnUpdated         = null,
-                                                             EventTracking_Id                       EventTrackingId   = null,
+                                                             EventTracking_Id?                      EventTrackingId   = null,
                                                              User_Id?                               CurrentUserId     = null)
         {
 
@@ -35257,7 +35256,7 @@ namespace social.OpenData.UsersAPI
 
 
             var OnBlogPostingUpdatedLocal = OnBlogPostingUpdated;
-            if (OnBlogPostingUpdatedLocal != null)
+            if (OnBlogPostingUpdatedLocal is not null)
                 await OnBlogPostingUpdatedLocal?.Invoke(Timestamp.Now,
                                                         BlogPosting,
                                                         OldBlogPosting,
@@ -35290,7 +35289,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional blog posting identification initiating this command/request.</param>
         public async Task<BlogPosting> UpdateBlogPosting(BlogPosting                            BlogPosting,
                                                          Action<BlogPosting, EventTracking_Id>  OnUpdated         = null,
-                                                         EventTracking_Id                       EventTrackingId   = null,
+                                                         EventTracking_Id?                      EventTrackingId   = null,
                                                          User_Id?                               CurrentUserId     = null)
         {
 
@@ -35338,7 +35337,7 @@ namespace social.OpenData.UsersAPI
         protected internal async Task<BlogPosting> _UpdateBlogPosting(BlogPosting_Id                         BlogPostingId,
                                                              Action<BlogPosting.Builder>            UpdateDelegate,
                                                              Action<BlogPosting, EventTracking_Id>  OnUpdated         = null,
-                                                             EventTracking_Id                       EventTrackingId   = null,
+                                                             EventTracking_Id?                      EventTrackingId   = null,
                                                              User_Id?                               CurrentUserId     = null)
         {
 
@@ -35371,7 +35370,7 @@ namespace social.OpenData.UsersAPI
 
 
             var OnBlogPostingUpdatedLocal = OnBlogPostingUpdated;
-            if (OnBlogPostingUpdatedLocal != null)
+            if (OnBlogPostingUpdatedLocal is not null)
                 await OnBlogPostingUpdatedLocal?.Invoke(Timestamp.Now,
                                                         NewBlogPosting,
                                                         OldBlogPosting,
@@ -35406,7 +35405,7 @@ namespace social.OpenData.UsersAPI
         public async Task<BlogPosting> UpdateBlogPosting(BlogPosting_Id                         BlogPostingId,
                                                          Action<BlogPosting.Builder>            UpdateDelegate,
                                                          Action<BlogPosting, EventTracking_Id>  OnUpdated         = null,
-                                                         EventTracking_Id                       EventTrackingId   = null,
+                                                         EventTracking_Id?                      EventTrackingId   = null,
                                                          User_Id?                               CurrentUserId     = null)
         {
 
@@ -35612,7 +35611,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">The invoking blog posting identification</param>
         public delegate Task OnBlogPostingRemovedDelegate(DateTime          Timestamp,
                                                           BlogPosting       BlogPosting,
-                                                          EventTracking_Id  EventTrackingId   = null,
+                                                          EventTracking_Id? EventTrackingId   = null,
                                                           User_Id?          CurrentUserId     = null);
 
         /// <summary>
@@ -35691,7 +35690,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional blog posting identification initiating this command/request.</param>
         protected internal async Task<DeleteBlogPostingResult> _RemoveBlogPosting(BlogPosting                            BlogPosting,
                                                                          Action<BlogPosting, EventTracking_Id>  OnRemoved         = null,
-                                                                         EventTracking_Id                       EventTrackingId   = null,
+                                                                         EventTracking_Id?                      EventTrackingId   = null,
                                                                          User_Id?                               CurrentUserId     = null)
         {
 
@@ -35720,7 +35719,7 @@ namespace social.OpenData.UsersAPI
 
 
                 var OnBlogPostingRemovedLocal = OnBlogPostingRemoved;
-                if (OnBlogPostingRemovedLocal != null)
+                if (OnBlogPostingRemovedLocal is not null)
                     await OnBlogPostingRemovedLocal?.Invoke(Timestamp.Now,
                                                             BlogPosting,
                                                             eventTrackingId,
@@ -35756,7 +35755,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional blog posting identification initiating this command/request.</param>
         public async Task<DeleteBlogPostingResult> RemoveBlogPosting(BlogPosting                            BlogPosting,
                                                                      Action<BlogPosting, EventTracking_Id>  OnRemoved         = null,
-                                                                     EventTracking_Id                       EventTrackingId   = null,
+                                                                     EventTracking_Id?                      EventTrackingId   = null,
                                                                      User_Id?                               CurrentUserId     = null)
         {
 
@@ -35848,7 +35847,7 @@ namespace social.OpenData.UsersAPI
         protected internal async Task WriteToDatabaseFileAndNotify(NewsPosting              NewsPosting,
                                                           NotificationMessageType  MessageType,
                                                           NewsPosting              OldNewsPosting    = null,
-                                                          EventTracking_Id         EventTrackingId   = null,
+                                                          EventTracking_Id?        EventTrackingId   = null,
                                                           User_Id?                 CurrentUserId     = null)
         {
 
@@ -35889,7 +35888,7 @@ namespace social.OpenData.UsersAPI
         protected internal async Task SendNotifications(NewsPosting              NewsPosting,
                                                NotificationMessageType  MessageType,
                                                NewsPosting              OldNewsPosting    = null,
-                                               EventTracking_Id         EventTrackingId   = null,
+                                               EventTracking_Id?        EventTrackingId   = null,
                                                User_Id?                 CurrentUserId     = null)
         {
 
@@ -35920,7 +35919,7 @@ namespace social.OpenData.UsersAPI
         protected internal async Task SendNotifications(NewsPosting                           NewsPosting,
                                                IEnumerable<NotificationMessageType>  MessageTypes,
                                                NewsPosting                           OldNewsPosting    = null,
-                                               EventTracking_Id                      EventTrackingId   = null,
+                                               EventTracking_Id?                     EventTrackingId   = null,
                                                User_Id?                              CurrentUserId     = null)
         {
 
@@ -35990,7 +35989,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public delegate Task OnNewsPostingAddedDelegate(DateTime          Timestamp,
                                                         NewsPosting       NewsPosting,
-                                                        EventTracking_Id  EventTrackingId   = null,
+                                                        EventTracking_Id? EventTrackingId   = null,
                                                         User_Id?          CurrentUserId     = null);
 
         /// <summary>
@@ -36010,7 +36009,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         protected internal async Task<NewsPosting> _AddNewsPosting(NewsPosting                            NewsPosting,
                                                           Action<NewsPosting, EventTracking_Id>  OnAdded           = null,
-                                                          EventTracking_Id                       EventTrackingId   = null,
+                                                          EventTracking_Id?                      EventTrackingId   = null,
                                                           User_Id?                               CurrentUserId     = null)
         {
 
@@ -36044,7 +36043,7 @@ namespace social.OpenData.UsersAPI
 
 
             var OnNewsPostingAddedLocal = OnNewsPostingAdded;
-            if (OnNewsPostingAddedLocal != null)
+            if (OnNewsPostingAddedLocal is not null)
                 await OnNewsPostingAddedLocal?.Invoke(Timestamp.Now,
                                                       NewsPosting,
                                                       eventTrackingId,
@@ -36076,7 +36075,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<NewsPosting> AddNewsPosting(NewsPosting                            NewsPosting,
                                                       Action<NewsPosting, EventTracking_Id>  OnAdded           = null,
-                                                      EventTracking_Id                       EventTrackingId   = null,
+                                                      EventTracking_Id?                      EventTrackingId   = null,
                                                       User_Id?                               CurrentUserId     = null)
         {
 
@@ -36125,7 +36124,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         protected internal async Task<NewsPosting> _AddNewsPostingIfNotExists(NewsPosting                            NewsPosting,
                                                                      Action<NewsPosting, EventTracking_Id>  OnAdded           = null,
-                                                                     EventTracking_Id                       EventTrackingId   = null,
+                                                                     EventTracking_Id?                      EventTrackingId   = null,
                                                                      User_Id?                               CurrentUserId     = null)
         {
 
@@ -36157,7 +36156,7 @@ namespace social.OpenData.UsersAPI
             _NewsPostings.Add(NewsPosting.Id, NewsPosting);
 
             var OnNewsPostingAddedLocal = OnNewsPostingAdded;
-            if (OnNewsPostingAddedLocal != null)
+            if (OnNewsPostingAddedLocal is not null)
                 await OnNewsPostingAddedLocal?.Invoke(Timestamp.Now,
                                                       NewsPosting,
                                                       eventTrackingId,
@@ -36189,7 +36188,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<NewsPosting> AddNewsPostingIfNotExists(NewsPosting                            NewsPosting,
                                                                  Action<NewsPosting, EventTracking_Id>  OnAdded           = null,
-                                                                 EventTracking_Id                       EventTrackingId   = null,
+                                                                 EventTracking_Id?                      EventTrackingId   = null,
                                                                  User_Id?                               CurrentUserId     = null)
         {
 
@@ -36237,7 +36236,7 @@ namespace social.OpenData.UsersAPI
         protected internal async Task<NewsPosting> _AddOrUpdateNewsPosting(NewsPosting                            NewsPosting,
                                                                   Action<NewsPosting, EventTracking_Id>  OnAdded           = null,
                                                                   Action<NewsPosting, EventTracking_Id>  OnUpdated         = null,
-                                                                  EventTracking_Id                       EventTrackingId   = null,
+                                                                  EventTracking_Id?                      EventTrackingId   = null,
                                                                   User_Id?                               CurrentUserId     = null)
         {
 
@@ -36278,7 +36277,7 @@ namespace social.OpenData.UsersAPI
             {
 
                 var OnNewsPostingUpdatedLocal = OnNewsPostingUpdated;
-                if (OnNewsPostingUpdatedLocal != null)
+                if (OnNewsPostingUpdatedLocal is not null)
                     await OnNewsPostingUpdatedLocal?.Invoke(Timestamp.Now,
                                                             NewsPosting,
                                                             OldNewsPosting,
@@ -36299,7 +36298,7 @@ namespace social.OpenData.UsersAPI
             {
 
                 var OnNewsPostingAddedLocal = OnNewsPostingAdded;
-                if (OnNewsPostingAddedLocal != null)
+                if (OnNewsPostingAddedLocal is not null)
                     await OnNewsPostingAddedLocal?.Invoke(Timestamp.Now,
                                                           NewsPosting,
                                                           eventTrackingId,
@@ -36335,7 +36334,7 @@ namespace social.OpenData.UsersAPI
         public async Task<NewsPosting> AddOrUpdateNewsPosting(NewsPosting                            NewsPosting,
                                                               Action<NewsPosting, EventTracking_Id>  OnAdded           = null,
                                                               Action<NewsPosting, EventTracking_Id>  OnUpdated         = null,
-                                                              EventTracking_Id                       EventTrackingId   = null,
+                                                              EventTracking_Id?                      EventTrackingId   = null,
                                                               User_Id?                               CurrentUserId     = null)
         {
 
@@ -36385,7 +36384,7 @@ namespace social.OpenData.UsersAPI
         public delegate Task OnNewsPostingUpdatedDelegate(DateTime          Timestamp,
                                                           NewsPosting       NewsPosting,
                                                           NewsPosting       OldNewsPosting,
-                                                          EventTracking_Id  EventTrackingId   = null,
+                                                          EventTracking_Id? EventTrackingId   = null,
                                                           User_Id?          CurrentUserId     = null);
 
         /// <summary>
@@ -36405,7 +36404,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional news posting identification initiating this command/request.</param>
         protected internal async Task<NewsPosting> _UpdateNewsPosting(NewsPosting                            NewsPosting,
                                                              Action<NewsPosting, EventTracking_Id>  OnUpdated         = null,
-                                                             EventTracking_Id                       EventTrackingId   = null,
+                                                             EventTracking_Id?                      EventTrackingId   = null,
                                                              User_Id?                               CurrentUserId     = null)
         {
 
@@ -36436,7 +36435,7 @@ namespace social.OpenData.UsersAPI
 
 
             var OnNewsPostingUpdatedLocal = OnNewsPostingUpdated;
-            if (OnNewsPostingUpdatedLocal != null)
+            if (OnNewsPostingUpdatedLocal is not null)
                 await OnNewsPostingUpdatedLocal?.Invoke(Timestamp.Now,
                                                         NewsPosting,
                                                         OldNewsPosting,
@@ -36469,7 +36468,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional news posting identification initiating this command/request.</param>
         public async Task<NewsPosting> UpdateNewsPosting(NewsPosting                            NewsPosting,
                                                          Action<NewsPosting, EventTracking_Id>  OnUpdated         = null,
-                                                         EventTracking_Id                       EventTrackingId   = null,
+                                                         EventTracking_Id?                      EventTrackingId   = null,
                                                          User_Id?                               CurrentUserId     = null)
         {
 
@@ -36517,7 +36516,7 @@ namespace social.OpenData.UsersAPI
         protected internal async Task<NewsPosting> _UpdateNewsPosting(NewsPosting_Id                         NewsPostingId,
                                                              Action<NewsPosting.Builder>            UpdateDelegate,
                                                              Action<NewsPosting, EventTracking_Id>  OnUpdated         = null,
-                                                             EventTracking_Id                       EventTrackingId   = null,
+                                                             EventTracking_Id?                      EventTrackingId   = null,
                                                              User_Id?                               CurrentUserId     = null)
         {
 
@@ -36550,7 +36549,7 @@ namespace social.OpenData.UsersAPI
 
 
             var OnNewsPostingUpdatedLocal = OnNewsPostingUpdated;
-            if (OnNewsPostingUpdatedLocal != null)
+            if (OnNewsPostingUpdatedLocal is not null)
                 await OnNewsPostingUpdatedLocal?.Invoke(Timestamp.Now,
                                                         NewNewsPosting,
                                                         OldNewsPosting,
@@ -36585,7 +36584,7 @@ namespace social.OpenData.UsersAPI
         public async Task<NewsPosting> UpdateNewsPosting(NewsPosting_Id                         NewsPostingId,
                                                          Action<NewsPosting.Builder>            UpdateDelegate,
                                                          Action<NewsPosting, EventTracking_Id>  OnUpdated         = null,
-                                                         EventTracking_Id                       EventTrackingId   = null,
+                                                         EventTracking_Id?                      EventTrackingId   = null,
                                                          User_Id?                               CurrentUserId     = null)
         {
 
@@ -36791,7 +36790,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">The invoking news posting identification</param>
         public delegate Task OnNewsPostingRemovedDelegate(DateTime          Timestamp,
                                                           NewsPosting       NewsPosting,
-                                                          EventTracking_Id  EventTrackingId   = null,
+                                                          EventTracking_Id? EventTrackingId   = null,
                                                           User_Id?          CurrentUserId     = null);
 
         /// <summary>
@@ -36870,7 +36869,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional news posting identification initiating this command/request.</param>
         protected internal async Task<DeleteNewsPostingResult> _RemoveNewsPosting(NewsPosting                            NewsPosting,
                                                                          Action<NewsPosting, EventTracking_Id>  OnRemoved         = null,
-                                                                         EventTracking_Id                       EventTrackingId   = null,
+                                                                         EventTracking_Id?                      EventTrackingId   = null,
                                                                          User_Id?                               CurrentUserId     = null)
         {
 
@@ -36899,7 +36898,7 @@ namespace social.OpenData.UsersAPI
 
 
                 var OnNewsPostingRemovedLocal = OnNewsPostingRemoved;
-                if (OnNewsPostingRemovedLocal != null)
+                if (OnNewsPostingRemovedLocal is not null)
                     await OnNewsPostingRemovedLocal?.Invoke(Timestamp.Now,
                                                             NewsPosting,
                                                             eventTrackingId,
@@ -36935,7 +36934,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional news posting identification initiating this command/request.</param>
         public async Task<DeleteNewsPostingResult> RemoveNewsPosting(NewsPosting                            NewsPosting,
                                                                      Action<NewsPosting, EventTracking_Id>  OnRemoved         = null,
-                                                                     EventTracking_Id                       EventTrackingId   = null,
+                                                                     EventTracking_Id?                      EventTrackingId   = null,
                                                                      User_Id?                               CurrentUserId     = null)
         {
 
@@ -37027,7 +37026,7 @@ namespace social.OpenData.UsersAPI
         protected internal async Task WriteToDatabaseFileAndNotify(NewsBanner              NewsBanner,
                                                           NotificationMessageType  MessageType,
                                                           NewsBanner              OldNewsBanner    = null,
-                                                          EventTracking_Id         EventTrackingId   = null,
+                                                          EventTracking_Id?        EventTrackingId   = null,
                                                           User_Id?                 CurrentUserId     = null)
         {
 
@@ -37068,7 +37067,7 @@ namespace social.OpenData.UsersAPI
         protected internal async Task SendNotifications(NewsBanner              NewsBanner,
                                                NotificationMessageType  MessageType,
                                                NewsBanner              OldNewsBanner    = null,
-                                               EventTracking_Id         EventTrackingId   = null,
+                                               EventTracking_Id?        EventTrackingId   = null,
                                                User_Id?                 CurrentUserId     = null)
         {
 
@@ -37099,7 +37098,7 @@ namespace social.OpenData.UsersAPI
         protected internal async Task SendNotifications(NewsBanner                           NewsBanner,
                                                IEnumerable<NotificationMessageType>  MessageTypes,
                                                NewsBanner                           OldNewsBanner    = null,
-                                               EventTracking_Id                      EventTrackingId   = null,
+                                               EventTracking_Id?                     EventTrackingId   = null,
                                                User_Id?                              CurrentUserId     = null)
         {
 
@@ -37169,7 +37168,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public delegate Task OnNewsBannerAddedDelegate(DateTime          Timestamp,
                                                         NewsBanner       NewsBanner,
-                                                        EventTracking_Id  EventTrackingId   = null,
+                                                        EventTracking_Id? EventTrackingId   = null,
                                                         User_Id?          CurrentUserId     = null);
 
         /// <summary>
@@ -37189,7 +37188,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         protected internal async Task<NewsBanner> _AddNewsBanner(NewsBanner                            NewsBanner,
                                                           Action<NewsBanner, EventTracking_Id>  OnAdded           = null,
-                                                          EventTracking_Id                       EventTrackingId   = null,
+                                                          EventTracking_Id?                      EventTrackingId   = null,
                                                           User_Id?                               CurrentUserId     = null)
         {
 
@@ -37223,7 +37222,7 @@ namespace social.OpenData.UsersAPI
 
 
             var OnNewsBannerAddedLocal = OnNewsBannerAdded;
-            if (OnNewsBannerAddedLocal != null)
+            if (OnNewsBannerAddedLocal is not null)
                 await OnNewsBannerAddedLocal?.Invoke(Timestamp.Now,
                                                       NewsBanner,
                                                       eventTrackingId,
@@ -37255,7 +37254,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<NewsBanner> AddNewsBanner(NewsBanner                            NewsBanner,
                                                       Action<NewsBanner, EventTracking_Id>  OnAdded           = null,
-                                                      EventTracking_Id                       EventTrackingId   = null,
+                                                      EventTracking_Id?                      EventTrackingId   = null,
                                                       User_Id?                               CurrentUserId     = null)
         {
 
@@ -37304,7 +37303,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         protected internal async Task<NewsBanner> _AddNewsBannerIfNotExists(NewsBanner                            NewsBanner,
                                                                      Action<NewsBanner, EventTracking_Id>  OnAdded           = null,
-                                                                     EventTracking_Id                       EventTrackingId   = null,
+                                                                     EventTracking_Id?                      EventTrackingId   = null,
                                                                      User_Id?                               CurrentUserId     = null)
         {
 
@@ -37336,7 +37335,7 @@ namespace social.OpenData.UsersAPI
             _NewsBanners.Add(NewsBanner.Id, NewsBanner);
 
             var OnNewsBannerAddedLocal = OnNewsBannerAdded;
-            if (OnNewsBannerAddedLocal != null)
+            if (OnNewsBannerAddedLocal is not null)
                 await OnNewsBannerAddedLocal?.Invoke(Timestamp.Now,
                                                       NewsBanner,
                                                       eventTrackingId,
@@ -37368,7 +37367,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<NewsBanner> AddNewsBannerIfNotExists(NewsBanner                            NewsBanner,
                                                                  Action<NewsBanner, EventTracking_Id>  OnAdded           = null,
-                                                                 EventTracking_Id                       EventTrackingId   = null,
+                                                                 EventTracking_Id?                      EventTrackingId   = null,
                                                                  User_Id?                               CurrentUserId     = null)
         {
 
@@ -37416,7 +37415,7 @@ namespace social.OpenData.UsersAPI
         protected internal async Task<NewsBanner> _AddOrUpdateNewsBanner(NewsBanner                            NewsBanner,
                                                                   Action<NewsBanner, EventTracking_Id>  OnAdded           = null,
                                                                   Action<NewsBanner, EventTracking_Id>  OnUpdated         = null,
-                                                                  EventTracking_Id                       EventTrackingId   = null,
+                                                                  EventTracking_Id?                      EventTrackingId   = null,
                                                                   User_Id?                               CurrentUserId     = null)
         {
 
@@ -37457,7 +37456,7 @@ namespace social.OpenData.UsersAPI
             {
 
                 var OnNewsBannerUpdatedLocal = OnNewsBannerUpdated;
-                if (OnNewsBannerUpdatedLocal != null)
+                if (OnNewsBannerUpdatedLocal is not null)
                     await OnNewsBannerUpdatedLocal?.Invoke(Timestamp.Now,
                                                             NewsBanner,
                                                             OldNewsBanner,
@@ -37478,7 +37477,7 @@ namespace social.OpenData.UsersAPI
             {
 
                 var OnNewsBannerAddedLocal = OnNewsBannerAdded;
-                if (OnNewsBannerAddedLocal != null)
+                if (OnNewsBannerAddedLocal is not null)
                     await OnNewsBannerAddedLocal?.Invoke(Timestamp.Now,
                                                           NewsBanner,
                                                           eventTrackingId,
@@ -37514,7 +37513,7 @@ namespace social.OpenData.UsersAPI
         public async Task<NewsBanner> AddOrUpdateNewsBanner(NewsBanner                            NewsBanner,
                                                               Action<NewsBanner, EventTracking_Id>  OnAdded           = null,
                                                               Action<NewsBanner, EventTracking_Id>  OnUpdated         = null,
-                                                              EventTracking_Id                       EventTrackingId   = null,
+                                                              EventTracking_Id?                      EventTrackingId   = null,
                                                               User_Id?                               CurrentUserId     = null)
         {
 
@@ -37564,7 +37563,7 @@ namespace social.OpenData.UsersAPI
         public delegate Task OnNewsBannerUpdatedDelegate(DateTime          Timestamp,
                                                           NewsBanner       NewsBanner,
                                                           NewsBanner       OldNewsBanner,
-                                                          EventTracking_Id  EventTrackingId   = null,
+                                                          EventTracking_Id? EventTrackingId   = null,
                                                           User_Id?          CurrentUserId     = null);
 
         /// <summary>
@@ -37584,7 +37583,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional news banner identification initiating this command/request.</param>
         protected internal async Task<NewsBanner> _UpdateNewsBanner(NewsBanner                            NewsBanner,
                                                              Action<NewsBanner, EventTracking_Id>  OnUpdated         = null,
-                                                             EventTracking_Id                       EventTrackingId   = null,
+                                                             EventTracking_Id?                      EventTrackingId   = null,
                                                              User_Id?                               CurrentUserId     = null)
         {
 
@@ -37615,7 +37614,7 @@ namespace social.OpenData.UsersAPI
 
 
             var OnNewsBannerUpdatedLocal = OnNewsBannerUpdated;
-            if (OnNewsBannerUpdatedLocal != null)
+            if (OnNewsBannerUpdatedLocal is not null)
                 await OnNewsBannerUpdatedLocal?.Invoke(Timestamp.Now,
                                                         NewsBanner,
                                                         OldNewsBanner,
@@ -37648,7 +37647,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional news banner identification initiating this command/request.</param>
         public async Task<NewsBanner> UpdateNewsBanner(NewsBanner                            NewsBanner,
                                                          Action<NewsBanner, EventTracking_Id>  OnUpdated         = null,
-                                                         EventTracking_Id                       EventTrackingId   = null,
+                                                         EventTracking_Id?                      EventTrackingId   = null,
                                                          User_Id?                               CurrentUserId     = null)
         {
 
@@ -37696,7 +37695,7 @@ namespace social.OpenData.UsersAPI
         protected internal async Task<NewsBanner> _UpdateNewsBanner(NewsBanner_Id                         NewsBannerId,
                                                              Action<NewsBanner.Builder>            UpdateDelegate,
                                                              Action<NewsBanner, EventTracking_Id>  OnUpdated         = null,
-                                                             EventTracking_Id                       EventTrackingId   = null,
+                                                             EventTracking_Id?                      EventTrackingId   = null,
                                                              User_Id?                               CurrentUserId     = null)
         {
 
@@ -37729,7 +37728,7 @@ namespace social.OpenData.UsersAPI
 
 
             var OnNewsBannerUpdatedLocal = OnNewsBannerUpdated;
-            if (OnNewsBannerUpdatedLocal != null)
+            if (OnNewsBannerUpdatedLocal is not null)
                 await OnNewsBannerUpdatedLocal?.Invoke(Timestamp.Now,
                                                         NewNewsBanner,
                                                         OldNewsBanner,
@@ -37764,7 +37763,7 @@ namespace social.OpenData.UsersAPI
         public async Task<NewsBanner> UpdateNewsBanner(NewsBanner_Id                         NewsBannerId,
                                                          Action<NewsBanner.Builder>            UpdateDelegate,
                                                          Action<NewsBanner, EventTracking_Id>  OnUpdated         = null,
-                                                         EventTracking_Id                       EventTrackingId   = null,
+                                                         EventTracking_Id?                      EventTrackingId   = null,
                                                          User_Id?                               CurrentUserId     = null)
         {
 
@@ -37970,7 +37969,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">The invoking news banner identification</param>
         public delegate Task OnNewsBannerRemovedDelegate(DateTime          Timestamp,
                                                           NewsBanner       NewsBanner,
-                                                          EventTracking_Id  EventTrackingId   = null,
+                                                          EventTracking_Id? EventTrackingId   = null,
                                                           User_Id?          CurrentUserId     = null);
 
         /// <summary>
@@ -38049,7 +38048,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional news banner identification initiating this command/request.</param>
         protected internal async Task<DeleteNewsBannerResult> _RemoveNewsBanner(NewsBanner                            NewsBanner,
                                                                          Action<NewsBanner, EventTracking_Id>  OnRemoved         = null,
-                                                                         EventTracking_Id                       EventTrackingId   = null,
+                                                                         EventTracking_Id?                      EventTrackingId   = null,
                                                                          User_Id?                               CurrentUserId     = null)
         {
 
@@ -38078,7 +38077,7 @@ namespace social.OpenData.UsersAPI
 
 
                 var OnNewsBannerRemovedLocal = OnNewsBannerRemoved;
-                if (OnNewsBannerRemovedLocal != null)
+                if (OnNewsBannerRemovedLocal is not null)
                     await OnNewsBannerRemovedLocal?.Invoke(Timestamp.Now,
                                                             NewsBanner,
                                                             eventTrackingId,
@@ -38114,7 +38113,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional news banner identification initiating this command/request.</param>
         public async Task<DeleteNewsBannerResult> RemoveNewsBanner(NewsBanner                            NewsBanner,
                                                                      Action<NewsBanner, EventTracking_Id>  OnRemoved         = null,
-                                                                     EventTracking_Id                       EventTrackingId   = null,
+                                                                     EventTracking_Id?                      EventTrackingId   = null,
                                                                      User_Id?                               CurrentUserId     = null)
         {
 
@@ -38206,7 +38205,7 @@ namespace social.OpenData.UsersAPI
         protected internal async Task WriteToDatabaseFileAndNotify(FAQ              FAQ,
                                                           NotificationMessageType  MessageType,
                                                           FAQ              OldFAQ    = null,
-                                                          EventTracking_Id         EventTrackingId   = null,
+                                                          EventTracking_Id?        EventTrackingId   = null,
                                                           User_Id?                 CurrentUserId     = null)
         {
 
@@ -38247,7 +38246,7 @@ namespace social.OpenData.UsersAPI
         protected internal async Task SendNotifications(FAQ              FAQ,
                                                NotificationMessageType  MessageType,
                                                FAQ              OldFAQ    = null,
-                                               EventTracking_Id         EventTrackingId   = null,
+                                               EventTracking_Id?        EventTrackingId   = null,
                                                User_Id?                 CurrentUserId     = null)
         {
 
@@ -38278,7 +38277,7 @@ namespace social.OpenData.UsersAPI
         protected internal async Task SendNotifications(FAQ                           FAQ,
                                                IEnumerable<NotificationMessageType>  MessageTypes,
                                                FAQ                           OldFAQ    = null,
-                                               EventTracking_Id                      EventTrackingId   = null,
+                                               EventTracking_Id?                     EventTrackingId   = null,
                                                User_Id?                              CurrentUserId     = null)
         {
 
@@ -38348,7 +38347,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public delegate Task OnFAQAddedDelegate(DateTime          Timestamp,
                                                         FAQ       FAQ,
-                                                        EventTracking_Id  EventTrackingId   = null,
+                                                        EventTracking_Id? EventTrackingId   = null,
                                                         User_Id?          CurrentUserId     = null);
 
         /// <summary>
@@ -38368,7 +38367,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         protected internal async Task<FAQ> _AddFAQ(FAQ                            FAQ,
                                                           Action<FAQ, EventTracking_Id>  OnAdded           = null,
-                                                          EventTracking_Id                       EventTrackingId   = null,
+                                                          EventTracking_Id?                      EventTrackingId   = null,
                                                           User_Id?                               CurrentUserId     = null)
         {
 
@@ -38402,7 +38401,7 @@ namespace social.OpenData.UsersAPI
 
 
             var OnFAQAddedLocal = OnFAQAdded;
-            if (OnFAQAddedLocal != null)
+            if (OnFAQAddedLocal is not null)
                 await OnFAQAddedLocal?.Invoke(Timestamp.Now,
                                                       FAQ,
                                                       eventTrackingId,
@@ -38434,7 +38433,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<FAQ> AddFAQ(FAQ                            FAQ,
                                                       Action<FAQ, EventTracking_Id>  OnAdded           = null,
-                                                      EventTracking_Id                       EventTrackingId   = null,
+                                                      EventTracking_Id?                      EventTrackingId   = null,
                                                       User_Id?                               CurrentUserId     = null)
         {
 
@@ -38483,7 +38482,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         protected internal async Task<FAQ> _AddFAQIfNotExists(FAQ                            FAQ,
                                                                      Action<FAQ, EventTracking_Id>  OnAdded           = null,
-                                                                     EventTracking_Id                       EventTrackingId   = null,
+                                                                     EventTracking_Id?                      EventTrackingId   = null,
                                                                      User_Id?                               CurrentUserId     = null)
         {
 
@@ -38515,7 +38514,7 @@ namespace social.OpenData.UsersAPI
             _FAQs.Add(FAQ.Id, FAQ);
 
             var OnFAQAddedLocal = OnFAQAdded;
-            if (OnFAQAddedLocal != null)
+            if (OnFAQAddedLocal is not null)
                 await OnFAQAddedLocal?.Invoke(Timestamp.Now,
                                                       FAQ,
                                                       eventTrackingId,
@@ -38547,7 +38546,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<FAQ> AddFAQIfNotExists(FAQ                            FAQ,
                                                                  Action<FAQ, EventTracking_Id>  OnAdded           = null,
-                                                                 EventTracking_Id                       EventTrackingId   = null,
+                                                                 EventTracking_Id?                      EventTrackingId   = null,
                                                                  User_Id?                               CurrentUserId     = null)
         {
 
@@ -38595,7 +38594,7 @@ namespace social.OpenData.UsersAPI
         protected internal async Task<FAQ> _AddOrUpdateFAQ(FAQ                            FAQ,
                                                                   Action<FAQ, EventTracking_Id>  OnAdded           = null,
                                                                   Action<FAQ, EventTracking_Id>  OnUpdated         = null,
-                                                                  EventTracking_Id                       EventTrackingId   = null,
+                                                                  EventTracking_Id?                      EventTrackingId   = null,
                                                                   User_Id?                               CurrentUserId     = null)
         {
 
@@ -38636,7 +38635,7 @@ namespace social.OpenData.UsersAPI
             {
 
                 var OnFAQUpdatedLocal = OnFAQUpdated;
-                if (OnFAQUpdatedLocal != null)
+                if (OnFAQUpdatedLocal is not null)
                     await OnFAQUpdatedLocal?.Invoke(Timestamp.Now,
                                                             FAQ,
                                                             OldFAQ,
@@ -38657,7 +38656,7 @@ namespace social.OpenData.UsersAPI
             {
 
                 var OnFAQAddedLocal = OnFAQAdded;
-                if (OnFAQAddedLocal != null)
+                if (OnFAQAddedLocal is not null)
                     await OnFAQAddedLocal?.Invoke(Timestamp.Now,
                                                           FAQ,
                                                           eventTrackingId,
@@ -38693,7 +38692,7 @@ namespace social.OpenData.UsersAPI
         public async Task<FAQ> AddOrUpdateFAQ(FAQ                            FAQ,
                                                               Action<FAQ, EventTracking_Id>  OnAdded           = null,
                                                               Action<FAQ, EventTracking_Id>  OnUpdated         = null,
-                                                              EventTracking_Id                       EventTrackingId   = null,
+                                                              EventTracking_Id?                      EventTrackingId   = null,
                                                               User_Id?                               CurrentUserId     = null)
         {
 
@@ -38743,7 +38742,7 @@ namespace social.OpenData.UsersAPI
         public delegate Task OnFAQUpdatedDelegate(DateTime          Timestamp,
                                                           FAQ       FAQ,
                                                           FAQ       OldFAQ,
-                                                          EventTracking_Id  EventTrackingId   = null,
+                                                          EventTracking_Id? EventTrackingId   = null,
                                                           User_Id?          CurrentUserId     = null);
 
         /// <summary>
@@ -38763,7 +38762,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional FAQ identification initiating this command/request.</param>
         protected internal async Task<FAQ> _UpdateFAQ(FAQ                            FAQ,
                                                              Action<FAQ, EventTracking_Id>  OnUpdated         = null,
-                                                             EventTracking_Id                       EventTrackingId   = null,
+                                                             EventTracking_Id?                      EventTrackingId   = null,
                                                              User_Id?                               CurrentUserId     = null)
         {
 
@@ -38794,7 +38793,7 @@ namespace social.OpenData.UsersAPI
 
 
             var OnFAQUpdatedLocal = OnFAQUpdated;
-            if (OnFAQUpdatedLocal != null)
+            if (OnFAQUpdatedLocal is not null)
                 await OnFAQUpdatedLocal?.Invoke(Timestamp.Now,
                                                         FAQ,
                                                         OldFAQ,
@@ -38827,7 +38826,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional FAQ identification initiating this command/request.</param>
         public async Task<FAQ> UpdateFAQ(FAQ                            FAQ,
                                                          Action<FAQ, EventTracking_Id>  OnUpdated         = null,
-                                                         EventTracking_Id                       EventTrackingId   = null,
+                                                         EventTracking_Id?                      EventTrackingId   = null,
                                                          User_Id?                               CurrentUserId     = null)
         {
 
@@ -38875,7 +38874,7 @@ namespace social.OpenData.UsersAPI
         protected internal async Task<FAQ> _UpdateFAQ(FAQ_Id                         FAQId,
                                                              Action<FAQ.Builder>            UpdateDelegate,
                                                              Action<FAQ, EventTracking_Id>  OnUpdated         = null,
-                                                             EventTracking_Id                       EventTrackingId   = null,
+                                                             EventTracking_Id?                      EventTrackingId   = null,
                                                              User_Id?                               CurrentUserId     = null)
         {
 
@@ -38908,7 +38907,7 @@ namespace social.OpenData.UsersAPI
 
 
             var OnFAQUpdatedLocal = OnFAQUpdated;
-            if (OnFAQUpdatedLocal != null)
+            if (OnFAQUpdatedLocal is not null)
                 await OnFAQUpdatedLocal?.Invoke(Timestamp.Now,
                                                         NewFAQ,
                                                         OldFAQ,
@@ -38943,7 +38942,7 @@ namespace social.OpenData.UsersAPI
         public async Task<FAQ> UpdateFAQ(FAQ_Id                         FAQId,
                                                          Action<FAQ.Builder>            UpdateDelegate,
                                                          Action<FAQ, EventTracking_Id>  OnUpdated         = null,
-                                                         EventTracking_Id                       EventTrackingId   = null,
+                                                         EventTracking_Id?                      EventTrackingId   = null,
                                                          User_Id?                               CurrentUserId     = null)
         {
 
@@ -39149,7 +39148,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">The invoking FAQ identification</param>
         public delegate Task OnFAQRemovedDelegate(DateTime          Timestamp,
                                                           FAQ       FAQ,
-                                                          EventTracking_Id  EventTrackingId   = null,
+                                                          EventTracking_Id? EventTrackingId   = null,
                                                           User_Id?          CurrentUserId     = null);
 
         /// <summary>
@@ -39228,7 +39227,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional FAQ identification initiating this command/request.</param>
         protected internal async Task<DeleteFAQResult> _RemoveFAQ(FAQ                            FAQ,
                                                                          Action<FAQ, EventTracking_Id>  OnRemoved         = null,
-                                                                         EventTracking_Id                       EventTrackingId   = null,
+                                                                         EventTracking_Id?                      EventTrackingId   = null,
                                                                          User_Id?                               CurrentUserId     = null)
         {
 
@@ -39257,7 +39256,7 @@ namespace social.OpenData.UsersAPI
 
 
                 var OnFAQRemovedLocal = OnFAQRemoved;
-                if (OnFAQRemovedLocal != null)
+                if (OnFAQRemovedLocal is not null)
                     await OnFAQRemovedLocal?.Invoke(Timestamp.Now,
                                                             FAQ,
                                                             eventTrackingId,
@@ -39293,7 +39292,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional FAQ identification initiating this command/request.</param>
         public async Task<DeleteFAQResult> RemoveFAQ(FAQ                            FAQ,
                                                                      Action<FAQ, EventTracking_Id>  OnRemoved         = null,
-                                                                     EventTracking_Id                       EventTrackingId   = null,
+                                                                     EventTracking_Id?                      EventTrackingId   = null,
                                                                      User_Id?                               CurrentUserId     = null)
         {
 

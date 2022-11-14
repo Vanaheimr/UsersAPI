@@ -548,10 +548,10 @@ namespace social.OpenData.UsersAPI.tests
             #endregion
 
 
-            Assert.IsTrue(nullMailer.EMails.Any(), "Not a single notification e-mail was sent!");
+            Assert.IsTrue(nullMailer.EMailEnvelops.Any(), "Not a single notification e-mail was sent!");
 
-            var maxEMailSubjectLength  = nullMailer.EMails.Max   (emailEnvelope => emailEnvelope.Mail.Subject.Length);
-            var allEMailNotifications  = nullMailer.EMails.Select(emailEnvelope => emailEnvelope.Mail.Subject.PadRight(maxEMailSubjectLength + 2) + " => " + emailEnvelope.RcptTo.Select(email => email.Address).OrderBy(_ => _).AggregateWith(", ")).ToArray();
+            var maxEMailSubjectLength  = nullMailer.EMailEnvelops.Max   (emailEnvelope => emailEnvelope.Mail.Subject.Length);
+            var allEMailNotifications  = nullMailer.EMailEnvelops.Select(emailEnvelope => emailEnvelope.Mail.Subject.PadRight(maxEMailSubjectLength + 2) + " => " + emailEnvelope.RcptTo.Select(email => email.Address).OrderBy(_ => _).AggregateWith(", ")).ToArray();
             var eMailOverview          = allEMailNotifications.AggregateWith(Environment.NewLine);
 
             // User 'API Admin 02' was successfully created.                                            => apiAdmin01@test.local
