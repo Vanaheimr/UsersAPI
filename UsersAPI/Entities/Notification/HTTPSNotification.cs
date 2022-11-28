@@ -41,43 +41,43 @@ namespace social.OpenData.UsersAPI.Notifications
     public static class HTTPSNotificationExtensions
     {
 
-        #region AddHTTPSNotification(this UsersAPI, User, NotificationMessageType,  RemoteURL, Method = null, BasicAuth_Login = null, BasicAuth_Password = null, APIKey = null)
+        #region AddHTTPSNotification(this UsersAPI, User, NotificationMessageType,  RemoteURL, Method = null, BasicAuthenticationLogin = null, BasicAuthenticationPassword = null, APIKey = null)
 
         public static Task AddHTTPSNotification(this UsersAPI            UsersAPI,
                                                 User                     User,
                                                 NotificationMessageType  NotificationMessageType,
                                                 URL                      RemoteURL,
                                                 HTTPMethod?              Method               = null,
-                                                String                   BasicAuth_Login      = null,
-                                                String                   BasicAuth_Password   = null,
+                                                String                   BasicAuthenticationLogin      = null,
+                                                String                   BasicAuthenticationPassword   = null,
                                                 APIKey_Id?               APIKey               = null)
 
             => UsersAPI.AddNotification(User,
                                         new HTTPSNotification(RemoteURL,
                                                               Method,
-                                                              BasicAuth_Login,
-                                                              BasicAuth_Password,
+                                                              BasicAuthenticationLogin,
+                                                              BasicAuthenticationPassword,
                                                               APIKey),
                                         NotificationMessageType);
 
         #endregion
 
-        #region AddHTTPSNotification(this UsersAPI, User, NotificationMessageTypes, RemoteURL, Method = null, BasicAuth_Login = null, BasicAuth_Password = null, APIKey = null)
+        #region AddHTTPSNotification(this UsersAPI, User, NotificationMessageTypes, RemoteURL, Method = null, BasicAuthenticationLogin = null, BasicAuthenticationPassword = null, APIKey = null)
 
         public static Task AddHTTPSNotification(this UsersAPI                         UsersAPI,
                                                 User                                  User,
                                                 IEnumerable<NotificationMessageType>  NotificationMessageTypes,
                                                 URL                                   RemoteURL,
                                                 HTTPMethod?                           Method               = null,
-                                                String                                BasicAuth_Login      = null,
-                                                String                                BasicAuth_Password   = null,
+                                                String                                BasicAuthenticationLogin      = null,
+                                                String                                BasicAuthenticationPassword   = null,
                                                 APIKey_Id?                            APIKey               = null)
 
             => UsersAPI.AddNotification(User,
                                         new HTTPSNotification(RemoteURL,
                                                               Method,
-                                                              BasicAuth_Login,
-                                                              BasicAuth_Password,
+                                                              BasicAuthenticationLogin,
+                                                              BasicAuthenticationPassword,
                                                               APIKey),
                                         NotificationMessageTypes);
 
@@ -124,52 +124,52 @@ namespace social.OpenData.UsersAPI.Notifications
         //public static Notifications UnregisterHTTPSNotification(this UsersAPI  UsersAPI,
         //                                                        User           User,
         //                                                        String         URL,
-        //                                                        String         BasicAuth_Login     = null,
-        //                                                        String         BasicAuth_Password  = null)
+        //                                                        String         BasicAuthenticationLogin     = null,
+        //                                                        String         BasicAuthenticationPassword  = null)
 
         //    => UsersAPI.UnregisterNotification<HTTPSNotification>(User,
         //                                                          a => a.URL                == URL &&
-        //                                                               a.BasicAuth_Login    == BasicAuth_Login &&
-        //                                                               a.BasicAuth_Password == BasicAuth_Password);
+        //                                                               a.BasicAuthenticationLogin    == BasicAuthenticationLogin &&
+        //                                                               a.BasicAuthenticationPassword == BasicAuthenticationPassword);
 
 
         //public static Notifications UnregisterHTTPSNotification(this UsersAPI  UsersAPI,
         //                                                        User_Id        User,
         //                                                        String         URL,
-        //                                                        String         BasicAuth_Login     = null,
-        //                                                        String         BasicAuth_Password  = null)
+        //                                                        String         BasicAuthenticationLogin     = null,
+        //                                                        String         BasicAuthenticationPassword  = null)
 
         //    => UsersAPI.UnregisterNotification<HTTPSNotification>(User,
         //                                                          a => a.URL                == URL &&
-        //                                                               a.BasicAuth_Login    == BasicAuth_Login &&
-        //                                                               a.BasicAuth_Password == BasicAuth_Password);
+        //                                                               a.BasicAuthenticationLogin    == BasicAuthenticationLogin &&
+        //                                                               a.BasicAuthenticationPassword == BasicAuthenticationPassword);
 
 
         //public static Notifications UnregisterHTTPSNotification(this UsersAPI    UsersAPI,
         //                                                        User             User,
         //                                                        NotificationMessageType  NotificationMessageType,
         //                                                        String           URL,
-        //                                                        String           BasicAuth_Login     = null,
-        //                                                        String           BasicAuth_Password  = null)
+        //                                                        String           BasicAuthenticationLogin     = null,
+        //                                                        String           BasicAuthenticationPassword  = null)
 
         //    => UsersAPI.UnregisterNotification<HTTPSNotification>(User,
         //                                                          NotificationMessageType,
         //                                                          a => a.URL                == URL &&
-        //                                                               a.BasicAuth_Login    == BasicAuth_Login &&
-        //                                                               a.BasicAuth_Password == BasicAuth_Password);
+        //                                                               a.BasicAuthenticationLogin    == BasicAuthenticationLogin &&
+        //                                                               a.BasicAuthenticationPassword == BasicAuthenticationPassword);
 
         //public static Notifications UnregisterHTTPSNotification(this UsersAPI    UsersAPI,
         //                                                        User_Id          User,
         //                                                        NotificationMessageType  NotificationMessageType,
         //                                                        String           URL,
-        //                                                        String           BasicAuth_Login     = null,
-        //                                                        String           BasicAuth_Password  = null)
+        //                                                        String           BasicAuthenticationLogin     = null,
+        //                                                        String           BasicAuthenticationPassword  = null)
 
         //    => UsersAPI.UnregisterNotification<HTTPSNotification>(User,
         //                                                          NotificationMessageType,
         //                                                          a => a.URL                == URL &&
-        //                                                               a.BasicAuth_Login    == BasicAuth_Login &&
-        //                                                               a.BasicAuth_Password == BasicAuth_Password);
+        //                                                               a.BasicAuthenticationLogin    == BasicAuthenticationLogin &&
+        //                                                               a.BasicAuthenticationPassword == BasicAuthenticationPassword);
 
     }
 
@@ -206,12 +206,12 @@ namespace social.OpenData.UsersAPI.Notifications
         /// <summary>
         /// An optional HTTP Basic Auth login for the HTTPS notification.
         /// </summary>
-        public String      BasicAuth_Login       { get; }
+        public String      BasicAuthenticationLogin       { get; }
 
         /// <summary>
         /// An optional HTTP Basic Auth password for the HTTPS notification.
         /// </summary>
-        public String      BasicAuth_Password    { get; }
+        public String      BasicAuthenticationPassword    { get; }
 
         /// <summary>
         /// An optional HTTP API Key for the HTTPS notification.
@@ -232,16 +232,16 @@ namespace social.OpenData.UsersAPI.Notifications
         /// </summary>
         /// <param name="RemoteURL">The URL of this HTTPS notification.</param>
         /// <param name="Method">The HTTP method of this HTTPS notification.</param>
-        /// <param name="BasicAuth_Login">An optional HTTP Basic Auth login for the HTTPS notification.</param>
-        /// <param name="BasicAuth_Password">An optional HTTP Basic Auth password for the HTTPS notification.</param>
+        /// <param name="BasicAuthenticationLogin">An optional HTTP Basic Auth login for the HTTPS notification.</param>
+        /// <param name="BasicAuthenticationPassword">An optional HTTP Basic Auth password for the HTTPS notification.</param>
         /// <param name="APIKey">An optional HTTP API Key for the HTTPS notification.</param>
         /// <param name="RequestTimeout"></param>
         /// <param name="NotificationMessageTypes">An optional enumeration of notification message types.</param>
         /// <param name="Description">Some description to remember why this notification was created.</param>
         public HTTPSNotification(URL                                   RemoteURL,
                                  HTTPMethod?                           Method                     = null,
-                                 String                                BasicAuth_Login            = null,
-                                 String                                BasicAuth_Password         = null,
+                                 String                                BasicAuthenticationLogin            = null,
+                                 String                                BasicAuthenticationPassword         = null,
                                  APIKey_Id?                            APIKey                     = null,
                                  TimeSpan?                             RequestTimeout             = null,
                                  IEnumerable<NotificationMessageType>  NotificationMessageTypes   = null,
@@ -257,8 +257,8 @@ namespace social.OpenData.UsersAPI.Notifications
 
             this.RemoteURL           = RemoteURL;
             this.Method              = Method ?? HTTPMethod.POST;
-            this.BasicAuth_Login     = BasicAuth_Login;
-            this.BasicAuth_Password  = BasicAuth_Password;
+            this.BasicAuthenticationLogin     = BasicAuthenticationLogin;
+            this.BasicAuthenticationPassword  = BasicAuthenticationPassword;
             this.APIKey              = APIKey;
             this.RequestTimeout      = RequestTimeout;
 
@@ -325,12 +325,12 @@ namespace social.OpenData.UsersAPI.Notifications
                    new JProperty("method",                Method.ToString()),
                    new JProperty("URL",                   RemoteURL.ToString()),
 
-                   BasicAuth_Login.   IsNotNullOrEmpty() &&
-                   BasicAuth_Password.IsNotNullOrEmpty()
+                   BasicAuthenticationLogin.   IsNotNullOrEmpty() &&
+                   BasicAuthenticationPassword.IsNotNullOrEmpty()
                        ? new JProperty("basicAuth",
                              new JObject(
-                                 new JProperty("login",     BasicAuth_Login),
-                                 new JProperty("password",  BasicAuth_Password)
+                                 new JProperty("login",     BasicAuthenticationLogin),
+                                 new JProperty("password",  BasicAuthenticationPassword)
                              )
                          )
                        : null,
@@ -368,8 +368,8 @@ namespace social.OpenData.UsersAPI.Notifications
             => Method.   Equals(other.Method)                              &&
                RemoteURL.Equals(other.RemoteURL)                           &&
 
-               String.Equals(BasicAuth_Login,    other.BasicAuth_Login)    &&
-               String.Equals(BasicAuth_Password, other.BasicAuth_Password) &&
+               String.Equals(BasicAuthenticationLogin,    other.BasicAuthenticationLogin)    &&
+               String.Equals(BasicAuthenticationPassword, other.BasicAuthenticationPassword) &&
                String.Equals(APIKey,             other.APIKey)             &&
 
                String.Equals(Description,        other.Description)        &&

@@ -3917,10 +3917,10 @@ namespace social.OpenData.UsersAPI
                                                    API_Key        = notification.APIKey.HasValue
                                                                         ? notification.APIKey
                                                                         : null,
-                                                   Authorization  = notification.BasicAuth_Login.   IsNotNullOrEmpty() &&
-                                                                    notification.BasicAuth_Password.IsNotNullOrEmpty()
-                                                                        ? new HTTPBasicAuthentication(notification.BasicAuth_Login,
-                                                                                                      notification.BasicAuth_Password)
+                                                   Authorization  = notification.BasicAuthenticationLogin.   IsNotNullOrEmpty() &&
+                                                                    notification.BasicAuthenticationPassword.IsNotNullOrEmpty()
+                                                                        ? new HTTPBasicAuthentication(notification.BasicAuthenticationLogin,
+                                                                                                      notification.BasicAuthenticationPassword)
                                                                         : null
                                     };
 
