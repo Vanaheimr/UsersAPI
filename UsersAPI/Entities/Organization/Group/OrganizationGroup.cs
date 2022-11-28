@@ -234,11 +234,11 @@ namespace social.OpenData.UsersAPI
         /// <param name="OrganizationGroup">The parsed organization group.</param>
         /// <param name="ErrorResponse">An error message.</param>
         /// <param name="OrganizationGroupIdURL">An optional OrganizationGroup identification, e.g. from the HTTP URL.</param>
-        public static Boolean TryParseJSON(JObject                    JSONObject,
+        public static Boolean TryParseJSON(JObject                            JSONObject,
                                            OrganizationGroupProviderDelegate  OrganizationGroupProvider,
                                            OrganizationProviderDelegate       OrganizationProvider,
-                                           out OrganizationGroup              OrganizationGroup,
-                                           out String                 ErrorResponse,
+                                           out OrganizationGroup?             OrganizationGroup,
+                                           out String?                        ErrorResponse,
                                            OrganizationGroup_Id?              OrganizationGroupIdURL = null)
         {
 
@@ -257,16 +257,14 @@ namespace social.OpenData.UsersAPI
 
                 // Verify that a given OrganizationGroup identification
                 //   is at least valid.
-                if (JSONObject.ParseOptionalStruct("@id",
-                                                   "OrganizationGroup identification",
-                                                   OrganizationGroup_Id.TryParse,
-                                                   out OrganizationGroup_Id? OrganizationGroupIdBody,
-                                                   out ErrorResponse))
+                if (JSONObject.ParseOptional("@id",
+                                             "OrganizationGroup identification",
+                                             OrganizationGroup_Id.TryParse,
+                                             out OrganizationGroup_Id? OrganizationGroupIdBody,
+                                             out ErrorResponse))
                 {
-
                     if (ErrorResponse is not null)
                         return false;
-
                 }
 
                 if (!OrganizationGroupIdURL.HasValue && !OrganizationGroupIdBody.HasValue)
@@ -331,28 +329,26 @@ namespace social.OpenData.UsersAPI
                 #endregion
 
 
-                #region Parse ParentGroup identification    [optional]
+                #region Parse ParentGroup identification      [optional]
 
-                if (JSONObject.ParseOptionalStruct("parentGroupId",
-                                                   "parentgroup identification",
-                                                   OrganizationGroup_Id.TryParse,
-                                                   out OrganizationGroup_Id? ParentGroupId,
-                                                   out ErrorResponse))
+                if (JSONObject.ParseOptional("parentGroupId",
+                                             "parentgroup identification",
+                                             OrganizationGroup_Id.TryParse,
+                                             out OrganizationGroup_Id? ParentGroupId,
+                                             out ErrorResponse))
                 {
-
                     if (ErrorResponse is not null)
                         return false;
-
                 }
 
-                OrganizationGroup ParentGroup = null;
+                OrganizationGroup? ParentGroup = null;
 
                 if (ParentGroupId.HasValue)
                     OrganizationGroupProvider(ParentGroupId.Value, out ParentGroup);
 
                 #endregion
 
-                #region Parse Subgroup identifications      [optional]
+                #region Parse Subgroup identifications        [optional]
 
                 if (JSONObject.ParseOptional("SubgroupIds",
                                              "subgroup identifications",
@@ -383,7 +379,7 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                #region Parse Organization identifications          [optional]
+                #region Parse Organization identifications    [optional]
 
                 if (JSONObject.ParseOptional("organizationIds",
                                              "organization identifications",
@@ -449,7 +445,7 @@ namespace social.OpenData.UsersAPI
             }
             catch (Exception e)
             {
-                ErrorResponse       = e.Message;
+                ErrorResponse      = e.Message;
                 OrganizationGroup  = null;
                 return false;
             }

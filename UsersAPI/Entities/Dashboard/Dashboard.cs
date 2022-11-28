@@ -277,10 +277,10 @@ namespace social.OpenData.UsersAPI
 
         #region (static) TryParseJSON(JSONObject, ..., out Dashboard, out ErrorResponse)
 
-        public static Boolean TryParseJSON(JObject        JSONObject,
-                                           out Dashboard  Dashboard,
-                                           out String     ErrorResponse,
-                                           Dashboard_Id?  DashboardIdURL  = null)
+        public static Boolean TryParseJSON(JObject         JSONObject,
+                                           out Dashboard?  Dashboard,
+                                           out String?     ErrorResponse,
+                                           Dashboard_Id?   DashboardIdURL  = null)
         {
 
             try
@@ -292,11 +292,11 @@ namespace social.OpenData.UsersAPI
 
                 // Verify that a given Dashboard identification
                 //   is at least valid.
-                if (JSONObject.ParseOptionalStruct("@id",
-                                                   "dashboard identification",
-                                                   Dashboard_Id.TryParse,
-                                                   out Dashboard_Id? DashboardIdBody,
-                                                   out ErrorResponse))
+                if (JSONObject.ParseOptional("@id",
+                                             "dashboard identification",
+                                             Dashboard_Id.TryParse,
+                                             out Dashboard_Id? DashboardIdBody,
+                                             out ErrorResponse))
                 {
 
                     if (ErrorResponse is not null)

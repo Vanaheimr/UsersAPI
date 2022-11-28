@@ -287,8 +287,8 @@ namespace social.OpenData.UsersAPI
 
         public static Boolean TryParseJSON(JObject               JSONObject,
                                            UserProviderDelegate  UserProvider,
-                                           out NewsBanner        NewsBanner,
-                                           out String            ErrorResponse,
+                                           out NewsBanner?       NewsBanner,
+                                           out String?           ErrorResponse,
                                            NewsBanner_Id?        NewsBannerIdURL  = null)
         {
 
@@ -301,16 +301,14 @@ namespace social.OpenData.UsersAPI
 
                 // Verify that a given news banner identification
                 //   is at least valid.
-                if (JSONObject.ParseOptionalStruct("@id",
-                                                   "news banner identification",
-                                                   NewsBanner_Id.TryParse,
-                                                   out NewsBanner_Id? NewsBannerIdBody,
-                                                   out ErrorResponse))
+                if (JSONObject.ParseOptional("@id",
+                                             "news banner identification",
+                                             NewsBanner_Id.TryParse,
+                                             out NewsBanner_Id? NewsBannerIdBody,
+                                             out ErrorResponse))
                 {
-
                     if (ErrorResponse is not null)
                         return false;
-
                 }
 
                 if (!NewsBannerIdURL.HasValue && !NewsBannerIdBody.HasValue)

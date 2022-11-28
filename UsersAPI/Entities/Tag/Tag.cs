@@ -144,10 +144,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="Tag">The parsed tag.</param>
         /// <param name="ErrorResponse">An error message.</param>
         /// <param name="TagIdURL">An optional tag identification, e.g. from the HTTP URL.</param>
-        public static Boolean TryParseJSON(JObject     JSONObject,
-                                           out Tag     Tag,
-                                           out String  ErrorResponse,
-                                           Tag_Id?     TagIdURL = null)
+        public static Boolean TryParseJSON(JObject      JSONObject,
+                                           out Tag?     Tag,
+                                           out String?  ErrorResponse,
+                                           Tag_Id?      TagIdURL = null)
         {
 
             try
@@ -165,11 +165,11 @@ namespace social.OpenData.UsersAPI
 
                 // Verify that a given tag identification
                 //   is at least valid.
-                if (JSONObject.ParseOptionalStruct("@id",
-                                                   "tag identification",
-                                                   Tag_Id.TryParse,
-                                                   out Tag_Id? TagIdBody,
-                                                   out ErrorResponse))
+                if (JSONObject.ParseOptional("@id",
+                                             "tag identification",
+                                             Tag_Id.TryParse,
+                                             out Tag_Id? TagIdBody,
+                                             out ErrorResponse))
                 {
 
                     if (ErrorResponse is not null)

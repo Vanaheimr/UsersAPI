@@ -325,8 +325,8 @@ namespace social.OpenData.UsersAPI
 
         public static Boolean TryParseJSON(JObject               JSONObject,
                                            UserProviderDelegate  UserProvider,
-                                           out FAQ               FAQ,
-                                           out String            ErrorResponse,
+                                           out FAQ?              FAQ,
+                                           out String?           ErrorResponse,
                                            FAQ_Id?               FAQIdURL  = null)
         {
 
@@ -339,11 +339,11 @@ namespace social.OpenData.UsersAPI
 
                 // Verify that a given FAQ identification
                 //   is at least valid.
-                if (JSONObject.ParseOptionalStruct("@id",
-                                                   "FAQ identification",
-                                                   FAQ_Id.TryParse,
-                                                   out FAQ_Id? FAQIdBody,
-                                                   out ErrorResponse))
+                if (JSONObject.ParseOptional("@id",
+                                             "FAQ identification",
+                                             FAQ_Id.TryParse,
+                                             out FAQ_Id? FAQIdBody,
+                                             out ErrorResponse))
                 {
 
                     if (ErrorResponse is not null)

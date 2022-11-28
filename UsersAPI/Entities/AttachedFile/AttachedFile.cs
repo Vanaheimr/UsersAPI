@@ -205,10 +205,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="JSONObject">A JSON object.</param>
         /// <param name="AttachedFile">The parsed attached file.</param>
         /// <param name="ErrorResponse">An error message.</param>
-        public static Boolean TryParseJSON(JObject           JSONObject,
-                                           out AttachedFile  AttachedFile,
-                                           out String        ErrorResponse,
-                                           AttachedFile_Id?  AttachedFileIdURL)
+        public static Boolean TryParseJSON(JObject            JSONObject,
+                                           out AttachedFile?  AttachedFile,
+                                           out String?        ErrorResponse,
+                                           AttachedFile_Id?   AttachedFileIdURL)
         {
 
             try
@@ -226,11 +226,11 @@ namespace social.OpenData.UsersAPI
 
                 // Verify that a given AttachedFile identification
                 //   is at least valid.
-                if (JSONObject.ParseOptionalStruct("@id",
-                                                   "attached file identification",
-                                                   AttachedFile_Id.TryParse,
-                                                   out AttachedFile_Id? AttachedFileIdBody,
-                                                   out ErrorResponse))
+                if (JSONObject.ParseOptional("@id",
+                                             "attached file identification",
+                                             AttachedFile_Id.TryParse,
+                                             out AttachedFile_Id? AttachedFileIdBody,
+                                             out ErrorResponse))
                 {
 
                     if (ErrorResponse is not null)

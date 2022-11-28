@@ -450,12 +450,12 @@ namespace social.OpenData.UsersAPI
                                            ServiceTicketProviderDelegate  ServiceTicketProvider,
                                            UserProviderDelegate           UserProvider,
                                            OrganizationProviderDelegate   OrganizationProvider,
-                                           out ServiceTicketChangeSet     ServiceTicketChangeSet,
-                                           out String                     ErrorResponse,
+                                           out ServiceTicketChangeSet?    ServiceTicketChangeSet,
+                                           out String?                    ErrorResponse,
                                            JSONLDContext?                 ExpectedContext               = null,
                                            ServiceTicketChangeSet_Id?     ServiceTicketChangeSetIdURL   = null,
-                                           OverwriteUserDelegate          OverwriteAuthor               = null,
-                                           String                         DataSource                    = null)
+                                           OverwriteUserDelegate?         OverwriteAuthor               = null,
+                                           String?                        DataSource                    = null)
         {
 
             try
@@ -473,11 +473,11 @@ namespace social.OpenData.UsersAPI
 
                 // Verify that a given service ticket change set identification
                 //   is at least valid.
-                if (JSONObject.ParseOptionalStruct("@id",
-                                                   "service ticket change set identification",
-                                                   ServiceTicketChangeSet_Id.TryParse,
-                                                   out ServiceTicketChangeSet_Id? ServiceTicketChangeSetIdBody,
-                                                   out ErrorResponse))
+                if (JSONObject.ParseOptional("@id",
+                                             "service ticket change set identification",
+                                             ServiceTicketChangeSet_Id.TryParse,
+                                             out ServiceTicketChangeSet_Id? ServiceTicketChangeSetIdBody,
+                                             out ErrorResponse))
                 {
 
                     if (ErrorResponse is not null)
@@ -533,14 +533,14 @@ namespace social.OpenData.UsersAPI
 
                 #region Parse Author                     [optional]
 
-                User Author = null;
+                User? Author = null;
 
                 if (JSONObject["author"] is JObject authorJSON &&
-                    authorJSON.ParseOptionalStruct("@id",
-                                                   "author identification",
-                                                   User_Id.TryParse,
-                                                   out User_Id? UserId,
-                                                   out ErrorResponse))
+                    authorJSON.ParseOptional("@id",
+                                             "author identification",
+                                             User_Id.TryParse,
+                                             out User_Id? UserId,
+                                             out ErrorResponse))
                 {
 
                     if (ErrorResponse is not null)
@@ -555,7 +555,7 @@ namespace social.OpenData.UsersAPI
 
                 }
 
-                if (OverwriteAuthor != null)
+                if (OverwriteAuthor is not null && Author is not null)
                     Author = OverwriteAuthor(Author);
 
                 #endregion
@@ -748,7 +748,7 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                var Reactions          = new Tag[0];
+                var Reactions          = Array.Empty<Tag>();
 
                 #region Parse Additional info            [optional]
 
@@ -781,7 +781,7 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                var TicketReferences   = new ServiceTicketReference[0];
+                var TicketReferences   = Array.Empty<ServiceTicketReference>();
 
                 #region Parse DataLicenseIds             [optional]
 
@@ -854,11 +854,11 @@ namespace social.OpenData.UsersAPI
 
                 #region Parse InReplyTo                  [optional]
 
-                if (JSONObject.ParseOptionalStruct("inReplyTo",
-                                                   "in reply to",
-                                                   ServiceTicketChangeSet_Id.TryParse,
-                                                   out ServiceTicketChangeSet_Id? InReplyTo,
-                                                   out ErrorResponse))
+                if (JSONObject.ParseOptional("inReplyTo",
+                                             "in reply to",
+                                             ServiceTicketChangeSet_Id.TryParse,
+                                             out ServiceTicketChangeSet_Id? InReplyTo,
+                                             out ErrorResponse))
                 {
 
                     if (ErrorResponse is not null)
@@ -868,7 +868,7 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                var CommentReferences  = new ServiceTicketChangeSetReference[0];
+                var CommentReferences  = Array.Empty<ServiceTicketChangeSetReference>();
 
 
                 #region Parse CryptoHash                 [optional]
@@ -911,7 +911,7 @@ namespace social.OpenData.UsersAPI
             }
             catch (Exception e)
             {
-                ErrorResponse  = e.Message;
+                ErrorResponse           = e.Message;
                 ServiceTicketChangeSet  = null;
                 return false;
             }

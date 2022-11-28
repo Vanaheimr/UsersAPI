@@ -191,8 +191,8 @@ namespace social.OpenData.UsersAPI
 
         public static Boolean TryParse(JObject               JSON,
                                        UserProviderDelegate  UserProvider,
-                                       out APIKey            APIKey,
-                                       out String            ErrorResponse,
+                                       out APIKey?           APIKey,
+                                       out String?           ErrorResponse,
                                        APIKey_Id?            APIKeyURI = null)
         {
 
@@ -204,11 +204,11 @@ namespace social.OpenData.UsersAPI
                 #region Parse APIKey                    [optional]
 
                 // Verify that a given API key is at least valid.
-                if (!JSON.ParseOptionalStruct("@id",
-                                                    "API key",
-                                                    APIKey_Id.TryParse,
-                                                    out APIKey_Id? APIKeyBody,
-                                                    out ErrorResponse))
+                if (!JSON.ParseOptional("@id",
+                                        "API key",
+                                        APIKey_Id.TryParse,
+                                        out APIKey_Id? APIKeyBody,
+                                        out ErrorResponse))
                 {
                     return false;
                 }

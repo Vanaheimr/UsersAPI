@@ -214,8 +214,8 @@ namespace social.OpenData.UsersAPI.Notifications
 
         public static Boolean TryParseJSON(JObject                              JSONObject,
                                            Func<Organization_Id, Organization>  OrganizationProvider,
-                                           out NotificationMessage              NotificationMessage,
-                                           out String                           ErrorResponse,
+                                           out NotificationMessage?             NotificationMessage,
+                                           out String?                          ErrorResponse,
                                            NotificationMessage_Id?              NotificationMessageIdURL = null)
         {
 
@@ -235,11 +235,11 @@ namespace social.OpenData.UsersAPI.Notifications
 
                 // Verify that a given NotificationMessage identification
                 //   is at least valid.
-                if (JSONObject.ParseOptionalStruct("@id",
-                                                   "NotificationMessage identification",
-                                                   NotificationMessage_Id.TryParse,
-                                                   out NotificationMessage_Id? NotificationMessageIdBody,
-                                                   out ErrorResponse))
+                if (JSONObject.ParseOptional("@id",
+                                             "NotificationMessage identification",
+                                             NotificationMessage_Id.TryParse,
+                                             out NotificationMessage_Id? NotificationMessageIdBody,
+                                             out ErrorResponse))
                 {
 
                     if (ErrorResponse is not null)

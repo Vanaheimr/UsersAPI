@@ -357,11 +357,11 @@ namespace social.OpenData.UsersAPI
 
                 // Verify that a given blog posting identification
                 //   is at least valid.
-                if (JSONObject.ParseOptionalStruct("@id",
-                                                   "blog posting identification",
-                                                   BlogPosting_Id.TryParse,
-                                                   out BlogPosting_Id? BlogPostingIdBody,
-                                                   out ErrorResponse))
+                if (JSONObject.ParseOptional("@id",
+                                             "blog posting identification",
+                                             BlogPosting_Id.TryParse,
+                                             out BlogPosting_Id? BlogPostingIdBody,
+                                             out ErrorResponse))
                 {
 
                     if (ErrorResponse is not null)

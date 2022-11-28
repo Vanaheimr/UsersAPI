@@ -36,19 +36,19 @@ namespace social.OpenData.users.api.tests
         [Test]
         public void Parse_Null()
         {
-            Assert.Throws<ArgumentNullException>(() => HTTPCookieName.Parse(null));
+            Assert.Throws<ArgumentException>(() => HTTPCookieName.Parse(null));
         }
 
         [Test]
         public void Parse_Empty()
         {
-            Assert.Throws<ArgumentNullException>(() => HTTPCookieName.Parse(""));
+            Assert.Throws<ArgumentException>(() => HTTPCookieName.Parse(""));
         }
 
         [Test]
         public void Parse_Whitespace()
         {
-            Assert.Throws<ArgumentNullException>(() => HTTPCookieName.Parse("   "));
+            Assert.Throws<ArgumentException>(() => HTTPCookieName.Parse("   "));
         }
 
         [Test]

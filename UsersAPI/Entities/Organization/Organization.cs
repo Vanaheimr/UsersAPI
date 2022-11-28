@@ -982,16 +982,14 @@ namespace social.OpenData.UsersAPI
 
                 // Verify that a given organization identification
                 //   is at least valid.
-                if (JSONObject.ParseOptionalStruct("@id",
-                                                   "organization identification",
-                                                   Organization_Id.TryParse,
-                                                   out Organization_Id? OrganizationIdBody,
-                                                   out ErrorResponse))
+                if (JSONObject.ParseOptional("@id",
+                                             "organization identification",
+                                             Organization_Id.TryParse,
+                                             out Organization_Id? OrganizationIdBody,
+                                             out ErrorResponse))
                 {
-
                     if (ErrorResponse is not null)
                         return false;
-
                 }
 
                 if (!OrganizationIdURL.HasValue && !OrganizationIdBody.HasValue)
@@ -1072,16 +1070,14 @@ namespace social.OpenData.UsersAPI
 
                 #region Parse E-Mail           [optional]
 
-                if (JSONObject.ParseOptionalStruct("email",
-                                                   "e-mail address",
-                                                   SimpleEMailAddress.TryParse,
-                                                   out SimpleEMailAddress? EMail,
-                                                   out ErrorResponse))
+                if (JSONObject.ParseOptional("email",
+                                             "e-mail address",
+                                             SimpleEMailAddress.TryParse,
+                                             out SimpleEMailAddress? EMail,
+                                             out ErrorResponse))
                 {
-
                     if (ErrorResponse is not null)
                         return false;
-
                 }
 
                 #endregion

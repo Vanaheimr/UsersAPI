@@ -304,16 +304,14 @@ namespace social.OpenData.UsersAPI
 
                 // Verify that a given News identification
                 //   is at least valid.
-                if (JSONObject.ParseOptionalStruct("@id",
-                                                   "News identification",
-                                                   NewsPosting_Id.TryParse,
-                                                   out NewsPosting_Id? NewsIdBody,
-                                                   out ErrorResponse))
+                if (JSONObject.ParseOptional("@id",
+                                             "News identification",
+                                             NewsPosting_Id.TryParse,
+                                             out NewsPosting_Id? NewsIdBody,
+                                             out ErrorResponse))
                 {
-
                     if (ErrorResponse is not null)
                         return false;
-
                 }
 
                 if (!NewsIdURL.HasValue && !NewsIdBody.HasValue)
@@ -428,7 +426,7 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                var Tags             = new TagRelevance[0];
+                var Tags             = Array.Empty<TagRelevance>();
 
                 #region Parse IsHidden          [optional]
 
@@ -445,7 +443,7 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                var Signatures       = new Signature[0];
+                var Signatures       = Array.Empty<Signature>();
 
                 var CustomData = JSONObject["CustomData"] as JObject;
 

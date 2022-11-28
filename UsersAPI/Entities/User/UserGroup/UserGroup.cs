@@ -625,8 +625,8 @@ namespace social.OpenData.UsersAPI
         public static Boolean TryParseJSON(JObject                    JSONObject,
                                            UserGroupProviderDelegate  UserGroupProvider,
                                            UserProviderDelegate       UserProvider,
-                                           out UserGroup              UserGroup,
-                                           out String                 ErrorResponse,
+                                           out UserGroup?             UserGroup,
+                                           out String?                ErrorResponse,
                                            UserGroup_Id?              UserGroupIdURL = null)
         {
 
@@ -645,11 +645,11 @@ namespace social.OpenData.UsersAPI
 
                 // Verify that a given UserGroup identification
                 //   is at least valid.
-                if (JSONObject.ParseOptionalStruct("@id",
-                                                   "UserGroup identification",
-                                                   UserGroup_Id.TryParse,
-                                                   out UserGroup_Id? UserGroupIdBody,
-                                                   out ErrorResponse))
+                if (JSONObject.ParseOptional("@id",
+                                             "UserGroup identification",
+                                             UserGroup_Id.TryParse,
+                                             out UserGroup_Id? UserGroupIdBody,
+                                             out ErrorResponse))
                 {
 
                     if (ErrorResponse is not null)
@@ -721,11 +721,11 @@ namespace social.OpenData.UsersAPI
 
                 #region Parse ParentGroup identification    [optional]
 
-                if (JSONObject.ParseOptionalStruct("parentGroupId",
-                                                   "parentgroup identification",
-                                                   UserGroup_Id.TryParse,
-                                                   out UserGroup_Id? ParentGroupId,
-                                                   out ErrorResponse))
+                if (JSONObject.ParseOptional("parentGroupId",
+                                             "parentgroup identification",
+                                             UserGroup_Id.TryParse,
+                                             out UserGroup_Id? ParentGroupId,
+                                             out ErrorResponse))
                 {
 
                     if (ErrorResponse is not null)

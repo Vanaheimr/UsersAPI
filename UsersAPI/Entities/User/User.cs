@@ -1013,12 +1013,12 @@ namespace social.OpenData.UsersAPI
 
         #region (static) TryParseJSON(JSONObject, ..., out User, out ErrorResponse, ...)
 
-        public static Boolean TryParseJSON(JObject     JSONObject,
-                                           out User    User,
-                                           out String  ErrorResponse,
-                                           User_Id?    UserIdURL           = null,
-                                           Byte?       MinUserIdLength     = 0,
-                                           Byte?       MinUserNameLength   = 0)
+        public static Boolean TryParseJSON(JObject      JSONObject,
+                                           out User?    User,
+                                           out String?  ErrorResponse,
+                                           User_Id?     UserIdURL           = null,
+                                           Byte?        MinUserIdLength     = 0,
+                                           Byte?        MinUserNameLength   = 0)
         {
 
             try
@@ -1028,11 +1028,11 @@ namespace social.OpenData.UsersAPI
 
                 #region Parse UserId           [optional]
 
-                if (JSONObject.ParseOptionalStruct("@id",
-                                                   "user identification",
-                                                   User_Id.TryParse,
-                                                   out User_Id? UserIdBody,
-                                                   out ErrorResponse))
+                if (JSONObject.ParseOptional("@id",
+                                             "user identification",
+                                             User_Id.TryParse,
+                                             out User_Id? UserIdBody,
+                                             out ErrorResponse))
                 {
 
                     if (ErrorResponse is not null)
@@ -1164,7 +1164,7 @@ namespace social.OpenData.UsersAPI
 
                 if (!JSONObject.ParseOptional("language",
                                               "user language",
-                                              LanguagesExtensions.Parse,
+                                              LanguagesExtensions.TryParse,
                                               out Languages? UserLanguage,
                                               out ErrorResponse))
                 {

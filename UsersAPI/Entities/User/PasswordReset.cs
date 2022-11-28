@@ -298,11 +298,11 @@ namespace social.OpenData.UsersAPI
 
                 #region Parse SecurityToken2     [optional]
 
-                if (JSONObject.ParseOptionalStruct("securityToken2",
-                                                   "security token #2",
-                                                   SecurityToken_Id.TryParse,
-                                                   out SecurityToken_Id? SecurityToken2,
-                                                   out ErrorResponse))
+                if (JSONObject.ParseOptional("securityToken2",
+                                             "security token #2",
+                                             SecurityToken_Id.TryParse,
+                                             out SecurityToken_Id? SecurityToken2,
+                                             out ErrorResponse))
                 {
                     if (ErrorResponse is not null)
                         return false;

@@ -533,13 +533,13 @@ namespace social.OpenData.UsersAPI
                                            ServiceTicketProviderDelegate  ServiceTicketProvider,
                                            UserProviderDelegate           UserProvider,
                                            OrganizationProviderDelegate   OrganizationProvider,
-                                           out ServiceTicket              ServiceTicket,
-                                           out String                     ErrorResponse,
+                                           out ServiceTicket?             ServiceTicket,
+                                           out String?                    ErrorResponse,
                                            JSONLDContext?                 ExpectedContext            = default,
                                            Boolean                        IgnoreChangeSets           = false,
                                            JSONLDContext?                 ExpectedChangeSetContext   = default,
                                            ServiceTicket_Id?              ServiceTicketIdURL         = null,
-                                           OverwriteUserDelegate          OverwriteAuthor            = null)
+                                           OverwriteUserDelegate?         OverwriteAuthor            = null)
         {
 
             try
@@ -581,16 +581,14 @@ namespace social.OpenData.UsersAPI
 
                 // Verify that a given service ticket identification
                 //   is at least valid.
-                if (JSONObject.ParseOptionalStruct("@id",
-                                                   "service ticket identification",
-                                                   ServiceTicket_Id.TryParse,
-                                                   out ServiceTicket_Id? ServiceTicketIdBody,
-                                                   out ErrorResponse))
+                if (JSONObject.ParseOptional("@id",
+                                             "service ticket identification",
+                                             ServiceTicket_Id.TryParse,
+                                             out ServiceTicket_Id? ServiceTicketIdBody,
+                                             out ErrorResponse))
                 {
-
                     if (ErrorResponse is not null)
                         return false;
-
                 }
 
                 if (!ServiceTicketIdURL.HasValue && !ServiceTicketIdBody.HasValue)
@@ -611,14 +609,14 @@ namespace social.OpenData.UsersAPI
 
                 #region Parse Author                     [optional]
 
-                User Author = null;
+                User? Author = null;
 
                 if (JSONObject["author"] is JObject authorJSON &&
-                    authorJSON.ParseOptionalStruct("@id",
-                                                   "author identification",
-                                                   User_Id.TryParse,
-                                                   out User_Id? UserId,
-                                                   out ErrorResponse))
+                    authorJSON.ParseOptional("@id",
+                                             "author identification",
+                                             User_Id.TryParse,
+                                             out User_Id? UserId,
+                                             out ErrorResponse))
                 {
 
                     if (ErrorResponse is not null)
@@ -633,7 +631,7 @@ namespace social.OpenData.UsersAPI
 
                 }
 
-                if (OverwriteAuthor != null)
+                if (OverwriteAuthor is not null && Author is not null)
                     Author = OverwriteAuthor(Author);
 
                 #endregion
