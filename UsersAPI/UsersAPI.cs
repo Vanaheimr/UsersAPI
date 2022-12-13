@@ -90,18 +90,18 @@ namespace social.OpenData.UsersAPI
         /// <param name="UserId">The parsed unique user identification.</param>
         /// <param name="HTTPResponse">A HTTP error response.</param>
         /// <returns>True, when user identification was found; false else.</returns>
-        public static Boolean ParseUserId(this HTTPRequest          HTTPRequest,
-                                          UsersAPI                  UsersAPI,
-                                          out User_Id?              UserId,
-                                          out HTTPResponse.Builder  HTTPResponse)
+        public static Boolean ParseUserId(this HTTPRequest           HTTPRequest,
+                                          UsersAPI                   UsersAPI,
+                                          out User_Id?               UserId,
+                                          out HTTPResponse.Builder?  HTTPResponse)
         {
 
             #region Initial checks
 
-            if (HTTPRequest == null)
+            if (HTTPRequest is null)
                 throw new ArgumentNullException(nameof(HTTPRequest),  "The given HTTP request must not be null!");
 
-            if (UsersAPI    == null)
+            if (UsersAPI    is null)
                 throw new ArgumentNullException(nameof(UsersAPI),     "The given Users API must not be null!");
 
             #endregion
@@ -160,19 +160,19 @@ namespace social.OpenData.UsersAPI
         /// <param name="User">The resolved user.</param>
         /// <param name="HTTPResponse">A HTTP error response.</param>
         /// <returns>True, when user identification was found; false else.</returns>
-        public static Boolean ParseUser(this HTTPRequest          HTTPRequest,
-                                        UsersAPI                  UsersAPI,
-                                        out User_Id?              UserId,
-                                        out User                  User,
-                                        out HTTPResponse.Builder  HTTPResponse)
+        public static Boolean ParseUser(this HTTPRequest           HTTPRequest,
+                                        UsersAPI                   UsersAPI,
+                                        out User_Id?               UserId,
+                                        out User?                  User,
+                                        out HTTPResponse.Builder?  HTTPResponse)
         {
 
             #region Initial checks
 
-            if (HTTPRequest == null)
+            if (HTTPRequest is null)
                 throw new ArgumentNullException(nameof(HTTPRequest),  "The given HTTP request must not be null!");
 
-            if (UsersAPI    == null)
+            if (UsersAPI    is null)
                 throw new ArgumentNullException(nameof(UsersAPI),     "The given Users API must not be null!");
 
             #endregion
@@ -245,18 +245,18 @@ namespace social.OpenData.UsersAPI
         /// <param name="UserGroupId">The parsed unique user identification.</param>
         /// <param name="HTTPResponse">A HTTP error response.</param>
         /// <returns>True, when user identification was found; false else.</returns>
-        public static Boolean ParseUserGroupId(this HTTPRequest          HTTPRequest,
-                                               UsersAPI                  UsersAPI,
-                                               out UserGroup_Id?         UserGroupId,
-                                               out HTTPResponse.Builder  HTTPResponse)
+        public static Boolean ParseUserGroupId(this HTTPRequest           HTTPRequest,
+                                               UsersAPI                   UsersAPI,
+                                               out UserGroup_Id?          UserGroupId,
+                                               out HTTPResponse.Builder?  HTTPResponse)
         {
 
             #region Initial checks
 
-            if (HTTPRequest == null)
+            if (HTTPRequest is null)
                 throw new ArgumentNullException(nameof(HTTPRequest),  "The given HTTP request must not be null!");
 
-            if (UsersAPI    == null)
+            if (UsersAPI    is null)
                 throw new ArgumentNullException(nameof(UsersAPI),     "The given Users API must not be null!");
 
             #endregion
@@ -315,19 +315,19 @@ namespace social.OpenData.UsersAPI
         /// <param name="UserGroup">The resolved user.</param>
         /// <param name="HTTPResponse">A HTTP error response.</param>
         /// <returns>True, when user identification was found; false else.</returns>
-        public static Boolean ParseUserGroup(this HTTPRequest          HTTPRequest,
-                                             UsersAPI                  UsersAPI,
-                                             out UserGroup_Id?         UserGroupId,
-                                             out UserGroup             UserGroup,
-                                             out HTTPResponse.Builder  HTTPResponse)
+        public static Boolean ParseUserGroup(this HTTPRequest           HTTPRequest,
+                                             UsersAPI                   UsersAPI,
+                                             out UserGroup_Id?          UserGroupId,
+                                             out UserGroup?             UserGroup,
+                                             out HTTPResponse.Builder?  HTTPResponse)
         {
 
             #region Initial checks
 
-            if (HTTPRequest == null)
+            if (HTTPRequest is null)
                 throw new ArgumentNullException(nameof(HTTPRequest),  "The given HTTP request must not be null!");
 
-            if (UsersAPI    == null)
+            if (UsersAPI    is null)
                 throw new ArgumentNullException(nameof(UsersAPI),     "The given Users API must not be null!");
 
             #endregion
@@ -400,24 +400,24 @@ namespace social.OpenData.UsersAPI
         /// <param name="OrganizationId">The parsed unique user identification.</param>
         /// <param name="HTTPResponse">A HTTP error response.</param>
         /// <returns>True, when user identification was found; false else.</returns>
-        public static Boolean ParseOrganizationId(this HTTPRequest          HTTPRequest,
-                                                  UsersAPI                  UsersAPI,
-                                                  out Organization_Id?      OrganizationId,
-                                                  out HTTPResponse.Builder  HTTPResponse)
+        public static Boolean ParseOrganizationId(this HTTPRequest           HTTPRequest,
+                                                  UsersAPI                   UsersAPI,
+                                                  out Organization_Id?       OrganizationId,
+                                                  out HTTPResponse.Builder?  HTTPResponse)
         {
 
             #region Initial checks
 
-            if (HTTPRequest == null)
+            if (HTTPRequest is null)
                 throw new ArgumentNullException(nameof(HTTPRequest),  "The given HTTP request must not be null!");
 
-            if (UsersAPI    == null)
+            if (UsersAPI    is null)
                 throw new ArgumentNullException(nameof(UsersAPI),     "The given Organizations API must not be null!");
 
             #endregion
 
-            OrganizationId        = null;
-            HTTPResponse  = null;
+            OrganizationId  = null;
+            HTTPResponse    = null;
 
             if (HTTPRequest.ParsedURLParameters.Length < 1)
             {
@@ -470,19 +470,19 @@ namespace social.OpenData.UsersAPI
         /// <param name="Organization">The resolved user.</param>
         /// <param name="HTTPResponse">A HTTP error response.</param>
         /// <returns>True, when user identification was found; false else.</returns>
-        public static Boolean ParseOrganization(this HTTPRequest          HTTPRequest,
-                                                UsersAPI                  UsersAPI,
-                                                out Organization_Id?      OrganizationId,
-                                                out Organization          Organization,
-                                                out HTTPResponse.Builder  HTTPResponse)
+        public static Boolean ParseOrganization(this HTTPRequest           HTTPRequest,
+                                                UsersAPI                   UsersAPI,
+                                                out Organization_Id?       OrganizationId,
+                                                out Organization?          Organization,
+                                                out HTTPResponse.Builder?  HTTPResponse)
         {
 
             #region Initial checks
 
-            if (HTTPRequest == null)
+            if (HTTPRequest is null)
                 throw new ArgumentNullException(nameof(HTTPRequest),  "The given HTTP request must not be null!");
 
-            if (UsersAPI    == null)
+            if (UsersAPI    is null)
                 throw new ArgumentNullException(nameof(UsersAPI),     "The given Organizations API must not be null!");
 
             #endregion
@@ -555,18 +555,18 @@ namespace social.OpenData.UsersAPI
         /// <param name="BlogPostingId">The parsed unique blog posting identification.</param>
         /// <param name="HTTPResponse">A HTTP error response.</param>
         /// <returns>True, when Blog identification was found; false else.</returns>
-        public static Boolean ParseBlogPostingId(this HTTPRequest          HTTPRequest,
-                                                 UsersAPI                  UsersAPI,
-                                                 out BlogPosting_Id?       BlogPostingId,
-                                                 out HTTPResponse.Builder  HTTPResponse)
+        public static Boolean ParseBlogPostingId(this HTTPRequest           HTTPRequest,
+                                                 UsersAPI                   UsersAPI,
+                                                 out BlogPosting_Id?        BlogPostingId,
+                                                 out HTTPResponse.Builder?  HTTPResponse)
         {
 
             #region Initial checks
 
-            if (HTTPRequest == null)
+            if (HTTPRequest is null)
                 throw new ArgumentNullException(nameof(HTTPRequest),  "The given HTTP request must not be null!");
 
-            if (UsersAPI     == null)
+            if (UsersAPI    is null)
                 throw new ArgumentNullException(nameof(UsersAPI),     "The given UsersAPI must not be null!");
 
             #endregion
@@ -625,19 +625,19 @@ namespace social.OpenData.UsersAPI
         /// <param name="BlogPosting">The resolved Blog.</param>
         /// <param name="HTTPResponse">A HTTP error response.</param>
         /// <returns>True, when Blog identification was found; false else.</returns>
-        public static Boolean ParseBlogPosting(this HTTPRequest          HTTPRequest,
-                                               UsersAPI                  UsersAPI,
-                                               out BlogPosting_Id?       BlogPostingId,
-                                               out BlogPosting           BlogPosting,
-                                               out HTTPResponse.Builder  HTTPResponse)
+        public static Boolean ParseBlogPosting(this HTTPRequest           HTTPRequest,
+                                               UsersAPI                   UsersAPI,
+                                               out BlogPosting_Id?        BlogPostingId,
+                                               out BlogPosting?           BlogPosting,
+                                               out HTTPResponse.Builder?  HTTPResponse)
         {
 
             #region Initial checks
 
-            if (HTTPRequest == null)
+            if (HTTPRequest is null)
                 throw new ArgumentNullException(nameof(HTTPRequest),  "The given HTTP request must not be null!");
 
-            if (UsersAPI     == null)
+            if (UsersAPI    is null)
                 throw new ArgumentNullException(nameof(UsersAPI),     "The given UsersAPI must not be null!");
 
             #endregion
@@ -710,18 +710,18 @@ namespace social.OpenData.UsersAPI
         /// <param name="NewsPostingId">The parsed unique news posting identification.</param>
         /// <param name="HTTPResponse">A HTTP error response.</param>
         /// <returns>True, when News identification was found; false else.</returns>
-        public static Boolean ParseNewsPostingId(this HTTPRequest          HTTPRequest,
-                                                 UsersAPI                  UsersAPI,
-                                                 out NewsPosting_Id?       NewsPostingId,
-                                                 out HTTPResponse.Builder  HTTPResponse)
+        public static Boolean ParseNewsPostingId(this HTTPRequest           HTTPRequest,
+                                                 UsersAPI                   UsersAPI,
+                                                 out NewsPosting_Id?        NewsPostingId,
+                                                 out HTTPResponse.Builder?  HTTPResponse)
         {
 
             #region Initial checks
 
-            if (HTTPRequest == null)
+            if (HTTPRequest is null)
                 throw new ArgumentNullException(nameof(HTTPRequest),  "The given HTTP request must not be null!");
 
-            if (UsersAPI     == null)
+            if (UsersAPI    is null)
                 throw new ArgumentNullException(nameof(UsersAPI),     "The given UsersAPI must not be null!");
 
             #endregion
@@ -780,19 +780,19 @@ namespace social.OpenData.UsersAPI
         /// <param name="NewsPosting">The resolved News.</param>
         /// <param name="HTTPResponse">A HTTP error response.</param>
         /// <returns>True, when News identification was found; false else.</returns>
-        public static Boolean ParseNewsPosting(this HTTPRequest          HTTPRequest,
-                                               UsersAPI                  UsersAPI,
-                                               out NewsPosting_Id?       NewsPostingId,
-                                               out NewsPosting           NewsPosting,
-                                               out HTTPResponse.Builder  HTTPResponse)
+        public static Boolean ParseNewsPosting(this HTTPRequest           HTTPRequest,
+                                               UsersAPI                   UsersAPI,
+                                               out NewsPosting_Id?        NewsPostingId,
+                                               out NewsPosting?           NewsPosting,
+                                               out HTTPResponse.Builder?  HTTPResponse)
         {
 
             #region Initial checks
 
-            if (HTTPRequest == null)
+            if (HTTPRequest is null)
                 throw new ArgumentNullException(nameof(HTTPRequest),  "The given HTTP request must not be null!");
 
-            if (UsersAPI     == null)
+            if (UsersAPI    is null)
                 throw new ArgumentNullException(nameof(UsersAPI),     "The given UsersAPI must not be null!");
 
             #endregion
@@ -865,18 +865,18 @@ namespace social.OpenData.UsersAPI
         /// <param name="NewsBannerId">The parsed unique news posting identification.</param>
         /// <param name="HTTPResponse">A HTTP error response.</param>
         /// <returns>True, when News identification was found; false else.</returns>
-        public static Boolean ParseNewsId(this HTTPRequest          HTTPRequest,
-                                          UsersAPI                  UsersAPI,
-                                          out NewsBanner_Id?        NewsBannerId,
-                                          out HTTPResponse.Builder  HTTPResponse)
+        public static Boolean ParseNewsId(this HTTPRequest           HTTPRequest,
+                                          UsersAPI                   UsersAPI,
+                                          out NewsBanner_Id?         NewsBannerId,
+                                          out HTTPResponse.Builder?  HTTPResponse)
         {
 
             #region Initial checks
 
-            if (HTTPRequest == null)
+            if (HTTPRequest is null)
                 throw new ArgumentNullException(nameof(HTTPRequest),  "The given HTTP request must not be null!");
 
-            if (UsersAPI    == null)
+            if (UsersAPI    is null)
                 throw new ArgumentNullException(nameof(UsersAPI),     "The given UsersAPI must not be null!");
 
             #endregion
@@ -935,26 +935,26 @@ namespace social.OpenData.UsersAPI
         /// <param name="NewsBanner">The resolved News.</param>
         /// <param name="HTTPResponse">A HTTP error response.</param>
         /// <returns>True, when News identification was found; false else.</returns>
-        public static Boolean ParseNewsBanner(this HTTPRequest          HTTPRequest,
-                                              UsersAPI                  UsersAPI,
-                                              out NewsBanner_Id?        NewsBannerId,
-                                              out NewsBanner            NewsBanner,
-                                              out HTTPResponse.Builder  HTTPResponse)
+        public static Boolean ParseNewsBanner(this HTTPRequest           HTTPRequest,
+                                              UsersAPI                   UsersAPI,
+                                              out NewsBanner_Id?         NewsBannerId,
+                                              out NewsBanner?            NewsBanner,
+                                              out HTTPResponse.Builder?  HTTPResponse)
         {
 
             #region Initial checks
 
-            if (HTTPRequest == null)
+            if (HTTPRequest is null)
                 throw new ArgumentNullException(nameof(HTTPRequest),  "The given HTTP request must not be null!");
 
-            if (UsersAPI     == null)
+            if (UsersAPI    is null)
                 throw new ArgumentNullException(nameof(UsersAPI),     "The given UsersAPI must not be null!");
 
             #endregion
 
             NewsBannerId  = null;
             NewsBanner    = null;
-            HTTPResponse   = null;
+            HTTPResponse  = null;
 
             if (HTTPRequest.ParsedURLParameters.Length < 1) {
 
@@ -2717,9 +2717,6 @@ namespace social.OpenData.UsersAPI
         /// <param name="ServerThreadPriority">The optional priority of the TCP server thread.</param>
         /// <param name="ServerThreadIsBackground">Whether the TCP server thread is a background thread or not.</param>
         /// <param name="ConnectionIdBuilder">An optional delegate to build a connection identification based on IP socket information.</param>
-        /// <param name="ConnectionThreadsNameBuilder">An optional delegate to set the name of the TCP connection threads.</param>
-        /// <param name="ConnectionThreadsPriorityBuilder">An optional delegate to set the priority of the TCP connection threads.</param>
-        /// <param name="ConnectionThreadsAreBackground">Whether the TCP connection threads are background threads or not (default: yes).</param>
         /// <param name="ConnectionTimeout">The TCP client timeout for all incoming client connections in seconds (default: 30 sec).</param>
         /// <param name="MaxClientConnections">The maximum number of concurrent TCP client connections (default: 4096).</param>
         /// 
@@ -2786,9 +2783,6 @@ namespace social.OpenData.UsersAPI
                         ThreadPriority?                       ServerThreadPriority               = null,
                         Boolean?                              ServerThreadIsBackground           = null,
                         ConnectionIdBuilder?                  ConnectionIdBuilder                = null,
-                        //ConnectionThreadsNameBuilder?         ConnectionThreadsNameBuilder       = null,
-                        //ConnectionThreadsPriorityBuilder?     ConnectionThreadsPriorityBuilder   = null,
-                        //Boolean?                              ConnectionThreadsAreBackground     = null,
                         TimeSpan?                             ConnectionTimeout                  = null,
                         UInt32?                               MaxClientConnections               = null,
 
@@ -2863,9 +2857,6 @@ namespace social.OpenData.UsersAPI
                    ServerThreadPriority,
                    ServerThreadIsBackground,
                    ConnectionIdBuilder,
-                   //ConnectionThreadsNameBuilder,
-                   //ConnectionThreadsPriorityBuilder,
-                   //ConnectionThreadsAreBackground,
                    ConnectionTimeout,
                    MaxClientConnections,
 
