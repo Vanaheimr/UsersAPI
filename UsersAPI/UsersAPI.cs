@@ -4317,6 +4317,7 @@ namespace social.OpenData.UsersAPI
         #region AddEventSource(HTTPEventSourceId, URLTemplate, IncludeFilterAtRuntime, CreateState, ...)
 
         public void AddEventSource<TData, TState>(HTTPEventSource_Id                             HTTPEventSourceId,
+                                                  HTTPAPI                                        HTTPAPI,
                                                   HTTPPath                                       URLTemplate,
 
                                                   Func<TState, User, HTTPEvent<TData>, Boolean>  IncludeFilterAtRuntime,
@@ -4324,12 +4325,12 @@ namespace social.OpenData.UsersAPI
 
                                                   HTTPHostname?                                  Hostname                   = null,
                                                   HTTPMethod?                                    HttpMethod                 = null,
-                                                  HTTPContentType                                HTTPContentType            = null,
+                                                  HTTPContentType?                               HTTPContentType            = null,
 
-                                                  HTTPAuthentication                             URLAuthentication          = null,
-                                                  HTTPAuthentication                             HTTPMethodAuthentication   = null,
+                                                  HTTPAuthentication?                            URLAuthentication          = null,
+                                                  HTTPAuthentication?                            HTTPMethodAuthentication   = null,
 
-                                                  HTTPDelegate                                   DefaultErrorHandler        = null)
+                                                  HTTPDelegate?                                  DefaultErrorHandler        = null)
         {
 
             if (IncludeFilterAtRuntime == null)
@@ -4338,73 +4339,16 @@ namespace social.OpenData.UsersAPI
             if (TryGet(HTTPEventSourceId, out IHTTPEventSource<TData> _EventSource))
             {
 
-                HTTPServer.AddMethodCallback(Hostname        ?? HTTPHostname.Any,
-                                             HttpMethod      ?? HTTPMethod.GET,
-                                             URLTemplate,
-                                             HTTPContentType ?? HTTPContentType.EVENTSTREAM,
-                                             URLAuthentication:         URLAuthentication,
-                                             HTTPMethodAuthentication:  HTTPMethodAuthentication,
-                                             DefaultErrorHandler:       DefaultErrorHandler,
-                                             HTTPDelegate:              Request => {
+                AddMethodCallback(Hostname        ?? HTTPHostname.Any,
+                                  HttpMethod      ?? HTTPMethod.GET,
+                                  URLTemplate,
+                                  HTTPContentType ?? HTTPContentType.EVENTSTREAM,
+                                  URLAuthentication:         URLAuthentication,
+                                  HTTPMethodAuthentication:  HTTPMethodAuthentication,
+                                  DefaultErrorHandler:       DefaultErrorHandler,
+                                  HTTPDelegate:              Request => {
 
-                                                 #region Get HTTP user and its organizations
-
-                                                 // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
-                                                 if (!TryGetHTTPUser(Request,
-                                                                     out User                   HTTPUser,
-                                                                     out HashSet<Organization>  HTTPOrganizations,
-                                                                     out HTTPResponse.Builder   Response,
-                                                                     AccessLevel:               Access_Levels.ReadWrite,
-                                                                     Recursive:                 true))
-                                                 {
-                                                     return Task.FromResult(Response.AsImmutable);
-                                                 }
-
-                                                 #endregion
-
-                                                 var State        = CreatePerRequestState != null ? CreatePerRequestState() : default(TState);
-                                                 var _HTTPEvents  = _EventSource.GetAllEventsGreater(Request.GetHeaderField_UInt64("Last-Event-ID")).
-                                                                                 Where  (_event => IncludeFilterAtRuntime(State,
-                                                                                                                          HTTPUser,
-                                                                                                                          _event)).
-                                                                                 Reverse().
-                                                                                 Skip   (Request.QueryString.GetUInt64("skip")).
-                                                                                 Take   (Request.QueryString.GetUInt64("take")).
-                                                                                 Reverse().
-                                                                                 Aggregate(new StringBuilder(),
-                                                                                           (stringBuilder, httpEvent) => stringBuilder.Append(httpEvent.SerializedHeader).
-                                                                                                                                       AppendLine(httpEvent.SerializedData).
-                                                                                                                                       AppendLine()).
-                                                                                 Append(Environment.NewLine).
-                                                                                 Append("retry: ").Append((UInt32) _EventSource.RetryIntervall.TotalMilliseconds).
-                                                                                 Append(Environment.NewLine).
-                                                                                 Append(Environment.NewLine).
-                                                                                 ToString();
-
-                                                 return Task.FromResult(
-                                                     new HTTPResponse.Builder(Request) {
-                                                         HTTPStatusCode  = HTTPStatusCode.OK,
-                                                         Server          = HTTPServer.DefaultHTTPServerName,
-                                                         ContentType     = HTTPContentType.EVENTSTREAM,
-                                                         CacheControl    = "no-cache",
-                                                         Connection      = "keep-alive",
-                                                         KeepAlive       = new KeepAliveType(TimeSpan.FromSeconds(2 * _EventSource.RetryIntervall.TotalSeconds)),
-                                                         Content         = _HTTPEvents.ToUTF8Bytes()
-                                                     }.AsImmutable);
-
-                                             });
-
-
-                HTTPServer.AddMethodCallback(Hostname        ?? HTTPHostname.Any,
-                                             HttpMethod      ?? HTTPMethod.GET,
-                                             URLTemplate,
-                                             HTTPContentType ?? HTTPContentType.JSON_UTF8,
-                                             URLAuthentication:         URLAuthentication,
-                                             HTTPMethodAuthentication:  HTTPMethodAuthentication,
-                                             DefaultErrorHandler:       DefaultErrorHandler,
-                                             HTTPDelegate:              Request => {
-
-                                                 #region Get HTTP user and its organizations
+                                      #region Get HTTP user and its organizations
 
                                                  // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
                                                  if (!TryGetHTTPUser(Request,
@@ -4419,36 +4363,93 @@ namespace social.OpenData.UsersAPI
 
                                                  #endregion
 
-                                                 var State        = CreatePerRequestState != null ? CreatePerRequestState() : default(TState);
-                                                 var _HTTPEvents  = _EventSource.Where(httpEvent => IncludeFilterAtRuntime(State,
-                                                                                                                           HTTPUser,
-                                                                                                                           httpEvent)).
-                                                                                 Skip (Request.QueryString.GetUInt64("skip")).
-                                                                                 Take (Request.QueryString.GetUInt64("take")).
-                                                                                 Aggregate(new StringBuilder().AppendLine("["),
-                                                                                           (stringBuilder, httpEvent) => stringBuilder.Append    (@"[""").
-                                                                                                                                       Append    (httpEvent.Subevent ?? "").
-                                                                                                                                       Append    (@""",").
-                                                                                                                                       Append    (httpEvent.SerializedData).
-                                                                                                                                       AppendLine("],")).
-                                                                                 ToString().
-                                                                                 TrimEnd();
+                                      var State        = CreatePerRequestState != null ? CreatePerRequestState() : default(TState);
+                                      var _HTTPEvents  = _EventSource.GetAllEventsGreater(Request.GetHeaderField_UInt64("Last-Event-ID")).
+                                                                      Where  (_event => IncludeFilterAtRuntime(State,
+                                                                                                               HTTPUser,
+                                                                                                               _event)).
+                                                                      Reverse().
+                                                                      Skip   (Request.QueryString.GetUInt64("skip")).
+                                                                      Take   (Request.QueryString.GetUInt64("take")).
+                                                                      Reverse().
+                                                                      Aggregate(new StringBuilder(),
+                                                                                (stringBuilder, httpEvent) => stringBuilder.Append(httpEvent.SerializedHeader).
+                                                                                                                            AppendLine(httpEvent.SerializedData).
+                                                                                                                            AppendLine()).
+                                                                      Append(Environment.NewLine).
+                                                                      Append("retry: ").Append((UInt32) _EventSource.RetryIntervall.TotalMilliseconds).
+                                                                      Append(Environment.NewLine).
+                                                                      Append(Environment.NewLine).
+                                                                      ToString();
+
+                                      return Task.FromResult(
+                                          new HTTPResponse.Builder(Request) {
+                                              HTTPStatusCode  = HTTPStatusCode.OK,
+                                              Server          = HTTPServer.DefaultHTTPServerName,
+                                              ContentType     = HTTPContentType.EVENTSTREAM,
+                                              CacheControl    = "no-cache",
+                                              Connection      = "keep-alive",
+                                              KeepAlive       = new KeepAliveType(TimeSpan.FromSeconds(2 * _EventSource.RetryIntervall.TotalSeconds)),
+                                              Content         = _HTTPEvents.ToUTF8Bytes()
+                                          }.AsImmutable);
+
+                                  });
 
 
-                                                 return Task.FromResult(
-                                                     new HTTPResponse.Builder(Request) {
-                                                         HTTPStatusCode  = HTTPStatusCode.OK,
-                                                         Server          = HTTPServer.DefaultHTTPServerName,
-                                                         ContentType     = HTTPContentType.JSON_UTF8,
-                                                         CacheControl    = "no-cache",
-                                                         Connection      = "keep-alive",
-                                                         KeepAlive       = new KeepAliveType(TimeSpan.FromSeconds(2 * _EventSource.RetryIntervall.TotalSeconds)),
-                                                         Content         = (_HTTPEvents.Length > 1
-                                                                                ? _HTTPEvents.Remove(_HTTPEvents.Length - 1, 1) + Environment.NewLine + "]"
-                                                                                : "]").ToUTF8Bytes()
-                                                     }.AsImmutable);
+                AddMethodCallback(Hostname        ?? HTTPHostname.Any,
+                                  HttpMethod      ?? HTTPMethod.GET,
+                                  URLTemplate,
+                                  HTTPContentType ?? HTTPContentType.JSON_UTF8,
+                                  URLAuthentication:         URLAuthentication,
+                                  HTTPMethodAuthentication:  HTTPMethodAuthentication,
+                                  DefaultErrorHandler:       DefaultErrorHandler,
+                                  HTTPDelegate:              Request => {
 
-                                             });
+                                      #region Get HTTP user and its organizations
+
+                                      // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                      if (!TryGetHTTPUser(Request,
+                                                          out User                   HTTPUser,
+                                                          out HashSet<Organization>  HTTPOrganizations,
+                                                          out HTTPResponse.Builder   Response,
+                                                          AccessLevel:               Access_Levels.ReadWrite,
+                                                          Recursive:                 true))
+                                      {
+                                          return Task.FromResult(Response.AsImmutable);
+                                      }
+
+                                      #endregion
+
+                                      var State        = CreatePerRequestState != null ? CreatePerRequestState() : default(TState);
+                                      var _HTTPEvents  = _EventSource.Where(httpEvent => IncludeFilterAtRuntime(State,
+                                                                                                                HTTPUser,
+                                                                                                                httpEvent)).
+                                                                      Skip (Request.QueryString.GetUInt64("skip")).
+                                                                      Take (Request.QueryString.GetUInt64("take")).
+                                                                      Aggregate(new StringBuilder().AppendLine("["),
+                                                                                (stringBuilder, httpEvent) => stringBuilder.Append    (@"[""").
+                                                                                                                            Append    (httpEvent.Subevent ?? "").
+                                                                                                                            Append    (@""",").
+                                                                                                                            Append    (httpEvent.SerializedData).
+                                                                                                                            AppendLine("],")).
+                                                                      ToString().
+                                                                      TrimEnd();
+
+
+                                      return Task.FromResult(
+                                          new HTTPResponse.Builder(Request) {
+                                              HTTPStatusCode  = HTTPStatusCode.OK,
+                                              Server          = HTTPServer.DefaultHTTPServerName,
+                                              ContentType     = HTTPContentType.JSON_UTF8,
+                                              CacheControl    = "no-cache",
+                                              Connection      = "keep-alive",
+                                              KeepAlive       = new KeepAliveType(TimeSpan.FromSeconds(2 * _EventSource.RetryIntervall.TotalSeconds)),
+                                              Content         = (_HTTPEvents.Length > 1
+                                                                     ? _HTTPEvents.Remove(_HTTPEvents.Length - 1, 1) + Environment.NewLine + "]"
+                                                                     : "]").ToUTF8Bytes()
+                                          }.AsImmutable);
+
+                                  });
 
             }
 
@@ -4462,6 +4463,7 @@ namespace social.OpenData.UsersAPI
         #region AddEventSource(HTTPEventSourceId, URLTemplate, IncludeFilterAtRuntime, CreateState, ...)
 
         public void AddEventSource<TData, TState>(HTTPEventSource_Id                                                        HTTPEventSourceId,
+                                                  HTTPAPI                                                                   HTTPAPI,
                                                   HTTPPath                                                                  URLTemplate,
 
                                                   Func<TState, User, IEnumerable<Organization>, HTTPEvent<TData>, Boolean>  IncludeFilterAtRuntime,
@@ -4469,12 +4471,12 @@ namespace social.OpenData.UsersAPI
 
                                                   HTTPHostname?                                                             Hostname                   = null,
                                                   HTTPMethod?                                                               HttpMethod                 = null,
-                                                  HTTPContentType                                                           HTTPContentType            = null,
+                                                  HTTPContentType?                                                          HTTPContentType            = null,
 
-                                                  HTTPAuthentication                                                        URLAuthentication          = null,
-                                                  HTTPAuthentication                                                        HTTPMethodAuthentication   = null,
+                                                  HTTPAuthentication?                                                       URLAuthentication          = null,
+                                                  HTTPAuthentication?                                                       HTTPMethodAuthentication   = null,
 
-                                                  HTTPDelegate                                                              DefaultErrorHandler        = null)
+                                                  HTTPDelegate?                                                             DefaultErrorHandler        = null)
         {
 
             if (IncludeFilterAtRuntime == null)
@@ -4483,75 +4485,16 @@ namespace social.OpenData.UsersAPI
             if (TryGet<TData>(HTTPEventSourceId, out IHTTPEventSource<TData> _EventSource))
             {
 
-                HTTPServer.AddMethodCallback(Hostname        ?? HTTPHostname.Any,
-                                             HttpMethod      ?? HTTPMethod.GET,
-                                             URLTemplate,
-                                             HTTPContentType ?? HTTPContentType.EVENTSTREAM,
-                                             URLAuthentication:         URLAuthentication,
-                                             HTTPMethodAuthentication:  HTTPMethodAuthentication,
-                                             DefaultErrorHandler:       DefaultErrorHandler,
-                                             HTTPDelegate:              Request => {
+                AddMethodCallback(Hostname        ?? HTTPHostname.Any,
+                                  HttpMethod      ?? HTTPMethod.GET,
+                                  URLTemplate,
+                                  HTTPContentType ?? HTTPContentType.EVENTSTREAM,
+                                  URLAuthentication:         URLAuthentication,
+                                  HTTPMethodAuthentication:  HTTPMethodAuthentication,
+                                  DefaultErrorHandler:       DefaultErrorHandler,
+                                  HTTPDelegate:              Request => {
 
-                                                 #region Get HTTP user and its organizations
-
-                                                 // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
-                                                 if (!TryGetHTTPUser(Request,
-                                                                     out User                   HTTPUser,
-                                                                     out HashSet<Organization>  HTTPOrganizations,
-                                                                     out HTTPResponse.Builder   Response,
-                                                                     AccessLevel:               Access_Levels.ReadWrite,
-                                                                     Recursive:                 true))
-                                                 {
-                                                     return Task.FromResult(Response.AsImmutable);
-                                                 }
-
-                                                 #endregion
-
-                                                 var State        = CreatePerRequestState != null ? CreatePerRequestState() : default;
-                                                 var _HTTPEvents  = _EventSource.GetAllEventsGreater(Request.GetHeaderField_UInt64("Last-Event-ID")).
-                                                                                 Where  (httpEvent => IncludeFilterAtRuntime(State,
-                                                                                                                             HTTPUser,
-                                                                                                                             HTTPOrganizations,
-                                                                                                                             httpEvent)).
-                                                                                 Reverse().
-                                                                                 Skip   (Request.QueryString.GetUInt64("skip")).
-                                                                                 Take   (Request.QueryString.GetUInt64("take")).
-                                                                                 Reverse().
-                                                                                 Aggregate(new StringBuilder(),
-                                                                                           (stringBuilder, httpEvent) => stringBuilder.Append(httpEvent.SerializedHeader).
-                                                                                                                                       AppendLine(httpEvent.SerializedData).
-                                                                                                                                       AppendLine()).
-                                                                                 Append(Environment.NewLine).
-                                                                                 Append("retry: ").Append((UInt32) _EventSource.RetryIntervall.TotalMilliseconds).
-                                                                                 Append(Environment.NewLine).
-                                                                                 Append(Environment.NewLine).
-                                                                                 ToString();
-
-                                                 return Task.FromResult(
-                                                     new HTTPResponse.Builder(Request) {
-                                                         HTTPStatusCode  = HTTPStatusCode.OK,
-                                                         Server          = HTTPServer.DefaultHTTPServerName,
-                                                         ContentType     = HTTPContentType.EVENTSTREAM,
-                                                         CacheControl    = "no-cache",
-                                                         Connection      = "keep-alive",
-                                                         KeepAlive       = new KeepAliveType(TimeSpan.FromSeconds(2 * _EventSource.RetryIntervall.TotalSeconds)),
-                                                         Content         = _HTTPEvents.ToUTF8Bytes()
-                                                     }.AsImmutable);
-
-                                             });
-
-
-
-                HTTPServer.AddMethodCallback(Hostname        ?? HTTPHostname.Any,
-                                             HttpMethod      ?? HTTPMethod.GET,
-                                             URLTemplate,
-                                             HTTPContentType ?? HTTPContentType.JSON_UTF8,
-                                             URLAuthentication:         URLAuthentication,
-                                             HTTPMethodAuthentication:  HTTPMethodAuthentication,
-                                             DefaultErrorHandler:       DefaultErrorHandler,
-                                             HTTPDelegate:              Request => {
-
-                                                 #region Get HTTP user and its organizations
+                                      #region Get HTTP user and its organizations
 
                                                  // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
                                                  if (!TryGetHTTPUser(Request,
@@ -4566,37 +4509,95 @@ namespace social.OpenData.UsersAPI
 
                                                  #endregion
 
-                                                 var State        = CreatePerRequestState != null ? CreatePerRequestState() : default(TState);
-                                                 var _HTTPEvents  = _EventSource.Where(httpEvent => IncludeFilterAtRuntime(State,
-                                                                                                                           HTTPUser,
-                                                                                                                           HTTPOrganizations,
-                                                                                                                           httpEvent)).
-                                                                                 Skip (Request.QueryString.GetUInt64("skip")).
-                                                                                 Take (Request.QueryString.GetUInt64("take")).
-                                                                                 Aggregate(new StringBuilder().AppendLine("["),
-                                                                                           (stringBuilder, httpEvent) => stringBuilder.Append(@"[""").
-                                                                                                                                       Append(httpEvent.Subevent ?? "").
-                                                                                                                                       Append(@""",").
-                                                                                                                                       Append(httpEvent.SerializedData).
-                                                                                                                                       AppendLine("],")).
-                                                                                 ToString().
-                                                                                 TrimEnd();
+                                      var State        = CreatePerRequestState != null ? CreatePerRequestState() : default;
+                                      var _HTTPEvents  = _EventSource.GetAllEventsGreater(Request.GetHeaderField_UInt64("Last-Event-ID")).
+                                                                      Where  (httpEvent => IncludeFilterAtRuntime(State,
+                                                                                                                  HTTPUser,
+                                                                                                                  HTTPOrganizations,
+                                                                                                                  httpEvent)).
+                                                                      Reverse().
+                                                                      Skip   (Request.QueryString.GetUInt64("skip")).
+                                                                      Take   (Request.QueryString.GetUInt64("take")).
+                                                                      Reverse().
+                                                                      Aggregate(new StringBuilder(),
+                                                                                (stringBuilder, httpEvent) => stringBuilder.Append(httpEvent.SerializedHeader).
+                                                                                                                            AppendLine(httpEvent.SerializedData).
+                                                                                                                            AppendLine()).
+                                                                      Append(Environment.NewLine).
+                                                                      Append("retry: ").Append((UInt32) _EventSource.RetryIntervall.TotalMilliseconds).
+                                                                      Append(Environment.NewLine).
+                                                                      Append(Environment.NewLine).
+                                                                      ToString();
+
+                                      return Task.FromResult(
+                                          new HTTPResponse.Builder(Request) {
+                                              HTTPStatusCode  = HTTPStatusCode.OK,
+                                              Server          = HTTPServer.DefaultHTTPServerName,
+                                              ContentType     = HTTPContentType.EVENTSTREAM,
+                                              CacheControl    = "no-cache",
+                                              Connection      = "keep-alive",
+                                              KeepAlive       = new KeepAliveType(TimeSpan.FromSeconds(2 * _EventSource.RetryIntervall.TotalSeconds)),
+                                              Content         = _HTTPEvents.ToUTF8Bytes()
+                                          }.AsImmutable);
+
+                                  });
 
 
-                                                 return Task.FromResult(
-                                                     new HTTPResponse.Builder(Request) {
-                                                         HTTPStatusCode  = HTTPStatusCode.OK,
-                                                         Server          = HTTPServer.DefaultHTTPServerName,
-                                                         ContentType     = HTTPContentType.JSON_UTF8,
-                                                         CacheControl    = "no-cache",
-                                                         Connection      = "keep-alive",
-                                                         KeepAlive       = new KeepAliveType(TimeSpan.FromSeconds(2 * _EventSource.RetryIntervall.TotalSeconds)),
-                                                         Content         = (_HTTPEvents.Length > 1
-                                                                                ? _HTTPEvents.Remove(_HTTPEvents.Length - 1, 1) + Environment.NewLine + "]"
-                                                                                : "]").ToUTF8Bytes()
-                                                     }.AsImmutable);
+                AddMethodCallback(Hostname        ?? HTTPHostname.Any,
+                                  HttpMethod      ?? HTTPMethod.GET,
+                                  URLTemplate,
+                                  HTTPContentType ?? HTTPContentType.JSON_UTF8,
+                                  URLAuthentication:         URLAuthentication,
+                                  HTTPMethodAuthentication:  HTTPMethodAuthentication,
+                                  DefaultErrorHandler:       DefaultErrorHandler,
+                                  HTTPDelegate:              Request => {
 
-                                             });
+                                      #region Get HTTP user and its organizations
+
+                                      // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                      if (!TryGetHTTPUser(Request,
+                                                          out User                   HTTPUser,
+                                                          out HashSet<Organization>  HTTPOrganizations,
+                                                          out HTTPResponse.Builder   Response,
+                                                          AccessLevel:               Access_Levels.ReadWrite,
+                                                          Recursive:                 true))
+                                      {
+                                          return Task.FromResult(Response.AsImmutable);
+                                      }
+
+                                      #endregion
+
+                                      var State        = CreatePerRequestState != null ? CreatePerRequestState() : default(TState);
+                                      var _HTTPEvents  = _EventSource.Where(httpEvent => IncludeFilterAtRuntime(State,
+                                                                                                                HTTPUser,
+                                                                                                                HTTPOrganizations,
+                                                                                                                httpEvent)).
+                                                                      Skip (Request.QueryString.GetUInt64("skip")).
+                                                                      Take (Request.QueryString.GetUInt64("take")).
+                                                                      Aggregate(new StringBuilder().AppendLine("["),
+                                                                                (stringBuilder, httpEvent) => stringBuilder.Append(@"[""").
+                                                                                                                            Append(httpEvent.Subevent ?? "").
+                                                                                                                            Append(@""",").
+                                                                                                                            Append(httpEvent.SerializedData).
+                                                                                                                            AppendLine("],")).
+                                                                      ToString().
+                                                                      TrimEnd();
+
+
+                                      return Task.FromResult(
+                                          new HTTPResponse.Builder(Request) {
+                                              HTTPStatusCode  = HTTPStatusCode.OK,
+                                              Server          = HTTPServer.DefaultHTTPServerName,
+                                              ContentType     = HTTPContentType.JSON_UTF8,
+                                              CacheControl    = "no-cache",
+                                              Connection      = "keep-alive",
+                                              KeepAlive       = new KeepAliveType(TimeSpan.FromSeconds(2 * _EventSource.RetryIntervall.TotalSeconds)),
+                                              Content         = (_HTTPEvents.Length > 1
+                                                                     ? _HTTPEvents.Remove(_HTTPEvents.Length - 1, 1) + Environment.NewLine + "]"
+                                                                     : "]").ToUTF8Bytes()
+                                          }.AsImmutable);
+
+                                  });
 
             }
 
@@ -4785,7 +4786,8 @@ namespace social.OpenData.UsersAPI
 
             #region /shared/UsersAPI
 
-            HTTPServer.RegisterResourcesFolder(HTTPHostname.Any,
+            HTTPServer.RegisterResourcesFolder(this,
+                                               HTTPHostname.Any,
                                                URLPathPrefix + "shared/UsersAPI",
                                                HTTPRoot.Substring(0, HTTPRoot.Length - 1),
                                                typeof(UsersAPI).Assembly);
@@ -4798,23 +4800,23 @@ namespace social.OpenData.UsersAPI
             // -----------------------------------------------------
             // curl -X OPTIONS -v http://127.0.0.1:3004/changeSets
             // -----------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
-                                         HTTPMethod.OPTIONS,
-                                         URLPathPrefix + "changeSets",
-                                         HTTPDelegate: Request => {
+            AddMethodCallback(Hostname,
+                              HTTPMethod.OPTIONS,
+                              URLPathPrefix + "changeSets",
+                              HTTPDelegate: Request => {
 
-                                             return Task.FromResult(
-                                                 new HTTPResponse.Builder(Request) {
-                                                     HTTPStatusCode             = HTTPStatusCode.OK,
-                                                     Server                     = HTTPServer.DefaultServerName,
-                                                     Date                       = Timestamp.Now,
-                                                     AccessControlAllowOrigin   = "*",
-                                                     AccessControlAllowMethods  = "GET, OPTIONS",
-                                                     AccessControlAllowHeaders  = "Authorization, X-App-Version",
-                                                     Connection                 = "close"
-                                                 }.AsImmutable);
+                                  return Task.FromResult(
+                                      new HTTPResponse.Builder(Request) {
+                                          HTTPStatusCode             = HTTPStatusCode.OK,
+                                          Server                     = HTTPServer.DefaultServerName,
+                                          Date                       = Timestamp.Now,
+                                          AccessControlAllowOrigin   = "*",
+                                          AccessControlAllowMethods  = "GET, OPTIONS",
+                                          AccessControlAllowHeaders  = "Authorization, X-App-Version",
+                                          Connection                 = "close"
+                                      }.AsImmutable);
 
-                                         });
+                              });
 
             #endregion
 
@@ -4823,13 +4825,13 @@ namespace social.OpenData.UsersAPI
             // ---------------------------------------------------------------------------------------------------------------
             // curl -v -H "Accept: application/json" -H "API-Key: xxx" http://127.0.0.1:3004/changeSets?withMetadata\&take=2
             // ---------------------------------------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
-                                         HTTPMethod.GET,
-                                         URLPathPrefix + "changeSets",
-                                         HTTPContentType.JSON_UTF8,
-                                         HTTPDelegate: async Request => {
+            AddMethodCallback(Hostname,
+                              HTTPMethod.GET,
+                              URLPathPrefix + "changeSets",
+                              HTTPContentType.JSON_UTF8,
+                              HTTPDelegate: async Request => {
 
-                                             #region Check API Key...
+                                  #region Check API Key...
 
                                              if (Request.API_Key is null || !remoteAuthAPIKeys.Contains(Request.API_Key.Value))
                                                  return new HTTPResponse.Builder(Request) {
@@ -4854,46 +4856,46 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
-                                             var withMetadata                            = Request.QueryString.GetBoolean ("withMetadata", false);
-                                             var since                                   = Request.QueryString.GetDateTime("since");
-                                             var skipUntil                               = Request.QueryString.GetString  ("skipUntil");
-                                             var skip                                    = Request.QueryString.GetUInt64  ("skip");
-                                             var take                                    = Request.QueryString.GetUInt64  ("take");
-                                             var match                                   = Request.QueryString.GetString  ("match");
+                                  var withMetadata                            = Request.QueryString.GetBoolean ("withMetadata", false);
+                                  var since                                   = Request.QueryString.GetDateTime("since");
+                                  var skipUntil                               = Request.QueryString.GetString  ("skipUntil");
+                                  var skip                                    = Request.QueryString.GetUInt64  ("skip");
+                                  var take                                    = Request.QueryString.GetUInt64  ("take");
+                                  var match                                   = Request.QueryString.GetString  ("match");
 
-                                             var (filteredChangeSets, totalCount, ETag)  = await LoadChangeSetsFromDisc(since,
-                                                                                                                skipUntil,
-                                                                                                                match is not null
-                                                                                                                  ? line => line.Contains(match)
-                                                                                                                  : null,
-                                                                                                                skip,
-                                                                                                                take);
-                                             var filteredCount                           = filteredChangeSets.ULongCount();
+                                  var (filteredChangeSets, totalCount, ETag)  = await LoadChangeSetsFromDisc(since,
+                                                                                                     skipUntil,
+                                                                                                     match is not null
+                                                                                                       ? line => line.Contains(match)
+                                                                                                       : null,
+                                                                                                     skip,
+                                                                                                     take);
+                                  var filteredCount                           = filteredChangeSets.ULongCount();
 
-                                             var JSONResults                             = new JArray(filteredChangeSets);
+                                  var JSONResults                             = new JArray(filteredChangeSets);
 
 
-                                             return new HTTPResponse.Builder(Request) {
-                                                        HTTPStatusCode                = HTTPStatusCode.OK,
-                                                        Server                        = HTTPServer.DefaultServerName,
-                                                        Date                          = Timestamp.Now,
-                                                        AccessControlAllowOrigin      = "*",
-                                                        AccessControlAllowMethods     = "GET, OPTIONS",
-                                                        AccessControlAllowHeaders     = "Authorization, X-App-Version",
-                                                        ETag                          = ETag,
-                                                        ContentType                   = HTTPContentType.JSON_UTF8,
-                                                        Content                       = withMetadata
-                                                                                            ? JSONObject.Create(
-                                                                                                  new JProperty("totalCount",    totalCount),
-                                                                                                  new JProperty("filteredCount", filteredCount),
-                                                                                                  new JProperty("changeSets",    JSONResults)
-                                                                                              ).ToUTF8Bytes()
-                                                                                            : JSONResults.ToUTF8Bytes(),
-                                                        X_ExpectedTotalNumberOfItems  = filteredCount,
-                                                        Connection                    = "close"
-                                                    }.AsImmutable;
+                                  return new HTTPResponse.Builder(Request) {
+                                             HTTPStatusCode                = HTTPStatusCode.OK,
+                                             Server                        = HTTPServer.DefaultServerName,
+                                             Date                          = Timestamp.Now,
+                                             AccessControlAllowOrigin      = "*",
+                                             AccessControlAllowMethods     = "GET, OPTIONS",
+                                             AccessControlAllowHeaders     = "Authorization, X-App-Version",
+                                             ETag                          = ETag,
+                                             ContentType                   = HTTPContentType.JSON_UTF8,
+                                             Content                       = withMetadata
+                                                                                 ? JSONObject.Create(
+                                                                                       new JProperty("totalCount",    totalCount),
+                                                                                       new JProperty("filteredCount", filteredCount),
+                                                                                       new JProperty("changeSets",    JSONResults)
+                                                                                   ).ToUTF8Bytes()
+                                                                                 : JSONResults.ToUTF8Bytes(),
+                                             X_ExpectedTotalNumberOfItems  = filteredCount,
+                                             Connection                    = "close"
+                                         }.AsImmutable;
 
-                                         });
+                              });
 
             #endregion
 
@@ -4902,23 +4904,23 @@ namespace social.OpenData.UsersAPI
             // --------------------------------------------------------
             // curl -X OPTIONS -v http://127.0.0.1:3004/securityToken
             // --------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
-                                         HTTPMethod.OPTIONS,
-                                         URLPathPrefix + "securityToken",
-                                         HTTPDelegate: Request => {
+            AddMethodCallback(Hostname,
+                              HTTPMethod.OPTIONS,
+                              URLPathPrefix + "securityToken",
+                              HTTPDelegate: Request => {
 
-                                             return Task.FromResult(
-                                                 new HTTPResponse.Builder(Request) {
-                                                     HTTPStatusCode             = HTTPStatusCode.OK,
-                                                     Server                     = HTTPServer.DefaultServerName,
-                                                     Date                       = Timestamp.Now,
-                                                     AccessControlAllowOrigin   = "*",
-                                                     AccessControlAllowMethods  = "CHECK, OPTIONS",
-                                                     AccessControlAllowHeaders  = "Content-Type, Accept, Authorization, X-App-Version",
-                                                     Connection                 = "close"
-                                                 }.AsImmutable);
+                                  return Task.FromResult(
+                                      new HTTPResponse.Builder(Request) {
+                                          HTTPStatusCode             = HTTPStatusCode.OK,
+                                          Server                     = HTTPServer.DefaultServerName,
+                                          Date                       = Timestamp.Now,
+                                          AccessControlAllowOrigin   = "*",
+                                          AccessControlAllowMethods  = "CHECK, OPTIONS",
+                                          AccessControlAllowHeaders  = "Content-Type, Accept, Authorization, X-App-Version",
+                                          Connection                 = "close"
+                                      }.AsImmutable);
 
-                                         });
+                              });
 
             #endregion
 
@@ -4927,7 +4929,8 @@ namespace social.OpenData.UsersAPI
             // ------------------------------------------------------------------------------------------------------------------------
             // curl -v -X CHECK -H "Content-type: application/json" -H "Accept: application/json" http://127.0.0.1:3004/securityToken
             // ------------------------------------------------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.CHECK,
                                          URLPathPrefix + "securityToken",
                                          HTTPContentType.JSON_UTF8,
@@ -5215,40 +5218,40 @@ namespace social.OpenData.UsersAPI
             // ------------------------------------------------------------
             // curl -v -H "Accept: text/html" http://127.0.0.1:2100/login
             // ------------------------------------------------------------
-            HTTPServer.AddMethodCallback(HTTPHostname.Any,
-                                         HTTPMethod.GET,
-                                         URLPathPrefix + "login",
-                                         HTTPContentType.HTML_UTF8,
-                                         HTTPDelegate: Request =>
+            AddMethodCallback(HTTPHostname.Any,
+                              HTTPMethod.GET,
+                              URLPathPrefix + "login",
+                              HTTPContentType.HTML_UTF8,
+                              HTTPDelegate: Request =>
 
-                                            Task.FromResult(
-                                                new HTTPResponse.Builder(Request) {
-                                                    HTTPStatusCode             = HTTPStatusCode.OK,
-                                                    Server                     = HTTPServer.DefaultServerName,
-                                                    Date                       = Timestamp.Now,
-                                                    AccessControlAllowOrigin   = "*",
-                                                    AccessControlAllowMethods  = "GET",
-                                                    AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                    ContentType                = HTTPContentType.HTML_UTF8,
-                                                    ContentStream              = GetResourceStream("login.login-" + DefaultLanguage.ToString() + ".html"),
-                                                    Connection                 = "close"
-                                                }.AsImmutable),
+                                 Task.FromResult(
+                                     new HTTPResponse.Builder(Request) {
+                                         HTTPStatusCode             = HTTPStatusCode.OK,
+                                         Server                     = HTTPServer.DefaultServerName,
+                                         Date                       = Timestamp.Now,
+                                         AccessControlAllowOrigin   = "*",
+                                         AccessControlAllowMethods  = "GET",
+                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                         ContentType                = HTTPContentType.HTML_UTF8,
+                                         ContentStream              = GetResourceStream("login.login-" + DefaultLanguage.ToString() + ".html"),
+                                         Connection                 = "close"
+                                     }.AsImmutable),
 
-                                         AllowReplacement: URLReplacement.Allow);
+                              AllowReplacement: URLReplacement.Allow);
 
             #endregion
 
             #region POST        ~/login
 
-            HTTPServer.AddMethodCallback(HTTPHostname.Any,
-                                         HTTPMethod.POST,
-                                         URLPathPrefix + "/login",
-                                         HTTPContentType.XWWWFormUrlEncoded,
-                                         HTTPDelegate: Request => {
+            AddMethodCallback(HTTPHostname.Any,
+                              HTTPMethod.POST,
+                              URLPathPrefix + "/login",
+                              HTTPContentType.XWWWFormUrlEncoded,
+                              HTTPDelegate: Request => {
 
-                                             //Note: Add LoginRequest event!
+                                  //Note: Add LoginRequest event!
 
-                                             #region Check UTF8 text body...
+                                  #region Check UTF8 text body...
 
                                              if (!Request.TryParseUTF8StringRequestBody(HTTPContentType.XWWWFormUrlEncoded,
                                                                                         out String       LoginText,
@@ -5260,9 +5263,9 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
-                                             var loginData = LoginText.DoubleSplit('&', '=');
+                                  var loginData = LoginText.DoubleSplit('&', '=');
 
-                                             #region Verify the login
+                                  #region Verify the login
 
                                              if (!loginData.TryGetValue("login", out String login) ||
                                                   login.    IsNullOrEmpty())
@@ -5309,7 +5312,7 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
-                                             #region Verify the password
+                                  #region Verify the password
 
                                              if (!loginData.TryGetValue("password", out String? password) ||
                                                  password.  IsNullOrEmpty())
@@ -5356,7 +5359,7 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
-                                             #region Get RedirectURL
+                                  #region Get RedirectURL
 
                                              loginData.TryGetValue("redirect", out String redirectURL);
 
@@ -5368,7 +5371,7 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
-                                             #region Check login or e-mail address and password(s)
+                                  #region Check login or e-mail address and password(s)
 
                                              var possibleUsers = new HashSet<User>();
 
@@ -5452,7 +5455,7 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
-                                             #region Check whether the user has access to at least one organization
+                                  #region Check whether the user has access to at least one organization
 
                                              if (!possibleUsers.First().Organizations(Access_Levels.ReadOnly).Any())
                                                  return Task.FromResult(
@@ -5471,7 +5474,7 @@ namespace social.OpenData.UsersAPI
                                              #endregion
 
 
-                                             #region Register security token
+                                  #region Register security token
 
                                              var validUser        = possibleUsers.First();
                                              var securityTokenId  = SecurityToken_Id.Parse(SHA256.HashData(
@@ -5497,31 +5500,31 @@ namespace social.OpenData.UsersAPI
                                              #endregion
 
 
-                                             //Note: Add LoginResponse event!
+                                  //Note: Add LoginResponse event!
 
-                                             return Task.FromResult(
-                                                 new HTTPResponse.Builder(Request) {
-                                                     HTTPStatusCode  = HTTPStatusCode.Created,
-                                                     ContentType     = HTTPContentType.HTML_UTF8,
-                                                     Content         = String.Concat(
-                                                                           "<!DOCTYPE html>", Environment.NewLine,
-                                                                           @"<html><head><meta http-equiv=""refresh"" content=""0; url=" + redirectURL + @""" /></head></html>",
-                                                                           Environment.NewLine
-                                                                       ).ToUTF8Bytes(),
-                                                     CacheControl    = "private",
-                                                     SetCookies      = new String[] {
-                                                                           String.Concat(CookieName,
-                                                                                         GenerateCookieUserData(validUser),
-                                                                                         GenerateCookieSettings(expires)),
-                                                                           String.Concat(SessionCookieName, "=", securityTokenId.ToString(),
-                                                                                         GenerateCookieSettings(expires),
-                                                                                         "; HttpOnly")
-                                                                       },
-                                                     Connection      = "close",
-                                                     X_FrameOptions  = "DENY"
-                                                 }.AsImmutable);
+                                  return Task.FromResult(
+                                      new HTTPResponse.Builder(Request) {
+                                          HTTPStatusCode  = HTTPStatusCode.Created,
+                                          ContentType     = HTTPContentType.HTML_UTF8,
+                                          Content         = String.Concat(
+                                                                "<!DOCTYPE html>", Environment.NewLine,
+                                                                @"<html><head><meta http-equiv=""refresh"" content=""0; url=" + redirectURL + @""" /></head></html>",
+                                                                Environment.NewLine
+                                                            ).ToUTF8Bytes(),
+                                          CacheControl    = "private",
+                                          SetCookies      = new String[] {
+                                                                String.Concat(CookieName,
+                                                                              GenerateCookieUserData(validUser),
+                                                                              GenerateCookieSettings(expires)),
+                                                                String.Concat(SessionCookieName, "=", securityTokenId.ToString(),
+                                                                              GenerateCookieSettings(expires),
+                                                                              "; HttpOnly")
+                                                            },
+                                          Connection      = "close",
+                                          X_FrameOptions  = "DENY"
+                                      }.AsImmutable);
 
-                                          });
+                              });
 
             #endregion
 
@@ -5530,26 +5533,26 @@ namespace social.OpenData.UsersAPI
             // -------------------------------------------------------------------
             // curl -v -H "Accept: text/html" http://127.0.0.1:2100/lostPassword
             // -------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(HTTPHostname.Any,
-                                         HTTPMethod.GET,
-                                         URLPathPrefix + "lostPassword",
-                                         HTTPContentType.HTML_UTF8,
-                                         HTTPDelegate: Request =>
+            AddMethodCallback(HTTPHostname.Any,
+                              HTTPMethod.GET,
+                              URLPathPrefix + "lostPassword",
+                              HTTPContentType.HTML_UTF8,
+                              HTTPDelegate: Request =>
 
-                                            Task.FromResult(
-                                                new HTTPResponse.Builder(Request) {
-                                                    HTTPStatusCode             = HTTPStatusCode.OK,
-                                                    Server                     = HTTPServer.DefaultServerName,
-                                                    Date                       = Timestamp.Now,
-                                                    AccessControlAllowOrigin   = "*",
-                                                    AccessControlAllowMethods  = "GET",
-                                                    AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                    ContentType                = HTTPContentType.HTML_UTF8,
-                                                    ContentStream              = GetResourceStream("login.lostPassword-" + DefaultLanguage.ToString() + ".html"),
-                                                    Connection                 = "close"
-                                                }.AsImmutable),
+                                 Task.FromResult(
+                                     new HTTPResponse.Builder(Request) {
+                                         HTTPStatusCode             = HTTPStatusCode.OK,
+                                         Server                     = HTTPServer.DefaultServerName,
+                                         Date                       = Timestamp.Now,
+                                         AccessControlAllowOrigin   = "*",
+                                         AccessControlAllowMethods  = "GET",
+                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                         ContentType                = HTTPContentType.HTML_UTF8,
+                                         ContentStream              = GetResourceStream("login.lostPassword-" + DefaultLanguage.ToString() + ".html"),
+                                         Connection                 = "close"
+                                     }.AsImmutable),
 
-                                         AllowReplacement: URLReplacement.Allow);
+                              AllowReplacement: URLReplacement.Allow);
 
             #endregion
 
@@ -5558,13 +5561,13 @@ namespace social.OpenData.UsersAPI
             // --------------------------------------------------------------------
             // curl -v -H "Accept: text/html" http://127.0.0.1:2100/resetPassword
             // --------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(HTTPHostname.Any,
-                                         HTTPMethod.SET,
-                                         URLPathPrefix + "resetPassword",
-                                         HTTPContentType.JSON_UTF8,
-                                         HTTPDelegate: async Request => {
+            AddMethodCallback(HTTPHostname.Any,
+                              HTTPMethod.SET,
+                              URLPathPrefix + "resetPassword",
+                              HTTPContentType.JSON_UTF8,
+                              HTTPDelegate: async Request => {
 
-                                             #region Parse JSON
+                                  #region Parse JSON
 
                                              if (!Request.TryParseJObjectRequestBody(out JObject JSONObj, out HTTPResponse.Builder HTTPResponse))
                                              {
@@ -5597,7 +5600,7 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
-                                             #region Find user(s)...
+                                  #region Find user(s)...
 
                                              var Users = new HashSet<User>();
 
@@ -5618,7 +5621,7 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
-                                             #region No users found!
+                                  #region No users found!
 
                                              if (Users.Count == 0)
                                              {
@@ -5641,43 +5644,43 @@ namespace social.OpenData.UsersAPI
                                              #endregion
 
 
-                                             var result = await ResetPassword(Users,
-                                                                              EventTrackingId: Request.EventTrackingId);
+                                  var result = await ResetPassword(Users,
+                                                                   EventTrackingId: Request.EventTrackingId);
 
 
-                                             return result?.IsSuccess == true
+                                  return result?.IsSuccess == true
 
-                                                        ? new HTTPResponse.Builder(Request) {
-                                                              HTTPStatusCode             = HTTPStatusCode.OK,
-                                                              Server                     = HTTPServer.DefaultServerName,
-                                                              Date                       = Timestamp.Now,
-                                                              AccessControlAllowOrigin   = "*",
-                                                              AccessControlAllowMethods  = "SET",
-                                                              AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                              ContentType                = HTTPContentType.JSON_UTF8,
-                                                              Content                    = JSONObject.Create(
-                                                                                               new JProperty("numberOfAccountsFound", Users.Count)
-                                                                                           ).ToUTF8Bytes(),
-                                                              Connection                 = "close"
-                                                          }
+                                             ? new HTTPResponse.Builder(Request) {
+                                                   HTTPStatusCode             = HTTPStatusCode.OK,
+                                                   Server                     = HTTPServer.DefaultServerName,
+                                                   Date                       = Timestamp.Now,
+                                                   AccessControlAllowOrigin   = "*",
+                                                   AccessControlAllowMethods  = "SET",
+                                                   AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                   ContentType                = HTTPContentType.JSON_UTF8,
+                                                   Content                    = JSONObject.Create(
+                                                                                    new JProperty("numberOfAccountsFound", Users.Count)
+                                                                                ).ToUTF8Bytes(),
+                                                   Connection                 = "close"
+                                               }
 
-                                                        : new HTTPResponse.Builder(Request) {
-                                                              HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                              Server                     = HTTPServer.DefaultServerName,
-                                                              Date                       = Timestamp.Now,
-                                                              AccessControlAllowOrigin   = "*",
-                                                              AccessControlAllowMethods  = "SET",
-                                                              AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                              ContentType                = HTTPContentType.JSON_UTF8,
-                                                              Content                    = JSONObject.Create(
-                                                                                               new JProperty("numberOfAccountsFound", Users.Count)
-                                                                                           ).ToUTF8Bytes(),
-                                                              Connection                 = "close"
-                                                          };
+                                             : new HTTPResponse.Builder(Request) {
+                                                   HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                   Server                     = HTTPServer.DefaultServerName,
+                                                   Date                       = Timestamp.Now,
+                                                   AccessControlAllowOrigin   = "*",
+                                                   AccessControlAllowMethods  = "SET",
+                                                   AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                   ContentType                = HTTPContentType.JSON_UTF8,
+                                                   Content                    = JSONObject.Create(
+                                                                                    new JProperty("numberOfAccountsFound", Users.Count)
+                                                                                ).ToUTF8Bytes(),
+                                                   Connection                 = "close"
+                                               };
 
-                                         },
+                              },
 
-                                         AllowReplacement: URLReplacement.Allow);
+                              AllowReplacement: URLReplacement.Allow);
 
             #endregion
 
@@ -5686,26 +5689,26 @@ namespace social.OpenData.UsersAPI
             // ------------------------------------------------------------------
             // curl -v -H "Accept: text/html" http://127.0.0.1:2100/setPassword
             // ------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(HTTPHostname.Any,
-                                         HTTPMethod.GET,
-                                         URLPathPrefix + "setPassword",
-                                         HTTPContentType.HTML_UTF8,
-                                         HTTPDelegate: Request =>
+            AddMethodCallback(HTTPHostname.Any,
+                              HTTPMethod.GET,
+                              URLPathPrefix + "setPassword",
+                              HTTPContentType.HTML_UTF8,
+                              HTTPDelegate: Request =>
 
-                                            Task.FromResult(
-                                                new HTTPResponse.Builder(Request) {
-                                                    HTTPStatusCode             = HTTPStatusCode.OK,
-                                                    Server                     = HTTPServer.DefaultServerName,
-                                                    Date                       = Timestamp.Now,
-                                                    AccessControlAllowOrigin   = "*",
-                                                    AccessControlAllowMethods  = "GET",
-                                                    AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                    ContentType                = HTTPContentType.HTML_UTF8,
-                                                    ContentStream              = GetResourceStream("login.setPassword-" + DefaultLanguage.ToString() + ".html"),
-                                                    Connection                 = "close"
-                                                }.AsImmutable),
+                                 Task.FromResult(
+                                     new HTTPResponse.Builder(Request) {
+                                         HTTPStatusCode             = HTTPStatusCode.OK,
+                                         Server                     = HTTPServer.DefaultServerName,
+                                         Date                       = Timestamp.Now,
+                                         AccessControlAllowOrigin   = "*",
+                                         AccessControlAllowMethods  = "GET",
+                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                         ContentType                = HTTPContentType.HTML_UTF8,
+                                         ContentStream              = GetResourceStream("login.setPassword-" + DefaultLanguage.ToString() + ".html"),
+                                         Connection                 = "close"
+                                     }.AsImmutable),
 
-                                         AllowReplacement: URLReplacement.Allow);
+                              AllowReplacement: URLReplacement.Allow);
 
             #endregion
 
@@ -5721,13 +5724,13 @@ namespace social.OpenData.UsersAPI
             //          }" \
             //      http://127.0.0.1:2001/setPassword
             // ------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(HTTPHostname.Any,
-                                         HTTPMethod.SET,
-                                         URLPathPrefix + "setPassword",
-                                         HTTPContentType.JSON_UTF8,
-                                         HTTPDelegate: async Request => {
+            AddMethodCallback(HTTPHostname.Any,
+                              HTTPMethod.SET,
+                              URLPathPrefix + "setPassword",
+                              HTTPContentType.JSON_UTF8,
+                              HTTPDelegate: async Request => {
 
-                                             #region Parse JSON
+                                  #region Parse JSON
 
                                              if (!Request.TryParseJObjectRequestBody(out JObject JSONObj, out HTTPResponse.Builder HTTPResponse))
                                              {
@@ -5741,7 +5744,7 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
-                                             #region Parse SecurityTokenId1    [mandatory]
+                                  #region Parse SecurityTokenId1    [mandatory]
 
                                              if (!JSONObj.ParseMandatory("securityToken1",
                                                                          "security token #1",
@@ -5756,7 +5759,7 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
-                                             #region Parse NewPassword         [mandatory]
+                                  #region Parse NewPassword         [mandatory]
 
                                              if (!JSONObj.ParseMandatory("newPassword",
                                                                          "new password",
@@ -5786,7 +5789,7 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
-                                             #region Parse SecurityTokenId2    [optional]
+                                  #region Parse SecurityTokenId2    [optional]
 
                                              if (JSONObj.ParseOptional("securityToken2",
                                                                        "security token #2",
@@ -5803,7 +5806,7 @@ namespace social.OpenData.UsersAPI
                                              #endregion
 
 
-                                             #region Verify token/password lengths...
+                                  #region Verify token/password lengths...
 
                                              if (SecurityTokenId1.Length != 40)
                                              {
@@ -5826,56 +5829,56 @@ namespace social.OpenData.UsersAPI
                                              #endregion
 
 
-                                             var result = await ResetPassword(SecurityTokenId1,
-                                                                              NewPassword,
-                                                                              SecurityTokenId2,
-                                                                              Request.EventTrackingId,
-                                                                              Robot.Id);
+                                  var result = await ResetPassword(SecurityTokenId1,
+                                                                   NewPassword,
+                                                                   SecurityTokenId2,
+                                                                   Request.EventTrackingId,
+                                                                   Robot.Id);
 
 
-                                             return result?.IsSuccess == true
+                                  return result?.IsSuccess == true
 
-                                                        ? new HTTPResponse.Builder(Request) {
-                                                              HTTPStatusCode             = HTTPStatusCode.OK,
-                                                              Server                     = HTTPServer.DefaultServerName,
-                                                              Date                       = Timestamp.Now,
-                                                              AccessControlAllowOrigin   = "*",
-                                                              AccessControlAllowMethods  = "SET",
-                                                              AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                              ContentType                = HTTPContentType.JSON_UTF8,
-                                                              Content                    = JSONObject.Create(
-                                                                                               new JProperty("numberOfAccountsFound", Users.Count())
-                                                                                           ).ToUTF8Bytes(),
-                                                              SetCookie                  = String.Concat(CookieName, "=; Expires=", Timestamp.Now.ToRfc1123(),
-                                                                                                         HTTPCookieDomain.IsNotNullOrEmpty()
-                                                                                                             ? "; Domain=" + HTTPCookieDomain
-                                                                                                             : "",
-                                                                                                         "; Path=", URLPathPrefix),
-                                                              Connection                 = "close"
-                                                          }.AsImmutable
+                                             ? new HTTPResponse.Builder(Request) {
+                                                   HTTPStatusCode             = HTTPStatusCode.OK,
+                                                   Server                     = HTTPServer.DefaultServerName,
+                                                   Date                       = Timestamp.Now,
+                                                   AccessControlAllowOrigin   = "*",
+                                                   AccessControlAllowMethods  = "SET",
+                                                   AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                   ContentType                = HTTPContentType.JSON_UTF8,
+                                                   Content                    = JSONObject.Create(
+                                                                                    new JProperty("numberOfAccountsFound", Users.Count())
+                                                                                ).ToUTF8Bytes(),
+                                                   SetCookie                  = String.Concat(CookieName, "=; Expires=", Timestamp.Now.ToRfc1123(),
+                                                                                              HTTPCookieDomain.IsNotNullOrEmpty()
+                                                                                                  ? "; Domain=" + HTTPCookieDomain
+                                                                                                  : "",
+                                                                                              "; Path=", URLPathPrefix),
+                                                   Connection                 = "close"
+                                               }.AsImmutable
 
-                                                        : new HTTPResponse.Builder(Request) {
-                                                              HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                              Server                     = HTTPServer.DefaultServerName,
-                                                              Date                       = Timestamp.Now,
-                                                              AccessControlAllowOrigin   = "*",
-                                                              AccessControlAllowMethods  = "SET",
-                                                              AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                              ContentType                = HTTPContentType.JSONLD_UTF8,
-                                                              Content                    = JSONObject.Create(
-                                                                                               new JProperty("description", result.ErrorDescription.ToJSON())
-                                                                                           ).ToUTF8Bytes(),
-                                                              SetCookie                  = String.Concat(CookieName, "=; Expires=", Timestamp.Now.ToRfc1123(),
-                                                                                                         HTTPCookieDomain.IsNotNullOrEmpty()
-                                                                                                             ? "; Domain=" + HTTPCookieDomain
-                                                                                                             : "",
-                                                                                                         "; Path=", URLPathPrefix),
-                                                              Connection                 = "close"
-                                                          }.AsImmutable;
+                                             : new HTTPResponse.Builder(Request) {
+                                                   HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                   Server                     = HTTPServer.DefaultServerName,
+                                                   Date                       = Timestamp.Now,
+                                                   AccessControlAllowOrigin   = "*",
+                                                   AccessControlAllowMethods  = "SET",
+                                                   AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                   ContentType                = HTTPContentType.JSONLD_UTF8,
+                                                   Content                    = JSONObject.Create(
+                                                                                    new JProperty("description", result.ErrorDescription.ToJSON())
+                                                                                ).ToUTF8Bytes(),
+                                                   SetCookie                  = String.Concat(CookieName, "=; Expires=", Timestamp.Now.ToRfc1123(),
+                                                                                              HTTPCookieDomain.IsNotNullOrEmpty()
+                                                                                                  ? "; Domain=" + HTTPCookieDomain
+                                                                                                  : "",
+                                                                                              "; Path=", URLPathPrefix),
+                                                   Connection                 = "close"
+                                               }.AsImmutable;
 
-                                         },
+                              },
 
-                                         AllowReplacement: URLReplacement.Allow);
+                              AllowReplacement: URLReplacement.Allow);
 
             #endregion
 
@@ -5885,13 +5888,13 @@ namespace social.OpenData.UsersAPI
             // --------------------------------------------------------------
             // curl -v -H "Accept: text/html" http://127.0.0.1:2100/profile
             // --------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
-                                         HTTPMethod.GET,
-                                         URLPathPrefix + "profile",
-                                         HTTPContentType.HTML_UTF8,
-                                         HTTPDelegate: Request => {
+            AddMethodCallback(Hostname,
+                              HTTPMethod.GET,
+                              URLPathPrefix + "profile",
+                              HTTPContentType.HTML_UTF8,
+                              HTTPDelegate: Request => {
 
-                                             #region Get HTTP user and its organizations
+                                  #region Get HTTP user and its organizations
 
                                              // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
                                              if (!TryGetHTTPUser(Request,
@@ -5906,21 +5909,21 @@ namespace social.OpenData.UsersAPI
                                              #endregion
 
 
-                                             return Task.FromResult(
-                                                 new HTTPResponse.Builder(Request) {
-                                                     HTTPStatusCode              = HTTPStatusCode.OK,
-                                                     Server                      = HTTPServer.DefaultServerName,
-                                                     Date                        = Timestamp.Now,
-                                                     AccessControlAllowOrigin    = "*",
-                                                     AccessControlAllowMethods   = "GET",
-                                                     AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
-                                                     ContentType                 = HTTPContentType.HTML_UTF8,
-                                                     Content                     = MixWithHTMLTemplate("profile.profile.shtml").ToUTF8Bytes(),
-                                                     Connection                  = "close",
-                                                     Vary                        = "Accept"
-                                                 }.AsImmutable);
+                                  return Task.FromResult(
+                                      new HTTPResponse.Builder(Request) {
+                                          HTTPStatusCode              = HTTPStatusCode.OK,
+                                          Server                      = HTTPServer.DefaultServerName,
+                                          Date                        = Timestamp.Now,
+                                          AccessControlAllowOrigin    = "*",
+                                          AccessControlAllowMethods   = "GET",
+                                          AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                          ContentType                 = HTTPContentType.HTML_UTF8,
+                                          Content                     = MixWithHTMLTemplate("profile.profile.shtml").ToUTF8Bytes(),
+                                          Connection                  = "close",
+                                          Vary                        = "Accept"
+                                      }.AsImmutable);
 
-                                         });
+                              });
 
             #endregion
 
@@ -5934,13 +5937,13 @@ namespace social.OpenData.UsersAPI
             // -------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:3001/users
             // -------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
-                                         HTTPMethod.GET,
-                                         URLPathPrefix + "users",
-                                         HTTPContentType.HTML_UTF8,
-                                         HTTPDelegate: Request => {
+            AddMethodCallback(Hostname,
+                              HTTPMethod.GET,
+                              URLPathPrefix + "users",
+                              HTTPContentType.HTML_UTF8,
+                              HTTPDelegate: Request => {
 
-                                             #region Get HTTP user and its users
+                                  #region Get HTTP user and its users
 
                                              // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
                                              if (!TryGetHTTPUser(Request,
@@ -5954,21 +5957,21 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
-                                             return Task.FromResult(
-                                                     new HTTPResponse.Builder(Request) {
-                                                         HTTPStatusCode             = HTTPStatusCode.OK,
-                                                         Server                     = HTTPServer.DefaultServerName,
-                                                         Date                       = Timestamp.Now,
-                                                         AccessControlAllowOrigin   = "*",
-                                                         AccessControlAllowMethods  = "GET",
-                                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                         ContentType                = HTTPContentType.HTML_UTF8,
-                                                         Content                    = MixWithHTMLTemplate("user.users.shtml").ToUTF8Bytes(),
-                                                         Connection                 = "close",
-                                                         Vary                       = "Accept"
-                                                     }.AsImmutable);
+                                  return Task.FromResult(
+                                          new HTTPResponse.Builder(Request) {
+                                              HTTPStatusCode             = HTTPStatusCode.OK,
+                                              Server                     = HTTPServer.DefaultServerName,
+                                              Date                       = Timestamp.Now,
+                                              AccessControlAllowOrigin   = "*",
+                                              AccessControlAllowMethods  = "GET",
+                                              AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                              ContentType                = HTTPContentType.HTML_UTF8,
+                                              Content                    = MixWithHTMLTemplate("user.users.shtml").ToUTF8Bytes(),
+                                              Connection                 = "close",
+                                              Vary                       = "Accept"
+                                          }.AsImmutable);
 
-                                         });
+                              });
 
             #endregion
 
@@ -5977,13 +5980,13 @@ namespace social.OpenData.UsersAPI
             // -------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:2000/users
             // -------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
-                                         HTTPMethod.GET,
-                                         URLPathPrefix + "users",
-                                         HTTPContentType.JSON_UTF8,
-                                         HTTPDelegate: Request => {
+            AddMethodCallback(Hostname,
+                              HTTPMethod.GET,
+                              URLPathPrefix + "users",
+                              HTTPContentType.JSON_UTF8,
+                              HTTPDelegate: Request => {
 
-                                             #region Try to get HTTP user and its organizations
+                                  #region Try to get HTTP user and its organizations
 
                                              TryGetHTTPUser(Request,
                                                             out User                   HTTPUser,
@@ -5994,58 +5997,58 @@ namespace social.OpenData.UsersAPI
                                              #endregion
 
 
-                                             var withMetadata           = Request.QueryString.GetBoolean("withMetadata", false);
-                                             var includeFilter          = Request.QueryString.CreateStringFilter<User>("match",
-                                                                                                                       (user, include) => user.Id.ToString().IndexOf(include)                                     >= 0 ||
-                                                                                                                                          user.Name.         IndexOf(include, StringComparison.OrdinalIgnoreCase) >= 0 ||
-                                                                                                                                          user.Description.  Matches(include, IgnoreCase: true));
+                                  var withMetadata           = Request.QueryString.GetBoolean("withMetadata", false);
+                                  var includeFilter          = Request.QueryString.CreateStringFilter<User>("match",
+                                                                                                            (user, include) => user.Id.ToString().IndexOf(include)                                     >= 0 ||
+                                                                                                                               user.Name.         IndexOf(include, StringComparison.OrdinalIgnoreCase) >= 0 ||
+                                                                                                                               user.Description.  Matches(include, IgnoreCase: true));
 
-                                             var skip                   = Request.QueryString.GetUInt64 ("skip");
-                                             var take                   = Request.QueryString.GetUInt64 ("take");
+                                  var skip                   = Request.QueryString.GetUInt64 ("skip");
+                                  var take                   = Request.QueryString.GetUInt64 ("take");
 
-                                             var expand                 = Request.QueryString.GetStrings("expand");
-                                             //var expandTags             = expand.ContainsIgnoreCase("tags")              ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
+                                  var expand                 = Request.QueryString.GetStrings("expand");
+                                  //var expandTags             = expand.ContainsIgnoreCase("tags")              ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
 
-                                             var filteredUsers          = HTTPOrganizations.
-                                                                              SafeSelectMany(organization => organization.Users).
-                                                                              Distinct      ().
-                                                                              Where         (includeFilter).
-                                                                              OrderBy       (user => user.Name).
-                                                                              ToArray();
+                                  var filteredUsers          = HTTPOrganizations.
+                                                                   SafeSelectMany(organization => organization.Users).
+                                                                   Distinct      ().
+                                                                   Where         (includeFilter).
+                                                                   OrderBy       (user => user.Name).
+                                                                   ToArray();
 
-                                             var filteredCount          = filteredUsers.ULongCount();
-                                             var totalCount             = HTTPOrganizations.ULongCount();
+                                  var filteredCount          = filteredUsers.ULongCount();
+                                  var totalCount             = HTTPOrganizations.ULongCount();
 
-                                             var JSONResults            = filteredUsers.
-                                                                              ToJSON(skip,
-                                                                                     take,
-                                                                                     false, //Embedded
-                                                                                     GetUserSerializator(Request, HTTPUser));
+                                  var JSONResults            = filteredUsers.
+                                                                   ToJSON(skip,
+                                                                          take,
+                                                                          false, //Embedded
+                                                                          GetUserSerializator(Request, HTTPUser));
 
 
-                                             return Task.FromResult(
-                                                 new HTTPResponse.Builder(Request) {
-                                                     HTTPStatusCode                = HTTPStatusCode.OK,
-                                                     Server                        = HTTPServer.DefaultServerName,
-                                                     Date                          = Timestamp.Now,
-                                                     AccessControlAllowOrigin      = "*",
-                                                     AccessControlAllowMethods     = "GET, COUNT, OPTIONS",
-                                                     AccessControlAllowHeaders     = "Content-Type, Accept, Authorization",
-                                                     ETag                          = "1",
-                                                     ContentType                   = HTTPContentType.JSON_UTF8,
-                                                     Content                       = withMetadata
-                                                                                         ? JSONObject.Create(
-                                                                                               new JProperty("totalCount",     totalCount),
-                                                                                               new JProperty("filteredCount",  filteredCount),
-                                                                                               new JProperty("users",          JSONResults)
-                                                                                           ).ToUTF8Bytes()
-                                                                                         : JSONResults.ToUTF8Bytes(),
-                                                     X_ExpectedTotalNumberOfItems  = filteredCount,
-                                                     Connection                    = "close",
-                                                     Vary                          = "Accept"
-                                                 }.AsImmutable);
+                                  return Task.FromResult(
+                                      new HTTPResponse.Builder(Request) {
+                                          HTTPStatusCode                = HTTPStatusCode.OK,
+                                          Server                        = HTTPServer.DefaultServerName,
+                                          Date                          = Timestamp.Now,
+                                          AccessControlAllowOrigin      = "*",
+                                          AccessControlAllowMethods     = "GET, COUNT, OPTIONS",
+                                          AccessControlAllowHeaders     = "Content-Type, Accept, Authorization",
+                                          ETag                          = "1",
+                                          ContentType                   = HTTPContentType.JSON_UTF8,
+                                          Content                       = withMetadata
+                                                                              ? JSONObject.Create(
+                                                                                    new JProperty("totalCount",     totalCount),
+                                                                                    new JProperty("filteredCount",  filteredCount),
+                                                                                    new JProperty("users",          JSONResults)
+                                                                                ).ToUTF8Bytes()
+                                                                              : JSONResults.ToUTF8Bytes(),
+                                          X_ExpectedTotalNumberOfItems  = filteredCount,
+                                          Connection                    = "close",
+                                          Vary                          = "Accept"
+                                      }.AsImmutable);
 
-                                         });
+                              });
 
             #endregion
 
@@ -6056,15 +6059,15 @@ namespace social.OpenData.UsersAPI
             // --------------------------------------------------------------------------
             // curl -v -X ADD -H "Accept: application/json" http://127.0.0.1:2100/users
             // --------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(HTTPHostname.Any,
-                                         HTTPMethod.ADD,
-                                         HTTPPath.Parse("/users"),
-                                         HTTPContentType.JSON_UTF8,
-                                         HTTPRequestLogger:   AddUsersHTTPRequest,
-                                         HTTPResponseLogger:  AddUsersHTTPResponse,
-                                         HTTPDelegate:        async Request => {
+            AddMethodCallback(HTTPHostname.Any,
+                              HTTPMethod.ADD,
+                              HTTPPath.Parse("/users"),
+                              HTTPContentType.JSON_UTF8,
+                              HTTPRequestLogger:   AddUsersHTTPRequest,
+                              HTTPResponseLogger:  AddUsersHTTPResponse,
+                              HTTPDelegate:        async Request => {
 
-                                             #region Get HTTP user and its organizations
+                                  #region Get HTTP user and its organizations
 
                                              // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
                                              if (!TryGetHTTPUser(Request,
@@ -6080,14 +6083,14 @@ namespace social.OpenData.UsersAPI
                                              #endregion
 
 
-                                             #region Parse JSON HTTP body...
+                                  #region Parse JSON HTTP body...
 
                                              if (!Request.TryParseJObjectRequestBody(out JObject JSONBody, out errorResponse))
                                                  return errorResponse;
 
                                              #endregion
 
-                                             #region Parse UserId           [optional]
+                                  #region Parse UserId           [optional]
 
                                              if (JSONBody.ParseOptionalStruct2("@id",
                                                                                "user identification",
@@ -6103,7 +6106,7 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
-                                             #region Parse NewUser          [mandatory]
+                                  #region Parse NewUser          [mandatory]
 
                                              if (!User.TryParseJSON(JSONBody,
                                                                     out User    newUser,
@@ -6130,7 +6133,7 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
-                                             #region Parse AccessRights     [optional]
+                                  #region Parse AccessRights     [optional]
 
                                              if (JSONBody.ParseOptional("accessRights",
                                                                         "access rights",
@@ -6224,86 +6227,86 @@ namespace social.OpenData.UsersAPI
                                              #endregion
 
 
-                                             var result = accessRights.SafeAny()
+                                  var result = accessRights.SafeAny()
 
-                                                             ? await AddUser(newUser,
-                                                                             accessRights,
-                                                                             false,
-                                                                             false,
-                                                                             false,
-                                                                             (_user, _eventTrackingId) => { },
-                                                                             Request.EventTrackingId,
-                                                                             CurrentUserId: HTTPUser.Id)
+                                                  ? await AddUser(newUser,
+                                                                  accessRights,
+                                                                  false,
+                                                                  false,
+                                                                  false,
+                                                                  (_user, _eventTrackingId) => { },
+                                                                  Request.EventTrackingId,
+                                                                  CurrentUserId: HTTPUser.Id)
 
-                                                             : await AddUser(newUser,
-                                                                             false,
-                                                                             false,
-                                                                             false,
-                                                                             (_user, _eventTrackingId) => { },
-                                                                             Request.EventTrackingId,
-                                                                             CurrentUserId: HTTPUser.Id);
+                                                  : await AddUser(newUser,
+                                                                  false,
+                                                                  false,
+                                                                  false,
+                                                                  (_user, _eventTrackingId) => { },
+                                                                  Request.EventTrackingId,
+                                                                  CurrentUserId: HTTPUser.Id);
 
 
-                                             return result?.IsSuccess == true
+                                  return result?.IsSuccess == true
 
-                                                        ? new HTTPResponse.Builder(Request) {
-                                                              HTTPStatusCode              = HTTPStatusCode.Created,
-                                                              Server                      = HTTPServer.DefaultServerName,
-                                                              Date                        = Timestamp.Now,
-                                                              AccessControlAllowOrigin    = "*",
-                                                              AccessControlAllowMethods   = "OPTIONS, ADD, EXISTS, GET, SET, AUTH, DEAUTH, IMPERSONATE, DEPERSONATE, DELETE",
-                                                              AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
-                                                              ContentType                 = HTTPContentType.JSON_UTF8,
-                                                              Content                     = newUser.ToJSON(Embedded: false).ToUTF8Bytes(),
-                                                              Connection                  = "close"
-                                                          }.AsImmutable
+                                             ? new HTTPResponse.Builder(Request) {
+                                                   HTTPStatusCode              = HTTPStatusCode.Created,
+                                                   Server                      = HTTPServer.DefaultServerName,
+                                                   Date                        = Timestamp.Now,
+                                                   AccessControlAllowOrigin    = "*",
+                                                   AccessControlAllowMethods   = "OPTIONS, ADD, EXISTS, GET, SET, AUTH, DEAUTH, IMPERSONATE, DEPERSONATE, DELETE",
+                                                   AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                   ContentType                 = HTTPContentType.JSON_UTF8,
+                                                   Content                     = newUser.ToJSON(Embedded: false).ToUTF8Bytes(),
+                                                   Connection                  = "close"
+                                               }.AsImmutable
 
-                                                        : new HTTPResponse.Builder(Request) {
-                                                              HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                              Server                     = HTTPServer.DefaultServerName,
-                                                              Date                       = Timestamp.Now,
-                                                              AccessControlAllowOrigin   = "*",
-                                                              AccessControlAllowMethods  = "ADD, SET, GET",
-                                                              AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                              ContentType                = HTTPContentType.JSON_UTF8,
-                                                              Content                    = JSONObject.Create(
-                                                                                               new JProperty("description", "Could create the new user!")
-                                                                                           ).ToUTF8Bytes()
-                                                          }.AsImmutable;
+                                             : new HTTPResponse.Builder(Request) {
+                                                   HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                   Server                     = HTTPServer.DefaultServerName,
+                                                   Date                       = Timestamp.Now,
+                                                   AccessControlAllowOrigin   = "*",
+                                                   AccessControlAllowMethods  = "ADD, SET, GET",
+                                                   AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                   ContentType                = HTTPContentType.JSON_UTF8,
+                                                   Content                    = JSONObject.Create(
+                                                                                    new JProperty("description", "Could create the new user!")
+                                                                                ).ToUTF8Bytes()
+                                               }.AsImmutable;
 
-                                         });
+                              });
 
             #endregion
 
             #region DEAUTH      ~/users
 
-            HTTPServer.AddMethodCallback(HTTPHostname.Any,
-                                          HTTPMethod.DEAUTH,
-                                          HTTPPath.Parse("/users"),
-                                          HTTPContentType.JSON_UTF8,
-                                          HTTPDelegate: Request =>
+            AddMethodCallback(HTTPHostname.Any,
+                              HTTPMethod.DEAUTH,
+                              HTTPPath.Parse("/users"),
+                              HTTPContentType.JSON_UTF8,
+                              HTTPDelegate: Request =>
 
-                                              Task.FromResult(
-                                                  new HTTPResponse.Builder(Request) {
-                                                      HTTPStatusCode  = HTTPStatusCode.OK,
-                                                      CacheControl    = "private",
-                                                      SetCookies      = new String[] {
+                                   Task.FromResult(
+                                       new HTTPResponse.Builder(Request) {
+                                           HTTPStatusCode  = HTTPStatusCode.OK,
+                                           CacheControl    = "private",
+                                           SetCookies      = new String[] {
 
-                                                                            String.Concat(CookieName, "=; Expires=", Timestamp.Now.ToRfc1123(),
-                                                                                          HTTPCookieDomain.IsNotNullOrEmpty()
-                                                                                              ? "; Domain=" + HTTPCookieDomain
-                                                                                              : "",
-                                                                                          "; Path=", URLPathPrefix),
+                                                                 String.Concat(CookieName, "=; Expires=", Timestamp.Now.ToRfc1123(),
+                                                                               HTTPCookieDomain.IsNotNullOrEmpty()
+                                                                                   ? "; Domain=" + HTTPCookieDomain
+                                                                                   : "",
+                                                                               "; Path=", URLPathPrefix),
 
-                                                                            String.Concat(SessionCookieName, "=; Expires=", Timestamp.Now.ToRfc1123(),
-                                                                                          HTTPCookieDomain.IsNotNullOrEmpty()
-                                                                                              ? "; Domain=" + HTTPCookieDomain
-                                                                                              : "",
-                                                                                          "; Path=", URLPathPrefix)
+                                                                 String.Concat(SessionCookieName, "=; Expires=", Timestamp.Now.ToRfc1123(),
+                                                                               HTTPCookieDomain.IsNotNullOrEmpty()
+                                                                                   ? "; Domain=" + HTTPCookieDomain
+                                                                                   : "",
+                                                                               "; Path=", URLPathPrefix)
 
-                                                                        },
-                                                      Connection      = "close"
-                                                  }.AsImmutable));
+                                                             },
+                                           Connection      = "close"
+                                       }.AsImmutable));
 
             #endregion
 
@@ -6321,7 +6324,8 @@ namespace social.OpenData.UsersAPI
             //                                   TryGetItemError:     userId => "Unknown user '" + userId + "'!",
             //                                   ToJSONDelegate:      user   => user.ToJSON(IncludeCryptoHash: true));
 
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.OPTIONS,
                                          URLPathPrefix + "users/{UserId}",
                                          HTTPDelegate: Request => {
@@ -6366,7 +6370,8 @@ namespace social.OpenData.UsersAPI
             // -------------------------------------------------------------------------------
             // curl -v -X ADD -H "Accept: application/json" http://127.0.0.1:2100/users/ahzf
             // -------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(HTTPHostname.Any,
+            AddMethodCallback(
+                                         HTTPHostname.Any,
                                          HTTPMethod.ADD,
                                          URLPathPrefix + "users/{UserId}",
                                          HTTPContentType.JSON_UTF8,
@@ -6616,12 +6621,13 @@ namespace social.OpenData.UsersAPI
             // ---------------------------------------------------------------------------------
             // curl -v -X EXITS -H "Accept: application/json" http://127.0.0.1:2100/users/ahzf
             // ---------------------------------------------------------------------------------
-            HTTPServer.ITEM_EXISTS<User_Id, User>(UriTemplate: URLPathPrefix + "users/{UserId}",
-                                                  ParseIdDelegate: User_Id.TryParse,
-                                                  ParseIdError: Text => "Invalid user identification '" + Text + "'!",
-                                                  TryGetItemDelegate: _Users.TryGetValue,
-                                                  ItemFilterDelegate: user => user.PrivacyLevel == PrivacyLevel.World,
-                                                  TryGetItemError: userId => "Unknown user '" + userId + "'!");
+            HTTPServer.ITEM_EXISTS<User_Id, User>(this,
+                                                  URLPathPrefix + "users/{UserId}",
+                                                  User_Id.TryParse,
+                                                  text   => "Invalid user identification '" + text + "'!",
+                                                  _Users.TryGetValue,
+                                                  user   => user.PrivacyLevel == PrivacyLevel.World,
+                                                  userId => "Unknown user '" + userId + "'!");
 
             #endregion
 
@@ -6632,7 +6638,8 @@ namespace social.OpenData.UsersAPI
             // ------------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:2100/users/ahzf
             // ------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "users/{UserId}",
                                          HTTPContentType.JSON_UTF8,
@@ -6709,7 +6716,8 @@ namespace social.OpenData.UsersAPI
             // ------------------------------------------------------------------------------
             // curl -v -H "Accept: text/html" http://127.0.0.1:2100/users/Organization
             // ------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "users/{UserId}",
                                          HTTPContentType.HTML_UTF8,
@@ -6801,7 +6809,8 @@ namespace social.OpenData.UsersAPI
             //          }" \
             //      http://127.0.0.1:2000/users/214080158
             // ---------------------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.SET,
                                          URLPathPrefix + "users/{UserId}",
                                          HTTPContentType.JSON_UTF8,
@@ -6925,7 +6934,8 @@ namespace social.OpenData.UsersAPI
 
             #region AUTH        ~/users/{UserId}
 
-            HTTPServer.AddMethodCallback(HTTPHostname.Any,
+            AddMethodCallback(
+                                         HTTPHostname.Any,
                                          HTTPMethod.AUTH,
                                          URLPathPrefix + "users/{UserId}",
                                          HTTPContentType.JSON_UTF8,
@@ -7216,7 +7226,8 @@ namespace social.OpenData.UsersAPI
 
             #region DEAUTH      ~/users/{UserId}
 
-            HTTPServer.AddMethodCallback(HTTPHostname.Any,
+            AddMethodCallback(
+                                         HTTPHostname.Any,
                                          HTTPMethod.DEAUTH,
                                          URLPathPrefix + "users/{UserId}",
                                          HTTPContentType.JSON_UTF8,
@@ -7247,7 +7258,8 @@ namespace social.OpenData.UsersAPI
 
             #region IMPERSONATE ~/users/{UserId}
 
-            HTTPServer.AddMethodCallback(HTTPHostname.Any,
+            AddMethodCallback(
+                                         HTTPHostname.Any,
                                          HTTPMethod.IMPERSONATE,
                                          URLPathPrefix + "users/{UserId}",
                                          HTTPContentType.JSON_UTF8,
@@ -7365,7 +7377,8 @@ namespace social.OpenData.UsersAPI
 
             #region DEPERSONATE ~/users/{UserId}
 
-            HTTPServer.AddMethodCallback(HTTPHostname.Any,
+            AddMethodCallback(
+                                         HTTPHostname.Any,
                                          HTTPMethod.DEPERSONATE,
                                          URLPathPrefix + "users/{UserId}",
                                          HTTPContentType.JSON_UTF8,
@@ -7470,7 +7483,8 @@ namespace social.OpenData.UsersAPI
             // ----------------------------------------------------------------------------------
             // curl -v -X DELETE -H "Accept: application/json" http://127.0.0.1:2100/users/ahzf
             // ----------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.DELETE,
                                          URLPathPrefix + "users/{UserId}",
                                          HTTPContentType.JSON_UTF8,
@@ -7571,7 +7585,8 @@ namespace social.OpenData.UsersAPI
 
             #region SET         ~/users/{UserId}/password
 
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.SET,
                                          URLPathPrefix + "users/{UserId}/password",
                                          HTTPContentType.JSON_UTF8,
@@ -7734,7 +7749,8 @@ namespace social.OpenData.UsersAPI
 
             #region GET         ~/users/{UserId}/profilephoto
 
-            HTTPServer.RegisterFilesystemFile(HTTPHostname.Any,
+            HTTPServer.RegisterFilesystemFile(this,
+                                              HTTPHostname.Any,
                                               URLPathPrefix + "users/{UserId}/profilephoto",
                                               URLParams => "LocalHTTPRoot/data/Users/" + URLParams[0] + ".png",
                                               DefaultFile: "HTTPRoot/images/defaults/DefaultUser.png");
@@ -7746,7 +7762,8 @@ namespace social.OpenData.UsersAPI
             // ------------------------------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:2000/users/{UserId}/organizations?summary
             // ------------------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "users/{UserId}/organizations",
                                          HTTPContentType.JSON_UTF8,
@@ -7820,7 +7837,8 @@ namespace social.OpenData.UsersAPI
             // --------------------------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:2100/users/ahzf/notifications
             // --------------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "users/{UserId}/notifications",
                                          HTTPContentType.JSON_UTF8,
@@ -7863,7 +7881,8 @@ namespace social.OpenData.UsersAPI
             // -------------------------------------------------------------------------------
             // curl -v -H "Accept: text/html" http://127.0.0.1:2100/users/ahzf/notifications
             // -------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "users/{UserId}/notifications",
                                          HTTPContentType.HTML_UTF8,
@@ -7938,7 +7957,8 @@ namespace social.OpenData.UsersAPI
             //          }" \
             //      http://127.0.0.1:2000/users/214080158
             // ---------------------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.SET,
                                          URLPathPrefix + "users/{UserId}/notifications",
                                          HTTPContentType.JSON_UTF8,
@@ -8128,7 +8148,8 @@ namespace social.OpenData.UsersAPI
             //          }" \
             //      http://127.0.0.1:2000/users/214080158
             // ---------------------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.DELETE,
                                          URLPathPrefix + "users/{UserId}/notifications",
                                          HTTPContentType.JSON_UTF8,
@@ -8315,7 +8336,8 @@ namespace social.OpenData.UsersAPI
             // -------------------------------------------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:2100/users/ahzf/notifications/{notificationId}
             // -------------------------------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "users/{UserId}/notifications/{notificationId}",
                                          HTTPContentType.JSON_UTF8,
@@ -8395,7 +8417,8 @@ namespace social.OpenData.UsersAPI
             // ------------------------------------------------------------------------------------------------
             // curl -v -H "Accept: text/html" http://127.0.0.1:2100/users/ahzf/notifications/{notificationId}
             // ------------------------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "users/{UserId}/notifications/{notificationId}",
                                          HTTPContentType.HTML_UTF8,
@@ -8483,7 +8506,8 @@ namespace social.OpenData.UsersAPI
             // ------------------------------------------------------------------------------------
             // curl -v -H "Accept: text/html" http://127.0.0.1:2100/users/ahzf/notification/_new
             // ------------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "users/{UserId}/notification/_new",
                                          HTTPContentType.HTML_UTF8,
@@ -8554,7 +8578,8 @@ namespace social.OpenData.UsersAPI
             // --------------------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:2100/users/ahzf/APIKeys
             // --------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "users/{UserId}/APIKeys",
                                          HTTPContentType.JSON_UTF8,
@@ -8658,7 +8683,8 @@ namespace social.OpenData.UsersAPI
             // ---------------------------------------------------------------------------------------
             // curl -v -X ADD -H "Accept: application/json" http://127.0.0.1:2100/users/ahzf/APIKeys
             // ---------------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.ADD,
                                          URLPathPrefix + "users/{UserId}/APIKeys",
                                          HTTPContentType.JSON_UTF8,
@@ -8809,7 +8835,8 @@ namespace social.OpenData.UsersAPI
             // ---------------------------------------------------------------------------------------------------
             // curl -v -X DELETE -H "Accept: application/json" http://127.0.0.1:2100/users/ahzf/APIKeys/abcdefgh
             // ---------------------------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.DELETE,
                                          URLPathPrefix + "users/{UserId}/APIKeys/{APIKeyId}",
                                          HTTPContentType.JSON_UTF8,
@@ -8980,7 +9007,8 @@ namespace social.OpenData.UsersAPI
             // -------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:3001/userGroups
             // -------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "userGroups",
                                          HTTPContentType.HTML_UTF8,
@@ -9023,7 +9051,8 @@ namespace social.OpenData.UsersAPI
             // ------------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:2000/userGroups
             // ------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "userGroups",
                                          HTTPContentType.JSON_UTF8,
@@ -9109,7 +9138,8 @@ namespace social.OpenData.UsersAPI
             // --------------------------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:3001/userGroups/{UserGroupId}
             // --------------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "userGroups/{UserGroupId}",
                                          HTTPContentType.HTML_UTF8,
@@ -9152,7 +9182,8 @@ namespace social.OpenData.UsersAPI
             // --------------------------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:2100/userGroups/{UserGroupId}
             // --------------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "userGroups/{UserGroupId}",
                                          HTTPContentType.JSON_UTF8,
@@ -9223,7 +9254,8 @@ namespace social.OpenData.UsersAPI
             // ---------------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:2000/organizations
             // ---------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "organizations",
                                          HTTPContentType.JSON_UTF8,
@@ -9308,7 +9340,8 @@ namespace social.OpenData.UsersAPI
             // ----------------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:3001/organizations
             // ----------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "organizations",
                                          HTTPContentType.HTML_UTF8,
@@ -9353,7 +9386,8 @@ namespace social.OpenData.UsersAPI
             // ------------------------------------------------------------------------------------
             // curl -v -X COUNT -H "Accept: application/json" http://127.0.0.1:2000/organizations
             // ------------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.COUNT,
                                          URLPathPrefix + "organizations",
                                          HTTPContentType.JSON_UTF8,
@@ -9416,7 +9450,8 @@ namespace social.OpenData.UsersAPI
             //          }" \
             //      http://127.0.0.1:2000/organizations
             // ---------------------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.ADD,
                                          URLPathPrefix + "organizations",
                                          HTTPContentType.JSON_UTF8,
@@ -9567,7 +9602,8 @@ namespace social.OpenData.UsersAPI
             // -------------------------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:2000/organizations/214080158
             // -------------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "organizations/{OrganizationId}",
                                          HTTPContentType.JSON_UTF8,
@@ -9654,7 +9690,8 @@ namespace social.OpenData.UsersAPI
             // ------------------------------------------------------------------------------
             // curl -v -H "Accept: text/html" http://127.0.0.1:3001/organizations/GraphDefined
             // ------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "organizations/{OrganizationId}",
                                          HTTPContentType.HTML_UTF8,
@@ -9728,7 +9765,8 @@ namespace social.OpenData.UsersAPI
             // ---------------------------------------------------------
             // curl -v -X EXISTS http://127.0.0.1:2000/organizations/7
             // ---------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.EXISTS,
                                          URLPathPrefix + "organizations/{OrganizationId}",
                                          HTTPDelegate: Request => {
@@ -9796,7 +9834,8 @@ namespace social.OpenData.UsersAPI
             //          }" \
             //      http://127.0.0.1:2000/users/214080158
             // ---------------------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.ADD,
                                          URLPathPrefix + "organizations/{organizationId}",
                                          HTTPContentType.JSON_UTF8,
@@ -10058,7 +10097,8 @@ namespace social.OpenData.UsersAPI
             //          }" \
             //      http://127.0.0.1:2000/organizations/214080158
             // ---------------------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.SET,
                                          URLPathPrefix + "organizations/{organizationId}",
                                          HTTPContentType.JSON_UTF8,
@@ -10188,7 +10228,8 @@ namespace social.OpenData.UsersAPI
             //      -H "Content-Type: application/json; charset=utf-8" \
             //      http://127.0.0.1:2000/organizations/214080158
             // ---------------------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.DELETE,
                                          URLPathPrefix + "organizations/{organizationId}",
                                          HTTPContentType.JSON_UTF8,
@@ -10281,7 +10322,8 @@ namespace social.OpenData.UsersAPI
             // --------------------------------------------------------------------------------------
             // curl -v -H "Accept: text/html" http://127.0.0.1:3001/organizations/GraphDefined/address
             // --------------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "organizations/{OrganizationId}/address",
                                          HTTPContentType.HTML_UTF8,
@@ -10354,7 +10396,8 @@ namespace social.OpenData.UsersAPI
             // -----------------------------------------------------------------------------------------------
             // curl -v -H "Accept: text/html" http://127.0.0.1:3001/organizations/GraphDefined/members
             // -----------------------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "organizations/{OrganizationId}/members",
                                          HTTPContentType.HTML_UTF8,
@@ -10427,7 +10470,8 @@ namespace social.OpenData.UsersAPI
             // -----------------------------------------------------------------------------------------------------------
             // curl -v -X ADD -H "Accept: application/json" http://127.0.0.1:3001/organizations/GraphDefined/admins/ahzf
             // -----------------------------------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.ADD,
                                          URLPathPrefix + "organizations/{OrganizationId}/admins/{UserId}",
                                          HTTPContentType.JSON_UTF8,
@@ -10528,7 +10572,8 @@ namespace social.OpenData.UsersAPI
             // ------------------------------------------------------------------------------------------------------------
             // curl -v -X ADD -H "Accept: application/json" http://127.0.0.1:3001/organizations/GraphDefined/members/ahzf
             // ------------------------------------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.ADD,
                                          URLPathPrefix + "organizations/{OrganizationId}/members/{UserId}",
                                          HTTPContentType.JSON_UTF8,
@@ -10629,7 +10674,8 @@ namespace social.OpenData.UsersAPI
             // -----------------------------------------------------------------------------------------------------------
             // curl -v -X ADD -H "Accept: application/json" http://127.0.0.1:3001/organizations/GraphDefined/guests/ahzf
             // -----------------------------------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.ADD,
                                          URLPathPrefix + "organizations/{OrganizationId}/guests/{UserId}",
                                          HTTPContentType.JSON_UTF8,
@@ -10730,7 +10776,8 @@ namespace social.OpenData.UsersAPI
             // ------------------------------------------------------------------------------------------------------------
             // curl -v -X DELETE -H "Accept: application/json" http://127.0.0.1:3001/organizations/GraphDefined/_all/ahzf
             // ------------------------------------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.DELETE,
                                          URLPathPrefix + "organizations/{OrganizationId}/_all/{UserId}",
                                          HTTPContentType.JSON_UTF8,
@@ -10830,7 +10877,8 @@ namespace social.OpenData.UsersAPI
             // --------------------------------------------------------------------------------------------------------------
             // curl -v -X DELETE -H "Accept: application/json" http://127.0.0.1:3001/organizations/GraphDefined/admins/ahzf
             // --------------------------------------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.DELETE,
                                          URLPathPrefix + "organizations/{OrganizationId}/admins/{UserId}",
                                          HTTPContentType.JSON_UTF8,
@@ -10931,7 +10979,8 @@ namespace social.OpenData.UsersAPI
             // ---------------------------------------------------------------------------------------------------------------
             // curl -v -X DELETE -H "Accept: application/json" http://127.0.0.1:3001/organizations/GraphDefined/members/ahzf
             // ---------------------------------------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.DELETE,
                                          URLPathPrefix + "organizations/{OrganizationId}/members/{UserId}",
                                          HTTPContentType.JSON_UTF8,
@@ -11032,7 +11081,8 @@ namespace social.OpenData.UsersAPI
             // --------------------------------------------------------------------------------------------------------------
             // curl -v -X DELETE -H "Accept: application/json" http://127.0.0.1:3001/organizations/GraphDefined/guests/ahzf
             // --------------------------------------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.DELETE,
                                          URLPathPrefix + "organizations/{OrganizationId}/guests/{UserId}",
                                          HTTPContentType.JSON_UTF8,
@@ -11133,7 +11183,8 @@ namespace social.OpenData.UsersAPI
             // -----------------------------------------------------------------------------------------------
             // curl -v -H "Accept: text/html" http://127.0.0.1:3001/organizations/GraphDefined/newMember
             // -----------------------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "organizations/{OrganizationId}/newMember",
                                          HTTPContentType.HTML_UTF8,
@@ -11203,7 +11254,8 @@ namespace social.OpenData.UsersAPI
             // -----------------------------------------------------------------------------------------------
             // curl -v -H "Accept: text/html" http://127.0.0.1:3001/organizations/GraphDefined/subOrganizations
             // -----------------------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "organizations/{OrganizationId}/subOrganizations",
                                          HTTPContentType.HTML_UTF8,
@@ -11276,7 +11328,8 @@ namespace social.OpenData.UsersAPI
             // -----------------------------------------------------------------------------------------------
             // curl -v -H "Accept: text/html" http://127.0.0.1:3001/organizations/GraphDefined/newSubOrganization
             // -----------------------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "organizations/{OrganizationId}/newSubOrganization",
                                          HTTPContentType.HTML_UTF8,
@@ -11350,7 +11403,8 @@ namespace social.OpenData.UsersAPI
             // --------------------------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:2100/organizations/ahzf/notifications
             // --------------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "organizations/{OrganizationId}/notifications",
                                          HTTPContentType.JSON_UTF8,
@@ -11409,7 +11463,8 @@ namespace social.OpenData.UsersAPI
             //          }" \
             //      http://127.0.0.1:2000/organizations/214080158
             // ---------------------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.SET,
                                          URLPathPrefix + "organizations/{OrganizationId}/notifications",
                                          HTTPContentType.JSON_UTF8,
@@ -11595,7 +11650,8 @@ namespace social.OpenData.UsersAPI
             //          }" \
             //      http://127.0.0.1:2000/organizations/214080158
             // ---------------------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.DELETE,
                                          URLPathPrefix + "organizations/{OrganizationId}/notifications",
                                          HTTPContentType.JSON_UTF8,
@@ -11782,7 +11838,8 @@ namespace social.OpenData.UsersAPI
             // --------------------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:3001/organizationGroups
             // --------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "organizationGroups",
                                          HTTPContentType.HTML_UTF8,
@@ -11825,7 +11882,8 @@ namespace social.OpenData.UsersAPI
             // --------------------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:2000/organizationGroups
             // --------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "organizationGroups",
                                          HTTPContentType.JSON_UTF8,
@@ -11914,7 +11972,8 @@ namespace social.OpenData.UsersAPI
             // ---------------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:2100/notifications
             // ---------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "notifications",
                                          HTTPContentType.JSON_UTF8,
@@ -11961,7 +12020,8 @@ namespace social.OpenData.UsersAPI
             // ----------------------------------------------------------------------------
             // curl -v -H "Accept: text/html" http://127.0.0.1:3001/notifications
             // ----------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "notifications",
                                          HTTPContentType.HTML_UTF8,
@@ -12007,7 +12067,8 @@ namespace social.OpenData.UsersAPI
             // ------------------------------------------------------------------------------------------------
             // curl -v -H "Accept: text/html" http://127.0.0.1:3001/notifications/{notificationId}
             // ------------------------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "notifications/{notificationId}",
                                          HTTPContentType.HTML_UTF8,
@@ -12069,7 +12130,8 @@ namespace social.OpenData.UsersAPI
             // ---------------------------------------------------------------------------
             // curl -v -H "Accept: text/html" http://127.0.0.1:3001/notificationSettings
             // ---------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "notificationSettings",
                                          HTTPContentType.HTML_UTF8,
@@ -12116,7 +12178,8 @@ namespace social.OpenData.UsersAPI
             // -----------------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:2100/newNotification
             // -----------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "newNotification",
                                          HTTPContentType.JSON_UTF8,
@@ -12176,7 +12239,8 @@ namespace social.OpenData.UsersAPI
             // ----------------------------------------------------------------------
             // curl -v -H "Accept: text/html" http://127.0.0.1:3001/newNotification
             // ----------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "newNotification",
                                          HTTPContentType.HTML_UTF8,
@@ -12276,7 +12340,8 @@ namespace social.OpenData.UsersAPI
             // -----------------------------------------------
             // curl -X OPTIONS -v http://127.0.0.1:3001/blog
             // -----------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.OPTIONS,
                                          URLPathPrefix + "blog",
                                          HTTPDelegate: Request => {
@@ -12301,7 +12366,8 @@ namespace social.OpenData.UsersAPI
             // ------------------------------------
             // curl -v http://127.0.0.1:4100/blog
             // ------------------------------------
-            HTTPServer.AddMethodCallback(HTTPHostname.Any,
+            AddMethodCallback(
+                                         HTTPHostname.Any,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "/blog",
                                          HTTPContentType.HTML_UTF8,
@@ -12345,7 +12411,8 @@ namespace social.OpenData.UsersAPI
             // --------------------------------------------------------
             // curl -X OPTIONS -v http://127.0.0.1:3001/blog/postings
             // --------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.OPTIONS,
                                          URLPathPrefix + "blog/postings",
                                          HTTPDelegate: Request => {
@@ -12372,7 +12439,8 @@ namespace social.OpenData.UsersAPI
             // ---------------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:3001/blog/postings
             // ---------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "blog/postings",
                                          HTTPContentType.JSON_UTF8,
@@ -12460,7 +12528,8 @@ namespace social.OpenData.UsersAPI
             // ---------------------------------------------
             // curl -v http://127.0.0.1:4100/blog/postings
             // ---------------------------------------------
-            HTTPServer.AddMethodCallback(HTTPHostname.Any,
+            AddMethodCallback(
+                                         HTTPHostname.Any,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "/blog/postings",
                                          HTTPContentType.HTML_UTF8,
@@ -12505,7 +12574,8 @@ namespace social.OpenData.UsersAPI
             // ------------------------------------------------------
             // curl -v -X COUNT http://127.0.0.1:3001/blog/postings
             // ------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.COUNT,
                                          URLPathPrefix + "blog",
                                          HTTPContentType.JSON_UTF8,
@@ -12539,7 +12609,8 @@ namespace social.OpenData.UsersAPI
             // -------------------------------------------------------------------
             // curl -X OPTIONS -v http://127.0.0.1:3001/blog/postings/214080158
             // -------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.OPTIONS,
                                          URLPathPrefix + "blog/postings/{postingId}",
                                          HTTPDelegate: Request => {
@@ -12566,7 +12637,8 @@ namespace social.OpenData.UsersAPI
             // --------------------------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:3001/blog/postings/214080158
             // --------------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "blog/postings/{postingId}",
                                          HTTPContentType.JSON_UTF8,
@@ -12632,7 +12704,8 @@ namespace social.OpenData.UsersAPI
             // --------------------------------------------------------------------------------------
             // curl -v -H "Accept: text/html" http://127.0.0.1:3001/blog/postings/214080158
             // --------------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "blog/postings/{postingId}",
                                          HTTPContentType.HTML_UTF8,
@@ -12694,7 +12767,8 @@ namespace social.OpenData.UsersAPI
             // ---------------------------------------------------------
             // curl -X OPTIONS -v http://127.0.0.1:3001/newsPostings
             // ---------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.OPTIONS,
                                          URLPathPrefix + "newsPostings",
                                          HTTPDelegate: Request => {
@@ -12721,7 +12795,8 @@ namespace social.OpenData.UsersAPI
             // ------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:3001/newsPostings
             // ------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "newsPostings",
                                          HTTPContentType.JSON_UTF8,
@@ -12809,7 +12884,8 @@ namespace social.OpenData.UsersAPI
             // -----------------------------------------------------------
             // curl -v -H "Accept: text/html" http://127.0.0.1:3001/newsPostings
             // -----------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "newsPostings",
                                          HTTPContentType.HTML_UTF8,
@@ -12854,7 +12930,8 @@ namespace social.OpenData.UsersAPI
             // ---------------------------------------------------------------------------
             // curl -v -X COUNT -H "Accept: application/json" http://127.0.0.1:3001/newsPostings
             // ---------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.COUNT,
                                          URLPathPrefix + "newsPostings",
                                          HTTPContentType.JSON_UTF8,
@@ -12888,7 +12965,8 @@ namespace social.OpenData.UsersAPI
             // -------------------------------------------------------------------
             // curl -X OPTIONS -v http://127.0.0.1:3001/newsPostings/214080158
             // -------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.OPTIONS,
                                          URLPathPrefix + "newsPostings/{postingId}",
                                          HTTPDelegate: Request => {
@@ -12915,7 +12993,8 @@ namespace social.OpenData.UsersAPI
             // --------------------------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:3001/newsPostings/214080158
             // --------------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "newsPostings/{postingId}",
                                          HTTPContentType.JSON_UTF8,
@@ -12981,7 +13060,8 @@ namespace social.OpenData.UsersAPI
             // --------------------------------------------------------------------------------------
             // curl -v -H "Accept: text/html" http://127.0.0.1:3001/newsPostings/214080158
             // --------------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "newsPostings/{postingId}",
                                          HTTPContentType.HTML_UTF8,
@@ -13043,7 +13123,8 @@ namespace social.OpenData.UsersAPI
             // ---------------------------------------------------------
             // curl -X OPTIONS -v http://127.0.0.1:3001/newsBanners
             // ---------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.OPTIONS,
                                          URLPathPrefix + "newsBanners",
                                          HTTPDelegate: Request => {
@@ -13070,7 +13151,8 @@ namespace social.OpenData.UsersAPI
             // ------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:3001/newsBanners
             // ------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "newsBanners",
                                          HTTPContentType.JSON_UTF8,
@@ -13155,7 +13237,8 @@ namespace social.OpenData.UsersAPI
             // -----------------------------------------------------------
             // curl -v -H "Accept: text/html" http://127.0.0.1:3001/newsBanners
             // -----------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "newsBanners",
                                          HTTPContentType.HTML_UTF8,
@@ -13200,7 +13283,8 @@ namespace social.OpenData.UsersAPI
             // ---------------------------------------------------------------------------
             // curl -v -X COUNT -H "Accept: application/json" http://127.0.0.1:3001/newsBanners
             // ---------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.COUNT,
                                          URLPathPrefix + "newsBanners",
                                          HTTPContentType.JSON_UTF8,
@@ -13234,7 +13318,8 @@ namespace social.OpenData.UsersAPI
             // -------------------------------------------------------------------
             // curl -X OPTIONS -v http://127.0.0.1:3001/newsBanners/214080158
             // -------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.OPTIONS,
                                          URLPathPrefix + "newsBanners/{bannerId}",
                                          HTTPDelegate: Request => {
@@ -13261,7 +13346,8 @@ namespace social.OpenData.UsersAPI
             // -----------------------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:3001/newsBanners/214080158
             // -----------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "newsBanners/{bannerId}",
                                          HTTPContentType.JSON_UTF8,
@@ -13328,7 +13414,8 @@ namespace social.OpenData.UsersAPI
             // --------------------------------------------------------------------------------------
             // curl -v -H "Accept: text/html" http://127.0.0.1:3001/newsBanners/214080158
             // --------------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "newsBanners/{bannerId}",
                                          HTTPContentType.HTML_UTF8,
@@ -13391,7 +13478,8 @@ namespace social.OpenData.UsersAPI
             // ---------------------------------------------------------
             // curl -X OPTIONS -v http://127.0.0.1:3001/FAQs
             // ---------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.OPTIONS,
                                          URLPathPrefix + "FAQs",
                                          HTTPDelegate: Request => {
@@ -13418,7 +13506,8 @@ namespace social.OpenData.UsersAPI
             // ------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:3001/FAQs
             // ------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "FAQs",
                                          HTTPContentType.JSON_UTF8,
@@ -13504,7 +13593,8 @@ namespace social.OpenData.UsersAPI
             // -----------------------------------------------------------
             // curl -v -H "Accept: text/html" http://127.0.0.1:3001/FAQs
             // -----------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "FAQs",
                                          HTTPContentType.HTML_UTF8,
@@ -13549,7 +13639,8 @@ namespace social.OpenData.UsersAPI
             // ---------------------------------------------------------------------------
             // curl -v -X COUNT -H "Accept: application/json" http://127.0.0.1:3001/FAQs
             // ---------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
+            AddMethodCallback(
+                                         Hostname,
                                          HTTPMethod.COUNT,
                                          URLPathPrefix + "FAQs",
                                          HTTPContentType.JSON_UTF8,
@@ -13662,7 +13753,8 @@ namespace social.OpenData.UsersAPI
             // -----------------------------------------
             // curl http://127.0.0.1:2000/serviceCheck
             // -----------------------------------------
-            HTTPServer.AddMethodCallback(HTTPHostname.Any,
+            AddMethodCallback(
+                                         HTTPHostname.Any,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "serviceCheck",
                                          HTTPDelegate: Request => {
@@ -13742,7 +13834,8 @@ namespace social.OpenData.UsersAPI
             // -----------------------------------------------------------------------------------------------------------------
             // curl -X POST -H "Content-Type: application/json" -d "{\"content\": \"123\"}" http://127.0.0.1:2000/serviceCheck
             // -----------------------------------------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(HTTPHostname.Any,
+            AddMethodCallback(
+                                         HTTPHostname.Any,
                                          HTTPMethod.POST,
                                          URLPathPrefix + "serviceCheck",
                                          HTTPContentType.JSON_UTF8,
@@ -13830,7 +13923,8 @@ namespace social.OpenData.UsersAPI
 
             #region /hashimage
 
-            HTTPServer.AddMethodCallback(HTTPHostname.Any,
+            AddMethodCallback(
+                                         HTTPHostname.Any,
                                          HTTPMethod.GET,
                                          HTTPPath.Parse("/hashimage"),
                                          HTTPContentType.PNG,
@@ -13893,7 +13987,8 @@ namespace social.OpenData.UsersAPI
             // -----------------------------------------------
             // curl -v -X POST http://127.0.0.1:2000/restart
             // -----------------------------------------------
-            HTTPServer.AddMethodCallback(HTTPHostname.Any,
+            AddMethodCallback(
+                                         HTTPHostname.Any,
                                          HTTPMethod.POST,
                                          URLPathPrefix + "/restart",
                                          HTTPRequestLogger:   RestartRequest,
@@ -13936,7 +14031,8 @@ namespace social.OpenData.UsersAPI
             // --------------------------------------------
             // curl -v -X POST http://127.0.0.1:2000/stop
             // --------------------------------------------
-            HTTPServer.AddMethodCallback(HTTPHostname.Any,
+            AddMethodCallback(
+                                         HTTPHostname.Any,
                                          HTTPMethod.POST,
                                          URLPathPrefix + "/stop",
                                          HTTPRequestLogger:   StopRequest,

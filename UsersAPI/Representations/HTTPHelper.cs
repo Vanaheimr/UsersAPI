@@ -17,14 +17,9 @@
 
 #region Usings
 
-using System;
-using System.Linq;
-using System.Collections.Generic;
-
 using Newtonsoft.Json.Linq;
 
 using org.GraphDefined.Vanaheimr.Illias;
-using org.GraphDefined.Vanaheimr.Hermod;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 
 #endregion
@@ -46,8 +41,8 @@ namespace social.OpenData.UsersAPI
 
         #region ErrorMessage(Message, Context = null)
 
-        public static JObject ErrorMessage(String  Message,
-                                           String  Context  = null)
+        public static JObject ErrorMessage(String   Message,
+                                           String?  Context   = null)
 
             => new JObject(
                    new JProperty("@context",     Context ?? "https://opendata.social/contexts/UsersAPI+json/errors"),
@@ -60,14 +55,16 @@ namespace social.OpenData.UsersAPI
         #region ITEMS_GET(...)
 
         public static void ITEMS_GET<TId, TItem>(this HTTPServer             HTTPServer,
-                                                 HTTPPath                     UriTemplate,
+                                                 HTTPAPI                     HTTPAPI,
+                                                 HTTPPath                    URLTemplate,
                                                  Dictionary<TId, TItem>      Dictionary,
                                                  ItemFilterDelegate<TItem>   Filter,
                                                  ItemsToJSONDelegate<TItem>  ToJSONDelegate)
         {
 
             GET_ITEMS(HTTPServer,
-                      UriTemplate,
+                      HTTPAPI,
+                      URLTemplate,
                       Dictionary.Select(kvp => kvp.Value),
                       Filter,
                       ToJSONDelegate);
@@ -75,16 +72,18 @@ namespace social.OpenData.UsersAPI
         }
 
         public static void GET_ITEMS<TItem>(this HTTPServer             HTTPServer,
-                                            HTTPPath                     UriTemplate,
+                                            HTTPAPI                     HTTPAPI,
+                                            HTTPPath                    URLTemplate,
                                             IEnumerable<TItem>          Enumeration,
                                             ItemFilterDelegate<TItem>   Filter,
                                             ItemsToJSONDelegate<TItem>  ToJSONDelegate)
         {
 
 
-            HTTPServer.AddMethodCallback(HTTPHostname.Any,
+            HTTPServer.AddMethodCallback(HTTPAPI,
+                                         HTTPHostname.Any,
                                          HTTPMethod.GET,
-                                         UriTemplate,
+                                         URLTemplate,
                                          HTTPContentType.JSON_UTF8,
                                          HTTPDelegate: async Request => {
 
@@ -119,7 +118,8 @@ namespace social.OpenData.UsersAPI
         #region ITEM_EXISTS(...)
 
         public static void ITEM_EXISTS<TId, TItem>(this HTTPServer                 HTTPServer,
-                                                   HTTPPath                         UriTemplate,
+                                                   HTTPAPI                         HTTPAPI,
+                                                   HTTPPath                        URLTemplate,
                                                    ParseIdDelegate<TId>            ParseIdDelegate,
                                                    Func<String, String>            ParseIdError,
                                                    TryGetItemDelegate<TId, TItem>  TryGetItemDelegate,
@@ -129,9 +129,10 @@ namespace social.OpenData.UsersAPI
         {
 
 
-            HTTPServer.AddMethodCallback(HTTPHostname.Any,
+            HTTPServer.AddMethodCallback(HTTPAPI,
+                                         HTTPHostname.Any,
                                          HTTPMethod.EXISTS,
-                                         UriTemplate,
+                                         URLTemplate,
                                          HTTPContentType.JSON_UTF8,
                                          HTTPDelegate: async Request => {
 
@@ -180,7 +181,8 @@ namespace social.OpenData.UsersAPI
         #region ITEM_GET(...)
 
         public static void ITEM_GET<TId, TItem>(this HTTPServer                 HTTPServer,
-                                                HTTPPath                         UriTemplate,
+                                                HTTPAPI                         HTTPAPI,
+                                                HTTPPath                        URLTemplate,
                                                 ParseIdDelegate<TId>            ParseIdDelegate,
                                                 Func<String, String>            ParseIdError,
                                                 TryGetItemDelegate<TId, TItem>  TryGetItemDelegate,
@@ -190,9 +192,10 @@ namespace social.OpenData.UsersAPI
         {
 
 
-            HTTPServer.AddMethodCallback(HTTPHostname.Any,
+            HTTPServer.AddMethodCallback(HTTPAPI,
+                                         HTTPHostname.Any,
                                          HTTPMethod.GET,
-                                         UriTemplate,
+                                         URLTemplate,
                                          HTTPContentType.JSON_UTF8,
                                          HTTPDelegate: async Request => {
 
