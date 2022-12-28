@@ -16457,62 +16457,95 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region VerifyMessageSignatures(JSONMessage)
+        #region VerifyMessageSignatures(JSONMessage, AllMustBeValid = true)
 
-        public Boolean VerifyMessageSignatures(JObject JSONMessage)
+        public Boolean VerifyMessageSignatures(JObject JSONMessage,
+                                               Boolean AllMustBeValid = true)
         {
 
             if (JSONMessage is null)
                 return false;
 
-            if (!(JSONMessage["signatures"] is JArray signaturesJSON) || signaturesJSON.Type != JTokenType.Array || signaturesJSON.Count < 1)
+            if (JSONMessage["signatures"] is not JArray signaturesJSON ||
+                signaturesJSON.Type != JTokenType.Array ||
+                signaturesJSON.Count < 1)
+            {
                 return false;
+            }
 
-            JObject JSONMessageCopy = JObject.Parse(JSONMessage.ToString(Newtonsoft.Json.Formatting.None));
-            JSONMessageCopy.Remove("signatures");
-            var plainText           = JSONMessageCopy.ToString(Newtonsoft.Json.Formatting.None)?.ToUTF8Bytes();
+            try
+            {
+
+                var JSONMessageCopy  = JObject.Parse(JSONMessage.ToString(Newtonsoft.Json.Formatting.None));
+                JSONMessageCopy.Remove("signatures");
+                var plainText        = JSONMessageCopy.ToString(Newtonsoft.Json.Formatting.None)?.ToUTF8Bytes();
+
+                var results          = new List<Boolean>();
+
+                // loop!
+                foreach (var signatureJSON in signaturesJSON)
+                {
+
+                    if (signatureJSON is not JObject ||
+                        signatureJSON.Type != JTokenType.Object)
+                    {
+                        results.Add(false);
+                        continue;
+                    }
+
+                    var publicKey  = signatureJSON["publicKey"]?.Value<String>()?.FromBase64();
+                    var signature  = signatureJSON["signature"]?.Value<String>()?.FromBase64();
+
+                    if (plainText is null     ||
+                        publicKey is null     ||
+                        signature is null     ||
+                        plainText.Length == 0 ||
+                        publicKey.Length == 0 ||
+                        signature.Length == 0)
+                    {
+                        results.Add(false);
+                        continue;
+                    }
 
 
-            // loop!
+                    //Byte[] pubKey = publicKey;
+                    //var aa = new X509EncodedKeySpec(signaturePublicKey);
+                    //var input = new Asn1InputStream(signaturePublicKey);
 
-            var signatureJSON = signaturesJSON.First;
+                    //Byte[] pubKey = null;
 
-            if (!(signatureJSON is JObject) || signatureJSON.Type != JTokenType.Object)
+                    //Asn1Object p;
+                    //while ((p = input.ReadObject()) != null)
+                    //{
+                    //    pubKey = ((p.ToAsn1Object() as Asn1Sequence)[1] as DerBitString).GetBytes();
+                    //    Console.WriteLine(p.ToString());
+                    //}
+
+                    var ecp           = SecNamedCurves.GetByName("secp256r1");
+                    var ecParams      = new ECDomainParameters(ecp.Curve, ecp.G, ecp.N, ecp.H, ecp.GetSeed());
+                    var pubKeyParams  = new ECPublicKeyParameters("ECDSA", ecParams.Curve.DecodePoint(publicKey), ecParams);
+
+                    var SHA256Hash    = SHA256.Create().ComputeHash(plainText);
+                    var BlockSize     = 32;
+
+                    var verifier      = SignerUtilities.GetSigner("NONEwithECDSA");
+                    verifier.Init(false, pubKeyParams);
+                    verifier.BlockUpdate(SHA256Hash, 0, BlockSize);
+                    var result        = verifier.VerifySignature(signature);
+
+                    results.Add(result);
+
+                }
+
+                return AllMustBeValid
+                           ? results.All(result => result)
+                           : results.Any(result => result);
+
+            }
+            catch (Exception)
+            {
                 return false;
-
-            var publicKey  = signatureJSON["publicKey"]?.Value<String>()?.FromBase64();
-            var signature  = signatureJSON["signature"]?.Value<String>()?.FromBase64();
-
-            if (publicKey.IsNullOrEmpty() || signature.IsNullOrEmpty())
-                return false;
-
-
-            Byte[] pubKey = publicKey;
-            //var aa = new X509EncodedKeySpec(signaturePublicKey);
-            //var input = new Asn1InputStream(signaturePublicKey);
-
-            //Byte[] pubKey = null;
-
-            //Asn1Object p;
-            //while ((p = input.ReadObject()) != null)
-            //{
-            //    pubKey = ((p.ToAsn1Object() as Asn1Sequence)[1] as DerBitString).GetBytes();
-            //    Console.WriteLine(p.ToString());
-            //}
-
-            var ecp           = SecNamedCurves.GetByName("secp256r1");
-            var ecParams      = new ECDomainParameters(ecp.Curve, ecp.G, ecp.N, ecp.H, ecp.GetSeed());
-            var pubKeyParams  = new ECPublicKeyParameters("ECDSA", ecParams.Curve.DecodePoint(pubKey), ecParams);
-
-            var SHA256Hash    = SHA256.Create().ComputeHash(plainText);
-            var BlockSize     = 32;
-
-            var verifier      = SignerUtilities.GetSigner("NONEwithECDSA");
-            verifier.Init(false, pubKeyParams);
-            verifier.BlockUpdate(SHA256Hash, 0, BlockSize);
-            var result        = verifier.VerifySignature(signature);
-
-            return result;
+            }
 
         }
 
