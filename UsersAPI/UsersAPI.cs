@@ -4613,7 +4613,7 @@ namespace social.OpenData.UsersAPI
 
         #region (protected override) GetResourceStream      (ResourceName)
 
-        protected override Stream GetResourceStream(String ResourceName)
+        protected override Stream? GetResourceStream(String ResourceName)
 
             => GetResourceStream(ResourceName,
                                  new Tuple<String, System.Reflection.Assembly>(UsersAPI.HTTPRoot, typeof(UsersAPI).Assembly),
@@ -4623,7 +4623,7 @@ namespace social.OpenData.UsersAPI
 
         #region (protected override) GetResourceMemoryStream(ResourceName)
 
-        protected override MemoryStream GetResourceMemoryStream(String ResourceName)
+        protected override MemoryStream? GetResourceMemoryStream(String ResourceName)
 
             => GetResourceMemoryStream(ResourceName,
                                        new Tuple<String, System.Reflection.Assembly>(UsersAPI.HTTPRoot, typeof(UsersAPI).Assembly),
@@ -4633,7 +4633,7 @@ namespace social.OpenData.UsersAPI
 
         #region (protected override) GetResourceString      (ResourceName)
 
-        protected override String? GetResourceString(String ResourceName)
+        protected override String GetResourceString(String ResourceName)
 
             => GetResourceString(ResourceName,
                                  new Tuple<String, System.Reflection.Assembly>(UsersAPI.HTTPRoot, typeof(UsersAPI).Assembly),
@@ -4653,7 +4653,7 @@ namespace social.OpenData.UsersAPI
 
         #region (protected override) MixWithHTMLTemplate    (ResourceName)
 
-        protected override String? MixWithHTMLTemplate(String ResourceName)
+        protected override String MixWithHTMLTemplate(String ResourceName)
 
             => MixWithHTMLTemplate(ResourceName,
                                    new Tuple<String, System.Reflection.Assembly>(UsersAPI.HTTPRoot, typeof(UsersAPI).Assembly),
@@ -4689,7 +4689,9 @@ namespace social.OpenData.UsersAPI
                     request.Path.StartsWith(URLPathPrefix + "/favicon.ico")              ||
 
                     request.Path.StartsWith(URLPathPrefix + "/login")                                              ||
-                    request.Path.StartsWith(URLPathPrefix + "/css/login")                                          ||
+                    request.Path.StartsWith(URLPathPrefix + "/css")                                                ||
+                    request.Path.StartsWith(URLPathPrefix + "/webfonts")                                           ||
+                    request.Path.StartsWith(URLPathPrefix + "/images")                                             ||
                     request.Path.StartsWith(URLPathPrefix + "/lostPassword")                                       ||
                     request.Path.StartsWith(URLPathPrefix + "/resetPassword")                                      ||
                     request.Path.StartsWith(URLPathPrefix + "/setPassword")                                        ||
@@ -5233,7 +5235,7 @@ namespace social.OpenData.UsersAPI
                                          AccessControlAllowMethods  = "GET",
                                          AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                          ContentType                = HTTPContentType.HTML_UTF8,
-                                         ContentStream              = GetResourceStream("login.login-" + DefaultLanguage.ToString() + ".html"),
+                                         Content                    = GetResourceString("login.login-" + DefaultLanguage.ToString() + ".html").ToUTF8Bytes(),
                                          Connection                 = "close"
                                      }.AsImmutable),
 
@@ -13999,11 +14001,11 @@ namespace social.OpenData.UsersAPI
 
                                              // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
                                              if (!TryGetHTTPUser(Request,
-                                                                 out User                   HTTPUser,
-                                                                 out HashSet<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse.Builder   Response,
-                                                                 AccessLevel:               Access_Levels.Admin,
-                                                                 Recursive:                 true))
+                                                                 out var       HTTPUser,
+                                                                 out var       HTTPOrganizations,
+                                                                 out var       Response,
+                                                                 AccessLevel:  Access_Levels.Admin,
+                                                                 Recursive:    true))
                                              {
                                                  return Task.FromResult(Response.AsImmutable);
                                              }
@@ -14043,11 +14045,11 @@ namespace social.OpenData.UsersAPI
 
                                              // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
                                              if (!TryGetHTTPUser(Request,
-                                                                 out User                   HTTPUser,
-                                                                 out HashSet<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse.Builder   Response,
-                                                                 AccessLevel:               Access_Levels.Admin,
-                                                                 Recursive:                 true))
+                                                                 out var       HTTPUser,
+                                                                 out var       HTTPOrganizations,
+                                                                 out var       Response,
+                                                                 AccessLevel:  Access_Levels.Admin,
+                                                                 Recursive:    true))
                                              {
                                                  return Task.FromResult(Response.AsImmutable);
                                              }

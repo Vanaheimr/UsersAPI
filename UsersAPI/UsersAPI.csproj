@@ -236,6 +236,9 @@
     <None Remove="HTTPRoot\webfonts\fa-solid-900.ttf" />
     <None Remove="HTTPRoot\webfonts\fa-solid-900.woff" />
     <None Remove="HTTPRoot\webfonts\fa-solid-900.woff2" />
+    <None Remove="HTTPRoot\webfonts\fa-v4compatibility.ttf" />
+    <None Remove="HTTPRoot\webfonts\fa-v4compatibility.woff2" />
+    <None Remove="HTTPRoot\webfonts\LICENSE.txt" />
   </ItemGroup>
 
   <ItemGroup>
@@ -256,7 +259,7 @@
     <EmbeddedResource Include="HTTPRoot\defaults\defaults.js" />
     <EmbeddedResource Include="HTTPRoot\defaults\defaults.js.map" />
     <EmbeddedResource Include="HTTPRoot\defaults\defaults.ts" />
-    <EmbeddedResource Include="HTTPRoot\defaults\fontawesome-all.min.css" />
+    <EmbeddedResource Include="HTTPRoot\css\fontawesome-all.min.css" />
     <EmbeddedResource Include="HTTPRoot\defaults\search.js" />
     <EmbeddedResource Include="HTTPRoot\defaults\search.js.map" />
     <EmbeddedResource Include="HTTPRoot\defaults\search.ts" />
@@ -451,21 +454,15 @@
     <EmbeddedResource Include="HTTPRoot\user\users.scss" />
     <EmbeddedResource Include="HTTPRoot\user\users.shtml" />
     <EmbeddedResource Include="HTTPRoot\user\users.ts" />
-    <EmbeddedResource Include="HTTPRoot\webfonts\fa-brands-400.eot" />
-    <EmbeddedResource Include="HTTPRoot\webfonts\fa-brands-400.svg" />
     <EmbeddedResource Include="HTTPRoot\webfonts\fa-brands-400.ttf" />
-    <EmbeddedResource Include="HTTPRoot\webfonts\fa-brands-400.woff" />
     <EmbeddedResource Include="HTTPRoot\webfonts\fa-brands-400.woff2" />
-    <EmbeddedResource Include="HTTPRoot\webfonts\fa-regular-400.eot" />
-    <EmbeddedResource Include="HTTPRoot\webfonts\fa-regular-400.svg" />
     <EmbeddedResource Include="HTTPRoot\webfonts\fa-regular-400.ttf" />
-    <EmbeddedResource Include="HTTPRoot\webfonts\fa-regular-400.woff" />
     <EmbeddedResource Include="HTTPRoot\webfonts\fa-regular-400.woff2" />
-    <EmbeddedResource Include="HTTPRoot\webfonts\fa-solid-900.eot" />
-    <EmbeddedResource Include="HTTPRoot\webfonts\fa-solid-900.svg" />
     <EmbeddedResource Include="HTTPRoot\webfonts\fa-solid-900.ttf" />
-    <EmbeddedResource Include="HTTPRoot\webfonts\fa-solid-900.woff" />
     <EmbeddedResource Include="HTTPRoot\webfonts\fa-solid-900.woff2" />
+    <EmbeddedResource Include="HTTPRoot\webfonts\fa-v4compatibility.ttf" />
+    <EmbeddedResource Include="HTTPRoot\webfonts\fa-v4compatibility.woff2" />
+    <EmbeddedResource Include="HTTPRoot\webfonts\LICENSE.txt" />
   </ItemGroup>
 
   <ItemGroup>
