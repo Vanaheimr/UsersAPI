@@ -63,8 +63,6 @@
     <None Remove="HTTPRoot\libs\sse.d.ts" />
     <None Remove="HTTPRoot\login\login-de.html" />
     <None Remove="HTTPRoot\login\login-en.html" />
-    <None Remove="HTTPRoot\login\login.css" />
-    <None Remove="HTTPRoot\login\login.min.css" />
     <None Remove="HTTPRoot\login\login.scss" />
     <None Remove="HTTPRoot\login\lostPassword-de.html" />
     <None Remove="HTTPRoot\login\lostPassword-en.html" />
@@ -296,8 +294,6 @@
     <EmbeddedResource Include="HTTPRoot\libs\sse.d.ts" />
     <EmbeddedResource Include="HTTPRoot\login\login-de.html" />
     <EmbeddedResource Include="HTTPRoot\login\login-en.html" />
-    <EmbeddedResource Include="HTTPRoot\login\login.css" />
-    <EmbeddedResource Include="HTTPRoot\login\login.min.css" />
     <EmbeddedResource Include="HTTPRoot\login\login.scss" />
     <EmbeddedResource Include="HTTPRoot\login\lostPassword-de.html" />
     <EmbeddedResource Include="HTTPRoot\login\lostPassword-en.html" />
@@ -475,6 +471,10 @@
     <ProjectReference Include="..\..\SMSAPI\SMSAPI\SMSAPI.csproj" />
     <ProjectReference Include="..\..\Styx\Styx\Styx.csproj" />
     <ProjectReference Include="..\..\TelegramBotAPI\TelegramBotAPI\TelegramBotAPI.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="HTTPRoot\css\login\" />
   </ItemGroup>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
