@@ -16245,14 +16245,14 @@ namespace social.OpenData.UsersAPI
         public static AsymmetricCipherKeyPair GenerateKeys(X9ECParameters ECParameters)
         {
 
-            var EllipticCurveSpec = new ECDomainParameters(ECParameters.Curve,
+            var ellipticCurveSpec = new ECDomainParameters(ECParameters.Curve,
                                                            ECParameters.G,
                                                            ECParameters.N,
                                                            ECParameters.H,
                                                            ECParameters.GetSeed());
 
             var g = GeneratorUtilities.GetKeyPairGenerator("ECDH");
-            g.Init(new ECKeyGenerationParameters(EllipticCurveSpec, new SecureRandom()));
+            g.Init(new ECKeyGenerationParameters(ellipticCurveSpec, new SecureRandom()));
 
             return g.GenerateKeyPair();
 
