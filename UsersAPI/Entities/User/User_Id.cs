@@ -120,7 +120,7 @@ namespace social.OpenData.UsersAPI
         public static User_Id Parse(String Text)
         {
 
-            if (TryParse(Text, out User_Id userId))
+            if (TryParse(Text, out var userId))
                 return userId;
 
             throw new ArgumentException("Invalid text representation of an user identification: '" + Text + "'!",
@@ -139,7 +139,7 @@ namespace social.OpenData.UsersAPI
         public static User_Id? TryParse(String? Text)
         {
 
-            if (Text is not null && TryParse(Text, out User_Id userId))
+            if (Text is not null && TryParse(Text, out var userId))
                 return userId;
 
             return null;

@@ -154,7 +154,7 @@ namespace social.OpenData.UsersAPI
         {
 
             if (TryParse(Text,
-                         out Password password,
+                         out var password,
                          PasswordQualityCheck,
                          LengthOfSalt))
             {
@@ -181,7 +181,7 @@ namespace social.OpenData.UsersAPI
         {
 
             if (TryParse(Text,
-                         out Password password,
+                         out var password,
                          PasswordQualityCheck,
                          LengthOfSalt))
             {
@@ -208,6 +208,7 @@ namespace social.OpenData.UsersAPI
                         out Password,
                         null,
                         DefaultLengthOfSalt);
+
 
         /// <summary>
         /// Try to parse the given string as a password.
@@ -238,21 +239,21 @@ namespace social.OpenData.UsersAPI
             {
 
                 // Salt...
-                var Salt            = RandomExtensions.RandomString(LengthOfSalt);
-                var SecureSalt      = new SecureString();
+                var salt            = RandomExtensions.RandomString(LengthOfSalt);
+                var secureSalt      = new SecureString();
 
-                foreach (var character in Salt)
-                    SecureSalt.AppendChar(character);
+                foreach (var character in salt)
+                    secureSalt.AppendChar(character);
 
                 // Password...
-                var SecurePassword  = new SecureString();
-                var HashedPassword  = SHA256.HashData(Encoding.UTF8.GetBytes(Salt + ":" + Text));
+                var securePassword  = new SecureString();
+                var hashedPassword  = SHA256.HashData(Encoding.UTF8.GetBytes(salt + ":" + Text));
 
-                foreach (var character in HashedPassword.ToHexString(ToLower: true))
-                    SecurePassword.AppendChar(character);
+                foreach (var character in hashedPassword.ToHexString(ToLower: true))
+                    securePassword.AppendChar(character);
 
-                Password            = new Password(SecureSalt,
-                                                   SecurePassword);
+                Password            = new Password(secureSalt,
+                                                   securePassword);
 
                 return true;
 
@@ -279,31 +280,15 @@ namespace social.OpenData.UsersAPI
                                          String  HashedPassword)
         {
 
-            #region Initial checks
+            if (TryParseHash(Salt,
+                             HashedPassword,
+                             out var password))
+            {
+                return password;
+            }
 
-            if (HashedPassword != null)
-                HashedPassword = HashedPassword.Trim().ToLower();
-
-            if (HashedPassword.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(HashedPassword), "The given SHA256 hashed representation of a password must not be null or empty!");
-
-            #endregion
-
-            // Salt...
-            var SecureSalt      = new SecureString();
-
-            foreach (var character in Salt)
-                SecureSalt.AppendChar(character);
-
-
-            // Password...
-            var SecurePassword  = new SecureString();
-
-            foreach (var character in HashedPassword)
-                SecurePassword.AppendChar(character);
-
-            return new Password(SecureSalt,
-                                SecurePassword);
+            throw new ArgumentException("Invalid salted password hash: '" + Salt + ", " + HashedPassword + "'!",
+                                        nameof(HashedPassword));
 
         }
 
@@ -322,9 +307,9 @@ namespace social.OpenData.UsersAPI
 
             if (TryParseHash(Salt,
                              HashedPassword,
-                             out Password _Password))
+                             out var password))
             {
-                return _Password;
+                return password;
             }
 
             return new Password?();
@@ -346,21 +331,25 @@ namespace social.OpenData.UsersAPI
                                            out Password  Password)
         {
 
-            #region Initial checks
-
-            if (HashedPassword != null)
-                HashedPassword = HashedPassword.Trim().ToLower();
-
-            if (HashedPassword.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(HashedPassword), "The given SHA256 hashed representation of a password must not be null or empty!");
-
-            #endregion
-
             try
             {
 
-                Password = ParseHash(Salt,
-                                     HashedPassword);
+                // Salt...
+                var secureSalt      = new SecureString();
+
+                foreach (var character in Salt)
+                    secureSalt.AppendChar(character);
+
+
+                // Password...
+                var securePassword  = new SecureString();
+
+                foreach (var character in HashedPassword.Trim().ToLower())
+                    securePassword.AppendChar(character);
+
+
+                Password = new Password(secureSalt,
+                                        securePassword);
 
                 return true;
 
@@ -396,13 +385,13 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="PlainPassword">A password.</param>
         public Boolean Verify(String PlainPassword)
-        {
 
-            var HashedPassword = SHA256.HashData(Encoding.UTF8.GetBytes(Salt.UnsecureString() + ":" + PlainPassword));
-
-            return InternalPassword.UnsecureString().Equals(HashedPassword.ToHexString(ToLower: true));
-
-        }
+            => InternalPassword.UnsecureString().
+                   Equals(
+                       SHA256.HashData(
+                           Encoding.UTF8.GetBytes(Salt.UnsecureString() + ":" + PlainPassword)
+                       ).ToHexString(ToLower: true)
+                   );
 
         #endregion
 
