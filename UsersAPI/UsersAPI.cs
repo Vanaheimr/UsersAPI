@@ -5235,7 +5235,7 @@ namespace social.OpenData.UsersAPI
                                          AccessControlAllowMethods  = "GET",
                                          AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                          ContentType                = HTTPContentType.HTML_UTF8,
-                                         Content                    = GetResourceString("login.login-" + DefaultLanguage.ToString() + ".html").ToUTF8Bytes(),
+                                         Content                    = GetResourceBytes($"login.login-{DefaultLanguage}.html"),
                                          Connection                 = "close"
                                      }.AsImmutable),
 
@@ -5551,7 +5551,7 @@ namespace social.OpenData.UsersAPI
                                          AccessControlAllowMethods  = "GET",
                                          AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                          ContentType                = HTTPContentType.HTML_UTF8,
-                                         ContentStream              = GetResourceStream("login.lostPassword-" + DefaultLanguage.ToString() + ".html"),
+                                         Content                    = GetResourceBytes($"login.lostPassword-{DefaultLanguage}.html"),
                                          Connection                 = "close"
                                      }.AsImmutable),
 
