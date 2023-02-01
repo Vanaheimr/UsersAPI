@@ -16286,8 +16286,8 @@ namespace social.OpenData.UsersAPI
 
         public static Tuple<Byte[], Byte[]> SerializePublicKeyXY(ECPublicKeyParameters PublicKey)
 
-            => new Tuple<Byte[], Byte[]>(PublicKey.Q.XCoord.ToBigInteger().ToByteArray(),
-                                         PublicKey.Q.YCoord.ToBigInteger().ToByteArray());
+            => new (PublicKey.Q.XCoord.ToBigInteger().ToByteArray(),
+                    PublicKey.Q.YCoord.ToBigInteger().ToByteArray());
 
         #endregion
 
