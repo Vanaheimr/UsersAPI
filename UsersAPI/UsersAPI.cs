@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (c) 2014-2022 GraphDefined GmbH <achim.friedland@graphdefined.com>
+ * Copyright (c) 2014-2023 GraphDefined GmbH <achim.friedland@graphdefined.com>
  * This file is part of UsersAPI <https://www.github.com/Vanaheimr/UsersAPI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,6 @@
 
 #region Usings
 
-using System;
 using System.Text;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -50,14 +49,13 @@ using org.GraphDefined.Vanaheimr.Hermod.Mail;
 using org.GraphDefined.Vanaheimr.Hermod.SMTP;
 using org.GraphDefined.Vanaheimr.Hermod.Sockets;
 using org.GraphDefined.Vanaheimr.Hermod.Sockets.TCP;
+using org.GraphDefined.Vanaheimr.Hermod.Logging;
 
 using com.GraphDefined.SMSApi.API;
 using com.GraphDefined.SMSApi.API.Response;
 
 using social.OpenData.UsersAPI;
 using social.OpenData.UsersAPI.Notifications;
-using org.GraphDefined.Vanaheimr.Hermod.Logging;
-using static System.Net.Mime.MediaTypeNames;
 
 #endregion
 
@@ -1551,6 +1549,8 @@ namespace social.OpenData.UsersAPI
         public const               String         DefaultPasswordFile                  = "passwords.db";
         public const               String         DefaultHTTPCookiesFile               = "HTTPCookies.db";
         public const               String         DefaultPasswordResetsFile            = "passwordResets.db";
+        public const               String         DefaultNewsletterSignupFile          = "NewsletterSignups.db";
+        public const               String         DefaultNewsletterEMailsFile          = "NewsletterEMails.db";
 
         protected static readonly  SemaphoreSlim  ServiceTicketsSemaphore              = new (1, 1);
         protected static readonly  SemaphoreSlim  LogFileSemaphore                     = new (1, 1);
@@ -1608,6 +1608,10 @@ namespace social.OpenData.UsersAPI
         public  static readonly   Organization_Id                               DefaultAdminOrganizationId              = Organization_Id.Parse("Admins");
 
 
+
+        protected readonly        Dictionary<IIPAddress,       DateTime>          _NewsletterRemoteIPAddresses;
+        protected readonly        Dictionary<SecurityToken_Id, NewsletterSignup>  _NewsletterSignups;
+        protected readonly        Dictionary<Newsletter_Id,    EMailAddress>      _NewsletterEMails;
 
         /// <summary>
         /// All HTTP cookies.
@@ -1667,6 +1671,16 @@ namespace social.OpenData.UsersAPI
         /// The virtual 'robot' user.
         /// </summary>
         public User                           Robot                              { get; }
+
+        /// <summary>
+        /// The e-mail address used for the default newsletter.
+        /// </summary>
+        public EMailAddress                   NewsletterEMailAddress             { get; set; }
+
+        /// <summary>
+        /// The e-mail address used for the default newsletter.
+        /// </summary>
+        public String                         NewsletterGPGPassphrase            { get; set; }
 
         /// <summary>
         /// The passphrase of the PGP/GPG secret key of the API.
@@ -2891,12 +2905,15 @@ namespace social.OpenData.UsersAPI
 
             #region Init data
 
-            this.dataLicenses                   = new Dictionary<DataLicense_Id,             DataLicense>();
+            this.dataLicenses                    = new Dictionary<DataLicense_Id,             DataLicense>();
             this._Users                          = new Dictionary<User_Id,                    User>();
             this._VerificationTokens             = new Dictionary<VerificationToken,          User>();
             this._LoginPasswords                 = new Dictionary<User_Id,                    LoginPassword>();
             this._PasswordResets                 = new Dictionary<SecurityToken_Id,           PasswordReset>();
             this._HTTPCookies                    = new Dictionary<SecurityToken_Id,           SecurityToken>();
+            this._NewsletterRemoteIPAddresses    = new Dictionary<IIPAddress,                 DateTime>();
+            this._NewsletterSignups              = new Dictionary<SecurityToken_Id,           NewsletterSignup>();
+            this._NewsletterEMails               = new Dictionary<Newsletter_Id,              EMailAddress>();
             this._APIKeys                        = new Dictionary<APIKey_Id,                  APIKey>();
             this._Messages                       = new Dictionary<Message_Id,                 Message>();
             this._NotificationMessages           = new Dictionary<NotificationMessage_Id,     NotificationMessage>();
@@ -4695,6 +4712,7 @@ namespace social.OpenData.UsersAPI
                     request.Path.StartsWith(URLPathPrefix + "/lostPassword")                                       ||
                     request.Path.StartsWith(URLPathPrefix + "/resetPassword")                                      ||
                     request.Path.StartsWith(URLPathPrefix + "/setPassword")                                        ||
+                    request.Path.StartsWith(URLPathPrefix + "/newsletters")                                        ||
                    (request.Path.StartsWith(URLPathPrefix + "/users/") && request.HTTPMethod.ToString() == "AUTH") ||
 
                     // Special API keys!
@@ -12340,6 +12358,343 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
+
+
+            #region ~/newsletterss
+
+            #region SIGNUP    ~/newsletters
+
+            AddMethodCallback(HTTPHostname.Any,
+                              HTTPMethod.SIGNUP,
+                              URLPathPrefix + "/newsletters",
+                              HTTPContentType.JSON_UTF8,
+                              HTTPDelegate: Request => {
+
+                                  #region Check remote IP address
+
+                                  var remoteIPAddress = Request.RemoteSocket.IPAddress;
+
+                                  //if (_NewsletterRemoteIPAddresses.TryGetValue(remoteIPAddress, out var lastSignUp) &&
+                                  //    lastSignUp > Timestamp.Now - TimeSpan.FromMinutes(1))
+                                  //{
+
+                                  //    return Task.FromResult(
+                                  //        new HTTPResponse.Builder(Request) {
+                                  //            HTTPStatusCode  = HTTPStatusCode.PreconditionRequired,
+                                  //            Server          = HTTPServer.DefaultServerName,
+                                  //            ContentType     = HTTPContentType.JSON_UTF8,
+                                  //            Content         = new JObject(
+                                  //                                  //new JProperty("@context",     SignInOutContext),
+                                  //                                  //new JProperty("statuscode",   400),
+                                  //                                  new JProperty("property",     "email"),
+                                  //                                  new JProperty("description",  "Too many requests. Please come back later!")
+                                  //                              ).ToString().ToUTF8Bytes(),
+                                  //            CacheControl     = "private",
+                                  //            Connection       = "close"
+                                  //        }.AsImmutable);
+
+                                  //}
+
+                                  #endregion
+
+                                  #region Check JSON HTTP body...
+
+                                  if (!Request.TryParseJObjectRequestBody(out var jsonRequest,
+                                                                          out var httpResponse,
+                                                                          AllowEmptyHTTPBody: false) ||
+                                       jsonRequest is null)
+                                  {
+                                      return Task.FromResult(httpResponse!.AsImmutable);
+                                  }
+
+                                  #endregion
+
+                                  #region Verify e-mail
+
+                                  var emailString = jsonRequest["email"]?.Value<String>()?.Replace(";", "");
+
+                                  if (emailString is null || emailString.IsNullOrEmpty())
+                                  {
+
+                                      return Task.FromResult(
+                                          new HTTPResponse.Builder(Request) {
+                                              HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                                              Server          = HTTPServer.DefaultServerName,
+                                              ContentType     = HTTPContentType.JSON_UTF8,
+                                              Content         = new JObject(
+                                                                    //new JProperty("@context",     SignInOutContext),
+                                                                    //new JProperty("statuscode",   400),
+                                                                    new JProperty("property",     "email"),
+                                                                    new JProperty("description",  "The given e-mail address must not be null or empty!")
+                                                                ).ToString().ToUTF8Bytes(),
+                                              CacheControl     = "private",
+                                              Connection       = "close"
+                                          }.AsImmutable);
+
+                                  }
+
+                                  var email = SimpleEMailAddress.TryParse(emailString);
+
+                                  if (email is null)
+                                  {
+
+                                      return Task.FromResult(
+                                          new HTTPResponse.Builder(Request) {
+                                              HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                                              Server          = HTTPServer.DefaultServerName,
+                                              ContentType     = HTTPContentType.JSON_UTF8,
+                                              Content         = new JObject(
+                                                                    //new JProperty("@context",     SignInOutContext),
+                                                                    //new JProperty("statuscode",   400),
+                                                                    new JProperty("property",     "email"),
+                                                                    new JProperty("description",  "The given e-mail address '" + emailString + "' is invalid!")
+                                                                ).ToString().ToUTF8Bytes(),
+                                              CacheControl     = "private",
+                                              Connection       = "close"
+                                          }.AsImmutable);
+
+                                  }
+
+                                  #endregion
+
+                                  #region Verify newsletterId
+
+                                  var newsletterId = Newsletter_Id.TryParse(jsonRequest["newsletterId"]?.Value<String>() ?? "");
+
+                                  if (newsletterId is null || newsletterId.IsNullOrEmpty())
+                                  {
+
+                                      return Task.FromResult(
+                                          new HTTPResponse.Builder(Request) {
+                                              HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                                              Server          = HTTPServer.DefaultServerName,
+                                              ContentType     = HTTPContentType.JSON_UTF8,
+                                              Content         = new JObject(
+                                                                    //new JProperty("@context",     SignInOutContext),
+                                                                    //new JProperty("statuscode",   400),
+                                                                    new JProperty("property",     "newsletterId"),
+                                                                    new JProperty("description",  "The given newsletter identification '" + (jsonRequest["newsletterId"]?.Value<String>() ?? "") + "'must not be null or empty!")
+                                                                ).ToString().ToUTF8Bytes(),
+                                              CacheControl    = "private",
+                                              Connection      = "close"
+                                          }.AsImmutable);
+
+                                  }
+
+                                  #endregion
+
+                                  #region Check newsletter subscriptions
+
+                                  lock (_NewsletterEMails)
+                                  {
+
+                                      if (_NewsletterEMails.Values.Any(emailAddress => emailAddress.Address == email))
+
+                                      return Task.FromResult(
+                                          new HTTPResponse.Builder(Request) {
+                                              HTTPStatusCode  = HTTPStatusCode.Conflict,
+                                              Server          = HTTPServer.DefaultServerName,
+                                              ContentType     = HTTPContentType.JSON_UTF8,
+                                              Content         = new JObject(
+                                                                    //new JProperty("@context",     SignInOutContext),
+                                                                    //new JProperty("statuscode",   400),
+                                                                    new JProperty("property",     "email"),
+                                                                    new JProperty("description",  "The given e-mail address '" + emailString + "' is already subscribed!")
+                                                                ).ToString().ToUTF8Bytes(),
+                                              CacheControl     = "private",
+                                              Connection       = "close"
+                                          }.AsImmutable);
+
+                                  }
+
+                                  #endregion
+
+                                  #region Register newsletter signup
+
+                                  lock (_NewsletterRemoteIPAddresses)
+                                  {
+
+                                      foreach (var outdated in _NewsletterRemoteIPAddresses.Where(kvp => kvp.Value < Timestamp.Now - TimeSpan.FromMinutes(1)).ToArray())
+                                      {
+                                          _NewsletterRemoteIPAddresses.Remove(outdated.Key);
+                                      }
+
+                                      if (_NewsletterRemoteIPAddresses.ContainsKey(remoteIPAddress))
+                                          _NewsletterRemoteIPAddresses[remoteIPAddress] = Timestamp.Now;
+                                      else
+                                          _NewsletterRemoteIPAddresses.Add(remoteIPAddress, Timestamp.Now);
+
+                                  }
+
+                                  var securityTokenId  = SecurityToken_Id.Parse(
+                                                             SHA256.HashData(
+                                                                 String.Concat(
+                                                                     emailString,
+                                                                     RandomExtensions.RandomHexString(30)
+                                                                 ).ToUTF8Bytes()
+                                                             ).ToHexString()
+                                                         );
+
+                                  var expires          = Timestamp.Now + TimeSpan.FromDays(1);
+
+                                  lock (_NewsletterSignups)
+                                  {
+
+                                      this._NewsletterSignups.Add(
+                                          securityTokenId,
+                                          new NewsletterSignup(
+                                              email.       Value,
+                                              newsletterId.Value,
+                                              expires
+                                          )
+                                      );
+
+                                      File.AppendAllText(UsersAPIPath + DefaultNewsletterSignupFile,
+                                                         String.Concat("add;", securityTokenId, ";", email.Value, ";", expires.ToIso8601(), Environment.NewLine));
+
+                                  }
+
+                                  if (NewsletterEMailAddress is not null)
+                                      Task.Run(async () =>{
+                                          try
+                                          {
+
+                                              var aa = await SMTPClient.Send(new HTMLEMailBuilder() {
+
+                                                                                 From           = NewsletterEMailAddress,
+                                                                                 To             = EMailAddressListBuilder.Create(email.Value),
+                                                                                 Passphrase     = NewsletterGPGPassphrase,
+                                                                                 Subject        = "Your newsletter subscription",
+
+                                                                                 HTMLText       = $"Thank you subscribing to our '{newsletterId}' newsletter.<br /> To complete your sign up please click <a href=\"https://open.charging.cloud/newsletters/signups/{securityTokenId}\">here</a>.",
+
+                                                                                 PlainText      = $"Thank you subscribing to our '{newsletterId}' newsletter.\r\nTo complete your sign up please visit https://open.charging.cloud/newsletters/signups/{securityTokenId}.",
+
+                                                                                 SecurityLevel  = EMailSecurity.autosign
+
+                                                                             });
+
+                                          } catch (Exception ex)
+                                          {
+                                              DebugX.LogException(ex, "Exception when sending newsletter e-mail");
+                                          }
+
+                                      var xx = 23;
+                                          });
+
+                                  #endregion
+
+
+                                  return Task.FromResult(
+                                      new HTTPResponse.Builder(Request) {
+                                          HTTPStatusCode  = HTTPStatusCode.Created,
+                                          CacheControl    = "private",
+                                          Connection      = "close"
+                                      }.AsImmutable);
+
+                              });
+
+            #endregion
+
+            #region GET       ~/newsletters/signups/{securityTokenId}
+
+            AddMethodCallback(HTTPHostname.Any,
+                              HTTPMethod.GET,
+                              URLPathPrefix + "/newsletters/signups/{securityTokenId}",
+                              HTTPDelegate: Request => {
+
+                                  if (SecurityToken_Id.TryParse(Request.ParsedURLParameters[0], out var securityTokenId) &&
+                                      _NewsletterSignups.TryGetValue(securityTokenId, out var newsletterSignup) &&
+                                      newsletterSignup is not null &&
+                                      newsletterSignup.Timestamp >= Timestamp.Now)
+                                  {
+
+                                      return Task.FromResult(
+                                          new HTTPResponse.Builder(Request) {
+                                              HTTPStatusCode  = HTTPStatusCode.OK,
+                                              Server          = HTTPServer.DefaultServerName,
+                                              ContentType     = HTTPContentType.HTML_UTF8,
+                                              Content         = GetResourceString($"newsletters.{newsletterSignup.NewsletterId}-{DefaultLanguage}.html").
+                                                                    Replace("{securityTokenId}", securityTokenId.              ToString()).
+                                                                    Replace("{eMailAddress}",    newsletterSignup.EMailAddress.ToString()).
+                                                                    Replace("{newsletterId}",    newsletterSignup.NewsletterId.ToString()).
+                                                                    ToUTF8Bytes(),
+                                              CacheControl    = "private",
+                                              Connection      = "close"
+                                          }.AsImmutable);
+
+                                  }
+
+                                  return Task.FromResult(
+                                      new HTTPResponse.Builder(Request) {
+                                          HTTPStatusCode  = HTTPStatusCode.NotFound,
+                                          Server          = HTTPServer.DefaultServerName,
+                                          CacheControl    = "private",
+                                          Connection      = "close"
+                                      }.AsImmutable);
+
+                              });
+
+            #endregion
+
+            #region VALIDATE  ~/newsletters/signups/{securityTokenId}
+
+            AddMethodCallback(HTTPHostname.Any,
+                              HTTPMethod.VALIDATE,
+                              URLPathPrefix + "/newsletters/signups/{securityTokenId}",
+                              HTTPDelegate: Request => {
+
+                                  if (SecurityToken_Id.TryParse(Request.ParsedURLParameters[0], out var securityTokenId) &&
+                                      _NewsletterSignups.TryGetValue(securityTokenId, out var newsletterSignup) &&
+                                      newsletterSignup is not null &&
+                                      newsletterSignup.Timestamp >= Timestamp.Now)
+                                  {
+
+                                      lock (_NewsletterSignups)
+                                      {
+
+                                          File.AppendAllText(UsersAPIPath + DefaultNewsletterSignupFile,
+                                                             String.Concat("remove;", securityTokenId, ";", newsletterSignup.EMailAddress, ";", newsletterSignup.NewsletterId, Environment.NewLine));
+
+                                          _NewsletterSignups.Remove(securityTokenId);
+
+                                      }
+
+                                      lock (_NewsletterSignups)
+                                      {
+
+                                          _NewsletterEMails.Add(newsletterSignup.NewsletterId,
+                                                                newsletterSignup.EMailAddress);
+
+                                          File.AppendAllText(UsersAPIPath + DefaultNewsletterEMailsFile,
+                                                             String.Concat("add;", newsletterSignup.EMailAddress, ";", newsletterSignup.NewsletterId, ";", Timestamp.Now.ToIso8601(), Environment.NewLine));
+
+                                      }
+
+                                      return Task.FromResult(
+                                          new HTTPResponse.Builder(Request) {
+                                              HTTPStatusCode  = HTTPStatusCode.Created,
+                                              Server          = HTTPServer.DefaultServerName,
+                                              CacheControl    = "private",
+                                              Connection      = "close"
+                                          }.AsImmutable);
+
+                                  }
+
+                                  return Task.FromResult(
+                                      new HTTPResponse.Builder(Request) {
+                                          HTTPStatusCode  = HTTPStatusCode.NotFound,
+                                          Server          = HTTPServer.DefaultServerName,
+                                          CacheControl    = "private",
+                                          Connection      = "close"
+                                      }.AsImmutable);
+
+                              });
+
+            #endregion
+
+
+            #endregion
 
             #region ~/blog
 
