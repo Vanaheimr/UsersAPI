@@ -17,8 +17,6 @@
 
 #region Usings
 
-using System;
-
 using org.GraphDefined.Vanaheimr.Illias;
 
 #endregion
@@ -26,13 +24,13 @@ using org.GraphDefined.Vanaheimr.Illias;
 namespace social.OpenData.UsersAPI
 {
 
-    public class AddUserIfNotExistsResult : AResult<User>
+    public class AddUserIfNotExistsResult : AEnitityResult<User, User_Id>
     {
 
-        public User User
+        public User? User
             => Object;
 
-        public Organization     Organization      { get; internal set; }
+        public Organization?    Organization      { get; internal set; }
 
         public AddedOrIgnored?  AddedOrIgnored    { get; internal set; }
 
@@ -40,9 +38,9 @@ namespace social.OpenData.UsersAPI
         public AddUserIfNotExistsResult(User              User,
                                         EventTracking_Id  EventTrackingId,
                                         Boolean           IsSuccess,
-                                        String            Argument           = null,
-                                        I18NString        ErrorDescription   = null,
-                                        Organization      Organization       = null,
+                                        String?           Argument           = null,
+                                        I18NString?       ErrorDescription   = null,
+                                        Organization?     Organization       = null,
                                         AddedOrIgnored?   AddedOrIgnored     = null)
 
             : base(User,
@@ -62,15 +60,15 @@ namespace social.OpenData.UsersAPI
         public static AddUserIfNotExistsResult Success(User              User,
                                                        AddedOrIgnored    AddedOrIgnored,
                                                        EventTracking_Id  EventTrackingId,
-                                                       Organization      Organization = null)
+                                                       Organization?     Organization   = null)
 
-            => new AddUserIfNotExistsResult(User,
-                                            EventTrackingId,
-                                            true,
-                                            null,
-                                            null,
-                                            Organization,
-                                            AddedOrIgnored);
+            => new (User,
+                    EventTrackingId,
+                    true,
+                    null,
+                    null,
+                    Organization,
+                    AddedOrIgnored);
 
 
         public static AddUserIfNotExistsResult ArgumentError(User              User,
@@ -78,62 +76,68 @@ namespace social.OpenData.UsersAPI
                                                              String            Argument,
                                                              String            Description)
 
-            => new AddUserIfNotExistsResult(User,
-                                            EventTrackingId,
-                                            false,
-                                            Argument,
-                                            I18NString.Create(Languages.en,
-                                                              Description));
+            => new (User,
+                    EventTrackingId,
+                    false,
+                    Argument,
+                    I18NString.Create(
+                        Languages.en,
+                        Description
+                    ));
 
         public static AddUserIfNotExistsResult ArgumentError(User              User,
                                                              EventTracking_Id  EventTrackingId,
                                                              String            Argument,
                                                              I18NString        Description)
 
-            => new AddUserIfNotExistsResult(User,
-                                            EventTrackingId,
-                                            false,
-                                            Argument,
-                                            Description);
+            => new (User,
+                    EventTrackingId,
+                    false,
+                    Argument,
+                    Description);
 
 
         public static AddUserIfNotExistsResult Failed(User              User,
                                                       EventTracking_Id  EventTrackingId,
                                                       String            Description,
-                                                      Organization      Organization = null)
+                                                      Organization?     Organization   = null)
 
-            => new AddUserIfNotExistsResult(User,
-                                            EventTrackingId,
-                                            false,
-                                            null,
-                                            I18NString.Create(Languages.en,
-                                                              Description),
-                                            Organization);
+            => new (User,
+                    EventTrackingId,
+                    false,
+                    null,
+                    I18NString.Create(
+                        Languages.en,
+                        Description
+                    ),
+                    Organization);
 
         public static AddUserIfNotExistsResult Failed(User              User,
                                                       EventTracking_Id  EventTrackingId,
                                                       I18NString        Description,
-                                                      Organization      Organization = null)
+                                                      Organization?     Organization   = null)
 
-            => new AddUserIfNotExistsResult(User,
-                                            EventTrackingId,
-                                            false,
-                                            null,
-                                            Description,
-                                            Organization);
+            => new (User,
+                    EventTrackingId,
+                    false,
+                    null,
+                    Description,
+                    Organization);
 
         public static AddUserIfNotExistsResult Failed(User              User,
                                                       EventTracking_Id  EventTrackingId,
                                                       Exception         Exception,
-                                                      Organization      Organization = null)
+                                                      Organization?     Organization   = null)
 
-            => new AddUserIfNotExistsResult(User,
-                                            EventTrackingId,
-                                            false,
-                                            null,
-                                            I18NString.Create(Languages.en,
-                                                              Exception.Message),
-                                            Organization);
+            => new (User,
+                    EventTrackingId,
+                    false,
+                    null,
+                    I18NString.Create(
+                        Languages.en,
+                        Exception.Message
+                    ),
+                    Organization);
 
     }
 

@@ -17,8 +17,6 @@
 
 #region Usings
 
-using System;
-
 using org.GraphDefined.Vanaheimr.Illias;
 
 #endregion
@@ -26,13 +24,13 @@ using org.GraphDefined.Vanaheimr.Illias;
 namespace social.OpenData.UsersAPI
 {
 
-    public class AddOrUpdateUserResult : AResult<User>
+    public class AddOrUpdateUserResult : AEnitityResult<User, User_Id>
     {
 
-        public User User
+        public User? User
             => Object;
 
-        public Organization     Organization      { get; internal set; }
+        public Organization?    Organization      { get; internal set; }
 
         public AddedOrUpdated?  AddedOrUpdated    { get; internal set; }
 
@@ -40,9 +38,9 @@ namespace social.OpenData.UsersAPI
         public AddOrUpdateUserResult(User              User,
                                      EventTracking_Id  EventTrackingId,
                                      Boolean           IsSuccess,
-                                     String            Argument           = null,
-                                     I18NString        ErrorDescription   = null,
-                                     Organization      Organization       = null,
+                                     String?           Argument           = null,
+                                     I18NString?       ErrorDescription   = null,
+                                     Organization?     Organization       = null,
                                      AddedOrUpdated?   AddedOrUpdated     = null)
 
             : base(User,
@@ -53,7 +51,7 @@ namespace social.OpenData.UsersAPI
 
         {
 
-            this.Organization = Organization;
+            this.Organization    = Organization;
             this.AddedOrUpdated  = AddedOrUpdated;
 
         }
@@ -62,15 +60,15 @@ namespace social.OpenData.UsersAPI
         public static AddOrUpdateUserResult Success(User              User,
                                                     AddedOrUpdated    AddedOrUpdated,
                                                     EventTracking_Id  EventTrackingId,
-                                                    Organization      Organization = null)
+                                                    Organization?     Organization   = null)
 
-            => new AddOrUpdateUserResult(User,
-                                         EventTrackingId,
-                                         true,
-                                         null,
-                                         null,
-                                         Organization,
-                                         AddedOrUpdated);
+            => new (User,
+                    EventTrackingId,
+                    true,
+                    null,
+                    null,
+                    Organization,
+                    AddedOrUpdated);
 
 
         public static AddOrUpdateUserResult ArgumentError(User              User,
@@ -78,62 +76,68 @@ namespace social.OpenData.UsersAPI
                                                           String            Argument,
                                                           String            Description)
 
-            => new AddOrUpdateUserResult(User,
-                                         EventTrackingId,
-                                         false,
-                                         Argument,
-                                         I18NString.Create(Languages.en,
-                                                           Description));
+            => new (User,
+                    EventTrackingId,
+                    false,
+                    Argument,
+                    I18NString.Create(
+                        Languages.en,
+                        Description
+                    ));
 
         public static AddOrUpdateUserResult ArgumentError(User              User,
                                                           EventTracking_Id  EventTrackingId,
                                                           String            Argument,
                                                           I18NString        Description)
 
-            => new AddOrUpdateUserResult(User,
-                                         EventTrackingId,
-                                         false,
-                                         Argument,
-                                         Description);
+            => new (User,
+                    EventTrackingId,
+                    false,
+                    Argument,
+                    Description);
 
 
         public static AddOrUpdateUserResult Failed(User              User,
                                                    EventTracking_Id  EventTrackingId,
                                                    String            Description,
-                                                   Organization      Organization  = null)
+                                                   Organization?     Organization   = null)
 
-            => new AddOrUpdateUserResult(User,
-                                         EventTrackingId,
-                                         false,
-                                         null,
-                                         I18NString.Create(Languages.en,
-                                                           Description),
-                                         Organization);
+            => new (User,
+                    EventTrackingId,
+                    false,
+                    null,
+                    I18NString.Create(
+                        Languages.en,
+                        Description
+                    ),
+                    Organization);
 
         public static AddOrUpdateUserResult Failed(User              User,
                                                    EventTracking_Id  EventTrackingId,
                                                    I18NString        Description,
-                                                   Organization      Organization  = null)
+                                                   Organization?     Organization   = null)
 
-            => new AddOrUpdateUserResult(User,
-                                         EventTrackingId,
-                                         false,
-                                         null,
-                                         Description,
-                                         Organization);
+            => new (User,
+                    EventTrackingId,
+                    false,
+                    null,
+                    Description,
+                    Organization);
 
         public static AddOrUpdateUserResult Failed(User              User,
                                                    EventTracking_Id  EventTrackingId,
                                                    Exception         Exception,
-                                                   Organization      Organization  = null)
+                                                   Organization?     Organization   = null)
 
-            => new AddOrUpdateUserResult(User,
-                                         EventTrackingId,
-                                         false,
-                                         null,
-                                         I18NString.Create(Languages.en,
-                                                           Exception.Message),
-                                         Organization);
+            => new (User,
+                    EventTrackingId,
+                    false,
+                    null,
+                    I18NString.Create(
+                        Languages.en,
+                        Exception.Message
+                    ),
+                    Organization);
 
     }
 

@@ -17,8 +17,6 @@
 
 #region Usings
 
-using System;
-
 using org.GraphDefined.Vanaheimr.Illias;
 
 #endregion
@@ -43,8 +41,8 @@ namespace social.OpenData.UsersAPI
                                         UserGroup                UserGroup,
                                         EventTracking_Id         EventTrackingId,
                                         Boolean                  IsSuccess,
-                                        String                   Argument           = null,
-                                        I18NString               ErrorDescription   = null)
+                                        String?                  Argument           = null,
+                                        I18NString?              ErrorDescription   = null)
 
             : base(User,
                    UserGroup,
@@ -65,11 +63,11 @@ namespace social.OpenData.UsersAPI
                                                        UserGroup                UserGroup,
                                                        EventTracking_Id         EventTrackingId)
 
-            => new AddUserToUserGroupResult(User,
-                                            EdgeLabel,
-                                            UserGroup,
-                                            EventTrackingId,
-                                            true);
+            => new (User,
+                    EdgeLabel,
+                    UserGroup,
+                    EventTrackingId,
+                    true);
 
 
         public static AddUserToUserGroupResult ArgumentError(User                     User,
@@ -79,14 +77,16 @@ namespace social.OpenData.UsersAPI
                                                              String                   Argument,
                                                              String                   Description)
 
-            => new AddUserToUserGroupResult(User,
-                                            EdgeLabel,
-                                            UserGroup,
-                                            EventTrackingId,
-                                            false,
-                                            Argument,
-                                            I18NString.Create(Languages.en,
-                                                              Description));
+            => new (User,
+                    EdgeLabel,
+                    UserGroup,
+                    EventTrackingId,
+                    false,
+                    Argument,
+                    I18NString.Create(
+                        Languages.en,
+                        Description
+                    ));
 
         public static AddUserToUserGroupResult ArgumentError(User                     User,
                                                              User2UserGroupEdgeLabel  EdgeLabel,
@@ -95,13 +95,13 @@ namespace social.OpenData.UsersAPI
                                                              String                   Argument,
                                                              I18NString               Description)
 
-            => new AddUserToUserGroupResult(User,
-                                            EdgeLabel,
-                                            UserGroup,
-                                            EventTrackingId,
-                                            false,
-                                            Argument,
-                                            Description);
+            => new (User,
+                    EdgeLabel,
+                    UserGroup,
+                    EventTrackingId,
+                    false,
+                    Argument,
+                    Description);
 
 
         public static AddUserToUserGroupResult Failed(User                     User,
@@ -110,14 +110,16 @@ namespace social.OpenData.UsersAPI
                                                       EventTracking_Id         EventTrackingId,
                                                       String                   Description)
 
-            => new AddUserToUserGroupResult(User,
-                                            EdgeLabel,
-                                            UserGroup,
-                                            EventTrackingId,
-                                            false,
-                                            null,
-                                            I18NString.Create(Languages.en,
-                                                              Description));
+            => new (User,
+                    EdgeLabel,
+                    UserGroup,
+                    EventTrackingId,
+                    false,
+                    null,
+                    I18NString.Create(
+                        Languages.en,
+                        Description
+                    ));
 
         public static AddUserToUserGroupResult Failed(User                     User,
                                                       User2UserGroupEdgeLabel  EdgeLabel,
@@ -125,13 +127,13 @@ namespace social.OpenData.UsersAPI
                                                       EventTracking_Id         EventTrackingId,
                                                       I18NString               Description)
 
-            => new AddUserToUserGroupResult(User,
-                                            EdgeLabel,
-                                            UserGroup,
-                                            EventTrackingId,
-                                            false,
-                                            null,
-                                            Description);
+            => new (User,
+                    EdgeLabel,
+                    UserGroup,
+                    EventTrackingId,
+                    false,
+                    null,
+                    Description);
 
         public static AddUserToUserGroupResult Failed(User                     User,
                                                       User2UserGroupEdgeLabel  EdgeLabel,
@@ -139,14 +141,16 @@ namespace social.OpenData.UsersAPI
                                                       EventTracking_Id         EventTrackingId,
                                                       Exception                Exception)
 
-            => new AddUserToUserGroupResult(User,
-                                            EdgeLabel,
-                                            UserGroup,
-                                            EventTrackingId,
-                                            false,
-                                            null,
-                                            I18NString.Create(Languages.en,
-                                                              Exception.Message));
+            => new (User,
+                    EdgeLabel,
+                    UserGroup,
+                    EventTrackingId,
+                    false,
+                    null,
+                    I18NString.Create(
+                        Languages.en,
+                        Exception.Message
+                    ));
 
     }
 

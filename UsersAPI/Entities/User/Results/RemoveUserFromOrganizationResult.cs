@@ -17,8 +17,6 @@
 
 #region Usings
 
-using System;
-
 using org.GraphDefined.Vanaheimr.Illias;
 
 #endregion
@@ -43,8 +41,8 @@ namespace social.OpenData.UsersAPI
                                                 Organization                 Organization,
                                                 EventTracking_Id             EventTrackingId,
                                                 Boolean                      IsSuccess,
-                                                String                       Argument           = null,
-                                                I18NString                   ErrorDescription   = null)
+                                                String?                      Argument           = null,
+                                                I18NString?                  ErrorDescription   = null)
 
             : base(User,
                    Organization,
@@ -64,22 +62,22 @@ namespace social.OpenData.UsersAPI
                                                                Organization      Organization,
                                                                EventTracking_Id  EventTrackingId)
 
-            => new RemoveUserFromOrganizationResult(User,
-                                                    null,
-                                                    Organization,
-                                                    EventTrackingId,
-                                                    true);
+            => new (User,
+                    null,
+                    Organization,
+                    EventTrackingId,
+                    true);
 
         public static RemoveUserFromOrganizationResult Success(User                        User,
                                                                User2OrganizationEdgeLabel  EdgeLabel,
                                                                Organization                Organization,
                                                                EventTracking_Id            EventTrackingId)
 
-            => new RemoveUserFromOrganizationResult(User,
-                                                    EdgeLabel,
-                                                    Organization,
-                                                    EventTrackingId,
-                                                    true);
+            => new (User,
+                    EdgeLabel,
+                    Organization,
+                    EventTrackingId,
+                    true);
 
 
         public static RemoveUserFromOrganizationResult ArgumentError(User              User,
@@ -88,14 +86,16 @@ namespace social.OpenData.UsersAPI
                                                                      String            Argument,
                                                                      String            Description)
 
-            => new RemoveUserFromOrganizationResult(User,
-                                                    null,
-                                                    Organization,
-                                                    EventTrackingId,
-                                                    false,
-                                                    Argument,
-                                                    I18NString.Create(Languages.en,
-                                                                      Description));
+            => new (User,
+                    null,
+                    Organization,
+                    EventTrackingId,
+                    false,
+                    Argument,
+                    I18NString.Create(
+                        Languages.en,
+                        Description
+                    ));
 
         public static RemoveUserFromOrganizationResult ArgumentError(User                        User,
                                                                      User2OrganizationEdgeLabel  EdgeLabel,
@@ -104,14 +104,16 @@ namespace social.OpenData.UsersAPI
                                                                      String                      Argument,
                                                                      String                      Description)
 
-            => new RemoveUserFromOrganizationResult(User,
-                                                    EdgeLabel,
-                                                    Organization,
-                                                    EventTrackingId,
-                                                    false,
-                                                    Argument,
-                                                    I18NString.Create(Languages.en,
-                                                                      Description));
+            => new (User,
+                    EdgeLabel,
+                    Organization,
+                    EventTrackingId,
+                    false,
+                    Argument,
+                    I18NString.Create(
+                        Languages.en,
+                        Description
+                    ));
 
         public static RemoveUserFromOrganizationResult ArgumentError(User              User,
                                                                      Organization      Organization,
@@ -119,13 +121,13 @@ namespace social.OpenData.UsersAPI
                                                                      String            Argument,
                                                                      I18NString        Description)
 
-            => new RemoveUserFromOrganizationResult(User,
-                                                    null,
-                                                    Organization,
-                                                    EventTrackingId,
-                                                    false,
-                                                    Argument,
-                                                    Description);
+            => new (User,
+                    null,
+                    Organization,
+                    EventTrackingId,
+                    false,
+                    Argument,
+                    Description);
 
         public static RemoveUserFromOrganizationResult ArgumentError(User                        User,
                                                                      User2OrganizationEdgeLabel  EdgeLabel,
@@ -134,13 +136,13 @@ namespace social.OpenData.UsersAPI
                                                                      String                      Argument,
                                                                      I18NString                  Description)
 
-            => new RemoveUserFromOrganizationResult(User,
-                                                    EdgeLabel,
-                                                    Organization,
-                                                    EventTrackingId,
-                                                    false,
-                                                    Argument,
-                                                    Description);
+            => new (User,
+                    EdgeLabel,
+                    Organization,
+                    EventTrackingId,
+                    false,
+                    Argument,
+                    Description);
 
 
         public static RemoveUserFromOrganizationResult Failed(User              User,
@@ -148,14 +150,16 @@ namespace social.OpenData.UsersAPI
                                                               EventTracking_Id  EventTrackingId,
                                                               String            Description)
 
-            => new RemoveUserFromOrganizationResult(User,
-                                                    null,
-                                                    Organization,
-                                                    EventTrackingId,
-                                                    false,
-                                                    null,
-                                                    I18NString.Create(Languages.en,
-                                                                      Description));
+            => new (User,
+                    null,
+                    Organization,
+                    EventTrackingId,
+                    false,
+                    null,
+                    I18NString.Create(
+                        Languages.en,
+                        Description
+                    ));
 
         public static RemoveUserFromOrganizationResult Failed(User                        User,
                                                               User2OrganizationEdgeLabel  EdgeLabel,
@@ -163,27 +167,29 @@ namespace social.OpenData.UsersAPI
                                                               EventTracking_Id            EventTrackingId,
                                                               String                      Description)
 
-            => new RemoveUserFromOrganizationResult(User,
-                                                    EdgeLabel,
-                                                    Organization,
-                                                    EventTrackingId,
-                                                    false,
-                                                    null,
-                                                    I18NString.Create(Languages.en,
-                                                                      Description));
+            => new (User,
+                    EdgeLabel,
+                    Organization,
+                    EventTrackingId,
+                    false,
+                    null,
+                    I18NString.Create(
+                        Languages.en,
+                        Description
+                    ));
 
         public static RemoveUserFromOrganizationResult Failed(User              User,
                                                               Organization      Organization,
                                                               EventTracking_Id  EventTrackingId,
                                                               I18NString        Description)
 
-            => new RemoveUserFromOrganizationResult(User,
-                                                    null,
-                                                    Organization,
-                                                    EventTrackingId,
-                                                    false,
-                                                    null,
-                                                    Description);
+            => new (User,
+                    null,
+                    Organization,
+                    EventTrackingId,
+                    false,
+                    null,
+                    Description);
 
         public static RemoveUserFromOrganizationResult Failed(User                        User,
                                                               User2OrganizationEdgeLabel  EdgeLabel,
@@ -191,27 +197,29 @@ namespace social.OpenData.UsersAPI
                                                               EventTracking_Id            EventTrackingId,
                                                               I18NString                  Description)
 
-            => new RemoveUserFromOrganizationResult(User,
-                                                    EdgeLabel,
-                                                    Organization,
-                                                    EventTrackingId,
-                                                    false,
-                                                    null,
-                                                    Description);
+            => new (User,
+                    EdgeLabel,
+                    Organization,
+                    EventTrackingId,
+                    false,
+                    null,
+                    Description);
 
         public static RemoveUserFromOrganizationResult Failed(User              User,
                                                               Organization      Organization,
                                                               EventTracking_Id  EventTrackingId,
                                                               Exception         Exception)
 
-            => new RemoveUserFromOrganizationResult(User,
-                                                    null,
-                                                    Organization,
-                                                    EventTrackingId,
-                                                    false,
-                                                    null,
-                                                    I18NString.Create(Languages.en,
-                                                                      Exception.Message));
+            => new (User,
+                    null,
+                    Organization,
+                    EventTrackingId,
+                    false,
+                    null,
+                    I18NString.Create(
+                        Languages.en,
+                        Exception.Message
+                    ));
 
         public static RemoveUserFromOrganizationResult Failed(User                        User,
                                                               User2OrganizationEdgeLabel  EdgeLabel,
@@ -219,14 +227,16 @@ namespace social.OpenData.UsersAPI
                                                               EventTracking_Id            EventTrackingId,
                                                               Exception                   Exception)
 
-            => new RemoveUserFromOrganizationResult(User,
-                                                    EdgeLabel,
-                                                    Organization,
-                                                    EventTrackingId,
-                                                    false,
-                                                    null,
-                                                    I18NString.Create(Languages.en,
-                                                                      Exception.Message));
+            => new (User,
+                    EdgeLabel,
+                    Organization,
+                    EventTrackingId,
+                    false,
+                    null,
+                    I18NString.Create(
+                        Languages.en,
+                        Exception.Message
+                    ));
 
     }
 

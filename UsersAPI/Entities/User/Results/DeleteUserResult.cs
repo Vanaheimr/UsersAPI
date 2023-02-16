@@ -17,8 +17,6 @@
 
 #region Usings
 
-using System;
-
 using org.GraphDefined.Vanaheimr.Illias;
 
 #endregion
@@ -26,14 +24,14 @@ using org.GraphDefined.Vanaheimr.Illias;
 namespace social.OpenData.UsersAPI
 {
 
-    public class DeleteUserResult : AResult<User>
+    public class DeleteUserResult : AEnitityResult<User, User_Id>
     {
 
         private DeleteUserResult(User              User,
                                  EventTracking_Id  EventTrackingId,
                                  Boolean           IsSuccess,
-                                 String            Argument          = null,
-                                 I18NString        ErrorDescription  = null)
+                                 String?           Argument           = null,
+                                 I18NString?       ErrorDescription   = null)
 
             : base(User,
                    EventTrackingId,
@@ -47,9 +45,9 @@ namespace social.OpenData.UsersAPI
         public static DeleteUserResult Success(User              User,
                                                EventTracking_Id  EventTrackingId)
 
-            => new DeleteUserResult(User,
-                                    EventTrackingId,
-                                    true);
+            => new (User,
+                    EventTrackingId,
+                    true);
 
 
         public static DeleteUserResult ArgumentError(User              User,
@@ -57,56 +55,62 @@ namespace social.OpenData.UsersAPI
                                                      String            Argument,
                                                      String            Description)
 
-            => new DeleteUserResult(User,
-                                    EventTrackingId,
-                                    false,
-                                    Argument,
-                                    I18NString.Create(Languages.en,
-                                                      Description));
+            => new (User,
+                    EventTrackingId,
+                    false,
+                    Argument,
+                    I18NString.Create(
+                        Languages.en,
+                        Description
+                    ));
 
         public static DeleteUserResult ArgumentError(User              User,
                                                      EventTracking_Id  EventTrackingId,
                                                      String            Argument,
                                                      I18NString        Description)
 
-            => new DeleteUserResult(User,
-                                    EventTrackingId,
-                                    false,
-                                    Argument,
-                                    Description);
+            => new (User,
+                    EventTrackingId,
+                    false,
+                    Argument,
+                    Description);
 
 
         public static DeleteUserResult Failed(User              User,
                                               EventTracking_Id  EventTrackingId,
                                               String            Description)
 
-            => new DeleteUserResult(User,
-                                    EventTrackingId,
-                                    false,
-                                    null,
-                                    I18NString.Create(Languages.en,
-                                                      Description));
+            => new (User,
+                    EventTrackingId,
+                    false,
+                    null,
+                    I18NString.Create(
+                        Languages.en,
+                        Description
+                    ));
 
         public static DeleteUserResult Failed(User              User,
                                               EventTracking_Id  EventTrackingId,
                                               I18NString        Description)
 
-            => new DeleteUserResult(User,
-                                    EventTrackingId,
-                                    false,
-                                    null,
-                                    Description);
+            => new (User,
+                    EventTrackingId,
+                    false,
+                    null,
+                    Description);
 
         public static DeleteUserResult Failed(User              User,
                                               EventTracking_Id  EventTrackingId,
                                               Exception         Exception)
 
-            => new DeleteUserResult(User,
-                                    EventTrackingId,
-                                    false,
-                                    null,
-                                    I18NString.Create(Languages.en,
-                                                      Exception.Message));
+            => new (User,
+                    EventTrackingId,
+                    false,
+                    null,
+                    I18NString.Create(
+                        Languages.en,
+                        Exception.Message
+                    ));
 
     }
 

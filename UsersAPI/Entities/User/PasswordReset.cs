@@ -17,10 +17,6 @@
 
 #region Usings
 
-using System;
-using System.Linq;
-using System.Collections.Generic;
-
 using Newtonsoft.Json.Linq;
 
 using org.GraphDefined.Vanaheimr.Illias;
@@ -87,7 +83,7 @@ namespace social.OpenData.UsersAPI
         public PasswordReset(User               User,
                              SecurityToken_Id   SecurityToken1,
                              SecurityToken_Id?  SecurityToken2    = null,
-                             EventTracking_Id   EventTrackingId   = null)
+                             EventTracking_Id?  EventTrackingId   = null)
 
             : this(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
                    new User[] { User },
@@ -108,7 +104,7 @@ namespace social.OpenData.UsersAPI
         public PasswordReset(IEnumerable<User>  Users,
                              SecurityToken_Id   SecurityToken1,
                              SecurityToken_Id?  SecurityToken2    = null,
-                             EventTracking_Id   EventTrackingId   = null)
+                             EventTracking_Id?  EventTrackingId   = null)
 
             : this(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
                    Users,
@@ -131,10 +127,10 @@ namespace social.OpenData.UsersAPI
                              IEnumerable<User>  Users,
                              SecurityToken_Id   SecurityToken1,
                              SecurityToken_Id?  SecurityToken2    = null,
-                             EventTracking_Id   EventTrackingId   = null)
+                             EventTracking_Id?  EventTrackingId   = null)
         {
 
-            if (Users is null || !Users.Any())
+            if (!Users.Any())
                 throw new ArgumentNullException(nameof(Users), "The given enumeration of users must not be null or empty!");
 
             this.Timestamp        = Timestamp;

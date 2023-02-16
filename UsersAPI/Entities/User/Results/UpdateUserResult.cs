@@ -17,8 +17,6 @@
 
 #region Usings
 
-using System;
-
 using org.GraphDefined.Vanaheimr.Illias;
 
 #endregion
@@ -26,18 +24,18 @@ using org.GraphDefined.Vanaheimr.Illias;
 namespace social.OpenData.UsersAPI
 {
 
-    public class UpdateUserResult : AResult<User>
+    public class UpdateUserResult : AEnitityResult<User, User_Id>
     {
 
-        public User User
+        public User? User
             => Object;
 
 
         public UpdateUserResult(User              User,
                                 EventTracking_Id  EventTrackingId,
                                 Boolean           IsSuccess,
-                                String            Argument          = null,
-                                I18NString        ErrorDescription  = null)
+                                String?           Argument           = null,
+                                I18NString?       ErrorDescription   = null)
 
             : base(User,
                    EventTrackingId,
@@ -51,11 +49,11 @@ namespace social.OpenData.UsersAPI
         public static UpdateUserResult Success(User              User,
                                                EventTracking_Id  EventTrackingId)
 
-            => new UpdateUserResult(User,
-                                    EventTrackingId,
-                                    true,
-                                    null,
-                                    null);
+            => new (User,
+                    EventTrackingId,
+                    true,
+                    null,
+                    null);
 
 
         public static UpdateUserResult ArgumentError(User              User,
@@ -63,56 +61,62 @@ namespace social.OpenData.UsersAPI
                                                      String            Argument,
                                                      String            Description)
 
-            => new UpdateUserResult(User,
-                                    EventTrackingId,
-                                    false,
-                                    Argument,
-                                    I18NString.Create(Languages.en,
-                                                      Description));
+            => new (User,
+                    EventTrackingId,
+                    false,
+                    Argument,
+                    I18NString.Create(
+                        Languages.en,
+                        Description
+                    ));
 
         public static UpdateUserResult ArgumentError(User              User,
                                                      EventTracking_Id  EventTrackingId,
                                                      String            Argument,
                                                      I18NString        Description)
 
-            => new UpdateUserResult(User,
-                                    EventTrackingId,
-                                    false,
-                                    Argument,
-                                    Description);
+            => new (User,
+                    EventTrackingId,
+                    false,
+                    Argument,
+                    Description);
 
 
         public static UpdateUserResult Failed(User              User,
                                               EventTracking_Id  EventTrackingId,
                                               String            Description)
 
-            => new UpdateUserResult(User,
-                                    EventTrackingId,
-                                    false,
-                                    null,
-                                    I18NString.Create(Languages.en,
-                                                      Description));
+            => new (User,
+                    EventTrackingId,
+                    false,
+                    null,
+                    I18NString.Create(
+                        Languages.en,
+                        Description
+                    ));
 
         public static UpdateUserResult Failed(User              User,
                                               EventTracking_Id  EventTrackingId,
                                               I18NString        Description)
 
-            => new UpdateUserResult(User,
-                                    EventTrackingId,
-                                    false,
-                                    null,
-                                    Description);
+            => new (User,
+                    EventTrackingId,
+                    false,
+                    null,
+                    Description);
 
         public static UpdateUserResult Failed(User              User,
                                               EventTracking_Id  EventTrackingId,
                                               Exception         Exception)
 
-            => new UpdateUserResult(User,
-                                    EventTrackingId,
-                                    false,
-                                    null,
-                                    I18NString.Create(Languages.en,
-                                                      Exception.Message));
+            => new (User,
+                    EventTrackingId,
+                    false,
+                    null,
+                    I18NString.Create(
+                        Languages.en,
+                        Exception.Message
+                    ));
 
     }
 

@@ -17,8 +17,6 @@
 
 #region Usings
 
-using System;
-
 using Newtonsoft.Json.Linq;
 
 using org.GraphDefined.Vanaheimr.Illias;
@@ -124,6 +122,47 @@ namespace social.OpenData.UsersAPI
     /// <summary>
     /// An abstract result.
     /// </summary>
+    /// <typeparam name="T">The type of the result.</typeparam>
+    public abstract class AEnitityResult<T1, T2> : AResult<T1>
+
+        where T1 : class, IHasId<T2>
+        where T2 : IId
+
+    {
+
+        #region Constructor(s)
+
+        /// <summary>
+        /// Create a new abstract result.
+        /// </summary>
+        /// <param name="Object">The object of the operation.</param>
+        /// <param name="EventTrackingId">The unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="IsSuccess">Whether the operation was successful, or not.</param>
+        /// <param name="Argument"></param>
+        /// <param name="ErrorDescription"></param>
+        public AEnitityResult(T1?               Object,
+                              EventTracking_Id  EventTrackingId,
+                              Boolean           IsSuccess,
+                              String?           Argument           = null,
+                              I18NString?       ErrorDescription   = null)
+
+            : base(Object,
+                   EventTrackingId,
+                   IsSuccess,
+                   Argument,
+                   ErrorDescription)
+
+        { }
+
+        #endregion
+
+    }
+
+
+
+    /// <summary>
+    /// An abstract result.
+    /// </summary>
     /// <typeparam name="T1">The type of the result.</typeparam>
     /// <typeparam name="T2">The type of the result.</typeparam>
     public abstract class AResult<T1, T2>
@@ -151,9 +190,9 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         public    Boolean           IsSuccess           { get; }
 
-        public    String            Argument            { get; }
+        public    String?           Argument            { get; }
 
-        public    I18NString        ErrorDescription    { get; }
+        public    I18NString?       ErrorDescription    { get; }
 
         #endregion
 
@@ -172,8 +211,8 @@ namespace social.OpenData.UsersAPI
                        T2                Object2,
                        EventTracking_Id  EventTrackingId,
                        Boolean           IsSuccess,
-                       String            Argument          = null,
-                       I18NString        ErrorDescription  = null)
+                       String?           Argument           = null,
+                       I18NString?       ErrorDescription   = null)
         {
 
             this.Object1           = Object1;

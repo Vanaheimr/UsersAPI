@@ -17,8 +17,6 @@
 
 #region Usings
 
-using System;
-
 using org.GraphDefined.Vanaheimr.Illias;
 
 #endregion
@@ -29,14 +27,14 @@ namespace social.OpenData.UsersAPI
     public class AddPasswordResetResult : AResult<PasswordReset>
     {
 
-        public PasswordReset PasswordReset
+        public PasswordReset? PasswordReset
             => Object;
 
         public AddPasswordResetResult(PasswordReset     PasswordReset,
                                       EventTracking_Id  EventTrackingId,
                                       Boolean           IsSuccess,
-                                      String            Argument           = null,
-                                      I18NString        ErrorDescription   = null)
+                                      String?           Argument           = null,
+                                      I18NString?       ErrorDescription   = null)
 
             : base(PasswordReset,
                    EventTrackingId,
@@ -50,11 +48,11 @@ namespace social.OpenData.UsersAPI
         public static AddPasswordResetResult Success(PasswordReset     PasswordReset,
                                                      EventTracking_Id  EventTrackingId)
 
-            => new AddPasswordResetResult(PasswordReset,
-                                          EventTrackingId,
-                                          true,
-                                          null,
-                                          null);
+            => new (PasswordReset,
+                    EventTrackingId,
+                    true,
+                    null,
+                    null);
 
 
         public static AddPasswordResetResult ArgumentError(PasswordReset     PasswordReset,
@@ -62,56 +60,62 @@ namespace social.OpenData.UsersAPI
                                                            String            Argument,
                                                            String            Description)
 
-            => new AddPasswordResetResult(PasswordReset,
-                                          EventTrackingId,
-                                          false,
-                                          Argument,
-                                          I18NString.Create(Languages.en,
-                                                            Description));
+            => new (PasswordReset,
+                    EventTrackingId,
+                    false,
+                    Argument,
+                    I18NString.Create(
+                        Languages.en,
+                        Description
+                    ));
 
         public static AddPasswordResetResult ArgumentError(PasswordReset     PasswordReset,
                                                            EventTracking_Id  EventTrackingId,
                                                            String            Argument,
                                                            I18NString        Description)
 
-            => new AddPasswordResetResult(PasswordReset,
-                                          EventTrackingId,
-                                          false,
-                                          Argument,
-                                          Description);
+            => new (PasswordReset,
+                    EventTrackingId,
+                    false,
+                    Argument,
+                    Description);
 
 
         public static AddPasswordResetResult Failed(PasswordReset     PasswordReset,
                                                     EventTracking_Id  EventTrackingId,
                                                     String            Description)
 
-            => new AddPasswordResetResult(PasswordReset,
-                                          EventTrackingId,
-                                          false,
-                                          null,
-                                          I18NString.Create(Languages.en,
-                                                            Description));
+            => new (PasswordReset,
+                    EventTrackingId,
+                    false,
+                    null,
+                    I18NString.Create(
+                        Languages.en,
+                        Description
+                    ));
 
         public static AddPasswordResetResult Failed(PasswordReset     PasswordReset,
                                                     EventTracking_Id  EventTrackingId,
                                                     I18NString        Description)
 
-            => new AddPasswordResetResult(PasswordReset,
-                                          EventTrackingId,
-                                          false,
-                                          null,
-                                          Description);
+            => new (PasswordReset,
+                    EventTrackingId,
+                    false,
+                    null,
+                    Description);
 
         public static AddPasswordResetResult Failed(PasswordReset     PasswordReset,
                                                     EventTracking_Id  EventTrackingId,
                                                     Exception         Exception)
 
-            => new AddPasswordResetResult(PasswordReset,
-                                          EventTrackingId,
-                                          false,
-                                          null,
-                                          I18NString.Create(Languages.en,
-                                                            Exception.Message));
+            => new (PasswordReset,
+                    EventTrackingId,
+                    false,
+                    null,
+                    I18NString.Create(
+                        Languages.en,
+                        Exception.Message
+                    ));
 
     }
 

@@ -17,10 +17,6 @@
 
 #region Usings
 
-using System;
-using System.Linq;
-using System.Collections.Generic;
-
 using org.GraphDefined.Vanaheimr.Illias;
 
 #endregion
@@ -31,17 +27,17 @@ namespace social.OpenData.UsersAPI
     public class ChangePasswordResult : AResult<IEnumerable<User>>
     {
 
-        public User User
-            => Object.FirstOrDefault();
+        public User? User
+            => Object?.FirstOrDefault();
 
         public IEnumerable<User> Users
-            => Object;
+            => Object ?? Array.Empty<User>();
 
         public ChangePasswordResult(User              User,
                                     EventTracking_Id  EventTrackingId,
                                     Boolean           IsSuccess,
-                                    String            Argument           = null,
-                                    I18NString        ErrorDescription   = null)
+                                    String?           Argument           = null,
+                                    I18NString?       ErrorDescription   = null)
 
             : base(new User[] { User },
                    EventTrackingId,
@@ -54,8 +50,8 @@ namespace social.OpenData.UsersAPI
         public ChangePasswordResult(IEnumerable<User>  Users,
                                     EventTracking_Id   EventTrackingId,
                                     Boolean            IsSuccess,
-                                    String             Argument           = null,
-                                    I18NString         ErrorDescription   = null)
+                                    String?            Argument           = null,
+                                    I18NString?        ErrorDescription   = null)
 
             : base(Users,
                    EventTrackingId,
@@ -69,19 +65,19 @@ namespace social.OpenData.UsersAPI
         public static ChangePasswordResult Success(User              User,
                                                    EventTracking_Id  EventTrackingId)
 
-            => new ChangePasswordResult(User,
-                                        EventTrackingId,
-                                        true,
-                                        null,
-                                        null);
+            => new (User,
+                    EventTrackingId,
+                    true,
+                    null,
+                    null);
         public static ChangePasswordResult Success(IEnumerable<User>  Users,
                                                    EventTracking_Id   EventTrackingId)
 
-            => new ChangePasswordResult(Users,
-                                        EventTrackingId,
-                                        true,
-                                        null,
-                                        null);
+            => new (Users,
+                    EventTrackingId,
+                    true,
+                    null,
+                    null);
 
 
         public static ChangePasswordResult ArgumentError(User              User,
@@ -89,111 +85,123 @@ namespace social.OpenData.UsersAPI
                                                          String            Argument,
                                                          String            Description)
 
-            => new ChangePasswordResult(User,
-                                        EventTrackingId,
-                                        false,
-                                        Argument,
-                                        I18NString.Create(Languages.en,
-                                                          Description));
+            => new (User,
+                    EventTrackingId,
+                    false,
+                    Argument,
+                    I18NString.Create(
+                        Languages.en,
+                        Description
+                    ));
 
         public static ChangePasswordResult ArgumentError(IEnumerable<User>  Users,
                                                          EventTracking_Id   EventTrackingId,
                                                          String             Argument,
                                                          String             Description)
 
-            => new ChangePasswordResult(Users,
-                                        EventTrackingId,
-                                        false,
-                                        Argument,
-                                        I18NString.Create(Languages.en,
-                                                          Description));
+            => new (Users,
+                    EventTrackingId,
+                    false,
+                    Argument,
+                    I18NString.Create(
+                        Languages.en,
+                        Description
+                    ));
 
         public static ChangePasswordResult ArgumentError(User              User,
                                                          EventTracking_Id  EventTrackingId,
                                                          String            Argument,
                                                          I18NString        Description)
 
-            => new ChangePasswordResult(User,
-                                        EventTrackingId,
-                                        false,
-                                        Argument,
-                                        Description);
+            => new (User,
+                    EventTrackingId,
+                    false,
+                    Argument,
+                    Description);
 
         public static ChangePasswordResult ArgumentError(IEnumerable<User>  Users,
                                                          EventTracking_Id   EventTrackingId,
                                                          String             Argument,
                                                          I18NString         Description)
 
-            => new ChangePasswordResult(Users,
-                                        EventTrackingId,
-                                        false,
-                                        Argument,
-                                        Description);
+            => new (Users,
+                    EventTrackingId,
+                    false,
+                    Argument,
+                    Description);
 
 
         public static ChangePasswordResult Failed(User              User,
                                                   EventTracking_Id  EventTrackingId,
                                                   String            Description)
 
-            => new ChangePasswordResult(User,
-                                        EventTrackingId,
-                                        false,
-                                        null,
-                                        I18NString.Create(Languages.en,
-                                                          Description));
+            => new (User,
+                    EventTrackingId,
+                    false,
+                    null,
+                    I18NString.Create(
+                        Languages.en,
+                        Description
+                    ));
 
         public static ChangePasswordResult Failed(IEnumerable<User>  Users,
                                                   EventTracking_Id   EventTrackingId,
                                                   String             Description)
 
-            => new ChangePasswordResult(Users,
-                                        EventTrackingId,
-                                        false,
-                                        null,
-                                        I18NString.Create(Languages.en,
-                                                          Description));
+            => new (Users,
+                    EventTrackingId,
+                    false,
+                    null,
+                    I18NString.Create(
+                        Languages.en,
+                        Description
+                    ));
 
         public static ChangePasswordResult Failed(User              User,
                                                   EventTracking_Id  EventTrackingId,
                                                   I18NString        Description)
 
-            => new ChangePasswordResult(User,
-                                        EventTrackingId,
-                                        false,
-                                        null,
-                                        Description);
+            => new (User,
+                    EventTrackingId,
+                    false,
+                    null,
+                    Description);
 
         public static ChangePasswordResult Failed(IEnumerable<User>  Users,
                                                   EventTracking_Id   EventTrackingId,
                                                   I18NString         Description)
 
-            => new ChangePasswordResult(Users,
-                                        EventTrackingId,
-                                        false,
-                                        null,
-                                        Description);
+            => new (Users,
+                    EventTrackingId,
+                    false,
+                    null,
+                    Description);
 
         public static ChangePasswordResult Failed(User              User,
                                                   EventTracking_Id  EventTrackingId,
                                                   Exception         Exception)
 
-            => new ChangePasswordResult(User,
-                                        EventTrackingId,
-                                        false,
-                                        null,
-                                        I18NString.Create(Languages.en,
-                                                          Exception.Message));
+            => new (User,
+                    EventTrackingId,
+                    false,
+                    null,
+                    I18NString.Create(
+                        Languages.en,
+                        Exception.Message
+                    ));
 
         public static ChangePasswordResult Failed(IEnumerable<User>  Users,
                                                   EventTracking_Id   EventTrackingId,
                                                   Exception          Exception)
 
-            => new ChangePasswordResult(Users,
-                                        EventTrackingId,
-                                        false,
-                                        null,
-                                        I18NString.Create(Languages.en,
-                                                          Exception.Message));
+            => new (Users,
+                    EventTrackingId,
+                    false,
+                    null,
+                    I18NString.Create(
+                        Languages.en,
+                        Exception.Message
+                    ));
 
     }
 
