@@ -122,37 +122,78 @@ namespace social.OpenData.UsersAPI
     /// <summary>
     /// An abstract result.
     /// </summary>
-    /// <typeparam name="T">The type of the result.</typeparam>
-    public abstract class AEnitityResult<T1, T2> : AResult<T1>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <typeparam name="TId">The type of the entity identification.</typeparam>
+    public abstract class AEnitityResult<TEntity, TId> : AResult<TEntity>
 
-        where T1 : class, IHasId<T2>
-        where T2 : IId
+        where TEntity : class, IHasId<TId>
+        where TId     : IId
 
     {
+
+        #region Properties
+
+        /// <summary>
+        /// The unique identification of the entity.
+        /// </summary>
+        public TId?  Identification    { get; }
+
+        #endregion
 
         #region Constructor(s)
 
         /// <summary>
         /// Create a new abstract result.
         /// </summary>
-        /// <param name="Object">The object of the operation.</param>
+        /// <param name="Entity">The entity of the operation.</param>
         /// <param name="EventTrackingId">The unique event tracking identification for correlating this request with other events.</param>
         /// <param name="IsSuccess">Whether the operation was successful, or not.</param>
         /// <param name="Argument"></param>
         /// <param name="ErrorDescription"></param>
-        public AEnitityResult(T1?               Object,
+        public AEnitityResult(TEntity?          Entity,
                               EventTracking_Id  EventTrackingId,
                               Boolean           IsSuccess,
                               String?           Argument           = null,
                               I18NString?       ErrorDescription   = null)
 
-            : base(Object,
+            : base(Entity,
                    EventTrackingId,
                    IsSuccess,
                    Argument,
                    ErrorDescription)
 
-        { }
+        {
+
+            this.Identification = Entity is not null ? Entity.Id : default;
+
+        }
+
+
+        /// <summary>
+        /// Create a new abstract result.
+        /// </summary>
+        /// <param name="Identification">The object of the operation.</param>
+        /// <param name="EventTrackingId">The unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="IsSuccess">Whether the operation was successful, or not.</param>
+        /// <param name="Argument"></param>
+        /// <param name="ErrorDescription"></param>
+        public AEnitityResult(TId               Identification,
+                              EventTracking_Id  EventTrackingId,
+                              Boolean           IsSuccess,
+                              String?           Argument           = null,
+                              I18NString?       ErrorDescription   = null)
+
+            : base(default,
+                   EventTrackingId,
+                   IsSuccess,
+                   Argument,
+                   ErrorDescription)
+
+        {
+
+            this.Identification = Identification;
+
+        }
 
         #endregion
 
