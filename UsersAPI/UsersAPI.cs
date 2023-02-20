@@ -2906,7 +2906,7 @@ namespace social.OpenData.UsersAPI
             #region Init data
 
             this.dataLicenses                    = new Dictionary<DataLicense_Id,             DataLicense>();
-            this._Users                          = new Dictionary<User_Id,                    User>();
+            this.users                          = new Dictionary<User_Id,                    User>();
             this._VerificationTokens             = new Dictionary<VerificationToken,          User>();
             this._LoginPasswords                 = new Dictionary<User_Id,                    LoginPassword>();
             this._PasswordResets                 = new Dictionary<SecurityToken_Id,           PasswordReset>();
@@ -4122,14 +4122,14 @@ namespace social.OpenData.UsersAPI
                 var validUsers    = new HashSet<User>();
 
                 if (User_Id.TryParse   (basicAuth.Username, out User_Id _UserId) &&
-                    _Users. TryGetValue(_UserId,            out User?   _User))
+                    users. TryGetValue(_UserId,            out User?   _User))
                 {
                     possibleUsers.Add(_User);
                 }
 
                 if (possibleUsers.Count == 0)
                 {
-                    foreach (var _user in _Users.Values)
+                    foreach (var _user in users.Values)
                     {
                         if (String.Equals(basicAuth.Username,
                                           _user.EMail.Address.ToString(),
@@ -5397,7 +5397,7 @@ namespace social.OpenData.UsersAPI
                                   var possibleUsers = new HashSet<User>();
 
                                   if (User_Id.       TryParse   (login,  out var userId) &&
-                                     _Users.         TryGetValue(userId, out var user)   &&
+                                     users.         TryGetValue(userId, out var user)   &&
                                      _LoginPasswords.TryGetValue(userId, out var loginPassword))
                                   {
                                       possibleUsers.Add(user);
@@ -5405,7 +5405,7 @@ namespace social.OpenData.UsersAPI
 
                                   if (possibleUsers.Count == 0)
                                   {
-                                      foreach (var _user in _Users.Values)
+                                      foreach (var _user in users.Values)
                                       {
                                           if (String.Equals(login,
                                                             _user.EMail.Address.ToString(),
@@ -5633,7 +5633,7 @@ namespace social.OpenData.UsersAPI
 
                                              if (SimpleEMailAddress.TryParse(UserIdOrEMailJSON, out SimpleEMailAddress EMailAddress))
                                              {
-                                                 foreach (var user in _Users.Values)
+                                                 foreach (var user in users.Values)
                                                  {
                                                      if (user.EMail.Address == EMailAddress)
                                                          Users.Add(user);
@@ -6646,7 +6646,7 @@ namespace social.OpenData.UsersAPI
                                                   URLPathPrefix + "users/{UserId}",
                                                   User_Id.TryParse,
                                                   text   => "Invalid user identification '" + text + "'!",
-                                                  _Users.TryGetValue,
+                                                  users.TryGetValue,
                                                   user   => user.PrivacyLevel == PrivacyLevel.World,
                                                   userId => "Unknown user '" + userId + "'!");
 
@@ -7063,7 +7063,7 @@ namespace social.OpenData.UsersAPI
                                   var possibleUsers = new HashSet<User>();
 
                                   if (User_Id.       TryParse   (login,  out var userId) &&
-                                     _Users.         TryGetValue(userId, out var user)   &&
+                                     users.         TryGetValue(userId, out var user)   &&
                                      _LoginPasswords.TryGetValue(userId, out var loginPassword))
                                   {
                                       possibleUsers.Add(user);
@@ -7071,7 +7071,7 @@ namespace social.OpenData.UsersAPI
 
                                   if (possibleUsers.Count == 0)
                                   {
-                                      foreach (var _user in _Users.Values)
+                                      foreach (var _user in users.Values)
                                       {
                                           if (String.Equals(login,
                                                             _user.EMail.Address.ToString(),
@@ -8753,7 +8753,7 @@ namespace social.OpenData.UsersAPI
                                                  #region Parse APIKey    [mandatory]
 
                                                  if (!APIKey.TryParse(JSONBody,
-                                                                              _Users.TryGetValue,
+                                                                              users.TryGetValue,
                                                                               out APIKey  apiKey,
                                                                               out String      errorString))
                                                  {
@@ -14747,7 +14747,7 @@ namespace social.OpenData.UsersAPI
                             if (JSONCommand.IsNotNullOrEmpty() &&
                                 JSONObject  != null &&
                                 PasswordReset.TryParseJSON(JSONObject,
-                                                           _Users.TryGetValue,
+                                                           users.TryGetValue,
                                                            out PasswordReset _PasswordReset,
                                                            out String        ErrorResponse))
                             {
@@ -15154,7 +15154,7 @@ namespace social.OpenData.UsersAPI
                                           out String  ErrorResponse))
                     {
                         user.API = this;
-                        _Users.AddAndReturnValue(user.Id, user);
+                        users.AddAndReturnValue(user.Id, user);
                     }
 
                     else
@@ -15173,7 +15173,7 @@ namespace social.OpenData.UsersAPI
                                           out ErrorResponse))
                     {
                         user.API = this;
-                        _Users.AddAndReturnValue(user.Id, user);
+                        users.AddAndReturnValue(user.Id, user);
                     }
 
                     else
@@ -15192,10 +15192,10 @@ namespace social.OpenData.UsersAPI
                                           out ErrorResponse))
                     {
 
-                        if (!_Users.ContainsKey(user.Id))
+                        if (!users.ContainsKey(user.Id))
                         {
                             user.API = this;
-                            _Users.AddAndReturnValue(user.Id, user);
+                            users.AddAndReturnValue(user.Id, user);
                         }
 
                     }
@@ -15216,13 +15216,13 @@ namespace social.OpenData.UsersAPI
                                           out ErrorResponse))
                     {
 
-                        if (_Users.TryGetValue(user.Id, out User OldUser))
+                        if (users.TryGetValue(user.Id, out User OldUser))
                         {
-                            _Users.Remove(OldUser.Id);
+                            users.Remove(OldUser.Id);
                             user.CopyAllLinkedDataFrom(OldUser);
                         }
 
-                        _Users.Add(user.Id, user);
+                        users.Add(user.Id, user);
                         user.API = this;
 
                     }
@@ -15243,14 +15243,14 @@ namespace social.OpenData.UsersAPI
                                           out ErrorResponse))
                     {
 
-                        if (_Users.TryGetValue(user.Id, out User OldUser))
+                        if (users.TryGetValue(user.Id, out User OldUser))
                         {
 
-                            _Users.Remove(OldUser.Id);
+                            users.Remove(OldUser.Id);
                             user.API = this;
                             user.CopyAllLinkedDataFrom(OldUser);
 
-                            _Users.Add(user.Id, user);
+                            users.Add(user.Id, user);
 
                         }
 
@@ -15272,7 +15272,7 @@ namespace social.OpenData.UsersAPI
                                           out ErrorResponse))
                     {
 
-                        if (_Users.TryGetValue(user.Id, out User __User))
+                        if (users.TryGetValue(user.Id, out User __User))
                         {
 
                             // this --edge--> organization
@@ -15281,7 +15281,7 @@ namespace social.OpenData.UsersAPI
 
                         }
 
-                        _Users.Remove(user.Id);
+                        users.Remove(user.Id);
 
                     }
 
@@ -15329,7 +15329,7 @@ namespace social.OpenData.UsersAPI
                 case "addAPIKey":
 
                     if (APIKey.TryParse(Data,
-                                        _Users.TryGetValue,
+                                        users.TryGetValue,
                                         out apiKey,
                                         out ErrorResponse))
                     {
@@ -15348,7 +15348,7 @@ namespace social.OpenData.UsersAPI
                 case "addAPIKeyIfNotExists":
 
                     if (APIKey.TryParse(Data,
-                                        _Users.TryGetValue,
+                                        users.TryGetValue,
                                         out apiKey,
                                         out ErrorResponse))
                     {
@@ -15373,7 +15373,7 @@ namespace social.OpenData.UsersAPI
                 case "addOrUpdateAPIKey":
 
                     if (APIKey.TryParse(Data,
-                                        _Users.TryGetValue,
+                                        users.TryGetValue,
                                         out apiKey,
                                         out ErrorResponse))
                     {
@@ -15400,7 +15400,7 @@ namespace social.OpenData.UsersAPI
                 case "updateAPIKey":
 
                     if (APIKey.TryParse(Data,
-                                        _Users.TryGetValue,
+                                        users.TryGetValue,
                                         out apiKey,
                                         out ErrorResponse))
                     {
@@ -15426,7 +15426,7 @@ namespace social.OpenData.UsersAPI
                 case "removeAPIKey":
 
                     if (APIKey.TryParse(Data,
-                                        _Users.TryGetValue,
+                                        users.TryGetValue,
                                         out apiKey,
                                         out ErrorResponse))
                     {
@@ -15826,7 +15826,7 @@ namespace social.OpenData.UsersAPI
 
                     if (UserGroup.TryParseJSON(Data,
                                                _UserGroups.TryGetValue,
-                                               _Users.TryGetValue,
+                                               users.TryGetValue,
                                                out userGroup,
                                                out ErrorResponse))
                     {
@@ -15855,7 +15855,7 @@ namespace social.OpenData.UsersAPI
 
                     if (UserGroup.TryParseJSON(Data,
                                                _UserGroups.TryGetValue,
-                                               _Users.TryGetValue,
+                                               users.TryGetValue,
                                                out userGroup,
                                                out ErrorResponse))
                     {
@@ -15923,7 +15923,7 @@ namespace social.OpenData.UsersAPI
                 case "addNewsPostingIfNotExists":
 
                     if (NewsPosting.TryParseJSON(Data,
-                                                 _Users.TryGetValue,
+                                                 users.TryGetValue,
                                                  out newsPosting,
                                                  out ErrorResponse))
                     {
@@ -15949,7 +15949,7 @@ namespace social.OpenData.UsersAPI
                 case "addNewsBannerIfNotExists":
 
                     if (NewsBanner.TryParseJSON(Data,
-                                                _Users.TryGetValue,
+                                                users.TryGetValue,
                                                 out newsBanner,
                                                 out ErrorResponse))
                     {
@@ -15975,7 +15975,7 @@ namespace social.OpenData.UsersAPI
                 case "addFAQIfNotExists":
 
                     if (FAQ.TryParseJSON(Data,
-                                         _Users.TryGetValue,
+                                         users.TryGetValue,
                                          out faq,
                                          out ErrorResponse))
                     {
@@ -17247,14 +17247,14 @@ namespace social.OpenData.UsersAPI
                 var validUsers    = new HashSet<User>();
 
                 if (User_Id.TryParse   (basicAuthentication.Username, out User_Id _UserId) &&
-                    _Users. TryGetValue(_UserId,                      out User?   _User))
+                    users. TryGetValue(_UserId,                      out User?   _User))
                 {
                     possibleUsers.Add(_User);
                 }
 
                 if (possibleUsers.Count == 0)
                 {
-                    foreach (var user in _Users.Values)
+                    foreach (var user in users.Values)
                     {
                         if (String.Equals(basicAuthentication.Username,
                                           user.EMail.Address.ToString(),
@@ -17313,12 +17313,12 @@ namespace social.OpenData.UsersAPI
 
         #region Users
 
-        #region Data
+        #region Users
 
         /// <summary>
         /// An enumeration of all users.
         /// </summary>
-        protected internal readonly Dictionary<User_Id, User> _Users;
+        protected internal readonly Dictionary<User_Id, User> users;
 
         /// <summary>
         /// An enumeration of all users.
@@ -17333,7 +17333,7 @@ namespace social.OpenData.UsersAPI
                     try
                     {
 
-                        return _Users.Values.ToArray();
+                        return users.Values.ToArray();
 
                     }
                     finally
@@ -17347,7 +17347,7 @@ namespace social.OpenData.UsersAPI
                     }
                 }
 
-                return new User[0];
+                return Array.Empty<User>();
 
             }
         }
@@ -18017,29 +18017,23 @@ namespace social.OpenData.UsersAPI
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
-            if (User is null)
-                return AddUserResult.ArgumentError(User,
-                                                   eventTrackingId,
-                                                   nameof(User),
-                                                   "The given user must not be null!");
-
             if (User.API is not null && User.API != this)
                 return AddUserResult.ArgumentError(User,
                                                    eventTrackingId,
                                                    nameof(User),
                                                    "The given user is already attached to another API!");
 
-            if (_Users.ContainsKey(User.Id))
+            if (users.ContainsKey(User.Id))
                 return AddUserResult.ArgumentError(User,
                                                    eventTrackingId,
                                                    nameof(User),
-                                                   "The given user identification '" + User.Id + "' already exists!");
+                                                   $"The given user identification '{User.Id}' already exists!");
 
             if (User.Id.Length < MinUserIdLength)
                 return AddUserResult.ArgumentError(User,
                                                    eventTrackingId,
                                                    nameof(User),
-                                                   "The given user identification '" + User.Id + "' is too short!");
+                                                   $"The given user identification '{User.Id}' is too short!");
 
             if (User.Name.IsNullOrEmpty() || User.Name.Trim().IsNullOrEmpty())
                 return AddUserResult.ArgumentError(User,
@@ -18051,7 +18045,7 @@ namespace social.OpenData.UsersAPI
                 return AddUserResult.ArgumentError(User,
                                                    eventTrackingId,
                                                    nameof(User),
-                                                   "The given user name '" + User.Name + "' is too short!");
+                                                   $"The given user name '{User.Name}' is too short!");
 
             User.API = this;
 
@@ -18061,7 +18055,7 @@ namespace social.OpenData.UsersAPI
                                       eventTrackingId,
                                       CurrentUserId);
 
-            _Users.Add(User.Id, User);
+            users.Add(User.Id, User);
 
             #region Register 'New User Default'-Notifications
 
@@ -18134,6 +18128,8 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="User">A new user.</param>
         /// <param name="SkipDefaultNotifications">Do not apply the default notifications settings for new users.</param>
+        /// <param name="SkipNewUserEMail"></param>
+        /// <param name="SkipNewUserNotifications">Do not send notifications for this user addition.</param>
         /// <param name="OnAdded">A delegate run whenever the user has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
@@ -18444,8 +18440,8 @@ namespace social.OpenData.UsersAPI
                                                               nameof(User),
                                                               "The given user is already attached to another API!");
 
-            if (_Users.ContainsKey(User.Id))
-                return AddUserIfNotExistsResult.Success(_Users[User.Id],
+            if (users.ContainsKey(User.Id))
+                return AddUserIfNotExistsResult.Success(users[User.Id],
                                                         AddedOrIgnored.Ignored,
                                                         eventTrackingId);
 
@@ -18475,7 +18471,7 @@ namespace social.OpenData.UsersAPI
                                       eventTrackingId,
                                       CurrentUserId);
 
-            _Users.Add(User.Id, User);
+            users.Add(User.Id, User);
 
             #region Register 'New User Default'-Notifications
 
@@ -18890,13 +18886,13 @@ namespace social.OpenData.UsersAPI
                                       eventTrackingId,
                                       CurrentUserId);
 
-            if (_Users.TryGetValue(User.Id, out var OldUser))
+            if (users.TryGetValue(User.Id, out var OldUser))
             {
-                _Users.Remove(OldUser.Id);
+                users.Remove(OldUser.Id);
                 User.CopyAllLinkedDataFrom(OldUser);
             }
 
-            _Users.Add(User.Id, User);
+            users.Add(User.Id, User);
 
             if (OldUser is null)
             {
@@ -19212,12 +19208,6 @@ namespace social.OpenData.UsersAPI
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
-            if (User is null)
-                return UpdateUserResult.ArgumentError(User,
-                                                      eventTrackingId,
-                                                      nameof(User),
-                                                      "The given user must not be null!");
-
             if (!_TryGetUser(User.Id, out var OldUser))
                 return UpdateUserResult.ArgumentError(User,
                                                       eventTrackingId,
@@ -19238,9 +19228,9 @@ namespace social.OpenData.UsersAPI
                                       eventTrackingId,
                                       CurrentUserId);
 
-            _Users.Remove(OldUser.Id);
+            users.Remove(OldUser.Id);
             User.CopyAllLinkedDataFrom(OldUser);
-            _Users.Add(User.Id, User);
+            users.Add(User.Id, User);
 
             OnUpdated?.Invoke(User,
                               eventTrackingId);
@@ -19381,9 +19371,9 @@ namespace social.OpenData.UsersAPI
                                       eventTrackingId,
                                       CurrentUserId);
 
-            _Users.Remove(User.Id);
+            users.Remove(User.Id);
             updatedUser.CopyAllLinkedDataFrom(User);
-            _Users.Add(updatedUser.Id, updatedUser);
+            users.Add(updatedUser.Id, updatedUser);
 
             OnUpdated?.Invoke(updatedUser,
                               eventTrackingId);
@@ -19475,6 +19465,44 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
+        #region UserExists(User)
+
+        /// <summary>
+        /// Determines whether the given user exists within this API.
+        /// </summary>
+        /// <param name="User">The user.</param>
+        public Boolean UserExists(User User)
+        {
+
+            if (UsersSemaphore.Wait(SemaphoreSlimTimeout))
+            {
+                try
+                {
+
+                    return _UserExists(User.Id);
+
+                }
+                catch (Exception e)
+                {
+                    DebugX.LogException(e, $"{nameof(UsersAPI)}.{nameof(UserExists)}({User.Id}, ...)");
+                }
+                finally
+                {
+                    try
+                    {
+                        UsersSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
+            }
+
+            return false;
+
+        }
+
+        #endregion
+
         #region UserExists(UserId)
 
         /// <summary>
@@ -19483,7 +19511,8 @@ namespace social.OpenData.UsersAPI
         /// <param name="UserId">The unique identification of an user.</param>
         protected internal Boolean _UserExists(User_Id UserId)
 
-            => UserId.IsNotNullOrEmpty && _Users.ContainsKey(UserId);
+            => UserId.IsNotNullOrEmpty &&
+               users.ContainsKey(UserId);
 
         /// <summary>
         /// Determines whether the given user identification exists within this API.
@@ -19491,7 +19520,9 @@ namespace social.OpenData.UsersAPI
         /// <param name="UserId">The unique identification of an user.</param>
         protected internal Boolean _UserExists(User_Id? UserId)
 
-            => UserId.IsNotNullOrEmpty() && _Users.ContainsKey(UserId.Value);
+            => UserId.HasValue &&
+               UserId.IsNotNullOrEmpty() &&
+               users.ContainsKey(UserId.Value);
 
 
         /// <summary>
@@ -19509,8 +19540,10 @@ namespace social.OpenData.UsersAPI
                     return _UserExists(UserId);
 
                 }
-                catch
-                { }
+                catch (Exception e)
+                {
+                    DebugX.LogException(e, $"{nameof(UsersAPI)}.{nameof(UserExists)}({UserId}, ...)");
+                }
                 finally
                 {
                     try
@@ -19541,8 +19574,10 @@ namespace social.OpenData.UsersAPI
                     return _UserExists(UserId);
 
                 }
-                catch
-                { }
+                catch (Exception e)
+                {
+                    DebugX.LogException(e, $"{nameof(UsersAPI)}.{nameof(UserExists)}({UserId}, ...)");
+                }
                 finally
                 {
                     try
@@ -19566,11 +19601,14 @@ namespace social.OpenData.UsersAPI
         /// Get the user having the given unique identification.
         /// </summary>
         /// <param name="UserId">The unique identification of an user.</param>
-        protected internal User _GetUser(User_Id UserId)
+        protected internal User? _GetUser(User_Id UserId)
         {
 
-            if (!UserId.IsNullOrEmpty && _Users.TryGetValue(UserId, out var user))
+            if (!UserId.IsNullOrEmpty &&
+                users.TryGetValue(UserId, out var user))
+            {
                 return user;
+            }
 
             return null;
 
@@ -19580,11 +19618,15 @@ namespace social.OpenData.UsersAPI
         /// Get the user having the given unique identification.
         /// </summary>
         /// <param name="UserId">The unique identification of an user.</param>
-        protected internal User _GetUser(User_Id? UserId)
+        protected internal User? _GetUser(User_Id? UserId)
         {
 
-            if (UserId.IsNotNullOrEmpty() && _Users.TryGetValue(UserId.Value, out var user))
+            if (UserId.HasValue &&
+                UserId.IsNotNullOrEmpty() &&
+                users.TryGetValue(UserId.Value, out var user))
+            {
                 return user;
+            }
 
             return null;
 
@@ -19595,7 +19637,7 @@ namespace social.OpenData.UsersAPI
         /// Get the user having the given unique identification.
         /// </summary>
         /// <param name="UserId">The unique identification of an user.</param>
-        public User GetUser(User_Id  UserId)
+        public User? GetUser(User_Id  UserId)
         {
 
             if (UsersSemaphore.Wait(SemaphoreSlimTimeout))
@@ -19606,8 +19648,10 @@ namespace social.OpenData.UsersAPI
                     return _GetUser(UserId);
 
                 }
-                catch
-                { }
+                catch (Exception e)
+                {
+                    DebugX.LogException(e, $"{nameof(UsersAPI)}.{nameof(GetUser)}({UserId}, ...)");
+                }
                 finally
                 {
                     try
@@ -19627,7 +19671,7 @@ namespace social.OpenData.UsersAPI
         /// Get the user having the given unique identification.
         /// </summary>
         /// <param name="UserId">The unique identification of an user.</param>
-        public User GetUser(User_Id? UserId)
+        public User? GetUser(User_Id? UserId)
         {
 
             if (UsersSemaphore.Wait(SemaphoreSlimTimeout))
@@ -19638,8 +19682,10 @@ namespace social.OpenData.UsersAPI
                     return _GetUser(UserId);
 
                 }
-                catch
-                { }
+                catch (Exception e)
+                {
+                    DebugX.LogException(e, $"{nameof(UsersAPI)}.{nameof(GetUser)}({UserId}, ...)");
+                }
                 finally
                 {
                     try
@@ -19668,7 +19714,7 @@ namespace social.OpenData.UsersAPI
         {
 
             if (!UserId.IsNullOrEmpty &&
-                _Users.TryGetValue(UserId, out var user))
+                users.TryGetValue(UserId, out var user))
             {
                 User = user;
                 return true;
@@ -19687,8 +19733,9 @@ namespace social.OpenData.UsersAPI
         protected internal Boolean _TryGetUser(User_Id? UserId, out User? User)
         {
 
-            if (UserId.IsNotNullOrEmpty() &&
-               _Users.TryGetValue(UserId!.Value, out var user))
+            if (UserId.HasValue &&
+                UserId.IsNotNullOrEmpty() &&
+                users.TryGetValue(UserId.Value, out var user))
             {
                 User = user;
                 return true;
@@ -19716,8 +19763,10 @@ namespace social.OpenData.UsersAPI
                     return _TryGetUser(UserId, out User);
 
                 }
-                catch
-                { }
+                catch (Exception e)
+                {
+                    DebugX.LogException(e, $"{nameof(UsersAPI)}.{nameof(TryGetUser)}({UserId}, ...)");
+                }
                 finally
                 {
                     try
@@ -19750,8 +19799,10 @@ namespace social.OpenData.UsersAPI
                     return _TryGetUser(UserId, out User);
 
                 }
-                catch
-                { }
+                catch (Exception e)
+                {
+                    DebugX.LogException(e, $"{nameof(UsersAPI)}.{nameof(TryGetUser)}({UserId}, ...)");
+                }
                 finally
                 {
                     try
@@ -19779,7 +19830,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="Username">The name of a user (might not be unique).</param>
         protected internal IEnumerable<User> _SearchUsersByName(String Username)
 
-            => _Users.Values.
+            => users.Values.
                       Where(user => user.Name.Equals(Username)).
                       ToArray();
 
@@ -19830,7 +19881,7 @@ namespace social.OpenData.UsersAPI
 
             var foundUsers = new List<User>();
 
-            foreach (var user in _Users.Values)
+            foreach (var user in users.Values)
                 if (user.Name.Equals(Username ?? ""))
                     foundUsers.Add(user);
 
@@ -19946,7 +19997,7 @@ namespace social.OpenData.UsersAPI
                                                       nameof(User),
                                                       "The given user is not attached to this API!");
 
-            if (!_Users.ContainsKey(User.Id))
+            if (!users.ContainsKey(User.Id))
                 return DeleteUserResult.ArgumentError(User,
                                                       eventTrackingId,
                                                       nameof(User),
@@ -19975,7 +20026,7 @@ namespace social.OpenData.UsersAPI
             // ToDo: Remove incoming edges
 
 
-            _Users.Remove(User.Id);
+            users.Remove(User.Id);
 
             OnDeleted?.Invoke(User,
                               eventTrackingId);
@@ -25711,7 +25762,7 @@ namespace social.OpenData.UsersAPI
 
                 await UsersSemaphore.WaitAsync();
 
-                if (_Users.TryGetValue(UserId, out User User))
+                if (users.TryGetValue(UserId, out User User))
                 {
 
                     User.AddNotification(NotificationType,
@@ -25783,7 +25834,7 @@ namespace social.OpenData.UsersAPI
 
                 await UsersSemaphore.WaitAsync();
 
-                if (_Users.TryGetValue(UserId, out User User))
+                if (users.TryGetValue(UserId, out User User))
                 {
 
                     User.AddNotification(NotificationType,
@@ -25859,7 +25910,7 @@ namespace social.OpenData.UsersAPI
 
                 await UsersSemaphore.WaitAsync();
 
-                if (_Users.TryGetValue(UserId, out User User))
+                if (users.TryGetValue(UserId, out User User))
                 {
 
                     User.AddNotification(NotificationType,
@@ -26152,7 +26203,7 @@ namespace social.OpenData.UsersAPI
                 try
                 {
 
-                    if (_Users.TryGetValue(UserId, out User user))
+                    if (users.TryGetValue(UserId, out User user))
                         return user.GetNotifications(NotificationMessageType);
 
                 }
@@ -26226,7 +26277,7 @@ namespace social.OpenData.UsersAPI
                 try
                 {
 
-                    if (_Users.TryGetValue(UserId, out User user))
+                    if (users.TryGetValue(UserId, out User user))
                         return user.GetNotificationsOf<T>(NotificationMessageTypes);
 
                 }
@@ -26551,7 +26602,7 @@ namespace social.OpenData.UsersAPI
 
                 await UsersSemaphore.WaitAsync();
 
-                if (_Users.TryGetValue(UserId, out User User))
+                if (users.TryGetValue(UserId, out User User))
                 {
 
                     User.RemoveNotification(NotificationType,
@@ -32250,7 +32301,7 @@ namespace social.OpenData.UsersAPI
                                                               nameof(User),
                                                               "The given user is not attached to this API!");
 
-            if (!_Users.ContainsKey(User.Id))
+            if (!users.ContainsKey(User.Id))
                 return AddUserToUserGroupResult.ArgumentError(User,
                                                               EdgeLabel,
                                                               UserGroup,
@@ -32435,7 +32486,7 @@ namespace social.OpenData.UsersAPI
                                                                    nameof(User),
                                                                    "The given user is not attached to this API!");
 
-            if (!_Users.ContainsKey(User.Id))
+            if (!users.ContainsKey(User.Id))
                 return RemoveUserFromUserGroupResult.ArgumentError(User,
                                                                    EdgeLabel,
                                                                    UserGroup,
@@ -32624,7 +32675,7 @@ namespace social.OpenData.UsersAPI
                                                                    nameof(User),
                                                                    "The given user is not attached to this API!");
 
-            if (!_Users.ContainsKey(User.Id))
+            if (!users.ContainsKey(User.Id))
                 return RemoveUserFromUserGroupResult.ArgumentError(User,
                                                                    UserGroup,
                                                                    eventTrackingId,
@@ -33186,7 +33237,7 @@ namespace social.OpenData.UsersAPI
                                                                  nameof(User),
                                                                  "The given user is not attached to this API!");
 
-            if (!_Users.ContainsKey(User.Id))
+            if (!users.ContainsKey(User.Id))
                 return AddUserToOrganizationResult.ArgumentError(User,
                                                                  EdgeLabel,
                                                                  Organization,
@@ -33371,7 +33422,7 @@ namespace social.OpenData.UsersAPI
                                                                       nameof(User),
                                                                       "The given user is not attached to this API!");
 
-            if (!_Users.ContainsKey(User.Id))
+            if (!users.ContainsKey(User.Id))
                 return RemoveUserFromOrganizationResult.ArgumentError(User,
                                                                       EdgeLabel,
                                                                       Organization,
@@ -33560,7 +33611,7 @@ namespace social.OpenData.UsersAPI
                                                                       nameof(User),
                                                                       "The given user is not attached to this API!");
 
-            if (!_Users.ContainsKey(User.Id))
+            if (!users.ContainsKey(User.Id))
                 return RemoveUserFromOrganizationResult.ArgumentError(User,
                                                                       Organization,
                                                                       eventTrackingId,
