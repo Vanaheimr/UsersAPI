@@ -1087,7 +1087,7 @@ namespace social.OpenData.UsersAPI
                                                        SkipNewUserEMail,
                                                        SkipNewUserNotifications,
 
-                                                       async (_user, _eventTrackingId) => {
+                                                       async (_timestamp, _user, _eventTrackingId, _currentUserId) => {
                                                            if (Password.HasValue && _user.API is not null) {
                                                                var result = await _user.API._ChangePassword(_user,
                                                                                                             Password.Value,
@@ -1196,7 +1196,7 @@ namespace social.OpenData.UsersAPI
                                                        SkipNewUserEMail,
                                                        SkipNewUserNotifications,
 
-                                                       async (_user, _eventTrackingId) => {
+                                                       async (_timestamp, _user, _eventTrackingId, _currentUserId) => {
                                                            if (Password.HasValue && _user.API is not null) {
                                                                var result = await _user.API._ChangePassword(_user,
                                                                                                             Password.Value,
@@ -1298,7 +1298,7 @@ namespace social.OpenData.UsersAPI
                                                                   SkipNewUserEMail,
                                                                   SkipNewUserNotifications,
 
-                                                                  async (_user, _eventTrackingId) => {
+                                                                  async (_timestamp, _user, _eventTrackingId, _currentUserId) => {
                                                                       if (Password.HasValue && _user.API is not null) {
                                                                           var result = await _user.API._ChangePassword(_user,
                                                                                                                        Password.Value,
@@ -1407,7 +1407,7 @@ namespace social.OpenData.UsersAPI
                                                                   SkipNewUserEMail,
                                                                   SkipNewUserNotifications,
 
-                                                                  async (_user, _eventTrackingId) => {
+                                                                  async (_timestamp, _user, _eventTrackingId, _currentUserId) => {
                                                                       if (Password.HasValue && _user.API is not null) {
                                                                           var result = await _user.API._ChangePassword(_user,
                                                                                                                        Password.Value,
@@ -6255,7 +6255,7 @@ namespace social.OpenData.UsersAPI
                                                                   false,
                                                                   false,
                                                                   false,
-                                                                  (_user, _eventTrackingId) => { },
+                                                                  null,
                                                                   Request.EventTrackingId,
                                                                   CurrentUserId: HTTPUser.Id)
 
@@ -6263,7 +6263,7 @@ namespace social.OpenData.UsersAPI
                                                                   false,
                                                                   false,
                                                                   false,
-                                                                  (_user, _eventTrackingId) => { },
+                                                                  null,
                                                                   Request.EventTrackingId,
                                                                   CurrentUserId: HTTPUser.Id);
 
@@ -6593,7 +6593,7 @@ namespace social.OpenData.UsersAPI
                                                                              false,
                                                                              false,
                                                                              false,
-                                                                             (_user, _eventTrackingId) => { },
+                                                                             null,
                                                                              Request.EventTrackingId,
                                                                              CurrentUserId: HTTPUser.Id)
 
@@ -6601,7 +6601,7 @@ namespace social.OpenData.UsersAPI
                                                                              false,
                                                                              false,
                                                                              false,
-                                                                             (_user, _eventTrackingId) => { },
+                                                                             null,
                                                                              Request.EventTrackingId,
                                                                              CurrentUserId: HTTPUser.Id);
 
@@ -17976,7 +17976,7 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region AddUser           (User, (Membership, Organization), SkipDefaultNotifications = false, OnAdded = null, ...)
+        #region AddUser           (User,      (Membership, Organization), ..., OnAdded = null, ...)
 
         /// <summary>
         /// A delegate called whenever a user was added.
@@ -18003,16 +18003,21 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="User">A new user to be added to this API.</param>
         /// <param name="SkipDefaultNotifications">Do not apply the default notifications settings for new users.</param>
+        /// <param name="SkipNewUserEMail">Do not send the new user e-mail to the new user.</param>
+        /// <param name="SkipNewUserNotifications">Do not send notifications for this user addition.</param>
         /// <param name="OnAdded">A delegate run whenever the user has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected internal async Task<AddUserResult> _AddUser(User                             User,
-                                                              Boolean                          SkipDefaultNotifications   = false,
-                                                              Boolean                          SkipNewUserEMail           = false,
-                                                              Boolean                          SkipNewUserNotifications   = false,
-                                                              Action<User, EventTracking_Id>?  OnAdded                    = null,
-                                                              EventTracking_Id?                EventTrackingId            = null,
-                                                              User_Id?                         CurrentUserId              = null)
+        protected internal async Task<AddUserResult>
+
+            _AddUser(User                  User,
+                     Boolean               SkipDefaultNotifications   = false,
+                     Boolean               SkipNewUserEMail           = false,
+                     Boolean               SkipNewUserNotifications   = false,
+                     OnUserAddedDelegate?  OnAdded                    = null,
+                     EventTracking_Id?     EventTrackingId            = null,
+                     User_Id?              CurrentUserId              = null)
+
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -18056,6 +18061,7 @@ namespace social.OpenData.UsersAPI
                                       CurrentUserId);
 
             users.Add(User.Id, User);
+            var now = Timestamp.Now;
 
             #region Register 'New User Default'-Notifications
 
@@ -18084,12 +18090,14 @@ namespace social.OpenData.UsersAPI
             #endregion
 
 
-            OnAdded?.Invoke(User,
-                            eventTrackingId);
+            OnAdded?.Invoke(now,
+                            User,
+                            eventTrackingId,
+                            CurrentUserId);
 
             var OnUserAddedLocal = OnUserAdded;
             if (OnUserAddedLocal is not null)
-                await OnUserAddedLocal.Invoke(Timestamp.Now,
+                await OnUserAddedLocal.Invoke(now,
                                               User,
                                               eventTrackingId,
                                               CurrentUserId);
@@ -18128,18 +18136,18 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="User">A new user.</param>
         /// <param name="SkipDefaultNotifications">Do not apply the default notifications settings for new users.</param>
-        /// <param name="SkipNewUserEMail"></param>
+        /// <param name="SkipNewUserEMail">Do not send the new user e-mail to the new user.</param>
         /// <param name="SkipNewUserNotifications">Do not send notifications for this user addition.</param>
         /// <param name="OnAdded">A delegate run whenever the user has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<AddUserResult> AddUser(User                             User,
-                                                 Boolean                          SkipDefaultNotifications   = false,
-                                                 Boolean                          SkipNewUserEMail           = false,
-                                                 Boolean                          SkipNewUserNotifications   = false,
-                                                 Action<User, EventTracking_Id>?  OnAdded                    = null,
-                                                 EventTracking_Id?                EventTrackingId            = null,
-                                                 User_Id?                         CurrentUserId              = null)
+        public async Task<AddUserResult> AddUser(User                  User,
+                                                 Boolean               SkipDefaultNotifications   = false,
+                                                 Boolean               SkipNewUserEMail           = false,
+                                                 Boolean               SkipNewUserNotifications   = false,
+                                                 OnUserAddedDelegate?  OnAdded                    = null,
+                                                 EventTracking_Id?     EventTrackingId            = null,
+                                                 User_Id?              CurrentUserId              = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -18196,18 +18204,20 @@ namespace social.OpenData.UsersAPI
         /// <param name="AccessRight">The organization membership of the new user.</param>
         /// <param name="Organization">The organization of the new user.</param>
         /// <param name="SkipDefaultNotifications">Do not apply the default notifications settings for new users.</param>
+        /// <param name="SkipNewUserEMail">Do not send the new user e-mail to the new user.</param>
+        /// <param name="SkipNewUserNotifications">Do not send notifications for this user addition.</param>
         /// <param name="OnAdded">A delegate run whenever the user has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<AddUserResult> AddUser(User                             User,
-                                                 User2OrganizationEdgeLabel       AccessRight,
-                                                 Organization                     Organization,
-                                                 Boolean                          SkipDefaultNotifications   = false,
-                                                 Boolean                          SkipNewUserEMail           = false,
-                                                 Boolean                          SkipNewUserNotifications   = false,
-                                                 Action<User, EventTracking_Id>?  OnAdded                    = null,
-                                                 EventTracking_Id?                EventTrackingId            = null,
-                                                 User_Id?                         CurrentUserId              = null)
+        public async Task<AddUserResult> AddUser(User                        User,
+                                                 User2OrganizationEdgeLabel  AccessRight,
+                                                 Organization                Organization,
+                                                 Boolean                     SkipDefaultNotifications   = false,
+                                                 Boolean                     SkipNewUserEMail           = false,
+                                                 Boolean                     SkipNewUserNotifications   = false,
+                                                 OnUserAddedDelegate?        OnAdded                    = null,
+                                                 EventTracking_Id?           EventTrackingId            = null,
+                                                 User_Id?                    CurrentUserId              = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -18223,17 +18233,19 @@ namespace social.OpenData.UsersAPI
                                                     SkipDefaultNotifications,
                                                     SkipNewUserEMail,
                                                     SkipNewUserNotifications,
-                                                    async(_user, _eventTrackingId) => {
+                                                    async(_timestamp, _user, _eventTrackingId, _currentUserId) => {
 
                                                         await _AddUserToOrganization(_user,
                                                                                      AccessRight,
                                                                                      Organization,
                                                                                      _eventTrackingId,
                                                                                      SuppressNotifications:  true,
-                                                                                     CurrentUserId:          CurrentUserId);
+                                                                                     CurrentUserId:          _currentUserId);
 
-                                                        OnAdded?.Invoke(_user,
-                                                                        _eventTrackingId);
+                                                        OnAdded?.Invoke(_timestamp,
+                                                                        _user,
+                                                                        _eventTrackingId,
+                                                                        _currentUserId);
 
                                                     },
                                                     eventTrackingId ?? EventTracking_Id.New,
@@ -18299,6 +18311,8 @@ namespace social.OpenData.UsersAPI
         /// <param name="User">A new user.</param>
         /// <param name="AccessRights">The organization memberships of the new user.</param>
         /// <param name="SkipDefaultNotifications">Do not apply the default notifications settings for new users.</param>
+        /// <param name="SkipNewUserEMail">Do not send the new user e-mail to the new user.</param>
+        /// <param name="SkipNewUserNotifications">Do not send notifications for this user addition.</param>
         /// <param name="OnAdded">A delegate run whenever the user has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
@@ -18307,7 +18321,7 @@ namespace social.OpenData.UsersAPI
                                                  Boolean                                                       SkipDefaultNotifications   = false,
                                                  Boolean                                                       SkipNewUserEMail           = false,
                                                  Boolean                                                       SkipNewUserNotifications   = false,
-                                                 Action<User, EventTracking_Id>?                               OnAdded                    = null,
+                                                 OnUserAddedDelegate?                                          OnAdded                    = null,
                                                  EventTracking_Id?                                             EventTrackingId            = null,
                                                  User_Id?                                                      CurrentUserId              = null)
         {
@@ -18331,7 +18345,7 @@ namespace social.OpenData.UsersAPI
                                                     SkipDefaultNotifications,
                                                     SkipNewUserEMail,
                                                     SkipNewUserNotifications,
-                                                    async (_user, _eventTrackingId) => {
+                                                    async (_timestamp, _user, _eventTrackingId, _currentUserId) => {
 
                                                         foreach (var accessRight in AccessRights)
                                                             await _AddUserToOrganization(_user,
@@ -18339,10 +18353,12 @@ namespace social.OpenData.UsersAPI
                                                                                          accessRight.Item2,
                                                                                          _eventTrackingId,
                                                                                          SuppressNotifications:  true,
-                                                                                         CurrentUserId:          CurrentUserId);
+                                                                                         CurrentUserId:          _currentUserId);
 
-                                                        OnAdded?.Invoke(_user,
-                                                                        _eventTrackingId);
+                                                        OnAdded?.Invoke(_timestamp,
+                                                                        _user,
+                                                                        _eventTrackingId,
+                                                                        _currentUserId);
 
                                                     },
                                                     eventTrackingId ?? EventTracking_Id.New,
@@ -18405,7 +18421,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddUserIfNotExists(User, (Membership, Organization), SkipDefaultNotifications = false, OnAdded = null, ...)
+        #region AddUserIfNotExists(User,      (Membership, Organization), ..., OnAdded = null, ...)
 
         #region (protected internal) _AddUserIfNotExists(User,                            SkipDefaultNotifications = false, OnAdded = null, ...)
 
@@ -18414,25 +18430,24 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="User">A new user to be added to this API.</param>
         /// <param name="SkipDefaultNotifications">Do not apply the default notifications settings for new users.</param>
+        /// <param name="SkipNewUserEMail">Do not send the new user e-mail to the new user.</param>
+        /// <param name="SkipNewUserNotifications">Do not send notifications for this user addition.</param>
         /// <param name="OnAdded">A delegate run whenever the user has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected internal async Task<AddUserIfNotExistsResult> _AddUserIfNotExists(User                             User,
-                                                                                    Boolean                          SkipDefaultNotifications   = false,
-                                                                                    Boolean                          SkipNewUserEMail           = false,
-                                                                                    Boolean                          SkipNewUserNotifications   = false,
-                                                                                    Action<User, EventTracking_Id>?  OnAdded                    = null,
-                                                                                    EventTracking_Id?                EventTrackingId            = null,
-                                                                                    User_Id?                         CurrentUserId              = null)
+        protected internal async Task<AddUserIfNotExistsResult>
+
+            _AddUserIfNotExists(User                  User,
+                                Boolean               SkipDefaultNotifications   = false,
+                                Boolean               SkipNewUserEMail           = false,
+                                Boolean               SkipNewUserNotifications   = false,
+                                OnUserAddedDelegate?  OnAdded                    = null,
+                                EventTracking_Id?     EventTrackingId            = null,
+                                User_Id?              CurrentUserId              = null)
+
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
-
-            if (User is null)
-                return AddUserIfNotExistsResult.ArgumentError(User,
-                                                              eventTrackingId,
-                                                              nameof(User),
-                                                              "The given user must not be null!");
 
             if (User.API is not null && User.API != this)
                 return AddUserIfNotExistsResult.ArgumentError(User,
@@ -18440,8 +18455,8 @@ namespace social.OpenData.UsersAPI
                                                               nameof(User),
                                                               "The given user is already attached to another API!");
 
-            if (users.ContainsKey(User.Id))
-                return AddUserIfNotExistsResult.Success(users[User.Id],
+            if (users.TryGetValue(User.Id, out var existingUser) && existingUser is not null)
+                return AddUserIfNotExistsResult.Success(existingUser,
                                                         AddedOrIgnored.Ignored,
                                                         eventTrackingId);
 
@@ -18449,7 +18464,7 @@ namespace social.OpenData.UsersAPI
                 return AddUserIfNotExistsResult.ArgumentError(User,
                                                               eventTrackingId,
                                                               nameof(User),
-                                                              "The given user identification '" + User.Id + "' is too short!");
+                                                              $"The given user identification '{User.Id}' is too short!");
 
             if (User.Name.IsNullOrEmpty() || User.Name.Trim().IsNullOrEmpty())
                 return AddUserIfNotExistsResult.ArgumentError(User,
@@ -18461,7 +18476,7 @@ namespace social.OpenData.UsersAPI
                 return AddUserIfNotExistsResult.ArgumentError(User,
                                                               eventTrackingId,
                                                               nameof(User),
-                                                              "The given user name '" + User.Name + "' is too short!");
+                                                              $"The given user name '{User.Name}' is too short!");
 
             User.API = this;
 
@@ -18499,12 +18514,16 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
-            OnAdded?.Invoke(User,
-                            eventTrackingId);
+            var now = Timestamp.Now;
+
+            OnAdded?.Invoke(now,
+                            User,
+                            eventTrackingId,
+                            CurrentUserId);
 
             var OnUserAddedLocal = OnUserAdded;
             if (OnUserAddedLocal is not null)
-                await OnUserAddedLocal?.Invoke(Timestamp.Now,
+                await OnUserAddedLocal?.Invoke(now,
                                                User,
                                                eventTrackingId,
                                                CurrentUserId);
@@ -18544,16 +18563,18 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="User">A new user.</param>
         /// <param name="SkipDefaultNotifications">Do not apply the default notifications settings for new users.</param>
+        /// <param name="SkipNewUserEMail">Do not send the new user e-mail to the new user.</param>
+        /// <param name="SkipNewUserNotifications">Do not send notifications for this user addition.</param>
         /// <param name="OnAdded">A delegate run whenever the user has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<AddUserIfNotExistsResult> AddUserIfNotExists(User                             User,
-                                                                       Boolean                          SkipDefaultNotifications   = false,
-                                                                       Boolean                          SkipNewUserEMail           = false,
-                                                                       Boolean                          SkipNewUserNotifications   = false,
-                                                                       Action<User, EventTracking_Id>?  OnAdded                    = null,
-                                                                       EventTracking_Id?                EventTrackingId            = null,
-                                                                       User_Id?                         CurrentUserId              = null)
+        public async Task<AddUserIfNotExistsResult> AddUserIfNotExists(User                  User,
+                                                                       Boolean               SkipDefaultNotifications   = false,
+                                                                       Boolean               SkipNewUserEMail           = false,
+                                                                       Boolean               SkipNewUserNotifications   = false,
+                                                                       OnUserAddedDelegate?  OnAdded                    = null,
+                                                                       EventTracking_Id?     EventTrackingId            = null,
+                                                                       User_Id?              CurrentUserId              = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -18610,18 +18631,20 @@ namespace social.OpenData.UsersAPI
         /// <param name="AccessRight">The organization membership of the new user.</param>
         /// <param name="Organization">The organization of the new user.</param>
         /// <param name="SkipDefaultNotifications">Do not apply the default notifications settings for new users.</param>
+        /// <param name="SkipNewUserEMail">Do not send the new user e-mail to the new user.</param>
+        /// <param name="SkipNewUserNotifications">Do not send notifications for this user addition.</param>
         /// <param name="OnAdded">A delegate run whenever the user has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<AddUserIfNotExistsResult> AddUserIfNotExists(User                             User,
-                                                                       User2OrganizationEdgeLabel       AccessRight,
-                                                                       Organization                     Organization,
-                                                                       Boolean                          SkipDefaultNotifications   = false,
-                                                                       Boolean                          SkipNewUserEMail           = false,
-                                                                       Boolean                          SkipNewUserNotifications   = false,
-                                                                       Action<User, EventTracking_Id>?  OnAdded                    = null,
-                                                                       EventTracking_Id?                EventTrackingId            = null,
-                                                                       User_Id?                         CurrentUserId              = null)
+        public async Task<AddUserIfNotExistsResult> AddUserIfNotExists(User                        User,
+                                                                       User2OrganizationEdgeLabel  AccessRight,
+                                                                       Organization                Organization,
+                                                                       Boolean                     SkipDefaultNotifications   = false,
+                                                                       Boolean                     SkipNewUserEMail           = false,
+                                                                       Boolean                     SkipNewUserNotifications   = false,
+                                                                       OnUserAddedDelegate?        OnAdded                    = null,
+                                                                       EventTracking_Id?           EventTrackingId            = null,
+                                                                       User_Id?                    CurrentUserId              = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -18638,7 +18661,7 @@ namespace social.OpenData.UsersAPI
                                                                SkipDefaultNotifications,
                                                                SkipNewUserEMail,
                                                                SkipNewUserNotifications,
-                                                               async (_user, _eventTrackingId) => {
+                                                               async (_timestamp, _user, _eventTrackingId, _currentUserId) => {
 
                                                                    await _AddUserToOrganization(_user,
                                                                                                AccessRight,
@@ -18647,8 +18670,10 @@ namespace social.OpenData.UsersAPI
                                                                                                SuppressNotifications:  true,
                                                                                                CurrentUserId:          CurrentUserId);
 
-                                                                   OnAdded?.Invoke(_user,
-                                                                                   _eventTrackingId);
+                                                                   OnAdded?.Invoke(_timestamp,
+                                                                                   _user,
+                                                                                   _eventTrackingId,
+                                                                                   _currentUserId);
 
                                                                },
                                                                eventTrackingId,
@@ -18714,6 +18739,8 @@ namespace social.OpenData.UsersAPI
         /// <param name="User">A new user.</param>
         /// <param name="AccessRights">The organization memberships of the new user.</param>
         /// <param name="SkipDefaultNotifications">Do not apply the default notifications settings for new users.</param>
+        /// <param name="SkipNewUserEMail">Do not send the new user e-mail to the new user.</param>
+        /// <param name="SkipNewUserNotifications">Do not send notifications for this user addition.</param>
         /// <param name="OnAdded">A delegate run whenever the user has been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
@@ -18722,7 +18749,7 @@ namespace social.OpenData.UsersAPI
                                                                        Boolean                                                       SkipDefaultNotifications   = false,
                                                                        Boolean                                                       SkipNewUserEMail           = false,
                                                                        Boolean                                                       SkipNewUserNotifications   = false,
-                                                                       Action<User, EventTracking_Id>?                               OnAdded                    = null,
+                                                                       OnUserAddedDelegate?                                          OnAdded                    = null,
                                                                        EventTracking_Id?                                             EventTrackingId            = null,
                                                                        User_Id?                                                      CurrentUserId              = null)
         {
@@ -18747,7 +18774,7 @@ namespace social.OpenData.UsersAPI
                                                                SkipDefaultNotifications,
                                                                SkipNewUserEMail,
                                                                SkipNewUserNotifications,
-                                                               async (_user, _eventTrackingId) => {
+                                                               async (_timestamp, _user, _eventTrackingId, _currentUserId) => {
 
                                                                    foreach (var accessRight in AccessRights)
                                                                        await _AddUserToOrganization(_user,
@@ -18757,8 +18784,10 @@ namespace social.OpenData.UsersAPI
                                                                                                     SuppressNotifications:  true,
                                                                                                     CurrentUserId:          CurrentUserId);
 
-                                                                   OnAdded?.Invoke(_user,
-                                                                                   _eventTrackingId);
+                                                                   OnAdded?.Invoke(_timestamp,
+                                                                                   _user,
+                                                                                   _eventTrackingId,
+                                                                                   _currentUserId);
 
                                                                },
                                                                eventTrackingId,
@@ -18822,7 +18851,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddOrUpdateUser   (User, (Membership, Organization), SkipDefaultNotifications = false, OnAdded = null, OnUpdated = null, ...)
+        #region AddOrUpdateUser   (User,      (Membership, Organization), ..., OnAdded = null, OnUpdated = null, ...)
 
         #region (protected internal) _AddOrUpdateUser(User,                            SkipDefaultNotifications = false, OnAdded = null, OnUpdated = null, ...)
 
@@ -18831,28 +18860,28 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="User">A user.</param>
         /// <param name="SkipDefaultNotifications">Do not apply the default notifications settings for new users.</param>
+        /// <param name="SkipNewUserEMail">Do not send the new user e-mail to the new user.</param>
+        /// <param name="SkipNewUserNotifications">Do not send notifications for this user addition.</param>
+        /// <param name="SkipUserUpdatedNotifications">Do not send the updated user information e-mail to the new user.</param>
         /// <param name="OnAdded">A delegate run whenever the user has been added successfully.</param>
         /// <param name="OnUpdated">A delegate run whenever the user has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected internal async Task<AddOrUpdateUserResult> _AddOrUpdateUser(User                             User,
-                                                                              Boolean                          SkipDefaultNotifications       = false,
-                                                                              Boolean                          SkipNewUserEMail               = false,
-                                                                              Boolean                          SkipNewUserNotifications       = false,
-                                                                              Boolean                          SkipUserUpdatedNotifications   = false,
-                                                                              Action<User, EventTracking_Id>?  OnAdded                        = null,
-                                                                              Action<User, EventTracking_Id>?  OnUpdated                      = null,
-                                                                              EventTracking_Id?                EventTrackingId                = null,
-                                                                              User_Id?                         CurrentUserId                  = null)
+        protected internal async Task<AddOrUpdateUserResult>
+
+            _AddOrUpdateUser(User                    User,
+                             Boolean                 SkipDefaultNotifications       = false,
+                             Boolean                 SkipNewUserEMail               = false,
+                             Boolean                 SkipNewUserNotifications       = false,
+                             Boolean                 SkipUserUpdatedNotifications   = false,
+                             OnUserAddedDelegate?    OnAdded                        = null,
+                             OnUserUpdatedDelegate?  OnUpdated                      = null,
+                             EventTracking_Id?       EventTrackingId                = null,
+                             User_Id?                CurrentUserId                  = null)
+
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
-
-            if (User is null)
-                return AddOrUpdateUserResult.ArgumentError(User,
-                                                           eventTrackingId,
-                                                           nameof(User),
-                                                           "The given user must not be null!");
 
             if (User.API is not null && User.API != this)
                 return AddOrUpdateUserResult.ArgumentError(User,
@@ -18864,7 +18893,7 @@ namespace social.OpenData.UsersAPI
                 return AddOrUpdateUserResult.ArgumentError(User,
                                                            eventTrackingId,
                                                            nameof(User),
-                                                           "The given user identification '" + User.Id + "' is too short!");
+                                                           $"The given user identification '{User.Id}' is too short!");
 
             if (User.Name.IsNullOrEmpty() || User.Name.Trim().IsNullOrEmpty())
                 return AddOrUpdateUserResult.ArgumentError(User,
@@ -18876,7 +18905,7 @@ namespace social.OpenData.UsersAPI
                 return AddOrUpdateUserResult.ArgumentError(User,
                                                            eventTrackingId,
                                                            nameof(User),
-                                                           "The given user name '" + User.Name + "' is too short!");
+                                                           $"The given user name '{User.Name}' is too short!");
 
             User.API = this;
 
@@ -18893,6 +18922,7 @@ namespace social.OpenData.UsersAPI
             }
 
             users.Add(User.Id, User);
+            var now = Timestamp.Now;
 
             if (OldUser is null)
             {
@@ -18923,12 +18953,14 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                OnAdded?.Invoke(User,
-                                eventTrackingId);
+                OnAdded?.Invoke(now,
+                                User,
+                                eventTrackingId,
+                                CurrentUserId);
 
                 var OnUserAddedLocal = OnUserAdded;
                 if (OnUserAddedLocal is not null)
-                    await OnUserAddedLocal?.Invoke(Timestamp.Now,
+                    await OnUserAddedLocal?.Invoke(now,
                                                    User,
                                                    eventTrackingId,
                                                    CurrentUserId);
@@ -18960,8 +18992,11 @@ namespace social.OpenData.UsersAPI
             else
             {
 
-                OnUpdated?.Invoke(User,
-                                  eventTrackingId);
+                OnUpdated?.Invoke(now,
+                                  User,
+                                  OldUser,
+                                  eventTrackingId,
+                                  CurrentUserId);
 
                 var OnUserUpdatedLocal = OnUserUpdated;
                 if (OnUserUpdatedLocal is not null)
@@ -18995,19 +19030,22 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="User">A user.</param>
         /// <param name="SkipDefaultNotifications">Do not apply the default notifications settings for new users.</param>
+        /// <param name="SkipNewUserEMail">Do not send the new user e-mail to the new user.</param>
+        /// <param name="SkipNewUserNotifications">Do not send notifications for this user addition.</param>
+        /// <param name="SkipUserUpdatedNotifications">Do not send the updated user information e-mail to the new user.</param>
         /// <param name="OnAdded">A delegate run whenever the user has been added successfully.</param>
         /// <param name="OnUpdated">A delegate run whenever the user has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<AddOrUpdateUserResult> AddOrUpdateUser(User                             User,
-                                                                 Boolean                          SkipDefaultNotifications       = false,
-                                                                 Boolean                          SkipNewUserEMail               = false,
-                                                                 Boolean                          SkipNewUserNotifications       = false,
-                                                                 Boolean                          SkipUserUpdatedNotifications   = false,
-                                                                 Action<User, EventTracking_Id>?  OnAdded                        = null,
-                                                                 Action<User, EventTracking_Id>?  OnUpdated                      = null,
-                                                                 EventTracking_Id?                EventTrackingId                = null,
-                                                                 User_Id?                         CurrentUserId                  = null)
+        public async Task<AddOrUpdateUserResult> AddOrUpdateUser(User                    User,
+                                                                 Boolean                 SkipDefaultNotifications       = false,
+                                                                 Boolean                 SkipNewUserEMail               = false,
+                                                                 Boolean                 SkipNewUserNotifications       = false,
+                                                                 Boolean                 SkipUserUpdatedNotifications   = false,
+                                                                 OnUserAddedDelegate?    OnAdded                        = null,
+                                                                 OnUserUpdatedDelegate?  OnUpdated                      = null,
+                                                                 EventTracking_Id?       EventTrackingId                = null,
+                                                                 User_Id?                CurrentUserId                  = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -19066,21 +19104,24 @@ namespace social.OpenData.UsersAPI
         /// <param name="AccessRight">The organization membership of the new user.</param>
         /// <param name="Organization">The organization of the new user.</param>
         /// <param name="SkipDefaultNotifications">Do not apply the default notifications settings for new users.</param>
+        /// <param name="SkipNewUserEMail">Do not send the new user e-mail to the new user.</param>
+        /// <param name="SkipNewUserNotifications">Do not send notifications for this user addition.</param>
+        /// <param name="SkipUserUpdatedNotifications">Do not send the updated user information e-mail to the new user.</param>
         /// <param name="OnAdded">A delegate run whenever the user has been added successfully.</param>
         /// <param name="OnUpdated">A delegate run whenever the user has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<AddOrUpdateUserResult> AddOrUpdateUser(User                             User,
-                                                                 User2OrganizationEdgeLabel       AccessRight,
-                                                                 Organization                     Organization,
-                                                                 Boolean                          SkipDefaultNotifications       = false,
-                                                                 Boolean                          SkipNewUserEMail               = false,
-                                                                 Boolean                          SkipNewUserNotifications       = false,
-                                                                 Boolean                          SkipUserUpdatedNotifications   = false,
-                                                                 Action<User, EventTracking_Id>?  OnAdded                        = null,
-                                                                 Action<User, EventTracking_Id>?  OnUpdated                      = null,
-                                                                 EventTracking_Id?                EventTrackingId                = null,
-                                                                 User_Id?                         CurrentUserId                  = null)
+        public async Task<AddOrUpdateUserResult> AddOrUpdateUser(User                        User,
+                                                                 User2OrganizationEdgeLabel  AccessRight,
+                                                                 Organization                Organization,
+                                                                 Boolean                     SkipDefaultNotifications       = false,
+                                                                 Boolean                     SkipNewUserEMail               = false,
+                                                                 Boolean                     SkipNewUserNotifications       = false,
+                                                                 Boolean                     SkipUserUpdatedNotifications   = false,
+                                                                 OnUserAddedDelegate?        OnAdded                        = null,
+                                                                 OnUserUpdatedDelegate?      OnUpdated                      = null,
+                                                                 EventTracking_Id?           EventTrackingId                = null,
+                                                                 User_Id?                    CurrentUserId                  = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -19097,7 +19138,7 @@ namespace social.OpenData.UsersAPI
                                                             SkipNewUserEMail,
                                                             SkipNewUserNotifications,
                                                             SkipUserUpdatedNotifications,
-                                                            async (_user, _eventTrackingId) => {
+                                                            async (_timestamp, _user, _eventTrackingId, _currentUserId) => {
 
                                                                 await _AddUserToOrganization(_user,
                                                                                              AccessRight,
@@ -19106,8 +19147,10 @@ namespace social.OpenData.UsersAPI
                                                                                              SuppressNotifications:  true,
                                                                                              CurrentUserId:          CurrentUserId);
 
-                                                                OnAdded?.Invoke(_user,
-                                                                                _eventTrackingId);
+                                                                OnAdded?.Invoke(_timestamp,
+                                                                                _user,
+                                                                                _eventTrackingId,
+                                                                                _currentUserId);
 
                                                             },
                                                             OnUpdated,
@@ -19168,7 +19211,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region UpdateUser        (User,                                                                               SkipUserUpdatedNotifications = false, OnUpdated = null, ...)
+        #region UpdateUser        ((New)User, ...,                                             OnUpdated = null, ...)
 
         /// <summary>
         /// A delegate called whenever a user was updated.
@@ -19190,87 +19233,94 @@ namespace social.OpenData.UsersAPI
         public event OnUserUpdatedDelegate OnUserUpdated;
 
 
-        #region (protected internal) _UpdateUser(User,                 SkipUserUpdatedNotifications = false, OnUpdated = null, ...)
+        #region (protected internal) _UpdateUser(NewUser,                 SkipUserUpdatedNotifications = false, OnUpdated = null, ...)
 
         /// <summary>
         /// Update the given user to/within the API.
         /// </summary>
-        /// <param name="User">A user.</param>
+        /// <param name="NewUser">A user.</param>
+        /// <param name="SkipUserUpdatedNotifications">Do not send the updated user information e-mail to the new user.</param>
         /// <param name="OnUpdated">A delegate run whenever the user has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected internal async Task<UpdateUserResult> _UpdateUser(User                             User,
-                                                                    Boolean                          SkipUserUpdatedNotifications   = false,
-                                                                    Action<User, EventTracking_Id>?  OnUpdated                      = null,
-                                                                    EventTracking_Id?                EventTrackingId                = null,
-                                                                    User_Id?                         CurrentUserId                  = null)
+        protected internal async Task<UpdateUserResult> _UpdateUser(User                    NewUser,
+                                                                    Boolean                 SkipUserUpdatedNotifications   = false,
+                                                                    OnUserUpdatedDelegate?  OnUpdated                      = null,
+                                                                    EventTracking_Id?       EventTrackingId                = null,
+                                                                    User_Id?                CurrentUserId                  = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
-            if (!_TryGetUser(User.Id, out var OldUser))
-                return UpdateUserResult.ArgumentError(User,
+            if (!_TryGetUser(NewUser.Id, out var OldUser))
+                return UpdateUserResult.ArgumentError(NewUser,
                                                       eventTrackingId,
-                                                      nameof(User),
-                                                      "The given user '" + User.Id + "' does not exists in this API!");
+                                                      nameof(NewUser),
+                                                      "The given user '" + NewUser.Id + "' does not exists in this API!");
 
-            if (User.API is not null && User.API != this)
-                return UpdateUserResult.ArgumentError(User,
+            if (NewUser.API is not null && NewUser.API != this)
+                return UpdateUserResult.ArgumentError(NewUser,
                                                       eventTrackingId,
-                                                      nameof(User.API),
+                                                      nameof(NewUser.API),
                                                       "The given user is not attached to this API!");
 
-            User.API = this;
+            NewUser.API = this;
 
 
             await WriteToDatabaseFile(updateUser_MessageType,
-                                      User.ToJSON(),
+                                      NewUser.ToJSON(),
                                       eventTrackingId,
                                       CurrentUserId);
 
             users.Remove(OldUser.Id);
-            User.CopyAllLinkedDataFrom(OldUser);
-            users.Add(User.Id, User);
+            NewUser.CopyAllLinkedDataFrom(OldUser);
+            users.Add(NewUser.Id, NewUser);
 
-            OnUpdated?.Invoke(User,
-                              eventTrackingId);
+            var now = Timestamp.Now;
+
+            OnUpdated?.Invoke(now,
+                              NewUser,
+                              OldUser,
+                              eventTrackingId,
+                              CurrentUserId);
 
             var OnUserUpdatedLocal = OnUserUpdated;
             if (OnUserUpdatedLocal is not null)
-                await OnUserUpdatedLocal.Invoke(Timestamp.Now,
-                                                User,
+                await OnUserUpdatedLocal.Invoke(now,
+                                                NewUser,
                                                 OldUser,
                                                 eventTrackingId,
                                                 CurrentUserId);
 
             if (!SkipUserUpdatedNotifications)
-                await SendNotifications(User,
+                await SendNotifications(NewUser,
                                         updateUser_MessageType,
                                         OldUser,
                                         eventTrackingId,
                                         CurrentUserId);
 
-            return UpdateUserResult.Success(User,
+            return UpdateUserResult.Success(NewUser,
                                             eventTrackingId);
 
         }
 
         #endregion
 
-        #region UpdateUser                      (User,                 SkipUserUpdatedNotifications = false, OnUpdated = null, ...)
+        #region UpdateUser                      (NewUser,                 SkipUserUpdatedNotifications = false, OnUpdated = null, ...)
 
         /// <summary>
         /// Update the given user to/within the API.
         /// </summary>
-        /// <param name="User">A user.</param>
+        /// <param name="NewUser">A user.</param>
+        /// <param name="SkipUserUpdatedNotifications">Do not send the updated user information e-mail to the new user.</param>
         /// <param name="OnUpdated">A delegate run whenever the user has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<UpdateUserResult> UpdateUser(User                             User,
-                                                       Boolean                          SkipUserUpdatedNotifications   = false,
-                                                       Action<User, EventTracking_Id>?  OnUpdated                      = null,
-                                                       EventTracking_Id?                EventTrackingId                = null,
-                                                       User_Id?                         CurrentUserId                  = null)
+        public async Task<UpdateUserResult> UpdateUser(User                    NewUser,
+                                                       Boolean                 SkipUserUpdatedNotifications   = false,
+                                                       OnUserUpdatedDelegate?  OnUpdated                      = null,
+                                                       EventTracking_Id?       EventTrackingId                = null,
+                                                       User_Id?                CurrentUserId                  = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -19280,7 +19330,7 @@ namespace social.OpenData.UsersAPI
                 try
                 {
 
-                    return await _UpdateUser(User,
+                    return await _UpdateUser(NewUser,
                                              SkipUserUpdatedNotifications,
                                              OnUpdated,
                                              EventTrackingId,
@@ -19292,7 +19342,7 @@ namespace social.OpenData.UsersAPI
 
                     DebugX.LogException(e);
 
-                    return UpdateUserResult.Failed(User,
+                    return UpdateUserResult.Failed(NewUser,
                                                    eventTrackingId,
                                                    e);
 
@@ -19308,7 +19358,7 @@ namespace social.OpenData.UsersAPI
                 }
             }
 
-            return UpdateUserResult.Failed(User,
+            return UpdateUserResult.Failed(NewUser,
                                            eventTrackingId,
                                            "Internal locking failed!");
 
@@ -19317,31 +19367,26 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (protected internal) _UpdateUser(User, UpdateDelegate, SkipUserUpdatedNotifications = false, OnUpdated = null, ...)
+        #region (protected internal) _UpdateUser(User,    UpdateDelegate, SkipUserUpdatedNotifications = false, OnUpdated = null, ...)
 
         /// <summary>
         /// Update the given user.
         /// </summary>
         /// <param name="User">A user.</param>
         /// <param name="UpdateDelegate">A delegate to update the given user.</param>
+        /// <param name="SkipUserUpdatedNotifications">Do not send the updated user information e-mail to the new user.</param>
         /// <param name="OnUpdated">A delegate run whenever the user has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected internal async Task<UpdateUserResult> _UpdateUser(User                             User,
-                                                                    Action<User.Builder>             UpdateDelegate,
-                                                                    Boolean                          SkipUserUpdatedNotifications   = false,
-                                                                    Action<User, EventTracking_Id>?  OnUpdated                      = null,
-                                                                    EventTracking_Id?                EventTrackingId                = null,
-                                                                    User_Id?                         CurrentUserId                  = null)
+        protected internal async Task<UpdateUserResult> _UpdateUser(User                    User,
+                                                                    Action<User.Builder>    UpdateDelegate,
+                                                                    Boolean                 SkipUserUpdatedNotifications   = false,
+                                                                    OnUserUpdatedDelegate?  OnUpdated                      = null,
+                                                                    EventTracking_Id?       EventTrackingId                = null,
+                                                                    User_Id?                CurrentUserId                  = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
-
-            if (User is null)
-                return UpdateUserResult.ArgumentError(User,
-                                                      eventTrackingId,
-                                                      nameof(User),
-                                                      "The given user must not be null!");
 
             if (!_UserExists(User.Id))
                 return UpdateUserResult.ArgumentError(User,
@@ -19375,12 +19420,17 @@ namespace social.OpenData.UsersAPI
             updatedUser.CopyAllLinkedDataFrom(User);
             users.Add(updatedUser.Id, updatedUser);
 
-            OnUpdated?.Invoke(updatedUser,
-                              eventTrackingId);
+            var now = Timestamp.Now;
+
+            OnUpdated?.Invoke(now,
+                              updatedUser,
+                              User,
+                              eventTrackingId,
+                              CurrentUserId);
 
             var OnUserUpdatedLocal = OnUserUpdated;
             if (OnUserUpdatedLocal is not null)
-                await OnUserUpdatedLocal.Invoke(Timestamp.Now,
+                await OnUserUpdatedLocal.Invoke(now,
                                                 updatedUser,
                                                 User,
                                                 eventTrackingId,
@@ -19400,22 +19450,23 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region UpdateUser                      (User, UpdateDelegate, SkipUserUpdatedNotifications = false, OnUpdated = null, ...)
+        #region UpdateUser                      (User,    UpdateDelegate, SkipUserUpdatedNotifications = false, OnUpdated = null, ...)
 
         /// <summary>
         /// Update the given user.
         /// </summary>
         /// <param name="User">A user.</param>
         /// <param name="UpdateDelegate">A delegate to update the given user.</param>
+        /// <param name="SkipUserUpdatedNotifications">Do not send the updated user information e-mail to the new user.</param>
         /// <param name="OnUpdated">A delegate run whenever the user has been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<UpdateUserResult> UpdateUser(User                             User,
-                                                       Action<User.Builder>             UpdateDelegate,
-                                                       Boolean                          SkipUserUpdatedNotifications   = false,
-                                                       Action<User, EventTracking_Id>?  OnUpdated                      = null,
-                                                       EventTracking_Id?                EventTrackingId                = null,
-                                                       User_Id?                         CurrentUserId                  = null)
+        public async Task<UpdateUserResult> UpdateUser(User                    User,
+                                                       Action<User.Builder>    UpdateDelegate,
+                                                       Boolean                 SkipUserUpdatedNotifications   = false,
+                                                       OnUserUpdatedDelegate?  OnUpdated                      = null,
+                                                       EventTracking_Id?       EventTrackingId                = null,
+                                                       User_Id?                CurrentUserId                  = null)
         {
 
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -19455,6 +19506,185 @@ namespace social.OpenData.UsersAPI
             }
 
             return UpdateUserResult.Failed(User,
+                                           eventTrackingId,
+                                           "Internal locking failed!");
+
+        }
+
+        #endregion
+
+        #endregion
+
+        #region DeleteUser        (User,      ...,                                             OnDeleted = null, ...)
+
+        /// <summary>
+        /// A delegate called whenever a user was deleted.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp when the user was deleted.</param>
+        /// <param name="User">The user to be deleted.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public delegate Task OnUserDeletedDelegate(DateTime           Timestamp,
+                                                   User               User,
+                                                   EventTracking_Id?  EventTrackingId   = null,
+                                                   User_Id?           CurrentUserId     = null);
+
+        /// <summary>
+        /// An event fired whenever a user was deleted.
+        /// </summary>
+        public event OnUserDeletedDelegate OnUserDeleted;
+
+
+        #region (protected internal virtual) _CanDeleteUser(User)
+
+        /// <summary>
+        /// Determines whether the user can safely be deleted from the API.
+        /// </summary>
+        /// <param name="User">The user to be deleted.</param>
+        protected internal virtual I18NString? _CanDeleteUser(User User)
+        {
+
+            if (User.User2Organization_OutEdges.Any())
+                return new I18NString(Languages.en, "The user is still member of an organization!");
+
+            return null;
+
+        }
+
+        #endregion
+
+        #region (protected internal) _DeleteUser(User, SkipUserDeletedNotifications = false, OnDeleted = null, ...)
+
+        /// <summary>
+        /// Delete the given user.
+        /// </summary>
+        /// <param name="User">The user to be deleted.</param>
+        /// <param name="OnDeleted">A delegate run whenever the user has been deleted successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        protected internal async Task<DeleteUserResult> _DeleteUser(User                             User,
+                                                                    Boolean                          SkipUserDeletedNotifications   = false,
+                                                                    Action<User, EventTracking_Id>?  OnDeleted                      = null,
+                                                                    EventTracking_Id?                EventTrackingId                = null,
+                                                                    User_Id?                         CurrentUserId                  = null)
+        {
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            if (User.API != this)
+                return DeleteUserResult.ArgumentError(User,
+                                                      eventTrackingId,
+                                                      nameof(User),
+                                                      "The given user is not attached to this API!");
+
+            if (!users.ContainsKey(User.Id))
+                return DeleteUserResult.ArgumentError(User,
+                                                      eventTrackingId,
+                                                      nameof(User),
+                                                      "The given user does not exists in this API!");
+
+
+            var result = _CanDeleteUser(User);
+
+            if (result is not null)
+                return DeleteUserResult.Failed(User,
+                                               eventTrackingId,
+                                               result);
+
+
+            // Get all parent user groups now, because later
+            // the --isMember/Admin/Guest--> edge will no longer be available!
+            var parentOrganizations = User.ParentOrganizations().
+                                           ToArray();
+
+            await WriteToDatabaseFile(deleteUser_MessageType,
+                                      User.ToJSON(false),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+
+            // ToDo: Remove incoming edges
+
+
+            users.Remove(User.Id);
+
+            OnDeleted?.Invoke(User,
+                              eventTrackingId);
+
+            var OnUserDeletedLocal = OnUserDeleted;
+            if (OnUserDeletedLocal is not null)
+                await OnUserDeletedLocal.Invoke(Timestamp.Now,
+                                                User,
+                                                eventTrackingId,
+                                                CurrentUserId);
+
+            if (!SkipUserDeletedNotifications)
+                await SendNotifications(User,
+                                        parentOrganizations,
+                                        deleteUser_MessageType,
+                                        eventTrackingId,
+                                        CurrentUserId);
+
+
+            return DeleteUserResult.Success(User,
+                                            eventTrackingId);
+
+        }
+
+        #endregion
+
+        #region DeleteUser                      (User, SkipUserDeletedNotifications = false, OnDeleted = null, ...)
+
+        /// <summary>
+        /// Delete the given user.
+        /// </summary>
+        /// <param name="User">The user to be deleted.</param>
+        /// <param name="OnDeleted">A delegate run whenever the user has been deleted successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<DeleteUserResult> DeleteUser(User                             User,
+                                                       Boolean                          SkipUserDeletedNotifications   = false,
+                                                       Action<User, EventTracking_Id>?  OnDeleted                      = null,
+                                                       EventTracking_Id?                EventTrackingId                = null,
+                                                       User_Id?                         CurrentUserId                  = null)
+        {
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            if (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout))
+            {
+                try
+                {
+
+                    return await _DeleteUser(User,
+                                             SkipUserDeletedNotifications,
+                                             OnDeleted,
+                                             eventTrackingId,
+                                             CurrentUserId);
+
+                }
+                catch (Exception e)
+                {
+
+                    DebugX.LogException(e);
+
+                    return DeleteUserResult.Failed(User,
+                                                   eventTrackingId,
+                                                   e);
+
+                }
+                finally
+                {
+                    try
+                    {
+                        UsersSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
+            }
+
+            return DeleteUserResult.Failed(User,
                                            eventTrackingId,
                                            "Internal locking failed!");
 
@@ -19925,192 +20155,6 @@ namespace social.OpenData.UsersAPI
             return false;
 
         }
-
-        #endregion
-
-
-        #region DeleteUser(User, SkipUserUpdatedNotifications = false, OnDeleted = null, ...)
-
-        /// <summary>
-        /// A delegate called whenever a user was deleted.
-        /// </summary>
-        /// <param name="Timestamp">The timestamp when the user was deleted.</param>
-        /// <param name="User">The user to be deleted.</param>
-        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public delegate Task OnUserDeletedDelegate(DateTime           Timestamp,
-                                                   User               User,
-                                                   EventTracking_Id?  EventTrackingId   = null,
-                                                   User_Id?           CurrentUserId     = null);
-
-        /// <summary>
-        /// An event fired whenever a user was deleted.
-        /// </summary>
-        public event OnUserDeletedDelegate OnUserDeleted;
-
-
-        #region (protected internal virtual) _CanDeleteUser(User)
-
-        /// <summary>
-        /// Determines whether the user can safely be deleted from the API.
-        /// </summary>
-        /// <param name="User">The user to be deleted.</param>
-        protected internal virtual I18NString? _CanDeleteUser(User User)
-        {
-
-            if (User.User2Organization_OutEdges.Any())
-                return new I18NString(Languages.en, "The user is still member of an organization!");
-
-            return null;
-
-        }
-
-        #endregion
-
-        #region (protected internal) _DeleteUser(User, SkipUserDeletedNotifications = false, OnDeleted = null, ...)
-
-        /// <summary>
-        /// Delete the given user.
-        /// </summary>
-        /// <param name="User">The user to be deleted.</param>
-        /// <param name="OnDeleted">A delegate run whenever the user has been deleted successfully.</param>
-        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected internal async Task<DeleteUserResult> _DeleteUser(User                             User,
-                                                                    Boolean                          SkipUserDeletedNotifications   = false,
-                                                                    Action<User, EventTracking_Id>?  OnDeleted                      = null,
-                                                                    EventTracking_Id?                EventTrackingId                = null,
-                                                                    User_Id?                         CurrentUserId                  = null)
-        {
-
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
-
-            if (User is null)
-                return DeleteUserResult.ArgumentError(User,
-                                                      eventTrackingId,
-                                                      nameof(User),
-                                                      "The given user must not be null!");
-
-            if (User.API != this)
-                return DeleteUserResult.ArgumentError(User,
-                                                      eventTrackingId,
-                                                      nameof(User),
-                                                      "The given user is not attached to this API!");
-
-            if (!users.ContainsKey(User.Id))
-                return DeleteUserResult.ArgumentError(User,
-                                                      eventTrackingId,
-                                                      nameof(User),
-                                                      "The given user does not exists in this API!");
-
-
-            var result = _CanDeleteUser(User);
-
-            if (result is not null)
-                return DeleteUserResult.Failed(User,
-                                               eventTrackingId,
-                                               result);
-
-
-            // Get all parent user groups now, because later
-            // the --isMember/Admin/Guest--> edge will no longer be available!
-            var parentOrganizations = User.ParentOrganizations().
-                                           ToArray();
-
-            await WriteToDatabaseFile(deleteUser_MessageType,
-                                      User.ToJSON(false),
-                                      eventTrackingId,
-                                      CurrentUserId);
-
-
-            // ToDo: Remove incoming edges
-
-
-            users.Remove(User.Id);
-
-            OnDeleted?.Invoke(User,
-                              eventTrackingId);
-
-            var OnUserDeletedLocal = OnUserDeleted;
-            if (OnUserDeletedLocal is not null)
-                await OnUserDeletedLocal.Invoke(Timestamp.Now,
-                                                User,
-                                                eventTrackingId,
-                                                CurrentUserId);
-
-            if (!SkipUserDeletedNotifications)
-                await SendNotifications(User,
-                                        parentOrganizations,
-                                        deleteUser_MessageType,
-                                        eventTrackingId,
-                                        CurrentUserId);
-
-
-            return DeleteUserResult.Success(User,
-                                            eventTrackingId);
-
-        }
-
-        #endregion
-
-        #region DeleteUser                      (User, SkipUserDeletedNotifications = false, OnDeleted = null, ...)
-
-        /// <summary>
-        /// Delete the given user.
-        /// </summary>
-        /// <param name="User">The user to be deleted.</param>
-        /// <param name="OnDeleted">A delegate run whenever the user has been deleted successfully.</param>
-        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<DeleteUserResult> DeleteUser(User                             User,
-                                                       Boolean                          SkipUserDeletedNotifications   = false,
-                                                       Action<User, EventTracking_Id>?  OnDeleted                      = null,
-                                                       EventTracking_Id?                EventTrackingId                = null,
-                                                       User_Id?                         CurrentUserId                  = null)
-        {
-
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
-
-            if (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout))
-            {
-                try
-                {
-
-                    return await _DeleteUser(User,
-                                             SkipUserDeletedNotifications,
-                                             OnDeleted,
-                                             eventTrackingId,
-                                             CurrentUserId);
-
-                }
-                catch (Exception e)
-                {
-
-                    DebugX.LogException(e);
-
-                    return DeleteUserResult.Failed(User,
-                                                   eventTrackingId,
-                                                   e);
-
-                }
-                finally
-                {
-                    try
-                    {
-                        UsersSemaphore.Release();
-                    }
-                    catch
-                    { }
-                }
-            }
-
-            return DeleteUserResult.Failed(User,
-                                           eventTrackingId,
-                                           "Internal locking failed!");
-
-        }
-
-        #endregion
 
         #endregion
 
