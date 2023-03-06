@@ -192,7 +192,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An enumeration of usable data licenses for this service ticket.
         /// </summary>
-        public IEnumerable<DataLicense>                 DataLicenses            { get; }
+        public IEnumerable<OpenDataLicense>                 DataLicenses            { get; }
 
         #endregion
 
@@ -331,7 +331,7 @@ namespace social.OpenData.UsersAPI
                              JObject                              CustomData            = default,
                              IEnumerable<AttachedFile>            AttachedFiles         = null,
                              IEnumerable<ServiceTicketReference>  TicketReferences      = null,
-                             IEnumerable<DataLicense>             DataLicenses          = null,
+                             IEnumerable<OpenDataLicense>             DataLicenses          = null,
 
                              String                               DataSource            = null)
 
@@ -849,8 +849,8 @@ namespace social.OpenData.UsersAPI
 
                 if (JSONObject.ParseOptional("dataLicenseIds",
                                              "data license identifications",
-                                             DataLicense_Id.TryParse,
-                                             out IEnumerable<DataLicense_Id> DataLicenseIds,
+                                             OpenDataLicense_Id.TryParse,
+                                             out IEnumerable<OpenDataLicense_Id> DataLicenseIds,
                                              out ErrorResponse))
                 {
 
@@ -859,12 +859,12 @@ namespace social.OpenData.UsersAPI
 
                 }
 
-                List<DataLicense> DataLicenses = null;
+                List<OpenDataLicense> DataLicenses = null;
 
                 if (DataLicenseIds?.Any() == true)
                 {
 
-                    DataLicenses = new List<DataLicense>();
+                    DataLicenses = new List<OpenDataLicense>();
 
                     foreach (var dataLicenseId in DataLicenseIds)
                     {
@@ -1371,7 +1371,7 @@ namespace social.OpenData.UsersAPI
             /// <summary>
             /// An enumeration of usable data licenses for this service ticket.
             /// </summary>
-            public HashSet<DataLicense>                  DataLicenses    { get; set; }
+            public HashSet<OpenDataLicense>                  DataLicenses    { get; set; }
 
             /// <summary>
             /// The source of all this data, e.g. an automatic importer.
@@ -1558,7 +1558,7 @@ namespace social.OpenData.UsersAPI
                            JObject                              CustomData                 = null,
                            IEnumerable<AttachedFile>            AttachedFiles              = null,
                            IEnumerable<ServiceTicketReference>  TicketReferences           = null,
-                           IEnumerable<DataLicense>             DataLicenses               = null,
+                           IEnumerable<OpenDataLicense>             DataLicenses               = null,
 
                            String                               DataSource                 = null)
 

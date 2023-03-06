@@ -206,7 +206,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Optional data licsenses for publishing this data.
         /// </summary>
-        public IEnumerable<DataLicense>                      DataLicenses                { get; }
+        public IEnumerable<OpenDataLicense>                      DataLicenses                { get; }
 
         #endregion
 
@@ -259,7 +259,7 @@ namespace social.OpenData.UsersAPI
                                       JObject                                       CustomData            = default,
                                       IEnumerable<AttachedFile>                     AttachedFiles         = null,
                                       IEnumerable<ServiceTicketReference>           TicketReferences      = null,
-                                      IEnumerable<DataLicense>                      DataLicenses          = null,
+                                      IEnumerable<OpenDataLicense>                      DataLicenses          = null,
 
                                       I18NString                                    Comment               = null,
                                       ServiceTicketChangeSet_Id?                    InReplyTo             = null,
@@ -291,7 +291,7 @@ namespace social.OpenData.UsersAPI
             this.AdditionalInfo       = AdditionalInfo;
             this.AttachedFiles        = AttachedFiles       != null ? AttachedFiles.      Distinct() : Array.Empty<AttachedFile>();
             this.TicketReferences     = TicketReferences    != null ? TicketReferences.   Distinct() : Array.Empty<ServiceTicketReference>();
-            this.DataLicenses         = DataLicenses        != null ? DataLicenses.       Distinct() : Array.Empty<DataLicense>();
+            this.DataLicenses         = DataLicenses        != null ? DataLicenses.       Distinct() : Array.Empty<OpenDataLicense>();
 
             this.Comment              = Comment;
             this.InReplyTo            = InReplyTo;
@@ -787,8 +787,8 @@ namespace social.OpenData.UsersAPI
 
                 if (JSONObject.ParseOptional("dataLicenseIds",
                                              "data license identifications",
-                                             DataLicense_Id.TryParse,
-                                             out IEnumerable<DataLicense_Id> DataLicenseIds,
+                                             OpenDataLicense_Id.TryParse,
+                                             out IEnumerable<OpenDataLicense_Id> DataLicenseIds,
                                              out ErrorResponse))
                 {
 
@@ -797,12 +797,12 @@ namespace social.OpenData.UsersAPI
 
                 }
 
-                List<DataLicense> DataLicenses = null;
+                List<OpenDataLicense> DataLicenses = null;
 
                 if (DataLicenseIds?.Any() == true)
                 {
 
-                    DataLicenses = new List<DataLicense>();
+                    DataLicenses = new List<OpenDataLicense>();
 
                     foreach (var dataLicenseId in DataLicenseIds)
                     {
@@ -1283,7 +1283,7 @@ namespace social.OpenData.UsersAPI
             /// <summary>
             /// Optional data licsenses for publishing this data.
             /// </summary>
-            public IEnumerable<DataLicense>                      DataLicenses              { get; set; }
+            public IEnumerable<OpenDataLicense>                      DataLicenses              { get; set; }
 
             #endregion
 
@@ -1334,7 +1334,7 @@ namespace social.OpenData.UsersAPI
                            JObject                                       CustomData            = default,
                            IEnumerable<AttachedFile>                     AttachedFiles         = null,
                            IEnumerable<ServiceTicketReference>           TicketReferences      = null,
-                           IEnumerable<DataLicense>                      DataLicenses          = null,
+                           IEnumerable<OpenDataLicense>                      DataLicenses          = null,
 
                            I18NString                                    Comment               = null,
                            ServiceTicketChangeSet_Id?                    InReplyTo             = null,
@@ -1367,7 +1367,7 @@ namespace social.OpenData.UsersAPI
                 this.CustomData           = CustomData;
                 this.AttachedFiles        = AttachedFiles       != null ? AttachedFiles.      Distinct() : Array.Empty<AttachedFile>();
                 this.TicketReferences     = TicketReferences    != null ? TicketReferences.   Distinct() : Array.Empty<ServiceTicketReference>();
-                this.DataLicenses         = DataLicenses  ?? Array.Empty<DataLicense>();
+                this.DataLicenses         = DataLicenses  ?? Array.Empty<OpenDataLicense>();
 
                 this.Comment              = Comment;
                 this.InReplyTo            = InReplyTo;

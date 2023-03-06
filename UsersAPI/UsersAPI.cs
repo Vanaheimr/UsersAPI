@@ -2905,7 +2905,7 @@ namespace social.OpenData.UsersAPI
 
             #region Init data
 
-            this.dataLicenses                    = new Dictionary<DataLicense_Id,             DataLicense>();
+            this.dataLicenses                    = new Dictionary<OpenDataLicense_Id,             OpenDataLicense>();
             this.users                          = new Dictionary<User_Id,                    User>();
             this._VerificationTokens             = new Dictionary<VerificationToken,          User>();
             this._LoginPasswords                 = new Dictionary<User_Id,                    LoginPassword>();
@@ -2993,12 +2993,12 @@ namespace social.OpenData.UsersAPI
 
             #region Reflect data licenses
 
-            foreach (var dataLicense in typeof(DataLicense).GetFields(System.Reflection.BindingFlags.Public |
+            foreach (var dataLicense in typeof(OpenDataLicense).GetFields(System.Reflection.BindingFlags.Public |
                                                                       System.Reflection.BindingFlags.Static).
-                                                            Where (fieldinfo => fieldinfo.ReflectedType == typeof(DataLicense) &&
-                                                                                fieldinfo.FieldType     == typeof(DataLicense)).
-                                                            Select(fieldinfo => fieldinfo.GetValue(DataLicense.None)).
-                                                            Cast<DataLicense>())
+                                                            Where (fieldinfo => fieldinfo.ReflectedType == typeof(OpenDataLicense) &&
+                                                                                fieldinfo.FieldType     == typeof(OpenDataLicense)).
+                                                            Select(fieldinfo => fieldinfo.GetValue(OpenDataLicense.None)).
+                                                            Cast<OpenDataLicense>())
             {
 
                 dataLicenses.Add(dataLicense.Id,
@@ -39914,16 +39914,16 @@ namespace social.OpenData.UsersAPI
 
         #region DataLicenses
 
-        protected internal readonly Dictionary<DataLicense_Id, DataLicense> dataLicenses;
+        protected internal readonly Dictionary<OpenDataLicense_Id, OpenDataLicense> dataLicenses;
 
         /// <summary>
         /// Return an enumeration of all data licenses.
         /// </summary>
-        public IEnumerable<DataLicense> DataLicenses
+        public IEnumerable<OpenDataLicense> DataLicenses
             => dataLicenses.Values;
 
 
-        #region CreateDataLicense           (Id, Description, URLs)
+        #region CreateDataLicense           (Id, Description, params URLs)
 
         /// <summary>
         /// Create a new data license.
@@ -39931,9 +39931,9 @@ namespace social.OpenData.UsersAPI
         /// <param name="Id">The unique identification of the data license.</param>
         /// <param name="Description">The description of the data license.</param>
         /// <param name="URLs">Optional URLs for more information on the data license.</param>
-        public DataLicense CreateDataLicense(DataLicense_Id  Id,
-                                             String          Description,
-                                             params URL[]    URLs)
+        public OpenDataLicense CreateDataLicense(OpenDataLicense_Id  Id,
+                                                 I18NString          Description,
+                                                 params URL[]        URLs)
         {
 
             lock (dataLicenses)
@@ -39943,9 +39943,9 @@ namespace social.OpenData.UsersAPI
                     throw new ArgumentException("The given data license already exists!", nameof(Id));
 
 
-                var DataLicense = new DataLicense(Id,
-                                                  Description,
-                                                  URLs);
+                var DataLicense = new OpenDataLicense(Id,
+                                                      Description,
+                                                      URLs);
 
                 WriteToDatabaseFile(NotificationMessageType.Parse("createDataLicense"),
                                     DataLicense.ToJSON(),
@@ -39960,7 +39960,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region CreateDataLicenseIfNotExists(Id, Description, URLs)
+        #region CreateDataLicenseIfNotExists(Id, Description, params URLs)
 
         /// <summary>
         /// Create a new data license.
@@ -39968,9 +39968,9 @@ namespace social.OpenData.UsersAPI
         /// <param name="Id">The unique identification of the data license.</param>
         /// <param name="Description">The description of the data license.</param>
         /// <param name="URLs">Optional URLs for more information on the data license.</param>
-        public DataLicense CreateDataLicenseIfNotExists(DataLicense_Id  Id,
-                                                        String          Description,
-                                                        params URL[]    URLs)
+        public OpenDataLicense CreateDataLicenseIfNotExists(OpenDataLicense_Id  Id,
+                                                            I18NString          Description,
+                                                            params URL[]        URLs)
         {
 
             lock (dataLicenses)
@@ -39996,7 +39996,7 @@ namespace social.OpenData.UsersAPI
         /// Get the data license having the given unique identification.
         /// </summary>
         /// <param name="DataLicenseId">The unique identification of the data license.</param>
-        public DataLicense? GetDataLicense(DataLicense_Id  DataLicenseId)
+        public OpenDataLicense? GetDataLicense(OpenDataLicense_Id  DataLicenseId)
         {
             lock (dataLicenses)
             {
@@ -40018,8 +40018,8 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="DataLicenseId">The unique identification of the data license.</param>
         /// <param name="DataLicense">The data license.</param>
-        public Boolean TryGetDataLicense(DataLicense_Id    DataLicenseId,
-                                         out DataLicense?  DataLicense)
+        public Boolean TryGetDataLicense(OpenDataLicense_Id    DataLicenseId,
+                                         out OpenDataLicense?  DataLicense)
         {
             lock (dataLicenses)
             {
