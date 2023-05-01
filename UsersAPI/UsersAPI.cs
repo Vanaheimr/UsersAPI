@@ -3936,7 +3936,7 @@ namespace social.OpenData.UsersAPI
                                                                           RequestLogDelegate:   (timestamp, client, req)       => LogRequest (timestamp, client, notification.RemoteURL.Hostname.ToString(), req),
                                                                           ResponseLogDelegate:  (timestamp, client, req, resp) => LogResponse(timestamp, client, notification.RemoteURL.Hostname.ToString(), req, resp),
 
-                                                                          CancellationToken:    null,
+                                                                          CancellationToken:    default,
                                                                           EventTrackingId:      EventTracking_Id.New,
                                                                           RequestTimeout:       notification.RequestTimeout,
                                                                           NumberOfRetry:        TransmissionRetry++);
@@ -4831,7 +4831,7 @@ namespace social.OpenData.UsersAPI
                                           Server                     = HTTPServer.DefaultServerName,
                                           Date                       = Timestamp.Now,
                                           AccessControlAllowOrigin   = "*",
-                                          AccessControlAllowMethods  = "GET, OPTIONS",
+                                          AccessControlAllowMethods  = new[] { "GET", "OPTIONS" },
                                           AccessControlAllowHeaders  = "Authorization, X-App-Version",
                                           Connection                 = "close"
                                       }.AsImmutable);
@@ -4859,7 +4859,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                     = HTTPServer.DefaultServerName,
                                                             Date                       = Timestamp.Now,
                                                             AccessControlAllowOrigin   = "*",
-                                                            AccessControlAllowMethods  = "GET",
+                                                            AccessControlAllowMethods  = new[] { "GET" },
                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                             ContentType                = HTTPContentType.JSON_UTF8,
                                                             Content                    = JSONObject.Create(
@@ -4900,7 +4900,7 @@ namespace social.OpenData.UsersAPI
                                              Server                        = HTTPServer.DefaultServerName,
                                              Date                          = Timestamp.Now,
                                              AccessControlAllowOrigin      = "*",
-                                             AccessControlAllowMethods     = "GET, OPTIONS",
+                                             AccessControlAllowMethods     = new[] { "GET", "OPTIONS" },
                                              AccessControlAllowHeaders     = "Authorization, X-App-Version",
                                              ETag                          = ETag,
                                              ContentType                   = HTTPContentType.JSON_UTF8,
@@ -4935,7 +4935,7 @@ namespace social.OpenData.UsersAPI
                                           Server                     = HTTPServer.DefaultServerName,
                                           Date                       = Timestamp.Now,
                                           AccessControlAllowOrigin   = "*",
-                                          AccessControlAllowMethods  = "CHECK, OPTIONS",
+                                          AccessControlAllowMethods  = new[] { "CHECK", "OPTIONS" },
                                           AccessControlAllowHeaders  = "Content-Type, Accept, Authorization, X-App-Version",
                                           Connection                 = "close"
                                       }.AsImmutable);
@@ -4964,7 +4964,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                     = HTTPServer.DefaultServerName,
                                                             Date                       = Timestamp.Now,
                                                             AccessControlAllowOrigin   = "*",
-                                                            AccessControlAllowMethods  = "CHECK, OPTIONS",
+                                                            AccessControlAllowMethods  = new[] { "CHECK", "OPTIONS" },
                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                             ContentType                = HTTPContentType.JSON_UTF8,
                                                             Content                    = JSONObject.Create(
@@ -5003,7 +5003,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                     = HTTPServer.DefaultServerName,
                                                             Date                       = Timestamp.Now,
                                                             AccessControlAllowOrigin   = "*",
-                                                            AccessControlAllowMethods  = "CHECK",
+                                                            AccessControlAllowMethods  = new[] { "CHECK" },
                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                             ContentType                = HTTPContentType.JSON_UTF8,
                                                             Content                    = JSONObject.Create(
@@ -5030,7 +5030,7 @@ namespace social.OpenData.UsersAPI
                                                                 Server                     = HTTPServer.DefaultServerName,
                                                                 Date                       = Timestamp.Now,
                                                                 AccessControlAllowOrigin   = "*",
-                                                                AccessControlAllowMethods  = "CHECK",
+                                                                AccessControlAllowMethods  = new[] { "CHECK" },
                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                                 ContentType                = HTTPContentType.JSON_UTF8,
                                                                 Content                    = JSONObject.Create(
@@ -5054,7 +5054,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                      = HTTPServer.DefaultServerName,
                                                             Date                        = Timestamp.Now,
                                                             AccessControlAllowOrigin    = "*",
-                                                            AccessControlAllowMethods   = "CHECK",
+                                                            AccessControlAllowMethods   = new[] { "CHECK" },
                                                             AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                             ContentType                 = HTTPContentType.JSON_UTF8,
                                                             Content                     = JSONObject.Create(
@@ -5076,7 +5076,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                      = HTTPServer.DefaultServerName,
                                                             Date                        = Timestamp.Now,
                                                             AccessControlAllowOrigin    = "*",
-                                                            AccessControlAllowMethods   = "CHECK",
+                                                            AccessControlAllowMethods   = new[] { "CHECK" },
                                                             AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                             Connection                  = "close"
                                                         }.AsImmutable;
@@ -5250,7 +5250,7 @@ namespace social.OpenData.UsersAPI
                                          Server                     = HTTPServer.DefaultServerName,
                                          Date                       = Timestamp.Now,
                                          AccessControlAllowOrigin   = "*",
-                                         AccessControlAllowMethods  = "GET",
+                                         AccessControlAllowMethods  = new[] { "GET" },
                                          AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                          ContentType                = HTTPContentType.HTML_UTF8,
                                          Content                    = GetResourceBytes($"login.login-{DefaultLanguage}.html"),
@@ -5566,7 +5566,7 @@ namespace social.OpenData.UsersAPI
                                          Server                     = HTTPServer.DefaultServerName,
                                          Date                       = Timestamp.Now,
                                          AccessControlAllowOrigin   = "*",
-                                         AccessControlAllowMethods  = "GET",
+                                         AccessControlAllowMethods  = new[] { "GET" },
                                          AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                          ContentType                = HTTPContentType.HTML_UTF8,
                                          Content                    = GetResourceBytes($"login.lostPassword-{DefaultLanguage}.html"),
@@ -5612,7 +5612,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                     = HTTPServer.DefaultServerName,
                                                             Date                       = Timestamp.Now,
                                                             AccessControlAllowOrigin   = "*",
-                                                            AccessControlAllowMethods  = "SET",
+                                                            AccessControlAllowMethods  = new[] { "SET" },
                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                             Connection                 = "close"
                                                         };
@@ -5655,7 +5655,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                     = HTTPServer.DefaultServerName,
                                                             Date                       = Timestamp.Now,
                                                             AccessControlAllowOrigin   = "*",
-                                                            AccessControlAllowMethods  = "SET",
+                                                            AccessControlAllowMethods  = new[] { "SET" },
                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                             Connection                 = "close"
                                                         };
@@ -5676,7 +5676,7 @@ namespace social.OpenData.UsersAPI
                                                    Server                     = HTTPServer.DefaultServerName,
                                                    Date                       = Timestamp.Now,
                                                    AccessControlAllowOrigin   = "*",
-                                                   AccessControlAllowMethods  = "SET",
+                                                   AccessControlAllowMethods  = new[] { "SET" },
                                                    AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                    ContentType                = HTTPContentType.JSON_UTF8,
                                                    Content                    = JSONObject.Create(
@@ -5690,7 +5690,7 @@ namespace social.OpenData.UsersAPI
                                                    Server                     = HTTPServer.DefaultServerName,
                                                    Date                       = Timestamp.Now,
                                                    AccessControlAllowOrigin   = "*",
-                                                   AccessControlAllowMethods  = "SET",
+                                                   AccessControlAllowMethods  = new[] { "SET" },
                                                    AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                    ContentType                = HTTPContentType.JSON_UTF8,
                                                    Content                    = JSONObject.Create(
@@ -5722,7 +5722,7 @@ namespace social.OpenData.UsersAPI
                                          Server                     = HTTPServer.DefaultServerName,
                                          Date                       = Timestamp.Now,
                                          AccessControlAllowOrigin   = "*",
-                                         AccessControlAllowMethods  = "GET",
+                                         AccessControlAllowMethods  = new[] { "GET" },
                                          AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                          ContentType                = HTTPContentType.HTML_UTF8,
                                          ContentStream              = GetResourceStream("login.setPassword-" + DefaultLanguage.ToString() + ".html"),
@@ -5840,7 +5840,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                     = HTTPServer.DefaultServerName,
                                                             Date                       = Timestamp.Now,
                                                             AccessControlAllowOrigin   = "*",
-                                                            AccessControlAllowMethods  = "SET",
+                                                            AccessControlAllowMethods  = new[] { "SET" },
                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                             Connection                 = "close"
                                                         }.AsImmutable;
@@ -5864,7 +5864,7 @@ namespace social.OpenData.UsersAPI
                                                    Server                     = HTTPServer.DefaultServerName,
                                                    Date                       = Timestamp.Now,
                                                    AccessControlAllowOrigin   = "*",
-                                                   AccessControlAllowMethods  = "SET",
+                                                   AccessControlAllowMethods  = new[] { "SET" },
                                                    AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                    ContentType                = HTTPContentType.JSON_UTF8,
                                                    Content                    = JSONObject.Create(
@@ -5883,7 +5883,7 @@ namespace social.OpenData.UsersAPI
                                                    Server                     = HTTPServer.DefaultServerName,
                                                    Date                       = Timestamp.Now,
                                                    AccessControlAllowOrigin   = "*",
-                                                   AccessControlAllowMethods  = "SET",
+                                                   AccessControlAllowMethods  = new[] { "SET" },
                                                    AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                    ContentType                = HTTPContentType.JSONLD_UTF8,
                                                    Content                    = JSONObject.Create(
@@ -5936,7 +5936,7 @@ namespace social.OpenData.UsersAPI
                                           Server                      = HTTPServer.DefaultServerName,
                                           Date                        = Timestamp.Now,
                                           AccessControlAllowOrigin    = "*",
-                                          AccessControlAllowMethods   = "GET",
+                                          AccessControlAllowMethods   = new[] { "GET" },
                                           AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                           ContentType                 = HTTPContentType.HTML_UTF8,
                                           Content                     = MixWithHTMLTemplate("profile.profile.shtml").ToUTF8Bytes(),
@@ -5984,7 +5984,7 @@ namespace social.OpenData.UsersAPI
                                               Server                     = HTTPServer.DefaultServerName,
                                               Date                       = Timestamp.Now,
                                               AccessControlAllowOrigin   = "*",
-                                              AccessControlAllowMethods  = "GET",
+                                              AccessControlAllowMethods  = new[] { "GET" },
                                               AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                               ContentType                = HTTPContentType.HTML_UTF8,
                                               Content                    = MixWithHTMLTemplate("user.users.shtml").ToUTF8Bytes(),
@@ -6053,7 +6053,7 @@ namespace social.OpenData.UsersAPI
                                           Server                        = HTTPServer.DefaultServerName,
                                           Date                          = Timestamp.Now,
                                           AccessControlAllowOrigin      = "*",
-                                          AccessControlAllowMethods     = "GET, COUNT, OPTIONS",
+                                          AccessControlAllowMethods     = new[] { "GET", "COUNT", "OPTIONS" },
                                           AccessControlAllowHeaders     = "Content-Type, Accept, Authorization",
                                           ETag                          = "1",
                                           ContentType                   = HTTPContentType.JSON_UTF8,
@@ -6142,7 +6142,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                     = HTTPServer.DefaultServerName,
                                                             Date                       = Timestamp.Now,
                                                             AccessControlAllowOrigin   = "*",
-                                                            AccessControlAllowMethods  = "GET, ADD",
+                                                            AccessControlAllowMethods  = new[] { "GET", "ADD" },
                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                             ContentType                = HTTPContentType.JSON_UTF8,
                                                             Content                    = JSONObject.Create(
@@ -6182,7 +6182,7 @@ namespace social.OpenData.UsersAPI
                                                                     Server                     = HTTPServer.DefaultServerName,
                                                                     Date                       = Timestamp.Now,
                                                                     AccessControlAllowOrigin   = "*",
-                                                                    AccessControlAllowMethods  = "GET, SET",
+                                                                    AccessControlAllowMethods  = new[] { "GET", "SET" },
                                                                     AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                                     ContentType                = HTTPContentType.JSON_UTF8,
                                                                     Content                    = JSONObject.Create(
@@ -6227,7 +6227,7 @@ namespace social.OpenData.UsersAPI
                                                                     Server                     = HTTPServer.DefaultServerName,
                                                                     Date                       = Timestamp.Now,
                                                                     AccessControlAllowOrigin   = "*",
-                                                                    AccessControlAllowMethods  = "GET, SET",
+                                                                    AccessControlAllowMethods  = new[] { "GET", "SET" },
                                                                     AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                                     ContentType                = HTTPContentType.JSON_UTF8,
                                                                     Content                    = JSONObject.Create(
@@ -6275,7 +6275,7 @@ namespace social.OpenData.UsersAPI
                                                    Server                      = HTTPServer.DefaultServerName,
                                                    Date                        = Timestamp.Now,
                                                    AccessControlAllowOrigin    = "*",
-                                                   AccessControlAllowMethods   = "OPTIONS, ADD, EXISTS, GET, SET, AUTH, DEAUTH, IMPERSONATE, DEPERSONATE, DELETE",
+                                                   AccessControlAllowMethods   = new[] { "OPTIONS", "ADD", "EXISTS", "GET", "SET", "AUTH", "DEAUTH", "IMPERSONATE", "DEPERSONATE", "DELETE" },
                                                    AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                    ContentType                 = HTTPContentType.JSON_UTF8,
                                                    Content                     = newUser.ToJSON(Embedded: false).ToUTF8Bytes(),
@@ -6287,7 +6287,7 @@ namespace social.OpenData.UsersAPI
                                                    Server                     = HTTPServer.DefaultServerName,
                                                    Date                       = Timestamp.Now,
                                                    AccessControlAllowOrigin   = "*",
-                                                   AccessControlAllowMethods  = "ADD, SET, GET",
+                                                   AccessControlAllowMethods  = new[] { "ADD", "SET", "GET" },
                                                    AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                    ContentType                = HTTPContentType.JSON_UTF8,
                                                    Content                    = JSONObject.Create(
@@ -6357,7 +6357,7 @@ namespace social.OpenData.UsersAPI
                                                      Server                     = HTTPServer.DefaultServerName,
                                                      Date                       = Timestamp.Now,
                                                      AccessControlAllowOrigin   = "*",
-                                                     AccessControlAllowMethods  = "OPTIONS, ADD, EXISTS, GET, SET, AUTH, DEAUTH, IMPERSONATE, DEPERSONATE, DELETE",
+                                                     AccessControlAllowMethods  = new[] { "OPTIONS", "ADD", "EXISTS", "GET", "SET", "AUTH", "DEAUTH", "IMPERSONATE", "DEPERSONATE", "DELETE" },
                                                      AccessControlAllowHeaders  = "X-PINGOTHER, Content-Type, Accept, Authorization, X-App-Version",
                                                      AccessControlMaxAge        = 3600,
                                                      //ETag                       = "1",
@@ -6457,7 +6457,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                     = HTTPServer.DefaultServerName,
                                                             Date                       = Timestamp.Now,
                                                             AccessControlAllowOrigin   = "*",
-                                                            AccessControlAllowMethods  = "GET, SET",
+                                                            AccessControlAllowMethods  = new[] { "GET", "SET" },
                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                             ContentType                = HTTPContentType.JSON_UTF8,
                                                             Content                    = JSONObject.Create(
@@ -6484,7 +6484,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                     = HTTPServer.DefaultServerName,
                                                             Date                       = Timestamp.Now,
                                                             AccessControlAllowOrigin   = "*",
-                                                            AccessControlAllowMethods  = "GET, SET",
+                                                            AccessControlAllowMethods  = new[] { "GET", "SET" },
                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                             ContentType                = HTTPContentType.JSON_UTF8,
                                                             Content                    = JSONObject.Create(
@@ -6524,7 +6524,7 @@ namespace social.OpenData.UsersAPI
                                                                      Server                     = HTTPServer.DefaultServerName,
                                                                      Date                       = Timestamp.Now,
                                                                      AccessControlAllowOrigin   = "*",
-                                                                     AccessControlAllowMethods  = "GET, SET",
+                                                                     AccessControlAllowMethods  = new[] { "GET", "SET" },
                                                                      AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                                      ContentType                = HTTPContentType.JSON_UTF8,
                                                                      Content                    = JSONObject.Create(
@@ -6567,7 +6567,7 @@ namespace social.OpenData.UsersAPI
                                                                      Server                     = HTTPServer.DefaultServerName,
                                                                      Date                       = Timestamp.Now,
                                                                      AccessControlAllowOrigin   = "*",
-                                                                     AccessControlAllowMethods  = "GET, SET",
+                                                                     AccessControlAllowMethods  = new[] { "GET", "SET" },
                                                                      AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                                      ContentType                = HTTPContentType.JSON_UTF8,
                                                                      Content                    = JSONObject.Create(
@@ -6613,7 +6613,7 @@ namespace social.OpenData.UsersAPI
                                                               Server                      = HTTPServer.DefaultServerName,
                                                               Date                        = Timestamp.Now,
                                                               AccessControlAllowOrigin    = "*",
-                                                              AccessControlAllowMethods   = "OPTIONS, ADD, EXISTS, GET, SET, AUTH, DEAUTH, IMPERSONATE, DEPERSONATE, DELETE",
+                                                              AccessControlAllowMethods   = new[] { "OPTIONS", "ADD", "EXISTS", "GET", "SET", "AUTH", "DEAUTH", "IMPERSONATE", "DEPERSONATE", "DELETE" },
                                                               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                               ContentType                 = HTTPContentType.JSON_UTF8,
                                                               Content                     = newUser.ToJSON(Embedded: false).ToUTF8Bytes(),
@@ -6625,7 +6625,7 @@ namespace social.OpenData.UsersAPI
                                                               Server                      = HTTPServer.DefaultServerName,
                                                               Date                        = Timestamp.Now,
                                                               AccessControlAllowOrigin    = "*",
-                                                              AccessControlAllowMethods   = "ADD, SET, GET",
+                                                              AccessControlAllowMethods   = new[] { "ADD", "SET", "GET" },
                                                               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                               ContentType                 = HTTPContentType.JSON_UTF8,
                                                               Content                     = JSONObject.Create(
@@ -6701,7 +6701,7 @@ namespace social.OpenData.UsersAPI
                                                                 Server                     = HTTPServer.DefaultServerName,
                                                                 Date                       = Timestamp.Now,
                                                                 AccessControlAllowOrigin   = "*",
-                                                                AccessControlAllowMethods  = "GET, SET",
+                                                                AccessControlAllowMethods  = new[] { "GET", "SET" },
                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                                 Connection                 = "close"
                                                             }.AsImmutable);
@@ -6720,7 +6720,7 @@ namespace social.OpenData.UsersAPI
                                                      Server                      = HTTPServer.DefaultServerName,
                                                      Date                        = Timestamp.Now,
                                                      AccessControlAllowOrigin    = "*",
-                                                     AccessControlAllowMethods   = "GET, SET",
+                                                     AccessControlAllowMethods   = new[] { "GET", "SET" },
                                                      AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                      ContentType                 = HTTPContentType.HTML_UTF8,
                                                      Content                     = UserJSON.ToUTF8Bytes(),
@@ -6781,7 +6781,7 @@ namespace social.OpenData.UsersAPI
                                                                Server                      = HTTPServer.DefaultServerName,
                                                                Date                        = Timestamp.Now,
                                                                AccessControlAllowOrigin    = "*",
-                                                               AccessControlAllowMethods   = "GET",
+                                                               AccessControlAllowMethods   = new[] { "GET" },
                                                                AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                                ContentType                 = HTTPContentType.HTML_UTF8,
                                                                Content                     = MixWithHTMLTemplate("user.user.shtml").ToUTF8Bytes(),
@@ -6794,7 +6794,7 @@ namespace social.OpenData.UsersAPI
                                                                Server                      = HTTPServer.DefaultServerName,
                                                                Date                        = Timestamp.Now,
                                                                AccessControlAllowOrigin    = "*",
-                                                               AccessControlAllowMethods   = "GET",
+                                                               AccessControlAllowMethods   = new[] { "GET" },
                                                                AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                                Connection                  = "close"
                                                            }.AsImmutable);
@@ -6881,7 +6881,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                     = HTTPServer.DefaultServerName,
                                                             Date                       = Timestamp.Now,
                                                             AccessControlAllowOrigin   = "*",
-                                                            AccessControlAllowMethods  = "GET, SET",
+                                                            AccessControlAllowMethods  = new[] { "GET", "SET" },
                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                             ETag                       = "1",
                                                             ContentType                = HTTPContentType.JSON_UTF8,
@@ -6903,7 +6903,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                      = HTTPServer.DefaultServerName,
                                                             Date                        = Timestamp.Now,
                                                             AccessControlAllowOrigin    = "*",
-                                                            AccessControlAllowMethods   = "GET, SET",
+                                                            AccessControlAllowMethods   = new[] { "GET", "SET" },
                                                             AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                             Connection                  = "close"
                                                         }.AsImmutable;
@@ -6927,7 +6927,7 @@ namespace social.OpenData.UsersAPI
                                                               Server                      = HTTPServer.DefaultServerName,
                                                               Date                        = Timestamp.Now,
                                                               AccessControlAllowOrigin    = "*",
-                                                              AccessControlAllowMethods   = "GET, SET",
+                                                              AccessControlAllowMethods   = new[] { "GET", "SET" },
                                                               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                               //ETag                        = _User.HashValue,
                                                               ContentType                 = HTTPContentType.JSON_UTF8,
@@ -6940,7 +6940,7 @@ namespace social.OpenData.UsersAPI
                                                               Server                     = HTTPServer.DefaultServerName,
                                                               Date                       = Timestamp.Now,
                                                               AccessControlAllowOrigin   = "*",
-                                                              AccessControlAllowMethods  = "GET, SET",
+                                                              AccessControlAllowMethods  = new[] { "GET", "SET" },
                                                               AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                               ETag                       = "1",
                                                               ContentType                = HTTPContentType.JSON_UTF8,
@@ -7320,7 +7320,7 @@ namespace social.OpenData.UsersAPI
                                                  Server                      = HTTPServer.DefaultServerName,
                                                  Date                        = Timestamp.Now,
                                                  AccessControlAllowOrigin    = "*",
-                                                 AccessControlAllowMethods   = "IMPERSONATE",
+                                                 AccessControlAllowMethods   = new[] { "IMPERSONATE" },
                                                  AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                  Connection                  = "close"
                                              }.AsImmutable;
@@ -7337,7 +7337,7 @@ namespace social.OpenData.UsersAPI
                                                  Server                      = HTTPServer.DefaultServerName,
                                                  Date                        = Timestamp.Now,
                                                  AccessControlAllowOrigin    = "*",
-                                                 AccessControlAllowMethods   = "IMPERSONATE",
+                                                 AccessControlAllowMethods   = new[] { "IMPERSONATE" },
                                                  AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                  Connection                  = "close"
                                              }.AsImmutable;
@@ -7441,7 +7441,7 @@ namespace social.OpenData.UsersAPI
                                                      Server                      = HTTPServer.DefaultServerName,
                                                      Date                        = Timestamp.Now,
                                                      AccessControlAllowOrigin    = "*",
-                                                     AccessControlAllowMethods   = "DEPERSONATE",
+                                                     AccessControlAllowMethods   = new[] { "DEPERSONATE" },
                                                      AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                      Connection                  = "close"
                                                  }.AsImmutable);
@@ -7553,7 +7553,7 @@ namespace social.OpenData.UsersAPI
                                                          Server                     = HTTPServer.DefaultServerName,
                                                          Date                       = Timestamp.Now,
                                                          AccessControlAllowOrigin   = "*",
-                                                         AccessControlAllowMethods  = "OPTIONS, ADD, EXISTS, GET, SET, AUTH, DEAUTH, IMPERSONATE, DEPERSONATE, DELETE",
+                                                         AccessControlAllowMethods  = new[] { "OPTIONS", "ADD", "EXISTS", "GET", "SET", "AUTH", "DEAUTH", "IMPERSONATE", "DEPERSONATE", "DELETE" },
                                                          AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                          ContentType                = HTTPContentType.JSON_UTF8,
                                                          Content                    = JSONObject.Create(
@@ -7581,7 +7581,7 @@ namespace social.OpenData.UsersAPI
                                                              Server                     = HTTPServer.DefaultServerName,
                                                              Date                       = Timestamp.Now,
                                                              AccessControlAllowOrigin   = "*",
-                                                             AccessControlAllowMethods  = "OPTIONS, ADD, EXISTS, GET, SET, AUTH, DEAUTH, IMPERSONATE, DEPERSONATE, DELETE",
+                                                             AccessControlAllowMethods  = new[] { "OPTIONS", "ADD", "EXISTS", "GET", "SET", "AUTH", "DEAUTH", "IMPERSONATE", "DEPERSONATE", "DELETE" },
                                                              AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                              ContentType                = HTTPContentType.JSON_UTF8,
                                                              Content                    = User.ToJSON(false).ToUTF8Bytes(),
@@ -7594,7 +7594,7 @@ namespace social.OpenData.UsersAPI
                                                              Server                     = HTTPServer.DefaultServerName,
                                                              Date                       = Timestamp.Now,
                                                              AccessControlAllowOrigin   = "*",
-                                                             AccessControlAllowMethods  = "OPTIONS, ADD, EXISTS, GET, SET, AUTH, DEAUTH, IMPERSONATE, DEPERSONATE, DELETE",
+                                                             AccessControlAllowMethods  = new[] { "OPTIONS", "ADD", "EXISTS", "GET", "SET", "AUTH", "DEAUTH", "IMPERSONATE", "DEPERSONATE", "DELETE" },
                                                              AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                              ContentType                = HTTPContentType.JSON_UTF8,
                                                              Content                    = JSONObject.Create(
@@ -7656,7 +7656,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                      = HTTPServer.DefaultServerName,
                                                             Date                        = Timestamp.Now,
                                                             AccessControlAllowOrigin    = "*",
-                                                            AccessControlAllowMethods   = "GET, SET, CHOWN",
+                                                            AccessControlAllowMethods   = new[] { "GET", "SET", "CHOWN" },
                                                             AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                             Connection                  = "close"
                                                         }.AsImmutable;
@@ -7683,7 +7683,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                     = HTTPServer.DefaultServerName,
                                                             Date                       = Timestamp.Now,
                                                             AccessControlAllowOrigin   = "*",
-                                                            AccessControlAllowMethods  = "GET, SET",
+                                                            AccessControlAllowMethods  = new[] { "GET", "SET" },
                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                             ETag                       = "1",
                                                             ContentType                = HTTPContentType.JSON_UTF8,
@@ -7710,7 +7710,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                     = HTTPServer.DefaultServerName,
                                                             Date                       = Timestamp.Now,
                                                             AccessControlAllowOrigin   = "*",
-                                                            AccessControlAllowMethods  = "GET, SET",
+                                                            AccessControlAllowMethods  = new[] { "GET", "SET" },
                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                             ETag                       = "1",
                                                             ContentType                = HTTPContentType.JSON_UTF8,
@@ -7754,7 +7754,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                      = HTTPServer.DefaultServerName,
                                                             Date                        = Timestamp.Now,
                                                             AccessControlAllowOrigin    = "*",
-                                                            AccessControlAllowMethods   = "SET",
+                                                            AccessControlAllowMethods   = new[] { "SET" },
                                                             AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                             Connection                  = "close"
                                                         }.AsImmutable
@@ -7764,7 +7764,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                      = HTTPServer.DefaultServerName,
                                                             Date                        = Timestamp.Now,
                                                             AccessControlAllowOrigin    = "*",
-                                                            AccessControlAllowMethods   = "SET",
+                                                            AccessControlAllowMethods   = new[] { "SET" },
                                                             AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                             Connection                  = "close"
                                                         }.AsImmutable;
@@ -7843,7 +7843,7 @@ namespace social.OpenData.UsersAPI
                                                      Server                     = HTTPServer.DefaultServerName,
                                                      Date                       = Timestamp.Now,
                                                      AccessControlAllowOrigin   = "*",
-                                                     AccessControlAllowMethods  = "GET, COUNT, OPTIONS",
+                                                     AccessControlAllowMethods  = new[] { "GET", "COUNT", "OPTIONS" },
                                                      AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                      ETag                       = "1",
                                                      ContentType                = HTTPContentType.JSON_UTF8,
@@ -7889,7 +7889,7 @@ namespace social.OpenData.UsersAPI
                                                         Server                     = HTTPServer.DefaultServerName,
                                                         Date                       = Timestamp.Now,
                                                         AccessControlAllowOrigin   = "*",
-                                                        AccessControlAllowMethods  = "GET, SET",
+                                                        AccessControlAllowMethods  = new[] { "GET", "SET" },
                                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                         ETag                       = "1",
                                                         ContentType                = HTTPContentType.JSON_UTF8,
@@ -7949,7 +7949,7 @@ namespace social.OpenData.UsersAPI
                                                                Server                      = HTTPServer.DefaultServerName,
                                                                Date                        = Timestamp.Now,
                                                                AccessControlAllowOrigin    = "*",
-                                                               AccessControlAllowMethods   = "GET",
+                                                               AccessControlAllowMethods   = new[] { "GET" },
                                                                AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                                ContentType                 = HTTPContentType.HTML_UTF8,
                                                                Content                     = MixWithHTMLTemplate("user.notifications.shtml").ToUTF8Bytes(),
@@ -7962,7 +7962,7 @@ namespace social.OpenData.UsersAPI
                                                                Server                      = HTTPServer.DefaultServerName,
                                                                Date                        = Timestamp.Now,
                                                                AccessControlAllowOrigin    = "*",
-                                                               AccessControlAllowMethods   = "GET",
+                                                               AccessControlAllowMethods   = new[] { "GET" },
                                                                AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                                Connection                  = "close"
                                                            }.AsImmutable);
@@ -8029,7 +8029,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                      = HTTPServer.DefaultServerName,
                                                             Date                        = Timestamp.Now,
                                                             AccessControlAllowOrigin    = "*",
-                                                            AccessControlAllowMethods   = "GET, SET, CHOWN",
+                                                            AccessControlAllowMethods   = new[] { "GET", "SET", "CHOWN" },
                                                             AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                             Connection                  = "close"
                                                         }.AsImmutable;
@@ -8132,7 +8132,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                     = HTTPServer.DefaultServerName,
                                                             Date                       = Timestamp.Now,
                                                             AccessControlAllowOrigin   = "*",
-                                                            AccessControlAllowMethods  = "GET, SET",
+                                                            AccessControlAllowMethods  = new[] { "GET", "SET" },
                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                             ETag                       = "1",
                                                             ContentType                = HTTPContentType.JSON_UTF8,
@@ -8153,7 +8153,7 @@ namespace social.OpenData.UsersAPI
                                                         Server                      = HTTPServer.DefaultServerName,
                                                         Date                        = Timestamp.Now,
                                                         AccessControlAllowOrigin    = "*",
-                                                        AccessControlAllowMethods   = "GET, SET",
+                                                        AccessControlAllowMethods   = new[] { "GET", "SET" },
                                                         AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                         ContentType                 = HTTPContentType.JSON_UTF8,
                                                         Content                     = GetNotifications(HTTPUser).ToUTF8Bytes(),
@@ -8220,7 +8220,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                      = HTTPServer.DefaultServerName,
                                                             Date                        = Timestamp.Now,
                                                             AccessControlAllowOrigin    = "*",
-                                                            AccessControlAllowMethods   = "GET, SET, CHOWN",
+                                                            AccessControlAllowMethods   = new[] { "GET", "SET", "CHOWN" },
                                                             AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                             Connection                  = "close"
                                                         }.AsImmutable;
@@ -8323,7 +8323,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                     = HTTPServer.DefaultServerName,
                                                             Date                       = Timestamp.Now,
                                                             AccessControlAllowOrigin   = "*",
-                                                            AccessControlAllowMethods  = "GET, SET",
+                                                            AccessControlAllowMethods  = new[] { "GET", "SET" },
                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                             ETag                       = "1",
                                                             ContentType                = HTTPContentType.JSON_UTF8,
@@ -8344,7 +8344,7 @@ namespace social.OpenData.UsersAPI
                                                         Server                      = HTTPServer.DefaultServerName,
                                                         Date                        = Timestamp.Now,
                                                         AccessControlAllowOrigin    = "*",
-                                                        AccessControlAllowMethods   = "GET, SET",
+                                                        AccessControlAllowMethods   = new[] { "GET", "SET" },
                                                         AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                         ContentType                 = HTTPContentType.JSON_UTF8,
                                                         Content                     = GetNotifications(HTTPUser).ToUTF8Bytes(),
@@ -8412,7 +8412,7 @@ namespace social.OpenData.UsersAPI
                                                                             Server                     = HTTPServer.DefaultServerName,
                                                                             Date                       = Timestamp.Now,
                                                                             AccessControlAllowOrigin   = "*",
-                                                                            AccessControlAllowMethods  = "GET, SET",
+                                                                            AccessControlAllowMethods  = new[] { "GET", "SET" },
                                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                                             ETag                       = "1",
                                                                             ContentType                = HTTPContentType.JSON_UTF8,
@@ -8503,7 +8503,7 @@ namespace social.OpenData.UsersAPI
                                                                Server                      = HTTPServer.DefaultServerName,
                                                                Date                        = Timestamp.Now,
                                                                AccessControlAllowOrigin    = "*",
-                                                               AccessControlAllowMethods   = "GET",
+                                                               AccessControlAllowMethods   = new[] { "GET" },
                                                                AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                                ContentType                 = HTTPContentType.HTML_UTF8,
                                                                Content                     = MixWithHTMLTemplate("user.editNotification.shtml").ToUTF8Bytes(),
@@ -8516,7 +8516,7 @@ namespace social.OpenData.UsersAPI
                                                                Server                      = HTTPServer.DefaultServerName,
                                                                Date                        = Timestamp.Now,
                                                                AccessControlAllowOrigin    = "*",
-                                                               AccessControlAllowMethods   = "GET",
+                                                               AccessControlAllowMethods   = new[] { "GET" },
                                                                AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                                Connection                  = "close"
                                                            }.AsImmutable);
@@ -8571,7 +8571,7 @@ namespace social.OpenData.UsersAPI
                                                                 Server                      = HTTPServer.DefaultServerName,
                                                                 Date                        = Timestamp.Now,
                                                                 AccessControlAllowOrigin    = "*",
-                                                                AccessControlAllowMethods   = "GET",
+                                                                AccessControlAllowMethods   = new[] { "GET" },
                                                                 AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                                 Connection                  = "close"
                                                             }.AsImmutable);
@@ -8586,7 +8586,7 @@ namespace social.OpenData.UsersAPI
                                                      Server                      = HTTPServer.DefaultServerName,
                                                      Date                        = Timestamp.Now,
                                                      AccessControlAllowOrigin    = "*",
-                                                     AccessControlAllowMethods   = "GET",
+                                                     AccessControlAllowMethods   = new[] { "GET" },
                                                      AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                      ContentType                 = HTTPContentType.HTML_UTF8,
                                                      Content                     = MixWithHTMLTemplate("user.editNotification.shtml").ToUTF8Bytes(),
@@ -8650,7 +8650,7 @@ namespace social.OpenData.UsersAPI
                                                                 Server                     = HTTPServer.DefaultServerName,
                                                                 Date                       = Timestamp.Now,
                                                                 AccessControlAllowOrigin   = "*",
-                                                                AccessControlAllowMethods  = "ADD, GET",
+                                                                AccessControlAllowMethods  = new[] { "ADD", "GET" },
                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                                 ContentType                = HTTPContentType.JSON_UTF8,
                                                                 Content                    = JSONObject.Create(
@@ -8668,7 +8668,7 @@ namespace social.OpenData.UsersAPI
                                                                             Server                     = HTTPServer.DefaultServerName,
                                                                             Date                       = Timestamp.Now,
                                                                             AccessControlAllowOrigin   = "*",
-                                                                            AccessControlAllowMethods  = "ADD, GET",
+                                                                            AccessControlAllowMethods  = new[] { "ADD", "GET" },
                                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                                             ETag                       = "1",
                                                                             ContentType                = HTTPContentType.JSON_UTF8,
@@ -8689,7 +8689,7 @@ namespace social.OpenData.UsersAPI
                                                                 Server                     = HTTPServer.DefaultServerName,
                                                                 Date                       = Timestamp.Now,
                                                                 AccessControlAllowOrigin   = "*",
-                                                                AccessControlAllowMethods  = "ADD, GET",
+                                                                AccessControlAllowMethods  = new[] { "ADD", "GET" },
                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                                 ContentType                = HTTPContentType.JSON_UTF8,
                                                                 Content                    = JSONObject.Create(
@@ -8763,7 +8763,7 @@ namespace social.OpenData.UsersAPI
                                                                 Server                     = HTTPServer.DefaultServerName,
                                                                 Date                       = Timestamp.Now,
                                                                 AccessControlAllowOrigin   = "*",
-                                                                AccessControlAllowMethods  = "ADD, GET",
+                                                                AccessControlAllowMethods  = new[] { "ADD", "GET" },
                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                                 ContentType                = HTTPContentType.JSON_UTF8,
                                                                 Content                    = JSONObject.Create(
@@ -8786,7 +8786,7 @@ namespace social.OpenData.UsersAPI
                                                                 Server                     = HTTPServer.DefaultServerName,
                                                                 Date                       = Timestamp.Now,
                                                                 AccessControlAllowOrigin   = "*",
-                                                                AccessControlAllowMethods  = "ADD, GET",
+                                                                AccessControlAllowMethods  = new[] { "ADD", "GET" },
                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                                 ContentType                = HTTPContentType.JSON_UTF8,
                                                                 Content                    = JSONObject.Create(
@@ -8812,7 +8812,7 @@ namespace social.OpenData.UsersAPI
                                                                       Server                     = HTTPServer.DefaultServerName,
                                                                       Date                       = Timestamp.Now,
                                                                       AccessControlAllowOrigin   = "*",
-                                                                      AccessControlAllowMethods  = "ADD, GET",
+                                                                      AccessControlAllowMethods  = new[] { "ADD", "GET" },
                                                                       AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                                       ContentType                = HTTPContentType.JSON_UTF8,
                                                                       Content                    = apiKey.ToJSON().ToUTF8Bytes(),
@@ -8825,7 +8825,7 @@ namespace social.OpenData.UsersAPI
                                                                       Server                     = HTTPServer.DefaultServerName,
                                                                       Date                       = Timestamp.Now,
                                                                       AccessControlAllowOrigin   = "*",
-                                                                      AccessControlAllowMethods  = "ADD, GET",
+                                                                      AccessControlAllowMethods  = new[] { "ADD", "GET" },
                                                                       AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                                       ContentType                = HTTPContentType.JSON_UTF8,
                                                                       Content                    = JSONObject.Create(
@@ -8841,7 +8841,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                     = HTTPServer.DefaultServerName,
                                                             Date                       = Timestamp.Now,
                                                             AccessControlAllowOrigin   = "*",
-                                                            AccessControlAllowMethods  = "ADD, GET",
+                                                            AccessControlAllowMethods  = new[] { "ADD", "GET" },
                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                             ContentType                = HTTPContentType.JSON_UTF8,
                                                             Content                    = JSONObject.Create(
@@ -8906,7 +8906,7 @@ namespace social.OpenData.UsersAPI
                                                                 Server                     = HTTPServer.DefaultServerName,
                                                                 Date                       = Timestamp.Now,
                                                                 AccessControlAllowOrigin   = "*",
-                                                                AccessControlAllowMethods  = "DELETE",
+                                                                AccessControlAllowMethods  = new[] { "DELETE" },
                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                                 ContentType                = HTTPContentType.JSON_UTF8,
                                                                 Content                    = JSONObject.Create(
@@ -8926,7 +8926,7 @@ namespace social.OpenData.UsersAPI
                                                                 Server                     = HTTPServer.DefaultServerName,
                                                                 Date                       = Timestamp.Now,
                                                                 AccessControlAllowOrigin   = "*",
-                                                                AccessControlAllowMethods  = "DELETE",
+                                                                AccessControlAllowMethods  = new[] { "DELETE" },
                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                                 ContentType                = HTTPContentType.JSON_UTF8,
                                                                 Content                    = JSONObject.Create(
@@ -8944,7 +8944,7 @@ namespace social.OpenData.UsersAPI
                                                                 Server                     = HTTPServer.DefaultServerName,
                                                                 Date                       = Timestamp.Now,
                                                                 AccessControlAllowOrigin   = "*",
-                                                                AccessControlAllowMethods  = "DELETE",
+                                                                AccessControlAllowMethods  = new[] { "DELETE" },
                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                                 ContentType                = HTTPContentType.JSON_UTF8,
                                                                 Content                    = JSONObject.Create(
@@ -8966,7 +8966,7 @@ namespace social.OpenData.UsersAPI
                                                                 Server                     = HTTPServer.DefaultServerName,
                                                                 Date                       = Timestamp.Now,
                                                                 AccessControlAllowOrigin   = "*",
-                                                                AccessControlAllowMethods  = "DELETE",
+                                                                AccessControlAllowMethods  = new[] { "DELETE" },
                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                                 ContentType                = HTTPContentType.JSON_UTF8,
                                                                 Content                    = JSONObject.Create(
@@ -8991,7 +8991,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                     = HTTPServer.DefaultServerName,
                                                             Date                       = Timestamp.Now,
                                                             AccessControlAllowOrigin   = "*",
-                                                            AccessControlAllowMethods  = "DELETE",
+                                                            AccessControlAllowMethods  = new[] { "DELETE" },
                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                             ContentType                = HTTPContentType.JSON_UTF8,
                                                             Content                    = apiKeyInfo.ToJSON().ToUTF8Bytes(),
@@ -9007,7 +9007,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                     = HTTPServer.DefaultServerName,
                                                             Date                       = Timestamp.Now,
                                                             AccessControlAllowOrigin   = "*",
-                                                            AccessControlAllowMethods  = "DELETE",
+                                                            AccessControlAllowMethods  = new[] { "DELETE" },
                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                             ContentType                = HTTPContentType.JSON_UTF8,
                                                             Content                    = JSONObject.Create(
@@ -9060,7 +9060,7 @@ namespace social.OpenData.UsersAPI
                                                          Server                     = HTTPServer.DefaultServerName,
                                                          Date                       = Timestamp.Now,
                                                          AccessControlAllowOrigin   = "*",
-                                                         AccessControlAllowMethods  = "GET",
+                                                         AccessControlAllowMethods  = new[] { "GET" },
                                                          AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                          ContentType                = HTTPContentType.HTML_UTF8,
                                                          Content                    = MixWithHTMLTemplate("user.userGroups.shtml").ToUTF8Bytes(),
@@ -9134,7 +9134,7 @@ namespace social.OpenData.UsersAPI
                                                      Server                        = HTTPServer.DefaultServerName,
                                                      Date                          = Timestamp.Now,
                                                      AccessControlAllowOrigin      = "*",
-                                                     AccessControlAllowMethods     = "GET, COUNT, OPTIONS",
+                                                     AccessControlAllowMethods     = new[] { "GET", "COUNT", "OPTIONS" },
                                                      AccessControlAllowHeaders     = "Content-Type, Accept, Authorization",
                                                      ETag                          = "1",
                                                      ContentType                   = HTTPContentType.JSON_UTF8,
@@ -9191,7 +9191,7 @@ namespace social.OpenData.UsersAPI
                                                          Server                     = HTTPServer.DefaultServerName,
                                                          Date                       = Timestamp.Now,
                                                          AccessControlAllowOrigin   = "*",
-                                                         AccessControlAllowMethods  = "GET",
+                                                         AccessControlAllowMethods  = new[] { "GET" },
                                                          AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                          ContentType                = HTTPContentType.HTML_UTF8,
                                                          Content                    = MixWithHTMLTemplate("user.userGroup.shtml").ToUTF8Bytes(),
@@ -9242,7 +9242,7 @@ namespace social.OpenData.UsersAPI
                                                          Server                      = HTTPServer.DefaultServerName,
                                                          Date                        = Timestamp.Now,
                                                          AccessControlAllowOrigin    = "*",
-                                                         AccessControlAllowMethods   = "GET, SET",
+                                                         AccessControlAllowMethods   = new[] { "GET", "SET" },
                                                          AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                          ContentType                 = HTTPContentType.HTML_UTF8,
                                                          Content                     = UserGroup.ToJSON().ToUTF8Bytes(),
@@ -9257,7 +9257,7 @@ namespace social.OpenData.UsersAPI
                                                                         Server                     = HTTPServer.DefaultServerName,
                                                                         Date                       = Timestamp.Now,
                                                                         AccessControlAllowOrigin   = "*",
-                                                                        AccessControlAllowMethods  = "GET, SET",
+                                                                        AccessControlAllowMethods  = new[] { "GET", "SET" },
                                                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                                         Connection                 = "close"
                                                                     }.AsImmutable);
@@ -9341,7 +9341,7 @@ namespace social.OpenData.UsersAPI
                                                      Server                         = HTTPServer.DefaultServerName,
                                                      Date                           = Timestamp.Now,
                                                      AccessControlAllowOrigin       = "*",
-                                                     AccessControlAllowMethods      = "OPTIONS, GET, COUNT, ADD",
+                                                     AccessControlAllowMethods      = new[] { "OPTIONS", "GET", "COUNT", "ADD" },
                                                      AccessControlAllowHeaders      = "Content-Type, Accept, Authorization",
                                                      ETag                           = "1",
                                                      ContentType                    = HTTPContentType.JSON_UTF8,
@@ -9393,7 +9393,7 @@ namespace social.OpenData.UsersAPI
                                                          Server                     = HTTPServer.DefaultServerName,
                                                          Date                       = Timestamp.Now,
                                                          AccessControlAllowOrigin   = "*",
-                                                         AccessControlAllowMethods  = "OPTIONS, GET, COUNT, ADD",
+                                                         AccessControlAllowMethods  = new[] { "OPTIONS", "GET", "COUNT", "ADD" },
                                                          AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                          ContentType                = HTTPContentType.HTML_UTF8,
                                                          Content                    = MixWithHTMLTemplate("organization.organizations.shtml").ToUTF8Bytes(),
@@ -9439,7 +9439,7 @@ namespace social.OpenData.UsersAPI
                                                      Server                     = HTTPServer.DefaultServerName,
                                                      Date                       = Timestamp.Now,
                                                      AccessControlAllowOrigin   = "*",
-                                                     AccessControlAllowMethods  = "OPTIONS, GET, COUNT, ADD",
+                                                     AccessControlAllowMethods  = new[] { "OPTIONS", "GET", "COUNT", "ADD" },
                                                      AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                      ETag                       = "1",
                                                      ContentType                = HTTPContentType.JSON_UTF8,
@@ -9518,7 +9518,7 @@ namespace social.OpenData.UsersAPI
                                                                 Server                      = HTTPServer.DefaultServerName,
                                                                 Date                        = Timestamp.Now,
                                                                 AccessControlAllowOrigin    = "*",
-                                                                AccessControlAllowMethods   = "OPTIONS, GET, COUNT, ADD",
+                                                                AccessControlAllowMethods   = new[] { "OPTIONS", "GET", "COUNT", "ADD" },
                                                                 AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                                 ContentType                 = HTTPContentType.JSON_UTF8,
                                                                 Content                     = JSONObject.Create(
@@ -9551,7 +9551,7 @@ namespace social.OpenData.UsersAPI
                                                              Server                     = HTTPServer.DefaultServerName,
                                                              Date                       = Timestamp.Now,
                                                              AccessControlAllowOrigin   = "*",
-                                                             AccessControlAllowMethods  = "OPTIONS, GET, COUNT, ADD",
+                                                             AccessControlAllowMethods  = new[] { "OPTIONS", "GET", "COUNT", "ADD" },
                                                              AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                              ContentType                = HTTPContentType.JSON_UTF8,
                                                              Content                    = JSONObject.Create(
@@ -9579,7 +9579,7 @@ namespace social.OpenData.UsersAPI
                                                                   Server                      = HTTPServer.DefaultServerName,
                                                                   Date                        = Timestamp.Now,
                                                                   AccessControlAllowOrigin    = "*",
-                                                                  AccessControlAllowMethods   = "OPTIONS, GET, COUNT, ADD",
+                                                                  AccessControlAllowMethods   = new[] { "OPTIONS", "GET", "COUNT", "ADD" },
                                                                   AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                                   ContentType                 = HTTPContentType.JSON_UTF8,
                                                                   Content                     = result.Organization.ToJSON().ToUTF8Bytes(),
@@ -9591,7 +9591,7 @@ namespace social.OpenData.UsersAPI
                                                                   Server                      = HTTPServer.DefaultServerName,
                                                                   Date                        = Timestamp.Now,
                                                                   AccessControlAllowOrigin    = "*",
-                                                                  AccessControlAllowMethods   = "OPTIONS, GET, COUNT, ADD",
+                                                                  AccessControlAllowMethods   = new[] { "OPTIONS", "GET", "COUNT", "ADD" },
                                                                   AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                                   ContentType                 = HTTPContentType.JSON_UTF8,
                                                                   Content                     = result.ToJSON().ToUTF8Bytes(),
@@ -9606,7 +9606,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                     = HTTPServer.DefaultServerName,
                                                             Date                       = Timestamp.Now,
                                                             AccessControlAllowOrigin   = "*",
-                                                            AccessControlAllowMethods  = "OPTIONS, GET, COUNT, ADD",
+                                                            AccessControlAllowMethods  = new[] { "OPTIONS", "GET", "COUNT", "ADD" },
                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                             ContentType                = HTTPContentType.JSON_UTF8,
                                                             Content                    = JSONObject.Create(
@@ -9676,7 +9676,7 @@ namespace social.OpenData.UsersAPI
                                                                   Server                     = HTTPServer.DefaultServerName,
                                                                   Date                       = Timestamp.Now,
                                                                   AccessControlAllowOrigin   = "*",
-                                                                  AccessControlAllowMethods  = "GET, EXISTS",
+                                                                  AccessControlAllowMethods  = new[] { "GET", "EXISTS" },
                                                                   AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                                   Connection                 = "close"
                                                               }.AsImmutable
@@ -9686,7 +9686,7 @@ namespace social.OpenData.UsersAPI
                                                                   Server                     = HTTPServer.DefaultServerName,
                                                                   Date                       = Timestamp.Now,
                                                                   AccessControlAllowOrigin   = "*",
-                                                                  AccessControlAllowMethods  = "GET, EXISTS",
+                                                                  AccessControlAllowMethods  = new[] { "GET", "EXISTS" },
                                                                   AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                                   ContentType                = HTTPContentType.JSON_UTF8,
                                                                   Content                    = (showMgt == true
@@ -9759,7 +9759,7 @@ namespace social.OpenData.UsersAPI
                                                          Server                      = HTTPServer.DefaultServerName,
                                                          Date                        = Timestamp.Now,
                                                          AccessControlAllowOrigin    = "*",
-                                                         AccessControlAllowMethods   = "GET",
+                                                         AccessControlAllowMethods   = new[] { "GET" },
                                                          AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                          ContentType                 = HTTPContentType.HTML_UTF8,
                                                          Content                     = MixWithHTMLTemplate("organization.organization.shtml").ToUTF8Bytes(),
@@ -9775,7 +9775,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                      = HTTPServer.DefaultServerName,
                                                             Date                        = Timestamp.Now,
                                                             AccessControlAllowOrigin    = "*",
-                                                            AccessControlAllowMethods   = "GET",
+                                                            AccessControlAllowMethods   = new[] { "GET" },
                                                             AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                             Connection                  = "close"
                                                         }.AsImmutable);
@@ -9826,7 +9826,7 @@ namespace social.OpenData.UsersAPI
                                                                 Server                     = HTTPServer.DefaultServerName,
                                                                 Date                       = Timestamp.Now,
                                                                 AccessControlAllowOrigin   = "*",
-                                                                AccessControlAllowMethods  = "GET, EXISTS",
+                                                                AccessControlAllowMethods  = new[] { "GET", "EXISTS" },
                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                                 Connection                 = "close"
                                                             }.AsImmutable);
@@ -9910,7 +9910,7 @@ namespace social.OpenData.UsersAPI
                                                         Server                     = HTTPServer.DefaultServerName,
                                                         Date                       = Timestamp.Now,
                                                         AccessControlAllowOrigin   = "*",
-                                                        AccessControlAllowMethods  = "GET, SET",
+                                                        AccessControlAllowMethods  = new[] { "GET", "SET" },
                                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                         ContentType                = HTTPContentType.JSON_UTF8,
                                                         Content                    = JSONObject.Create(
@@ -9960,7 +9960,7 @@ namespace social.OpenData.UsersAPI
                                                          Server                     = HTTPServer.DefaultServerName,
                                                          Date                       = Timestamp.Now,
                                                          AccessControlAllowOrigin   = "*",
-                                                         AccessControlAllowMethods  = "GET, SET",
+                                                         AccessControlAllowMethods  = new[] { "GET", "SET" },
                                                          AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                          ContentType                = HTTPContentType.JSON_UTF8,
                                                          Content                    = JSONObject.Create(
@@ -10003,7 +10003,7 @@ namespace social.OpenData.UsersAPI
                                                              Server                     = HTTPServer.DefaultServerName,
                                                              Date                       = Timestamp.Now,
                                                              AccessControlAllowOrigin   = "*",
-                                                             AccessControlAllowMethods  = "GET, SET",
+                                                             AccessControlAllowMethods  = new[] { "GET", "SET" },
                                                              AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                              ContentType                = HTTPContentType.JSON_UTF8,
                                                              Content                    = JSONObject.Create(
@@ -10023,7 +10023,7 @@ namespace social.OpenData.UsersAPI
                                                              Server                     = HTTPServer.DefaultServerName,
                                                              Date                       = Timestamp.Now,
                                                              AccessControlAllowOrigin   = "*",
-                                                             AccessControlAllowMethods  = "GET, SET",
+                                                             AccessControlAllowMethods  = new[] { "GET", "SET" },
                                                              AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                              ContentType                = HTTPContentType.JSON_UTF8,
                                                              Content                    = JSONObject.Create(
@@ -10072,7 +10072,7 @@ namespace social.OpenData.UsersAPI
                                                          Server                      = HTTPServer.DefaultServerName,
                                                          Date                        = Timestamp.Now,
                                                          AccessControlAllowOrigin    = "*",
-                                                         AccessControlAllowMethods   = "GET, SET",
+                                                         AccessControlAllowMethods   = new[] { "GET", "SET" },
                                                          AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                          Connection                  = "close"
                                                      }.AsImmutable;
@@ -10086,7 +10086,7 @@ namespace social.OpenData.UsersAPI
                                                          Server                     = HTTPServer.DefaultServerName,
                                                          Date                       = Timestamp.Now,
                                                          AccessControlAllowOrigin   = "*",
-                                                         AccessControlAllowMethods  = "GET, SET",
+                                                         AccessControlAllowMethods  = new[] { "GET", "SET" },
                                                          AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                          ContentType                = HTTPContentType.JSON_UTF8,
                                                          Content                    = JSONObject.Create(
@@ -10167,7 +10167,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                      = HTTPServer.DefaultServerName,
                                                             Date                        = Timestamp.Now,
                                                             AccessControlAllowOrigin    = "*",
-                                                            AccessControlAllowMethods   = "GET, SET, CHOWN",
+                                                            AccessControlAllowMethods   = new[] { "GET", "SET", "CHOWN" },
                                                             AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                             Connection                  = "close"
                                                         }.AsImmutable;
@@ -10203,7 +10203,7 @@ namespace social.OpenData.UsersAPI
                                                                 Server                     = HTTPServer.DefaultServerName,
                                                                 Date                       = Timestamp.Now,
                                                                 AccessControlAllowOrigin   = "*",
-                                                                AccessControlAllowMethods  = "GET, SET",
+                                                                AccessControlAllowMethods  = new[] { "GET", "SET" },
                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                                 ContentType                = HTTPContentType.JSON_UTF8,
                                                                 Content                    = JSONObject.Create(
@@ -10218,7 +10218,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                      = HTTPServer.DefaultServerName,
                                                             Date                        = Timestamp.Now,
                                                             AccessControlAllowOrigin    = "*",
-                                                            AccessControlAllowMethods   = "GET, SET",
+                                                            AccessControlAllowMethods   = new[] { "GET", "SET" },
                                                             AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                             ContentType                 = HTTPContentType.JSON_UTF8,
                                                             Content                     = UpdatedOrganization.ToJSON().ToUTF8Bytes(),
@@ -10234,7 +10234,7 @@ namespace social.OpenData.UsersAPI
                                                         Server                     = HTTPServer.DefaultServerName,
                                                         Date                       = Timestamp.Now,
                                                         AccessControlAllowOrigin   = "*",
-                                                        AccessControlAllowMethods  = "GET, SET",
+                                                        AccessControlAllowMethods  = new[] { "GET", "SET" },
                                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                         ContentType                = HTTPContentType.JSON_UTF8,
                                                         Content                    = JSONObject.Create(
@@ -10298,7 +10298,7 @@ namespace social.OpenData.UsersAPI
                                                                 Server                     = HTTPServer.DefaultServerName,
                                                                 Date                       = Timestamp.Now,
                                                                 AccessControlAllowOrigin   = "*",
-                                                                AccessControlAllowMethods  = "GET, SET, DELETE",
+                                                                AccessControlAllowMethods  = new[] { "GET", "SET", "DELETE" },
                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                                 ContentType                = HTTPContentType.JSON_UTF8,
                                                                 Content                    = JSONObject.Create(
@@ -10319,7 +10319,7 @@ namespace social.OpenData.UsersAPI
                                                               Server                      = HTTPServer.DefaultServerName,
                                                               Date                        = Timestamp.Now,
                                                               AccessControlAllowOrigin    = "*",
-                                                              AccessControlAllowMethods   = "GET, SET",
+                                                              AccessControlAllowMethods   = new[] { "GET", "SET" },
                                                               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                               Connection                  = "close"
                                                           }.AsImmutable
@@ -10329,7 +10329,7 @@ namespace social.OpenData.UsersAPI
                                                               Server                      = HTTPServer.DefaultServerName,
                                                               Date                        = Timestamp.Now,
                                                               AccessControlAllowOrigin    = "*",
-                                                              AccessControlAllowMethods   = "GET, SET",
+                                                              AccessControlAllowMethods   = new[] { "GET", "SET" },
                                                               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                               ContentType                 = HTTPContentType.JSON_UTF8,
                                                               Content                     = JSONObject.Create(
@@ -10392,7 +10392,7 @@ namespace social.OpenData.UsersAPI
                                                          Server                      = HTTPServer.DefaultServerName,
                                                          Date                        = Timestamp.Now,
                                                          AccessControlAllowOrigin    = "*",
-                                                         AccessControlAllowMethods   = "GET",
+                                                         AccessControlAllowMethods   = new[] { "GET" },
                                                          AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                          ContentType                 = HTTPContentType.HTML_UTF8,
                                                          Content                     = MixWithHTMLTemplate("organization.address.shtml").ToUTF8Bytes(),
@@ -10408,7 +10408,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                      = HTTPServer.DefaultServerName,
                                                             Date                        = Timestamp.Now,
                                                             AccessControlAllowOrigin    = "*",
-                                                            AccessControlAllowMethods   = "GET",
+                                                            AccessControlAllowMethods   = new[] { "GET" },
                                                             AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                             Connection                  = "close"
                                                         }.AsImmutable);
@@ -10466,7 +10466,7 @@ namespace social.OpenData.UsersAPI
                                                          Server                      = HTTPServer.DefaultServerName,
                                                          Date                        = Timestamp.Now,
                                                          AccessControlAllowOrigin    = "*",
-                                                         AccessControlAllowMethods   = "GET",
+                                                         AccessControlAllowMethods   = new[] { "GET" },
                                                          AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                          ContentType                 = HTTPContentType.HTML_UTF8,
                                                          Content                     = MixWithHTMLTemplate("organization.members.shtml").ToUTF8Bytes(),
@@ -10482,7 +10482,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                      = HTTPServer.DefaultServerName,
                                                             Date                        = Timestamp.Now,
                                                             AccessControlAllowOrigin    = "*",
-                                                            AccessControlAllowMethods   = "GET",
+                                                            AccessControlAllowMethods   = new[] { "GET" },
                                                             AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                             Connection                  = "close"
                                                         }.AsImmutable);
@@ -10573,7 +10573,7 @@ namespace social.OpenData.UsersAPI
                                                               Server                      = HTTPServer.DefaultServerName,
                                                               Date                        = Timestamp.Now,
                                                               AccessControlAllowOrigin    = "*",
-                                                              AccessControlAllowMethods   = "ADD, DELETE",
+                                                              AccessControlAllowMethods   = new[] { "ADD", "DELETE" },
                                                               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                               Connection                  = "close",
                                                               Vary                        = "Accept"
@@ -10584,7 +10584,7 @@ namespace social.OpenData.UsersAPI
                                                               Server                      = HTTPServer.DefaultServerName,
                                                               Date                        = Timestamp.Now,
                                                               AccessControlAllowOrigin    = "*",
-                                                              AccessControlAllowMethods   = "ADD, DELETE",
+                                                              AccessControlAllowMethods   = new[] { "ADD", "DELETE" },
                                                               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                               Connection                  = "close"
                                                           }.AsImmutable;
@@ -10675,7 +10675,7 @@ namespace social.OpenData.UsersAPI
                                                               Server                      = HTTPServer.DefaultServerName,
                                                               Date                        = Timestamp.Now,
                                                               AccessControlAllowOrigin    = "*",
-                                                              AccessControlAllowMethods   = "ADD, DELETE",
+                                                              AccessControlAllowMethods   = new[] { "ADD", "DELETE" },
                                                               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                               Connection                  = "close",
                                                               Vary                        = "Accept"
@@ -10686,7 +10686,7 @@ namespace social.OpenData.UsersAPI
                                                               Server                      = HTTPServer.DefaultServerName,
                                                               Date                        = Timestamp.Now,
                                                               AccessControlAllowOrigin    = "*",
-                                                              AccessControlAllowMethods   = "ADD, DELETE",
+                                                              AccessControlAllowMethods   = new[] { "ADD", "DELETE" },
                                                               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                               Connection                  = "close"
                                                           }.AsImmutable;
@@ -10777,7 +10777,7 @@ namespace social.OpenData.UsersAPI
                                                               Server                      = HTTPServer.DefaultServerName,
                                                               Date                        = Timestamp.Now,
                                                               AccessControlAllowOrigin    = "*",
-                                                              AccessControlAllowMethods   = "ADD, DELETE",
+                                                              AccessControlAllowMethods   = new[] { "ADD", "DELETE" },
                                                               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                               Connection                  = "close",
                                                               Vary                        = "Accept"
@@ -10788,7 +10788,7 @@ namespace social.OpenData.UsersAPI
                                                               Server                      = HTTPServer.DefaultServerName,
                                                               Date                        = Timestamp.Now,
                                                               AccessControlAllowOrigin    = "*",
-                                                              AccessControlAllowMethods   = "ADD, DELETE",
+                                                              AccessControlAllowMethods   = new[] { "ADD", "DELETE" },
                                                               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                               Connection                  = "close"
                                                           }.AsImmutable;
@@ -10878,7 +10878,7 @@ namespace social.OpenData.UsersAPI
                                                               Server                      = HTTPServer.DefaultServerName,
                                                               Date                        = Timestamp.Now,
                                                               AccessControlAllowOrigin    = "*",
-                                                              AccessControlAllowMethods   = "ADD, DELETE",
+                                                              AccessControlAllowMethods   = new[] { "ADD", "DELETE" },
                                                               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                               Connection                  = "close",
                                                               Vary                        = "Accept"
@@ -10889,7 +10889,7 @@ namespace social.OpenData.UsersAPI
                                                               Server                      = HTTPServer.DefaultServerName,
                                                               Date                        = Timestamp.Now,
                                                               AccessControlAllowOrigin    = "*",
-                                                              AccessControlAllowMethods   = "ADD, DELETE",
+                                                              AccessControlAllowMethods   = new[] { "ADD", "DELETE" },
                                                               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                               Connection                  = "close"
                                                           }.AsImmutable;
@@ -10980,7 +10980,7 @@ namespace social.OpenData.UsersAPI
                                                               Server                      = HTTPServer.DefaultServerName,
                                                               Date                        = Timestamp.Now,
                                                               AccessControlAllowOrigin    = "*",
-                                                              AccessControlAllowMethods   = "ADD, DELETE",
+                                                              AccessControlAllowMethods   = new[] { "ADD", "DELETE" },
                                                               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                               Connection                  = "close",
                                                               Vary                        = "Accept"
@@ -10991,7 +10991,7 @@ namespace social.OpenData.UsersAPI
                                                               Server                      = HTTPServer.DefaultServerName,
                                                               Date                        = Timestamp.Now,
                                                               AccessControlAllowOrigin    = "*",
-                                                              AccessControlAllowMethods   = "ADD, DELETE",
+                                                              AccessControlAllowMethods   = new[] { "ADD", "DELETE" },
                                                               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                               Connection                  = "close"
                                                           }.AsImmutable;
@@ -11082,7 +11082,7 @@ namespace social.OpenData.UsersAPI
                                                               Server                      = HTTPServer.DefaultServerName,
                                                               Date                        = Timestamp.Now,
                                                               AccessControlAllowOrigin    = "*",
-                                                              AccessControlAllowMethods   = "ADD, DELETE",
+                                                              AccessControlAllowMethods   = new[] { "ADD", "DELETE" },
                                                               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                               Connection                  = "close",
                                                               Vary                        = "Accept"
@@ -11093,7 +11093,7 @@ namespace social.OpenData.UsersAPI
                                                               Server                      = HTTPServer.DefaultServerName,
                                                               Date                        = Timestamp.Now,
                                                               AccessControlAllowOrigin    = "*",
-                                                              AccessControlAllowMethods   = "ADD, DELETE",
+                                                              AccessControlAllowMethods   = new[] { "ADD", "DELETE" },
                                                               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                               Connection                  = "close"
                                                           }.AsImmutable;
@@ -11184,7 +11184,7 @@ namespace social.OpenData.UsersAPI
                                                               Server                      = HTTPServer.DefaultServerName,
                                                               Date                        = Timestamp.Now,
                                                               AccessControlAllowOrigin    = "*",
-                                                              AccessControlAllowMethods   = "ADD, DELETE",
+                                                              AccessControlAllowMethods   = new[] { "ADD", "DELETE" },
                                                               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                               Connection                  = "close",
                                                               Vary                        = "Accept"
@@ -11195,7 +11195,7 @@ namespace social.OpenData.UsersAPI
                                                               Server                      = HTTPServer.DefaultServerName,
                                                               Date                        = Timestamp.Now,
                                                               AccessControlAllowOrigin    = "*",
-                                                              AccessControlAllowMethods   = "ADD, DELETE",
+                                                              AccessControlAllowMethods   = new[] { "ADD", "DELETE" },
                                                               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                               Connection                  = "close"
                                                           }.AsImmutable;
@@ -11251,7 +11251,7 @@ namespace social.OpenData.UsersAPI
                                                          Server                      = HTTPServer.DefaultServerName,
                                                          Date                        = Timestamp.Now,
                                                          AccessControlAllowOrigin    = "*",
-                                                         AccessControlAllowMethods   = "GET",
+                                                         AccessControlAllowMethods   = new[] { "GET" },
                                                          AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                          ContentType                 = HTTPContentType.HTML_UTF8,
                                                          Content                     = MixWithHTMLTemplate("organization.newMember.shtml").ToUTF8Bytes(),
@@ -11266,7 +11266,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                      = HTTPServer.DefaultServerName,
                                                             Date                        = Timestamp.Now,
                                                             AccessControlAllowOrigin    = "*",
-                                                            AccessControlAllowMethods   = "GET",
+                                                            AccessControlAllowMethods   = new[] { "GET" },
                                                             AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                             Connection                  = "close"
                                                         }.AsImmutable);
@@ -11324,7 +11324,7 @@ namespace social.OpenData.UsersAPI
                                                          Server                      = HTTPServer.DefaultServerName,
                                                          Date                        = Timestamp.Now,
                                                          AccessControlAllowOrigin    = "*",
-                                                         AccessControlAllowMethods   = "GET",
+                                                         AccessControlAllowMethods   = new[] { "GET" },
                                                          AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                          ContentType                 = HTTPContentType.HTML_UTF8,
                                                          Content                     = MixWithHTMLTemplate("organization.subOrganizations.shtml").ToUTF8Bytes(),
@@ -11340,7 +11340,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                      = HTTPServer.DefaultServerName,
                                                             Date                        = Timestamp.Now,
                                                             AccessControlAllowOrigin    = "*",
-                                                            AccessControlAllowMethods   = "GET",
+                                                            AccessControlAllowMethods   = new[] { "GET" },
                                                             AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                             Connection                  = "close"
                                                         }.AsImmutable);
@@ -11398,7 +11398,7 @@ namespace social.OpenData.UsersAPI
                                                          Server                      = HTTPServer.DefaultServerName,
                                                          Date                        = Timestamp.Now,
                                                          AccessControlAllowOrigin    = "*",
-                                                         AccessControlAllowMethods   = "GET",
+                                                         AccessControlAllowMethods   = new[] { "GET" },
                                                          AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                          ContentType                 = HTTPContentType.HTML_UTF8,
                                                          Content                     = MixWithHTMLTemplate("organization.newSubOrganization.shtml").ToUTF8Bytes(),
@@ -11414,7 +11414,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                      = HTTPServer.DefaultServerName,
                                                             Date                        = Timestamp.Now,
                                                             AccessControlAllowOrigin    = "*",
-                                                            AccessControlAllowMethods   = "GET",
+                                                            AccessControlAllowMethods   = new[] { "GET" },
                                                             AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                             Connection                  = "close"
                                                         }.AsImmutable);
@@ -11467,7 +11467,7 @@ namespace social.OpenData.UsersAPI
                                                         Server                     = HTTPServer.DefaultServerName,
                                                         Date                       = Timestamp.Now,
                                                         AccessControlAllowOrigin   = "*",
-                                                        AccessControlAllowMethods  = "GET, SET",
+                                                        AccessControlAllowMethods  = new[] { "GET", "SET" },
                                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                         ETag                       = "1",
                                                         ContentType                = HTTPContentType.JSON_UTF8,
@@ -11533,7 +11533,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                      = HTTPServer.DefaultServerName,
                                                             Date                        = Timestamp.Now,
                                                             AccessControlAllowOrigin    = "*",
-                                                            AccessControlAllowMethods   = "GET, SET, CHOWN",
+                                                            AccessControlAllowMethods   = new[] { "GET", "SET", "CHOWN" },
                                                             AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                             Connection                  = "close"
                                                         }.AsImmutable;
@@ -11634,7 +11634,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                     = HTTPServer.DefaultServerName,
                                                             Date                       = Timestamp.Now,
                                                             AccessControlAllowOrigin   = "*",
-                                                            AccessControlAllowMethods  = "GET, SET",
+                                                            AccessControlAllowMethods  = new[] { "GET", "SET" },
                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                             ETag                       = "1",
                                                             ContentType                = HTTPContentType.JSON_UTF8,
@@ -11655,7 +11655,7 @@ namespace social.OpenData.UsersAPI
                                                         Server                      = HTTPServer.DefaultServerName,
                                                         Date                        = Timestamp.Now,
                                                         AccessControlAllowOrigin    = "*",
-                                                        AccessControlAllowMethods   = "GET, SET",
+                                                        AccessControlAllowMethods   = new[] { "GET", "SET" },
                                                         AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                         ContentType                 = HTTPContentType.JSON_UTF8,
                                                         Content                     = GetNotifications(HTTPUser).ToUTF8Bytes(),
@@ -11720,7 +11720,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                      = HTTPServer.DefaultServerName,
                                                             Date                        = Timestamp.Now,
                                                             AccessControlAllowOrigin    = "*",
-                                                            AccessControlAllowMethods   = "GET, SET, CHOWN",
+                                                            AccessControlAllowMethods   = new[] { "GET", "SET", "CHOWN" },
                                                             AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                             Connection                  = "close"
                                                         }.AsImmutable;
@@ -11821,7 +11821,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                     = HTTPServer.DefaultServerName,
                                                             Date                       = Timestamp.Now,
                                                             AccessControlAllowOrigin   = "*",
-                                                            AccessControlAllowMethods  = "GET, SET",
+                                                            AccessControlAllowMethods  = new[] { "GET", "SET" },
                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                             ETag                       = "1",
                                                             ContentType                = HTTPContentType.JSON_UTF8,
@@ -11842,7 +11842,7 @@ namespace social.OpenData.UsersAPI
                                                         Server                      = HTTPServer.DefaultServerName,
                                                         Date                        = Timestamp.Now,
                                                         AccessControlAllowOrigin    = "*",
-                                                        AccessControlAllowMethods   = "GET, SET",
+                                                        AccessControlAllowMethods   = new[] { "GET", "SET" },
                                                         AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                         ContentType                 = HTTPContentType.JSON_UTF8,
                                                         Content                     = GetNotifications(HTTPUser).ToUTF8Bytes(),
@@ -11891,7 +11891,7 @@ namespace social.OpenData.UsersAPI
                                                          Server                     = HTTPServer.DefaultServerName,
                                                          Date                       = Timestamp.Now,
                                                          AccessControlAllowOrigin   = "*",
-                                                         AccessControlAllowMethods  = "GET",
+                                                         AccessControlAllowMethods  = new[] { "GET" },
                                                          AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                          ContentType                = HTTPContentType.HTML_UTF8,
                                                          Content                    = MixWithHTMLTemplate("organization.organizationGroups.shtml").ToUTF8Bytes(),
@@ -11964,7 +11964,7 @@ namespace social.OpenData.UsersAPI
                                                      Server                        = HTTPServer.DefaultServerName,
                                                      Date                          = Timestamp.Now,
                                                      AccessControlAllowOrigin      = "*",
-                                                     AccessControlAllowMethods     = "GET, COUNT, OPTIONS",
+                                                     AccessControlAllowMethods     = new[] { "GET", "COUNT", "OPTIONS" },
                                                      AccessControlAllowHeaders     = "Content-Type, Accept, Authorization",
                                                      ETag                          = "1",
                                                      ContentType                   = HTTPContentType.JSON_UTF8,
@@ -12026,7 +12026,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                     = HTTPServer.DefaultServerName,
                                                             Date                       = Timestamp.Now,
                                                             AccessControlAllowOrigin   = "*",
-                                                            AccessControlAllowMethods  = "GET, SET",
+                                                            AccessControlAllowMethods  = new[] { "GET", "SET" },
                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                             ETag                       = "1",
                                                             ContentType                = HTTPContentType.JSON_UTF8,
@@ -12074,7 +12074,7 @@ namespace social.OpenData.UsersAPI
                                                      Server                      = HTTPServer.DefaultServerName,
                                                      Date                        = Timestamp.Now,
                                                      AccessControlAllowOrigin    = "*",
-                                                     AccessControlAllowMethods   = "GET",
+                                                     AccessControlAllowMethods   = new[] { "GET" },
                                                      AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                      ContentType                 = HTTPContentType.HTML_UTF8,
                                                      Content                     = MixWithHTMLTemplate("notification.messages.shtml").ToUTF8Bytes(),
@@ -12139,7 +12139,7 @@ namespace social.OpenData.UsersAPI
                                                      Server                      = HTTPServer.DefaultServerName,
                                                      Date                        = Timestamp.Now,
                                                      AccessControlAllowOrigin    = "*",
-                                                     AccessControlAllowMethods   = "GET",
+                                                     AccessControlAllowMethods   = new[] { "GET" },
                                                      AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                      ContentType                 = HTTPContentType.HTML_UTF8,
                                                      Content                     = MixWithHTMLTemplate("notification.editNotification.shtml").ToUTF8Bytes(),
@@ -12184,7 +12184,7 @@ namespace social.OpenData.UsersAPI
                                                      Server                      = HTTPServer.DefaultServerName,
                                                      Date                        = Timestamp.Now,
                                                      AccessControlAllowOrigin    = "*",
-                                                     AccessControlAllowMethods   = "GET",
+                                                     AccessControlAllowMethods   = new[] { "GET" },
                                                      AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                      ContentType                 = HTTPContentType.HTML_UTF8,
                                                      Content                     = MixWithHTMLTemplate("notification.settings.shtml").ToUTF8Bytes(),
@@ -12232,7 +12232,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                     = HTTPServer.DefaultServerName,
                                                             Date                       = Timestamp.Now,
                                                             AccessControlAllowOrigin   = "*",
-                                                            AccessControlAllowMethods  = "GET, SET",
+                                                            AccessControlAllowMethods  = new[] { "GET", "SET" },
                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                             ETag                       = "1",
                                                             ContentType                = HTTPContentType.JSON_UTF8,
@@ -12293,7 +12293,7 @@ namespace social.OpenData.UsersAPI
                                                      Server                      = HTTPServer.DefaultServerName,
                                                      Date                        = Timestamp.Now,
                                                      AccessControlAllowOrigin    = "*",
-                                                     AccessControlAllowMethods   = "GET",
+                                                     AccessControlAllowMethods   = new[] { "GET" },
                                                      AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                      ContentType                 = HTTPContentType.HTML_UTF8,
                                                      Content                     = MixWithHTMLTemplate("notification.editNotification.shtml").ToUTF8Bytes(),
@@ -12344,7 +12344,7 @@ namespace social.OpenData.UsersAPI
             //                                         Server                      = HTTPServer.DefaultServerName,
             //                                         Date                        = Timestamp.Now,
             //                                         AccessControlAllowOrigin    = "*",
-            //                                         AccessControlAllowMethods   = "GET",
+            //                                         AccessControlAllowMethods   = new[] { "GET" },
             //                                         AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
             //                                         ContentType                 = HTTPContentType.HTML_UTF8,
             //                                         Content                     = MixWithHTMLTemplate("dashboard.dashboard.shtml").ToUTF8Bytes(),
@@ -12715,7 +12715,7 @@ namespace social.OpenData.UsersAPI
                                                      Server                     = HTTPServer.DefaultServerName,
                                                      Date                       = Timestamp.Now,
                                                      AccessControlAllowOrigin   = "*",
-                                                     AccessControlAllowMethods  = "GET, OPTIONS",
+                                                     AccessControlAllowMethods  = new[] { "GET", "OPTIONS" },
                                                      AccessControlAllowHeaders  = "X-PINGOTHER, Content-Type, Accept, Authorization, X-App-Version",
                                                      Connection                 = "close"
                                                  }.AsImmutable);
@@ -12756,7 +12756,7 @@ namespace social.OpenData.UsersAPI
                                                          Server                     = HTTPServer.DefaultServerName,
                                                          Date                       = Timestamp.Now,
                                                          AccessControlAllowOrigin   = "*",
-                                                         AccessControlAllowMethods  = "GET, OPTIONS",
+                                                         AccessControlAllowMethods  = new[] { "GET", "OPTIONS" },
                                                          AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                          ContentType                = HTTPContentType.HTML_UTF8,
                                                          Content                    = MixWithHTMLTemplate(BlogTemplate, "blog.blogPostings.shtml").ToUTF8Bytes(),
@@ -12786,7 +12786,7 @@ namespace social.OpenData.UsersAPI
                                                      Server                     = HTTPServer.DefaultServerName,
                                                      Date                       = Timestamp.Now,
                                                      AccessControlAllowOrigin   = "*",
-                                                     AccessControlAllowMethods  = "GET, COUNT, OPTIONS",
+                                                     AccessControlAllowMethods  = new[] { "GET", "COUNT", "OPTIONS" },
                                                      AccessControlAllowHeaders  = "X-PINGOTHER, Content-Type, Accept, Authorization, X-App-Version",
                                                      Connection                 = "close"
                                                  }.AsImmutable);
@@ -12867,7 +12867,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                        = HTTPServer.DefaultServerName,
                                                             Date                          = Timestamp.Now,
                                                             AccessControlAllowOrigin      = "*",
-                                                            AccessControlAllowMethods     = "GET, COUNT, OPTIONS",
+                                                            AccessControlAllowMethods     = new[] { "GET", "COUNT", "OPTIONS" },
                                                             AccessControlAllowHeaders     = "Content-Type, Accept, Authorization",
                                                             ContentType                   = HTTPContentType.JSON_UTF8,
                                                             Content                       = withMetadata
@@ -12918,7 +12918,7 @@ namespace social.OpenData.UsersAPI
                                                          Server                     = HTTPServer.DefaultServerName,
                                                          Date                       = Timestamp.Now,
                                                          AccessControlAllowOrigin   = "*",
-                                                         AccessControlAllowMethods  = "GET, COUNT, OPTIONS",
+                                                         AccessControlAllowMethods  = new[] { "GET", "COUNT", "OPTIONS" },
                                                          AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                          ContentType                = HTTPContentType.HTML_UTF8,
                                                          Content                    = MixWithHTMLTemplate(BlogTemplate, "blog.blogPostings.shtml").ToUTF8Bytes(),
@@ -12952,7 +12952,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                        = HTTPServer.DefaultServerName,
                                                             Date                          = Timestamp.Now,
                                                             AccessControlAllowOrigin      = "*",
-                                                            AccessControlAllowMethods     = "GET, COUNT, OPTIONS",
+                                                            AccessControlAllowMethods     = new[] { "GET", "COUNT", "OPTIONS" },
                                                             AccessControlAllowHeaders     = "Content-Type, Accept, Authorization",
                                                             ContentType                   = HTTPContentType.JSON_UTF8,
                                                             Content                       = JSONObject.Create(
@@ -12984,7 +12984,7 @@ namespace social.OpenData.UsersAPI
                                                      Server                     = HTTPServer.DefaultServerName,
                                                      Date                       = Timestamp.Now,
                                                      AccessControlAllowOrigin   = "*",
-                                                     AccessControlAllowMethods  = "GET, COUNT, SEARCH, OPTIONS",
+                                                     AccessControlAllowMethods  = new[] { "GET", "COUNT", "SEARCH", "OPTIONS" },
                                                      AccessControlAllowHeaders  = "X-PINGOTHER, Content-Type, Accept, Authorization, X-App-Version",
                                                      Connection                 = "close"
                                                  }.AsImmutable);
@@ -13044,7 +13044,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                     = HTTPServer.DefaultServerName,
                                                             Date                       = Timestamp.Now,
                                                             AccessControlAllowOrigin   = "*",
-                                                            AccessControlAllowMethods  = "GET, SET",
+                                                            AccessControlAllowMethods  = new[] { "GET", "SET" },
                                                             AccessControlAllowHeaders  = "X-PINGOTHER, Content-Type, Accept, Authorization, X-App-Version",
                                                             ETag                       = "1",
                                                             ContentType                = HTTPContentType.JSON_UTF8,
@@ -13107,7 +13107,7 @@ namespace social.OpenData.UsersAPI
                                                      Server                     = HTTPServer.DefaultServerName,
                                                      Date                       = Timestamp.Now,
                                                      AccessControlAllowOrigin   = "*",
-                                                     AccessControlAllowMethods  = "GET",
+                                                     AccessControlAllowMethods  = new[] { "GET" },
                                                      AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                      ContentType                = HTTPContentType.HTML_UTF8,
                                                      Content                    = MixWithHTMLTemplate(BlogTemplate, "blog.blogPosting.shtml").ToUTF8Bytes(),
@@ -13142,7 +13142,7 @@ namespace social.OpenData.UsersAPI
                                                      Server                     = HTTPServer.DefaultServerName,
                                                      Date                       = Timestamp.Now,
                                                      AccessControlAllowOrigin   = "*",
-                                                     AccessControlAllowMethods  = "GET, COUNT, SEARCH, OPTIONS",
+                                                     AccessControlAllowMethods  = new[] { "GET", "COUNT", "SEARCH", "OPTIONS" },
                                                      AccessControlAllowHeaders  = "X-PINGOTHER, Content-Type, Accept, Authorization, X-App-Version",
                                                      Connection                 = "close"
                                                  }.AsImmutable);
@@ -13223,7 +13223,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                        = HTTPServer.DefaultServerName,
                                                             Date                          = Timestamp.Now,
                                                             AccessControlAllowOrigin      = "*",
-                                                            AccessControlAllowMethods     = "GET",
+                                                            AccessControlAllowMethods     = new[] { "GET" },
                                                             AccessControlAllowHeaders     = "Content-Type, Accept, Authorization",
                                                             ContentType                   = HTTPContentType.JSON_UTF8,
                                                             Content                       = withMetadata
@@ -13274,7 +13274,7 @@ namespace social.OpenData.UsersAPI
                                                      Server                     = HTTPServer.DefaultServerName,
                                                      Date                       = Timestamp.Now,
                                                      AccessControlAllowOrigin   = "*",
-                                                     AccessControlAllowMethods  = "GET",
+                                                     AccessControlAllowMethods  = new[] { "GET" },
                                                      AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                      ContentType                = HTTPContentType.HTML_UTF8,
                                                      Content                    = MixWithHTMLTemplate("newsPosting.newsPostings.shtml").ToUTF8Bytes(),
@@ -13308,7 +13308,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                        = HTTPServer.DefaultServerName,
                                                             Date                          = Timestamp.Now,
                                                             AccessControlAllowOrigin      = "*",
-                                                            AccessControlAllowMethods     = "GET",
+                                                            AccessControlAllowMethods     = new[] { "GET" },
                                                             AccessControlAllowHeaders     = "Content-Type, Accept, Authorization",
                                                             ContentType                   = HTTPContentType.JSON_UTF8,
                                                             Content                       = JSONObject.Create(
@@ -13340,7 +13340,7 @@ namespace social.OpenData.UsersAPI
                                                      Server                     = HTTPServer.DefaultServerName,
                                                      Date                       = Timestamp.Now,
                                                      AccessControlAllowOrigin   = "*",
-                                                     AccessControlAllowMethods  = "GET, COUNT, SEARCH, OPTIONS",
+                                                     AccessControlAllowMethods  = new[] { "GET", "COUNT", "SEARCH", "OPTIONS" },
                                                      AccessControlAllowHeaders  = "X-PINGOTHER, Content-Type, Accept, Authorization, X-App-Version",
                                                      Connection                 = "close"
                                                  }.AsImmutable);
@@ -13400,7 +13400,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                     = HTTPServer.DefaultServerName,
                                                             Date                       = Timestamp.Now,
                                                             AccessControlAllowOrigin   = "*",
-                                                            AccessControlAllowMethods  = "GET, SET",
+                                                            AccessControlAllowMethods  = new[] { "GET", "SET" },
                                                             AccessControlAllowHeaders  = "X-PINGOTHER, Content-Type, Accept, Authorization, X-App-Version",
                                                             ETag                       = "1",
                                                             ContentType                = HTTPContentType.JSON_UTF8,
@@ -13463,7 +13463,7 @@ namespace social.OpenData.UsersAPI
                                                      Server                     = HTTPServer.DefaultServerName,
                                                      Date                       = Timestamp.Now,
                                                      AccessControlAllowOrigin   = "*",
-                                                     AccessControlAllowMethods  = "GET",
+                                                     AccessControlAllowMethods  = new[] { "GET" },
                                                      AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                      ContentType                = HTTPContentType.HTML_UTF8,
                                                      Content                    = MixWithHTMLTemplate("News.News.shtml").ToUTF8Bytes(),
@@ -13498,7 +13498,7 @@ namespace social.OpenData.UsersAPI
                                                      Server                     = HTTPServer.DefaultServerName,
                                                      Date                       = Timestamp.Now,
                                                      AccessControlAllowOrigin   = "*",
-                                                     AccessControlAllowMethods  = "GET, COUNT, SEARCH, OPTIONS",
+                                                     AccessControlAllowMethods  = new[] { "GET", "COUNT", "SEARCH", "OPTIONS" },
                                                      AccessControlAllowHeaders  = "X-PINGOTHER, Content-Type, Accept, Authorization, X-App-Version",
                                                      Connection                 = "close"
                                                  }.AsImmutable);
@@ -13576,7 +13576,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                        = HTTPServer.DefaultServerName,
                                                             Date                          = Timestamp.Now,
                                                             AccessControlAllowOrigin      = "*",
-                                                            AccessControlAllowMethods     = "GET",
+                                                            AccessControlAllowMethods     = new[] { "GET" },
                                                             AccessControlAllowHeaders     = "Content-Type, Accept, Authorization",
                                                             ContentType                   = HTTPContentType.JSON_UTF8,
                                                             Content                       = withMetadata
@@ -13627,7 +13627,7 @@ namespace social.OpenData.UsersAPI
                                                      Server                     = HTTPServer.DefaultServerName,
                                                      Date                       = Timestamp.Now,
                                                      AccessControlAllowOrigin   = "*",
-                                                     AccessControlAllowMethods  = "GET",
+                                                     AccessControlAllowMethods  = new[] { "GET" },
                                                      AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                      ContentType                = HTTPContentType.HTML_UTF8,
                                                      Content                    = MixWithHTMLTemplate("newsBanner.newsBanners.shtml").ToUTF8Bytes(),
@@ -13661,7 +13661,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                        = HTTPServer.DefaultServerName,
                                                             Date                          = Timestamp.Now,
                                                             AccessControlAllowOrigin      = "*",
-                                                            AccessControlAllowMethods     = "GET",
+                                                            AccessControlAllowMethods     = new[] { "GET" },
                                                             AccessControlAllowHeaders     = "Content-Type, Accept, Authorization",
                                                             ContentType                   = HTTPContentType.JSON_UTF8,
                                                             Content                       = JSONObject.Create(
@@ -13693,7 +13693,7 @@ namespace social.OpenData.UsersAPI
                                                      Server                     = HTTPServer.DefaultServerName,
                                                      Date                       = Timestamp.Now,
                                                      AccessControlAllowOrigin   = "*",
-                                                     AccessControlAllowMethods  = "GET, COUNT, SEARCH, OPTIONS",
+                                                     AccessControlAllowMethods  = new[] { "GET", "COUNT", "SEARCH", "OPTIONS" },
                                                      AccessControlAllowHeaders  = "X-PINGOTHER, Content-Type, Accept, Authorization, X-App-Version",
                                                      Connection                 = "close"
                                                  }.AsImmutable);
@@ -13754,7 +13754,7 @@ namespace social.OpenData.UsersAPI
                                                                 Server                     = HTTPServer.DefaultServerName,
                                                                 Date                       = Timestamp.Now,
                                                                 AccessControlAllowOrigin   = "*",
-                                                                AccessControlAllowMethods  = "GET, SET",
+                                                                AccessControlAllowMethods  = new[] { "GET", "SET" },
                                                                 AccessControlAllowHeaders  = "X-PINGOTHER, Content-Type, Accept, Authorization, X-App-Version",
                                                                 ETag                       = "1",
                                                                 ContentType                = HTTPContentType.JSON_UTF8,
@@ -13817,7 +13817,7 @@ namespace social.OpenData.UsersAPI
                                                          Server                     = HTTPServer.DefaultServerName,
                                                          Date                       = Timestamp.Now,
                                                          AccessControlAllowOrigin   = "*",
-                                                         AccessControlAllowMethods  = "GET",
+                                                         AccessControlAllowMethods  = new[] { "GET" },
                                                          AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                          ContentType                = HTTPContentType.HTML_UTF8,
                                                          Content                    = MixWithHTMLTemplate("News.News.shtml").ToUTF8Bytes(),
@@ -13853,7 +13853,7 @@ namespace social.OpenData.UsersAPI
                                                      Server                     = HTTPServer.DefaultServerName,
                                                      Date                       = Timestamp.Now,
                                                      AccessControlAllowOrigin   = "*",
-                                                     AccessControlAllowMethods  = "GET, COUNT, SEARCH, OPTIONS",
+                                                     AccessControlAllowMethods  = new[] { "GET", "COUNT", "SEARCH", "OPTIONS" },
                                                      AccessControlAllowHeaders  = "X-PINGOTHER, Content-Type, Accept, Authorization, X-App-Version",
                                                      Connection                 = "close"
                                                  }.AsImmutable);
@@ -13932,7 +13932,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                        = HTTPServer.DefaultServerName,
                                                             Date                          = Timestamp.Now,
                                                             AccessControlAllowOrigin      = "*",
-                                                            AccessControlAllowMethods     = "GET",
+                                                            AccessControlAllowMethods     = new[] { "GET" },
                                                             AccessControlAllowHeaders     = "Content-Type, Accept, Authorization",
                                                             ContentType                   = HTTPContentType.JSON_UTF8,
                                                             Content                       = withMetadata
@@ -13983,7 +13983,7 @@ namespace social.OpenData.UsersAPI
                                                      Server                     = HTTPServer.DefaultServerName,
                                                      Date                       = Timestamp.Now,
                                                      AccessControlAllowOrigin   = "*",
-                                                     AccessControlAllowMethods  = "GET",
+                                                     AccessControlAllowMethods  = new[] { "GET" },
                                                      AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                      ContentType                = HTTPContentType.HTML_UTF8,
                                                      Content                    = MixWithHTMLTemplate("FAQ.FAQs.shtml").ToUTF8Bytes(),
@@ -14017,7 +14017,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                        = HTTPServer.DefaultServerName,
                                                             Date                          = Timestamp.Now,
                                                             AccessControlAllowOrigin      = "*",
-                                                            AccessControlAllowMethods     = "GET",
+                                                            AccessControlAllowMethods     = new[] { "GET" },
                                                             AccessControlAllowHeaders     = "Content-Type, Accept, Authorization",
                                                             ContentType                   = HTTPContentType.JSON_UTF8,
                                                             Content                       = JSONObject.Create(
@@ -14070,7 +14070,7 @@ namespace social.OpenData.UsersAPI
             //                                         Server                     = HTTPServer.DefaultServerName,
             //                                         Date                       = Timestamp.Now,
             //                                         AccessControlAllowOrigin   = "*",
-            //                                         AccessControlAllowMethods  = "GET, SET",
+            //                                         AccessControlAllowMethods  = new[] { "GET", "SET" },
             //                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
             //                                         ETag                       = "1",
             //                                         ContentType                = HTTPContentType.HTML_UTF8,
@@ -14160,7 +14160,7 @@ namespace social.OpenData.UsersAPI
                                                          Server                     = HTTPServer.DefaultServerName,
                                                          Date                       = Timestamp.Now,
                                                          AccessControlAllowOrigin   = "*",
-                                                         AccessControlAllowMethods  = "POST",
+                                                         AccessControlAllowMethods  = new[] { "POST" },
                                                          AccessControlAllowHeaders  = "Content-Type, Accept",
                                                          ContentType                = HTTPContentType.JSON_UTF8,
                                                          Content                    = jsonResponse.ToUTF8Bytes(),
@@ -14178,7 +14178,7 @@ namespace social.OpenData.UsersAPI
                                                          Server                     = HTTPServer.DefaultServerName,
                                                          Date                       = Timestamp.Now,
                                                          AccessControlAllowOrigin   = "*",
-                                                         AccessControlAllowMethods  = "POST",
+                                                         AccessControlAllowMethods  = new[] { "POST" },
                                                          AccessControlAllowHeaders  = "Content-Type, Accept",
                                                          ContentType                = HTTPContentType.TEXT_UTF8,
                                                          Content                    = (e.Message + Environment.NewLine + Environment.NewLine + e.StackTrace).ToUTF8Bytes(),
@@ -14251,7 +14251,7 @@ namespace social.OpenData.UsersAPI
                                                          Server                     = HTTPServer.DefaultServerName,
                                                          Date                       = Timestamp.Now,
                                                          AccessControlAllowOrigin   = "*",
-                                                         AccessControlAllowMethods  = "POST",
+                                                         AccessControlAllowMethods  = new[] { "POST" },
                                                          AccessControlAllowHeaders  = "Content-Type, Accept",
                                                          ContentType                = HTTPContentType.JSON_UTF8,
                                                          Content                    = jsonResponse.ToUTF8Bytes(),
@@ -14269,7 +14269,7 @@ namespace social.OpenData.UsersAPI
                                                          Server                     = HTTPServer.DefaultServerName,
                                                          Date                       = Timestamp.Now,
                                                          AccessControlAllowOrigin   = "*",
-                                                         AccessControlAllowMethods  = "POST",
+                                                         AccessControlAllowMethods  = new[] { "POST" },
                                                          AccessControlAllowHeaders  = "Content-Type, Accept",
                                                          ContentType                = HTTPContentType.TEXT_UTF8,
                                                          Content                    = (e.Message + Environment.NewLine + Environment.NewLine + e.StackTrace).ToUTF8Bytes(),

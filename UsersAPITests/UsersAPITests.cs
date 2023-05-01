@@ -102,7 +102,7 @@ namespace social.OpenData.UsersAPI.tests
             //                                                                Server                     = "Test Server",
             //                                                                Date                       = DateTime.UtcNow,
             //                                                                AccessControlAllowOrigin   = "*",
-            //                                                                AccessControlAllowMethods  = "GET",
+            //                                                                AccessControlAllowMethods  = new[] { "GET" },
             //                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
             //                                                                ContentType                = HTTPContentType.TEXT_UTF8,
             //                                                                Content                    = "Hello World!".ToUTF8Bytes(),

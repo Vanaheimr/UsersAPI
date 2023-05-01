@@ -142,7 +142,7 @@ namespace social.OpenData.UsersAPI
                                                      Server                     = HTTPServerName,
                                                      Date                       = Timestamp.Now,
                                                      AccessControlAllowOrigin   = "*",
-                                                     AccessControlAllowMethods  = "GET, EXISTS, COUNT",
+                                                     AccessControlAllowMethods  = new[] { "GET", "EXISTS", "COUNT" },
                                                      AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                      ETag                       = "1",
                                                      ContentType                = HTTPContentType.JSON_UTF8,
