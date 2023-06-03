@@ -111,6 +111,17 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
+        #region (static) Anonymous
+
+        /// <summary>
+        /// An anonymous user identification.
+        /// </summary>
+        public static User_Id Anonymous
+
+            => new ("anonymous");
+
+        #endregion
+
         #region (static) Parse   (Text)
 
         /// <summary>

@@ -28,12 +28,13 @@ namespace social.OpenData.UsersAPI
 
     public enum AddedOrIgnored
     {
-        Added,
-        Ignored
+        Ignored,
+        Added
     }
 
     public enum AddedOrUpdated
     {
+        Failed,
         Add,
         Update
     }
