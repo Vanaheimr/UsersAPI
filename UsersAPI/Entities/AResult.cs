@@ -64,6 +64,12 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         public    Boolean           IsSuccess           { get; }
 
+        /// <summary>
+        /// Whether the operation failed, or not.
+        /// </summary>
+        public    Boolean           IsFailed
+            => !IsSuccess;
+
         public    String?           Argument            { get; }
 
         public    I18NString?       ErrorDescription    { get; }
