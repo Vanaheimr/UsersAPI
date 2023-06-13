@@ -62,7 +62,8 @@ namespace social.OpenData.UsersAPI
                                    UserDefinedDictionary?                 InternalData   = null)
 
             : base(CustomData,
-                   InternalData)
+                   InternalData,
+                   Timestamp.Now)
 
         {
 
