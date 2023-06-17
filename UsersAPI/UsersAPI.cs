@@ -3925,10 +3925,11 @@ namespace social.OpenData.UsersAPI
                                                    API_Key        = notification.APIKey.HasValue
                                                                         ? notification.APIKey
                                                                         : null,
-                                                   Authorization  = notification.BasicAuthenticationLogin.   IsNotNullOrEmpty() &&
-                                                                    notification.BasicAuthenticationPassword.IsNotNullOrEmpty()
-                                                                        ? new HTTPBasicAuthentication(notification.BasicAuthenticationLogin,
-                                                                                                      notification.BasicAuthenticationPassword)
+                                                   Authorization  = notification.BasicAuthenticationLogin.IsNotNullOrEmpty()
+                                                                        ? HTTPBasicAuthentication.Create(
+                                                                              notification.BasicAuthenticationLogin,
+                                                                              notification.BasicAuthenticationPassword
+                                                                          )
                                                                         : null
                                     };
 
@@ -4216,9 +4217,9 @@ namespace social.OpenData.UsersAPI
         #region (protected) TryGetHTTPUser (Request, User, Organizations, Response, AccessLevel = ReadOnly, Recursive = false)
 
         protected Boolean TryGetHTTPUser(HTTPRequest                Request,
-                                         out User                   User,
+                                         out User?                  User,
                                          out HashSet<Organization>  Organizations,
-                                         out HTTPResponse.Builder   Response,
+                                         out HTTPResponse.Builder?  Response,
                                          Access_Levels              AccessLevel  = Access_Levels.ReadOnly,
                                          Boolean                    Recursive    = false)
         {
@@ -4232,7 +4233,7 @@ namespace social.OpenData.UsersAPI
             //    return true;
             //}
 
-            Organizations  = TryGetHTTPUser(Request, out User)
+            Organizations  = TryGetHTTPUser(Request, out User) && User is not null
                                  ? new HashSet<Organization>(User.Organizations(AccessLevel, Recursive))
                                  : new HashSet<Organization>();
 
@@ -4240,7 +4241,7 @@ namespace social.OpenData.UsersAPI
                                  ? null
                                  : new HTTPResponse.Builder(Request) {
                                        HTTPStatusCode      = HTTPStatusCode.Unauthorized,
-                                       Location            = URLPathPrefix + "login?redirect=" + Request.Path.ToString(),
+                                       Location            = Location.From(URLPathPrefix + "login?redirect=" + Request.Path.ToString()),
                                        Date                = Timestamp.Now,
                                        Server              = HTTPServer.DefaultServerName,
                                        CacheControl        = "private, max-age=0, no-cache",
@@ -4256,12 +4257,12 @@ namespace social.OpenData.UsersAPI
 
         #region (protected) TryGetAstronaut(Request, User, Organizations, Response, AccessLevel = ReadOnly, Recursive = false)
 
-        protected Boolean TryGetSuperUser(HTTPRequest                    Request,
-                                          out User                       User,
-                                          out IEnumerable<Organization>  Organizations,
-                                          out HTTPResponse.Builder       Response,
-                                          Access_Levels                  AccessLevel  = Access_Levels.ReadOnly,
-                                          Boolean                        Recursive    = false)
+        protected Boolean TryGetSuperUser(HTTPRequest                Request,
+                                          out User?                  User,
+                                          out HashSet<Organization>  Organizations,
+                                          out HTTPResponse.Builder?  Response,
+                                          Access_Levels              AccessLevel  = Access_Levels.ReadOnly,
+                                          Boolean                    Recursive    = false)
         {
 
             if (!TryGetAstronaut(Request, out User))
@@ -4276,10 +4277,10 @@ namespace social.OpenData.UsersAPI
                 //    return true;
                 //}
 
-                Organizations  = new Organization[0];
+                Organizations  = new HashSet<Organization>();
                 Response       = new HTTPResponse.Builder(Request) {
                                      HTTPStatusCode  = HTTPStatusCode.Unauthorized,
-                                     Location        = URLPathPrefix + "login",
+                                     Location        = Location.From(URLPathPrefix + "login"),
                                      Date            = Timestamp.Now,
                                      Server          = HTTPServer.DefaultServerName,
                                      CacheControl    = "private, max-age=0, no-cache",
@@ -4290,8 +4291,12 @@ namespace social.OpenData.UsersAPI
 
             }
 
-            Organizations = User?.Organizations(AccessLevel, Recursive) ?? new Organization[0];
-            Response      = null;
+            Organizations  = User is not null
+                                 ? new HashSet<Organization>(User.Organizations(AccessLevel, Recursive))
+                                 : new HashSet<Organization>();
+
+            Response       = null;
+
             return true;
 
         }
@@ -4768,7 +4773,7 @@ namespace social.OpenData.UsersAPI
                     {
                         return new HTTPResponse.Builder(request) {
                             HTTPStatusCode      = HTTPStatusCode.TemporaryRedirect,
-                            Location            = URLPathPrefix + ("/login?redirect=" + request.Path.ToString()),
+                            Location            = Location.From(URLPathPrefix + ("/login?redirect=" + request.Path.ToString())),
                             Date                = Timestamp.Now,
                             Server              = HTTPServer.DefaultServerName,
                             //SetCookie           = String.Concat(CookieName, "=; Expires=", Timestamp.Now.ToRfc1123(),
