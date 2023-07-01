@@ -817,7 +817,7 @@ namespace social.OpenData.UsersAPI
                         //                   Date                       = Timestamp.Now,
                         //                   AccessControlAllowOrigin   = "*",
                         //                   AccessControlAllowMethods  = new[] { "GET", "SET" },
-                        //                   AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                        //                   AccessControlAllowHeaders  = new[] { "Content-Type", "Accept", "Authorization" },
                         //                   ETag                       = "1",
                         //                   ContentType                = HTTPContentType.JSON_UTF8,
                         //                   Content                    = JSONObject.Create(
