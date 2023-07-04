@@ -4022,11 +4022,11 @@ namespace social.OpenData.UsersAPI
 
         #region (private)   GenerateCookieUserData(ValidUser, Astronaut = null)
 
-        private String GenerateCookieUserData(User  User,
-                                              User  Astronaut  = null)
+        private String GenerateCookieUserData(User   User,
+                                              User?  Astronaut  = null)
 
             => String.Concat("=login=",            User.     Id.      ToString().ToBase64(),
-                             Astronaut != null
+                             Astronaut is not null
                                  ? ":astronaut=" + Astronaut.Id.      ToString().ToBase64()
                                  : "",
                              ":username=",         User.Name.                    ToBase64(),
@@ -4059,13 +4059,15 @@ namespace social.OpenData.UsersAPI
         protected SecurityToken_Id? TryGetSecurityTokenFromCookie(HTTPRequest Request)
         {
 
-            if (Request.Cookies == null)
+            if (Request.Cookies is null)
                 return null;
 
-            if (Request.Cookies. TryGet  (SessionCookieName,           out HTTPCookie       Cookie) &&
-                SecurityToken_Id.TryParse(Cookie.FirstOrDefault().Key, out SecurityToken_Id SecurityTokenId))
+            if (Request.Cookies. TryGet  (SessionCookieName,  out var cookie) &&
+                cookie is not null &&
+                cookie.Any() &&
+                SecurityToken_Id.TryParse(cookie.First().Key, out var securityTokenId))
             {
-                return SecurityTokenId;
+                return securityTokenId;
             }
 
             return null;
@@ -4080,8 +4082,9 @@ namespace social.OpenData.UsersAPI
         {
 
             if (Request.Cookies  is not null &&
-                Request.Cookies. TryGet  (SessionCookieName,           out var Cookie) &&
-                SecurityToken_Id.TryParse(Cookie.FirstOrDefault().Key, out     SecurityTokenId))
+                Request.Cookies. TryGet  (SessionCookieName,           out var cookie) &&
+                cookie is not null &&
+                SecurityToken_Id.TryParse(cookie.FirstOrDefault().Key, out     SecurityTokenId))
             {
                 return true;
             }
@@ -4100,12 +4103,13 @@ namespace social.OpenData.UsersAPI
 
             #region Get user from cookie...
 
-            if (Request.Cookies != null                                                                             &&
-                Request.Cookies. TryGet     (SessionCookieName,           out HTTPCookie       Cookie)              &&
-                SecurityToken_Id.TryParse   (Cookie.FirstOrDefault().Key, out SecurityToken_Id SecurityTokenId)     &&
-                _HTTPCookies.    TryGetValue(SecurityTokenId,             out SecurityToken?   SecurityInformation) &&
-                Timestamp.Now < SecurityInformation.Expires                                                         &&
-                TryGetUser(SecurityInformation.UserId, out User))
+            if (Request.Cookies is not null                                                            &&
+                Request.Cookies. TryGet     (SessionCookieName,           out var cookie)              &&
+                cookie is not null &&
+                SecurityToken_Id.TryParse   (cookie.FirstOrDefault().Key, out var securityTokenId)     &&
+                _HTTPCookies.    TryGetValue(securityTokenId,             out var securityInformation) &&
+                Timestamp.Now < securityInformation.Expires                                            &&
+                TryGetUser(securityInformation.UserId, out User))
             {
                 return true;
             }
@@ -4122,8 +4126,8 @@ namespace social.OpenData.UsersAPI
                 var possibleUsers = new HashSet<User>();
                 var validUsers    = new HashSet<User>();
 
-                if (User_Id.TryParse   (basicAuth.Username, out User_Id _UserId) &&
-                    users. TryGetValue(_UserId,            out User?   _User))
+                if (User_Id.TryParse   (basicAuth.Username, out var _UserId) &&
+                    users.  TryGetValue(_UserId,            out var _User))
                 {
                     possibleUsers.Add(_User);
                 }
@@ -4145,7 +4149,7 @@ namespace social.OpenData.UsersAPI
                 {
                     foreach (var possibleUser in possibleUsers)
                     {
-                        if (_LoginPasswords.TryGetValue(possibleUser.Id, out LoginPassword loginPassword) &&
+                        if (_LoginPasswords.TryGetValue(possibleUser.Id, out var loginPassword) &&
                             loginPassword.VerifyPassword(basicAuth.Password))
                         {
                             validUsers.Add(possibleUser);
@@ -4175,7 +4179,7 @@ namespace social.OpenData.UsersAPI
 
             #region Get user from API Key...
 
-            if (TryGetValidAPIKey(Request.API_Key, out APIKey? apiKey) &&
+            if (TryGetValidAPIKey(Request.API_Key, out var apiKey) &&
                 apiKey is not null &&
                 TryGetUser(apiKey.UserId, out User))
             {
@@ -4193,16 +4197,17 @@ namespace social.OpenData.UsersAPI
 
         #region (protected) TryGetAstronaut(Request, out User)
 
-        protected Boolean TryGetAstronaut(HTTPRequest Request, out User User)
+        protected Boolean TryGetAstronaut(HTTPRequest Request, out User? User)
         {
 
             // Get user from cookie...
-            if (Request.Cookies != null                                                                             &&
-                Request.Cookies. TryGet     (SessionCookieName,           out HTTPCookie       Cookie)              &&
-                SecurityToken_Id.TryParse   (Cookie.FirstOrDefault().Key, out SecurityToken_Id SecurityTokenId)     &&
-                _HTTPCookies.     TryGetValue(SecurityTokenId,             out SecurityToken    SecurityInformation) &&
-                Timestamp.Now < SecurityInformation.Expires                                                       &&
-                TryGetUser(SecurityInformation.SuperUserId ?? SecurityInformation.UserId, out User))
+            if (Request.Cookies is not null                                                            &&
+                Request.Cookies. TryGet     (SessionCookieName,           out var cookie)              &&
+                cookie is not null &&
+                SecurityToken_Id.TryParse   (cookie.FirstOrDefault().Key, out var securityTokenId)     &&
+                _HTTPCookies.    TryGetValue(securityTokenId,             out var securityInformation) &&
+                Timestamp.Now < securityInformation.Expires                                            &&
+                TryGetUser(securityInformation.SuperUserId ?? securityInformation.UserId, out User))
             {
                 return true;
             }
@@ -5538,14 +5543,17 @@ namespace social.OpenData.UsersAPI
                                                                 Environment.NewLine
                                                             ).ToUTF8Bytes(),
                                           CacheControl    = "private",
-                                          SetCookies      = new String[] {
+                                          SetCookie       = HTTPCookies.Parse(
+
                                                                 String.Concat(CookieName,
                                                                               GenerateCookieUserData(validUser),
                                                                               GenerateCookieSettings(expires)),
+
                                                                 String.Concat(SessionCookieName, "=", securityTokenId.ToString(),
                                                                               GenerateCookieSettings(expires),
                                                                               "; HttpOnly")
-                                                            },
+
+                                                            ),
                                           Connection      = "close",
                                           X_FrameOptions  = "DENY"
                                       }.AsImmutable);
@@ -5875,11 +5883,15 @@ namespace social.OpenData.UsersAPI
                                                    Content                    = JSONObject.Create(
                                                                                     new JProperty("numberOfAccountsFound", Users.Count())
                                                                                 ).ToUTF8Bytes(),
-                                                   SetCookie                  = String.Concat(CookieName, "=; Expires=", Timestamp.Now.ToRfc1123(),
-                                                                                              HTTPCookieDomain.IsNotNullOrEmpty()
-                                                                                                  ? "; Domain=" + HTTPCookieDomain
-                                                                                                  : "",
-                                                                                              "; Path=", URLPathPrefix),
+                                                   SetCookie                  = new HTTPCookies(
+                                                                                    HTTPCookie.Parse(
+                                                                                        String.Concat(CookieName, "=; Expires=", Timestamp.Now.ToRfc1123(),
+                                                                                                  HTTPCookieDomain.IsNotNullOrEmpty()
+                                                                                                      ? "; Domain=" + HTTPCookieDomain
+                                                                                                      : "",
+                                                                                                  "; Path=", URLPathPrefix)
+                                                                                    )
+                                                                                ),
                                                    Connection                 = "close"
                                                }.AsImmutable
 
@@ -5892,13 +5904,17 @@ namespace social.OpenData.UsersAPI
                                                    AccessControlAllowHeaders  = new[] { "Content-Type", "Accept", "Authorization" },
                                                    ContentType                = HTTPContentType.JSONLD_UTF8,
                                                    Content                    = JSONObject.Create(
-                                                                                    new JProperty("description", result.ErrorDescription.ToJSON())
+                                                                                    new JProperty("description", result?.ErrorDescription?.ToJSON())
                                                                                 ).ToUTF8Bytes(),
-                                                   SetCookie                  = String.Concat(CookieName, "=; Expires=", Timestamp.Now.ToRfc1123(),
-                                                                                              HTTPCookieDomain.IsNotNullOrEmpty()
-                                                                                                  ? "; Domain=" + HTTPCookieDomain
-                                                                                                  : "",
-                                                                                              "; Path=", URLPathPrefix),
+                                                   SetCookie                  = new HTTPCookies(
+                                                                                    HTTPCookie.Parse(
+                                                                                        String.Concat(CookieName, "=; Expires=", Timestamp.Now.ToRfc1123(),
+                                                                                                      HTTPCookieDomain.IsNotNullOrEmpty()
+                                                                                                          ? "; Domain=" + HTTPCookieDomain
+                                                                                                          : "",
+                                                                                                      "; Path=", URLPathPrefix)
+                                                                                    )
+                                                                                ),
                                                    Connection                 = "close"
                                                }.AsImmutable;
 
@@ -6316,7 +6332,7 @@ namespace social.OpenData.UsersAPI
                                        new HTTPResponse.Builder(Request) {
                                            HTTPStatusCode  = HTTPStatusCode.OK,
                                            CacheControl    = "private",
-                                           SetCookies      = new String[] {
+                                           SetCookie       = HTTPCookies.Parse(
 
                                                                  String.Concat(CookieName, "=; Expires=", Timestamp.Now.ToRfc1123(),
                                                                                HTTPCookieDomain.IsNotNullOrEmpty()
@@ -6330,7 +6346,7 @@ namespace social.OpenData.UsersAPI
                                                                                    : "",
                                                                                "; Path=", URLPathPrefix)
 
-                                                             },
+                                                             ),
                                            Connection      = "close"
                                        }.AsImmutable));
 
@@ -7235,14 +7251,17 @@ namespace social.OpenData.UsersAPI
                                                                    new JProperty("email",     validUser.EMail.Address.ToString())
                                                                ).ToUTF8Bytes(),
                                              CacheControl    = "private",
-                                             SetCookies      = new String[] {
+                                             SetCookie       = HTTPCookies.Parse(
+
                                                                    String.Concat(CookieName,
                                                                                  GenerateCookieUserData(validUser),
                                                                                  GenerateCookieSettings(expires)),
+
                                                                    String.Concat(SessionCookieName, "=", securityTokenId.ToString(),
                                                                                  GenerateCookieSettings(expires),
                                                                                  "; HttpOnly")
-                                                               },
+
+                                                               ),
                                              Connection      = "close"
                                          }.AsImmutable;
 
@@ -7262,7 +7281,7 @@ namespace social.OpenData.UsersAPI
                                       new HTTPResponse.Builder(Request) {
                                           HTTPStatusCode  = HTTPStatusCode.OK,
                                           CacheControl    = "private",
-                                          SetCookies      = new String[] {
+                                          SetCookie       = HTTPCookies.Parse(
 
                                                                 String.Concat(CookieName, "=; Expires=", Timestamp.Now.ToRfc1123(),
                                                                               HTTPCookieDomain.IsNotNullOrEmpty()
@@ -7275,7 +7294,7 @@ namespace social.OpenData.UsersAPI
                                                                                   ? "; Domain=" + HTTPCookieDomain
                                                                                   : "",
                                                                               "; Path=", URLPathPrefix)
-                                                            },
+                                                            ),
                                           Connection      = "close"
                                       }.AsImmutable));
 
@@ -7388,14 +7407,17 @@ namespace social.OpenData.UsersAPI
                                                                    new JProperty("email",     UserURL.EMail.Address.ToString())
                                                                ).ToUTF8Bytes(),
                                              CacheControl    = "private",
-                                             SetCookies      = new String[] {
+                                             SetCookie       = HTTPCookies.Parse(
+
                                                                    String.Concat(CookieName,
                                                                                  GenerateCookieUserData(UserURL, superUser),
                                                                                  GenerateCookieSettings(expires)),
+
                                                                    String.Concat(SessionCookieName, "=", securityTokenId.ToString(),
                                                                                  GenerateCookieSettings(expires),
                                                                                  "; HttpOnly")
-                                                               },
+
+                                                               ),
                                              Connection      = "close"
                                          }.AsImmutable;
 
@@ -7494,14 +7516,17 @@ namespace social.OpenData.UsersAPI
                                                                 new JProperty("email",     superUser.EMail.Address.ToString())
                                                             ).ToUTF8Bytes(),
                                           CacheControl    = "private",
-                                          SetCookies      = new String[] {
+                                          SetCookie       = HTTPCookies.Parse(
+
                                                                 String.Concat(CookieName,
                                                                               GenerateCookieUserData(superUser),
                                                                               GenerateCookieSettings(expires)),
+
                                                                 String.Concat(SessionCookieName, "=", securityTokenId.ToString(),
                                                                               GenerateCookieSettings(expires),
                                                                               "; HttpOnly")
-                                                            },
+
+                                                            ),
                                           Connection      = "close"
                                       }.AsImmutable);
 
