@@ -95,7 +95,7 @@ namespace social.OpenData.UsersAPI
             if (TryParse(Text, out FAQ_Id faqId))
                 return faqId;
 
-            throw new ArgumentException("Invalid text representation of a faq identification: '" + Text + "'!",
+            throw new ArgumentException($"Invalid text representation of a faq identification: '{Text}'!",
                                         nameof(Text));
 
         }

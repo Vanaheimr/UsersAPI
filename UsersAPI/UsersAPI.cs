@@ -16935,7 +16935,7 @@ namespace social.OpenData.UsersAPI
                            : results.Any(result => result);
 
             }
-            catch (Exception)
+            catch
             {
                 return false;
             }
@@ -17250,7 +17250,7 @@ namespace social.OpenData.UsersAPI
                     }
 
                 }
-                catch (Exception)
+                catch
                 { }
             }
 

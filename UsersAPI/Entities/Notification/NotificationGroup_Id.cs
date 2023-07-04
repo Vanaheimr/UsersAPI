@@ -123,7 +123,7 @@ namespace social.OpenData.UsersAPI
             if (TryParse(Text, out NotificationGroup_Id notificationGroupId))
                 return notificationGroupId;
 
-            throw new ArgumentException("Invalid text representation of a notification group identification: '" + Text + "'!",
+            throw new ArgumentException($"Invalid text representation of a notification group identification: '{Text}'!",
                                         nameof(Text));
 
         }

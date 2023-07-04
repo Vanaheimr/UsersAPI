@@ -82,7 +82,7 @@ namespace social.OpenData.UsersAPI
             if (TryParse(Text, out ParcelTracking_Id parcelTrackingId))
                 return parcelTrackingId;
 
-            throw new ArgumentException("Invalid text representation of a parcel tracking identification: '" + Text + "'!",
+            throw new ArgumentException($"Invalid text representation of a parcel tracking identification: '{Text}'!",
                                         nameof(Text));
 
         }

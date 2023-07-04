@@ -123,7 +123,7 @@ namespace social.OpenData.UsersAPI
             if (TryParse(Text, out BlogPosting_Id blogPostingId))
                 return blogPostingId;
 
-            throw new ArgumentException("Invalid text representation of a blog posting identification: '" + Text + "'!",
+            throw new ArgumentException($"Invalid text representation of a blog posting identification: '{Text}'!",
                                         nameof(Text));
 
         }

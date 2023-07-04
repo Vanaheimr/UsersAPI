@@ -152,7 +152,7 @@
 //                NotificationId = new NotificationMessageGroupId(Text);
 //                return true;
 //            }
-//            catch (Exception)
+//            catch
 //            {
 //                NotificationId = default(NotificationMessageGroupId);
 //                return false;

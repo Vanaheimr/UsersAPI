@@ -132,7 +132,7 @@ namespace social.OpenData.UsersAPI.Notifications
                     NotificationMessageType = new NotificationMessageType(Text);
                     return true;
                 }
-                catch (Exception)
+                catch
                 { }
             }
 

@@ -69,7 +69,7 @@ namespace social.OpenData.UsersAPI
             if (TryParse(Text, out VerificationToken verificationToken))
                 return verificationToken;
 
-            throw new ArgumentException("Invalid text representation of a verification token: '" + Text + "'!",
+            throw new ArgumentException($"Invalid text representation of a verification token: '" + Text + "'!",
                                         nameof(Text));
 
         }

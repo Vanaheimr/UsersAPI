@@ -95,7 +95,7 @@ namespace social.OpenData.UsersAPI
             if (TryParse(Text, out Dashboard_Id dashboardId))
                 return dashboardId;
 
-            throw new ArgumentException("Invalid text representation of a dashboard identification: '" + Text + "'!",
+            throw new ArgumentException($"Invalid text representation of a dashboard identification: '{Text}'!",
                                         nameof(Text));
 
         }

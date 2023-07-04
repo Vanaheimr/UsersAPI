@@ -121,7 +121,7 @@ namespace social.OpenData.UsersAPI
             if (TryParse(Text, out UserGroup_Id userGroupId))
                 return userGroupId;
 
-            throw new ArgumentException("Invalid text representation of an user group identification: '" + Text + "'!",
+            throw new ArgumentException($"Invalid text representation of an user group identification: '{Text}'!",
                                         nameof(Text));
 
         }

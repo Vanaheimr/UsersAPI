@@ -123,7 +123,7 @@ namespace social.OpenData.UsersAPI
             if (TryParse(Text, out Newsletter_Id blogPostingId))
                 return blogPostingId;
 
-            throw new ArgumentException("Invalid text representation of a newsletter identification: '" + Text + "'!",
+            throw new ArgumentException($"Invalid text representation of a newsletter identification: '{Text}'!",
                                         nameof(Text));
 
         }

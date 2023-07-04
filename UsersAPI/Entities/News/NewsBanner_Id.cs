@@ -100,7 +100,7 @@ namespace social.OpenData.UsersAPI
             if (TryParse(Text, out NewsBanner_Id newsBannerId))
                 return newsBannerId;
 
-            throw new ArgumentException("Invalid text representation of a news banner identification: '" + Text + "'!",
+            throw new ArgumentException($"Invalid text representation of a news banner identification: '{Text}'!",
                                         nameof(Text));
 
         }

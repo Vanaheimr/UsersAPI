@@ -94,7 +94,7 @@ namespace social.OpenData.UsersAPI
             if (TryParse(Text, out AttachedFile_Id attachedFileId))
                 return attachedFileId;
 
-            throw new ArgumentException("Invalid text representation of an attached file identification: '" + Text + "'!",
+            throw new ArgumentException($"Invalid text representation of an attached file identification: '{Text}'!",
                                         nameof(Text));
 
         }

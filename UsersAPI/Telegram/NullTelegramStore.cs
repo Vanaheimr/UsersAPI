@@ -159,7 +159,7 @@ namespace social.OpenData.UsersAPI
                         }
 
                     }
-                    catch (Exception)
+                    catch
                     { }
 
                 }
@@ -235,7 +235,7 @@ namespace social.OpenData.UsersAPI
                         }
 
                     }
-                    catch (Exception)
+                    catch
                     { }
 
                 }
@@ -300,7 +300,7 @@ namespace social.OpenData.UsersAPI
                 }
 
             }
-            catch (Exception)
+            catch
             { }
 
         }

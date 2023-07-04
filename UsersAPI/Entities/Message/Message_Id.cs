@@ -84,7 +84,7 @@ namespace social.OpenData.UsersAPI
             if (TryParse(Text, out Message_Id messageId))
                 return messageId;
 
-            throw new ArgumentException("Invalid text representation of a message identification: '" + Text + "'!",
+            throw new ArgumentException($"Invalid text representation of a message identification: '{Text}'!",
                                         nameof(Text));
 
         }

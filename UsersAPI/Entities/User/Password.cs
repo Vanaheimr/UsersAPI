@@ -161,7 +161,7 @@ namespace social.OpenData.UsersAPI
                 return password;
             }
 
-            throw new ArgumentException("Invalid text representation of a password: '" + Text + "'!",
+            throw new ArgumentException($"Invalid text representation of a password: '" + Text + "'!",
                                         nameof(Text));
 
         }
@@ -258,7 +258,7 @@ namespace social.OpenData.UsersAPI
                 return true;
 
             }
-            catch (Exception)
+            catch
             {
                 Password = default;
                 return false;
@@ -354,7 +354,7 @@ namespace social.OpenData.UsersAPI
                 return true;
 
             }
-            catch (Exception)
+            catch
             {
                 Password = default(Password);
                 return false;

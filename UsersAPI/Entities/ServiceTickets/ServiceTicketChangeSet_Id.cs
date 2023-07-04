@@ -94,7 +94,7 @@ namespace social.OpenData.UsersAPI
             if (TryParse(Text, out ServiceTicketChangeSet_Id serviceTicketChangeSetId))
                 return serviceTicketChangeSetId;
 
-            throw new ArgumentException("Invalid text representation of a service ticket change set identification: '" + Text + "'!",
+            throw new ArgumentException($"Invalid text representation of a service ticket change set identification: '{Text}'!",
                                         nameof(Text));
 
         }

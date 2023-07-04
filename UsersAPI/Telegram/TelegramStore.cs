@@ -136,13 +136,13 @@ namespace social.OpenData.UsersAPI
                             }
 
                         }
-                        catch (Exception)
+                        catch
                         { }
                     }
                 }
 
             }
-            catch (Exception)
+            catch
             { }
 
             this.TelegramAPI.StartReceiving();
@@ -220,7 +220,7 @@ namespace social.OpenData.UsersAPI
                         }
 
                     }
-                    catch (Exception)
+                    catch
                     { }
 
                 }
@@ -296,7 +296,7 @@ namespace social.OpenData.UsersAPI
                         }
 
                     }
-                    catch (Exception)
+                    catch
                     { }
 
                 }
@@ -361,7 +361,7 @@ namespace social.OpenData.UsersAPI
                 }
 
             }
-            catch (Exception)
+            catch
             { }
 
         }

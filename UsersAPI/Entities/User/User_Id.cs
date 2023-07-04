@@ -134,7 +134,7 @@ namespace social.OpenData.UsersAPI
             if (TryParse(Text, out var userId))
                 return userId;
 
-            throw new ArgumentException("Invalid text representation of an user identification: '" + Text + "'!",
+            throw new ArgumentException($"Invalid text representation of an user identification: '{Text}'!",
                                         nameof(Text));
 
         }

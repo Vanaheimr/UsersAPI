@@ -125,7 +125,7 @@ namespace social.OpenData.UsersAPI
             if (TryParse(Text, out Organization_Id organizationId))
                 return organizationId;
 
-            throw new ArgumentException("Invalid text representation of an organization identification: '" + Text + "'!",
+            throw new ArgumentException($"Invalid text representation of an organization identification: '{Text}'!",
                                         nameof(Text));
 
         }

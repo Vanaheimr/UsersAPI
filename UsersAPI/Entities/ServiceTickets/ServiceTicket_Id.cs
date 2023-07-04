@@ -96,7 +96,7 @@ namespace social.OpenData.UsersAPI
             if (TryParse(Text, out ServiceTicket_Id serviceTicketId))
                 return serviceTicketId;
 
-            throw new ArgumentException("Invalid text representation of a service ticket identification: '" + Text + "'!",
+            throw new ArgumentException($"Invalid text representation of a service ticket identification: '{Text}'!",
                                         nameof(Text));
 
         }

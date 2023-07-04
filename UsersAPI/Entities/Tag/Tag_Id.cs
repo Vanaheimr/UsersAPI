@@ -146,7 +146,7 @@ namespace social.OpenData.UsersAPI
                 TagId = new Tag_Id(Text);
                 return true;
             }
-            catch (Exception)
+            catch
             {
                 TagId = default(Tag_Id);
                 return false;

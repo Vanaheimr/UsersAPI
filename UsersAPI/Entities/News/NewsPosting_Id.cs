@@ -102,7 +102,7 @@ namespace social.OpenData.UsersAPI
             if (TryParse(Text, out NewsPosting_Id newsPostingId))
                 return newsPostingId;
 
-            throw new ArgumentException("Invalid text representation of a news posting identification: '" + Text + "'!",
+            throw new ArgumentException($"Invalid text representation of a news posting identification: '{Text}'!",
                                         nameof(Text));
 
         }
