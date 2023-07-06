@@ -20,6 +20,7 @@
 using System.Text;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Diagnostics;
 using System.Net.Security;
 using System.Security.Authentication;
 using System.Security.Cryptography;
@@ -14155,10 +14156,13 @@ namespace social.OpenData.UsersAPI
                                   try
                                   {
 
+                                      var process       = Process.GetProcessById(Process.GetCurrentProcess().Id);
+
                                       var jsonResponse  = JSONObject.Create(
                                                               new JProperty("timestamp",  Timestamp.Now),
                                                               new JProperty("service",    HTTPServer.ServiceName),
                                                               new JProperty("instance",   Environment.MachineName),
+                                                              new JProperty("ramUsage",   process.WorkingSet64 / (1024 * 1024)),
                                                               new JProperty("content",    RandomExtensions.RandomString(20))
                                                           );
 
@@ -14248,10 +14252,13 @@ namespace social.OpenData.UsersAPI
 
                                       #endregion
 
+                                      var process       = Process.GetProcessById(Process.GetCurrentProcess().Id);
+
                                       var jsonResponse  = JSONObject.Create(
                                                               new JProperty("timestamp",  Timestamp.Now),
                                                               new JProperty("service",    HTTPServer.ServiceName),
                                                               new JProperty("instance",   Environment.MachineName),
+                                                              new JProperty("ramUsage",   process.WorkingSet64 / (1024 * 1024)),
                                                               new JProperty("content",    content.Reverse())
                                                           );
 
