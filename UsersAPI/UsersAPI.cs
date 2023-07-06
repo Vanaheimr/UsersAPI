@@ -4726,11 +4726,12 @@ namespace social.OpenData.UsersAPI
                    (request.Path.StartsWith(URLPathPrefix + "/users/") && request.HTTPMethod.ToString() == "AUTH") ||
 
                     // Special API keys!
-                    request.Path.StartsWith(URLPathPrefix + "/changeSets")    ||
-                    request.Path.StartsWith(URLPathPrefix + "/securityToken") ||
+                    request.Path == (URLPathPrefix + "/changeSets")    ||
+                    request.Path == (URLPathPrefix + "/securityToken") ||
 
-                   (request.Path.StartsWith(URLPathPrefix + "/serviceCheck")  && request.HTTPMethod.ToString() == "GET") ||
-                   (request.Path.StartsWith(URLPathPrefix + "/serviceCheck")  && request.HTTPMethod.ToString() == "POST")) {
+                   (request.Path == (URLPathPrefix + "/serviceCheck")  && request.HTTPMethod.ToString() == "GET") ||
+                   (request.Path == (URLPathPrefix + "/serviceCheck")  && request.HTTPMethod.ToString() == "POST"))
+                {
 
                     return Anonymous;
 
@@ -14146,79 +14147,78 @@ namespace social.OpenData.UsersAPI
             // -----------------------------------------
             // curl http://127.0.0.1:2000/serviceCheck
             // -----------------------------------------
-            AddMethodCallback(
-                                         HTTPHostname.Any,
-                                         HTTPMethod.GET,
-                                         URLPathPrefix + "serviceCheck",
-                                         HTTPDelegate: Request => {
+            AddMethodCallback(HTTPHostname.Any,
+                              HTTPMethod.GET,
+                              URLPathPrefix + "serviceCheck",
+                              HTTPDelegate: Request => {
 
-                                             try
-                                             {
+                                  try
+                                  {
 
-                                                 var jsonResponse  = JSONObject.Create(
-                                                                         new JProperty("timestamp",  Timestamp.Now),
-                                                                         new JProperty("service",    HTTPServer.ServiceName),
-                                                                         new JProperty("instance",   Environment.MachineName),
-                                                                         new JProperty("content",    RandomExtensions.RandomString(20))
-                                                                     );
+                                      var jsonResponse  = JSONObject.Create(
+                                                              new JProperty("timestamp",  Timestamp.Now),
+                                                              new JProperty("service",    HTTPServer.ServiceName),
+                                                              new JProperty("instance",   Environment.MachineName),
+                                                              new JProperty("content",    RandomExtensions.RandomString(20))
+                                                          );
 
-                                                 if (ServiceCheckPublicKey is not null)
-                                                 {
+                                      if (ServiceCheckPublicKey is not null)
+                                      {
 
-                                                     jsonResponse.Add("publicKey", ServiceCheckPublicKey.Q.GetEncoded().ToHexString());
+                                          jsonResponse.Add("publicKey", ServiceCheckPublicKey.Q.GetEncoded().ToHexString());
 
-                                                     if (ServiceCheckPrivateKey is not null)
-                                                     {
+                                          if (ServiceCheckPrivateKey is not null)
+                                          {
 
-                                                         var plaintext   = jsonResponse.ToString(Newtonsoft.Json.Formatting.None);
-                                                         var SHA256Hash  = SHA256.Create().ComputeHash(plaintext.ToUTF8Bytes());
+                                              var plaintext   = jsonResponse.ToString(Newtonsoft.Json.Formatting.None);
+                                              var sha256Hash  = SHA256.HashData(plaintext.ToUTF8Bytes());
 
-                                                         var signer      = SignerUtilities.GetSigner("NONEwithECDSA");
-                                                         signer.Init(true, ServiceCheckPrivateKey);
-                                                         signer.BlockUpdate(SHA256Hash, 0, SHA256Hash.Length);
-                                                         var signature   = signer.GenerateSignature().ToHexString();
+                                              var signer      = SignerUtilities.GetSigner("NONEwithECDSA");
+                                              signer.Init(true, ServiceCheckPrivateKey);
+                                              signer.BlockUpdate(sha256Hash, 0, sha256Hash.Length);
+                                              var signature   = signer.GenerateSignature().ToHexString();
 
-                                                         jsonResponse.Add("signature", signature);
+                                              jsonResponse.Add("signature", signature);
 
-                                                     }
+                                          }
 
-                                                 }
+                                      }
 
-                                                 return Task.FromResult(
-                                                     new HTTPResponse.Builder(Request) {
-                                                         HTTPStatusCode             = HTTPStatusCode.OK,
-                                                         Server                     = HTTPServer.DefaultServerName,
-                                                         Date                       = Timestamp.Now,
-                                                         AccessControlAllowOrigin   = "*",
-                                                         AccessControlAllowMethods  = new[] { "POST" },
-                                                         AccessControlAllowHeaders  = new[] { "Content-Type", "Accept" },
-                                                         ContentType                = HTTPContentType.JSON_UTF8,
-                                                         Content                    = jsonResponse.ToUTF8Bytes(),
-                                                         CacheControl               = "no-cache",
-                                                         Connection                 = "close"
-                                                     }.AsImmutable);
+                                      return Task.FromResult(
+                                          new HTTPResponse.Builder(Request) {
+                                              HTTPStatusCode             = HTTPStatusCode.OK,
+                                              Server                     = HTTPServer.DefaultServerName,
+                                              Date                       = Timestamp.Now,
+                                              AccessControlAllowOrigin   = "*",
+                                              AccessControlAllowMethods  = new[] { "POST" },
+                                              AccessControlAllowHeaders  = new[] { "Content-Type", "Accept" },
+                                              ContentType                = HTTPContentType.JSON_UTF8,
+                                              Content                    = jsonResponse.ToUTF8Bytes(),
+                                              CacheControl               = "no-cache",
+                                              Connection                 = "close"
+                                          }.AsImmutable);
 
-                                             }
-                                             catch (Exception e)
-                                             {
+                                  }
+                                  catch (Exception e)
+                                  {
 
-                                                 return Task.FromResult(
-                                                     new HTTPResponse.Builder(Request) {
-                                                         HTTPStatusCode             = HTTPStatusCode.InternalServerError,
-                                                         Server                     = HTTPServer.DefaultServerName,
-                                                         Date                       = Timestamp.Now,
-                                                         AccessControlAllowOrigin   = "*",
-                                                         AccessControlAllowMethods  = new[] { "POST" },
-                                                         AccessControlAllowHeaders  = new[] { "Content-Type", "Accept" },
-                                                         ContentType                = HTTPContentType.TEXT_UTF8,
-                                                         Content                    = (e.Message + Environment.NewLine + Environment.NewLine + e.StackTrace).ToUTF8Bytes(),
-                                                         CacheControl               = "no-cache",
-                                                         Connection                 = "close"
-                                                     }.AsImmutable);
+                                      return Task.FromResult(
+                                          new HTTPResponse.Builder(Request) {
+                                              HTTPStatusCode             = HTTPStatusCode.InternalServerError,
+                                              Server                     = HTTPServer.DefaultServerName,
+                                              Date                       = Timestamp.Now,
+                                              AccessControlAllowOrigin   = "*",
+                                              AccessControlAllowMethods  = new[] { "POST" },
+                                              AccessControlAllowHeaders  = new[] { "Content-Type", "Accept" },
+                                              ContentType                = HTTPContentType.TEXT_UTF8,
+                                              Content                    = (e.Message + Environment.NewLine + Environment.NewLine + e.StackTrace).ToUTF8Bytes(),
+                                              CacheControl               = "no-cache",
+                                              Connection                 = "close"
+                                          }.AsImmutable);
 
-                                             }
+                                  }
 
-                                         }, AllowReplacement: URLReplacement.Allow);
+                              }, AllowReplacement: URLReplacement.Allow);
 
             #endregion
 
@@ -14227,89 +14227,91 @@ namespace social.OpenData.UsersAPI
             // -----------------------------------------------------------------------------------------------------------------
             // curl -X POST -H "Content-Type: application/json" -d "{\"content\": \"123\"}" http://127.0.0.1:2000/serviceCheck
             // -----------------------------------------------------------------------------------------------------------------
-            AddMethodCallback(
-                                         HTTPHostname.Any,
-                                         HTTPMethod.POST,
-                                         URLPathPrefix + "serviceCheck",
-                                         HTTPContentType.JSON_UTF8,
-                                         HTTPDelegate: Request => {
+            AddMethodCallback(HTTPHostname.Any,
+                              HTTPMethod.POST,
+                              URLPathPrefix + "serviceCheck",
+                              HTTPContentType.JSON_UTF8,
+                              HTTPDelegate: Request => {
 
-                                             try
-                                             {
+                                  try
+                                  {
 
-                                                 #region Parse JSON
+                                      #region Parse JSON
 
-                                                 if (!Request.TryParseJObjectRequestBody(out JObject JSONObj, out HTTPResponse.Builder httpResponse))
-                                                     return Task.FromResult(httpResponse.AsImmutable);
+                                      if (!Request.TryParseJObjectRequestBody(out var jsonRequest, out var httpResponse) ||
+                                          jsonRequest is null)
+                                      {
+                                          return Task.FromResult(httpResponse!.AsImmutable);
+                                      }
 
-                                                 var content       = JSONObj["content"]?.Value<String>() ?? RandomExtensions.RandomString(20);
+                                      var content = jsonRequest["content"]?.Value<String>() ?? RandomExtensions.RandomString(20);
 
-                                                 #endregion
+                                      #endregion
 
-                                                 var jsonResponse  = JSONObject.Create(
-                                                                         new JProperty("timestamp",  Timestamp.Now),
-                                                                         new JProperty("service",    HTTPServer.ServiceName),
-                                                                         new JProperty("instance",   Environment.MachineName),
-                                                                         new JProperty("content",    content.Reverse())
-                                                                     );
+                                      var jsonResponse  = JSONObject.Create(
+                                                              new JProperty("timestamp",  Timestamp.Now),
+                                                              new JProperty("service",    HTTPServer.ServiceName),
+                                                              new JProperty("instance",   Environment.MachineName),
+                                                              new JProperty("content",    content.Reverse())
+                                                          );
 
-                                                 if (ServiceCheckPublicKey is not null)
-                                                 {
+                                      if (ServiceCheckPublicKey is not null)
+                                      {
 
-                                                     jsonResponse.Add("publicKey", ServiceCheckPublicKey.Q.GetEncoded().ToHexString());
+                                          jsonResponse.Add("publicKey", ServiceCheckPublicKey.Q.GetEncoded().ToHexString());
 
-                                                     if (ServiceCheckPrivateKey is not null)
-                                                     {
+                                          if (ServiceCheckPrivateKey is not null)
+                                          {
 
-                                                         var plaintext   = jsonResponse.ToString(Newtonsoft.Json.Formatting.None);
-                                                         var SHA256Hash  = SHA256.Create().ComputeHash(plaintext.ToUTF8Bytes());
+                                              var plaintext   = jsonResponse.ToString(Newtonsoft.Json.Formatting.None);
+                                              var SHA256Hash  = SHA256.HashData(plaintext.ToUTF8Bytes());
 
-                                                         var signer      = SignerUtilities.GetSigner("NONEwithECDSA");
-                                                         signer.Init(true, ServiceCheckPrivateKey);
-                                                         signer.BlockUpdate(SHA256Hash, 0, SHA256Hash.Length);
-                                                         var signature   = signer.GenerateSignature().ToHexString();
+                                              var signer      = SignerUtilities.GetSigner("NONEwithECDSA");
+                                              signer.Init(true, ServiceCheckPrivateKey);
+                                              signer.BlockUpdate(SHA256Hash, 0, SHA256Hash.Length);
+                                              var signature   = signer.GenerateSignature().ToHexString();
 
-                                                         jsonResponse.Add("signature", signature);
+                                              jsonResponse.Add("signature", signature);
 
-                                                     }
+                                          }
 
-                                                 }
+                                      }
 
-                                                 return Task.FromResult(
-                                                     new HTTPResponse.Builder(Request) {
-                                                         HTTPStatusCode             = HTTPStatusCode.OK,
-                                                         Server                     = HTTPServer.DefaultServerName,
-                                                         Date                       = Timestamp.Now,
-                                                         AccessControlAllowOrigin   = "*",
-                                                         AccessControlAllowMethods  = new[] { "POST" },
-                                                         AccessControlAllowHeaders  = new[] { "Content-Type", "Accept" },
-                                                         ContentType                = HTTPContentType.JSON_UTF8,
-                                                         Content                    = jsonResponse.ToUTF8Bytes(),
-                                                         CacheControl               = "no-cache",
-                                                         Connection                 = "close"
-                                                     }.AsImmutable);
+                                      return Task.FromResult(
+                                          new HTTPResponse.Builder(Request) {
+                                              HTTPStatusCode             = HTTPStatusCode.OK,
+                                              Server                     = HTTPServer.DefaultServerName,
+                                              Date                       = Timestamp.Now,
+                                              AccessControlAllowOrigin   = "*",
+                                              AccessControlAllowMethods  = new[] { "POST" },
+                                              AccessControlAllowHeaders  = new[] { "Content-Type", "Accept" },
+                                              ContentType                = HTTPContentType.JSON_UTF8,
+                                              Content                    = jsonResponse.ToUTF8Bytes(),
+                                              CacheControl               = "no-cache",
+                                              Connection                 = "close"
+                                          }.AsImmutable);
 
-                                             }
-                                             catch (Exception e)
-                                             {
+                                  }
+                                  catch (Exception e)
+                                  {
 
-                                                 return Task.FromResult(
-                                                     new HTTPResponse.Builder(Request) {
-                                                         HTTPStatusCode             = HTTPStatusCode.InternalServerError,
-                                                         Server                     = HTTPServer.DefaultServerName,
-                                                         Date                       = Timestamp.Now,
-                                                         AccessControlAllowOrigin   = "*",
-                                                         AccessControlAllowMethods  = new[] { "POST" },
-                                                         AccessControlAllowHeaders  = new[] { "Content-Type", "Accept" },
-                                                         ContentType                = HTTPContentType.TEXT_UTF8,
-                                                         Content                    = (e.Message + Environment.NewLine + Environment.NewLine + e.StackTrace).ToUTF8Bytes(),
-                                                         CacheControl               = "no-cache",
-                                                         Connection                 = "close"
-                                                     }.AsImmutable);
+                                      return Task.FromResult(
+                                          new HTTPResponse.Builder(Request) {
+                                              HTTPStatusCode             = HTTPStatusCode.InternalServerError,
+                                              Server                     = HTTPServer.DefaultServerName,
+                                              Date                       = Timestamp.Now,
+                                              AccessControlAllowOrigin   = "*",
+                                              AccessControlAllowMethods  = new[] { "POST" },
+                                              AccessControlAllowHeaders  = new[] { "Content-Type", "Accept" },
+                                              ContentType                = HTTPContentType.TEXT_UTF8,
+                                              Content                    = (e.Message + Environment.NewLine + Environment.NewLine + e.StackTrace).ToUTF8Bytes(),
+                                              CacheControl               = "no-cache",
+                                              Connection                 = "close"
+                                          }.AsImmutable);
 
-                                             }
+                                  }
 
-                                         }, AllowReplacement: URLReplacement.Allow);
+                              }, AllowReplacement: URLReplacement.Allow);
 
             #endregion
 
@@ -14380,42 +14382,41 @@ namespace social.OpenData.UsersAPI
             // -----------------------------------------------
             // curl -v -X POST http://127.0.0.1:2000/restart
             // -----------------------------------------------
-            AddMethodCallback(
-                                         HTTPHostname.Any,
-                                         HTTPMethod.POST,
-                                         URLPathPrefix + "/restart",
-                                         HTTPRequestLogger:   RestartRequest,
-                                         HTTPResponseLogger:  RestartResponse,
-                                         HTTPDelegate:        Request => {
+            AddMethodCallback(HTTPHostname.Any,
+                              HTTPMethod.POST,
+                              URLPathPrefix + "/restart",
+                              HTTPRequestLogger:   RestartRequest,
+                              HTTPResponseLogger:  RestartResponse,
+                              HTTPDelegate:        Request => {
 
-                                             #region Try to get HTTP user and its organizations
+                                  #region Try to get HTTP user and its organizations
 
-                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
-                                             if (!TryGetHTTPUser(Request,
-                                                                 out var       HTTPUser,
-                                                                 out var       HTTPOrganizations,
-                                                                 out var       Response,
-                                                                 AccessLevel:  Access_Levels.Admin,
-                                                                 Recursive:    true))
-                                             {
-                                                 return Task.FromResult(Response.AsImmutable);
-                                             }
+                                  // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                  if (!TryGetHTTPUser(Request,
+                                                      out var       HTTPUser,
+                                                      out var       HTTPOrganizations,
+                                                      out var       Response,
+                                                      AccessLevel:  Access_Levels.Admin,
+                                                      Recursive:    true))
+                                  {
+                                      return Task.FromResult(Response.AsImmutable);
+                                  }
 
-                                             #endregion
+                                  #endregion
 
-                                             //Task.Run(() => {
-                                             //    Task.Delay(10000);
-                                                 Environment.Exit(1000);
-                                             //});
+                                  //Task.Run(() => {
+                                  //    Task.Delay(10000);
+                                      Environment.Exit(1000);
+                                  //});
 
-                                             return Task.FromResult(
-                                                 new HTTPResponse.Builder(Request) {
-                                                     HTTPStatusCode  = HTTPStatusCode.OK,
-                                                     Server          = HTTPServer.DefaultServerName,
-                                                     Connection      = "close"
-                                                 }.AsImmutable);
+                                  return Task.FromResult(
+                                      new HTTPResponse.Builder(Request) {
+                                          HTTPStatusCode  = HTTPStatusCode.OK,
+                                          Server          = HTTPServer.DefaultServerName,
+                                          Connection      = "close"
+                                      }.AsImmutable);
 
-                                         });
+                              });
 
             #endregion
 
@@ -14424,42 +14425,41 @@ namespace social.OpenData.UsersAPI
             // --------------------------------------------
             // curl -v -X POST http://127.0.0.1:2000/stop
             // --------------------------------------------
-            AddMethodCallback(
-                                         HTTPHostname.Any,
-                                         HTTPMethod.POST,
-                                         URLPathPrefix + "/stop",
-                                         HTTPRequestLogger:   StopRequest,
-                                         HTTPResponseLogger:  StopResponse,
-                                         HTTPDelegate:        Request => {
+            AddMethodCallback(HTTPHostname.Any,
+                              HTTPMethod.POST,
+                              URLPathPrefix + "/stop",
+                              HTTPRequestLogger:   StopRequest,
+                              HTTPResponseLogger:  StopResponse,
+                              HTTPDelegate:        Request => {
 
-                                             #region Try to get HTTP user and its organizations
+                                  #region Try to get HTTP user and its organizations
 
-                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
-                                             if (!TryGetHTTPUser(Request,
-                                                                 out var       HTTPUser,
-                                                                 out var       HTTPOrganizations,
-                                                                 out var       Response,
-                                                                 AccessLevel:  Access_Levels.Admin,
-                                                                 Recursive:    true))
-                                             {
-                                                 return Task.FromResult(Response.AsImmutable);
-                                             }
+                                  // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                  if (!TryGetHTTPUser(Request,
+                                                      out var       HTTPUser,
+                                                      out var       HTTPOrganizations,
+                                                      out var       Response,
+                                                      AccessLevel:  Access_Levels.Admin,
+                                                      Recursive:    true))
+                                  {
+                                      return Task.FromResult(Response.AsImmutable);
+                                  }
 
-                                             #endregion
+                                  #endregion
 
-                                             //Task.Run(() => {
-                                             //    Task.Delay(1000);
-                                                 Environment.Exit(0);
-                                             //});
+                                  //Task.Run(() => {
+                                  //    Task.Delay(1000);
+                                      Environment.Exit(0);
+                                  //});
 
-                                             return Task.FromResult(
-                                                 new HTTPResponse.Builder(Request) {
-                                                     HTTPStatusCode  = HTTPStatusCode.OK,
-                                                     Server          = HTTPServer.DefaultServerName,
-                                                     Connection      = "close"
-                                                 }.AsImmutable);
+                                  return Task.FromResult(
+                                      new HTTPResponse.Builder(Request) {
+                                          HTTPStatusCode  = HTTPStatusCode.OK,
+                                          Server          = HTTPServer.DefaultServerName,
+                                          Connection      = "close"
+                                      }.AsImmutable);
 
-                                         });
+                              });
 
             #endregion
 
