@@ -16981,17 +16981,17 @@ namespace social.OpenData.UsersAPI
                     return false;
                 }
 
-                var messageText  = JSONMessage.ToString(Newtonsoft.Json.Formatting.None);
-                var messageJSON  = JObject.Parse(messageText);
-                messageJSON.Remove("signatures");
-
                 var cc = new Newtonsoft.Json.Converters.IsoDateTimeConverter {
                     DateTimeFormat = "yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffZ"
                 };
 
+                var messageText  = JSONMessage.ToString(Newtonsoft.Json.Formatting.None, cc);
+                var messageJSON  = JObject.Parse(messageText);
+                messageJSON.Remove("signatures");
+
                 var plainText    = messageJSON.ToString(Newtonsoft.Json.Formatting.None, cc);
-                var SHA256Hash   = SHA256.Create().ComputeHash(plainText.ToUTF8Bytes());
-                var BlockSize    = 32;
+                var sha256Hash   = SHA256.HashData(plainText.ToUTF8Bytes());
+                var blockSize    = 32;
 
                 if (JSONMessage["signatures"] is not JArray signaturesJSON)
                 {
@@ -17009,7 +17009,7 @@ namespace social.OpenData.UsersAPI
 
                 var signer       = SignerUtilities.GetSigner("NONEwithECDSA");
                 signer.Init(true, privateKey);
-                signer.BlockUpdate(SHA256Hash, 0, BlockSize);
+                signer.BlockUpdate(sha256Hash, 0, blockSize);
                 var signature    = signer.GenerateSignature();
                 signatureJSON.Add(new JProperty("signature",    Convert.ToBase64String(signature)));
                 signatureJSON.Add(new JProperty("signatureHEX", signature.ToHexString()));
@@ -17017,7 +17017,7 @@ namespace social.OpenData.UsersAPI
 
                 DebugX.Log("Response: "  + JSONMessage.ToString(Newtonsoft.Json.Formatting.None));
                 DebugX.Log("PlainText: " + plainText);
-                DebugX.Log("sha256: "    + SHA256Hash.ToHexString());
+                DebugX.Log("sha256: "    + sha256Hash.ToHexString());
 
                 //// Re-Verify...
                 //{
@@ -17033,7 +17033,7 @@ namespace social.OpenData.UsersAPI
                     var pubKeyParams  = new ECPublicKeyParameters("ECDSA", ecParams.Curve.DecodePoint(publicKey_Bytes), ecParams);
                     var verifier      = SignerUtilities.GetSigner("NONEwithECDSA");
                     verifier.Init(false, pubKeyParams);
-                    verifier.BlockUpdate(SHA256Hash, 0, BlockSize);
+                    verifier.BlockUpdate(sha256Hash, 0, blockSize);
                     DebugX.Log("Signature Verification(2): " + (verifier.VerifySignature(signature) ? "ok" : "failed!"));
                 }
 
