@@ -14240,26 +14240,43 @@ namespace social.OpenData.UsersAPI
                                   try
                                   {
 
-                                      #region Parse JSON
+                                      var content = String.Empty;
 
-                                      if (!Request.TryParseJObjectRequestBody(out var jsonRequest, out var httpResponse) ||
-                                          jsonRequest is null)
+                                      #region Try to parse a text HTTP body...
+
+                                      HTTPResponse.Builder? httpResponse = null;
+
+                                      if (Request.ContentType == HTTPContentType.TEXT_UTF8 &&
+                                          Request.TryParseUTF8StringRequestBody(out content, out httpResponse))
                                       {
-                                          return Task.FromResult(httpResponse!.AsImmutable);
+                                          
                                       }
-
-                                      var content = jsonRequest["content"]?.Value<String>() ?? RandomExtensions.RandomString(20);
 
                                       #endregion
 
-                                      var process       = Process.GetProcessById(Process.GetCurrentProcess().Id);
+                                      #region ...or parse a JSON HTTP body
+
+                                      else if (Request.ContentType == HTTPContentType.JSON_UTF8 &&
+                                          Request.TryParseJObjectRequestBody(out var jsonRequest, out httpResponse) &&
+                                          jsonRequest is not null)
+                                      {
+                                          content = jsonRequest["content"]?.Value<String>() ?? RandomExtensions.RandomString(20);
+                                      }
+
+                                      if (httpResponse is not null)
+                                          return Task.FromResult(httpResponse.AsImmutable);
+
+                                      #endregion
+
+
+                                      var process       = Process.GetProcessById(Environment.ProcessId);
 
                                       var jsonResponse  = JSONObject.Create(
-                                                              new JProperty("timestamp",  Timestamp.Now),
-                                                              new JProperty("service",    HTTPServer.ServiceName),
-                                                              new JProperty("instance",   Environment.MachineName),
-                                                              new JProperty("ramUsage",   process.WorkingSet64 / (1024 * 1024)),
-                                                              new JProperty("content",    content.Reverse())
+                                                              new JProperty("timestamp",   Timestamp.Now),
+                                                              new JProperty("service",     HTTPServer.ServiceName),
+                                                              new JProperty("instance",    Environment.MachineName),
+                                                              new JProperty("ramUsageMB",  process.WorkingSet64 / (1024 * 1024)),
+                                                              new JProperty("content",     content?.Reverse())
                                                           );
 
                                       if (ServiceCheckPublicKey is not null)
