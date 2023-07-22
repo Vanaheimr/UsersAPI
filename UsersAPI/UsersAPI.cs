@@ -1820,12 +1820,12 @@ namespace social.OpenData.UsersAPI
         public Boolean                        DisableNotifications               { get; set; }
 
 
-        private readonly HashSet<URLWith_APIKeyId>  remoteAuthServers;
+        private readonly HashSet<URLWithAPIKey>  remoteAuthServers;
 
         /// <summary>
         /// Servers for remote authorization.
         /// </summary>
-        public IEnumerable<URLWith_APIKeyId>  RemoteAuthServers
+        public IEnumerable<URLWithAPIKey>  RemoteAuthServers
             => RemoteAuthServers;
 
 
@@ -2835,7 +2835,7 @@ namespace social.OpenData.UsersAPI
                         TimeSpan?                             WardenInitialDelay                 = null,
                         TimeSpan?                             WardenCheckEvery                   = null,
 
-                        IEnumerable<URLWith_APIKeyId>?        RemoteAuthServers                  = null,
+                        IEnumerable<URLWithAPIKey>?        RemoteAuthServers                  = null,
                         IEnumerable<APIKey_Id>?               RemoteAuthAPIKeys                  = null,
 
                         Boolean?                              IsDevelopment                      = null,
@@ -2987,7 +2987,7 @@ namespace social.OpenData.UsersAPI
             this.PasswordQualityCheck            = PasswordQualityCheck           ?? DefaultPasswordQualityCheck;
             this.MaxSignInSessionLifetime        = MaxSignInSessionLifetime       ?? DefaultMaxSignInSessionLifetime;
 
-            this.remoteAuthServers               = RemoteAuthServers is not null   ? new HashSet<URLWith_APIKeyId>(RemoteAuthServers) : new HashSet<URLWith_APIKeyId>();
+            this.remoteAuthServers               = RemoteAuthServers is not null   ? new HashSet<URLWithAPIKey>(RemoteAuthServers) : new HashSet<URLWithAPIKey>();
             this.remoteAuthAPIKeys               = RemoteAuthAPIKeys is not null   ? new HashSet<APIKey_Id>       (RemoteAuthAPIKeys) : new HashSet<APIKey_Id>();
 
             #endregion
@@ -14902,7 +14902,7 @@ namespace social.OpenData.UsersAPI
                 var retries     = -1;
                 var maxRetries  = 3;
 
-                var _remoteAuthServers = Array.Empty<URLWith_APIKeyId>();
+                var _remoteAuthServers = Array.Empty<URLWithAPIKey>();
 
                 lock (remoteAuthServers)
                 {
@@ -17086,7 +17086,7 @@ namespace social.OpenData.UsersAPI
 
         #region AddRemoteAuthServer(URLWithAPIKeyId)
 
-        public void AddRemoteAuthServer(URLWith_APIKeyId URLWithAPIKeyId)
+        public void AddRemoteAuthServer(URLWithAPIKey URLWithAPIKeyId)
         {
             lock (remoteAuthServers)
             {
@@ -17103,7 +17103,7 @@ namespace social.OpenData.UsersAPI
         {
             lock (remoteAuthServers)
             {
-                remoteAuthServers.Add(new URLWith_APIKeyId(URL,
+                remoteAuthServers.Add(new URLWithAPIKey(URL,
                                                            APIKeyId));
             }
         }
@@ -17162,7 +17162,7 @@ namespace social.OpenData.UsersAPI
                                                   new JProperty("maxHopCount",     RemoteAuthServersMaxHopCount - 1)
                                               ).ToUTF8Bytes();
 
-                    var _remoteAuthServers  = Array.Empty<URLWith_APIKeyId>();
+                    var _remoteAuthServers  = Array.Empty<URLWithAPIKey>();
 
                     lock (remoteAuthServers)
                     {
