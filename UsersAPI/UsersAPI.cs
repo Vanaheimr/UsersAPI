@@ -14156,7 +14156,7 @@ namespace social.OpenData.UsersAPI
                                   try
                                   {
 
-                                      var process       = Process.GetProcessById(Process.GetCurrentProcess().Id);
+                                      var process       = Process.GetProcessById(Environment.ProcessId);
 
                                       var jsonResponse  = JSONObject.Create(
                                                               new JProperty("timestamp",  Timestamp.Now),
