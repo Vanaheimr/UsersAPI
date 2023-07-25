@@ -14419,11 +14419,11 @@ namespace social.OpenData.UsersAPI
                                   if (!TryGetHTTPUser(Request,
                                                       out var       httpUser,
                                                       out var       httpOrganizations,
-                                                      out var       httpResponse,
+                                                      out var       httpResponseBuilder,
                                                       AccessLevel:  Access_Levels.Admin,
                                                       Recursive:    true))
                                   {
-                                      return Task.FromResult(httpResponse.AsImmutable);
+                                      return Task.FromResult(httpResponseBuilder!.AsImmutable);
                                   }
 
                                   #endregion
@@ -14460,13 +14460,13 @@ namespace social.OpenData.UsersAPI
 
                                   // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
                                   if (!TryGetHTTPUser(Request,
-                                                      out var       HTTPUser,
-                                                      out var       HTTPOrganizations,
-                                                      out var       Response,
+                                                      out var       httpUser,
+                                                      out var       httpOrganizations,
+                                                      out var       httpResponseBuilder,
                                                       AccessLevel:  Access_Levels.Admin,
                                                       Recursive:    true))
                                   {
-                                      return Task.FromResult(Response.AsImmutable);
+                                      return Task.FromResult(httpResponseBuilder!.AsImmutable);
                                   }
 
                                   #endregion
