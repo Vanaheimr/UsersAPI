@@ -26,6 +26,7 @@ using System.Security.Authentication;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Collections.Concurrent;
+using System.Runtime.InteropServices;
 
 using Newtonsoft.Json.Linq;
 
@@ -14156,13 +14157,10 @@ namespace social.OpenData.UsersAPI
                                   try
                                   {
 
-                                      var process       = Process.GetProcessById(Environment.ProcessId);
-
                                       var jsonResponse  = JSONObject.Create(
                                                               new JProperty("timestamp",  Timestamp.Now),
                                                               new JProperty("service",    HTTPServer.ServiceName),
                                                               new JProperty("instance",   Environment.MachineName),
-                                                              new JProperty("ramUsage",   process.WorkingSet64 / (1024 * 1024)),
                                                               new JProperty("content",    RandomExtensions.RandomString(20))
                                                           );
 
@@ -14269,14 +14267,11 @@ namespace social.OpenData.UsersAPI
                                       #endregion
 
 
-                                      var process       = Process.GetProcessById(Environment.ProcessId);
-
                                       var jsonResponse  = JSONObject.Create(
-                                                              new JProperty("timestamp",   Timestamp.Now),
-                                                              new JProperty("service",     HTTPServer.ServiceName),
-                                                              new JProperty("instance",    Environment.MachineName),
-                                                              new JProperty("ramUsageMB",  process.WorkingSet64 / (1024 * 1024)),
-                                                              new JProperty("content",     content?.Reverse())
+                                                              new JProperty("timestamp",  Timestamp.Now),
+                                                              new JProperty("service",    HTTPServer.ServiceName),
+                                                              new JProperty("instance",   Environment.MachineName),
+                                                              new JProperty("content",    content?.Reverse())
                                                           );
 
                                       if (ServiceCheckPublicKey is not null)
@@ -14288,11 +14283,219 @@ namespace social.OpenData.UsersAPI
                                           {
 
                                               var plaintext   = jsonResponse.ToString(Newtonsoft.Json.Formatting.None);
-                                              var SHA256Hash  = SHA256.HashData(plaintext.ToUTF8Bytes());
+                                              var sha256Hash  = SHA256.HashData(plaintext.ToUTF8Bytes());
 
                                               var signer      = SignerUtilities.GetSigner("NONEwithECDSA");
                                               signer.Init(true, ServiceCheckPrivateKey);
-                                              signer.BlockUpdate(SHA256Hash, 0, SHA256Hash.Length);
+                                              signer.BlockUpdate(sha256Hash, 0, sha256Hash.Length);
+                                              var signature   = signer.GenerateSignature().ToHexString();
+
+                                              jsonResponse.Add("signature", signature);
+
+                                          }
+
+                                      }
+
+                                      return Task.FromResult(
+                                          new HTTPResponse.Builder(Request) {
+                                              HTTPStatusCode             = HTTPStatusCode.OK,
+                                              Server                     = HTTPServer.DefaultServerName,
+                                              Date                       = Timestamp.Now,
+                                              AccessControlAllowOrigin   = "*",
+                                              AccessControlAllowMethods  = new[] { "POST" },
+                                              AccessControlAllowHeaders  = new[] { "Content-Type", "Accept" },
+                                              ContentType                = HTTPContentType.JSON_UTF8,
+                                              Content                    = jsonResponse.ToUTF8Bytes(),
+                                              CacheControl               = "no-cache",
+                                              Connection                 = "close"
+                                          }.AsImmutable);
+
+                                  }
+                                  catch (Exception e)
+                                  {
+
+                                      return Task.FromResult(
+                                          new HTTPResponse.Builder(Request) {
+                                              HTTPStatusCode             = HTTPStatusCode.InternalServerError,
+                                              Server                     = HTTPServer.DefaultServerName,
+                                              Date                       = Timestamp.Now,
+                                              AccessControlAllowOrigin   = "*",
+                                              AccessControlAllowMethods  = new[] { "POST" },
+                                              AccessControlAllowHeaders  = new[] { "Content-Type", "Accept" },
+                                              ContentType                = HTTPContentType.TEXT_UTF8,
+                                              Content                    = (e.Message + Environment.NewLine + Environment.NewLine + e.StackTrace).ToUTF8Bytes(),
+                                              CacheControl               = "no-cache",
+                                              Connection                 = "close"
+                                          }.AsImmutable);
+
+                                  }
+
+                              }, AllowReplacement: URLReplacement.Allow);
+
+            #endregion
+
+            #region GET   ~/monitoring
+
+            // ---------------------------------------
+            // curl http://127.0.0.1:2000/monitoring
+            // ---------------------------------------
+            AddMethodCallback(HTTPHostname.Any,
+                              HTTPMethod.GET,
+                              URLPathPrefix + "monitoring",
+                              HTTPDelegate: Request => {
+
+                                  try
+                                  {
+
+                                      var process           = Process.GetCurrentProcess();
+                                      process.Refresh();
+
+                                      var freeSystemMemory  = RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ||
+                                                              RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
+                                                                  ? ResourcesMonitor.GetMemoryMetricsOnUnix()
+                                                                  : ResourcesMonitor.GetMemoryMetricsOnWindows();
+
+                                      var driveInfo         = new DriveInfo(Path.GetPathRoot(AppDomain.CurrentDomain.BaseDirectory)!);
+                                      var freeDiscSpace     = (Double) driveInfo.AvailableFreeSpace / driveInfo.TotalSize * 100;
+
+                                      var jsonResponse      = JSONObject.Create(
+                                                                  new JProperty("timestamp",  Timestamp.Now),
+                                                                  new JProperty("service",    HTTPServer.ServiceName),
+                                                                  new JProperty("instance",   Environment.MachineName),
+                                                                  new JProperty("usedRAM",    process.PrivateMemorySize64 / (1024 * 1024)),
+                                                                  new JProperty("sharedRAM",  process.WorkingSet64        / (1024 * 1024)),
+                                                                  new JProperty("content",    RandomExtensions.RandomString(20))
+                                                              );
+
+                                      if (ServiceCheckPublicKey is not null)
+                                      {
+
+                                          jsonResponse.Add("publicKey", ServiceCheckPublicKey.Q.GetEncoded().ToHexString());
+
+                                          if (ServiceCheckPrivateKey is not null)
+                                          {
+
+                                              var plaintext   = jsonResponse.ToString(Newtonsoft.Json.Formatting.None);
+                                              var sha256Hash  = SHA256.HashData(plaintext.ToUTF8Bytes());
+
+                                              var signer      = SignerUtilities.GetSigner("NONEwithECDSA");
+                                              signer.Init(true, ServiceCheckPrivateKey);
+                                              signer.BlockUpdate(sha256Hash, 0, sha256Hash.Length);
+                                              var signature   = signer.GenerateSignature().ToHexString();
+
+                                              jsonResponse.Add("signature", signature);
+
+                                          }
+
+                                      }
+
+                                      return Task.FromResult(
+                                          new HTTPResponse.Builder(Request) {
+                                              HTTPStatusCode             = HTTPStatusCode.OK,
+                                              Server                     = HTTPServer.DefaultServerName,
+                                              Date                       = Timestamp.Now,
+                                              AccessControlAllowOrigin   = "*",
+                                              AccessControlAllowMethods  = new[] { "POST" },
+                                              AccessControlAllowHeaders  = new[] { "Content-Type", "Accept" },
+                                              ContentType                = HTTPContentType.JSON_UTF8,
+                                              Content                    = jsonResponse.ToUTF8Bytes(),
+                                              CacheControl               = "no-cache",
+                                              Connection                 = "close"
+                                          }.AsImmutable);
+
+                                  }
+                                  catch (Exception e)
+                                  {
+
+                                      return Task.FromResult(
+                                          new HTTPResponse.Builder(Request) {
+                                              HTTPStatusCode             = HTTPStatusCode.InternalServerError,
+                                              Server                     = HTTPServer.DefaultServerName,
+                                              Date                       = Timestamp.Now,
+                                              AccessControlAllowOrigin   = "*",
+                                              AccessControlAllowMethods  = new[] { "POST" },
+                                              AccessControlAllowHeaders  = new[] { "Content-Type", "Accept" },
+                                              ContentType                = HTTPContentType.TEXT_UTF8,
+                                              Content                    = (e.Message + Environment.NewLine + Environment.NewLine + e.StackTrace).ToUTF8Bytes(),
+                                              CacheControl               = "no-cache",
+                                              Connection                 = "close"
+                                          }.AsImmutable);
+
+                                  }
+
+                              }, AllowReplacement: URLReplacement.Allow);
+
+            #endregion
+
+            #region POST  ~/serviceCheck
+
+            // -----------------------------------------------------------------------------------------------------------------
+            // curl -X POST -H "Content-Type: application/json" -d "{\"content\": \"123\"}" http://127.0.0.1:2000/serviceCheck
+            // -----------------------------------------------------------------------------------------------------------------
+            AddMethodCallback(HTTPHostname.Any,
+                              HTTPMethod.POST,
+                              URLPathPrefix + "serviceCheck",
+                              HTTPContentType.JSON_UTF8,
+                              HTTPDelegate: Request => {
+
+                                  try
+                                  {
+
+                                      var content = String.Empty;
+
+                                      #region Try to parse a text HTTP body...
+
+                                      HTTPResponse.Builder? httpResponse = null;
+
+                                      if (Request.ContentType == HTTPContentType.TEXT_UTF8 &&
+                                          Request.TryParseUTF8StringRequestBody(out content, out httpResponse))
+                                      {
+                                          
+                                      }
+
+                                      #endregion
+
+                                      #region ...or parse a JSON HTTP body
+
+                                      else if (Request.ContentType == HTTPContentType.JSON_UTF8 &&
+                                          Request.TryParseJObjectRequestBody(out var jsonRequest, out httpResponse) &&
+                                          jsonRequest is not null)
+                                      {
+                                          content = jsonRequest["content"]?.Value<String>() ?? RandomExtensions.RandomString(20);
+                                      }
+
+                                      if (httpResponse is not null)
+                                          return Task.FromResult(httpResponse.AsImmutable);
+
+                                      #endregion
+
+
+                                      var process       = Process.GetCurrentProcess();
+                                      process.Refresh();
+
+                                      var jsonResponse  = JSONObject.Create(
+                                                              new JProperty("timestamp",  Timestamp.Now),
+                                                              new JProperty("service",    HTTPServer.ServiceName),
+                                                              new JProperty("instance",   Environment.MachineName),
+                                                              new JProperty("usedRAM",    process.PrivateMemorySize64 / (1024 * 1024)),
+                                                              new JProperty("sharedRAM",  process.WorkingSet64        / (1024 * 1024)),
+                                                              new JProperty("content",    content?.Reverse())
+                                                          );
+
+                                      if (ServiceCheckPublicKey is not null)
+                                      {
+
+                                          jsonResponse.Add("publicKey", ServiceCheckPublicKey.Q.GetEncoded().ToHexString());
+
+                                          if (ServiceCheckPrivateKey is not null)
+                                          {
+
+                                              var plaintext   = jsonResponse.ToString(Newtonsoft.Json.Formatting.None);
+                                              var sha256Hash  = SHA256.HashData(plaintext.ToUTF8Bytes());
+
+                                              var signer      = SignerUtilities.GetSigner("NONEwithECDSA");
+                                              signer.Init(true, ServiceCheckPrivateKey);
+                                              signer.BlockUpdate(sha256Hash, 0, sha256Hash.Length);
                                               var signature   = signer.GenerateSignature().ToHexString();
 
                                               jsonResponse.Add("signature", signature);
@@ -30846,6 +31049,75 @@ namespace social.OpenData.UsersAPI
         }
 
         #endregion
+
+        #endregion
+
+
+        #region GetOrganizationHierarchyAsJSON(RootOrganization)
+
+        public JObject GetOrganizationHierarchyAsJSON(Organization  RootOrganization)
+        {
+
+            var rootOrganizationJSON = new JObject();
+            GetOrganizationHierarchyAsJSON(RootOrganization, ref rootOrganizationJSON);
+
+            return rootOrganizationJSON;
+
+        }
+
+        #endregion
+
+        #region GetOrganizationHierarchyAsJSON(RootOrganization, ref OrganizationHierarchyJSON)
+
+        public void GetOrganizationHierarchyAsJSON(Organization  RootOrganization,
+                                                   ref JObject   OrganizationHierarchyJSON)
+        {
+
+            var users = new JArray();
+
+            foreach (var user in RootOrganization.User2OrganizationEdges.Select(edge => edge.Source))
+            {
+
+                if (user is null)
+                    continue;
+
+                users.Add(new JObject {
+                              { "id",     user.Id.           ToString() },
+                              { "name",   user.Name.         ToString() },
+                              { "eMail",  user.EMail.Address.ToString() }
+                          });
+
+            }
+
+
+            var childOrganizations = new JArray();
+
+            foreach (var childOrganization in RootOrganization.Organization2OrganizationInEdges.Select(edge => edge.Source))
+            {
+
+                if (childOrganization is null)
+                    continue;
+
+                var childOrganizationJSON = new JObject();
+
+                GetOrganizationHierarchyAsJSON(childOrganization,
+                                               ref childOrganizationJSON);
+
+                childOrganizations.Add(childOrganizationJSON);
+
+            }
+
+
+            OrganizationHierarchyJSON.Add("id",    RootOrganization.Id.  ToString());
+            OrganizationHierarchyJSON.Add("name",  RootOrganization.Name.ToJSON());
+
+            if (users.Any())
+                OrganizationHierarchyJSON.Add("users",               users);
+
+            if (childOrganizations.Any())
+                OrganizationHierarchyJSON.Add("childOrganizations",  childOrganizations);
+
+        }
 
         #endregion
 
