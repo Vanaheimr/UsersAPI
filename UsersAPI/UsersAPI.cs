@@ -2789,8 +2789,8 @@ namespace social.OpenData.UsersAPI
                         JObject?                              APIVersionHashes                   = null,
 
                         ServerCertificateSelectorDelegate?    ServerCertificateSelector          = null,
-                        RemoteCertificateValidationCallback?  ClientCertificateValidator         = null,
-                        LocalCertificateSelectionCallback?    ClientCertificateSelector          = null,
+                        RemoteCertificateValidationHandler?  ClientCertificateValidator         = null,
+                        LocalCertificateSelectionHandler?    ClientCertificateSelector          = null,
                         SslProtocols?                         AllowedTLSProtocols                = null,
                         Boolean?                              ClientCertificateRequired          = null,
                         Boolean?                              CheckCertificateRevocation         = null,
@@ -3885,7 +3885,7 @@ namespace social.OpenData.UsersAPI
                     foreach (var notification in AllNotifications)
                     {
 
-                        HTTPRequest  request     = null;
+                        HTTPRequest? request     = null;
                         HTTPResponse result      = HTTPResponse.ClientError(request);
                         Byte TransmissionRetry   = 0;
                         Byte MaxNumberOfRetries  = 3;
@@ -3896,28 +3896,28 @@ namespace social.OpenData.UsersAPI
                             try
                             {
 
-                                RemoteCertificateValidationCallback rcv = null;
+                                RemoteCertificateValidationHandler? rcv = null;
                                 if (notification.RemoteURL.Protocol == URLProtocols.https)
                                 {
-                                    rcv = (Object                                                         sender,
-                                           System.Security.Cryptography.X509Certificates.X509Certificate  certificate,
-                                           X509Chain                                                      chain,
-                                           SslPolicyErrors                                                sslPolicyErrors) => true;
+                                    rcv = (Object                                                           sender,
+                                           System.Security.Cryptography.X509Certificates.X509Certificate2?  certificate,
+                                           X509Chain?                                                       chain,
+                                           SslPolicyErrors                                                  sslPolicyErrors) => (true, Array.Empty<String>());
                                 }
 
-                                using (var _HTTPSClient = new HTTPSClient(notification.RemoteURL,
-                                                                          //HTTPVirtualHost:
-                                                                          RemoteCertificateValidator:  rcv,
-                                                                          ClientCertificateSelector:   null,
-                                                                          ClientCert:                  null,
-                                                                          HTTPUserAgent:               null,
-                                                                          RequestTimeout:              null,
-                                                                          DNSClient:                   DNSClient))
+                                using (var httpsClient = new HTTPSClient(notification.RemoteURL,
+                                                                         //HTTPVirtualHost:
+                                                                         RemoteCertificateValidator:  rcv,
+                                                                         ClientCertificateSelector:   null,
+                                                                         ClientCert:                  null,
+                                                                         HTTPUserAgent:               null,
+                                                                         RequestTimeout:              null,
+                                                                         DNSClient:                   DNSClient))
                                 {
 
                                     DebugX.Log("Sending HTTPS-notification to: " + notification.RemoteURL);
 
-                                    request  = new HTTPRequest.Builder(_HTTPSClient) {
+                                    request  = new HTTPRequest.Builder(httpsClient) {
                                                    HTTPMethod     = notification.Method,
                                                    Host           = notification.RemoteURL.Hostname,
                                                    Path           = notification.RemoteURL.Path,
@@ -3935,7 +3935,7 @@ namespace social.OpenData.UsersAPI
                                                                         : null
                                     };
 
-                                    result   = await _HTTPSClient.Execute(Request:              request,
+                                    result   = await httpsClient.Execute(Request:              request,
                                                                           RequestLogDelegate:   (timestamp, client, req)       => LogRequest (timestamp, client, notification.RemoteURL.Hostname.ToString(), req),
                                                                           ResponseLogDelegate:  (timestamp, client, req, resp) => LogResponse(timestamp, client, notification.RemoteURL.Hostname.ToString(), req, resp),
 
