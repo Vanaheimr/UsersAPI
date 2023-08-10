@@ -2776,80 +2776,80 @@ namespace social.OpenData.UsersAPI
         /// <param name="LogfileName">The name of the logfile.</param>
         /// <param name="LogfileCreator">A delegate for creating the name of the logfile for this API.</param>
         /// <param name="DNSClient">The DNS client of the API.</param>
-        /// <param name="Autostart">Whether to start the API automatically.</param>
-        public UsersAPI(HTTPHostname?                        HTTPHostname                       = null,
-                        String?                              ExternalDNSName                    = null,
-                        IPPort?                              HTTPServerPort                     = null,
-                        HTTPPath?                            BasePath                           = null,
-                        String?                              HTTPServerName                     = DefaultHTTPServerName,
+        /// <param name="AutoStart">Whether to start the API automatically.</param>
+        public UsersAPI(HTTPHostname?                        HTTPHostname                     = null,
+                        String?                              ExternalDNSName                  = null,
+                        IPPort?                              HTTPServerPort                   = null,
+                        HTTPPath?                            BasePath                         = null,
+                        String?                              HTTPServerName                   = DefaultHTTPServerName,
 
-                        HTTPPath?                            URLPathPrefix                      = null,
-                        String?                              HTTPServiceName                    = DefaultHTTPServiceName,
-                        String?                              HTMLTemplate                       = null,
-                        JObject?                             APIVersionHashes                   = null,
+                        HTTPPath?                            URLPathPrefix                    = null,
+                        String?                              HTTPServiceName                  = DefaultHTTPServiceName,
+                        String?                              HTMLTemplate                     = null,
+                        JObject?                             APIVersionHashes                 = null,
 
-                        ServerCertificateSelectorDelegate?   ServerCertificateSelector          = null,
-                        RemoteCertificateValidationHandler?  ClientCertificateValidator         = null,
-                        LocalCertificateSelectionHandler?    ClientCertificateSelector          = null,
-                        SslProtocols?                        AllowedTLSProtocols                = null,
-                        Boolean?                             ClientCertificateRequired          = null,
-                        Boolean?                             CheckCertificateRevocation         = null,
+                        ServerCertificateSelectorDelegate?   ServerCertificateSelector        = null,
+                        RemoteCertificateValidationHandler?  ClientCertificateValidator       = null,
+                        LocalCertificateSelectionHandler?    ClientCertificateSelector        = null,
+                        SslProtocols?                        AllowedTLSProtocols              = null,
+                        Boolean?                             ClientCertificateRequired        = null,
+                        Boolean?                             CheckCertificateRevocation       = null,
 
-                        ServerThreadNameCreatorDelegate?     ServerThreadNameCreator            = null,
-                        ServerThreadPriorityDelegate?        ServerThreadPrioritySetter         = null,
-                        Boolean?                             ServerThreadIsBackground           = null,
-                        ConnectionIdBuilder?                 ConnectionIdBuilder                = null,
-                        TimeSpan?                            ConnectionTimeout                  = null,
-                        UInt32?                              MaxClientConnections               = null,
+                        ServerThreadNameCreatorDelegate?     ServerThreadNameCreator          = null,
+                        ServerThreadPriorityDelegate?        ServerThreadPrioritySetter       = null,
+                        Boolean?                             ServerThreadIsBackground         = null,
+                        ConnectionIdBuilder?                 ConnectionIdBuilder              = null,
+                        TimeSpan?                            ConnectionTimeout                = null,
+                        UInt32?                              MaxClientConnections             = null,
 
-                        Organization_Id?                     AdminOrganizationId                = null,
-                        EMailAddress?                        APIRobotEMailAddress               = null,
-                        String?                              APIRobotGPGPassphrase              = null,
-                        ISMTPClient?                         SMTPClient                         = null,
-                        ISMSClient?                          SMSClient                          = null,
-                        String?                              SMSSenderName                      = null,
-                        ITelegramStore?                      TelegramClient                     = null,
+                        Organization_Id?                     AdminOrganizationId              = null,
+                        EMailAddress?                        APIRobotEMailAddress             = null,
+                        String?                              APIRobotGPGPassphrase            = null,
+                        ISMTPClient?                         SMTPClient                       = null,
+                        ISMSClient?                          SMSClient                        = null,
+                        String?                              SMSSenderName                    = null,
+                        ITelegramStore?                      TelegramClient                   = null,
 
-                        PasswordQualityCheckDelegate?        PasswordQualityCheck               = null,
-                        HTTPCookieName?                      CookieName                         = null,
-                        Boolean                              UseSecureCookies                   = true,
-                        TimeSpan?                            MaxSignInSessionLifetime           = null,
-                        Languages?                           DefaultLanguage                    = null,
-                        Byte?                                MinUserIdLength                    = null,
-                        Byte?                                MinRealmLength                     = null,
-                        Byte?                                MinUserNameLength                  = null,
-                        Byte?                                MinUserGroupIdLength               = null,
-                        UInt16?                              MinAPIKeyLength                    = null,
-                        Byte?                                MinMessageIdLength                 = null,
-                        Byte?                                MinOrganizationIdLength            = null,
-                        Byte?                                MinOrganizationGroupIdLength       = null,
-                        Byte?                                MinNotificationMessageIdLength     = null,
-                        Byte?                                MinNewsPostingIdLength             = null,
-                        Byte?                                MinNewsBannerIdLength              = null,
-                        Byte?                                MinFAQIdLength                     = null,
+                        PasswordQualityCheckDelegate?        PasswordQualityCheck             = null,
+                        HTTPCookieName?                      CookieName                       = null,
+                        Boolean                              UseSecureCookies                 = true,
+                        TimeSpan?                            MaxSignInSessionLifetime         = null,
+                        Languages?                           DefaultLanguage                  = null,
+                        Byte?                                MinUserIdLength                  = null,
+                        Byte?                                MinRealmLength                   = null,
+                        Byte?                                MinUserNameLength                = null,
+                        Byte?                                MinUserGroupIdLength             = null,
+                        UInt16?                              MinAPIKeyLength                  = null,
+                        Byte?                                MinMessageIdLength               = null,
+                        Byte?                                MinOrganizationIdLength          = null,
+                        Byte?                                MinOrganizationGroupIdLength     = null,
+                        Byte?                                MinNotificationMessageIdLength   = null,
+                        Byte?                                MinNewsPostingIdLength           = null,
+                        Byte?                                MinNewsBannerIdLength            = null,
+                        Byte?                                MinFAQIdLength                   = null,
 
-                        Boolean?                             DisableMaintenanceTasks            = null,
-                        TimeSpan?                            MaintenanceInitialDelay            = null,
-                        TimeSpan?                            MaintenanceEvery                   = null,
+                        Boolean?                             DisableMaintenanceTasks          = null,
+                        TimeSpan?                            MaintenanceInitialDelay          = null,
+                        TimeSpan?                            MaintenanceEvery                 = null,
 
-                        Boolean?                             DisableWardenTasks                 = null,
-                        TimeSpan?                            WardenInitialDelay                 = null,
-                        TimeSpan?                            WardenCheckEvery                   = null,
+                        Boolean?                             DisableWardenTasks               = null,
+                        TimeSpan?                            WardenInitialDelay               = null,
+                        TimeSpan?                            WardenCheckEvery                 = null,
 
-                        IEnumerable<URLWithAPIKey>?          RemoteAuthServers                  = null,
-                        IEnumerable<APIKey_Id>?              RemoteAuthAPIKeys                  = null,
+                        IEnumerable<URLWithAPIKey>?          RemoteAuthServers                = null,
+                        IEnumerable<APIKey_Id>?              RemoteAuthAPIKeys                = null,
 
-                        Boolean?                             IsDevelopment                      = null,
-                        IEnumerable<String>?                 DevelopmentServers                 = null,
-                        Boolean                              SkipURLTemplates                   = false,
-                        String?                              DatabaseFileName                   = DefaultUsersAPI_DatabaseFileName,
-                        Boolean                              DisableNotifications               = false,
-                        Boolean                              DisableLogging                     = false,
-                        String?                              LoggingPath                        = null,
-                        String?                              LogfileName                        = DefaultUsersAPI_LogfileName,
-                        LogfileCreatorDelegate?              LogfileCreator                     = null,
-                        DNSClient?                           DNSClient                          = null,
-                        Boolean                              Autostart                          = false)
+                        Boolean?                             IsDevelopment                    = null,
+                        IEnumerable<String>?                 DevelopmentServers               = null,
+                        Boolean                              SkipURLTemplates                 = false,
+                        String?                              DatabaseFileName                 = DefaultUsersAPI_DatabaseFileName,
+                        Boolean                              DisableNotifications             = false,
+                        Boolean                              DisableLogging                   = false,
+                        String?                              LoggingPath                      = null,
+                        String?                              LogfileName                      = DefaultUsersAPI_LogfileName,
+                        LogfileCreatorDelegate?              LogfileCreator                   = null,
+                        DNSClient?                           DNSClient                        = null,
+                        Boolean                              AutoStart                        = false)
 
             : base(HTTPHostname,
                    ExternalDNSName,
@@ -2891,7 +2891,7 @@ namespace social.OpenData.UsersAPI
                    LogfileName ?? DefaultUsersAPI_LogfileName,
                    LogfileCreator,
                    DNSClient,
-                   false) // Autostart
+                   false) // AutoStart
 
         {
 
@@ -3074,7 +3074,7 @@ namespace social.OpenData.UsersAPI
 
             DebugX.Log(nameof(UsersAPI) + " version '" + APIVersionHash + "' initialized...");
 
-            if (Autostart)
+            if (AutoStart)
                 Start();
 
         }
@@ -3885,7 +3885,7 @@ namespace social.OpenData.UsersAPI
                     foreach (var notification in AllNotifications)
                     {
 
-                        HTTPRequest  request     = null;
+                        HTTPRequest? request     = null;
                         HTTPResponse result      = HTTPResponse.ClientError(request);
                         Byte TransmissionRetry   = 0;
                         Byte MaxNumberOfRetries  = 3;
@@ -3930,20 +3930,16 @@ namespace social.OpenData.UsersAPI
                                     };
 
                                     result  = await httpsClient.Execute(Request:              request,
-                                                                         RequestLogDelegate:   (timestamp, client, req)       => LogRequest (timestamp, client, notification.RemoteURL.Hostname.ToString(), req),
-                                                                         ResponseLogDelegate:  (timestamp, client, req, resp) => LogResponse(timestamp, client, notification.RemoteURL.Hostname.ToString(), req, resp),
-
-                                                                         CancellationToken:    default,
-                                                                         EventTrackingId:      EventTracking_Id.New,
-                                                                         RequestTimeout:       notification.RequestTimeout,
-                                                                         NumberOfRetry:        TransmissionRetry++);
-
-                                    //Console.WriteLine("Result: " + result);
+                                                                        RequestLogDelegate:   (timestamp, client, req)       => LogRequest (timestamp, client, notification.RemoteURL.Hostname.ToString(), req),
+                                                                        ResponseLogDelegate:  (timestamp, client, req, resp) => LogResponse(timestamp, client, notification.RemoteURL.Hostname.ToString(), req, resp),
+                                                                        CancellationToken:    default,
+                                                                        EventTrackingId:      EventTracking_Id.New,
+                                                                        RequestTimeout:       notification.RequestTimeout,
+                                                                        NumberOfRetry:        TransmissionRetry++);
 
                                 }
 
-                                if (result == null)
-                                    result = HTTPResponse.ClientError(request);
+                                result ??= HTTPResponse.ClientError(request);
 
                             }
                             catch (Exception e)

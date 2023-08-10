@@ -80,7 +80,7 @@ namespace social.OpenData.UsersAPI.tests
                            SMTPClient:             new NullMailer(),
                            SMSClient:              new NullSMSAPI(),
                            LoggingPath:            folder,
-                           Autostart:              true
+                           AutoStart:              true
                        );;
 
             nullMailer     = usersAPI.SMTPClient as NullMailer;
