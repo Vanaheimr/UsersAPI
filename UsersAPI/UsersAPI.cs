@@ -5897,7 +5897,7 @@ namespace social.OpenData.UsersAPI
                                                    AccessControlAllowHeaders  = new[] { "Content-Type", "Accept", "Authorization" },
                                                    ContentType                = HTTPContentType.JSONLD_UTF8,
                                                    Content                    = JSONObject.Create(
-                                                                                    new JProperty("description", result?.ErrorDescription?.ToJSON())
+                                                                                    new JProperty("description", result?.Description?.ToJSON())
                                                                                 ).ToUTF8Bytes(),
                                                    SetCookie                  = new HTTPCookies(
                                                                                     HTTPCookie.Parse(
@@ -6959,7 +6959,7 @@ namespace social.OpenData.UsersAPI
                                                               ETag                       = "1",
                                                               ContentType                = HTTPContentType.JSON_UTF8,
                                                               Content                    = JSONObject.Create(
-                                                                                               new JProperty("description", result?.ErrorDescription?.ToJSON())
+                                                                                               new JProperty("description", result?.Description?.ToJSON())
                                                                                            ).ToUTF8Bytes()
                                                           }.AsImmutable;
 
@@ -7621,7 +7621,7 @@ namespace social.OpenData.UsersAPI
                                                              AccessControlAllowHeaders  = new[] { "Content-Type", "Accept", "Authorization" },
                                                              ContentType                = HTTPContentType.JSON_UTF8,
                                                              Content                    = JSONObject.Create(
-                                                                                             new JProperty("description", result?.ErrorDescription?.ToJSON())
+                                                                                             new JProperty("description", result?.Description?.ToJSON())
                                                                                          ).ToUTF8Bytes(),
                                                              Connection                 = "close",
                                                              Vary                       = "Accept"
@@ -10356,7 +10356,7 @@ namespace social.OpenData.UsersAPI
                                                               AccessControlAllowHeaders   = new[] { "Content-Type", "Accept", "Authorization" },
                                                               ContentType                 = HTTPContentType.JSON_UTF8,
                                                               Content                     = JSONObject.Create(
-                                                                                                new JProperty("errorDescription",  result.ErrorDescription.ToJSON())
+                                                                                                new JProperty("errorDescription",  result.Description.ToJSON())
                                                                                             ).ToUTF8Bytes(),
                                                               Connection                  = "close"
                                                           }.AsImmutable;
@@ -20821,7 +20821,7 @@ namespace social.OpenData.UsersAPI
                                            result.EventTrackingId,
                                            result.IsSuccess,
                                            result.Argument,
-                                           result.ErrorDescription,
+                                           result.Description,
                                            result.PasswordReset);
 
         }
@@ -20911,7 +20911,7 @@ namespace social.OpenData.UsersAPI
                                            result.EventTrackingId,
                                            result.IsSuccess,
                                            result.Argument,
-                                           result.ErrorDescription,
+                                           result.Description,
                                            result.PasswordReset);
 
         }
