@@ -271,7 +271,7 @@ namespace social.OpenData.UsersAPI
             this.GeoLocation      = GeoLocation;
             this.Category         = Category;
             this.Tags             = Tags            ?? Array.Empty<TagRelevance>();
-            this.PrivacyLevel     = PrivacyLevel    ?? OpenData.UsersAPI.PrivacyLevel.Private;
+            this.PrivacyLevel     = PrivacyLevel    ?? org.GraphDefined.Vanaheimr.Hermod.HTTP.PrivacyLevel.Private;
             this.IsHidden         = IsHidden;
 
         }
@@ -948,7 +948,7 @@ namespace social.OpenData.UsersAPI
                 this.Tags             = Tags is not null
                                             ? new HashSet<TagRelevance>(Tags)
                                             : new HashSet<TagRelevance>();
-                this.PrivacyLevel     = PrivacyLevel    ?? OpenData.UsersAPI.PrivacyLevel.Private;
+                this.PrivacyLevel     = PrivacyLevel    ?? org.GraphDefined.Vanaheimr.Hermod.HTTP.PrivacyLevel.Private;
                 this.IsHidden         = IsHidden;
 
             }

@@ -23,8 +23,8 @@ using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod;
 using org.GraphDefined.Vanaheimr.Hermod.Mail;
 using org.GraphDefined.Vanaheimr.Hermod.SMTP;
-
-using social.OpenData.UsersAPI.Notifications;
+using org.GraphDefined.Vanaheimr.Hermod.HTTP;
+using org.GraphDefined.Vanaheimr.Hermod.HTTP.Notifications;
 
 #endregion
 
@@ -151,36 +151,36 @@ namespace social.OpenData.UsersAPI.tests
 
             await usersAPI.AddEMailNotification(result01a.User!,
                                                 new[] {
-                                                    UsersAPI.addUser_MessageType,
-                                                    UsersAPI.updateUser_MessageType,
-                                                    UsersAPI.deleteUser_MessageType,
+                                                    HTTPExtAPI.addUser_MessageType,
+                                                    HTTPExtAPI.updateUser_MessageType,
+                                                    HTTPExtAPI.deleteUser_MessageType,
 
-                                                    UsersAPI.addUserToOrganization_MessageType,
-                                                    UsersAPI.removeUserFromOrganization_MessageType,
+                                                    HTTPExtAPI.addUserToOrganization_MessageType,
+                                                    HTTPExtAPI.removeUserFromOrganization_MessageType,
 
-                                                    UsersAPI.addOrganization_MessageType,
-                                                    UsersAPI.updateOrganization_MessageType,
-                                                    UsersAPI.deleteOrganization_MessageType,
+                                                    HTTPExtAPI.addOrganization_MessageType,
+                                                    HTTPExtAPI.updateOrganization_MessageType,
+                                                    HTTPExtAPI.deleteOrganization_MessageType,
 
-                                                    UsersAPI.linkOrganizations_MessageType,
-                                                    UsersAPI.unlinkOrganizations_MessageType
+                                                    HTTPExtAPI.linkOrganizations_MessageType,
+                                                    HTTPExtAPI.unlinkOrganizations_MessageType
                                                 });
 
             await usersAPI.AddSMSNotification  (result01a.User!,
                                                 new[] {
-                                                    UsersAPI.addUser_MessageType,
-                                                    UsersAPI.updateUser_MessageType,
-                                                    UsersAPI.deleteUser_MessageType,
+                                                    HTTPExtAPI.addUser_MessageType,
+                                                    HTTPExtAPI.updateUser_MessageType,
+                                                    HTTPExtAPI.deleteUser_MessageType,
 
-                                                    UsersAPI.addUserToOrganization_MessageType,
-                                                    UsersAPI.removeUserFromOrganization_MessageType,
+                                                    HTTPExtAPI.addUserToOrganization_MessageType,
+                                                    HTTPExtAPI.removeUserFromOrganization_MessageType,
 
-                                                    UsersAPI.addOrganization_MessageType,
-                                                    UsersAPI.updateOrganization_MessageType,
-                                                    UsersAPI.deleteOrganization_MessageType,
+                                                    HTTPExtAPI.addOrganization_MessageType,
+                                                    HTTPExtAPI.updateOrganization_MessageType,
+                                                    HTTPExtAPI.deleteOrganization_MessageType,
 
-                                                    UsersAPI.linkOrganizations_MessageType,
-                                                    UsersAPI.unlinkOrganizations_MessageType
+                                                    HTTPExtAPI.linkOrganizations_MessageType,
+                                                    HTTPExtAPI.unlinkOrganizations_MessageType
                                                 });
 
 
@@ -214,36 +214,36 @@ namespace social.OpenData.UsersAPI.tests
 
             await usersAPI.AddEMailNotification(result01c.User!,
                                                 new[] {
-                                                    UsersAPI.addUser_MessageType,
-                                                    UsersAPI.updateUser_MessageType,
-                                                    UsersAPI.deleteUser_MessageType,
+                                                    HTTPExtAPI.addUser_MessageType,
+                                                    HTTPExtAPI.updateUser_MessageType,
+                                                    HTTPExtAPI.deleteUser_MessageType,
 
-                                                    UsersAPI.addUserToOrganization_MessageType,
-                                                    UsersAPI.removeUserFromOrganization_MessageType,
+                                                    HTTPExtAPI.addUserToOrganization_MessageType,
+                                                    HTTPExtAPI.removeUserFromOrganization_MessageType,
 
-                                                    UsersAPI.addOrganization_MessageType,
-                                                    UsersAPI.updateOrganization_MessageType,
-                                                    UsersAPI.deleteOrganization_MessageType,
+                                                    HTTPExtAPI.addOrganization_MessageType,
+                                                    HTTPExtAPI.updateOrganization_MessageType,
+                                                    HTTPExtAPI.deleteOrganization_MessageType,
 
-                                                    UsersAPI.linkOrganizations_MessageType,
-                                                    UsersAPI.unlinkOrganizations_MessageType
+                                                    HTTPExtAPI.linkOrganizations_MessageType,
+                                                    HTTPExtAPI.unlinkOrganizations_MessageType
                                                 });
 
             await usersAPI.AddSMSNotification  (result01c.User!,
                                                 new[] {
-                                                    UsersAPI.addUser_MessageType,
-                                                    UsersAPI.updateUser_MessageType,
-                                                    UsersAPI.deleteUser_MessageType,
+                                                    HTTPExtAPI.addUser_MessageType,
+                                                    HTTPExtAPI.updateUser_MessageType,
+                                                    HTTPExtAPI.deleteUser_MessageType,
 
-                                                    UsersAPI.addUserToOrganization_MessageType,
-                                                    UsersAPI.removeUserFromOrganization_MessageType,
+                                                    HTTPExtAPI.addUserToOrganization_MessageType,
+                                                    HTTPExtAPI.removeUserFromOrganization_MessageType,
 
-                                                    UsersAPI.addOrganization_MessageType,
-                                                    UsersAPI.updateOrganization_MessageType,
-                                                    UsersAPI.deleteOrganization_MessageType,
+                                                    HTTPExtAPI.addOrganization_MessageType,
+                                                    HTTPExtAPI.updateOrganization_MessageType,
+                                                    HTTPExtAPI.deleteOrganization_MessageType,
 
-                                                    UsersAPI.linkOrganizations_MessageType,
-                                                    UsersAPI.unlinkOrganizations_MessageType
+                                                    HTTPExtAPI.linkOrganizations_MessageType,
+                                                    HTTPExtAPI.unlinkOrganizations_MessageType
                                                 });
 
 
@@ -295,36 +295,36 @@ namespace social.OpenData.UsersAPI.tests
 
             await usersAPI.AddEMailNotification(result04a.User!,
                                                 new[] {
-                                                    UsersAPI.addUser_MessageType,
-                                                    UsersAPI.updateUser_MessageType,
-                                                    UsersAPI.deleteUser_MessageType,
+                                                    HTTPExtAPI.addUser_MessageType,
+                                                    HTTPExtAPI.updateUser_MessageType,
+                                                    HTTPExtAPI.deleteUser_MessageType,
 
-                                                    UsersAPI.addUserToOrganization_MessageType,
-                                                    UsersAPI.removeUserFromOrganization_MessageType,
+                                                    HTTPExtAPI.addUserToOrganization_MessageType,
+                                                    HTTPExtAPI.removeUserFromOrganization_MessageType,
 
-                                                    UsersAPI.addOrganization_MessageType,
-                                                    UsersAPI.updateOrganization_MessageType,
-                                                    UsersAPI.deleteOrganization_MessageType,
+                                                    HTTPExtAPI.addOrganization_MessageType,
+                                                    HTTPExtAPI.updateOrganization_MessageType,
+                                                    HTTPExtAPI.deleteOrganization_MessageType,
 
-                                                    UsersAPI.linkOrganizations_MessageType,
-                                                    UsersAPI.unlinkOrganizations_MessageType
+                                                    HTTPExtAPI.linkOrganizations_MessageType,
+                                                    HTTPExtAPI.unlinkOrganizations_MessageType
                                                 });
 
             await usersAPI.AddSMSNotification  (result04a.User!,
                                                 new[] {
-                                                    UsersAPI.addUser_MessageType,
-                                                    UsersAPI.updateUser_MessageType,
-                                                    UsersAPI.deleteUser_MessageType,
+                                                    HTTPExtAPI.addUser_MessageType,
+                                                    HTTPExtAPI.updateUser_MessageType,
+                                                    HTTPExtAPI.deleteUser_MessageType,
 
-                                                    UsersAPI.addUserToOrganization_MessageType,
-                                                    UsersAPI.removeUserFromOrganization_MessageType,
+                                                    HTTPExtAPI.addUserToOrganization_MessageType,
+                                                    HTTPExtAPI.removeUserFromOrganization_MessageType,
 
-                                                    UsersAPI.addOrganization_MessageType,
-                                                    UsersAPI.updateOrganization_MessageType,
-                                                    UsersAPI.deleteOrganization_MessageType,
+                                                    HTTPExtAPI.addOrganization_MessageType,
+                                                    HTTPExtAPI.updateOrganization_MessageType,
+                                                    HTTPExtAPI.deleteOrganization_MessageType,
 
-                                                    UsersAPI.linkOrganizations_MessageType,
-                                                    UsersAPI.unlinkOrganizations_MessageType
+                                                    HTTPExtAPI.linkOrganizations_MessageType,
+                                                    HTTPExtAPI.unlinkOrganizations_MessageType
                                                 });
 
 
@@ -359,36 +359,36 @@ namespace social.OpenData.UsersAPI.tests
 
             await usersAPI.AddEMailNotification(result04c.User!,
                                                 new[] {
-                                                    UsersAPI.addUser_MessageType,
-                                                    UsersAPI.updateUser_MessageType,
-                                                    UsersAPI.deleteUser_MessageType,
+                                                    HTTPExtAPI.addUser_MessageType,
+                                                    HTTPExtAPI.updateUser_MessageType,
+                                                    HTTPExtAPI.deleteUser_MessageType,
 
-                                                    UsersAPI.addUserToOrganization_MessageType,
-                                                    UsersAPI.removeUserFromOrganization_MessageType,
+                                                    HTTPExtAPI.addUserToOrganization_MessageType,
+                                                    HTTPExtAPI.removeUserFromOrganization_MessageType,
 
-                                                    UsersAPI.addOrganization_MessageType,
-                                                    UsersAPI.updateOrganization_MessageType,
-                                                    UsersAPI.deleteOrganization_MessageType,
+                                                    HTTPExtAPI.addOrganization_MessageType,
+                                                    HTTPExtAPI.updateOrganization_MessageType,
+                                                    HTTPExtAPI.deleteOrganization_MessageType,
 
-                                                    UsersAPI.linkOrganizations_MessageType,
-                                                    UsersAPI.unlinkOrganizations_MessageType
+                                                    HTTPExtAPI.linkOrganizations_MessageType,
+                                                    HTTPExtAPI.unlinkOrganizations_MessageType
                                                 });
 
             await usersAPI.AddSMSNotification  (result04c.User!,
                                                 new[] {
-                                                    UsersAPI.addUser_MessageType,
-                                                    UsersAPI.updateUser_MessageType,
-                                                    UsersAPI.deleteUser_MessageType,
+                                                    HTTPExtAPI.addUser_MessageType,
+                                                    HTTPExtAPI.updateUser_MessageType,
+                                                    HTTPExtAPI.deleteUser_MessageType,
 
-                                                    UsersAPI.addUserToOrganization_MessageType,
-                                                    UsersAPI.removeUserFromOrganization_MessageType,
+                                                    HTTPExtAPI.addUserToOrganization_MessageType,
+                                                    HTTPExtAPI.removeUserFromOrganization_MessageType,
 
-                                                    UsersAPI.addOrganization_MessageType,
-                                                    UsersAPI.updateOrganization_MessageType,
-                                                    UsersAPI.deleteOrganization_MessageType,
+                                                    HTTPExtAPI.addOrganization_MessageType,
+                                                    HTTPExtAPI.updateOrganization_MessageType,
+                                                    HTTPExtAPI.deleteOrganization_MessageType,
 
-                                                    UsersAPI.linkOrganizations_MessageType,
-                                                    UsersAPI.unlinkOrganizations_MessageType
+                                                    HTTPExtAPI.linkOrganizations_MessageType,
+                                                    HTTPExtAPI.unlinkOrganizations_MessageType
                                                 });
 
 
@@ -441,36 +441,36 @@ namespace social.OpenData.UsersAPI.tests
 
             await usersAPI.AddEMailNotification(result14a.User!,
                                                 new[] {
-                                                    UsersAPI.addUser_MessageType,
-                                                    UsersAPI.updateUser_MessageType,
-                                                    UsersAPI.deleteUser_MessageType,
+                                                    HTTPExtAPI.addUser_MessageType,
+                                                    HTTPExtAPI.updateUser_MessageType,
+                                                    HTTPExtAPI.deleteUser_MessageType,
 
-                                                    UsersAPI.addUserToOrganization_MessageType,
-                                                    UsersAPI.removeUserFromOrganization_MessageType,
+                                                    HTTPExtAPI.addUserToOrganization_MessageType,
+                                                    HTTPExtAPI.removeUserFromOrganization_MessageType,
 
-                                                    UsersAPI.addOrganization_MessageType,
-                                                    UsersAPI.updateOrganization_MessageType,
-                                                    UsersAPI.deleteOrganization_MessageType,
+                                                    HTTPExtAPI.addOrganization_MessageType,
+                                                    HTTPExtAPI.updateOrganization_MessageType,
+                                                    HTTPExtAPI.deleteOrganization_MessageType,
 
-                                                    UsersAPI.linkOrganizations_MessageType,
-                                                    UsersAPI.unlinkOrganizations_MessageType
+                                                    HTTPExtAPI.linkOrganizations_MessageType,
+                                                    HTTPExtAPI.unlinkOrganizations_MessageType
                                                 });
 
             await usersAPI.AddSMSNotification  (result14a.User!,
                                                 new[] {
-                                                    UsersAPI.addUser_MessageType,
-                                                    UsersAPI.updateUser_MessageType,
-                                                    UsersAPI.deleteUser_MessageType,
+                                                    HTTPExtAPI.addUser_MessageType,
+                                                    HTTPExtAPI.updateUser_MessageType,
+                                                    HTTPExtAPI.deleteUser_MessageType,
 
-                                                    UsersAPI.addUserToOrganization_MessageType,
-                                                    UsersAPI.removeUserFromOrganization_MessageType,
+                                                    HTTPExtAPI.addUserToOrganization_MessageType,
+                                                    HTTPExtAPI.removeUserFromOrganization_MessageType,
 
-                                                    UsersAPI.addOrganization_MessageType,
-                                                    UsersAPI.updateOrganization_MessageType,
-                                                    UsersAPI.deleteOrganization_MessageType,
+                                                    HTTPExtAPI.addOrganization_MessageType,
+                                                    HTTPExtAPI.updateOrganization_MessageType,
+                                                    HTTPExtAPI.deleteOrganization_MessageType,
 
-                                                    UsersAPI.linkOrganizations_MessageType,
-                                                    UsersAPI.unlinkOrganizations_MessageType
+                                                    HTTPExtAPI.linkOrganizations_MessageType,
+                                                    HTTPExtAPI.unlinkOrganizations_MessageType
                                                 });
 
 
@@ -505,36 +505,36 @@ namespace social.OpenData.UsersAPI.tests
 
             await usersAPI.AddEMailNotification(result14c.User!,
                                                 new[] {
-                                                    UsersAPI.addUser_MessageType,
-                                                    UsersAPI.updateUser_MessageType,
-                                                    UsersAPI.deleteUser_MessageType,
+                                                    HTTPExtAPI.addUser_MessageType,
+                                                    HTTPExtAPI.updateUser_MessageType,
+                                                    HTTPExtAPI.deleteUser_MessageType,
 
-                                                    UsersAPI.addUserToOrganization_MessageType,
-                                                    UsersAPI.removeUserFromOrganization_MessageType,
+                                                    HTTPExtAPI.addUserToOrganization_MessageType,
+                                                    HTTPExtAPI.removeUserFromOrganization_MessageType,
 
-                                                    UsersAPI.addOrganization_MessageType,
-                                                    UsersAPI.updateOrganization_MessageType,
-                                                    UsersAPI.deleteOrganization_MessageType,
+                                                    HTTPExtAPI.addOrganization_MessageType,
+                                                    HTTPExtAPI.updateOrganization_MessageType,
+                                                    HTTPExtAPI.deleteOrganization_MessageType,
 
-                                                    UsersAPI.linkOrganizations_MessageType,
-                                                    UsersAPI.unlinkOrganizations_MessageType
+                                                    HTTPExtAPI.linkOrganizations_MessageType,
+                                                    HTTPExtAPI.unlinkOrganizations_MessageType
                                                 });
 
             await usersAPI.AddSMSNotification  (result14c.User!,
                                                 new[] {
-                                                    UsersAPI.addUser_MessageType,
-                                                    UsersAPI.updateUser_MessageType,
-                                                    UsersAPI.deleteUser_MessageType,
+                                                    HTTPExtAPI.addUser_MessageType,
+                                                    HTTPExtAPI.updateUser_MessageType,
+                                                    HTTPExtAPI.deleteUser_MessageType,
 
-                                                    UsersAPI.addUserToOrganization_MessageType,
-                                                    UsersAPI.removeUserFromOrganization_MessageType,
+                                                    HTTPExtAPI.addUserToOrganization_MessageType,
+                                                    HTTPExtAPI.removeUserFromOrganization_MessageType,
 
-                                                    UsersAPI.addOrganization_MessageType,
-                                                    UsersAPI.updateOrganization_MessageType,
-                                                    UsersAPI.deleteOrganization_MessageType,
+                                                    HTTPExtAPI.addOrganization_MessageType,
+                                                    HTTPExtAPI.updateOrganization_MessageType,
+                                                    HTTPExtAPI.deleteOrganization_MessageType,
 
-                                                    UsersAPI.linkOrganizations_MessageType,
-                                                    UsersAPI.unlinkOrganizations_MessageType
+                                                    HTTPExtAPI.linkOrganizations_MessageType,
+                                                    HTTPExtAPI.unlinkOrganizations_MessageType
                                                 });
 
 
