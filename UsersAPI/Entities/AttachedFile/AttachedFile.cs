@@ -138,7 +138,7 @@ namespace social.OpenData.UsersAPI
                                ? null
                                : new JProperty("@context",            DefaultJSONLDContext.ToString()),
 
-                           Description.IsNeitherNullNorEmpty()
+                           Description.IsNotNullOrEmpty()
                                ? new JProperty("description",         Description.ToJSON())
                                : null,
 

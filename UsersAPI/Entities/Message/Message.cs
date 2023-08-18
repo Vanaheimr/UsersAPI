@@ -129,31 +129,34 @@ namespace social.OpenData.UsersAPI
         /// <param name="Text">An optional (multi-language) text of the message.</param>
         /// <param name="InReplyTo">The message is a reply to another message.</param>
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
-        public Message(Message_Id                 Id,
-                       User_Id                    Sender,
-                       IEnumerable<User_Id>       Receivers,
-                       I18NString                 Subject,
-                       I18NString                 Text,
-                       Message_Id?                InReplyTo       = null,
+        public Message(Message_Id                  Id,
+                       User_Id                     Sender,
+                       IEnumerable<User_Id>        Receivers,
+                       I18NString                  Subject,
+                       I18NString                  Text,
+                       Message_Id?                 InReplyTo       = null,
 
-                       JObject                    CustomData      = default,
-                       IEnumerable<AttachedFile>  AttachedFiles   = default,
-                       JSONLDContext?             JSONLDContext   = default,
-                       String                     DataSource      = default,
-                       DateTime?                  LastChange      = default)
+                       JObject?                    CustomData      = default,
+                       IEnumerable<AttachedFile>?  AttachedFiles   = default,
+                       JSONLDContext?              JSONLDContext   = default,
+                       String?                     DataSource      = default,
+                       DateTime?                   LastChange      = default)
 
             : base(Id,
                    JSONLDContext ?? DefaultJSONLDContext,
-                   LastChange,
+                   null,
+                   null,
                    null,
                    CustomData,
+                   null,
+                   LastChange,
                    DataSource)
 
         {
 
             #region Initial checks
 
-            if (Receivers == null || !Receivers.Any())
+            if (!Receivers.Any())
                 throw new ArgumentNullException(nameof(Receivers), "The enumeration of message receivers must not be null or empty!");
 
             #endregion
@@ -384,24 +387,25 @@ namespace social.OpenData.UsersAPI
             /// <summary>
             /// Create a new message builder.
             /// </summary>
-            public Builder(Message_Id                 Id,
-                           User_Id                    Sender,
-                           IEnumerable<User_Id>       Receivers,
-                           I18NString                 Subject,
-                           I18NString                 Text,
-                           Message_Id?                InReplyTo       = null,
+            public Builder(Message_Id                  Id,
+                           User_Id                     Sender,
+                           IEnumerable<User_Id>        Receivers,
+                           I18NString                  Subject,
+                           I18NString                  Text,
+                           Message_Id?                 InReplyTo       = null,
 
-                           JObject                    CustomData      = default,
-                           IEnumerable<AttachedFile>  AttachedFiles   = default,
-                           JSONLDContext?             JSONLDContext   = default,
-                           String                     DataSource      = default,
-                           DateTime?                  LastChange      = default)
+                           JObject?                    CustomData      = default,
+                           IEnumerable<AttachedFile>?  AttachedFiles   = default,
+                           JSONLDContext?              JSONLDContext   = default,
+                           String?                     DataSource      = default,
+                           DateTime?                   LastChange      = default)
 
                 : base(Id,
                        JSONLDContext ?? DefaultJSONLDContext,
                        LastChange,
                        null,
                        CustomData,
+                       null,
                        DataSource)
 
             {
@@ -650,6 +654,16 @@ namespace social.OpenData.UsersAPI
             /// </summary>
             public override String ToString()
                 => Id.ToString();
+
+            public override bool Equals(Message? other)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override int CompareTo(Message? other)
+            {
+                throw new NotImplementedException();
+            }
 
             #endregion
 

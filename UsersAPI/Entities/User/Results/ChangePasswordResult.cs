@@ -25,22 +25,22 @@ using org.GraphDefined.Vanaheimr.Hermod;
 namespace social.OpenData.UsersAPI
 {
 
-    public class ChangePasswordResult : AResult<IEnumerable<User>>
+    public class ChangePasswordResult : AResult<IEnumerable<IUser>>
     {
 
-        public User? User
+        public IUser? User
             => Object?.FirstOrDefault();
 
-        public IEnumerable<User> Users
-            => Object ?? Array.Empty<User>();
+        public IEnumerable<IUser> Users
+            => Object ?? Array.Empty<IUser>();
 
-        public ChangePasswordResult(User              User,
+        public ChangePasswordResult(IUser             User,
                                     EventTracking_Id  EventTrackingId,
                                     Boolean           IsSuccess,
                                     String?           Argument           = null,
                                     I18NString?       ErrorDescription   = null)
 
-            : base(new User[] { User },
+            : base(new[] { User },
                    EventTrackingId,
                    IsSuccess,
                    Argument,
@@ -48,11 +48,11 @@ namespace social.OpenData.UsersAPI
 
         { }
 
-        public ChangePasswordResult(IEnumerable<User>  Users,
-                                    EventTracking_Id   EventTrackingId,
-                                    Boolean            IsSuccess,
-                                    String?            Argument           = null,
-                                    I18NString?        ErrorDescription   = null)
+        public ChangePasswordResult(IEnumerable<IUser>  Users,
+                                    EventTracking_Id    EventTrackingId,
+                                    Boolean             IsSuccess,
+                                    String?             Argument           = null,
+                                    I18NString?         ErrorDescription   = null)
 
             : base(Users,
                    EventTrackingId,
@@ -63,7 +63,7 @@ namespace social.OpenData.UsersAPI
         { }
 
 
-        public static ChangePasswordResult Success(User              User,
+        public static ChangePasswordResult Success(IUser             User,
                                                    EventTracking_Id  EventTrackingId)
 
             => new (User,
@@ -71,8 +71,8 @@ namespace social.OpenData.UsersAPI
                     true,
                     null,
                     null);
-        public static ChangePasswordResult Success(IEnumerable<User>  Users,
-                                                   EventTracking_Id   EventTrackingId)
+        public static ChangePasswordResult Success(IEnumerable<IUser>  Users,
+                                                   EventTracking_Id    EventTrackingId)
 
             => new (Users,
                     EventTrackingId,
@@ -81,7 +81,7 @@ namespace social.OpenData.UsersAPI
                     null);
 
 
-        public static ChangePasswordResult ArgumentError(User              User,
+        public static ChangePasswordResult ArgumentError(IUser             User,
                                                          EventTracking_Id  EventTrackingId,
                                                          String            Argument,
                                                          String            Description)
@@ -95,10 +95,10 @@ namespace social.OpenData.UsersAPI
                         Description
                     ));
 
-        public static ChangePasswordResult ArgumentError(IEnumerable<User>  Users,
-                                                         EventTracking_Id   EventTrackingId,
-                                                         String             Argument,
-                                                         String             Description)
+        public static ChangePasswordResult ArgumentError(IEnumerable<IUser>  Users,
+                                                         EventTracking_Id    EventTrackingId,
+                                                         String              Argument,
+                                                         String              Description)
 
             => new (Users,
                     EventTrackingId,
@@ -109,7 +109,7 @@ namespace social.OpenData.UsersAPI
                         Description
                     ));
 
-        public static ChangePasswordResult ArgumentError(User              User,
+        public static ChangePasswordResult ArgumentError(IUser             User,
                                                          EventTracking_Id  EventTrackingId,
                                                          String            Argument,
                                                          I18NString        Description)
@@ -120,10 +120,10 @@ namespace social.OpenData.UsersAPI
                     Argument,
                     Description);
 
-        public static ChangePasswordResult ArgumentError(IEnumerable<User>  Users,
-                                                         EventTracking_Id   EventTrackingId,
-                                                         String             Argument,
-                                                         I18NString         Description)
+        public static ChangePasswordResult ArgumentError(IEnumerable<IUser>  Users,
+                                                         EventTracking_Id    EventTrackingId,
+                                                         String              Argument,
+                                                         I18NString          Description)
 
             => new (Users,
                     EventTrackingId,
@@ -132,7 +132,7 @@ namespace social.OpenData.UsersAPI
                     Description);
 
 
-        public static ChangePasswordResult Failed(User              User,
+        public static ChangePasswordResult Failed(IUser             User,
                                                   EventTracking_Id  EventTrackingId,
                                                   String            Description)
 
@@ -145,9 +145,9 @@ namespace social.OpenData.UsersAPI
                         Description
                     ));
 
-        public static ChangePasswordResult Failed(IEnumerable<User>  Users,
-                                                  EventTracking_Id   EventTrackingId,
-                                                  String             Description)
+        public static ChangePasswordResult Failed(IEnumerable<IUser>  Users,
+                                                  EventTracking_Id    EventTrackingId,
+                                                  String              Description)
 
             => new (Users,
                     EventTrackingId,
@@ -158,7 +158,7 @@ namespace social.OpenData.UsersAPI
                         Description
                     ));
 
-        public static ChangePasswordResult Failed(User              User,
+        public static ChangePasswordResult Failed(IUser             User,
                                                   EventTracking_Id  EventTrackingId,
                                                   I18NString        Description)
 
@@ -168,9 +168,9 @@ namespace social.OpenData.UsersAPI
                     null,
                     Description);
 
-        public static ChangePasswordResult Failed(IEnumerable<User>  Users,
-                                                  EventTracking_Id   EventTrackingId,
-                                                  I18NString         Description)
+        public static ChangePasswordResult Failed(IEnumerable<IUser>  Users,
+                                                  EventTracking_Id    EventTrackingId,
+                                                  I18NString          Description)
 
             => new (Users,
                     EventTrackingId,
@@ -178,7 +178,7 @@ namespace social.OpenData.UsersAPI
                     null,
                     Description);
 
-        public static ChangePasswordResult Failed(User              User,
+        public static ChangePasswordResult Failed(IUser             User,
                                                   EventTracking_Id  EventTrackingId,
                                                   Exception         Exception)
 
@@ -191,9 +191,9 @@ namespace social.OpenData.UsersAPI
                         Exception.Message
                     ));
 
-        public static ChangePasswordResult Failed(IEnumerable<User>  Users,
-                                                  EventTracking_Id   EventTrackingId,
-                                                  Exception          Exception)
+        public static ChangePasswordResult Failed(IEnumerable<IUser>  Users,
+                                                  EventTracking_Id    EventTrackingId,
+                                                  Exception           Exception)
 
             => new (Users,
                     EventTrackingId,

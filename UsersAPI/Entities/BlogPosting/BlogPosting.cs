@@ -166,7 +166,7 @@ namespace social.OpenData.UsersAPI
         /// The optional author(s) of this blog posting.
         /// </summary>
         [Optional]
-        public IEnumerable<User>                  Authors               { get; }
+        public IEnumerable<IUser>                 Authors               { get; }
 
         /// <summary>
         /// The timestamp of the publication of this blog posting.
@@ -237,7 +237,7 @@ namespace social.OpenData.UsersAPI
                            String                      TeaserImage,
                            I18NString                  Text,
                            BlogPosting_Id?             Id                = null,
-                           IEnumerable<User>?          Authors           = null,
+                           IEnumerable<IUser>?         Authors           = null,
                            DateTime?                   PublicationDate   = null,
                            DateTime?                   LastChangeDate    = null,
                            GeoCoordinate?              GeoLocation       = null,
@@ -252,9 +252,12 @@ namespace social.OpenData.UsersAPI
 
             : base(Id ?? BlogPosting_Id.Random(),
                    DefaultJSONLDContext,
-                   LastChangeDate,
+                   null,
+                   null,
                    Signatures,
                    CustomData,
+                   null,
+                   LastChangeDate,
                    DataSource)
 
         {
@@ -263,7 +266,7 @@ namespace social.OpenData.UsersAPI
             this.Teaser           = Teaser;
             this.TeaserImage      = TeaserImage;
             this.Text             = Text;
-            this.Authors          = Authors         ?? Array.Empty<User>();
+            this.Authors          = Authors         ?? Array.Empty<IUser>();
             this.PublicationDate  = PublicationDate ?? Timestamp.Now;
             this.GeoLocation      = GeoLocation;
             this.Category         = Category;
@@ -322,7 +325,7 @@ namespace social.OpenData.UsersAPI
                        ? new JProperty("geoLocation",    GeoLocation.Value.ToJSON())
                        : null,
 
-                   Category is not null && Category.IsNeitherNullNorEmpty()
+                   Category is not null && Category.IsNotNullOrEmpty()
                        ? new JProperty("category",       Category.ToJSON())
                        : null,
 
@@ -808,8 +811,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// A blog posting builder.
         /// </summary>
-        public new class Builder : AEntity<BlogPosting_Id,
-                                           BlogPosting>.Builder
+        public new class Builder : AEntity<BlogPosting_Id, BlogPosting>.Builder
         {
 
             #region Properties
@@ -842,7 +844,7 @@ namespace social.OpenData.UsersAPI
             /// The optional authors of this blog posting.
             /// </summary>
             [Optional]
-            public HashSet<User>                      Authors               { get; }
+            public HashSet<IUser>                     Authors               { get; }
 
             /// <summary>
             /// The timestamp of the publication of this blog posting.
@@ -909,7 +911,7 @@ namespace social.OpenData.UsersAPI
                            I18NString?                 Teaser            = null,
                            String?                     TeaserImage       = null,
                            I18NString?                 Text              = null,
-                           IEnumerable<User>?          Authors           = null,
+                           IEnumerable<IUser>?         Authors           = null,
                            DateTime?                   PublicationDate   = null,
                            DateTime?                   LastChangeDate    = null,
                            GeoCoordinate?              GeoLocation       = null,
@@ -927,6 +929,7 @@ namespace social.OpenData.UsersAPI
                        LastChangeDate,
                        Signatures,
                        CustomData,
+                       null,
                        DataSource)
 
             {
@@ -937,8 +940,8 @@ namespace social.OpenData.UsersAPI
                 this.TeaserImage      = TeaserImage;
                 this.Text             = Text;
                 this.Authors          = Authors is not null
-                                            ? new HashSet<User>(Authors)
-                                            : new HashSet<User>();
+                                            ? new HashSet<IUser>(Authors)
+                                            : new HashSet<IUser>();
                 this.PublicationDate  = PublicationDate ?? Timestamp.Now;
                 this.GeoLocation      = GeoLocation;
                 this.Category         = Category;
@@ -956,22 +959,24 @@ namespace social.OpenData.UsersAPI
             public BlogPosting Sign(ICipherParameters PrivateKey)
             {
 
-                var posting     = new BlogPosting(Title,
-                                                  Teaser,
-                                                  TeaserImage,
-                                                  Text,
-                                                  Id,
-                                                  null,
-                                                  PublicationDate,
-                                                  LastChangeDate,
-                                                  GeoLocation,
-                                                  Category,
-                                                  Tags,
-                                                  PrivacyLevel,
-                                                  IsHidden,
-                                                  Signatures,
-                                                  CustomData,
-                                                  DataSource);
+                var posting     = new BlogPosting(
+                                      Title,
+                                      Teaser,
+                                      TeaserImage,
+                                      Text,
+                                      Id,
+                                      null,
+                                      PublicationDate,
+                                      LastChangeDate,
+                                      GeoLocation,
+                                      Category,
+                                      Tags,
+                                      PrivacyLevel,
+                                      IsHidden,
+                                      Signatures,
+                                      CustomData,
+                                      DataSource
+                                  );
 
                 var ctext       = posting.ToJSON(Embedded:    false,
                                                  ExpandTags:  InfoStatus.ShowIdOnly).ToString(Formatting.None);
@@ -986,22 +991,24 @@ namespace social.OpenData.UsersAPI
                                       new Signature("json", "secp256k1", "DER+HEX", signature)
                                   };
 
-                return new BlogPosting(Title,
-                                       Teaser,
-                                       TeaserImage,
-                                       Text,
-                                       Id,
-                                       null,
-                                       PublicationDate,
-                                       LastChangeDate,
-                                       GeoLocation,
-                                       Category,
-                                       Tags,
-                                       PrivacyLevel,
-                                       IsHidden,
-                                       signatures,
-                                       CustomData,
-                                       DataSource);
+                return new BlogPosting(
+                           Title,
+                           Teaser,
+                           TeaserImage,
+                           Text,
+                           Id,
+                           null,
+                           PublicationDate,
+                           LastChangeDate,
+                           GeoLocation,
+                           Category,
+                           Tags,
+                           PrivacyLevel,
+                           IsHidden,
+                           signatures,
+                           CustomData,
+                           DataSource
+                       );
 
             }
 
@@ -1013,6 +1020,16 @@ namespace social.OpenData.UsersAPI
             public override int CompareTo(object obj)
             {
                 return 0;
+            }
+
+            public override bool Equals(BlogPosting? other)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override int CompareTo(BlogPosting? other)
+            {
+                throw new NotImplementedException();
             }
 
 

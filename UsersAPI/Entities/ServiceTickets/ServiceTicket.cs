@@ -239,7 +239,7 @@ namespace social.OpenData.UsersAPI
                                                                                     ServiceTicketStatusTypes.New);
 
 
-            Title                = this.ChangeSets.Where(entry => entry.Title.IsNeitherNullNorEmpty()).
+            Title                = this.ChangeSets.Where(entry => entry.Title.IsNotNullOrEmpty()).
                                                    FirstOrDefault()?.Title;
 
             if (this.Title.IsNullOrEmpty())
@@ -253,7 +253,7 @@ namespace social.OpenData.UsersAPI
                                                    FirstOrDefault()?.Priority
                                                    ?? ServiceTicketPriorities.Normal;
 
-            Location             = this.ChangeSets.Where(entry => entry.Location.IsNeitherNullNorEmpty()).
+            Location             = this.ChangeSets.Where(entry => entry.Location.IsNotNullOrEmpty()).
                                                    FirstOrDefault()?.Location;
 
             GeoLocation          = this.ChangeSets.Where(entry => entry.GeoLocation.HasValue).
@@ -271,7 +271,7 @@ namespace social.OpenData.UsersAPI
             Reactions            = this.ChangeSets.Where(entry => entry.Reactions.SafeAny()).
                                                    FirstOrDefault()?.Reactions;
 
-            AdditionalInfo       = this.ChangeSets.Where(entry => entry.AdditionalInfo.IsNeitherNullNorEmpty()).
+            AdditionalInfo       = this.ChangeSets.Where(entry => entry.AdditionalInfo.IsNotNullOrEmpty()).
                                                    FirstOrDefault()?.AdditionalInfo;
 
             AttachedFiles        = this.ChangeSets.Where(entry => entry.AttachedFiles.SafeAny()).
@@ -451,7 +451,7 @@ namespace social.OpenData.UsersAPI
 
                                        new JProperty("priority", Priority.ToString().ToLower()),
 
-                                       Location.IsNeitherNullNorEmpty()
+                                       Location.IsNotNullOrEmpty()
                                            ? new JProperty("location",     Location.ToJSON())
                                            : null,
 
@@ -477,7 +477,7 @@ namespace social.OpenData.UsersAPI
                                                  () => new JProperty("reactions",     new JArray(Reactions.          Select(tag                => tag.ToJSON()))))
                                            : null,
 
-                                       AdditionalInfo.IsNeitherNullNorEmpty()
+                                       AdditionalInfo.IsNotNullOrEmpty()
                                            ? new JProperty("additionalInfo", AdditionalInfo.ToJSON())
                                            : null,
 
@@ -1408,7 +1408,7 @@ namespace social.OpenData.UsersAPI
             /// The title of the service ticket (10-200 characters).
             /// </summary>
             public I18NString Title
-                 => ChangeSets?.Where(entry => entry.Title.IsNeitherNullNorEmpty()).
+                 => ChangeSets?.Where(entry => entry.Title.IsNotNullOrEmpty()).
                              FirstOrDefault()?.Title;
 
             /// <summary>
@@ -1430,7 +1430,7 @@ namespace social.OpenData.UsersAPI
             /// The location of the problem or broken device.
             /// </summary>
             public I18NString Location
-                => ChangeSets?.Where(entry => entry.Location.IsNeitherNullNorEmpty()).
+                => ChangeSets?.Where(entry => entry.Location.IsNotNullOrEmpty()).
                                FirstOrDefault()?.Location;
 
             /// <summary>
@@ -1472,7 +1472,7 @@ namespace social.OpenData.UsersAPI
             /// Additional multi-language information related to this service ticket.
             /// </summary>
             public I18NString AdditionalInfo
-                => ChangeSets?.Where(entry => entry.AdditionalInfo.IsNeitherNullNorEmpty()).
+                => ChangeSets?.Where(entry => entry.AdditionalInfo.IsNotNullOrEmpty()).
                             FirstOrDefault()?.AdditionalInfo;
 
             /// <summary>
@@ -1859,6 +1859,16 @@ namespace social.OpenData.UsersAPI
             /// </summary>
             public override String ToString()
                 => Id.ToString();
+
+            public override bool Equals(ServiceTicket? other)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override int CompareTo(ServiceTicket? other)
+            {
+                throw new NotImplementedException();
+            }
 
             #endregion
 

@@ -137,7 +137,7 @@ namespace social.OpenData.UsersAPI.Notifications
 
                          new JProperty("title",           Title.               ToJSON()),
 
-                   Description.IsNeitherNullNorEmpty()
+                   Description.IsNotNullOrEmpty()
                        ? new JProperty("description",     Description.         ToJSON())
                        : null,
 

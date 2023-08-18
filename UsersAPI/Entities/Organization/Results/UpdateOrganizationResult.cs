@@ -25,93 +25,329 @@ using org.GraphDefined.Vanaheimr.Hermod;
 namespace social.OpenData.UsersAPI
 {
 
-    public class UpdateOrganizationResult : AResult<Organization>
+    /// <summary>
+    /// The result of an update organization request.
+    /// </summary>
+    public class UpdateOrganizationResult : AEnitityResult<IOrganization, Organization_Id>
     {
 
-        public Organization Organization
+        #region Properties
+
+        public IOrganization?  Organization
             => Object;
 
+        public IOrganization?  ParentOrganization    { get; internal set; }
 
-        public UpdateOrganizationResult(Organization      Organization,
-                                        EventTracking_Id  EventTrackingId,
-                                        Boolean           IsSuccess,
-                                        String            Argument          = null,
-                                        I18NString        ErrorDescription  = null)
+        #endregion
+
+        #region Constructor(s)
+
+        public UpdateOrganizationResult(IOrganization          Organization,
+                                        CommandResult          Result,
+                                        EventTracking_Id?      EventTrackingId      = null,
+                                        IId?                   SenderId             = null,
+                                        Object?                Sender               = null,
+                                        IOrganization?         ParentOrganization   = null,
+                                        I18NString?            Description          = null,
+                                        IEnumerable<Warning>?  Warnings             = null,
+                                        TimeSpan?              Runtime              = null)
 
             : base(Organization,
+                   Result,
                    EventTrackingId,
-                   IsSuccess,
-                   Argument,
-                   ErrorDescription)
+                   SenderId,
+                   Sender,
+                   Description,
+                   Warnings,
+                   Runtime)
 
-        { }
+        {
 
+            this.ParentOrganization = ParentOrganization;
 
-        public static UpdateOrganizationResult Success(Organization      Organization,
-                                                       EventTracking_Id  EventTrackingId)
-
-            => new UpdateOrganizationResult(Organization,
-                                    EventTrackingId,
-                                    true,
-                                    null,
-                                    null);
+        }
 
 
-        public static UpdateOrganizationResult ArgumentError(Organization      Organization,
-                                                             EventTracking_Id  EventTrackingId,
-                                                             String            Argument,
-                                                             String            Description)
+        public UpdateOrganizationResult(Organization_Id        OrganizationId,
+                                        CommandResult          Result,
+                                        EventTracking_Id?      EventTrackingId      = null,
+                                        IId?                   SenderId             = null,
+                                        Object?                Sender               = null,
+                                        IOrganization?         ParentOrganization   = null,
+                                        I18NString?            Description          = null,
+                                        IEnumerable<Warning>?  Warnings             = null,
+                                        TimeSpan?              Runtime              = null)
 
-            => new UpdateOrganizationResult(Organization,
-                                            EventTrackingId,
-                                            false,
-                                            Argument,
-                                            I18NString.Create(Languages.en,
-                                                              Description));
+            : base(OrganizationId,
+                   Result,
+                   EventTrackingId,
+                   SenderId,
+                   Sender,
+                   Description,
+                   Warnings,
+                   Runtime)
 
-        public static UpdateOrganizationResult ArgumentError(Organization      Organization,
-                                                             EventTracking_Id  EventTrackingId,
-                                                             String            Argument,
-                                                             I18NString        Description)
+        {
 
-            => new UpdateOrganizationResult(Organization,
-                                            EventTrackingId,
-                                            false,
-                                            Argument,
-                                            Description);
+            this.ParentOrganization = ParentOrganization;
+
+        }
+
+        #endregion
 
 
-        public static UpdateOrganizationResult Failed(Organization      Organization,
-                                                      EventTracking_Id  EventTrackingId,
-                                                      String            Description)
+        #region (static) AdminDown    (Organization, ...)
 
-            => new UpdateOrganizationResult(Organization,
-                                            EventTrackingId,
-                                            false,
-                                            null,
-                                            I18NString.Create(Languages.en,
-                                                              Description));
+        public static UpdateOrganizationResult
 
-        public static UpdateOrganizationResult Failed(Organization      Organization,
-                                                      EventTracking_Id  EventTrackingId,
-                                                      I18NString        Description)
+            AdminDown(IOrganization          Organization,
+                      EventTracking_Id?      EventTrackingId      = null,
+                      IId?                   SenderId             = null,
+                      Object?                Sender               = null,
+                      IOrganization?         ParentOrganization   = null,
+                      I18NString?            Description          = null,
+                      IEnumerable<Warning>?  Warnings             = null,
+                      TimeSpan?              Runtime              = null)
 
-            => new UpdateOrganizationResult(Organization,
-                                            EventTrackingId,
-                                            false,
-                                            null,
-                                            Description);
+                => new (Organization,
+                        CommandResult.AdminDown,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        ParentOrganization,
+                        Description,
+                        Warnings,
+                        Runtime);
 
-        public static UpdateOrganizationResult Failed(Organization      Organization,
-                                                      EventTracking_Id  EventTrackingId,
-                                                      Exception         Exception)
+        #endregion
 
-            => new UpdateOrganizationResult(Organization,
-                                            EventTrackingId,
-                                            false,
-                                            null,
-                                            I18NString.Create(Languages.en,
-                                                              Exception.Message));
+        #region (static) NoOperation  (Organization, ...)
+
+        public static UpdateOrganizationResult
+
+            NoOperation(IOrganization          Organization,
+                        EventTracking_Id?      EventTrackingId      = null,
+                        IId?                   SenderId             = null,
+                        Object?                Sender               = null,
+                        IOrganization?         ParentOrganization   = null,
+                        I18NString?            Description          = null,
+                        IEnumerable<Warning>?  Warnings             = null,
+                        TimeSpan?              Runtime              = null)
+
+                => new (Organization,
+                        CommandResult.NoOperation,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        ParentOrganization,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+
+        #region (static) Enqueued     (Organization, ...)
+
+        public static UpdateOrganizationResult
+
+            Enqueued(IOrganization          Organization,
+                     EventTracking_Id?      EventTrackingId      = null,
+                     IId?                   SenderId             = null,
+                     Object?                Sender               = null,
+                     IOrganization?         ParentOrganization   = null,
+                     I18NString?            Description          = null,
+                     IEnumerable<Warning>?  Warnings             = null,
+                     TimeSpan?              Runtime              = null)
+
+                => new (Organization,
+                        CommandResult.Enqueued,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        ParentOrganization,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) Success      (Organization, ...)
+
+        public static UpdateOrganizationResult
+
+            Success(IOrganization          Organization,
+                    EventTracking_Id?      EventTrackingId      = null,
+                    IId?                   SenderId             = null,
+                    Object?                Sender               = null,
+                    IOrganization?         ParentOrganization   = null,
+                    I18NString?            Description          = null,
+                    IEnumerable<Warning>?  Warnings             = null,
+                    TimeSpan?              Runtime              = null)
+
+                => new (Organization,
+                        CommandResult.Success,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        ParentOrganization,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+
+        #region (static) ArgumentError(Organization,   Description, ...)
+
+        public static UpdateOrganizationResult
+
+            ArgumentError(IOrganization          Organization,
+                          I18NString             Description,
+                          EventTracking_Id?      EventTrackingId      = null,
+                          IId?                   SenderId             = null,
+                          Object?                Sender               = null,
+                          IOrganization?         ParentOrganization   = null,
+                          IEnumerable<Warning>?  Warnings             = null,
+                          TimeSpan?              Runtime              = null)
+
+                => new (Organization,
+                        CommandResult.ArgumentError,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        ParentOrganization,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) ArgumentError(OrganizationId, Description, ...)
+
+        public static UpdateOrganizationResult
+
+            ArgumentError(Organization_Id        OrganizationId,
+                          I18NString             Description,
+                          EventTracking_Id?      EventTrackingId      = null,
+                          IId?                   SenderId             = null,
+                          Object?                Sender               = null,
+                          IOrganization?         ParentOrganization   = null,
+                          IEnumerable<Warning>?  Warnings             = null,
+                          TimeSpan?              Runtime              = null)
+
+                => new (OrganizationId,
+                        CommandResult.ArgumentError,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        ParentOrganization,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) Error        (Organization,   Description, ...)
+
+        public static UpdateOrganizationResult
+
+            Error(IOrganization          Organization,
+                  I18NString             Description,
+                  EventTracking_Id?      EventTrackingId      = null,
+                  IId?                   SenderId             = null,
+                  Object?                Sender               = null,
+                  IOrganization?         ParentOrganization   = null,
+                  IEnumerable<Warning>?  Warnings             = null,
+                  TimeSpan?              Runtime              = null)
+
+                => new (Organization,
+                        CommandResult.Error,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        ParentOrganization,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) Error        (Organization,   Exception,   ...)
+
+        public static UpdateOrganizationResult
+
+            Error(IOrganization          Organization,
+                  Exception              Exception,
+                  EventTracking_Id?      EventTrackingId      = null,
+                  IId?                   SenderId             = null,
+                  Object?                Sender               = null,
+                  IOrganization?         ParentOrganization   = null,
+                  IEnumerable<Warning>?  Warnings             = null,
+                  TimeSpan?              Runtime              = null)
+
+                => new (Organization,
+                        CommandResult.Error,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        ParentOrganization,
+                        Exception.Message.ToI18NString(),
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) Timeout      (Organization,   Timeout,     ...)
+
+        public static UpdateOrganizationResult
+
+            Timeout(IOrganization          Organization,
+                    TimeSpan               Timeout,
+                    EventTracking_Id?      EventTrackingId      = null,
+                    IId?                   SenderId             = null,
+                    Object?                Sender               = null,
+                    IOrganization?         ParentOrganization   = null,
+                    IEnumerable<Warning>?  Warnings             = null,
+                    TimeSpan?              Runtime              = null)
+
+                => new (Organization,
+                        CommandResult.Timeout,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        ParentOrganization,
+                        $"Timeout after {Timeout.TotalSeconds} seconds!".ToI18NString(),
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) LockTimeout  (Organization,   Timeout,     ...)
+
+        public static UpdateOrganizationResult
+
+            LockTimeout(IOrganization          Organization,
+                        TimeSpan               Timeout,
+                        EventTracking_Id?      EventTrackingId      = null,
+                        IId?                   SenderId             = null,
+                        Object?                Sender               = null,
+                        IOrganization?         ParentOrganization   = null,
+                        IEnumerable<Warning>?  Warnings             = null,
+                        TimeSpan?              Runtime              = null)
+
+                => new (Organization,
+                        CommandResult.LockTimeout,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        ParentOrganization,
+                        $"Lock timeout after {Timeout.TotalSeconds} seconds!".ToI18NString(),
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
 
     }
 

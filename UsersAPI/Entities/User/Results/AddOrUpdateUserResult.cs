@@ -25,30 +25,44 @@ using org.GraphDefined.Vanaheimr.Hermod;
 namespace social.OpenData.UsersAPI
 {
 
-    public class AddOrUpdateUserResult : AEnitityResult<User, User_Id>
+    /// <summary>
+    /// The result of an add user request.
+    /// </summary>
+    public class AddOrUpdateUserResult : AEnitityResult<IUser, User_Id>
     {
 
-        public User? User
+        #region Properties
+
+        public IUser?           User
             => Object;
 
-        public Organization?    Organization      { get; internal set; }
+        public IOrganization?   Organization      { get; internal set; }
 
         public AddedOrUpdated?  AddedOrUpdated    { get; internal set; }
 
+        #endregion
 
-        public AddOrUpdateUserResult(User              User,
-                                     EventTracking_Id  EventTrackingId,
-                                     Boolean           IsSuccess,
-                                     String?           Argument           = null,
-                                     I18NString?       ErrorDescription   = null,
-                                     Organization?     Organization       = null,
-                                     AddedOrUpdated?   AddedOrUpdated     = null)
+        #region Constructor(s)
+
+        public AddOrUpdateUserResult(IUser                  User,
+                                     CommandResult          Result,
+                                     EventTracking_Id?      EventTrackingId   = null,
+                                     IId?                   SenderId          = null,
+                                     Object?                Sender            = null,
+                                     IOrganization?         Organization      = null,
+                                     AddedOrUpdated?        AddedOrUpdated    = null,
+                                     I18NString?            Description       = null,
+                                     IEnumerable<Warning>?  Warnings          = null,
+                                     TimeSpan?              Runtime           = null)
 
             : base(User,
+                   Result,
                    EventTrackingId,
-                   IsSuccess,
-                   Argument,
-                   ErrorDescription)
+                   SenderId,
+                   Sender,
+                   Description,
+                   Warnings,
+                   Runtime)
 
         {
 
@@ -57,88 +71,271 @@ namespace social.OpenData.UsersAPI
 
         }
 
-
-        public static AddOrUpdateUserResult Success(User              User,
-                                                    AddedOrUpdated    AddedOrUpdated,
-                                                    EventTracking_Id  EventTrackingId,
-                                                    Organization?     Organization   = null)
-
-            => new (User,
-                    EventTrackingId,
-                    true,
-                    null,
-                    null,
-                    Organization,
-                    AddedOrUpdated);
+        #endregion
 
 
-        public static AddOrUpdateUserResult ArgumentError(User              User,
-                                                          EventTracking_Id  EventTrackingId,
-                                                          String            Argument,
-                                                          String            Description)
+        #region (static) AdminDown    (User, ...)
 
-            => new (User,
-                    EventTrackingId,
-                    false,
-                    Argument,
-                    I18NString.Create(
-                        Languages.en,
-                        Description
-                    ));
+        public static AddOrUpdateUserResult
 
-        public static AddOrUpdateUserResult ArgumentError(User              User,
-                                                          EventTracking_Id  EventTrackingId,
-                                                          String            Argument,
-                                                          I18NString        Description)
+            AdminDown(IUser                  User,
+                      EventTracking_Id?      EventTrackingId      = null,
+                      IId?                   SenderId             = null,
+                      Object?                Sender               = null,
+                      IOrganization?         Organization         = null,
+                      I18NString?            Description          = null,
+                      IEnumerable<Warning>?  Warnings             = null,
+                      TimeSpan?              Runtime              = null)
 
-            => new (User,
-                    EventTrackingId,
-                    false,
-                    Argument,
-                    Description);
+                => new (User,
+                        CommandResult.AdminDown,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        org.GraphDefined.Vanaheimr.Hermod.AddedOrUpdated.NoOperation,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) NoOperation  (User, ...)
+
+        public static AddOrUpdateUserResult
+
+            NoOperation(IUser                  User,
+                        EventTracking_Id?      EventTrackingId      = null,
+                        IId?                   SenderId             = null,
+                        Object?                Sender               = null,
+                        IOrganization?         Organization         = null,
+                        I18NString?            Description          = null,
+                        IEnumerable<Warning>?  Warnings             = null,
+                        TimeSpan?              Runtime              = null)
+
+                => new (User,
+                        CommandResult.NoOperation,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        org.GraphDefined.Vanaheimr.Hermod.AddedOrUpdated.NoOperation,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
 
 
-        public static AddOrUpdateUserResult Failed(User              User,
-                                                   EventTracking_Id  EventTrackingId,
-                                                   String            Description,
-                                                   Organization?     Organization   = null)
+        #region (static) Enqueued     (User, ...)
 
-            => new (User,
-                    EventTrackingId,
-                    false,
-                    null,
-                    I18NString.Create(
-                        Languages.en,
-                        Description
-                    ),
-                    Organization);
+        public static AddOrUpdateUserResult
 
-        public static AddOrUpdateUserResult Failed(User              User,
-                                                   EventTracking_Id  EventTrackingId,
-                                                   I18NString        Description,
-                                                   Organization?     Organization   = null)
+            Enqueued(IUser                  User,
+                     EventTracking_Id?      EventTrackingId      = null,
+                     IId?                   SenderId             = null,
+                     Object?                Sender               = null,
+                     IOrganization?         Organization         = null,
+                     I18NString?            Description          = null,
+                     IEnumerable<Warning>?  Warnings             = null,
+                     TimeSpan?              Runtime              = null)
 
-            => new (User,
-                    EventTrackingId,
-                    false,
-                    null,
-                    Description,
-                    Organization);
+                => new (User,
+                        CommandResult.Enqueued,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        org.GraphDefined.Vanaheimr.Hermod.AddedOrUpdated.Enqueued,
+                        Description,
+                        Warnings,
+                        Runtime);
 
-        public static AddOrUpdateUserResult Failed(User              User,
-                                                   EventTracking_Id  EventTrackingId,
-                                                   Exception         Exception,
-                                                   Organization?     Organization   = null)
+        #endregion
 
-            => new (User,
-                    EventTrackingId,
-                    false,
-                    null,
-                    I18NString.Create(
-                        Languages.en,
-                        Exception.Message
-                    ),
-                    Organization);
+        #region (static) Added        (User, ...)
+
+        public static AddOrUpdateUserResult
+
+            Added(IUser                  User,
+                  EventTracking_Id?      EventTrackingId      = null,
+                  IId?                   SenderId             = null,
+                  Object?                Sender               = null,
+                  IOrganization?         Organization         = null,
+                  I18NString?            Description          = null,
+                  IEnumerable<Warning>?  Warnings             = null,
+                  TimeSpan?              Runtime              = null)
+
+                => new (User,
+                        CommandResult.Success,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        org.GraphDefined.Vanaheimr.Hermod.AddedOrUpdated.Add,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) Updated      (User, ...)
+
+        public static AddOrUpdateUserResult
+
+            Updated(IUser                  User,
+                    EventTracking_Id?      EventTrackingId      = null,
+                    IId?                   SenderId             = null,
+                    Object?                Sender               = null,
+                    IOrganization?         Organization         = null,
+                    I18NString?            Description          = null,
+                    IEnumerable<Warning>?  Warnings             = null,
+                    TimeSpan?              Runtime              = null)
+
+                => new (User,
+                        CommandResult.Success,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        org.GraphDefined.Vanaheimr.Hermod.AddedOrUpdated.Update,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+
+        #region (static) ArgumentError(User, Description, ...)
+
+        public static AddOrUpdateUserResult
+
+            ArgumentError(IUser                  User,
+                          I18NString             Description,
+                          EventTracking_Id?      EventTrackingId      = null,
+                          IId?                   SenderId             = null,
+                          Object?                Sender               = null,
+                          IOrganization?         Organization         = null,
+                          IEnumerable<Warning>?  Warnings             = null,
+                          TimeSpan?              Runtime              = null)
+
+                => new (User,
+                        CommandResult.ArgumentError,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        org.GraphDefined.Vanaheimr.Hermod.AddedOrUpdated.Failed,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) Error        (User, Description, ...)
+
+        public static AddOrUpdateUserResult
+
+            Error(IUser                  User,
+                  I18NString             Description,
+                  EventTracking_Id?      EventTrackingId      = null,
+                  IId?                   SenderId             = null,
+                  Object?                Sender               = null,
+                  IOrganization?         Organization         = null,
+                  IEnumerable<Warning>?  Warnings             = null,
+                  TimeSpan?              Runtime              = null)
+
+                => new (User,
+                        CommandResult.Error,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        org.GraphDefined.Vanaheimr.Hermod.AddedOrUpdated.Failed,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) Error        (User, Exception,   ...)
+
+        public static AddOrUpdateUserResult
+
+            Error(IUser                  User,
+                  Exception              Exception,
+                  EventTracking_Id?      EventTrackingId      = null,
+                  IId?                   SenderId             = null,
+                  Object?                Sender               = null,
+                  IOrganization?         Organization         = null,
+                  IEnumerable<Warning>?  Warnings             = null,
+                  TimeSpan?              Runtime              = null)
+
+                => new (User,
+                        CommandResult.Error,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        org.GraphDefined.Vanaheimr.Hermod.AddedOrUpdated.Failed,
+                        Exception.Message.ToI18NString(),
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) Timeout      (User, Timeout,     ...)
+
+        public static AddOrUpdateUserResult
+
+            Timeout(IUser                  User,
+                    TimeSpan               Timeout,
+                    EventTracking_Id?      EventTrackingId      = null,
+                    IId?                   SenderId             = null,
+                    Object?                Sender               = null,
+                    IOrganization?         Organization         = null,
+                    IEnumerable<Warning>?  Warnings             = null,
+                    TimeSpan?              Runtime              = null)
+
+                => new (User,
+                        CommandResult.Timeout,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        org.GraphDefined.Vanaheimr.Hermod.AddedOrUpdated.Failed,
+                        $"Timeout after {Timeout.TotalSeconds} seconds!".ToI18NString(),
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) LockTimeout  (User, Timeout,     ...)
+
+        public static AddOrUpdateUserResult
+
+            LockTimeout(IUser                  User,
+                        TimeSpan               Timeout,
+                        EventTracking_Id?      EventTrackingId      = null,
+                        IId?                   SenderId             = null,
+                        Object?                Sender               = null,
+                        IOrganization?         Organization         = null,
+                        IEnumerable<Warning>?  Warnings             = null,
+                        TimeSpan?              Runtime              = null)
+
+                => new (User,
+                        CommandResult.LockTimeout,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        org.GraphDefined.Vanaheimr.Hermod.AddedOrUpdated.Failed,
+                        $"Lock timeout after {Timeout.TotalSeconds} seconds!".ToI18NString(),
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
 
     }
 

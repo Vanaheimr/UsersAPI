@@ -154,7 +154,7 @@ namespace social.OpenData.UsersAPI
         /// The author of the news banner.
         /// </summary>
         [Mandatory]
-        public User                               Author                { get; }
+        public IUser                              Author                { get; }
 
         /// <summary>
         /// The timestamp of the publication of this FAQ.
@@ -174,11 +174,6 @@ namespace social.OpenData.UsersAPI
         [Optional]
         public Boolean                            IsHidden              { get; }
 
-        /// <summary>
-        /// All signatures of this FAQ.
-        /// </summary>
-        public IEnumerable<Signature>             Signatures            { get; }
-
         #endregion
 
         #region Events
@@ -197,15 +192,15 @@ namespace social.OpenData.UsersAPI
         /// <param name="Signatures">All signatures of this FAQ.</param>
         public FAQ(I18NString                  Question,
                    I18NString                  Answer,
-                   User                        Author,
+                   IUser                       Author,
                    DateTime?                   PublicationDate   = null,
-                   IEnumerable<TagRelevance>   Tags              = null,
+                   IEnumerable<TagRelevance>?  Tags              = null,
                    Boolean                     IsHidden          = false,
 
-                   IEnumerable<Signature>      Signatures        = null,
+                   IEnumerable<Signature>?     Signatures        = null,
 
-                   JObject                     CustomData        = default,
-                   String                      DataSource        = default,
+                   JObject?                    CustomData        = default,
+                   String?                     DataSource        = default,
                    DateTime?                   LastChange        = default)
 
             : this(FAQ_Id.Random(),
@@ -236,22 +231,25 @@ namespace social.OpenData.UsersAPI
         public FAQ(FAQ_Id                      Id,
                    I18NString                  Question,
                    I18NString                  Answer,
-                   User                        Author,
+                   IUser                       Author,
                    DateTime?                   PublicationDate   = null,
-                   IEnumerable<TagRelevance>   Tags              = null,
+                   IEnumerable<TagRelevance>?  Tags              = null,
                    Boolean                     IsHidden          = false,
 
-                   IEnumerable<Signature>      Signatures        = null,
+                   IEnumerable<Signature>?     Signatures        = null,
 
-                   JObject                     CustomData        = default,
-                   String                      DataSource        = default,
+                   JObject?                    CustomData        = default,
+                   String?                     DataSource        = default,
                    DateTime?                   LastChange        = default)
 
             : base(Id,
                    DefaultJSONLDContext,
-                   LastChange,
                    null,
+                   null,
+                   Signatures,
                    CustomData,
+                   null,
+                   LastChange,
                    DataSource)
 
         {
@@ -260,10 +258,8 @@ namespace social.OpenData.UsersAPI
             this.Answer           = Answer          ?? throw new ArgumentNullException(nameof(Answer),    "The given answer must not be null!");
             this.Author           = Author          ?? throw new ArgumentNullException(nameof(Author),    "The given author must not be null!");
             this.PublicationDate  = PublicationDate ?? DateTime.Now;
-            this.Tags             = Tags            ?? new TagRelevance[0];
+            this.Tags             = Tags            ?? Array.Empty<TagRelevance>();
             this.IsHidden         = IsHidden;
-
-            this.Signatures       = Signatures      ?? new Signature[0];
 
         }
 
@@ -411,7 +407,7 @@ namespace social.OpenData.UsersAPI
 
                 #region Parse Author            [mandatory]
 
-                User Author = null;
+                IUser? Author = null;
 
                 if (JSONObject["author"] is JObject authorJSON &&
                     authorJSON.ParseMandatory("@id",
@@ -794,19 +790,19 @@ namespace social.OpenData.UsersAPI
             /// The (multi-language) headline of this FAQ.
             /// </summary>
             [Mandatory]
-            public I18NString                         Question              { get; set; }
+            public I18NString?                        Question              { get; set; }
 
             /// <summary>
             /// The (multi-language) text of this FAQ.
             /// </summary>
             [Mandatory]
-            public I18NString                         Answer                { get; set; }
+            public I18NString?                        Answer                { get; set; }
 
             /// <summary>
             /// The author of this FAQ.
             /// </summary>
             [Mandatory]
-            public User                               Author                { get; set; }
+            public IUser?                             Author                { get; set; }
 
             /// <summary>
             /// The timestamp of the publication of this FAQ.
@@ -826,11 +822,6 @@ namespace social.OpenData.UsersAPI
             [Optional]
             public Boolean                            IsHidden              { get; set; }
 
-            /// <summary>
-            /// All signatures of this FAQ.
-            /// </summary>
-            public List<Signature>                    Signatures            { get; set; }
-
             #endregion
 
             #region Constructor(s)
@@ -846,24 +837,25 @@ namespace social.OpenData.UsersAPI
             /// <param name="IsHidden">The FAQ is hidden.</param>
             /// <param name="Signatures">All signatures of this FAQ.</param>
             /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
-            public Builder(FAQ_Id?                    Id                = null,
-                           I18NString                 Question          = null,
-                           I18NString                 Answer            = null,
-                           User                       Author            = null,
-                           DateTime?                  PublicationDate   = null,
-                           IEnumerable<TagRelevance>  Tags              = null,
-                           Boolean                    IsHidden          = false,
-                           IEnumerable<Signature>     Signatures        = null,
+            public Builder(FAQ_Id?                     Id                = null,
+                           I18NString?                 Question          = null,
+                           I18NString?                 Answer            = null,
+                           IUser?                      Author            = null,
+                           DateTime?                   PublicationDate   = null,
+                           IEnumerable<TagRelevance>?  Tags              = null,
+                           Boolean                     IsHidden          = false,
+                           IEnumerable<Signature>?     Signatures        = null,
 
-                           JObject                    CustomData        = default,
-                           String                     DataSource        = default,
-                           DateTime?                  LastChange        = default)
+                           JObject?                    CustomData        = default,
+                           String?                     DataSource        = default,
+                           DateTime?                   LastChange        = default)
 
                 : base(Id ?? FAQ_Id.Random(),
                        DefaultJSONLDContext,
                        LastChange,
                        null,
                        CustomData,
+                       null,
                        DataSource)
 
             {
@@ -877,10 +869,6 @@ namespace social.OpenData.UsersAPI
                                             ? new List<TagRelevance>(Tags)
                                             : new List<TagRelevance>();
                 this.IsHidden         = IsHidden;
-
-                this.Signatures       = Signatures != null
-                                            ? new List<Signature>(Signatures)
-                                            : new List<Signature>();
 
             }
 
@@ -939,9 +927,19 @@ namespace social.OpenData.UsersAPI
             {
             }
 
-            public override int CompareTo(object obj)
+            public override int CompareTo(object? obj)
             {
                 return 0;
+            }
+
+            public override bool Equals(FAQ? other)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override int CompareTo(FAQ? other)
+            {
+                throw new NotImplementedException();
             }
 
 

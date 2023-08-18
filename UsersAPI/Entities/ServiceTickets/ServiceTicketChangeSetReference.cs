@@ -297,7 +297,7 @@ namespace social.OpenData.UsersAPI
         public override String ToString()
 
             => String.Concat(Id,
-                             Description.IsNeitherNullNorEmpty()
+                             Description.IsNotNullOrEmpty()
                                  ? Description.ToString()
                                  : "");
 

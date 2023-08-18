@@ -859,6 +859,16 @@ namespace social.OpenData.UsersAPI
                 return 0;
             }
 
+            public override bool Equals(NewsBanner? other)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override int CompareTo(NewsBanner? other)
+            {
+                throw new NotImplementedException();
+            }
+
 
             #region ToImmutable
 

@@ -19,36 +19,51 @@
 
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod;
+using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 
 #endregion
 
 namespace social.OpenData.UsersAPI
 {
 
-    public class AddOrUpdateAPIKeyResult : AResult<APIKey>
+    /// <summary>
+    /// The result of an add or update API key request.
+    /// </summary>
+    public class AddOrUpdateAPIKeyResult : AEnitityResult<APIKey, APIKey_Id>
     {
 
-        public APIKey APIKey
+        #region Properties
+
+        public APIKey?          APIKey
             => Object;
 
-        public Organization     Organization      { get; internal set; }
+        public IOrganization?   Organization      { get; internal set; }
 
         public AddedOrUpdated?  AddedOrUpdated    { get; internal set; }
 
+        #endregion
 
-        public AddOrUpdateAPIKeyResult(APIKey            APIKey,
-                                       EventTracking_Id  EventTrackingId,
-                                       Boolean           IsSuccess,
-                                       String            Argument           = null,
-                                       I18NString        ErrorDescription   = null,
-                                       Organization      Organization       = null,
-                                       AddedOrUpdated?   AddedOrUpdated     = null)
+        #region Constructor(s)
+
+        public AddOrUpdateAPIKeyResult(APIKey                 APIKey,
+                                       CommandResult          Result,
+                                       EventTracking_Id?      EventTrackingId   = null,
+                                       IId?                   SenderId          = null,
+                                       Object?                Sender            = null,
+                                       IOrganization?         Organization      = null,
+                                       AddedOrUpdated?        AddedOrUpdated    = null,
+                                       I18NString?            Description       = null,
+                                       IEnumerable<Warning>?  Warnings          = null,
+                                       TimeSpan?              Runtime           = null)
 
             : base(APIKey,
+                   Result,
                    EventTrackingId,
-                   IsSuccess,
-                   Argument,
-                   ErrorDescription)
+                   SenderId,
+                   Sender,
+                   Description,
+                   Warnings,
+                   Runtime)
 
         {
 
@@ -57,82 +72,271 @@ namespace social.OpenData.UsersAPI
 
         }
 
-
-        public static AddOrUpdateAPIKeyResult Success(APIKey            APIKey,
-                                                      AddedOrUpdated    AddedOrUpdated,
-                                                      EventTracking_Id  EventTrackingId,
-                                                      Organization      Organization = null)
-
-            => new AddOrUpdateAPIKeyResult(APIKey,
-                                           EventTrackingId,
-                                           true,
-                                           null,
-                                           null,
-                                           Organization,
-                                           AddedOrUpdated);
+        #endregion
 
 
-        public static AddOrUpdateAPIKeyResult ArgumentError(APIKey            APIKey,
-                                                            EventTracking_Id  EventTrackingId,
-                                                            String            Argument,
-                                                            String            Description)
+        #region (static) AdminDown    (APIKey, ...)
 
-            => new AddOrUpdateAPIKeyResult(APIKey,
-                                           EventTrackingId,
-                                           false,
-                                           Argument,
-                                           I18NString.Create(Languages.en,
-                                                             Description));
+        public static AddOrUpdateAPIKeyResult
 
-        public static AddOrUpdateAPIKeyResult ArgumentError(APIKey            APIKey,
-                                                            EventTracking_Id  EventTrackingId,
-                                                            String            Argument,
-                                                            I18NString        Description)
+            AdminDown(APIKey                 APIKey,
+                      EventTracking_Id?      EventTrackingId   = null,
+                      IId?                   SenderId          = null,
+                      Object?                Sender       = null,
+                      IOrganization?         Organization      = null,
+                      I18NString?            Description       = null,
+                      IEnumerable<Warning>?  Warnings          = null,
+                      TimeSpan?              Runtime           = null)
 
-            => new AddOrUpdateAPIKeyResult(APIKey,
-                                           EventTrackingId,
-                                           false,
-                                           Argument,
-                                           Description);
+                => new (APIKey,
+                        CommandResult.AdminDown,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        org.GraphDefined.Vanaheimr.Hermod.AddedOrUpdated.NoOperation,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) NoOperation  (APIKey, ...)
+
+        public static AddOrUpdateAPIKeyResult
+
+            NoOperation(APIKey                 APIKey,
+                        EventTracking_Id?      EventTrackingId   = null,
+                        IId?                   SenderId          = null,
+                        Object?                Sender       = null,
+                        IOrganization?         Organization      = null,
+                        I18NString?            Description       = null,
+                        IEnumerable<Warning>?  Warnings          = null,
+                        TimeSpan?              Runtime           = null)
+
+                => new (APIKey,
+                        CommandResult.NoOperation,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        org.GraphDefined.Vanaheimr.Hermod.AddedOrUpdated.NoOperation,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
 
 
-        public static AddOrUpdateAPIKeyResult Failed(APIKey            APIKey,
-                                                     EventTracking_Id  EventTrackingId,
-                                                     String            Description,
-                                                     Organization      Organization  = null)
+        #region (static) Enqueued     (APIKey, ...)
 
-            => new AddOrUpdateAPIKeyResult(APIKey,
-                                           EventTrackingId,
-                                           false,
-                                           null,
-                                           I18NString.Create(Languages.en,
-                                                             Description),
-                                           Organization);
+        public static AddOrUpdateAPIKeyResult
 
-        public static AddOrUpdateAPIKeyResult Failed(APIKey            APIKey,
-                                                     EventTracking_Id  EventTrackingId,
-                                                     I18NString        Description,
-                                                     Organization      Organization  = null)
+            Enqueued(APIKey                 APIKey,
+                     EventTracking_Id?      EventTrackingId   = null,
+                     IId?                   SenderId          = null,
+                     Object?                Sender       = null,
+                     IOrganization?         Organization      = null,
+                     I18NString?            Description       = null,
+                     IEnumerable<Warning>?  Warnings          = null,
+                     TimeSpan?              Runtime           = null)
 
-            => new AddOrUpdateAPIKeyResult(APIKey,
-                                           EventTrackingId,
-                                           false,
-                                           null,
-                                           Description,
-                                           Organization);
+                => new (APIKey,
+                        CommandResult.Enqueued,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        org.GraphDefined.Vanaheimr.Hermod.AddedOrUpdated.Enqueued,
+                        Description,
+                        Warnings,
+                        Runtime);
 
-        public static AddOrUpdateAPIKeyResult Failed(APIKey            APIKey,
-                                                     EventTracking_Id  EventTrackingId,
-                                                     Exception         Exception,
-                                                     Organization      Organization  = null)
+        #endregion
 
-            => new AddOrUpdateAPIKeyResult(APIKey,
-                                           EventTrackingId,
-                                           false,
-                                           null,
-                                           I18NString.Create(Languages.en,
-                                                             Exception.Message),
-                                           Organization);
+        #region (static) Added        (APIKey, ...)
+
+        public static AddOrUpdateAPIKeyResult
+
+            Added(APIKey                 APIKey,
+                  EventTracking_Id?      EventTrackingId   = null,
+                  IId?                   SenderId          = null,
+                  Object?                Sender       = null,
+                  IOrganization?         Organization      = null,
+                  I18NString?            Description       = null,
+                  IEnumerable<Warning>?  Warnings          = null,
+                  TimeSpan?              Runtime           = null)
+
+                => new (APIKey,
+                        CommandResult.Success,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        org.GraphDefined.Vanaheimr.Hermod.AddedOrUpdated.Add,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) Updated      (APIKey, ...)
+
+        public static AddOrUpdateAPIKeyResult
+
+            Updated(APIKey                 APIKey,
+                    EventTracking_Id?      EventTrackingId   = null,
+                    IId?                   SenderId          = null,
+                    Object?                Sender       = null,
+                    IOrganization?         Organization      = null,
+                    I18NString?            Description       = null,
+                    IEnumerable<Warning>?  Warnings          = null,
+                    TimeSpan?              Runtime           = null)
+
+                => new (APIKey,
+                        CommandResult.Success,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        org.GraphDefined.Vanaheimr.Hermod.AddedOrUpdated.Update,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+
+        #region (static) ArgumentError(APIKey, Description, ...)
+
+        public static AddOrUpdateAPIKeyResult
+
+            ArgumentError(APIKey                 APIKey,
+                          I18NString             Description,
+                          EventTracking_Id?      EventTrackingId   = null,
+                          IId?                   SenderId          = null,
+                          Object?                Sender       = null,
+                          IOrganization?         Organization      = null,
+                          IEnumerable<Warning>?  Warnings          = null,
+                          TimeSpan?              Runtime           = null)
+
+                => new (APIKey,
+                        CommandResult.ArgumentError,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        org.GraphDefined.Vanaheimr.Hermod.AddedOrUpdated.Failed,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) Error        (APIKey, Description, ...)
+
+        public static AddOrUpdateAPIKeyResult
+
+            Error(APIKey                 APIKey,
+                  I18NString             Description,
+                  EventTracking_Id?      EventTrackingId   = null,
+                  IId?                   SenderId          = null,
+                  Object?                Sender       = null,
+                  IOrganization?         Organization      = null,
+                  IEnumerable<Warning>?  Warnings          = null,
+                  TimeSpan?              Runtime           = null)
+
+                => new (APIKey,
+                        CommandResult.Error,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        org.GraphDefined.Vanaheimr.Hermod.AddedOrUpdated.Failed,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) Error        (APIKey, Exception,   ...)
+
+        public static AddOrUpdateAPIKeyResult
+
+            Error(APIKey                 APIKey,
+                  Exception              Exception,
+                  EventTracking_Id?      EventTrackingId   = null,
+                  IId?                   SenderId          = null,
+                  Object?                Sender       = null,
+                  IOrganization?         Organization      = null,
+                  IEnumerable<Warning>?  Warnings          = null,
+                  TimeSpan?              Runtime           = null)
+
+                => new (APIKey,
+                        CommandResult.Error,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        org.GraphDefined.Vanaheimr.Hermod.AddedOrUpdated.Failed,
+                        Exception.Message.ToI18NString(),
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) Timeout      (APIKey, Timeout,     ...)
+
+        public static AddOrUpdateAPIKeyResult
+
+            Timeout(APIKey                 APIKey,
+                    TimeSpan               Timeout,
+                    EventTracking_Id?      EventTrackingId   = null,
+                    IId?                   SenderId          = null,
+                    Object?                Sender       = null,
+                    IOrganization?         Organization      = null,
+                    IEnumerable<Warning>?  Warnings          = null,
+                    TimeSpan?              Runtime           = null)
+
+                => new (APIKey,
+                        CommandResult.Timeout,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        org.GraphDefined.Vanaheimr.Hermod.AddedOrUpdated.Failed,
+                        $"Timeout after {Timeout.TotalSeconds} seconds!".ToI18NString(),
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) LockTimeout  (APIKey, Timeout,     ...)
+
+        public static AddOrUpdateAPIKeyResult
+
+            LockTimeout(APIKey                 APIKey,
+                        TimeSpan               Timeout,
+                        EventTracking_Id?      EventTrackingId   = null,
+                        IId?                   SenderId          = null,
+                        Object?                Sender       = null,
+                        IOrganization?         Organization      = null,
+                        IEnumerable<Warning>?  Warnings          = null,
+                        TimeSpan?              Runtime           = null)
+
+                => new (APIKey,
+                        CommandResult.LockTimeout,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        org.GraphDefined.Vanaheimr.Hermod.AddedOrUpdated.Failed,
+                        $"Lock timeout after {Timeout.TotalSeconds} seconds!".ToI18NString(),
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
 
     }
 

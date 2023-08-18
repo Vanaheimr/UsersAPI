@@ -681,7 +681,7 @@ namespace social.OpenData.UsersAPI.Notifications
         /// A notification message builder.
         /// </summary>
         public new class Builder : AEntity<NotificationMessage_Id,
-                                          NotificationMessage>.Builder
+                                           NotificationMessage>.Builder
         {
 
             #region Properties
@@ -801,6 +801,16 @@ namespace social.OpenData.UsersAPI.Notifications
             public override int CompareTo(object obj)
             {
                 return 0;
+            }
+
+            public override bool Equals(NotificationMessage? other)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override int CompareTo(NotificationMessage? other)
+            {
+                throw new NotImplementedException();
             }
 
             #region ToImmutable

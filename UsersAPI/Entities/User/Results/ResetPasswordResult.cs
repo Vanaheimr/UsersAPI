@@ -25,26 +25,26 @@ using org.GraphDefined.Vanaheimr.Hermod;
 namespace social.OpenData.UsersAPI
 {
 
-    public class ResetPasswordResult : AResult<IEnumerable<User>>
+    public class ResetPasswordResult : AResult<IEnumerable<IUser>>
     {
 
-        public User? User
+        public IUser? User
             => Object?.FirstOrDefault();
 
-        public IEnumerable<User> Users
-            => Object ?? Array.Empty<User>();
+        public IEnumerable<IUser> Users
+            => Object ?? Array.Empty<IUser>();
 
         public PasswordReset?  PasswordReset    { get; internal set; }
 
 
-        public ResetPasswordResult(User              User,
+        public ResetPasswordResult(IUser             User,
                                    EventTracking_Id  EventTrackingId,
                                    Boolean           IsSuccess,
                                    String?           Argument           = null,
                                    I18NString?       ErrorDescription   = null,
                                    PasswordReset?    PasswordReset      = null)
 
-            : base(new User[] { User },
+            : base(new[] { User },
                    EventTrackingId,
                    IsSuccess,
                    Argument,
@@ -56,7 +56,7 @@ namespace social.OpenData.UsersAPI
 
         }
 
-        public ResetPasswordResult(IEnumerable<User>  Users,
+        public ResetPasswordResult(IEnumerable<IUser>  Users,
                                    EventTracking_Id   EventTrackingId,
                                    Boolean            IsSuccess,
                                    String?            Argument           = null,

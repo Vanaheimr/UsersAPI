@@ -37,12 +37,12 @@ using social.OpenData.UsersAPI.Notifications;
 namespace social.OpenData.UsersAPI
 {
 
-    public delegate Boolean UserProviderDelegate(User_Id UserId, out User User);
+    public delegate Boolean UserProviderDelegate(User_Id UserId, out IUser User);
 
-    public delegate JObject UserToJSONDelegate(User     User,
+    public delegate JObject UserToJSONDelegate(IUser    User,
                                                Boolean  Embedded   = false);
 
-    public delegate User OverwriteUserDelegate(User User);
+    public delegate User OverwriteUserDelegate(IUser User);
 
 
     /// <summary>
@@ -60,11 +60,11 @@ namespace social.OpenData.UsersAPI
         /// <param name="Skip">The optional number of Users to skip.</param>
         /// <param name="Take">The optional number of Users to return.</param>
         /// <param name="Embedded">Whether this data structure is embedded into another data structure.</param>
-        public static JArray ToJSON(this IEnumerable<User>  Users,
-                                    UInt64?                 Skip         = null,
-                                    UInt64?                 Take         = null,
-                                    Boolean                 Embedded     = false,
-                                    UserToJSONDelegate?     UserToJSON   = null)
+        public static JArray ToJSON(this IEnumerable<IUser>  Users,
+                                    UInt64?                  Skip         = null,
+                                    UInt64?                  Take         = null,
+                                    Boolean                  Embedded     = false,
+                                    UserToJSONDelegate?      UserToJSON   = null)
 
 
             => Users?.Any() != true
@@ -104,8 +104,7 @@ namespace social.OpenData.UsersAPI
     /// <summary>
     /// A user.
     /// </summary>
-    public class User : AEntity<User_Id,
-                                User>,
+    public class User : AEntity<User_Id, User>,
                         IUser
     {
 
@@ -127,29 +126,29 @@ namespace social.OpenData.UsersAPI
 
         #region API
 
-        private UsersAPI? _API;
+        private UsersAPI? api;
 
         /// <summary>
         /// The UsersAPI of this user.
         /// </summary>
-        internal UsersAPI? API
+        public UsersAPI? API
         {
 
             get
             {
-                return _API;
+                return api;
             }
 
             set
             {
 
-                if (_API == value)
+                if (api == value)
                     return;
 
-                if (_API is not null)
+                if (api is not null)
                     throw new ArgumentException("Illegal attempt to change the API of this user!");
 
-                _API = value ?? throw new ArgumentException("Illegal attempt to delete the API reference of this user!");
+                api = value ?? throw new ArgumentException("Illegal attempt to delete the API reference of this user!");
 
             }
 
@@ -157,17 +156,12 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
+
         /// <summary>
         /// The primary E-Mail address of the user.
         /// </summary>
         [Mandatory]
         public EMailAddress               EMail                { get; }
-
-        /// <summary>
-        /// The offical public name of the user.
-        /// </summary>
-        [Optional]
-        public String                     Name                 { get; }
 
         /// <summary>
         /// The PGP/GPG public keyring of the user.
@@ -215,12 +209,6 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         [Optional]
         public String?                    Homepage             { get; }
-
-        /// <summary>
-        /// An optional (multi-language) description of the user.
-        /// </summary>
-        [Optional]
-        public I18NString                 Description          { get; }
 
         /// <summary>
         /// The geographical location of this organization.
@@ -772,7 +760,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
         /// <param name="LastChange">The timestamp of the last changes within this user. Can e.g. be used as a HTTP ETag.</param>
         public User(User_Id                              Id,
-                    String                               Name,
+                    I18NString                           Name,
                     SimpleEMailAddress                   EMail,
 
                     I18NString?                          Description              = null,
@@ -804,24 +792,29 @@ namespace social.OpenData.UsersAPI
 
             : base(Id,
                    JSONLDContext ?? DefaultJSONLDContext,
-                   LastChange,
+                   Name,
+                   Description,
                    null,
                    CustomData,
+                   null,
+                   LastChange,
                    DataSource)
 
         {
 
             #region Initial checks
 
-            Name = Name.Trim();
-
             if (Name.IsNullOrEmpty())
                 throw new ArgumentNullException(nameof(Name), "The given username must not be null or empty!");
 
             #endregion
 
-            this.EMail                     = new EMailAddress(EMail, Name, SecretKeyRing, PublicKeyRing);
-            this.Name                      = Name;
+            this.EMail                     = new EMailAddress(
+                                                 EMail,
+                                                 Name.FirstText(),
+                                                 SecretKeyRing,
+                                                 PublicKeyRing
+                                             );
             this.PublicKeyRing             = PublicKeyRing;
             this.SecretKeyRing             = SecretKeyRing;
             this.UserLanguage              = UserLanguage;
@@ -830,7 +823,6 @@ namespace social.OpenData.UsersAPI
             this.Use2AuthFactor            = Use2AuthFactor;
             this.Telegram                  = Telegram;
             this.Homepage                  = Homepage;
-            this.Description               = Description   ?? new I18NString();
             this.GeoLocation               = GeoLocation;
             this.Address                   = Address;
             this.AcceptedEULA              = AcceptedEULA;
@@ -855,8 +847,8 @@ namespace social.OpenData.UsersAPI
 
         #region (internal) AddNotification(Notification,                           OnUpdate = null)
 
-        internal T AddNotification<T>(T          Notification,
-                                      Action<T>  OnUpdate  = null)
+        internal T AddNotification<T>(T Notification,
+                                      Action<T> OnUpdate = null)
 
             where T : ANotification
 
@@ -867,9 +859,9 @@ namespace social.OpenData.UsersAPI
 
         #region (internal) AddNotification(Notification, NotificationMessageType,  OnUpdate = null)
 
-        internal T AddNotification<T>(T                        Notification,
-                                      NotificationMessageType  NotificationMessageType,
-                                      Action<T>                OnUpdate  = null)
+        internal T AddNotification<T>(T Notification,
+                                      NotificationMessageType NotificationMessageType,
+                                      Action<T> OnUpdate = null)
 
             where T : ANotification
 
@@ -881,9 +873,9 @@ namespace social.OpenData.UsersAPI
 
         #region (internal) AddNotification(Notification, NotificationMessageTypes, OnUpdate = null)
 
-        internal T AddNotification<T>(T                                     Notification,
-                                      IEnumerable<NotificationMessageType>  NotificationMessageTypes,
-                                      Action<T>                             OnUpdate  = null)
+        internal T AddNotification<T>(T Notification,
+                                      IEnumerable<NotificationMessageType> NotificationMessageTypes,
+                                      Action<T> OnUpdate = null)
 
             where T : ANotification
 
@@ -896,7 +888,7 @@ namespace social.OpenData.UsersAPI
 
         #region GetNotifications  (NotificationMessageType = null)
 
-        public IEnumerable<ANotification> GetNotifications(NotificationMessageType?  NotificationMessageType = null)
+        public IEnumerable<ANotification> GetNotifications(NotificationMessageType? NotificationMessageType = null)
         {
             lock (notificationStore)
             {
@@ -962,7 +954,7 @@ namespace social.OpenData.UsersAPI
 
             notification.Add(new JProperty("user", JSONObject.Create(
 
-                                     new JProperty("name",  EMail.OwnerName),
+                                     new JProperty("name", EMail.OwnerName),
                                      new JProperty("email", EMail.Address.ToString()),
 
                                      MobilePhone.HasValue
@@ -983,23 +975,23 @@ namespace social.OpenData.UsersAPI
 
             => JSONObject.Create(new JProperty("user", JSONObject.Create(
 
-                                     new JProperty("name",               EMail.OwnerName),
-                                     new JProperty("email",              EMail.Address.ToString()),
+                                     new JProperty("name", EMail.OwnerName),
+                                     new JProperty("email", EMail.Address.ToString()),
 
                                      MobilePhone.HasValue
-                                         ? new JProperty("phoneNumber",  MobilePhone.Value.ToString())
+                                         ? new JProperty("phoneNumber", MobilePhone.Value.ToString())
                                          : null
 
                                  )),
-                                 new JProperty("notifications",  notificationStore.ToJSON()));
+                                 new JProperty("notifications", notificationStore.ToJSON()));
 
         #endregion
 
 
         #region (internal) RemoveNotification(NotificationType,                           OnRemoval = null)
 
-        internal Task RemoveNotification<T>(T          NotificationType,
-                                            Action<T>  OnRemoval  = null)
+        internal Task RemoveNotification<T>(T NotificationType,
+                                            Action<T> OnRemoval = null)
 
             where T : ANotification
 
@@ -1117,13 +1109,11 @@ namespace social.OpenData.UsersAPI
 
                 if (JSONObject.ParseOptional("description",
                                              "user description",
-                                             out I18NString Description,
+                                             out I18NString? Description,
                                              out ErrorResponse))
                 {
-
                     if (ErrorResponse is not null)
                         return false;
-
                 }
 
                 #endregion
@@ -1133,13 +1123,11 @@ namespace social.OpenData.UsersAPI
                 if (JSONObject.ParseOptional("publicKeyRing",
                                              "GPG/PGP public key ring",
                                              txt => OpenPGP.ReadPublicKeyRing(txt.HexStringToByteArray()),
-                                             out PgpPublicKeyRing PublicKeyRing,
+                                             out PgpPublicKeyRing? PublicKeyRing,
                                              out ErrorResponse))
                 {
-
                     if (ErrorResponse is not null)
                         return false;
-
                 }
 
                 #endregion
@@ -1149,13 +1137,11 @@ namespace social.OpenData.UsersAPI
                 if (JSONObject.ParseOptional("secretKeyRing",
                                              "GPG/PGP secret key ring",
                                              txt => OpenPGP.ReadSecretKeyRing(txt.HexStringToByteArray()),
-                                             out PgpSecretKeyRing SecretKeyRing,
+                                             out PgpSecretKeyRing? SecretKeyRing,
                                              out ErrorResponse))
                 {
-
                     if (ErrorResponse is not null)
                         return false;
-
                 }
 
                 #endregion
@@ -1168,10 +1154,8 @@ namespace social.OpenData.UsersAPI
                                               out Languages? UserLanguage,
                                               out ErrorResponse))
                 {
-
                     if (ErrorResponse is not null)
                         return false;
-
                 }
 
                 #endregion
@@ -1184,10 +1168,8 @@ namespace social.OpenData.UsersAPI
                                              out PhoneNumber? Telephone,
                                              out ErrorResponse))
                 {
-
                     if (ErrorResponse is not null)
                         return false;
-
                 }
 
                 #endregion
@@ -1200,10 +1182,8 @@ namespace social.OpenData.UsersAPI
                                              out PhoneNumber? MobilePhone,
                                              out ErrorResponse))
                 {
-
                     if (ErrorResponse is not null)
                         return false;
-
                 }
 
                 #endregion
@@ -1215,10 +1195,8 @@ namespace social.OpenData.UsersAPI
                                                  out Use2AuthFactor? Use2AuthFactor,
                                                  out ErrorResponse))
                 {
-
                     if (ErrorResponse is not null)
                         return false;
-
                 }
 
                 #endregion
@@ -1227,7 +1205,7 @@ namespace social.OpenData.UsersAPI
 
                 if (JSONObject.ParseOptional("telegram",
                                              "telegram user name",
-                                             out String Telegram,
+                                             out String? Telegram,
                                              out ErrorResponse))
                 {
 
@@ -1242,13 +1220,11 @@ namespace social.OpenData.UsersAPI
 
                 if (JSONObject.ParseOptional("homepage",
                                              "homepage",
-                                             out String Homepage,
+                                             out String? Homepage,
                                              out ErrorResponse))
                 {
-
                     if (ErrorResponse is not null)
                         return false;
-
                 }
 
                 #endregion
@@ -1261,10 +1237,8 @@ namespace social.OpenData.UsersAPI
                                                    out GeoCoordinate? GeoLocation,
                                                    out ErrorResponse))
                 {
-
                     if (ErrorResponse is not null)
                         return false;
-
                 }
 
                 #endregion
@@ -1277,10 +1251,8 @@ namespace social.OpenData.UsersAPI
                                              out Address Address,
                                              out ErrorResponse))
                 {
-
                     if (ErrorResponse is not null)
                         return false;
-
                 }
 
                 #endregion
@@ -1292,10 +1264,8 @@ namespace social.OpenData.UsersAPI
                                              out PrivacyLevel? PrivacyLevel,
                                              out ErrorResponse))
                 {
-
                     if (ErrorResponse is not null)
                         return false;
-
                 }
 
                 #endregion
@@ -1307,10 +1277,8 @@ namespace social.OpenData.UsersAPI
                                              out DateTime? AcceptedEULA,
                                              out ErrorResponse))
                 {
-
                     if (ErrorResponse is not null)
                         return false;
-
                 }
 
                 #endregion
@@ -1332,34 +1300,36 @@ namespace social.OpenData.UsersAPI
                 #endregion
 
 
-                User = new User(userId,
-                                Name,
-                                EMail,
-                                Description,
-                                PublicKeyRing,
-                                SecretKeyRing,
-                                UserLanguage    ?? Languages.en,
-                                Telephone,
-                                MobilePhone,
-                                Use2AuthFactor  ?? OpenData.UsersAPI.Use2AuthFactor.None,
-                                Telegram,
-                                Homepage,
-                                GeoLocation,
-                                Address,
-                                AcceptedEULA,
-                                IsAuthenticated ?? false,
-                                IsDisabled      ?? false,
+                User = new User(
+                           userId,
+                           Name.ToI18NString(),
+                           EMail,
+                           Description,
+                           PublicKeyRing,
+                           SecretKeyRing,
+                           UserLanguage ?? Languages.en,
+                           Telephone,
+                           MobilePhone,
+                           Use2AuthFactor ?? OpenData.UsersAPI.Use2AuthFactor.None,
+                           Telegram,
+                           Homepage,
+                           GeoLocation,
+                           Address,
+                           AcceptedEULA,
+                           IsAuthenticated ?? false,
+                           IsDisabled ?? false,
 
-                                null,
-                                null,
-                                null,
-                                null,
+                           null,
+                           null,
+                           null,
+                           null,
 
-                                null, //CustomData,
-                                null, //AttachedFiles,
-                                null, //JSONLDContext,
-                                DataSource,
-                                null); //LastChange
+                           null, //CustomData,
+                           null, //AttachedFiles,
+                           null, //JSONLDContext,
+                           DataSource,
+                           null
+                       ); //LastChange
 
                 ErrorResponse = null;
                 return true;
@@ -1397,7 +1367,6 @@ namespace social.OpenData.UsersAPI
         /// <param name="ExpandOrganizations">Whether to expand the organizations this user is a member of.</param>
         /// <param name="ExpandGroups">Whether to expand the groups this user is a member of.</param>
         /// <param name="IncludeLastChange">Whether to include the lastChange timestamp of this object.</param>
-        /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
         /// <param name="CustomUserSerializer">A delegate to serialize custom user JSON objects.</param>
         public JObject ToJSON(Boolean                                 Embedded               = false,
                               InfoStatus                              ExpandOrganizations    = InfoStatus.Hidden,
@@ -1414,7 +1383,7 @@ namespace social.OpenData.UsersAPI
 
                                        new JProperty("name",                   Name),
 
-                                       Description.IsNeitherNullNorEmpty()
+                                       Description.IsNotNullOrEmpty()
                                            ? new JProperty("description",      Description.ToJSON())
                                            : null,
 
@@ -1483,35 +1452,35 @@ namespace social.OpenData.UsersAPI
         /// <param name="NewUserId">An optional new user identification.</param>
         public User Clone(User_Id? NewUserId = null)
 
-            => new User(NewUserId ?? Id.Clone,
-                        Name,
-                        EMail.Address,
-                        Description?.Clone,
-                        PublicKeyRing,
-                        SecretKeyRing,
-                        UserLanguage,
-                        Telephone?.Clone,
-                        MobilePhone,
-                        Use2AuthFactor,
-                        Telegram,
-                        Homepage,
-                        GeoLocation,
-                        Address,
-                        AcceptedEULA,
-                        IsDisabled,
-                        IsAuthenticated,
+            => new (NewUserId ?? Id.Clone,
+                    Name,
+                    EMail.Address,
+                    Description?.Clone,
+                    PublicKeyRing,
+                    SecretKeyRing,
+                    UserLanguage,
+                    Telephone?.Clone,
+                    MobilePhone,
+                    Use2AuthFactor,
+                    Telegram,
+                    Homepage,
+                    GeoLocation,
+                    Address,
+                    AcceptedEULA,
+                    IsDisabled,
+                    IsAuthenticated,
 
-                        notificationStore,
+                    notificationStore,
 
-                        _User2User_Edges,
-                        _User2UserGroup_Edges,
-                        _User2Organization_Edges,
+                    _User2User_Edges,
+                    _User2UserGroup_Edges,
+                    _User2Organization_Edges,
 
-                        CustomData,
-                        AttachedFiles,
-                        JSONLDContext,
-                        DataSource,
-                        LastChangeDate);
+                    CustomData,
+                    AttachedFiles,
+                    JSONLDContext,
+                    DataSource,
+                    LastChangeDate);
 
         #endregion
 
@@ -1561,107 +1530,116 @@ namespace social.OpenData.UsersAPI
 
         #region Operator overloading
 
-        #region Operator == (UserId1, UserId2)
+        #region Operator == (User1, User2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="UserId1">A user identification.</param>
-        /// <param name="UserId2">Another user identification.</param>
+        /// <param name="User1">A user.</param>
+        /// <param name="User2">Another user.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator == (User UserId1, User UserId2)
+        public static Boolean operator == (User? User1,
+                                           User? User2)
         {
 
             // If both are null, or both are same instance, return true.
-            if (Object.ReferenceEquals(UserId1, UserId2))
+            if (Object.ReferenceEquals(User1, User2))
                 return true;
 
             // If one is null, but not both, return false.
-            if (UserId1 is null || UserId2 is null)
+            if (User1 is null || User2 is null)
                 return false;
 
-            return UserId1.Equals(UserId2);
+            return User1.Equals(User2);
 
         }
 
         #endregion
 
-        #region Operator != (UserId1, UserId2)
+        #region Operator != (User1, User2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="UserId1">A user identification.</param>
-        /// <param name="UserId2">Another user identification.</param>
+        /// <param name="User1">A user.</param>
+        /// <param name="User2">Another user.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator != (User UserId1, User UserId2)
-            => !(UserId1 == UserId2);
+        public static Boolean operator != (User? User1,
+                                           User? User2)
+
+            => !(User1 == User2);
 
         #endregion
 
-        #region Operator <  (UserId1, UserId2)
+        #region Operator <  (User1, User2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="UserId1">A user identification.</param>
-        /// <param name="UserId2">Another user identification.</param>
+        /// <param name="User1">A user.</param>
+        /// <param name="User2">Another user.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator < (User UserId1, User UserId2)
+        public static Boolean operator < (User? User1,
+                                          User? User2)
         {
 
-            if (UserId1 is null)
-                throw new ArgumentNullException(nameof(UserId1), "The given UserId1 must not be null!");
+            if (User1 is null)
+                throw new ArgumentNullException(nameof(User1), "The given User1 must not be null!");
 
-            return UserId1.CompareTo(UserId2) < 0;
+            return User1.CompareTo(User2) < 0;
 
         }
 
         #endregion
 
-        #region Operator <= (UserId1, UserId2)
+        #region Operator <= (User1, User2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="UserId1">A user identification.</param>
-        /// <param name="UserId2">Another user identification.</param>
+        /// <param name="User1">A user.</param>
+        /// <param name="User2">Another user.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator <= (User UserId1, User UserId2)
-            => !(UserId1 > UserId2);
+        public static Boolean operator <= (User? User1,
+                                           User? User2)
+
+            => !(User1 > User2);
 
         #endregion
 
-        #region Operator >  (UserId1, UserId2)
+        #region Operator >  (User1, User2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="UserId1">A user identification.</param>
-        /// <param name="UserId2">Another user identification.</param>
+        /// <param name="User1">A user.</param>
+        /// <param name="User2">Another user.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator > (User UserId1, User UserId2)
+        public static Boolean operator > (User? User1,
+                                          User? User2)
         {
 
-            if (UserId1 is null)
-                throw new ArgumentNullException(nameof(UserId1), "The given UserId1 must not be null!");
+            if (User1 is null)
+                throw new ArgumentNullException(nameof(User1), "The given User1 must not be null!");
 
-            return UserId1.CompareTo(UserId2) > 0;
+            return User1.CompareTo(User2) > 0;
 
         }
 
         #endregion
 
-        #region Operator >= (UserId1, UserId2)
+        #region Operator >= (User1, User2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="UserId1">A user identification.</param>
-        /// <param name="UserId2">Another user identification.</param>
+        /// <param name="User1">A user.</param>
+        /// <param name="User2">Another user.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator >= (User UserId1, User UserId2)
-            => !(UserId1 < UserId2);
+        public static Boolean operator >= (User? User1,
+                                           User? User2)
+
+            => !(User1 < User2);
 
         #endregion
 
@@ -1672,28 +1650,45 @@ namespace social.OpenData.UsersAPI
         #region CompareTo(Object)
 
         /// <summary>
-        /// Compares two instances of this object.
+        /// Compares two users.
         /// </summary>
-        /// <param name="Object">An object to compare with.</param>
-        public override Int32 CompareTo(Object Object)
+        /// <param name="Object">An user to compare with.</param>
+        public override Int32 CompareTo(Object? Object)
 
-            => Object is User User
-                   ? CompareTo(User)
-                   : throw new ArgumentException("The given object is not an user!", nameof(Object));
+            => Object is User user
+                   ? CompareTo(user)
+                   : throw new ArgumentException("The given object is not a user!",
+                                                 nameof(Object));
 
         #endregion
 
         #region CompareTo(User)
 
         /// <summary>
+        /// Compares two users.
+        /// </summary>
+        /// <param name="User">An user to compare with.</param>
+        public override Int32 CompareTo(User? User)
+
+            => CompareTo(User as IUser);
+
+
+        /// <summary>
         /// Compares two instances of this object.
         /// </summary>
         /// <param name="User">An user object to compare with.</param>
-        public override Int32 CompareTo(User User)
+        public Int32 CompareTo(IUser? User)
+        {
 
-            => User is not null
-                   ? Id.CompareTo(User.Id)
-                   : throw new ArgumentException("The given object is not an user!", nameof(Object));
+            if (User is null)
+                throw new ArgumentNullException(nameof(User),
+                                                "The given user must not be null!");
+
+            return Id.CompareTo(User.Id);
+
+            //ToDo: Compare more properties!
+
+        }
 
         #endregion
 
@@ -1704,14 +1699,13 @@ namespace social.OpenData.UsersAPI
         #region Equals(Object)
 
         /// <summary>
-        /// Compares two instances of this object.
+        /// Compares two users for equality.
         /// </summary>
-        /// <param name="Object">An object to compare with.</param>
-        /// <returns>true|false</returns>
+        /// <param name="Object">An user to compare with.</param>
         public override Boolean Equals(Object? Object)
 
-            => Object is User User &&
-                  Equals(User);
+            => Object is User user &&
+                  Equals(user);
 
         #endregion
 
@@ -1721,8 +1715,16 @@ namespace social.OpenData.UsersAPI
         /// Compares two users for equality.
         /// </summary>
         /// <param name="User">An user to compare with.</param>
-        /// <returns>True if both match; False otherwise.</returns>
-        public override Boolean Equals(User User)
+        public override Boolean Equals(User? User)
+
+            => Equals(User as IUser);
+
+
+        /// <summary>
+        /// Compares two users for equality.
+        /// </summary>
+        /// <param name="User">An user to compare with.</param>
+        public Boolean Equals(IUser? User)
 
             => User is not null &&
                    Id.Equals(User.Id);
@@ -1762,35 +1764,35 @@ namespace social.OpenData.UsersAPI
         /// <param name="NewUserId">An optional new user identification.</param>
         public Builder ToBuilder(User_Id? NewUserId = null)
 
-            => new Builder(NewUserId ?? Id.Clone,
-                           EMail.Address,
-                           Name,
-                           Description,
-                           PublicKeyRing,
-                           SecretKeyRing,
-                           UserLanguage,
-                           Telephone,
-                           MobilePhone,
-                           Use2AuthFactor,
-                           Telegram,
-                           Homepage,
-                           GeoLocation,
-                           Address,
-                           AcceptedEULA,
-                           IsDisabled,
-                           IsAuthenticated,
+            => new (NewUserId ?? Id.Clone,
+                    EMail.Address,
+                    Name,
+                    Description,
+                    PublicKeyRing,
+                    SecretKeyRing,
+                    UserLanguage,
+                    Telephone,
+                    MobilePhone,
+                    Use2AuthFactor,
+                    Telegram,
+                    Homepage,
+                    GeoLocation,
+                    Address,
+                    AcceptedEULA,
+                    IsDisabled,
+                    IsAuthenticated,
 
-                           notificationStore,
+                    notificationStore,
 
-                           _User2User_Edges,
-                           _User2UserGroup_Edges,
-                           _User2Organization_Edges,
+                    _User2User_Edges,
+                    _User2UserGroup_Edges,
+                    _User2Organization_Edges,
 
-                           CustomData,
-                           AttachedFiles,
-                           JSONLDContext,
-                           DataSource,
-                           LastChangeDate);
+                    CustomData,
+                    AttachedFiles,
+                    JSONLDContext,
+                    DataSource,
+                    LastChangeDate);
 
         #endregion
 
@@ -1799,8 +1801,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An user builder.
         /// </summary>
-        public new class Builder : AEntity<User_Id,
-                                           User>.Builder
+        public new class Builder : AEntity<User_Id, User>.Builder
         {
 
             #region Properties
@@ -1810,18 +1811,6 @@ namespace social.OpenData.UsersAPI
             /// </summary>
             [Mandatory]
             public EMailAddress           EMail                { get; set; }
-
-            /// <summary>
-            /// The offical public name of the user.
-            /// </summary>
-            [Optional]
-            public String?                Name                 { get; set; }
-
-            /// <summary>
-            /// An optional (multi-language) description of the user.
-            /// </summary>
-            [Optional]
-            public I18NString             Description          { get; set; }
 
             /// <summary>
             /// The PGP/GPG public keyring of the user.
@@ -1947,9 +1936,9 @@ namespace social.OpenData.UsersAPI
 
             public User2UserEdge
 
-                AddIncomingEdge(User            SourceUser,
+                AddIncomingEdge(User                SourceUser,
                                 User2UserEdgeTypes  EdgeLabel,
-                                PrivacyLevel    PrivacyLevel = PrivacyLevel.World)
+                                PrivacyLevel        PrivacyLevel = PrivacyLevel.World)
 
                 => _User2UserEdges.AddAndReturnElement(new User2UserEdge(SourceUser, EdgeLabel, this, PrivacyLevel));
 
@@ -2019,7 +2008,7 @@ namespace social.OpenData.UsersAPI
                                 UserGroup           Target,
                                 PrivacyLevel    PrivacyLevel = PrivacyLevel.World)
 
-                => _User2Group_OutEdges.AddAndReturnElement(new User2UserGroupEdge(this, EdgeLabel, Target, PrivacyLevel));
+                => _User2Group_OutEdges.AddAndReturnElement(new User2UserGroupEdge(this.ToImmutable, EdgeLabel, Target, PrivacyLevel));
 
 
             public IEnumerable<User2UserGroupEdge> User2GroupOutEdges(Func<User2UserGroupEdgeLabel, Boolean> User2GroupEdgeFilter)
@@ -2073,7 +2062,7 @@ namespace social.OpenData.UsersAPI
                 if (Recursive)
                 {
 
-                    Organization[] Level2 = null;
+                    Organization[]? Level2 = null;
 
                     do
                     {
@@ -2315,7 +2304,7 @@ namespace social.OpenData.UsersAPI
             /// <param name="LastChange">The timestamp of the last changes within this user. Can e.g. be used as a HTTP ETag.</param>
             public Builder(User_Id                              Id,
                            SimpleEMailAddress                   EMail,
-                           String?                              Name                     = null,
+                           I18NString?                          Name                     = null,
                            I18NString?                          Description              = null,
                            PgpPublicKeyRing?                    PublicKeyRing            = null,
                            PgpSecretKeyRing?                    SecretKeyRing            = null,
@@ -2348,13 +2337,14 @@ namespace social.OpenData.UsersAPI
                        LastChange,
                        null,
                        CustomData,
+                       null,
                        DataSource)
 
             {
 
                 this.EMail                        = Name is not null && Name.IsNotNullOrEmpty()
-                                                        ? new EMailAddress(Name, EMail, null, null)
-                                                        : new EMailAddress(      EMail, null, null);
+                                                        ? new EMailAddress(Name.FirstText(), EMail, null, null)
+                                                        : new EMailAddress(                  EMail, null, null);
                 this.Name                         = Name;
                 this.Description                  = Description ?? new I18NString();
                 this.PublicKeyRing                = PublicKeyRing;
@@ -2578,7 +2568,7 @@ namespace social.OpenData.UsersAPI
                     Add(OldUser.User2Group_OutEdges);
 
                     foreach (var edge in User2Group_OutEdges)
-                        edge.Source = this;
+                        edge.Source = this.ToImmutable;
 
                 }
 
@@ -2649,107 +2639,116 @@ namespace social.OpenData.UsersAPI
 
             #region Operator overloading
 
-            #region Operator == (BuilderId1, BuilderId2)
+            #region Operator == (Builder1, Builder2)
 
             /// <summary>
             /// Compares two instances of this object.
             /// </summary>
-            /// <param name="BuilderId1">A user builder.</param>
-            /// <param name="BuilderId2">Another user builder.</param>
+            /// <param name="Builder1">A user builder.</param>
+            /// <param name="Builder2">Another user builder.</param>
             /// <returns>true|false</returns>
-            public static Boolean operator == (Builder BuilderId1, Builder BuilderId2)
+            public static Boolean operator == (Builder? Builder1,
+                                               Builder? Builder2)
             {
 
                 // If both are null, or both are same instance, return true.
-                if (Object.ReferenceEquals(BuilderId1, BuilderId2))
+                if (Object.ReferenceEquals(Builder1, Builder2))
                     return true;
 
                 // If one is null, but not both, return false.
-                if ((BuilderId1 is null) || (BuilderId2 is null))
+                if ((Builder1 is null) || (Builder2 is null))
                     return false;
 
-                return BuilderId1.Equals(BuilderId2);
+                return Builder1.Equals(Builder2);
 
             }
 
             #endregion
 
-            #region Operator != (BuilderId1, BuilderId2)
+            #region Operator != (Builder1, Builder2)
 
             /// <summary>
             /// Compares two instances of this object.
             /// </summary>
-            /// <param name="BuilderId1">A user builder.</param>
-            /// <param name="BuilderId2">Another user builder.</param>
+            /// <param name="Builder1">A user builder.</param>
+            /// <param name="Builder2">Another user builder.</param>
             /// <returns>true|false</returns>
-            public static Boolean operator != (Builder BuilderId1, Builder BuilderId2)
-                => !(BuilderId1 == BuilderId2);
+            public static Boolean operator != (Builder? Builder1,
+                                               Builder? Builder2)
+
+                => !(Builder1 == Builder2);
 
             #endregion
 
-            #region Operator <  (BuilderId1, BuilderId2)
+            #region Operator <  (Builder1, Builder2)
 
             /// <summary>
             /// Compares two instances of this object.
             /// </summary>
-            /// <param name="BuilderId1">A user builder.</param>
-            /// <param name="BuilderId2">Another user builder.</param>
+            /// <param name="Builder1">A user builder.</param>
+            /// <param name="Builder2">Another user builder.</param>
             /// <returns>true|false</returns>
-            public static Boolean operator < (Builder BuilderId1, Builder BuilderId2)
+            public static Boolean operator < (Builder? Builder1,
+                                              Builder? Builder2)
             {
 
-                if (BuilderId1 is null)
-                    throw new ArgumentNullException(nameof(BuilderId1), "The given BuilderId1 must not be null!");
+                if (Builder1 is null)
+                    throw new ArgumentNullException(nameof(Builder1), "The given Builder1 must not be null!");
 
-                return BuilderId1.CompareTo(BuilderId2) < 0;
+                return Builder1.CompareTo(Builder2) < 0;
 
             }
 
             #endregion
 
-            #region Operator <= (BuilderId1, BuilderId2)
+            #region Operator <= (Builder1, Builder2)
 
             /// <summary>
             /// Compares two instances of this object.
             /// </summary>
-            /// <param name="BuilderId1">A user builder.</param>
-            /// <param name="BuilderId2">Another user builder.</param>
+            /// <param name="Builder1">A user builder.</param>
+            /// <param name="Builder2">Another user builder.</param>
             /// <returns>true|false</returns>
-            public static Boolean operator <= (Builder BuilderId1, Builder BuilderId2)
-                => !(BuilderId1 > BuilderId2);
+            public static Boolean operator <= (Builder? Builder1,
+                                               Builder? Builder2)
+
+                => !(Builder1 > Builder2);
 
             #endregion
 
-            #region Operator >  (BuilderId1, BuilderId2)
+            #region Operator >  (Builder1, Builder2)
 
             /// <summary>
             /// Compares two instances of this object.
             /// </summary>
-            /// <param name="BuilderId1">A user builder.</param>
-            /// <param name="BuilderId2">Another user builder.</param>
+            /// <param name="Builder1">A user builder.</param>
+            /// <param name="Builder2">Another user builder.</param>
             /// <returns>true|false</returns>
-            public static Boolean operator > (Builder BuilderId1, Builder BuilderId2)
+            public static Boolean operator > (Builder? Builder1,
+                                              Builder? Builder2)
             {
 
-                if (BuilderId1 is null)
-                    throw new ArgumentNullException(nameof(BuilderId1), "The given BuilderId1 must not be null!");
+                if (Builder1 is null)
+                    throw new ArgumentNullException(nameof(Builder1), "The given Builder1 must not be null!");
 
-                return BuilderId1.CompareTo(BuilderId2) > 0;
+                return Builder1.CompareTo(Builder2) > 0;
 
             }
 
             #endregion
 
-            #region Operator >= (BuilderId1, BuilderId2)
+            #region Operator >= (Builder1, Builder2)
 
             /// <summary>
             /// Compares two instances of this object.
             /// </summary>
-            /// <param name="BuilderId1">A user builder.</param>
-            /// <param name="BuilderId2">Another user builder.</param>
+            /// <param name="Builder1">A user builder.</param>
+            /// <param name="Builder2">Another user builder.</param>
             /// <returns>true|false</returns>
-            public static Boolean operator >= (Builder BuilderId1, Builder BuilderId2)
-                => !(BuilderId1 < BuilderId2);
+            public static Boolean operator >= (Builder? Builder1,
+                                               Builder? Builder2)
+
+                => !(Builder1 < Builder2);
 
             #endregion
 
@@ -2760,10 +2759,10 @@ namespace social.OpenData.UsersAPI
             #region CompareTo(Object)
 
             /// <summary>
-            /// Compares two instances of this object.
+            /// Compares two users.
             /// </summary>
-            /// <param name="Object">An object to compare with.</param>
-            public override Int32 CompareTo(Object Object)
+            /// <param name="Object">An user to compare with.</param>
+            public override Int32 CompareTo(Object? Object)
 
                 => Object is Builder builder
                        ? CompareTo(builder)
@@ -2771,12 +2770,23 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
-            #region CompareTo(Builder)
+            #region CompareTo(User)
 
             /// <summary>
-            /// Compares two instances of this object.
+            /// Compares two users.
             /// </summary>
-            /// <param name="Builder">An user object to compare with.</param>
+            /// <param name="User">An user to compare with.</param>
+            public override Int32 CompareTo(User? User)
+
+                => User is not null
+                       ? Id.CompareTo(User.Id)
+                       : throw new ArgumentNullException(nameof(User), "The given user must not be null!");
+
+
+            /// <summary>
+            /// Compares two users.
+            /// </summary>
+            /// <param name="Builder">An user to compare with.</param>
             public Int32 CompareTo(Builder Builder)
 
                 => Builder is not null
@@ -2792,10 +2802,9 @@ namespace social.OpenData.UsersAPI
             #region Equals(Object)
 
             /// <summary>
-            /// Compares two instances of this object.
+            /// Compares two users for equality.
             /// </summary>
-            /// <param name="Object">An object to compare with.</param>
-            /// <returns>true|false</returns>
+            /// <param name="Object">An user to compare with.</param>
             public override Boolean Equals(Object? Object)
 
                 => Object is Builder builder &&
@@ -2803,13 +2812,22 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
-            #region Equals(Builder)
+            #region Equals(User)
 
             /// <summary>
             /// Compares two users for equality.
             /// </summary>
-            /// <param name="Builder">An user to compare with.</param>
-            /// <returns>True if both match; False otherwise.</returns>
+            /// <param name="User">An user to compare with.</param>
+            public override Boolean Equals(User? User)
+
+                => User is not null &&
+                       Id.Equals(User.Id);
+
+
+            /// <summary>
+            /// Compares two users for equality.
+            /// </summary>
+            /// <param name="Object">An user to compare with.</param>
             public Boolean Equals(Builder Builder)
 
                 => Builder is not null &&

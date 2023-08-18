@@ -172,12 +172,12 @@ namespace social.OpenData.UsersAPI
         /// <param name="Tags">An enumeration of multi-language tags and their relevance.</param>
         /// <param name="IsDisabled">Whether the dashboard is disabled.</param>
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
-        public Dashboard(I18NString                 Name,
-                         I18NString                 Description    = null,
-                         DateTime?                  CreationDate   = null,
-                         IEnumerable<TagRelevance>  Tags           = null,
-                         Boolean?                   IsDisabled     = false,
-                         String                     DataSource     = "")
+        public Dashboard(I18NString                  Name,
+                         I18NString?                 Description    = null,
+                         DateTime?                   CreationDate   = null,
+                         IEnumerable<TagRelevance>?  Tags           = null,
+                         Boolean?                    IsDisabled     = false,
+                         String                      DataSource     = "")
 
             : this(Dashboard_Id.Random(),
                    Name,
@@ -200,16 +200,19 @@ namespace social.OpenData.UsersAPI
         /// <param name="Tags">An enumeration of multi-language tags and their relevance.</param>
         /// <param name="IsDisabled">Whether the dashboard is disabled.</param>
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
-        public Dashboard(Dashboard_Id               Id,
-                         I18NString                 Name,
-                         I18NString                 Description    = null,
-                         DateTime?                  CreationDate   = null,
-                         IEnumerable<TagRelevance>  Tags           = null,
-                         Boolean?                   IsDisabled     = false,
-                         String                     DataSource     = "")
+        public Dashboard(Dashboard_Id                Id,
+                         I18NString                  Name,
+                         I18NString?                 Description    = null,
+                         DateTime?                   CreationDate   = null,
+                         IEnumerable<TagRelevance>?  Tags           = null,
+                         Boolean?                    IsDisabled     = false,
+                         String                      DataSource     = "")
 
             : base(Id,
                    DefaultJSONLDContext,
+                   Name,
+                   Description,
+                   null,
                    null,
                    null,
                    null,
@@ -219,8 +222,8 @@ namespace social.OpenData.UsersAPI
 
             this.Name          = Name         ?? throw new ArgumentNullException(nameof(Name), "The given name must not be null!");
             this.Description   = Description  ?? I18NString.Empty;
-            this.CreationDate  = CreationDate ?? DateTime.Now;
-            this.Tags          = Tags         ?? new TagRelevance[0];
+            this.CreationDate  = CreationDate ?? Timestamp.Now;
+            this.Tags          = Tags         ?? Array.Empty<TagRelevance>();
             this.IsDisabled    = IsDisabled   ?? false;
 
         }
@@ -255,11 +258,11 @@ namespace social.OpenData.UsersAPI
                        ? new JProperty("@context",       JSONLDContext.ToString())
                        : null,
 
-                   Name.IsNeitherNullNorEmpty()
+                   Name.IsNotNullOrEmpty()
                        ? new JProperty("name",           Name.ToJSON())
                        : null,
 
-                   Description.IsNeitherNullNorEmpty()
+                   Description.IsNotNullOrEmpty()
                        ? new JProperty("description",    Description.ToJSON())
                        : null,
 

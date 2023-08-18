@@ -956,7 +956,7 @@ namespace social.OpenData.UsersAPI
             /// Compares two organization groups.
             /// </summary>
             /// <param name="OrganizationGroup">A organization group to compare with.</param>
-            public Int32 CompareTo(OrganizationGroup OrganizationGroup)
+            public override Int32 CompareTo(OrganizationGroup? OrganizationGroup)
             {
 
                 if (OrganizationGroup is null)
@@ -998,7 +998,7 @@ namespace social.OpenData.UsersAPI
             /// </summary>
             /// <param name="OrganizationGroup">A organization group to compare with.</param>
             /// <returns>True if both match; False otherwise.</returns>
-            public Boolean Equals(OrganizationGroup OrganizationGroup)
+            public override Boolean Equals(OrganizationGroup? OrganizationGroup)
             {
 
                 if (OrganizationGroup is null)

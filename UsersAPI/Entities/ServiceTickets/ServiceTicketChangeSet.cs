@@ -346,7 +346,7 @@ namespace social.OpenData.UsersAPI
                     ? new JProperty("status",                    Status.Value.ToString())
                     : null,
 
-                Title.IsNeitherNullNorEmpty()
+                Title.IsNotNullOrEmpty()
                     ? new JProperty("title",                     Title.ToJSON())
                     : null,
 
@@ -358,7 +358,7 @@ namespace social.OpenData.UsersAPI
                     ? new JProperty("priority",                  Priority.Value.ToString().ToLower())
                     : null,
 
-                Location.IsNeitherNullNorEmpty()
+                Location.IsNotNullOrEmpty()
                     ? new JProperty("location",                  Location.ToJSON())
                     : null,
 
@@ -384,7 +384,7 @@ namespace social.OpenData.UsersAPI
                           () => new JProperty("reactions",       new JArray(Reactions.          Select(tag                => tag.ToJSON()))))
                     : null,
 
-                AdditionalInfo.IsNeitherNullNorEmpty()
+                AdditionalInfo.IsNotNullOrEmpty()
                     ? new JProperty("additionalInfo",            AdditionalInfo.ToJSON())
                     : null,
 
@@ -398,7 +398,7 @@ namespace social.OpenData.UsersAPI
 
 
 
-                Comment.IsNeitherNullNorEmpty()
+                Comment.IsNotNullOrEmpty()
                     ? new JProperty("comment",                   Comment.ToJSON())
                     : null,
 
@@ -1625,6 +1625,16 @@ namespace social.OpenData.UsersAPI
             /// </summary>
             public override String ToString()
                 => Id.ToString();
+
+            public override bool Equals(ServiceTicketChangeSet? other)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override int CompareTo(ServiceTicketChangeSet? other)
+            {
+                throw new NotImplementedException();
+            }
 
             #endregion
 

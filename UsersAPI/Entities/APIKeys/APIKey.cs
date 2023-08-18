@@ -17,8 +17,6 @@
 
 #region Usings
 
-using System;
-
 using Newtonsoft.Json.Linq;
 
 using org.GraphDefined.Vanaheimr.Illias;
@@ -33,8 +31,7 @@ namespace social.OpenData.UsersAPI
     /// <summary>
     /// An API key.
     /// </summary>
-    public class APIKey : AEntity<APIKey_Id,
-                                  APIKey>
+    public class APIKey : AEntity<APIKey_Id, APIKey>
     {
 
         #region Data
@@ -50,7 +47,7 @@ namespace social.OpenData.UsersAPI
 
         #region API
 
-        private UsersAPI _API;
+        private UsersAPI? _API;
 
         /// <summary>
         /// The UsersAPI of this API key.
@@ -120,12 +117,6 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         public Boolean                  IsDisabled                  { get; }
 
-
-        /// <summary>
-        /// The hash value of this object.
-        /// </summary>
-        public String                   CurrentCryptoHash           { get; protected set; }
-
         #endregion
 
         #region Constructor(s)
@@ -134,7 +125,7 @@ namespace social.OpenData.UsersAPI
         /// Create a new API key.
         /// </summary>
         /// <param name="Id">The unique identification of the API key.</param>
-        /// <param name="User">The related user.</param>
+        /// <param name="UserId">The related user identification.</param>
         /// 
         /// <param name="Description">An optional internationalized description of the API key.</param>
         /// <param name="AccessRights">The access rights of the API key.</param>
@@ -148,38 +139,43 @@ namespace social.OpenData.UsersAPI
         /// <param name="JSONLDContext">The JSON-LD context of this user.</param>
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
         /// <param name="LastChange">The timestamp of the last changes within this user. Can e.g. be used as a HTTP ETag.</param>
-        public APIKey(APIKey_Id                Id,
-                      User_Id                  UserId,
+        public APIKey(APIKey_Id                 Id,
+                      User_Id                   UserId,
 
-                      I18NString               Description              = null,
-                      APIKeyRights             AccessRights             = APIKeyRights.ReadOnly,
-                      DateTime?                Created                  = null,
-                      DateTime?                NotBefore                = null,
-                      DateTime?                NotAfter                 = null,
-                      IEnumerable<IIPAddress>  ValidRemoteIPAddresses   = null,
-                      Boolean?                 IsDisabled               = false,
+                      I18NString?               Description              = null,
+                      APIKeyRights              AccessRights             = APIKeyRights.ReadOnly,
+                      DateTime?                 Created                  = null,
+                      DateTime?                 NotBefore                = null,
+                      DateTime?                 NotAfter                 = null,
+                      IEnumerable<IIPAddress>?  ValidRemoteIPAddresses   = null,
+                      Boolean?                  IsDisabled               = false,
 
-                      JObject                  CustomData               = default,
-                      JSONLDContext?           JSONLDContext            = default,
-                      String                   DataSource               = default,
-                      DateTime?                LastChange               = default)
+                      JObject?                  CustomData               = default,
+                      JSONLDContext?            JSONLDContext            = default,
+                      String?                   DataSource               = default,
+                      DateTime?                 LastChange               = default)
 
             : base(Id,
                    JSONLDContext ?? DefaultJSONLDContext,
-                   LastChange,
+                   null,
+                   null,
                    null,
                    CustomData,
+                   null,
+                   LastChange,
                    DataSource)
 
         {
 
-            this.UserId                  = UserId;//   ?? throw new ArgumentNullException(nameof(UserId), "The given user must not be null!");
+            this.UserId                  = UserId;
             this.Description             = Description ?? I18NString.Empty;
             this.AccessRights            = AccessRights;
             this.Created                 = Created     ?? Timestamp.Now;
             this.NotBefore               = NotBefore;
             this.NotAfter                = NotAfter;
-            this.ValidRemoteIPAddresses  = ValidRemoteIPAddresses.SafeAny() ? ValidRemoteIPAddresses.Distinct().ToArray() : new IIPAddress[0];
+            this.ValidRemoteIPAddresses  = ValidRemoteIPAddresses is not null && ValidRemoteIPAddresses.Any()
+                                               ? ValidRemoteIPAddresses.Distinct().ToArray()
+                                               : Array.Empty<IIPAddress>();
             this.IsDisabled              = IsDisabled  ?? false;
 
         }
@@ -260,7 +256,7 @@ namespace social.OpenData.UsersAPI
                     return false;
                 }
 
-                if (!UserProvider(UserId, out User User))
+                if (!UserProvider(UserId, out var User))
                 {
                     ErrorResponse = "The given user '" + UserId + "' is unknown!";
                     return false;
@@ -719,8 +715,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An API key builder.
         /// </summary>
-        public new class Builder : AEntity<APIKey_Id,
-                                           APIKey>.Builder
+        public new class Builder : AEntity<APIKey_Id, APIKey>.Builder
         {
 
             #region Properties
@@ -793,26 +788,27 @@ namespace social.OpenData.UsersAPI
             /// <param name="JSONLDContext">The JSON-LD context of this API key.</param>
             /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
             /// <param name="LastChange">The timestamp of the last changes within this API key. Can e.g. be used as a HTTP ETag.</param>
-            public Builder(APIKey_Id                Id,
-                           User_Id                  UserId,
-                           I18NString               Description              = null,
-                           APIKeyRights             AccessRights             = APIKeyRights.ReadOnly,
-                           DateTime?                Created                  = null,
-                           DateTime?                NotBefore                = null,
-                           DateTime?                NotAfter                 = null,
-                           IEnumerable<IIPAddress>  ValidRemoteIPAddresses   = null,
-                           Boolean?                 IsDisabled               = false,
+            public Builder(APIKey_Id                 Id,
+                           User_Id                   UserId,
+                           I18NString?               Description              = null,
+                           APIKeyRights              AccessRights             = APIKeyRights.ReadOnly,
+                           DateTime?                 Created                  = null,
+                           DateTime?                 NotBefore                = null,
+                           DateTime?                 NotAfter                 = null,
+                           IEnumerable<IIPAddress>?  ValidRemoteIPAddresses   = null,
+                           Boolean?                  IsDisabled               = false,
 
-                           JObject                  CustomData               = default,
-                           JSONLDContext?           JSONLDContext            = default,
-                           String                   DataSource               = default,
-                           DateTime?                LastChange               = default)
+                           JObject?                  CustomData               = default,
+                           JSONLDContext?            JSONLDContext            = default,
+                           String?                   DataSource               = default,
+                           DateTime?                 LastChange               = default)
 
                 : base(Id,
                        JSONLDContext ?? DefaultJSONLDContext,
                        LastChange,
                        null,
                        CustomData,
+                       null,
                        DataSource)
 
             {
@@ -1003,12 +999,26 @@ namespace social.OpenData.UsersAPI
             /// Compares two instances of this object.
             /// </summary>
             /// <param name="Object">An object to compare with.</param>
-            public override Int32 CompareTo(Object Object)
+            public override Int32 CompareTo(Object? Object)
 
-                => Object is Builder Builder
-                       ? CompareTo(Builder)
+                => Object is Builder builder
+                       ? CompareTo(builder)
                        : throw new ArgumentException("The given object is not an API key!");
 
+
+            #endregion
+
+            #region CompareTo(APIKey)
+
+            /// <summary>
+            /// Compares two instances of this object.
+            /// </summary>
+            /// <param name="APIKey">An API key object to compare with.</param>
+            public override Int32 CompareTo(APIKey? APIKey)
+
+                => APIKey is null
+                       ? throw new ArgumentNullException(nameof(APIKey), "The given API key must not be null!")
+                       : Id.CompareTo(APIKey.Id);
 
             #endregion
 
@@ -1033,14 +1043,26 @@ namespace social.OpenData.UsersAPI
             #region Equals(Object)
 
             /// <summary>
-            /// Compares two instances of this object.
+            /// Compares two API keys for equality.
             /// </summary>
-            /// <param name="Object">An object to compare with.</param>
-            /// <returns>true|false</returns>
-            public override Boolean Equals(Object Object)
+            /// <param name="Object">An API key to compare with.</param>
+            public override Boolean Equals(Object? Object)
 
-                => Object is Builder Builder &&
-                      Equals(Builder);
+                => Object is Builder builder &&
+                      Equals(builder);
+
+            #endregion
+
+            #region Equals(APIKey)
+
+            /// <summary>
+            /// Compares two API keys for equality.
+            /// </summary>
+            /// <param name="APIKey">An API key to compare with.</param>
+            public override Boolean Equals(APIKey? APIKey)
+
+                => APIKey is not null &&
+                       Id.Equals(APIKey.Id);
 
             #endregion
 
@@ -1050,10 +1072,9 @@ namespace social.OpenData.UsersAPI
             /// Compares two API keys for equality.
             /// </summary>
             /// <param name="Builder">An API key to compare with.</param>
-            /// <returns>True if both match; False otherwise.</returns>
             public Boolean Equals(Builder Builder)
 
-                => Builder is Builder &&
+                => Builder is not null &&
                        Id.Equals(Builder.Id);
 
             #endregion

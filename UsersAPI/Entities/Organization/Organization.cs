@@ -26,7 +26,6 @@ using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 using org.GraphDefined.Vanaheimr.Hermod.Mail;
 using org.GraphDefined.Vanaheimr.Styx.Arrows;
 
-using social.OpenData.UsersAPI;
 using social.OpenData.UsersAPI.Notifications;
 
 #endregion
@@ -103,8 +102,8 @@ namespace social.OpenData.UsersAPI
     /// <summary>
     /// An organization.
     /// </summary>
-    public class Organization : AEntity<Organization_Id,
-                                        Organization>
+    public class Organization : AEntity<Organization_Id, Organization>,
+                                IOrganization
     {
 
         #region Data
@@ -125,29 +124,29 @@ namespace social.OpenData.UsersAPI
 
         #region API
 
-        private UsersAPI? _API;
+        private UsersAPI? api;
 
         /// <summary>
         /// The UsersAPI of this organization.
         /// </summary>
-        internal UsersAPI? API
+        public UsersAPI? API
         {
 
             get
             {
-                return _API;
+                return api;
             }
 
             set
             {
 
-                if (_API == value)
+                if (api == value)
                     return;
 
-                if (_API is not null)
+                if (api is not null)
                     throw new ArgumentException("Illegal attempt to change the API of this organization!");
 
-                _API = value ?? throw new ArgumentException("Illegal attempt to delete the API reference of this organization!");
+                api = value ?? throw new ArgumentException("Illegal attempt to delete the API reference of this organization!");
 
             }
 
@@ -155,18 +154,6 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-
-        /// <summary>
-        /// The offical (multi-language) name of the organization.
-        /// </summary>
-        [Mandatory]
-        public I18NString                 Name                 { get; }
-
-        /// <summary>
-        /// The optional (multi-language) description of the organization.
-        /// </summary>
-        [Optional]
-        public I18NString                 Description          { get; }
 
         /// <summary>
         /// The website of the organization.
@@ -262,29 +249,29 @@ namespace social.OpenData.UsersAPI
 
         public IEnumerable<User> Admins
 
-            => _User2Organization_Edges.Where     (edge => edge.EdgeLabel == User2OrganizationEdgeLabel.IsAdmin).
+            => _User2Organization_Edges.Where(edge => edge.EdgeLabel == User2OrganizationEdgeLabel.IsAdmin).
                                         SafeSelect(edge => edge.Source).
-                                        Distinct  ();
+                                        Distinct();
 
         public IEnumerable<User> Members
 
-            => _User2Organization_Edges.Where     (edge => edge.EdgeLabel == User2OrganizationEdgeLabel.IsMember).
+            => _User2Organization_Edges.Where(edge => edge.EdgeLabel == User2OrganizationEdgeLabel.IsMember).
                                         SafeSelect(edge => edge.Source).
-                                        Distinct  ();
+                                        Distinct();
 
         public IEnumerable<User> Guests
 
-            => _User2Organization_Edges.Where     (edge => edge.EdgeLabel == User2OrganizationEdgeLabel.IsGuest).
+            => _User2Organization_Edges.Where(edge => edge.EdgeLabel == User2OrganizationEdgeLabel.IsGuest).
                                         SafeSelect(edge => edge.Source).
-                                        Distinct  ();
+                                        Distinct();
 
         public IEnumerable<User> Users
 
-            => _User2Organization_Edges.Where     (edge => edge.EdgeLabel == User2OrganizationEdgeLabel.IsAdmin  ||
+            => _User2Organization_Edges.Where(edge => edge.EdgeLabel == User2OrganizationEdgeLabel.IsAdmin ||
                                                            edge.EdgeLabel == User2OrganizationEdgeLabel.IsMember ||
                                                            edge.EdgeLabel == User2OrganizationEdgeLabel.IsGuest).
                                         SafeSelect(edge => edge.Source).
-                                        Distinct  ();
+                                        Distinct();
 
 
 
@@ -308,7 +295,7 @@ namespace social.OpenData.UsersAPI
         public IEnumerable<User2OrganizationEdgeLabel> User2OrganizationInEdgeLabels(User User)
 
             => _User2Organization_Edges.
-                   Where (edge => edge.Source == User).
+                   Where(edge => edge.Source == User).
                    Select(edge => edge.EdgeLabel);
 
         #endregion
@@ -316,13 +303,13 @@ namespace social.OpenData.UsersAPI
 
         #region RemoveUser(EdgeLabel, User)
 
-        public void RemoveUser(User2OrganizationEdgeLabel  EdgeLabel,
-                               User                        User)
+        public void RemoveUser(User2OrganizationEdgeLabel EdgeLabel,
+                               User User)
         {
 
             var edges = _User2Organization_Edges.
                             Where(edge => edge.EdgeLabel == EdgeLabel &&
-                                          edge.Source    == User).
+                                          edge.Source == User).
                             ToArray();
 
             foreach (var edge in edges)
@@ -359,7 +346,7 @@ namespace social.OpenData.UsersAPI
         public Organization2OrganizationEdge AddEdge(Organization2OrganizationEdge Edge)
 
             => Edge.Target == this
-                   ? _Organization2Organization_InEdges. AddAndReturnElement(Edge)
+                   ? _Organization2Organization_InEdges.AddAndReturnElement(Edge)
                    : _Organization2Organization_OutEdges.AddAndReturnElement(Edge);
 
         #endregion
@@ -380,9 +367,9 @@ namespace social.OpenData.UsersAPI
 
         #region AddInEdge (EdgeLabel, SourceOrganization, PrivacyLevel = PrivacyLevel.World)
 
-        public Organization2OrganizationEdge AddInEdge(Organization2OrganizationEdgeLabel  EdgeLabel,
-                                                       Organization                        SourceOrganization,
-                                                       PrivacyLevel                        PrivacyLevel = PrivacyLevel.World)
+        public Organization2OrganizationEdge AddInEdge(Organization2OrganizationEdgeLabel EdgeLabel,
+                                                       Organization SourceOrganization,
+                                                       PrivacyLevel PrivacyLevel = PrivacyLevel.World)
 
             => _Organization2Organization_InEdges.AddAndReturnElement(new Organization2OrganizationEdge(SourceOrganization,
                                                                                                         EdgeLabel,
@@ -393,9 +380,9 @@ namespace social.OpenData.UsersAPI
 
         #region AddOutEdge(EdgeLabel, TargetOrganization, PrivacyLevel = PrivacyLevel.World)
 
-        public Organization2OrganizationEdge AddOutEdge(Organization2OrganizationEdgeLabel  EdgeLabel,
-                                                        Organization                        TargetOrganization,
-                                                        PrivacyLevel                        PrivacyLevel = PrivacyLevel.World)
+        public Organization2OrganizationEdge AddOutEdge(Organization2OrganizationEdgeLabel EdgeLabel,
+                                                        Organization TargetOrganization,
+                                                        PrivacyLevel PrivacyLevel = PrivacyLevel.World)
 
             => _Organization2Organization_OutEdges.AddAndReturnElement(new Organization2OrganizationEdge(this,
                                                                                                          EdgeLabel,
@@ -411,8 +398,8 @@ namespace social.OpenData.UsersAPI
         {
 
             var parents = _Organization2Organization_OutEdges.
-                              Where  (edge => edge.Source == this && edge.EdgeLabel == Organization2OrganizationEdgeLabel.IsChildOf).
-                              Select (edge => edge.Target).
+                              Where(edge => edge.Source == this && edge.EdgeLabel == Organization2OrganizationEdgeLabel.IsChildOf).
+                              Select(edge => edge.Target).
                               ToArray();
 
             foreach (var parent in parents)
@@ -464,7 +451,7 @@ namespace social.OpenData.UsersAPI
         public IEnumerable<Organization> ParentOrganizations
 
             => _Organization2Organization_OutEdges.
-                   Where (edge => edge.Source == this && edge.EdgeLabel == Organization2OrganizationEdgeLabel.IsChildOf).
+                   Where(edge => edge.Source == this && edge.EdgeLabel == Organization2OrganizationEdgeLabel.IsChildOf).
                    Select(edge => edge.Target).
                    ToArray();
 
@@ -477,8 +464,8 @@ namespace social.OpenData.UsersAPI
         {
 
             var childs = _Organization2Organization_InEdges.
-                             Where  (edge => edge.Target == this && edge.EdgeLabel == Organization2OrganizationEdgeLabel.IsChildOf).
-                             Select (edge => edge.Source).
+                             Where(edge => edge.Target == this && edge.EdgeLabel == Organization2OrganizationEdgeLabel.IsChildOf).
+                             Select(edge => edge.Source).
                              ToArray();
 
             foreach (var child in childs)
@@ -533,7 +520,7 @@ namespace social.OpenData.UsersAPI
         public IEnumerable<Organization> SubOrganizations
 
             => _Organization2Organization_InEdges.
-                   Where (edge => edge.Target == this && edge.EdgeLabel == Organization2OrganizationEdgeLabel.IsChildOf).
+                   Where(edge => edge.Target == this && edge.EdgeLabel == Organization2OrganizationEdgeLabel.IsChildOf).
                    Select(edge => edge.Source).
                    ToArray();
 
@@ -552,11 +539,11 @@ namespace social.OpenData.UsersAPI
                    ? new Organization2OrganizationEdgeLabel[0]
 
                    : _Organization2Organization_InEdges.
-                         Where (edge => edge.Source == Organization).
+                         Where(edge => edge.Source == Organization).
                          Select(edge => edge.EdgeLabel).Concat(
 
                      _Organization2Organization_OutEdges.
-                         Where (edge => edge.Target == Organization).
+                         Where(edge => edge.Target == Organization).
                          Select(edge => edge.EdgeLabel));
 
         #endregion
@@ -572,8 +559,8 @@ namespace social.OpenData.UsersAPI
 
         #region RemoveInEdges (EdgeLabel, SourceOrganization)
 
-        public void RemoveInEdges(Organization2OrganizationEdgeLabel  EdgeLabel,
-                                  Organization                        SourceOrganization)
+        public void RemoveInEdges(Organization2OrganizationEdgeLabel EdgeLabel,
+                                  Organization SourceOrganization)
         {
 
             var edges = _Organization2Organization_InEdges.
@@ -598,13 +585,13 @@ namespace social.OpenData.UsersAPI
 
         #region RemoveOutEdges(EdgeLabel, TargetOrganization)
 
-        public void RemoveOutEdges(Organization2OrganizationEdgeLabel  EdgeLabel,
-                                   Organization                        TargetOrganization)
+        public void RemoveOutEdges(Organization2OrganizationEdgeLabel EdgeLabel,
+                                   Organization TargetOrganization)
         {
 
             var edges = _Organization2Organization_OutEdges.
                             Where(edge => edge.EdgeLabel == EdgeLabel &&
-                                          edge.Target    == TargetOrganization).
+                                          edge.Target == TargetOrganization).
                             ToArray();
 
             foreach (var edge in edges)
@@ -666,15 +653,16 @@ namespace social.OpenData.UsersAPI
 
             : base(Id,
                    JSONLDContext ?? DefaultJSONLDContext,
-                   LastChange,
+                   Name,
+                   Description,
                    null,
                    CustomData,
+                   null,
+                   LastChange,
                    DataSource)
 
         {
 
-            this.Name                                 = Name          ?? new I18NString();
-            this.Description                          = Description   ?? new I18NString();
             this.Website                              = Website;
             this.EMail                                = EMail;
             this.Telephone                            = Telephone;
@@ -880,14 +868,14 @@ namespace social.OpenData.UsersAPI
 
         {
 
-            var JSON = base.ToJSON(Embedded,
+            var json = base.ToJSON(Embedded,
                                    IncludeLastChange,
                                    null,
                                    new JProperty?[] {
 
                                        new JProperty("name",                    Name.           ToJSON()),
 
-                                       Description.IsNeitherNullNorEmpty()
+                                       Description.IsNotNullOrEmpty()
                                            ? new JProperty("description",       Description.    ToJSON())
                                            : null,
 
@@ -958,8 +946,8 @@ namespace social.OpenData.UsersAPI
 
 
             return CustomOrganizationSerializer is not null
-                       ? CustomOrganizationSerializer(this, JSON)
-                       : JSON;
+                       ? CustomOrganizationSerializer(this, json)
+                       : json;
 
         }
 
@@ -1241,107 +1229,116 @@ namespace social.OpenData.UsersAPI
 
         #region Operator overloading
 
-        #region Operator == (OrganizationId1, OrganizationId2)
+        #region Operator == (Organization1, Organization2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="OrganizationId1">A organization identification.</param>
-        /// <param name="OrganizationId2">Another organization identification.</param>
+        /// <param name="Organization1">A organization.</param>
+        /// <param name="Organization2">Another organization.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator == (Organization OrganizationId1, Organization OrganizationId2)
+        public static Boolean operator == (Organization? Organization1,
+                                           Organization? Organization2)
         {
 
             // If both are null, or both are same instance, return true.
-            if (Object.ReferenceEquals(OrganizationId1, OrganizationId2))
+            if (Object.ReferenceEquals(Organization1, Organization2))
                 return true;
 
             // If one is null, but not both, return false.
-            if (((Object) OrganizationId1 == null) || ((Object) OrganizationId2 == null))
+            if (Organization1 is null || Organization2 is null)
                 return false;
 
-            return OrganizationId1.Equals(OrganizationId2);
+            return Organization1.Equals(Organization2);
 
         }
 
         #endregion
 
-        #region Operator != (OrganizationId1, OrganizationId2)
+        #region Operator != (Organization1, Organization2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="OrganizationId1">A organization identification.</param>
-        /// <param name="OrganizationId2">Another organization identification.</param>
+        /// <param name="Organization1">A organization.</param>
+        /// <param name="Organization2">Another organization.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator != (Organization OrganizationId1, Organization OrganizationId2)
-            => !(OrganizationId1 == OrganizationId2);
+        public static Boolean operator != (Organization? Organization1,
+                                           Organization? Organization2)
+
+            => !(Organization1 == Organization2);
 
         #endregion
 
-        #region Operator <  (OrganizationId1, OrganizationId2)
+        #region Operator <  (Organization1, Organization2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="OrganizationId1">A organization identification.</param>
-        /// <param name="OrganizationId2">Another organization identification.</param>
+        /// <param name="Organization1">A organization.</param>
+        /// <param name="Organization2">Another organization.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator < (Organization OrganizationId1, Organization OrganizationId2)
+        public static Boolean operator < (Organization? Organization1,
+                                          Organization? Organization2)
         {
 
-            if ((Object) OrganizationId1 == null)
-                throw new ArgumentNullException(nameof(OrganizationId1), "The given OrganizationId1 must not be null!");
+            if (Organization1 is null)
+                throw new ArgumentNullException(nameof(Organization1), "The given Organization1 must not be null!");
 
-            return OrganizationId1.CompareTo(OrganizationId2) < 0;
+            return Organization1.CompareTo(Organization2) < 0;
 
         }
 
         #endregion
 
-        #region Operator <= (OrganizationId1, OrganizationId2)
+        #region Operator <= (Organization1, Organization2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="OrganizationId1">A organization identification.</param>
-        /// <param name="OrganizationId2">Another organization identification.</param>
+        /// <param name="Organization1">A organization.</param>
+        /// <param name="Organization2">Another organization.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator <= (Organization OrganizationId1, Organization OrganizationId2)
-            => !(OrganizationId1 > OrganizationId2);
+        public static Boolean operator <= (Organization? Organization1,
+                                           Organization? Organization2)
+
+            => !(Organization1 > Organization2);
 
         #endregion
 
-        #region Operator >  (OrganizationId1, OrganizationId2)
+        #region Operator >  (Organization1, Organization2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="OrganizationId1">A organization identification.</param>
-        /// <param name="OrganizationId2">Another organization identification.</param>
+        /// <param name="Organization1">A organization.</param>
+        /// <param name="Organization2">Another organization.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator > (Organization OrganizationId1, Organization OrganizationId2)
+        public static Boolean operator > (Organization? Organization1,
+                                          Organization? Organization2)
         {
 
-            if ((Object) OrganizationId1 == null)
-                throw new ArgumentNullException(nameof(OrganizationId1), "The given OrganizationId1 must not be null!");
+            if (Organization1 is null)
+                throw new ArgumentNullException(nameof(Organization1), "The given Organization1 must not be null!");
 
-            return OrganizationId1.CompareTo(OrganizationId2) > 0;
+            return Organization1.CompareTo(Organization2) > 0;
 
         }
 
         #endregion
 
-        #region Operator >= (OrganizationId1, OrganizationId2)
+        #region Operator >= (Organization1, Organization2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="OrganizationId1">A organization identification.</param>
-        /// <param name="OrganizationId2">Another organization identification.</param>
+        /// <param name="Organization1">A organization.</param>
+        /// <param name="Organization2">Another organization.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator >= (Organization OrganizationId1, Organization OrganizationId2)
-            => !(OrganizationId1 < OrganizationId2);
+        public static Boolean operator >= (Organization? Organization1,
+                                           Organization? Organization2)
+
+            => !(Organization1 < Organization2);
 
         #endregion
 
@@ -1352,24 +1349,34 @@ namespace social.OpenData.UsersAPI
         #region CompareTo(Object)
 
         /// <summary>
-        /// Compares two instances of this object.
+        /// Compares two organizations.
         /// </summary>
-        /// <param name="Object">An object to compare with.</param>
-        public override Int32 CompareTo(Object Object)
+        /// <param name="Object">An organization to compare with.</param>
+        public override Int32 CompareTo(Object? Object)
 
-            => Object is Organization Organization
-                   ? CompareTo(Organization)
-                   : throw new ArgumentException("The given object is not an organization!", nameof(Object));
+            => Object is Organization organization
+                   ? CompareTo(organization)
+                   : throw new ArgumentException("The given object is not an organization!",
+                                                 nameof(Object));
 
         #endregion
 
         #region CompareTo(Organization)
 
         /// <summary>
-        /// Compares two instances of this object.
+        /// Compares two organizations.
         /// </summary>
-        /// <param name="Organization">An organization object to compare with.</param>
-        public override Int32 CompareTo(Organization Organization)
+        /// <param name="Organization">An organization to compare with.</param>
+        public override Int32 CompareTo(Organization? Organization)
+
+            => CompareTo(Organization as IOrganization);
+
+
+        /// <summary>
+        /// Compares two organizations.
+        /// </summary>
+        /// <param name="Organization">An organization to compare with.</param>
+        public Int32 CompareTo(IOrganization? Organization)
 
             => Organization is null
                    ? throw new ArgumentNullException(nameof(Organization), "The given organization must not be null!")
@@ -1384,14 +1391,13 @@ namespace social.OpenData.UsersAPI
         #region Equals(Object)
 
         /// <summary>
-        /// Compares two instances of this object.
+        /// Compares two organizations for equality.
         /// </summary>
-        /// <param name="Object">An object to compare with.</param>
-        /// <returns>true|false</returns>
-        public override Boolean Equals(Object Object)
+        /// <param name="Object">An organization to compare with.</param>
+        public override Boolean Equals(Object? Object)
 
-            => Object is Organization Organization &&
-                  Equals(Organization);
+            => Object is Organization organization &&
+                  Equals(organization);
 
         #endregion
 
@@ -1401,8 +1407,16 @@ namespace social.OpenData.UsersAPI
         /// Compares two organizations for equality.
         /// </summary>
         /// <param name="Organization">An organization to compare with.</param>
-        /// <returns>True if both match; False otherwise.</returns>
-        public override Boolean Equals(Organization Organization)
+        public override Boolean Equals(Organization? Organization)
+
+            => Equals(Organization as IOrganization);
+
+
+        /// <summary>
+        /// Compares two organizations for equality.
+        /// </summary>
+        /// <param name="Organization">An organization to compare with.</param>
+        public Boolean Equals(IOrganization? Organization)
 
             => Organization is Organization &&
                    Id.Equals(Organization.Id);
@@ -1470,35 +1484,22 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An organization builder.
         /// </summary>
-        public new class Builder : AEntity<Organization_Id,
-                                           Organization>.Builder
+        public new class Builder : AEntity<Organization_Id, Organization>.Builder
         {
 
             #region Properties
 
             /// <summary>
-            /// The offical (multi-language) name of the organization.
-            /// </summary>
-            [Mandatory]
-            public I18NString             Name                 { get; set; }
-
-            /// <summary>
-            /// The optional (multi-language) description of the organization.
-            /// </summary>
-            [Optional]
-            public I18NString             Description          { get; set; }
-
-            /// <summary>
             /// The website of the organization.
             /// </summary>
             [Optional]
-            public String                 Website              { get; set; }
+            public String?                Website              { get; set; }
 
             /// <summary>
             /// The primary E-Mail address of the organization.
             /// </summary>
             [Optional]
-            public EMailAddress           EMail                { get; set; }
+            public EMailAddress?          EMail                { get; set; }
 
             /// <summary>
             /// The telephone number of the organization.
@@ -1510,7 +1511,7 @@ namespace social.OpenData.UsersAPI
             /// The optional address of the organization.
             /// </summary>
             [Optional]
-            public Address                Address              { get; set; }
+            public Address?               Address              { get; set; }
 
             /// <summary>
             /// The geographical location of this organization.
@@ -1521,7 +1522,7 @@ namespace social.OpenData.UsersAPI
             /// An collection of multi-language tags and their relevance.
             /// </summary>
             [Optional]
-            public Tags                   Tags                 { get; set; }
+            public Tags?                  Tags                 { get; set; }
 
             /// <summary>
             /// The user will be shown in organization listings.
@@ -1561,9 +1562,9 @@ namespace social.OpenData.UsersAPI
 
             public User2OrganizationEdge
 
-                LinkUser(User                    Source,
-                         User2OrganizationEdgeLabel  EdgeLabel,
-                         PrivacyLevel            PrivacyLevel = PrivacyLevel.World)
+                LinkUser(User Source,
+                         User2OrganizationEdgeLabel EdgeLabel,
+                         PrivacyLevel PrivacyLevel = PrivacyLevel.World)
 
                 => _User2Organization_Edges.
                        AddAndReturnElement(new User2OrganizationEdge(Source,
@@ -1594,7 +1595,7 @@ namespace social.OpenData.UsersAPI
             public IEnumerable<User2OrganizationEdgeLabel> User2OrganizationInEdgeLabels(User User)
 
                 => _User2Organization_Edges.
-                       Where (edge => edge.Source == User).
+                       Where(edge => edge.Source == User).
                        Select(edge => edge.EdgeLabel);
 
             #endregion
@@ -1608,13 +1609,13 @@ namespace social.OpenData.UsersAPI
 
             #region UnlinkUser(EdgeLabel, User)
 
-            public void UnlinkUser(User2OrganizationEdgeLabel  EdgeLabel,
-                                   User                    User)
+            public void UnlinkUser(User2OrganizationEdgeLabel EdgeLabel,
+                                   User User)
             {
 
                 var edges = _User2Organization_Edges.
                                 Where(edge => edge.EdgeLabel == EdgeLabel &&
-                                              edge.Source    == User).
+                                              edge.Source == User).
                                 ToArray();
 
                 foreach (var edge in edges)
@@ -1650,11 +1651,11 @@ namespace social.OpenData.UsersAPI
 
             public Organization2OrganizationEdge
 
-                AddInEdge (Organization2OrganizationEdgeLabel  EdgeLabel,
-                           Organization                    SourceOrganization,
-                           PrivacyLevel                    PrivacyLevel = PrivacyLevel.World)
+                AddInEdge(Organization2OrganizationEdgeLabel EdgeLabel,
+                           Organization SourceOrganization,
+                           PrivacyLevel PrivacyLevel = PrivacyLevel.World)
 
-                => _Organization2Organization_InEdges. AddAndReturnElement(new Organization2OrganizationEdge(SourceOrganization,
+                => _Organization2Organization_InEdges.AddAndReturnElement(new Organization2OrganizationEdge(SourceOrganization,
                                                                                                                                                     EdgeLabel,
                                                                                                                                                     this,
                                                                                                                                                     PrivacyLevel));
@@ -1713,9 +1714,9 @@ namespace social.OpenData.UsersAPI
 
             public Organization2OrganizationEdge
 
-                AddOutEdge(Organization2OrganizationEdgeLabel  EdgeLabel,
-                           Organization                    TargetOrganization,
-                           PrivacyLevel                    PrivacyLevel = PrivacyLevel.World)
+                AddOutEdge(Organization2OrganizationEdgeLabel EdgeLabel,
+                           Organization TargetOrganization,
+                           PrivacyLevel PrivacyLevel = PrivacyLevel.World)
 
                 => _Organization2Organization_OutEdges.AddAndReturnElement(new Organization2OrganizationEdge(this,
                                                                                                                                                     EdgeLabel,
@@ -1739,13 +1740,13 @@ namespace social.OpenData.UsersAPI
 
             #region RemoveOutEdges(EdgeLabel, TargetOrganization)
 
-            public void RemoveOutEdges(Organization2OrganizationEdgeLabel  EdgeLabel,
-                                       Organization                    TargetOrganization)
+            public void RemoveOutEdges(Organization2OrganizationEdgeLabel EdgeLabel,
+                                       Organization TargetOrganization)
             {
 
                 var edges = _Organization2Organization_OutEdges.
                                 Where(edge => edge.EdgeLabel == EdgeLabel &&
-                                              edge.Target    == TargetOrganization).
+                                              edge.Target == TargetOrganization).
                                 ToArray();
 
                 foreach (var edge in edges)
@@ -1774,55 +1775,56 @@ namespace social.OpenData.UsersAPI
             /// <param name="Address">An optional address of the organisation.</param>
             /// <param name="IsDisabled">The organization is disabled.</param>
             /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
-            public Builder(Organization_Id                             Id,
-                           I18NString                                  Name                                = null,
-                           I18NString                                  Description                         = null,
-                           String                                      Website                             = null,
-                           EMailAddress                                EMail                               = null,
-                           PhoneNumber?                                Telephone                           = null,
-                           Address                                     Address                             = null,
-                           GeoCoordinate?                              GeoLocation                         = null,
-                           Func<Tags.Builder, Tags>                    Tags                                = null,
-                           Boolean                                     IsDisabled                          = false,
+            public Builder(Organization_Id                              Id,
+                           I18NString?                                  Name                                = null,
+                           I18NString?                                  Description                         = null,
+                           String?                                      Website                             = null,
+                           EMailAddress?                                EMail                               = null,
+                           PhoneNumber?                                 Telephone                           = null,
+                           Address?                                     Address                             = null,
+                           GeoCoordinate?                               GeoLocation                         = null,
+                           Func<Tags.Builder, Tags>?                    Tags                                = null,
+                           Boolean                                      IsDisabled                          = false,
 
-                           IEnumerable<ANotification>                  Notifications                       = null,
+                           IEnumerable<ANotification>?                  Notifications                       = null,
 
-                           IEnumerable<User2OrganizationEdge>          User2OrganizationEdges              = null,
-                           IEnumerable<Organization2OrganizationEdge>  Organization2OrganizationInEdges    = null,
-                           IEnumerable<Organization2OrganizationEdge>  Organization2OrganizationOutEdges   = null,
+                           IEnumerable<User2OrganizationEdge>?          User2OrganizationEdges              = null,
+                           IEnumerable<Organization2OrganizationEdge>?  Organization2OrganizationInEdges    = null,
+                           IEnumerable<Organization2OrganizationEdge>?  Organization2OrganizationOutEdges   = null,
 
-                           JObject                                     CustomData                          = default,
-                           IEnumerable<AttachedFile>                   AttachedFiles                       = default,
-                           JSONLDContext?                              JSONLDContext                       = default,
-                           String                                      DataSource                          = default,
-                           DateTime?                                   LastChange                          = default)
+                           JObject?                                     CustomData                          = default,
+                           IEnumerable<AttachedFile>?                   AttachedFiles                       = default,
+                           JSONLDContext?                               JSONLDContext                       = default,
+                           String?                                      DataSource                          = default,
+                           DateTime?                                    LastChange                          = default)
 
                 : base(Id,
                        JSONLDContext ?? DefaultJSONLDContext,
                        LastChange,
                        null,
                        CustomData,
+                       null,
                        DataSource)
 
             {
 
-                this.Name                                 = Name        ?? new I18NString();
-                this.Description                          = Description ?? new I18NString();
-                this.Website                              = Website;
-                this.EMail                                = EMail;
-                this.Telephone                            = Telephone;
-                this.Address                              = Address;
-                this.GeoLocation                          = GeoLocation;
-                var _TagsBuilder                          = new Tags.Builder();
-                this.Tags                                 = Tags != null ? Tags(_TagsBuilder) : _TagsBuilder;
-                this.IsDisabled                           = IsDisabled;
-                this.AttachedFiles                        = AttachedFiles.SafeAny() ? new HashSet<AttachedFile>(AttachedFiles) : new HashSet<AttachedFile>();
+                this.Name = Name ?? new I18NString();
+                this.Description = Description ?? new I18NString();
+                this.Website = Website;
+                this.EMail = EMail;
+                this.Telephone = Telephone;
+                this.Address = Address;
+                this.GeoLocation = GeoLocation;
+                var _TagsBuilder = new Tags.Builder();
+                this.Tags = Tags != null ? Tags(_TagsBuilder) : _TagsBuilder;
+                this.IsDisabled = IsDisabled;
+                this.AttachedFiles = AttachedFiles.SafeAny() ? new HashSet<AttachedFile>(AttachedFiles) : new HashSet<AttachedFile>();
 
-                this.notifications                        = new NotificationStore(Notifications);
+                this.notifications = new NotificationStore(Notifications);
 
-                this._User2Organization_Edges             = User2OrganizationEdges.           IsNeitherNullNorEmpty() ? new List<User2OrganizationEdge>        (User2OrganizationEdges)            : new List<User2OrganizationEdge>();
-                this._Organization2Organization_InEdges   = Organization2OrganizationInEdges. IsNeitherNullNorEmpty() ? new List<Organization2OrganizationEdge>(Organization2OrganizationInEdges)  : new List<Organization2OrganizationEdge>();
-                this._Organization2Organization_OutEdges  = Organization2OrganizationOutEdges.IsNeitherNullNorEmpty() ? new List<Organization2OrganizationEdge>(Organization2OrganizationOutEdges) : new List<Organization2OrganizationEdge>();
+                this._User2Organization_Edges = User2OrganizationEdges.IsNeitherNullNorEmpty() ? new List<User2OrganizationEdge>(User2OrganizationEdges) : new List<User2OrganizationEdge>();
+                this._Organization2Organization_InEdges = Organization2OrganizationInEdges.IsNeitherNullNorEmpty() ? new List<Organization2OrganizationEdge>(Organization2OrganizationInEdges) : new List<Organization2OrganizationEdge>();
+                this._Organization2Organization_OutEdges = Organization2OrganizationOutEdges.IsNeitherNullNorEmpty() ? new List<Organization2OrganizationEdge>(Organization2OrganizationOutEdges) : new List<Organization2OrganizationEdge>();
 
             }
 
@@ -2063,107 +2065,116 @@ namespace social.OpenData.UsersAPI
 
             #region Operator overloading
 
-            #region Operator == (BuilderId1, BuilderId2)
+            #region Operator == (Builder1, Builder2)
 
             /// <summary>
             /// Compares two instances of this object.
             /// </summary>
-            /// <param name="BuilderId1">A organization builder.</param>
-            /// <param name="BuilderId2">Another organization builder.</param>
+            /// <param name="Builder1">A organization builder.</param>
+            /// <param name="Builder2">Another organization builder.</param>
             /// <returns>true|false</returns>
-            public static Boolean operator == (Builder BuilderId1, Builder BuilderId2)
+            public static Boolean operator == (Builder? Builder1,
+                                               Builder? Builder2)
             {
 
                 // If both are null, or both are same instance, return true.
-                if (Object.ReferenceEquals(BuilderId1, BuilderId2))
+                if (Object.ReferenceEquals(Builder1, Builder2))
                     return true;
 
                 // If one is null, but not both, return false.
-                if ((BuilderId1 is null) || (BuilderId2 is null))
+                if ((Builder1 is null) || (Builder2 is null))
                     return false;
 
-                return BuilderId1.Equals(BuilderId2);
+                return Builder1.Equals(Builder2);
 
             }
 
             #endregion
 
-            #region Operator != (BuilderId1, BuilderId2)
+            #region Operator != (Builder1, Builder2)
 
             /// <summary>
             /// Compares two instances of this object.
             /// </summary>
-            /// <param name="BuilderId1">A organization builder.</param>
-            /// <param name="BuilderId2">Another organization builder.</param>
+            /// <param name="Builder1">A organization builder.</param>
+            /// <param name="Builder2">Another organization builder.</param>
             /// <returns>true|false</returns>
-            public static Boolean operator != (Builder BuilderId1, Builder BuilderId2)
-                => !(BuilderId1 == BuilderId2);
+            public static Boolean operator != (Builder? Builder1,
+                                               Builder? Builder2)
+
+                => !(Builder1 == Builder2);
 
             #endregion
 
-            #region Operator <  (BuilderId1, BuilderId2)
+            #region Operator <  (Builder1, Builder2)
 
             /// <summary>
             /// Compares two instances of this object.
             /// </summary>
-            /// <param name="BuilderId1">A organization builder.</param>
-            /// <param name="BuilderId2">Another organization builder.</param>
+            /// <param name="Builder1">A organization builder.</param>
+            /// <param name="Builder2">Another organization builder.</param>
             /// <returns>true|false</returns>
-            public static Boolean operator < (Builder BuilderId1, Builder BuilderId2)
+            public static Boolean operator < (Builder? Builder1,
+                                              Builder? Builder2)
             {
 
-                if (BuilderId1 is null)
-                    throw new ArgumentNullException(nameof(BuilderId1), "The given BuilderId1 must not be null!");
+                if (Builder1 is null)
+                    throw new ArgumentNullException(nameof(Builder1), "The given Builder1 must not be null!");
 
-                return BuilderId1.CompareTo(BuilderId2) < 0;
+                return Builder1.CompareTo(Builder2) < 0;
 
             }
 
             #endregion
 
-            #region Operator <= (BuilderId1, BuilderId2)
+            #region Operator <= (Builder1, Builder2)
 
             /// <summary>
             /// Compares two instances of this object.
             /// </summary>
-            /// <param name="BuilderId1">A organization builder.</param>
-            /// <param name="BuilderId2">Another organization builder.</param>
+            /// <param name="Builder1">A organization builder.</param>
+            /// <param name="Builder2">Another organization builder.</param>
             /// <returns>true|false</returns>
-            public static Boolean operator <= (Builder BuilderId1, Builder BuilderId2)
-                => !(BuilderId1 > BuilderId2);
+            public static Boolean operator <= (Builder? Builder1,
+                                               Builder? Builder2)
+
+                => !(Builder1 > Builder2);
 
             #endregion
 
-            #region Operator >  (BuilderId1, BuilderId2)
+            #region Operator >  (Builder1, Builder2)
 
             /// <summary>
             /// Compares two instances of this object.
             /// </summary>
-            /// <param name="BuilderId1">A organization builder.</param>
-            /// <param name="BuilderId2">Another organization builder.</param>
+            /// <param name="Builder1">A organization builder.</param>
+            /// <param name="Builder2">Another organization builder.</param>
             /// <returns>true|false</returns>
-            public static Boolean operator > (Builder BuilderId1, Builder BuilderId2)
+            public static Boolean operator > (Builder? Builder1,
+                                              Builder? Builder2)
             {
 
-                if (BuilderId1 is null)
-                    throw new ArgumentNullException(nameof(BuilderId1), "The given BuilderId1 must not be null!");
+                if (Builder1 is null)
+                    throw new ArgumentNullException(nameof(Builder1), "The given Builder1 must not be null!");
 
-                return BuilderId1.CompareTo(BuilderId2) > 0;
+                return Builder1.CompareTo(Builder2) > 0;
 
             }
 
             #endregion
 
-            #region Operator >= (BuilderId1, BuilderId2)
+            #region Operator >= (Builder1, Builder2)
 
             /// <summary>
             /// Compares two instances of this object.
             /// </summary>
-            /// <param name="BuilderId1">A organization builder.</param>
-            /// <param name="BuilderId2">Another organization builder.</param>
+            /// <param name="Builder1">A organization builder.</param>
+            /// <param name="Builder2">Another organization builder.</param>
             /// <returns>true|false</returns>
-            public static Boolean operator >= (Builder BuilderId1, Builder BuilderId2)
-                => !(BuilderId1 < BuilderId2);
+            public static Boolean operator >= (Builder? Builder1,
+                                               Builder? Builder2)
+
+                => !(Builder1 < Builder2);
 
             #endregion
 
@@ -2174,13 +2185,13 @@ namespace social.OpenData.UsersAPI
             #region CompareTo(Object)
 
             /// <summary>
-            /// Compares two instances of this object.
+            /// Compares two organizations.
             /// </summary>
-            /// <param name="Object">An object to compare with.</param>
-            public override Int32 CompareTo(Object Object)
+            /// <param name="Object">An organization to compare with.</param>
+            public override Int32 CompareTo(Object? Object)
 
-                => Object is Builder Builder
-                       ? CompareTo(Builder)
+                => Object is Builder builder
+                       ? CompareTo(builder)
                        : throw new ArgumentException("The given object is not an organization!");
 
             #endregion
@@ -2188,10 +2199,24 @@ namespace social.OpenData.UsersAPI
             #region CompareTo(Builder)
 
             /// <summary>
-            /// Compares two instances of this object.
+            /// Compares two organizations.
             /// </summary>
-            /// <param name="Builder">An organization object to compare with.</param>
-            public Int32 CompareTo(Builder Builder)
+            /// <param name="Organization">An organization to compare with.</param>
+            public override Int32 CompareTo(Organization? Organization)
+
+                => Organization is null
+                       ? throw new ArgumentNullException(nameof(Organization), "The given organization must not be null!")
+                       : Id.CompareTo(Organization.Id);
+
+            #endregion
+
+            #region CompareTo(Builder)
+
+            /// <summary>
+            /// Compares two organizations.
+            /// </summary>
+            /// <param name="Organization">An organization to compare with.</param>
+            public Int32 CompareTo(Builder? Builder)
 
                 => Builder is null
                        ? throw new ArgumentNullException(nameof(Builder), "The given organization must not be null!")
@@ -2206,14 +2231,26 @@ namespace social.OpenData.UsersAPI
             #region Equals(Object)
 
             /// <summary>
-            /// Compares two instances of this object.
+            /// Compares two organizations for equality.
             /// </summary>
-            /// <param name="Object">An object to compare with.</param>
-            /// <returns>true|false</returns>
-            public override Boolean Equals(Object Object)
+            /// <param name="Object">An organization to compare with.</param>
+            public override Boolean Equals(Object? Object)
 
-                => Object is Builder Builder &&
-                      Equals(Builder);
+                => Object is Builder builder &&
+                      Equals(builder);
+
+            #endregion
+
+            #region Equals(Builder)
+
+            /// <summary>
+            /// Compares two organizations for equality.
+            /// </summary>
+            /// <param name="Organization">An organization to compare with.</param>
+            public override Boolean Equals(Organization? Organization)
+
+                => Organization is not null &&
+                       Id.Equals(Organization.Id);
 
             #endregion
 
@@ -2223,10 +2260,9 @@ namespace social.OpenData.UsersAPI
             /// Compares two organizations for equality.
             /// </summary>
             /// <param name="Builder">An organization to compare with.</param>
-            /// <returns>True if both match; False otherwise.</returns>
-            public Boolean Equals(Builder Builder)
+            public Boolean Equals(Builder? Builder)
 
-                => Builder is Builder &&
+                => Builder is not null &&
                        Id.Equals(Builder.Id);
 
             #endregion

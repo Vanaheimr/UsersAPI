@@ -47,27 +47,27 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// The creation timestamp of the password-reset-information.
         /// </summary>
-        public DateTime           Timestamp          { get; }
+        public DateTime            Timestamp          { get; }
 
         /// <summary>
         /// An enumeration of valid users.
         /// </summary>
-        public IEnumerable<User>  Users              { get; }
+        public IEnumerable<IUser>  Users              { get; }
 
         /// <summary>
         /// A security token to authorize the password reset.
         /// </summary>
-        public SecurityToken_Id   SecurityToken1     { get; }
+        public SecurityToken_Id    SecurityToken1     { get; }
 
         /// <summary>
         /// An optional second security token to authorize the password reset.
         /// </summary>
-        public SecurityToken_Id?  SecurityToken2     { get; }
+        public SecurityToken_Id?   SecurityToken2     { get; }
 
         /// <summary>
         /// An optional unique event tracking identification for correlating this request with other events.
         /// </summary>
-        public EventTracking_Id   EventTrackingId    { get; }
+        public EventTracking_Id    EventTrackingId    { get; }
 
         #endregion
 
@@ -80,13 +80,13 @@ namespace social.OpenData.UsersAPI
         /// <param name="SecurityToken1">A security token to authorize the password reset.</param>
         /// <param name="SecurityToken2">An optional second security token to authorize the password reset.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
-        public PasswordReset(User               User,
+        public PasswordReset(IUser              User,
                              SecurityToken_Id   SecurityToken1,
                              SecurityToken_Id?  SecurityToken2    = null,
                              EventTracking_Id?  EventTrackingId   = null)
 
             : this(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
-                   new User[] { User },
+                   new[] { User },
                    SecurityToken1,
                    SecurityToken2,
                    EventTrackingId)
@@ -101,10 +101,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="SecurityToken1">A security token to authorize the password reset.</param>
         /// <param name="SecurityToken2">An optional second security token to authorize the password reset.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
-        public PasswordReset(IEnumerable<User>  Users,
-                             SecurityToken_Id   SecurityToken1,
-                             SecurityToken_Id?  SecurityToken2    = null,
-                             EventTracking_Id?  EventTrackingId   = null)
+        public PasswordReset(IEnumerable<IUser>  Users,
+                             SecurityToken_Id    SecurityToken1,
+                             SecurityToken_Id?   SecurityToken2    = null,
+                             EventTracking_Id?   EventTrackingId   = null)
 
             : this(org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
                    Users,
@@ -123,18 +123,18 @@ namespace social.OpenData.UsersAPI
         /// <param name="SecurityToken1">A security token to authorize the password reset.</param>
         /// <param name="SecurityToken2">An optional second security token to authorize the password reset.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
-        public PasswordReset(DateTime           Timestamp,
-                             IEnumerable<User>  Users,
-                             SecurityToken_Id   SecurityToken1,
-                             SecurityToken_Id?  SecurityToken2    = null,
-                             EventTracking_Id?  EventTrackingId   = null)
+        public PasswordReset(DateTime            Timestamp,
+                             IEnumerable<IUser>  Users,
+                             SecurityToken_Id    SecurityToken1,
+                             SecurityToken_Id?   SecurityToken2    = null,
+                             EventTracking_Id?   EventTrackingId   = null)
         {
 
             if (!Users.Any())
                 throw new ArgumentNullException(nameof(Users), "The given enumeration of users must not be null or empty!");
 
             this.Timestamp        = Timestamp;
-            this.Users            = new HashSet<User>(Users);
+            this.Users            = new HashSet<IUser>(Users);
             this.SecurityToken1   = SecurityToken1;
             this.SecurityToken2   = SecurityToken2;
             this.EventTrackingId  = EventTrackingId ?? EventTracking_Id.New;
@@ -239,7 +239,7 @@ namespace social.OpenData.UsersAPI
                     return false;
                 }
 
-                HashSet<User_Id> userIds = null;
+                HashSet<User_Id>? userIds = null;
 
                 try
                 {
@@ -262,12 +262,12 @@ namespace social.OpenData.UsersAPI
                     return false;
                 }
 
-                HashSet<User> Users = new HashSet<User>();
+                HashSet<IUser> Users = new();
 
                 foreach (var userId in userIds)
                 {
 
-                    if (!UserProvider(userId, out User user))
+                    if (!UserProvider(userId, out var user))
                     {
                         ErrorResponse = "The given user '" + userId + "' is unknown or invalid!";
                         return false;
@@ -340,6 +340,7 @@ namespace social.OpenData.UsersAPI
         }
 
         #endregion
+
 
     }
 

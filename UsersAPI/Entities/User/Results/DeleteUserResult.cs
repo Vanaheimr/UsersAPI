@@ -25,93 +25,355 @@ using org.GraphDefined.Vanaheimr.Hermod;
 namespace social.OpenData.UsersAPI
 {
 
-    public class DeleteUserResult : AEnitityResult<User, User_Id>
+        /// <summary>
+    /// The result of a delete user request.
+    /// </summary>
+    public class DeleteUserResult : AEnitityResult<IUser, User_Id>
     {
 
-        private DeleteUserResult(User              User,
-                                 EventTracking_Id  EventTrackingId,
-                                 Boolean           IsSuccess,
-                                 String?           Argument           = null,
-                                 I18NString?       ErrorDescription   = null)
+        #region Properties
+
+        public IUser?          User
+            => Object;
+
+        public IOrganization?  Organization    { get; internal set; }
+
+        #endregion
+
+        #region Constructor(s)
+
+        public DeleteUserResult(IUser                  User,
+                                CommandResult          Result,
+                                EventTracking_Id?      EventTrackingId   = null,
+                                IId?                   SenderId          = null,
+                                Object?                Sender            = null,
+                                IOrganization?         Organization      = null,
+                                I18NString?            Description       = null,
+                                IEnumerable<Warning>?  Warnings          = null,
+                                TimeSpan?              Runtime           = null)
 
             : base(User,
+                   Result,
                    EventTrackingId,
-                   IsSuccess,
-                   Argument,
-                   ErrorDescription)
+                   SenderId,
+                   Sender,
+                   Description,
+                   Warnings,
+                   Runtime)
 
-        { }
+        {
 
+            this.Organization = Organization;
 
-        public static DeleteUserResult Success(User              User,
-                                               EventTracking_Id  EventTrackingId)
-
-            => new (User,
-                    EventTrackingId,
-                    true);
+        }
 
 
-        public static DeleteUserResult ArgumentError(User              User,
-                                                     EventTracking_Id  EventTrackingId,
-                                                     String            Argument,
-                                                     String            Description)
+        public DeleteUserResult(User_Id                UserId,
+                                CommandResult          Result,
+                                EventTracking_Id?      EventTrackingId   = null,
+                                IId?                   SenderId          = null,
+                                Object?                Sender            = null,
+                                IOrganization?         Organization      = null,
+                                I18NString?            Description       = null,
+                                IEnumerable<Warning>?  Warnings          = null,
+                                TimeSpan?              Runtime           = null)
 
-            => new (User,
-                    EventTrackingId,
-                    false,
-                    Argument,
-                    I18NString.Create(
-                        Languages.en,
-                        Description
-                    ));
+            : base(UserId,
+                   Result,
+                   EventTrackingId,
+                   SenderId,
+                   Sender,
+                   Description,
+                   Warnings,
+                   Runtime)
 
-        public static DeleteUserResult ArgumentError(User              User,
-                                                     EventTracking_Id  EventTrackingId,
-                                                     String            Argument,
-                                                     I18NString        Description)
+        {
 
-            => new (User,
-                    EventTrackingId,
-                    false,
-                    Argument,
-                    Description);
+            this.Organization = Organization;
+
+        }
+
+        #endregion
 
 
-        public static DeleteUserResult Failed(User              User,
-                                              EventTracking_Id  EventTrackingId,
-                                              String            Description)
+        #region (static) AdminDown      (User, ...)
 
-            => new (User,
-                    EventTrackingId,
-                    false,
-                    null,
-                    I18NString.Create(
-                        Languages.en,
-                        Description
-                    ));
+        public static DeleteUserResult
 
-        public static DeleteUserResult Failed(User              User,
-                                              EventTracking_Id  EventTrackingId,
-                                              I18NString        Description)
+            AdminDown(IUser                  User,
+                      EventTracking_Id?      EventTrackingId      = null,
+                      IId?                   SenderId             = null,
+                      Object?                Sender               = null,
+                      IOrganization?         Organization         = null,
+                      I18NString?            Description          = null,
+                      IEnumerable<Warning>?  Warnings             = null,
+                      TimeSpan?              Runtime              = null)
 
-            => new (User,
-                    EventTrackingId,
-                    false,
-                    null,
-                    Description);
+                => new (User,
+                        CommandResult.AdminDown,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        Description,
+                        Warnings,
+                        Runtime);
 
-        public static DeleteUserResult Failed(User              User,
-                                              EventTracking_Id  EventTrackingId,
-                                              Exception         Exception)
+        #endregion
 
-            => new (User,
-                    EventTrackingId,
-                    false,
-                    null,
-                    I18NString.Create(
-                        Languages.en,
-                        Exception.Message
-                    ));
+        #region (static) NoOperation    (User, ...)
+
+        public static DeleteUserResult
+
+            NoOperation(IUser                  User,
+                        EventTracking_Id?      EventTrackingId      = null,
+                        IId?                   SenderId             = null,
+                        Object?                Sender               = null,
+                        IOrganization?         Organization         = null,
+                        I18NString?            Description          = null,
+                        IEnumerable<Warning>?  Warnings             = null,
+                        TimeSpan?              Runtime              = null)
+
+                => new (User,
+                        CommandResult.NoOperation,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+
+        #region (static) Enqueued       (User, ...)
+
+        public static DeleteUserResult
+
+            Enqueued(IUser                  User,
+                     EventTracking_Id?      EventTrackingId      = null,
+                     IId?                   SenderId             = null,
+                     Object?                Sender               = null,
+                     IOrganization?         Organization         = null,
+                     I18NString?            Description          = null,
+                     IEnumerable<Warning>?  Warnings             = null,
+                     TimeSpan?              Runtime              = null)
+
+                => new (User,
+                        CommandResult.Enqueued,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) Success        (User, ...)
+
+        public static DeleteUserResult
+
+            Success(IUser                  User,
+                    EventTracking_Id?      EventTrackingId      = null,
+                    IId?                   SenderId             = null,
+                    Object?                Sender               = null,
+                    IOrganization?         Organization         = null,
+                    I18NString?            Description          = null,
+                    IEnumerable<Warning>?  Warnings             = null,
+                    TimeSpan?              Runtime              = null)
+
+                => new (User,
+                        CommandResult.Success,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+
+        #region (static) CanNotBeRemoved(User, ...)
+
+        public static DeleteUserResult
+
+            CanNotBeRemoved(IUser                  User,
+                            EventTracking_Id?      EventTrackingId   = null,
+                            IId?                   SenderId          = null,
+                            Object?                Sender            = null,
+                            IOrganization?         Organization      = null,
+                            I18NString?            Description       = null,
+                            IEnumerable<Warning>?  Warnings          = null,
+                            TimeSpan?              Runtime           = null)
+
+                => new (User,
+                        CommandResult.CanNotBeRemoved,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+
+        #region (static) ArgumentError  (User,   Description, ...)
+
+        public static DeleteUserResult
+
+            ArgumentError(IUser                  User,
+                          I18NString             Description,
+                          EventTracking_Id?      EventTrackingId      = null,
+                          IId?                   SenderId             = null,
+                          Object?                Sender               = null,
+                          IOrganization?         Organization         = null,
+                          IEnumerable<Warning>?  Warnings             = null,
+                          TimeSpan?              Runtime              = null)
+
+                => new (User,
+                        CommandResult.ArgumentError,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) ArgumentError  (UserId, Description, ...)
+
+        public static DeleteUserResult
+
+            ArgumentError(User_Id                UserId,
+                          I18NString             Description,
+                          EventTracking_Id?      EventTrackingId      = null,
+                          IId?                   SenderId             = null,
+                          Object?                Sender               = null,
+                          IOrganization?         Organization         = null,
+                          IEnumerable<Warning>?  Warnings             = null,
+                          TimeSpan?              Runtime              = null)
+
+                => new (UserId,
+                        CommandResult.ArgumentError,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) Error          (User,   Description, ...)
+
+        public static DeleteUserResult
+
+            Error(IUser                  User,
+                  I18NString             Description,
+                  EventTracking_Id?      EventTrackingId      = null,
+                  IId?                   SenderId             = null,
+                  Object?                Sender               = null,
+                  IOrganization?         Organization         = null,
+                  IEnumerable<Warning>?  Warnings             = null,
+                  TimeSpan?              Runtime              = null)
+
+                => new (User,
+                        CommandResult.Error,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) Error          (User,   Exception,   ...)
+
+        public static DeleteUserResult
+
+            Error(IUser                  User,
+                  Exception              Exception,
+                  EventTracking_Id?      EventTrackingId      = null,
+                  IId?                   SenderId             = null,
+                  Object?                Sender               = null,
+                  IOrganization?         Organization         = null,
+                  IEnumerable<Warning>?  Warnings             = null,
+                  TimeSpan?              Runtime              = null)
+
+                => new (User,
+                        CommandResult.Error,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        Exception.Message.ToI18NString(),
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) Timeout        (User,   Timeout,     ...)
+
+        public static DeleteUserResult
+
+            Timeout(IUser                  User,
+                    TimeSpan               Timeout,
+                    EventTracking_Id?      EventTrackingId      = null,
+                    IId?                   SenderId             = null,
+                    Object?                Sender               = null,
+                    IOrganization?         Organization         = null,
+                    IEnumerable<Warning>?  Warnings             = null,
+                    TimeSpan?              Runtime              = null)
+
+                => new (User,
+                        CommandResult.Timeout,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        $"Timeout after {Timeout.TotalSeconds} seconds!".ToI18NString(),
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) LockTimeout    (User,   Timeout,     ...)
+
+        public static DeleteUserResult
+
+            LockTimeout(IUser                  User,
+                        TimeSpan               Timeout,
+                        EventTracking_Id?      EventTrackingId      = null,
+                        IId?                   SenderId             = null,
+                        Object?                Sender               = null,
+                        IOrganization?         Organization         = null,
+                        IEnumerable<Warning>?  Warnings             = null,
+                        TimeSpan?              Runtime              = null)
+
+                => new (User,
+                        CommandResult.LockTimeout,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        $"Lock timeout after {Timeout.TotalSeconds} seconds!".ToI18NString(),
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
 
     }
 

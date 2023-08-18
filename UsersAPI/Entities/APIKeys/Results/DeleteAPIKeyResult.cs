@@ -29,7 +29,7 @@ namespace social.OpenData.UsersAPI
     /// <summary>
     /// The result of an add API key request.
     /// </summary>
-    public class AddAPIKeyResult : AEnitityResult<APIKey, APIKey_Id>
+    public class DeleteAPIKeyResult : AEnitityResult<APIKey, APIKey_Id>
     {
 
         #region Properties
@@ -43,17 +43,43 @@ namespace social.OpenData.UsersAPI
 
         #region Constructor(s)
 
-        public AddAPIKeyResult(APIKey                 APIKey,
-                               CommandResult          Result,
-                               EventTracking_Id?      EventTrackingId   = null,
-                               IId?                   SenderId          = null,
-                               Object?                Sender            = null,
-                               IOrganization?         Organization      = null,
-                               I18NString?            Description       = null,
-                               IEnumerable<Warning>?  Warnings          = null,
-                               TimeSpan?              Runtime           = null)
+        public DeleteAPIKeyResult(APIKey                 APIKey,
+                                  CommandResult          Result,
+                                  EventTracking_Id?      EventTrackingId   = null,
+                                  IId?                   SenderId          = null,
+                                  Object?                Sender            = null,
+                                  IOrganization?         Organization      = null,
+                                  I18NString?            Description       = null,
+                                  IEnumerable<Warning>?  Warnings          = null,
+                                  TimeSpan?              Runtime           = null)
 
             : base(APIKey,
+                   Result,
+                   EventTrackingId,
+                   SenderId,
+                   Sender,
+                   Description,
+                   Warnings,
+                   Runtime)
+
+        {
+
+            this.Organization = Organization;
+
+        }
+
+
+        public DeleteAPIKeyResult(APIKey_Id              APIKeyId,
+                                  CommandResult          Result,
+                                  EventTracking_Id?      EventTrackingId   = null,
+                                  IId?                   SenderId          = null,
+                                  Object?                Sender            = null,
+                                  IOrganization?         Organization      = null,
+                                  I18NString?            Description       = null,
+                                  IEnumerable<Warning>?  Warnings          = null,
+                                  TimeSpan?              Runtime           = null)
+
+            : base(APIKeyId,
                    Result,
                    EventTrackingId,
                    SenderId,
@@ -73,7 +99,7 @@ namespace social.OpenData.UsersAPI
 
         #region (static) AdminDown    (APIKey, ...)
 
-        public static AddAPIKeyResult
+        public static DeleteAPIKeyResult
 
             AdminDown(APIKey                 APIKey,
                       EventTracking_Id?      EventTrackingId   = null,
@@ -98,7 +124,7 @@ namespace social.OpenData.UsersAPI
 
         #region (static) NoOperation  (APIKey, ...)
 
-        public static AddAPIKeyResult
+        public static DeleteAPIKeyResult
 
             NoOperation(APIKey                 APIKey,
                         EventTracking_Id?      EventTrackingId   = null,
@@ -124,7 +150,7 @@ namespace social.OpenData.UsersAPI
 
         #region (static) Enqueued     (APIKey, ...)
 
-        public static AddAPIKeyResult
+        public static DeleteAPIKeyResult
 
             Enqueued(APIKey                 APIKey,
                      EventTracking_Id?      EventTrackingId   = null,
@@ -149,7 +175,7 @@ namespace social.OpenData.UsersAPI
 
         #region (static) Success      (APIKey, ...)
 
-        public static AddAPIKeyResult
+        public static DeleteAPIKeyResult
 
             Success(APIKey                 APIKey,
                     EventTracking_Id?      EventTrackingId   = null,
@@ -173,9 +199,9 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (static) ArgumentError(APIKey, Description, ...)
+        #region (static) ArgumentError(APIKey,   Description, ...)
 
-        public static AddAPIKeyResult
+        public static DeleteAPIKeyResult
 
             ArgumentError(APIKey                 APIKey,
                           I18NString             Description,
@@ -198,9 +224,34 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region (static) Error        (APIKey, Description, ...)
+        #region (static) ArgumentError(APIKeyId, Description, ...)
 
-        public static AddAPIKeyResult
+        public static DeleteAPIKeyResult
+
+            ArgumentError(APIKey_Id              APIKeyId,
+                          I18NString             Description,
+                          EventTracking_Id?      EventTrackingId   = null,
+                          IId?                   SenderId          = null,
+                          Object?                Sender            = null,
+                          IOrganization?         Organization      = null,
+                          IEnumerable<Warning>?  Warnings          = null,
+                          TimeSpan?              Runtime           = null)
+
+                => new (APIKeyId,
+                        CommandResult.ArgumentError,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) Error        (APIKey,   Description, ...)
+
+        public static DeleteAPIKeyResult
 
             Error(APIKey                 APIKey,
                   I18NString             Description,
@@ -223,9 +274,9 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region (static) Error        (APIKey, Exception,   ...)
+        #region (static) Error        (APIKey,   Exception,   ...)
 
-        public static AddAPIKeyResult
+        public static DeleteAPIKeyResult
 
             Error(APIKey                 APIKey,
                   Exception              Exception,
@@ -248,9 +299,9 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region (static) Timeout      (APIKey, Timeout,     ...)
+        #region (static) Timeout      (APIKey,   Timeout,     ...)
 
-        public static AddAPIKeyResult
+        public static DeleteAPIKeyResult
 
             Timeout(APIKey                 APIKey,
                     TimeSpan               Timeout,
@@ -273,9 +324,9 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region (static) LockTimeout  (APIKey, Timeout,     ...)
+        #region (static) LockTimeout  (APIKey,   Timeout,     ...)
 
-        public static AddAPIKeyResult
+        public static DeleteAPIKeyResult
 
             LockTimeout(APIKey                 APIKey,
                         TimeSpan               Timeout,

@@ -25,30 +25,44 @@ using org.GraphDefined.Vanaheimr.Hermod;
 namespace social.OpenData.UsersAPI
 {
 
-    public class AddOrUpdateOrganizationResult : AResult<Organization>
+    /// <summary>
+    /// The result of an add or update organization request.
+    /// </summary>
+    public class AddOrUpdateOrganizationResult : AEnitityResult<IOrganization, Organization_Id>
     {
 
-        public Organization Organization
+        #region Properties
+
+        public IOrganization?   Organization
             => Object;
 
-        public Organization     ParentOrganization    { get; internal set; }
+        public IOrganization?   ParentOrganization    { get; internal set; }
 
         public AddedOrUpdated?  AddedOrUpdated        { get; internal set; }
 
+        #endregion
 
-        public AddOrUpdateOrganizationResult(Organization      Organization,
-                                             EventTracking_Id  EventTrackingId,
-                                             Boolean           IsSuccess,
-                                             String            Argument             = null,
-                                             I18NString        ErrorDescription     = null,
-                                             Organization      ParentOrganization   = null,
-                                             AddedOrUpdated?   AddedOrUpdated       = null)
+        #region Constructor(s)
+
+        public AddOrUpdateOrganizationResult(IOrganization          Organization,
+                                             CommandResult          Result,
+                                             EventTracking_Id?      EventTrackingId      = null,
+                                             IId?                   SenderId             = null,
+                                             Object?                Sender               = null,
+                                             IOrganization?         ParentOrganization   = null,
+                                             AddedOrUpdated?        AddedOrUpdated       = null,
+                                             I18NString?            Description          = null,
+                                             IEnumerable<Warning>?  Warnings             = null,
+                                             TimeSpan?              Runtime              = null)
 
             : base(Organization,
+                   Result,
                    EventTrackingId,
-                   IsSuccess,
-                   Argument,
-                   ErrorDescription)
+                   SenderId,
+                   Sender,
+                   Description,
+                   Warnings,
+                   Runtime)
 
         {
 
@@ -57,82 +71,271 @@ namespace social.OpenData.UsersAPI
 
         }
 
-
-        public static AddOrUpdateOrganizationResult Success(Organization      Organization,
-                                                            AddedOrUpdated    AddedOrUpdated,
-                                                            EventTracking_Id  EventTrackingId,
-                                                            Organization      ParentOrganization = null)
-
-            => new AddOrUpdateOrganizationResult(Organization,
-                                                 EventTrackingId,
-                                                 true,
-                                                 null,
-                                                 null,
-                                                 ParentOrganization,
-                                                 AddedOrUpdated);
+        #endregion
 
 
-        public static AddOrUpdateOrganizationResult ArgumentError(Organization      Organization,
-                                                                  EventTracking_Id  EventTrackingId,
-                                                                  String            Argument,
-                                                                  String            Description)
+        #region (static) AdminDown    (Organization, ...)
 
-            => new AddOrUpdateOrganizationResult(Organization,
-                                                 EventTrackingId,
-                                                 false,
-                                                 Argument,
-                                                 I18NString.Create(Languages.en,
-                                                                   Description));
+        public static AddOrUpdateOrganizationResult
 
-        public static AddOrUpdateOrganizationResult ArgumentError(Organization      Organization,
-                                                                  EventTracking_Id  EventTrackingId,
-                                                                  String            Argument,
-                                                                  I18NString        Description)
+            AdminDown(IOrganization          Organization,
+                      EventTracking_Id?      EventTrackingId      = null,
+                      IId?                   SenderId             = null,
+                      Object?                Sender               = null,
+                      IOrganization?         ParentOrganization   = null,
+                      I18NString?            Description          = null,
+                      IEnumerable<Warning>?  Warnings             = null,
+                      TimeSpan?              Runtime              = null)
 
-            => new AddOrUpdateOrganizationResult(Organization,
-                                                 EventTrackingId,
-                                                 false,
-                                                 Argument,
-                                                 Description);
+                => new (Organization,
+                        CommandResult.AdminDown,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        ParentOrganization,
+                        org.GraphDefined.Vanaheimr.Hermod.AddedOrUpdated.NoOperation,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) NoOperation  (Organization, ...)
+
+        public static AddOrUpdateOrganizationResult
+
+            NoOperation(IOrganization          Organization,
+                        EventTracking_Id?      EventTrackingId      = null,
+                        IId?                   SenderId             = null,
+                        Object?                Sender               = null,
+                        IOrganization?         ParentOrganization   = null,
+                        I18NString?            Description          = null,
+                        IEnumerable<Warning>?  Warnings             = null,
+                        TimeSpan?              Runtime              = null)
+
+                => new (Organization,
+                        CommandResult.NoOperation,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        ParentOrganization,
+                        org.GraphDefined.Vanaheimr.Hermod.AddedOrUpdated.NoOperation,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
 
 
-        public static AddOrUpdateOrganizationResult Failed(Organization      Organization,
-                                                           EventTracking_Id  EventTrackingId,
-                                                           String            Description,
-                                                           Organization      ParentOrganization  = null)
+        #region (static) Enqueued     (Organization, ...)
 
-            => new AddOrUpdateOrganizationResult(Organization,
-                                                 EventTrackingId,
-                                                 false,
-                                                 null,
-                                                 I18NString.Create(Languages.en,
-                                                                   Description),
-                                                 ParentOrganization);
+        public static AddOrUpdateOrganizationResult
 
-        public static AddOrUpdateOrganizationResult Failed(Organization      Organization,
-                                                           EventTracking_Id  EventTrackingId,
-                                                           I18NString        Description,
-                                                           Organization      ParentOrganization  = null)
+            Enqueued(IOrganization          Organization,
+                     EventTracking_Id?      EventTrackingId      = null,
+                     IId?                   SenderId             = null,
+                     Object?                Sender               = null,
+                     IOrganization?         ParentOrganization   = null,
+                     I18NString?            Description          = null,
+                     IEnumerable<Warning>?  Warnings             = null,
+                     TimeSpan?              Runtime              = null)
 
-            => new AddOrUpdateOrganizationResult(Organization,
-                                                 EventTrackingId,
-                                                 false,
-                                                 null,
-                                                 Description,
-                                                 ParentOrganization);
+                => new (Organization,
+                        CommandResult.Enqueued,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        ParentOrganization,
+                        org.GraphDefined.Vanaheimr.Hermod.AddedOrUpdated.Enqueued,
+                        Description,
+                        Warnings,
+                        Runtime);
 
-        public static AddOrUpdateOrganizationResult Failed(Organization      Organization,
-                                                           EventTracking_Id  EventTrackingId,
-                                                           Exception         Exception,
-                                                           Organization      ParentOrganization  = null)
+        #endregion
 
-            => new AddOrUpdateOrganizationResult(Organization,
-                                                 EventTrackingId,
-                                                 false,
-                                                 null,
-                                                 I18NString.Create(Languages.en,
-                                                                   Exception.Message),
-                                                 ParentOrganization);
+        #region (static) Added        (Organization, ...)
+
+        public static AddOrUpdateOrganizationResult
+
+            Added(IOrganization          Organization,
+                  EventTracking_Id?      EventTrackingId      = null,
+                  IId?                   SenderId             = null,
+                  Object?                Sender               = null,
+                  IOrganization?         ParentOrganization   = null,
+                  I18NString?            Description          = null,
+                  IEnumerable<Warning>?  Warnings             = null,
+                  TimeSpan?              Runtime              = null)
+
+                => new (Organization,
+                        CommandResult.Success,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        ParentOrganization,
+                        org.GraphDefined.Vanaheimr.Hermod.AddedOrUpdated.Add,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) Updated      (Organization, ...)
+
+        public static AddOrUpdateOrganizationResult
+
+            Updated(IOrganization          Organization,
+                    EventTracking_Id?      EventTrackingId      = null,
+                    IId?                   SenderId             = null,
+                    Object?                Sender               = null,
+                    IOrganization?         ParentOrganization   = null,
+                    I18NString?            Description          = null,
+                    IEnumerable<Warning>?  Warnings             = null,
+                    TimeSpan?              Runtime              = null)
+
+                => new (Organization,
+                        CommandResult.Success,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        ParentOrganization,
+                        org.GraphDefined.Vanaheimr.Hermod.AddedOrUpdated.Update,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+
+        #region (static) ArgumentError(Organization, Description, ...)
+
+        public static AddOrUpdateOrganizationResult
+
+            ArgumentError(IOrganization          Organization,
+                          I18NString             Description,
+                          EventTracking_Id?      EventTrackingId      = null,
+                          IId?                   SenderId             = null,
+                          Object?                Sender               = null,
+                          IOrganization?         ParentOrganization   = null,
+                          IEnumerable<Warning>?  Warnings             = null,
+                          TimeSpan?              Runtime              = null)
+
+                => new (Organization,
+                        CommandResult.ArgumentError,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        ParentOrganization,
+                        org.GraphDefined.Vanaheimr.Hermod.AddedOrUpdated.Failed,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) Error        (Organization, Description, ...)
+
+        public static AddOrUpdateOrganizationResult
+
+            Error(IOrganization          Organization,
+                  I18NString             Description,
+                  EventTracking_Id?      EventTrackingId      = null,
+                  IId?                   SenderId             = null,
+                  Object?                Sender               = null,
+                  IOrganization?         ParentOrganization   = null,
+                  IEnumerable<Warning>?  Warnings             = null,
+                  TimeSpan?              Runtime              = null)
+
+                => new (Organization,
+                        CommandResult.Error,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        ParentOrganization,
+                        org.GraphDefined.Vanaheimr.Hermod.AddedOrUpdated.Failed,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) Error        (Organization, Exception,   ...)
+
+        public static AddOrUpdateOrganizationResult
+
+            Error(IOrganization          Organization,
+                  Exception              Exception,
+                  EventTracking_Id?      EventTrackingId      = null,
+                  IId?                   SenderId             = null,
+                  Object?                Sender               = null,
+                  IOrganization?         ParentOrganization   = null,
+                  IEnumerable<Warning>?  Warnings             = null,
+                  TimeSpan?              Runtime              = null)
+
+                => new (Organization,
+                        CommandResult.Error,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        ParentOrganization,
+                        org.GraphDefined.Vanaheimr.Hermod.AddedOrUpdated.Failed,
+                        Exception.Message.ToI18NString(),
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) Timeout      (Organization, Timeout,     ...)
+
+        public static AddOrUpdateOrganizationResult
+
+            Timeout(IOrganization          Organization,
+                    TimeSpan               Timeout,
+                    EventTracking_Id?      EventTrackingId      = null,
+                    IId?                   SenderId             = null,
+                    Object?                Sender               = null,
+                    IOrganization?         ParentOrganization   = null,
+                    IEnumerable<Warning>?  Warnings             = null,
+                    TimeSpan?              Runtime              = null)
+
+                => new (Organization,
+                        CommandResult.Timeout,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        ParentOrganization,
+                        org.GraphDefined.Vanaheimr.Hermod.AddedOrUpdated.Failed,
+                        $"Timeout after {Timeout.TotalSeconds} seconds!".ToI18NString(),
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) LockTimeout  (Organization, Timeout,     ...)
+
+        public static AddOrUpdateOrganizationResult
+
+            LockTimeout(IOrganization          Organization,
+                        TimeSpan               Timeout,
+                        EventTracking_Id?      EventTrackingId      = null,
+                        IId?                   SenderId             = null,
+                        Object?                Sender               = null,
+                        IOrganization?         ParentOrganization   = null,
+                        IEnumerable<Warning>?  Warnings             = null,
+                        TimeSpan?              Runtime              = null)
+
+                => new (Organization,
+                        CommandResult.LockTimeout,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        ParentOrganization,
+                        org.GraphDefined.Vanaheimr.Hermod.AddedOrUpdated.Failed,
+                        $"Lock timeout after {Timeout.TotalSeconds} seconds!".ToI18NString(),
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
 
     }
 

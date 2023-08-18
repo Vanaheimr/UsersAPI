@@ -94,7 +94,7 @@ namespace social.OpenData.UsersAPI
                        ? null
                        : new JProperty("@context",  JSONLDContext.ToString()),
 
-                   Description.IsNeitherNullNorEmpty()
+                   Description.IsNotNullOrEmpty()
                           ? new JProperty("description", Description.ToJSON())
                           : null
 
@@ -427,7 +427,7 @@ namespace social.OpenData.UsersAPI
         public override String ToString()
 
             => String.Concat(Id,
-                             Description.IsNeitherNullNorEmpty()
+                             Description.IsNotNullOrEmpty()
                                  ? Description.ToString()
                                  : "");
 

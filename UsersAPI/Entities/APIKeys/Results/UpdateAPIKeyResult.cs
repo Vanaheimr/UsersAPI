@@ -19,99 +19,336 @@
 
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod;
+using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 
 #endregion
 
 namespace social.OpenData.UsersAPI
 {
 
-    public class UpdateAPIKeyResult : AResult<APIKey>
+    /// <summary>
+    /// The result of an update API key request.
+    /// </summary>
+    public class UpdateAPIKeyResult : AEnitityResult<APIKey, APIKey_Id>
     {
 
-        public APIKey APIKey
+        #region Properties
+
+        public APIKey?         APIKey
             => Object;
 
+        public IOrganization?  Organization    { get; internal set; }
 
-        public UpdateAPIKeyResult(APIKey            APIKey,
-                                  EventTracking_Id  EventTrackingId,
-                                  Boolean           IsSuccess,
-                                  String            Argument          = null,
-                                  I18NString        ErrorDescription  = null)
+        #endregion
+
+        #region Constructor(s)
+
+        public UpdateAPIKeyResult(APIKey                 APIKey,
+                                  CommandResult          Result,
+                                  EventTracking_Id?      EventTrackingId   = null,
+                                  IId?                   SenderId          = null,
+                                  Object?                Sender            = null,
+                                  IOrganization?         Organization      = null,
+                                  I18NString?            Description       = null,
+                                  IEnumerable<Warning>?  Warnings          = null,
+                                  TimeSpan?              Runtime           = null)
 
             : base(APIKey,
+                   Result,
                    EventTrackingId,
-                   IsSuccess,
-                   Argument,
-                   ErrorDescription)
+                   SenderId,
+                   Sender,
+                   Description,
+                   Warnings,
+                   Runtime)
 
-        { }
+        {
 
+            this.Organization = Organization;
 
-        public static UpdateAPIKeyResult Success(APIKey            APIKey,
-                                                 EventTracking_Id  EventTrackingId)
-
-            => new UpdateAPIKeyResult(APIKey,
-                                      EventTrackingId,
-                                      true,
-                                      null,
-                                      null);
+        }
 
 
-        public static UpdateAPIKeyResult ArgumentError(APIKey            APIKey,
-                                                       EventTracking_Id  EventTrackingId,
-                                                       String            Argument,
-                                                       String            Description)
+        public UpdateAPIKeyResult(APIKey_Id              APIKeyId,
+                                  CommandResult          Result,
+                                  EventTracking_Id?      EventTrackingId   = null,
+                                  IId?                   SenderId          = null,
+                                  Object?                Sender            = null,
+                                  IOrganization?         Organization      = null,
+                                  I18NString?            Description       = null,
+                                  IEnumerable<Warning>?  Warnings          = null,
+                                  TimeSpan?              Runtime           = null)
 
-            => new UpdateAPIKeyResult(APIKey,
-                                      EventTrackingId,
-                                      false,
-                                      Argument,
-                                      I18NString.Create(Languages.en,
-                                                        Description));
+            : base(APIKeyId,
+                   Result,
+                   EventTrackingId,
+                   SenderId,
+                   Sender,
+                   Description,
+                   Warnings,
+                   Runtime)
 
-        public static UpdateAPIKeyResult ArgumentError(APIKey            APIKey,
-                                                       EventTracking_Id  EventTrackingId,
-                                                       String            Argument,
-                                                       I18NString        Description)
+        {
 
-            => new UpdateAPIKeyResult(APIKey,
-                                      EventTrackingId,
-                                      false,
-                                      Argument,
-                                      Description);
+            this.Organization = Organization;
+
+        }
+
+        #endregion
 
 
-        public static UpdateAPIKeyResult Failed(APIKey            APIKey,
-                                                EventTracking_Id  EventTrackingId,
-                                                String            Description)
+        #region (static) AdminDown    (APIKey, ...)
 
-            => new UpdateAPIKeyResult(APIKey,
-                                      EventTrackingId,
-                                      false,
-                                      null,
-                                      I18NString.Create(Languages.en,
-                                                        Description));
+        public static UpdateAPIKeyResult
 
-        public static UpdateAPIKeyResult Failed(APIKey            APIKey,
-                                                EventTracking_Id  EventTrackingId,
-                                                I18NString        Description)
+            AdminDown(APIKey                 APIKey,
+                      EventTracking_Id?      EventTrackingId   = null,
+                      IId?                   SenderId          = null,
+                      Object?                Sender            = null,
+                      IOrganization?         Organization      = null,
+                      I18NString?            Description       = null,
+                      IEnumerable<Warning>?  Warnings          = null,
+                      TimeSpan?              Runtime           = null)
 
-            => new UpdateAPIKeyResult(APIKey,
-                                    EventTrackingId,
-                                    false,
-                                    null,
-                                    Description);
+                => new (APIKey,
+                        CommandResult.AdminDown,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        Description,
+                        Warnings,
+                        Runtime);
 
-        public static UpdateAPIKeyResult Failed(APIKey            APIKey,
-                                                EventTracking_Id  EventTrackingId,
-                                                Exception         Exception)
+        #endregion
 
-            => new UpdateAPIKeyResult(APIKey,
-                                      EventTrackingId,
-                                      false,
-                                      null,
-                                      I18NString.Create(Languages.en,
-                                                        Exception.Message));
+        #region (static) NoOperation  (APIKey, ...)
+
+        public static UpdateAPIKeyResult
+
+            NoOperation(APIKey                 APIKey,
+                        EventTracking_Id?      EventTrackingId   = null,
+                        IId?                   SenderId          = null,
+                        Object?                Sender            = null,
+                        IOrganization?         Organization      = null,
+                        I18NString?            Description       = null,
+                        IEnumerable<Warning>?  Warnings          = null,
+                        TimeSpan?              Runtime           = null)
+
+                => new (APIKey,
+                        CommandResult.NoOperation,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+
+        #region (static) Enqueued     (APIKey, ...)
+
+        public static UpdateAPIKeyResult
+
+            Enqueued(APIKey                 APIKey,
+                     EventTracking_Id?      EventTrackingId   = null,
+                     IId?                   SenderId          = null,
+                     Object?                Sender            = null,
+                     IOrganization?         Organization      = null,
+                     I18NString?            Description       = null,
+                     IEnumerable<Warning>?  Warnings          = null,
+                     TimeSpan?              Runtime           = null)
+
+                => new (APIKey,
+                        CommandResult.Enqueued,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) Success      (APIKey, ...)
+
+        public static UpdateAPIKeyResult
+
+            Success(APIKey                 APIKey,
+                    EventTracking_Id?      EventTrackingId   = null,
+                    IId?                   SenderId          = null,
+                    Object?                Sender            = null,
+                    IOrganization?         Organization      = null,
+                    I18NString?            Description       = null,
+                    IEnumerable<Warning>?  Warnings          = null,
+                    TimeSpan?              Runtime           = null)
+
+                => new (APIKey,
+                        CommandResult.Success,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+
+        #region (static) ArgumentError(APIKey,   Description, ...)
+
+        public static UpdateAPIKeyResult
+
+            ArgumentError(APIKey                 APIKey,
+                          I18NString             Description,
+                          EventTracking_Id?      EventTrackingId   = null,
+                          IId?                   SenderId          = null,
+                          Object?                Sender            = null,
+                          IOrganization?         Organization      = null,
+                          IEnumerable<Warning>?  Warnings          = null,
+                          TimeSpan?              Runtime           = null)
+
+                => new (APIKey,
+                        CommandResult.ArgumentError,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) ArgumentError(APIKeyId, Description, ...)
+
+        public static UpdateAPIKeyResult
+
+            ArgumentError(APIKey_Id              APIKeyId,
+                          I18NString             Description,
+                          EventTracking_Id?      EventTrackingId   = null,
+                          IId?                   SenderId          = null,
+                          Object?                Sender            = null,
+                          IOrganization?         Organization      = null,
+                          IEnumerable<Warning>?  Warnings          = null,
+                          TimeSpan?              Runtime           = null)
+
+                => new (APIKeyId,
+                        CommandResult.ArgumentError,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) Error        (APIKey,   Description, ...)
+
+        public static UpdateAPIKeyResult
+
+            Error(APIKey                 APIKey,
+                  I18NString             Description,
+                  EventTracking_Id?      EventTrackingId   = null,
+                  IId?                   SenderId          = null,
+                  Object?                Sender            = null,
+                  IOrganization?         Organization      = null,
+                  IEnumerable<Warning>?  Warnings          = null,
+                  TimeSpan?              Runtime           = null)
+
+                => new (APIKey,
+                        CommandResult.Error,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) Error        (APIKey,   Exception,   ...)
+
+        public static UpdateAPIKeyResult
+
+            Error(APIKey                 APIKey,
+                  Exception              Exception,
+                  EventTracking_Id?      EventTrackingId   = null,
+                  IId?                   SenderId          = null,
+                  Object?                Sender            = null,
+                  IOrganization?         Organization      = null,
+                  IEnumerable<Warning>?  Warnings          = null,
+                  TimeSpan?              Runtime           = null)
+
+                => new (APIKey,
+                        CommandResult.Error,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        Exception.Message.ToI18NString(),
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) Timeout      (APIKey,   Timeout,     ...)
+
+        public static UpdateAPIKeyResult
+
+            Timeout(APIKey                 APIKey,
+                    TimeSpan               Timeout,
+                    EventTracking_Id?      EventTrackingId   = null,
+                    IId?                   SenderId          = null,
+                    Object?                Sender            = null,
+                    IOrganization?         Organization      = null,
+                    IEnumerable<Warning>?  Warnings          = null,
+                    TimeSpan?              Runtime           = null)
+
+                => new (APIKey,
+                        CommandResult.Timeout,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        $"Timeout after {Timeout.TotalSeconds} seconds!".ToI18NString(),
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) LockTimeout  (APIKey,   Timeout,     ...)
+
+        public static UpdateAPIKeyResult
+
+            LockTimeout(APIKey                 APIKey,
+                        TimeSpan               Timeout,
+                        EventTracking_Id?      EventTrackingId   = null,
+                        IId?                   SenderId          = null,
+                        Object?                Sender            = null,
+                        IOrganization?         Organization      = null,
+                        IEnumerable<Warning>?  Warnings          = null,
+                        TimeSpan?              Runtime           = null)
+
+                => new (APIKey,
+                        CommandResult.LockTimeout,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        $"Lock timeout after {Timeout.TotalSeconds} seconds!".ToI18NString(),
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
 
     }
 

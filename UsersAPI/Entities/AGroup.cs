@@ -109,15 +109,6 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        /// <summary>
-        /// A multi-language name of this group.
-        /// </summary>
-        public I18NString                 Name              { get; }
-
-        /// <summary>
-        /// A multi-language description of this group.
-        /// </summary>
-        public I18NString                 Description       { get; }
 
         /// <summary>
         /// The members of this group.
@@ -127,7 +118,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An optional parent group.
         /// </summary>
-        public TGroup                     ParentGroup       { get; }
+        public TGroup?                    ParentGroup       { get; }
 
         /// <summary>
         /// Optional subgroups.
@@ -159,38 +150,36 @@ namespace social.OpenData.UsersAPI
         /// <param name="JSONLDContext">The JSON-LD context of this group.</param>
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
         /// <param name="LastChange">The timestamp of the last changes within this group. Can e.g. be used as a HTTP ETag.</param>
-        public AGroup(TGroupId                   Id,
+        public AGroup(TGroupId                    Id,
 
-                      I18NString                 Name,
-                      I18NString                 Description     = default,
-                      IEnumerable<TMembers>      Members         = default,
-                      TGroup                     ParentGroup     = default,
-                      IEnumerable<TGroup>        Subgroups       = default,
-                      JObject                    CustomData      = default,
-                      IEnumerable<AttachedFile>  AttachedFiles   = default,
+                      I18NString?                 Name,
+                      I18NString?                 Description     = default,
+                      IEnumerable<TMembers>?      Members         = default,
+                      TGroup?                     ParentGroup     = default,
+                      IEnumerable<TGroup>?        Subgroups       = default,
+                      JObject?                    CustomData      = default,
+                      IEnumerable<AttachedFile>?  AttachedFiles   = default,
 
-                      JSONLDContext?             JSONLDContext   = default,
-                      String                     DataSource      = default,
-                      DateTime?                  LastChange      = default)
+                      JSONLDContext?              JSONLDContext   = default,
+                      String?                     DataSource      = default,
+                      DateTime?                   LastChange      = default)
 
             : base(Id,
                    JSONLDContext ?? DefaultJSONLDContext,
-                   LastChange,
+                   Name,
+                   Description,
                    null,
                    CustomData,
+                   null,
+                   LastChange,
                    DataSource)
 
         {
 
-            if (Name.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Name), "The given name of the group must not be null or empty!");
-
-            this.Name           = Name;
-            this.Description    = Description   ?? I18NString.Empty;
-            this.Members        = Members       ?? new TMembers[0];
+            this.Members        = Members       ?? Array.Empty<TMembers>();
             this.ParentGroup    = ParentGroup;
-            this.Subgroups      = Subgroups     ?? new TGroup[0];
-            this.AttachedFiles  = AttachedFiles ?? new AttachedFile[0];
+            this.Subgroups      = Subgroups     ?? Array.Empty<TGroup>();
+            this.AttachedFiles  = AttachedFiles ?? Array.Empty<AttachedFile>();
 
         }
 
@@ -219,7 +208,7 @@ namespace social.OpenData.UsersAPI
 
                     new JProperty("name",                   Name.         ToJSON()),
 
-                    Description.IsNeitherNullNorEmpty()
+                    Description.IsNotNullOrEmpty()
                         ? new JProperty("description",      Description.  ToJSON())
                         : null,
 
@@ -255,18 +244,6 @@ namespace social.OpenData.UsersAPI
         {
 
             #region Properties
-
-            /// <summary>
-            /// An optional (multi-language) description of the group.
-            /// </summary>
-            [Mandatory]
-            public I18NString             Name              { get; set; }
-
-            /// <summary>
-            /// An optional (multi-language) description of the group.
-            /// </summary>
-            [Optional]
-            public I18NString             Description       { get; set; }
 
             /// <summary>
             /// The members of this group.
@@ -308,25 +285,26 @@ namespace social.OpenData.UsersAPI
             /// 
             /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
             /// <param name="LastChange">The timestamp of the last changes within this group. Can e.g. be used as a HTTP ETag.</param>
-            public Builder(TGroupId                   Id,
-                           JSONLDContext              JSONLDContext,
+            public Builder(TGroupId                    Id,
+                           JSONLDContext               JSONLDContext,
 
-                           I18NString                 Name,
-                           I18NString                 Description     = null,
-                           IEnumerable<TMembers>      Members         = null,
-                           TGroup                     ParentGroup     = null,
-                           IEnumerable<TGroup>        Subgroups       = null,
-                           JObject                    CustomData      = null,
-                           IEnumerable<AttachedFile>  AttachedFiles   = null,
+                           I18NString                  Name,
+                           I18NString?                 Description     = null,
+                           IEnumerable<TMembers>?      Members         = null,
+                           TGroup?                     ParentGroup     = null,
+                           IEnumerable<TGroup>?        Subgroups       = null,
+                           JObject?                    CustomData      = null,
+                           IEnumerable<AttachedFile>?  AttachedFiles   = null,
 
-                           String                     DataSource      = null,
-                           DateTime?                  LastChange      = null)
+                           String?                     DataSource      = null,
+                           DateTime?                   LastChange      = null)
 
                 : base(Id,
                        JSONLDContext,
                        LastChange,
                        null,
                        CustomData,
+                       null,
                        DataSource)
 
             {

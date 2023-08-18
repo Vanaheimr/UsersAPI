@@ -25,99 +25,329 @@ using org.GraphDefined.Vanaheimr.Hermod;
 namespace social.OpenData.UsersAPI
 {
 
-    public class UpdateUserResult : AEnitityResult<User, User_Id>
+    /// <summary>
+    /// The result of an update user request.
+    /// </summary>
+    public class UpdateUserResult : AEnitityResult<IUser, User_Id>
     {
 
-        public User? User
+        #region Properties
+
+        public IUser?          User
             => Object;
 
+        public IOrganization?  Organization    { get; internal set; }
 
-        public UpdateUserResult(User              User,
-                                EventTracking_Id  EventTrackingId,
-                                Boolean           IsSuccess,
-                                String?           Argument           = null,
-                                I18NString?       ErrorDescription   = null)
+        #endregion
+
+        #region Constructor(s)
+
+        public UpdateUserResult(IUser                  User,
+                                CommandResult          Result,
+                                EventTracking_Id?      EventTrackingId   = null,
+                                IId?                   SenderId          = null,
+                                Object?                Sender            = null,
+                                IOrganization?         Organization      = null,
+                                I18NString?            Description       = null,
+                                IEnumerable<Warning>?  Warnings          = null,
+                                TimeSpan?              Runtime           = null)
 
             : base(User,
+                   Result,
                    EventTrackingId,
-                   IsSuccess,
-                   Argument,
-                   ErrorDescription)
+                   SenderId,
+                   Sender,
+                   Description,
+                   Warnings,
+                   Runtime)
 
-        { }
+        {
 
+            this.Organization = Organization;
 
-        public static UpdateUserResult Success(User              User,
-                                               EventTracking_Id  EventTrackingId)
-
-            => new (User,
-                    EventTrackingId,
-                    true,
-                    null,
-                    null);
+        }
 
 
-        public static UpdateUserResult ArgumentError(User              User,
-                                                     EventTracking_Id  EventTrackingId,
-                                                     String            Argument,
-                                                     String            Description)
+        public UpdateUserResult(User_Id                UserId,
+                                CommandResult          Result,
+                                EventTracking_Id?      EventTrackingId   = null,
+                                IId?                   SenderId          = null,
+                                Object?                Sender            = null,
+                                IOrganization?         Organization      = null,
+                                I18NString?            Description       = null,
+                                IEnumerable<Warning>?  Warnings          = null,
+                                TimeSpan?              Runtime           = null)
 
-            => new (User,
-                    EventTrackingId,
-                    false,
-                    Argument,
-                    I18NString.Create(
-                        Languages.en,
-                        Description
-                    ));
+            : base(UserId,
+                   Result,
+                   EventTrackingId,
+                   SenderId,
+                   Sender,
+                   Description,
+                   Warnings,
+                   Runtime)
 
-        public static UpdateUserResult ArgumentError(User              User,
-                                                     EventTracking_Id  EventTrackingId,
-                                                     String            Argument,
-                                                     I18NString        Description)
+        {
 
-            => new (User,
-                    EventTrackingId,
-                    false,
-                    Argument,
-                    Description);
+            this.Organization = Organization;
+
+        }
+
+        #endregion
 
 
-        public static UpdateUserResult Failed(User              User,
-                                              EventTracking_Id  EventTrackingId,
-                                              String            Description)
+        #region (static) AdminDown    (User, ...)
 
-            => new (User,
-                    EventTrackingId,
-                    false,
-                    null,
-                    I18NString.Create(
-                        Languages.en,
-                        Description
-                    ));
+        public static UpdateUserResult
 
-        public static UpdateUserResult Failed(User              User,
-                                              EventTracking_Id  EventTrackingId,
-                                              I18NString        Description)
+            AdminDown(IUser                  User,
+                      EventTracking_Id?      EventTrackingId      = null,
+                      IId?                   SenderId             = null,
+                      Object?                Sender               = null,
+                      IOrganization?         Organization         = null,
+                      I18NString?            Description          = null,
+                      IEnumerable<Warning>?  Warnings             = null,
+                      TimeSpan?              Runtime              = null)
 
-            => new (User,
-                    EventTrackingId,
-                    false,
-                    null,
-                    Description);
+                => new (User,
+                        CommandResult.AdminDown,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        Description,
+                        Warnings,
+                        Runtime);
 
-        public static UpdateUserResult Failed(User              User,
-                                              EventTracking_Id  EventTrackingId,
-                                              Exception         Exception)
+        #endregion
 
-            => new (User,
-                    EventTrackingId,
-                    false,
-                    null,
-                    I18NString.Create(
-                        Languages.en,
-                        Exception.Message
-                    ));
+        #region (static) NoOperation  (User, ...)
+
+        public static UpdateUserResult
+
+            NoOperation(IUser                  User,
+                        EventTracking_Id?      EventTrackingId      = null,
+                        IId?                   SenderId             = null,
+                        Object?                Sender               = null,
+                        IOrganization?         Organization         = null,
+                        I18NString?            Description          = null,
+                        IEnumerable<Warning>?  Warnings             = null,
+                        TimeSpan?              Runtime              = null)
+
+                => new (User,
+                        CommandResult.NoOperation,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+
+        #region (static) Enqueued     (User, ...)
+
+        public static UpdateUserResult
+
+            Enqueued(IUser                  User,
+                     EventTracking_Id?      EventTrackingId      = null,
+                     IId?                   SenderId             = null,
+                     Object?                Sender               = null,
+                     IOrganization?         Organization         = null,
+                     I18NString?            Description          = null,
+                     IEnumerable<Warning>?  Warnings             = null,
+                     TimeSpan?              Runtime              = null)
+
+                => new (User,
+                        CommandResult.Enqueued,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) Success      (User, ...)
+
+        public static UpdateUserResult
+
+            Success(IUser                  User,
+                    EventTracking_Id?      EventTrackingId      = null,
+                    IId?                   SenderId             = null,
+                    Object?                Sender               = null,
+                    IOrganization?         Organization         = null,
+                    I18NString?            Description          = null,
+                    IEnumerable<Warning>?  Warnings             = null,
+                    TimeSpan?              Runtime              = null)
+
+                => new (User,
+                        CommandResult.Success,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+
+        #region (static) ArgumentError(User,   Description, ...)
+
+        public static UpdateUserResult
+
+            ArgumentError(IUser                  User,
+                          I18NString             Description,
+                          EventTracking_Id?      EventTrackingId      = null,
+                          IId?                   SenderId             = null,
+                          Object?                Sender               = null,
+                          IOrganization?         Organization         = null,
+                          IEnumerable<Warning>?  Warnings             = null,
+                          TimeSpan?              Runtime              = null)
+
+                => new (User,
+                        CommandResult.ArgumentError,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) ArgumentError(UserId, Description, ...)
+
+        public static UpdateUserResult
+
+            ArgumentError(User_Id                UserId,
+                          I18NString             Description,
+                          EventTracking_Id?      EventTrackingId      = null,
+                          IId?                   SenderId             = null,
+                          Object?                Sender               = null,
+                          IOrganization?         Organization         = null,
+                          IEnumerable<Warning>?  Warnings             = null,
+                          TimeSpan?              Runtime              = null)
+
+                => new (UserId,
+                        CommandResult.ArgumentError,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) Error        (User,   Description, ...)
+
+        public static UpdateUserResult
+
+            Error(IUser                  User,
+                  I18NString             Description,
+                  EventTracking_Id?      EventTrackingId      = null,
+                  IId?                   SenderId             = null,
+                  Object?                Sender               = null,
+                  IOrganization?         Organization         = null,
+                  IEnumerable<Warning>?  Warnings             = null,
+                  TimeSpan?              Runtime              = null)
+
+                => new (User,
+                        CommandResult.Error,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) Error        (User,   Exception,   ...)
+
+        public static UpdateUserResult
+
+            Error(IUser                  User,
+                  Exception              Exception,
+                  EventTracking_Id?      EventTrackingId      = null,
+                  IId?                   SenderId             = null,
+                  Object?                Sender               = null,
+                  IOrganization?         Organization         = null,
+                  IEnumerable<Warning>?  Warnings             = null,
+                  TimeSpan?              Runtime              = null)
+
+                => new (User,
+                        CommandResult.Error,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        Exception.Message.ToI18NString(),
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) Timeout      (User,   Timeout,     ...)
+
+        public static UpdateUserResult
+
+            Timeout(IUser                  User,
+                    TimeSpan               Timeout,
+                    EventTracking_Id?      EventTrackingId      = null,
+                    IId?                   SenderId             = null,
+                    Object?                Sender               = null,
+                    IOrganization?         Organization         = null,
+                    IEnumerable<Warning>?  Warnings             = null,
+                    TimeSpan?              Runtime              = null)
+
+                => new (User,
+                        CommandResult.Timeout,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        $"Timeout after {Timeout.TotalSeconds} seconds!".ToI18NString(),
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) LockTimeout  (User,   Timeout,     ...)
+
+        public static UpdateUserResult
+
+            LockTimeout(IUser                  User,
+                        TimeSpan               Timeout,
+                        EventTracking_Id?      EventTrackingId      = null,
+                        IId?                   SenderId             = null,
+                        Object?                Sender               = null,
+                        IOrganization?         Organization         = null,
+                        IEnumerable<Warning>?  Warnings             = null,
+                        TimeSpan?              Runtime              = null)
+
+                => new (User,
+                        CommandResult.LockTimeout,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Organization,
+                        $"Lock timeout after {Timeout.TotalSeconds} seconds!".ToI18NString(),
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
 
     }
 

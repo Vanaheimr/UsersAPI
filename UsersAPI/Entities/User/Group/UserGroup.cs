@@ -104,7 +104,7 @@ namespace social.OpenData.UsersAPI
     public class UserGroup : AGroup<UserGroup_Id,
                                     UserGroup,
                                     User_Id,
-                                    User>
+                                    IUser>
     {
 
         #region Data
@@ -125,7 +125,7 @@ namespace social.OpenData.UsersAPI
 
 
         public User2UserGroupEdge AddUser(User2UserGroupEdgeLabel  EdgeLabel,
-                                          User                     Source,
+                                          IUser                    Source,
                                           PrivacyLevel             PrivacyLevel = PrivacyLevel.Private)
 
             => _User2UserGroup_Edges.
@@ -152,7 +152,7 @@ namespace social.OpenData.UsersAPI
 
 
 
-        public IEnumerable<User2UserGroupEdge> User2GroupInEdges(Func<User2UserGroupEdgeLabel, Boolean> User2GroupEdgeFilter = null)
+        public IEnumerable<User2UserGroupEdge> User2GroupInEdges(Func<User2UserGroupEdgeLabel, Boolean>? User2GroupEdgeFilter = null)
             => _User2UserGroup_Edges.
                    Where(edge => User2GroupEdgeFilter != null ? User2GroupEdgeFilter(edge.EdgeLabel) : true);
 
@@ -162,7 +162,7 @@ namespace social.OpenData.UsersAPI
         /// filtered by the given edge label.
         /// </summary>
         /// <param name="User">Just return edges with the given user.</param>
-        public IEnumerable<User2UserGroupEdge> Edges(User User)
+        public IEnumerable<User2UserGroupEdge> Edges(IUser User)
 
             => _User2UserGroup_Edges.
                    Where (edge => edge.Source == User);
@@ -174,7 +174,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="User">Just return edges with the given user.</param>
         public IEnumerable<User2UserGroupEdge> Edges(User2UserGroupEdgeLabel  EdgeLabel,
-                                                     User                     User)
+                                                     IUser                    User)
 
             => _User2UserGroup_Edges.
                    Where (edge => edge.Source == User && edge.EdgeLabel == EdgeLabel);
@@ -185,7 +185,7 @@ namespace social.OpenData.UsersAPI
         /// filtered by the given edge label.
         /// </summary>
         /// <param name="User">Just return edges with the given user.</param>
-        public IEnumerable<User2UserGroupEdgeLabel> EdgeLabels(User User)
+        public IEnumerable<User2UserGroupEdgeLabel> EdgeLabels(IUser User)
 
             => _User2UserGroup_Edges.
                    Where (edge => edge.Source == User).
@@ -193,7 +193,7 @@ namespace social.OpenData.UsersAPI
 
 
         public Boolean HasEdge(User2UserGroupEdgeLabel  EdgeLabel,
-                               User                     User)
+                               IUser                    User)
 
             => _User2UserGroup_Edges.
                    Any(edge => edge.EdgeLabel == EdgeLabel && edge.Source == User);
@@ -492,23 +492,23 @@ namespace social.OpenData.UsersAPI
         /// <param name="JSONLDContext">The JSON-LD context of this user group.</param>
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
         /// <param name="LastChange">The timestamp of the last changes within this user group. Can e.g. be used as a HTTP ETag.</param>
-        public UserGroup(UserGroup_Id                          Id,
+        public UserGroup(UserGroup_Id                           Id,
 
-                         I18NString                            Name,
-                         I18NString                            Description                   = null,
-                         IEnumerable<User>                     Users                         = null,
-                         UserGroup                             ParentGroup                   = null,
-                         IEnumerable<UserGroup>                Subgroups                     = null,
+                         I18NString                             Name,
+                         I18NString?                            Description                   = null,
+                         IEnumerable<IUser>?                    Users                         = null,
+                         UserGroup?                             ParentGroup                   = null,
+                         IEnumerable<UserGroup>?                Subgroups                     = null,
 
-                         IEnumerable<User2UserGroupEdge>       User2GroupInEdges             = null,
-                         IEnumerable<UserGroup2UserGroupEdge>  UserGroup2UserGroupInEdges    = null,
-                         IEnumerable<UserGroup2UserGroupEdge>  UserGroup2UserGroupOutEdges   = null,
+                         IEnumerable<User2UserGroupEdge>?       User2GroupInEdges             = null,
+                         IEnumerable<UserGroup2UserGroupEdge>?  UserGroup2UserGroupInEdges    = null,
+                         IEnumerable<UserGroup2UserGroupEdge>?  UserGroup2UserGroupOutEdges   = null,
 
-                         JObject                               CustomData                    = default,
-                         IEnumerable<AttachedFile>             AttachedFiles                 = default,
-                         JSONLDContext?                        JSONLDContext                 = default,
-                         String                                DataSource                    = default,
-                         DateTime?                             LastChange                    = default)
+                         JObject?                               CustomData                    = default,
+                         IEnumerable<AttachedFile>?             AttachedFiles                 = default,
+                         JSONLDContext?                         JSONLDContext                 = default,
+                         String?                                DataSource                    = default,
+                         DateTime?                              LastChange                    = default)
 
             : base(Id,
 
@@ -571,7 +571,7 @@ namespace social.OpenData.UsersAPI
 
                                    new JProperty("name",    Name.ToJSON()),
 
-                                   Description.IsNeitherNullNorEmpty()
+                                   Description.IsNotNullOrEmpty()
                                        ? new JProperty("description",    Description.ToJSON())
                                        : null,
 
@@ -785,16 +785,16 @@ namespace social.OpenData.UsersAPI
 
                 }
 
-                List<User> Users = null;
+                List<IUser>? Users = null;
 
                 if (UserIds?.Any() == true)
                 {
 
-                    Users = new List<User>();
+                    Users = new List<IUser>();
 
                     foreach (var userId in UserIds)
                     {
-                        if (UserProvider(userId, out User user))
+                        if (UserProvider(userId, out var user))
                             Users.Add(user);
                     }
 
@@ -1099,23 +1099,23 @@ namespace social.OpenData.UsersAPI
         /// <param name="NewUserGroupId">An optional new user group identification.</param>
         public Builder ToBuilder(UserGroup_Id? NewUserGroupId = null)
 
-            => new Builder(NewUserGroupId ?? Id,
+            => new (NewUserGroupId ?? Id,
 
-                           Description,
-                           Name,
-                           Members,
-                           ParentGroup,
-                           Subgroups,
+                    Description,
+                    Name,
+                    Members,
+                    ParentGroup,
+                    Subgroups,
 
-                           _User2UserGroup_Edges,
-                           _UserGroup2UserGroup_InEdges,
-                           _UserGroup2UserGroup_OutEdges,
+                    _User2UserGroup_Edges,
+                    _UserGroup2UserGroup_InEdges,
+                    _UserGroup2UserGroup_OutEdges,
 
-                           CustomData,
-                           AttachedFiles,
-                           JSONLDContext,
-                           DataSource,
-                           LastChangeDate);
+                    CustomData,
+                    AttachedFiles,
+                    JSONLDContext,
+                    DataSource,
+                    LastChangeDate);
 
         #endregion
 
@@ -1127,7 +1127,7 @@ namespace social.OpenData.UsersAPI
         public new class Builder : AGroup<UserGroup_Id,
                                           UserGroup,
                                           User_Id,
-                                          User>.Builder
+                                          IUser>.Builder
         {
 
             #region User      -> UserGroup edges
@@ -1161,23 +1161,23 @@ namespace social.OpenData.UsersAPI
             /// <param name="JSONLDContext">The JSON-LD context of this user group.</param>
             /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
             /// <param name="LastChange">The timestamp of the last changes within this user group. Can e.g. be used as a HTTP ETag.</param>
-            public Builder(UserGroup_Id?                         Id                            = null,
+            public Builder(UserGroup_Id?                          Id                            = null,
 
-                           I18NString                            Name                          = null,
-                           I18NString                            Description                   = null,
-                           IEnumerable<User>                     Users                         = null,
-                           UserGroup                             ParentGroup                   = null,
-                           IEnumerable<UserGroup>                Subgroups                     = null,
+                           I18NString?                            Name                          = null,
+                           I18NString?                            Description                   = null,
+                           IEnumerable<IUser>?                    Users                         = null,
+                           UserGroup?                             ParentGroup                   = null,
+                           IEnumerable<UserGroup>?                Subgroups                     = null,
 
-                           IEnumerable<User2UserGroupEdge>       User2UserGroupEdges           = null,
-                           IEnumerable<UserGroup2UserGroupEdge>  UserGroup2UserGroupInEdges    = null,
-                           IEnumerable<UserGroup2UserGroupEdge>  UserGroup2UserGroupOutEdges   = null,
+                           IEnumerable<User2UserGroupEdge>?       User2UserGroupEdges           = null,
+                           IEnumerable<UserGroup2UserGroupEdge>?  UserGroup2UserGroupInEdges    = null,
+                           IEnumerable<UserGroup2UserGroupEdge>?  UserGroup2UserGroupOutEdges   = null,
 
-                           JObject                               CustomData                    = default,
-                           IEnumerable<AttachedFile>             AttachedFiles                 = default,
-                           JSONLDContext?                        JSONLDContext                 = default,
-                           String                                DataSource                    = default,
-                           DateTime?                             LastChange                    = default)
+                           JObject?                               CustomData                    = default,
+                           IEnumerable<AttachedFile>?             AttachedFiles                 = default,
+                           JSONLDContext?                         JSONLDContext                 = default,
+                           String?                                DataSource                    = default,
+                           DateTime?                              LastChange                    = default)
 
                 : base(Id ?? UserGroup_Id.Random(),
                        JSONLDContext ?? DefaultJSONLDContext,
@@ -1400,7 +1400,7 @@ namespace social.OpenData.UsersAPI
             /// Compares two user groups.
             /// </summary>
             /// <param name="UserGroup">A user group to compare with.</param>
-            public Int32 CompareTo(UserGroup UserGroup)
+            public override Int32 CompareTo(UserGroup? UserGroup)
 
                 => UserGroup is UserGroup
                        ? Id.CompareTo(UserGroup.Id)
@@ -1438,7 +1438,7 @@ namespace social.OpenData.UsersAPI
             /// </summary>
             /// <param name="UserGroup">A user group to compare with.</param>
             /// <returns>True if both match; False otherwise.</returns>
-            public Boolean Equals(UserGroup UserGroup)
+            public override Boolean Equals(UserGroup? UserGroup)
             {
 
                 if (UserGroup is null)
