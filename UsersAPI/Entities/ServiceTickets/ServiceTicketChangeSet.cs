@@ -119,7 +119,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// The author of this service ticket change set.
         /// </summary>
-        public User                                          Author                      { get; }
+        public IUser                                         Author                      { get; }
 
         /// <summary>
         /// The status of the service ticket.
@@ -240,38 +240,41 @@ namespace social.OpenData.UsersAPI
         /// <param name="CommentReferences">References to other service ticket change sets.</param>
         /// 
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
-        public ServiceTicketChangeSet(ServiceTicketChangeSet_Id?                    Id                    = null,
-                                      JSONLDContext?                                JSONLDContext         = default,
+        public ServiceTicketChangeSet(ServiceTicketChangeSet_Id?                     Id                    = null,
+                                      JSONLDContext?                                 JSONLDContext         = default,
 
-                                      DateTime?                                     Timestamp             = null,
-                                      User                                          Author                = null,
-                                      ServiceTicketStatusTypes?                     Status                = null,
-                                      I18NString                                    Title                 = null,
-                                      Affected                                      Affected              = null,
-                                      ServiceTicketPriorities?                      Priority              = null,
-                                      I18NString                                    Location              = null,
-                                      GeoCoordinate?                                GeoLocation           = null,
-                                      IEnumerable<ProblemDescriptionI18N>           ProblemDescriptions   = null,
-                                      IEnumerable<Tag>                              StatusIndicators      = null,
-                                      FirstResponse?                                FirstResponse         = null,
-                                      IEnumerable<Tag>                              Reactions             = null,
-                                      I18NString                                    AdditionalInfo        = null,
-                                      JObject                                       CustomData            = default,
-                                      IEnumerable<AttachedFile>                     AttachedFiles         = null,
-                                      IEnumerable<ServiceTicketReference>           TicketReferences      = null,
-                                      IEnumerable<OpenDataLicense>                      DataLicenses          = null,
+                                      DateTime?                                      Timestamp             = null,
+                                      IUser?                                         Author                = null,
+                                      ServiceTicketStatusTypes?                      Status                = null,
+                                      I18NString?                                    Title                 = null,
+                                      Affected?                                      Affected              = null,
+                                      ServiceTicketPriorities?                       Priority              = null,
+                                      I18NString?                                    Location              = null,
+                                      GeoCoordinate?                                 GeoLocation           = null,
+                                      IEnumerable<ProblemDescriptionI18N>?           ProblemDescriptions   = null,
+                                      IEnumerable<Tag>?                              StatusIndicators      = null,
+                                      FirstResponse?                                 FirstResponse         = null,
+                                      IEnumerable<Tag>?                              Reactions             = null,
+                                      I18NString?                                    AdditionalInfo        = null,
+                                      JObject?                                       CustomData            = null,
+                                      IEnumerable<AttachedFile>?                     AttachedFiles         = null,
+                                      IEnumerable<ServiceTicketReference>?           TicketReferences      = null,
+                                      IEnumerable<OpenDataLicense>?                  DataLicenses          = null,
 
-                                      I18NString                                    Comment               = null,
-                                      ServiceTicketChangeSet_Id?                    InReplyTo             = null,
-                                      IEnumerable<ServiceTicketChangeSetReference>  CommentReferences     = null,
+                                      I18NString?                                    Comment               = null,
+                                      ServiceTicketChangeSet_Id?                     InReplyTo             = null,
+                                      IEnumerable<ServiceTicketChangeSetReference>?  CommentReferences     = null,
 
-                                      String                                        DataSource            = null)
+                                      String?                                        DataSource            = null)
 
             : base(Id            ?? ServiceTicketChangeSet_Id.Random(),
                    JSONLDContext ?? DefaultJSONLDContext,
-                   Timestamp,
+                   null,
+                   null,
                    null,
                    CustomData,
+                   null,
+                   Timestamp,
                    DataSource)
 
         {
@@ -533,7 +536,7 @@ namespace social.OpenData.UsersAPI
 
                 #region Parse Author                     [optional]
 
-                User? Author = null;
+                IUser? Author = null;
 
                 if (JSONObject["author"] is JObject authorJSON &&
                     authorJSON.ParseOptional("@id",
@@ -1196,7 +1199,7 @@ namespace social.OpenData.UsersAPI
             /// <summary>
             /// The initial author of this service ticket change set (if known).
             /// </summary>
-            public User                                          Author                    { get; set; }
+            public IUser                                         Author                    { get; set; }
 
             /// <summary>
             /// The status of the service ticket.
@@ -1283,7 +1286,7 @@ namespace social.OpenData.UsersAPI
             /// <summary>
             /// Optional data licsenses for publishing this data.
             /// </summary>
-            public IEnumerable<OpenDataLicense>                      DataLicenses              { get; set; }
+            public IEnumerable<OpenDataLicense>                  DataLicenses              { get; set; }
 
             #endregion
 
@@ -1315,38 +1318,39 @@ namespace social.OpenData.UsersAPI
             /// <param name="CommentReferences">References to other service ticket change sets.</param>
             /// 
             /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
-            public Builder(ServiceTicketChangeSet_Id?                    Id                    = null,
-                           JSONLDContext?                                JSONLDContext         = default,
+            public Builder(ServiceTicketChangeSet_Id?                     Id                    = null,
+                           JSONLDContext?                                 JSONLDContext         = default,
 
-                           DateTime?                                     Timestamp             = null,
-                           User                                          Author                = null,
-                           ServiceTicketStatusTypes?                     Status                = null,
-                           I18NString                                    Title                 = null,
-                           Affected                                      Affected              = null,
-                           ServiceTicketPriorities?                      Priority              = null,
-                           I18NString                                    Location              = null,
-                           GeoCoordinate?                                GeoLocation           = null,
-                           IEnumerable<ProblemDescriptionI18N>           ProblemDescriptions   = null,
-                           IEnumerable<Tag>                              StatusIndicators      = null,
-                           FirstResponse?                                FirstResponse         = null,
-                           IEnumerable<Tag>                              Reactions             = null,
-                           I18NString                                    AdditionalInfo        = null,
-                           JObject                                       CustomData            = default,
-                           IEnumerable<AttachedFile>                     AttachedFiles         = null,
-                           IEnumerable<ServiceTicketReference>           TicketReferences      = null,
-                           IEnumerable<OpenDataLicense>                      DataLicenses          = null,
+                           DateTime?                                      Timestamp             = null,
+                           IUser?                                         Author                = null,
+                           ServiceTicketStatusTypes?                      Status                = null,
+                           I18NString?                                    Title                 = null,
+                           Affected?                                      Affected              = null,
+                           ServiceTicketPriorities?                       Priority              = null,
+                           I18NString?                                    Location              = null,
+                           GeoCoordinate?                                 GeoLocation           = null,
+                           IEnumerable<ProblemDescriptionI18N>?           ProblemDescriptions   = null,
+                           IEnumerable<Tag>?                              StatusIndicators      = null,
+                           FirstResponse?                                 FirstResponse         = null,
+                           IEnumerable<Tag>?                              Reactions             = null,
+                           I18NString?                                    AdditionalInfo        = null,
+                           JObject?                                       CustomData            = null,
+                           IEnumerable<AttachedFile>?                     AttachedFiles         = null,
+                           IEnumerable<ServiceTicketReference>?           TicketReferences      = null,
+                           IEnumerable<OpenDataLicense>?                  DataLicenses          = null,
 
-                           I18NString                                    Comment               = null,
-                           ServiceTicketChangeSet_Id?                    InReplyTo             = null,
-                           IEnumerable<ServiceTicketChangeSetReference>  CommentReferences     = null,
+                           I18NString?                                    Comment               = null,
+                           ServiceTicketChangeSet_Id?                     InReplyTo             = null,
+                           IEnumerable<ServiceTicketChangeSetReference>?  CommentReferences     = null,
 
-                           String                                        DataSource            = null)
+                           String?                                        DataSource            = null)
 
                 : base(Id            ?? ServiceTicketChangeSet_Id.Random(),
                        JSONLDContext ?? DefaultJSONLDContext,
                        Timestamp,
                        null,
                        CustomData,
+                       null,
                        DataSource)
 
             {
@@ -1364,7 +1368,6 @@ namespace social.OpenData.UsersAPI
                 this.FirstResponse        = FirstResponse;
                 this.Reactions            = Reactions     ?? Array.Empty<Tag>();
                 this.AdditionalInfo       = AdditionalInfo;
-                this.CustomData           = CustomData;
                 this.AttachedFiles        = AttachedFiles       != null ? AttachedFiles.      Distinct() : Array.Empty<AttachedFile>();
                 this.TicketReferences     = TicketReferences    != null ? TicketReferences.   Distinct() : Array.Empty<ServiceTicketReference>();
                 this.DataLicenses         = DataLicenses  ?? Array.Empty<OpenDataLicense>();

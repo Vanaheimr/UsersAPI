@@ -26,30 +26,30 @@ namespace social.OpenData.UsersAPI
 {
 
     /// <summary>
-    /// The result of a delete user group request.
+    /// The result of a delete organization group request.
     /// </summary>
-    public class DeleteUserGroupResult : AEnitityResult<IUserGroup, UserGroup_Id>
+    public class DeleteOrganizationGroupResult : AEnitityResult<IOrganizationGroup, OrganizationGroup_Id>
     {
 
         #region Properties
 
-        public IUserGroup?  UserGroup
+        public IOrganizationGroup? OrganizationGroup
             => Object;
 
         #endregion
 
         #region Constructor(s)
 
-        public DeleteUserGroupResult(IUserGroup             UserGroup,
-                                     CommandResult          Result,
-                                     EventTracking_Id?      EventTrackingId   = null,
-                                     IId?                   SenderId          = null,
-                                     Object?                Sender            = null,
-                                     I18NString?            Description       = null,
-                                     IEnumerable<Warning>?  Warnings          = null,
-                                     TimeSpan?              Runtime           = null)
+        public DeleteOrganizationGroupResult(IOrganizationGroup     OrganizationGroup,
+                                             CommandResult          Result,
+                                             EventTracking_Id?      EventTrackingId   = null,
+                                             IId?                   SenderId          = null,
+                                             Object?                Sender            = null,
+                                             I18NString?            Description       = null,
+                                             IEnumerable<Warning>?  Warnings          = null,
+                                             TimeSpan?              Runtime           = null)
 
-            : base(UserGroup,
+            : base(OrganizationGroup,
                    Result,
                    EventTrackingId,
                    SenderId,
@@ -61,16 +61,16 @@ namespace social.OpenData.UsersAPI
         { }
 
 
-        public DeleteUserGroupResult(UserGroup_Id           Id,
-                                     CommandResult          Result,
-                                     EventTracking_Id?      EventTrackingId   = null,
-                                     IId?                   SenderId          = null,
-                                     Object?                Sender            = null,
-                                     I18NString?            Description       = null,
-                                     IEnumerable<Warning>?  Warnings          = null,
-                                     TimeSpan?              Runtime           = null)
+        public DeleteOrganizationGroupResult(OrganizationGroup_Id   OrganizationGroupId,
+                                             CommandResult          Result,
+                                             EventTracking_Id?      EventTrackingId   = null,
+                                             IId?                   SenderId          = null,
+                                             Object?                Sender            = null,
+                                             I18NString?            Description       = null,
+                                             IEnumerable<Warning>?  Warnings          = null,
+                                             TimeSpan?              Runtime           = null)
 
-            : base(Id,
+            : base(OrganizationGroupId,
                    Result,
                    EventTrackingId,
                    SenderId,
@@ -84,11 +84,11 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (static) AdminDown      (UserGroup, ...)
+        #region (static) AdminDown      (OrganizationGroup, ...)
 
-        public static DeleteUserGroupResult
+        public static DeleteOrganizationGroupResult
 
-            AdminDown(IUserGroup             UserGroup,
+            AdminDown(IOrganizationGroup     OrganizationGroup,
                       EventTracking_Id?      EventTrackingId   = null,
                       IId?                   SenderId          = null,
                       Object?                Sender            = null,
@@ -96,7 +96,7 @@ namespace social.OpenData.UsersAPI
                       IEnumerable<Warning>?  Warnings          = null,
                       TimeSpan?              Runtime           = null)
 
-                => new (UserGroup,
+                => new (OrganizationGroup,
                         CommandResult.AdminDown,
                         EventTrackingId,
                         SenderId,
@@ -107,11 +107,11 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region (static) NoOperation    (UserGroup, ...)
+        #region (static) NoOperation    (OrganizationGroup, ...)
 
-        public static DeleteUserGroupResult
+        public static DeleteOrganizationGroupResult
 
-            NoOperation(IUserGroup             UserGroup,
+            NoOperation(IOrganizationGroup     OrganizationGroup,
                         EventTracking_Id?      EventTrackingId   = null,
                         IId?                   SenderId          = null,
                         Object?                Sender            = null,
@@ -119,7 +119,7 @@ namespace social.OpenData.UsersAPI
                         IEnumerable<Warning>?  Warnings          = null,
                         TimeSpan?              Runtime           = null)
 
-                => new (UserGroup,
+                => new (OrganizationGroup,
                         CommandResult.NoOperation,
                         EventTrackingId,
                         SenderId,
@@ -131,11 +131,11 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (static) Enqueued       (UserGroup, ...)
+        #region (static) Enqueued       (OrganizationGroup, ...)
 
-        public static DeleteUserGroupResult
+        public static DeleteOrganizationGroupResult
 
-            Enqueued(IUserGroup             UserGroup,
+            Enqueued(IOrganizationGroup     OrganizationGroup,
                      EventTracking_Id?      EventTrackingId   = null,
                      IId?                   SenderId          = null,
                      Object?                Sender            = null,
@@ -143,7 +143,7 @@ namespace social.OpenData.UsersAPI
                      IEnumerable<Warning>?  Warnings          = null,
                      TimeSpan?              Runtime           = null)
 
-                => new (UserGroup,
+                => new (OrganizationGroup,
                         CommandResult.Enqueued,
                         EventTrackingId,
                         SenderId,
@@ -154,11 +154,11 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region (static) Success        (UserGroup, ...)
+        #region (static) Success        (OrganizationGroup, ...)
 
-        public static DeleteUserGroupResult
+        public static DeleteOrganizationGroupResult
 
-            Success(IUserGroup             UserGroup,
+            Success(IOrganizationGroup     OrganizationGroup,
                     EventTracking_Id?      EventTrackingId   = null,
                     IId?                   SenderId          = null,
                     Object?                Sender            = null,
@@ -166,7 +166,7 @@ namespace social.OpenData.UsersAPI
                     IEnumerable<Warning>?  Warnings          = null,
                     TimeSpan?              Runtime           = null)
 
-                => new (UserGroup,
+                => new (OrganizationGroup,
                         CommandResult.Success,
                         EventTrackingId,
                         SenderId,
@@ -178,11 +178,11 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (static) CanNotBeRemoved(UserGroup, ...)
+        #region (static) CanNotBeRemoved(OrganizationGroup, ...)
 
-        public static DeleteUserGroupResult
+        public static DeleteOrganizationGroupResult
 
-            CanNotBeRemoved(IUserGroup             UserGroup,
+            CanNotBeRemoved(IOrganizationGroup     OrganizationGroup,
                             EventTracking_Id?      EventTrackingId   = null,
                             IId?                   SenderId          = null,
                             Object?                Sender            = null,
@@ -190,7 +190,7 @@ namespace social.OpenData.UsersAPI
                             IEnumerable<Warning>?  Warnings          = null,
                             TimeSpan?              Runtime           = null)
 
-                => new (UserGroup,
+                => new (OrganizationGroup,
                         CommandResult.CanNotBeRemoved,
                         EventTrackingId,
                         SenderId,
@@ -202,11 +202,11 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (static) ArgumentError  (UserGroup,   Description, ...)
+        #region (static) ArgumentError  (OrganizationGroup,   Description, ...)
 
-        public static DeleteUserGroupResult
+        public static DeleteOrganizationGroupResult
 
-            ArgumentError(IUserGroup             UserGroup,
+            ArgumentError(IOrganizationGroup     OrganizationGroup,
                           I18NString             Description,
                           EventTracking_Id?      EventTrackingId   = null,
                           IId?                   SenderId          = null,
@@ -214,7 +214,7 @@ namespace social.OpenData.UsersAPI
                           IEnumerable<Warning>?  Warnings          = null,
                           TimeSpan?              Runtime           = null)
 
-                => new (UserGroup,
+                => new (OrganizationGroup,
                         CommandResult.ArgumentError,
                         EventTrackingId,
                         SenderId,
@@ -225,11 +225,11 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region (static) ArgumentError  (UserGroupId, Description, ...)
+        #region (static) ArgumentError  (OrganizationGroupId, Description, ...)
 
-        public static DeleteUserGroupResult
+        public static DeleteOrganizationGroupResult
 
-            ArgumentError(UserGroup_Id           UserGroupId,
+            ArgumentError(OrganizationGroup_Id           OrganizationGroupId,
                           I18NString             Description,
                           EventTracking_Id?      EventTrackingId   = null,
                           IId?                   SenderId          = null,
@@ -237,7 +237,7 @@ namespace social.OpenData.UsersAPI
                           IEnumerable<Warning>?  Warnings          = null,
                           TimeSpan?              Runtime           = null)
 
-                => new (UserGroupId,
+                => new (OrganizationGroupId,
                         CommandResult.ArgumentError,
                         EventTrackingId,
                         SenderId,
@@ -248,11 +248,11 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region (static) Error          (UserGroup,   Description, ...)
+        #region (static) Error          (OrganizationGroup,   Description, ...)
 
-        public static DeleteUserGroupResult
+        public static DeleteOrganizationGroupResult
 
-            Error(IUserGroup             UserGroup,
+            Error(IOrganizationGroup     OrganizationGroup,
                   I18NString             Description,
                   EventTracking_Id?      EventTrackingId   = null,
                   IId?                   SenderId          = null,
@@ -260,7 +260,7 @@ namespace social.OpenData.UsersAPI
                   IEnumerable<Warning>?  Warnings          = null,
                   TimeSpan?              Runtime           = null)
 
-                => new (UserGroup,
+                => new (OrganizationGroup,
                         CommandResult.Error,
                         EventTrackingId,
                         SenderId,
@@ -271,11 +271,11 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region (static) Error          (UserGroup,   Exception,   ...)
+        #region (static) Error          (OrganizationGroup,   Exception,   ...)
 
-        public static DeleteUserGroupResult
+        public static DeleteOrganizationGroupResult
 
-            Error(IUserGroup             UserGroup,
+            Error(IOrganizationGroup     OrganizationGroup,
                   Exception              Exception,
                   EventTracking_Id?      EventTrackingId   = null,
                   IId?                   SenderId          = null,
@@ -283,7 +283,7 @@ namespace social.OpenData.UsersAPI
                   IEnumerable<Warning>?  Warnings          = null,
                   TimeSpan?              Runtime           = null)
 
-                => new (UserGroup,
+                => new (OrganizationGroup,
                         CommandResult.Error,
                         EventTrackingId,
                         SenderId,
@@ -294,11 +294,11 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region (static) Timeout        (UserGroup,   Timeout,     ...)
+        #region (static) Timeout        (OrganizationGroup,   Timeout,     ...)
 
-        public static DeleteUserGroupResult
+        public static DeleteOrganizationGroupResult
 
-            Timeout(IUserGroup             UserGroup,
+            Timeout(IOrganizationGroup     OrganizationGroup,
                     TimeSpan               Timeout,
                     EventTracking_Id?      EventTrackingId   = null,
                     IId?                   SenderId          = null,
@@ -306,7 +306,7 @@ namespace social.OpenData.UsersAPI
                     IEnumerable<Warning>?  Warnings          = null,
                     TimeSpan?              Runtime           = null)
 
-                => new (UserGroup,
+                => new (OrganizationGroup,
                         CommandResult.Timeout,
                         EventTrackingId,
                         SenderId,
@@ -317,11 +317,11 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region (static) LockTimeout    (UserGroup,   Timeout,     ...)
+        #region (static) LockTimeout    (OrganizationGroup,   Timeout,     ...)
 
-        public static DeleteUserGroupResult
+        public static DeleteOrganizationGroupResult
 
-            LockTimeout(IUserGroup             UserGroup,
+            LockTimeout(IOrganizationGroup     OrganizationGroup,
                         TimeSpan               Timeout,
                         EventTracking_Id?      EventTrackingId   = null,
                         IId?                   SenderId          = null,
@@ -329,7 +329,7 @@ namespace social.OpenData.UsersAPI
                         IEnumerable<Warning>?  Warnings          = null,
                         TimeSpan?              Runtime           = null)
 
-                => new (UserGroup,
+                => new (OrganizationGroup,
                         CommandResult.LockTimeout,
                         EventTrackingId,
                         SenderId,

@@ -25,21 +25,21 @@ using org.GraphDefined.Vanaheimr.Hermod;
 namespace social.OpenData.UsersAPI
 {
 
-    public class AddUserToOrganizationResult : AResult<User, Organization>
+    public class AddUserToOrganizationResult : AResult<IUser, IOrganization>
     {
 
-        public User                        User
+        public IUser                        User
             => Object1;
 
         public User2OrganizationEdgeLabel  EdgeLabel       { get; }
 
-        public Organization                Organization
+        public IOrganization                Organization
             => Object2;
 
 
-        public AddUserToOrganizationResult(User                        User,
+        public AddUserToOrganizationResult(IUser                        User,
                                            User2OrganizationEdgeLabel  EdgeLabel,
-                                           Organization                Organization,
+                                           IOrganization                Organization,
                                            EventTracking_Id            EventTrackingId,
                                            Boolean                     IsSuccess,
                                            String?                     Argument           = null,
@@ -59,9 +59,9 @@ namespace social.OpenData.UsersAPI
         }
 
 
-        public static AddUserToOrganizationResult Success(User                        User,
+        public static AddUserToOrganizationResult Success(IUser                        User,
                                                           User2OrganizationEdgeLabel  EdgeLabel,
-                                                          Organization                Organization,
+                                                          IOrganization                Organization,
                                                           EventTracking_Id            EventTrackingId)
 
             => new (User,
@@ -71,9 +71,9 @@ namespace social.OpenData.UsersAPI
                     true);
 
 
-        public static AddUserToOrganizationResult ArgumentError(User                        User,
+        public static AddUserToOrganizationResult ArgumentError(IUser                        User,
                                                                 User2OrganizationEdgeLabel  EdgeLabel,
-                                                                Organization                Organization,
+                                                                IOrganization                Organization,
                                                                 EventTracking_Id            EventTrackingId,
                                                                 String                      Argument,
                                                                 String                      Description)
@@ -89,9 +89,9 @@ namespace social.OpenData.UsersAPI
                         Description
                     ));
 
-        public static AddUserToOrganizationResult ArgumentError(User                        User,
+        public static AddUserToOrganizationResult ArgumentError(IUser                        User,
                                                                 User2OrganizationEdgeLabel  EdgeLabel,
-                                                                Organization                Organization,
+                                                                IOrganization                Organization,
                                                                 EventTracking_Id            EventTrackingId,
                                                                 String                      Argument,
                                                                 I18NString                  Description)
@@ -105,9 +105,9 @@ namespace social.OpenData.UsersAPI
                     Description);
 
 
-        public static AddUserToOrganizationResult Failed(User                        User,
+        public static AddUserToOrganizationResult Failed(IUser                        User,
                                                          User2OrganizationEdgeLabel  EdgeLabel,
-                                                         Organization                Organization,
+                                                         IOrganization                Organization,
                                                          EventTracking_Id            EventTrackingId,
                                                          String                      Description)
 
@@ -122,9 +122,9 @@ namespace social.OpenData.UsersAPI
                         Description
                     ));
 
-        public static AddUserToOrganizationResult Failed(User                        User,
+        public static AddUserToOrganizationResult Failed(IUser                        User,
                                                          User2OrganizationEdgeLabel  EdgeLabel,
-                                                         Organization                Organization,
+                                                         IOrganization                Organization,
                                                          EventTracking_Id            EventTrackingId,
                                                          I18NString                  Description)
 
@@ -136,9 +136,9 @@ namespace social.OpenData.UsersAPI
                     null,
                     Description);
 
-        public static AddUserToOrganizationResult Failed(User                        User,
+        public static AddUserToOrganizationResult Failed(IUser                        User,
                                                          User2OrganizationEdgeLabel  EdgeLabel,
-                                                         Organization                Organization,
+                                                         IOrganization                Organization,
                                                          EventTracking_Id            EventTrackingId,
                                                          Exception                   Exception)
 

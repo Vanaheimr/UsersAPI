@@ -98,9 +98,10 @@ namespace social.OpenData.UsersAPI
     /// A organization group.
     /// </summary>
     public class OrganizationGroup : AGroup<OrganizationGroup_Id,
-                                            OrganizationGroup,
+                                            IOrganizationGroup,
                                             Organization_Id,
-                                            Organization>
+                                            IOrganization>,
+                                     IOrganizationGroup
     {
 
         #region Data
@@ -111,6 +112,8 @@ namespace social.OpenData.UsersAPI
         public new readonly static JSONLDContext DefaultJSONLDContext = JSONLDContext.Parse("https://opendata.social/contexts/UsersAPI/organizationGroup");
 
         #endregion
+
+        UsersAPI? IOrganizationGroup.API { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         #region Constructor(s)
 
@@ -130,19 +133,19 @@ namespace social.OpenData.UsersAPI
         /// <param name="JSONLDContext">The JSON-LD context of this organization group.</param>
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
         /// <param name="LastChange">The timestamp of the last changes within this organization group. Can e.g. be used as a HTTP ETag.</param>
-        public OrganizationGroup(OrganizationGroup_Id            Id,
+        public OrganizationGroup(OrganizationGroup_Id              Id,
 
-                                 I18NString                      Name,
-                                 I18NString                      Description     = default,
-                                 IEnumerable<Organization>       Organizations   = default,
-                                 OrganizationGroup               ParentGroup     = default,
-                                 IEnumerable<OrganizationGroup>  Subgroups       = default,
+                                 I18NString                        Name,
+                                 I18NString?                       Description     = default,
+                                 IEnumerable<IOrganization>?       Organizations   = default,
+                                 IOrganizationGroup?               ParentGroup     = default,
+                                 IEnumerable<IOrganizationGroup>?  Subgroups       = default,
 
-                                 JObject                         CustomData      = default,
-                                 IEnumerable<AttachedFile>       AttachedFiles   = default,
-                                 JSONLDContext?                  JSONLDContext   = default,
-                                 String                          DataSource      = default,
-                                 DateTime?                       LastChange      = default)
+                                 JObject?                          CustomData      = default,
+                                 IEnumerable<AttachedFile>?        AttachedFiles   = default,
+                                 JSONLDContext?                    JSONLDContext   = default,
+                                 String?                           DataSource      = default,
+                                 DateTime?                         LastChange      = default)
 
             : base(Id,
 
@@ -171,48 +174,48 @@ namespace social.OpenData.UsersAPI
         /// <param name="Embedded">Whether this data structure is embedded into another data structure.</param>
         public override JObject ToJSON(Boolean Embedded = false)
 
-            => ToJSON(Embedded:                       false,
-                      ExpandOrganizations:            InfoStatus.ShowIdOnly,
-                      ExpandParentGroup:              InfoStatus.ShowIdOnly,
-                      ExpandSubgroups:                InfoStatus.ShowIdOnly,
-                      ExpandAttachedFiles:            InfoStatus.ShowIdOnly,
-                      IncludeAttachedFileSignatures:  InfoStatus.ShowIdOnly);
+            => ToJSON(Embedded: false,
+                      ExpandOrganizations: InfoStatus.ShowIdOnly,
+                      ExpandParentGroup: InfoStatus.ShowIdOnly,
+                      ExpandSubgroups: InfoStatus.ShowIdOnly,
+                      ExpandAttachedFiles: InfoStatus.ShowIdOnly,
+                      IncludeAttachedFileSignatures: InfoStatus.ShowIdOnly);
 
 
         /// <summary>
         /// Return a JSON representation of this object.
         /// </summary>
         /// <param name="Embedded">Whether this data is embedded into another data structure, e.g. into a OrganizationGroup.</param>
-        public virtual JObject ToJSON(Boolean     Embedded                        = false,
-                                      InfoStatus  ExpandOrganizations             = InfoStatus.ShowIdOnly,
-                                      InfoStatus  ExpandParentGroup               = InfoStatus.ShowIdOnly,
-                                      InfoStatus  ExpandSubgroups                 = InfoStatus.ShowIdOnly,
-                                      InfoStatus  ExpandAttachedFiles             = InfoStatus.ShowIdOnly,
-                                      InfoStatus  IncludeAttachedFileSignatures   = InfoStatus.ShowIdOnly)
+        public virtual JObject ToJSON(Boolean Embedded = false,
+                                      InfoStatus ExpandOrganizations = InfoStatus.ShowIdOnly,
+                                      InfoStatus ExpandParentGroup = InfoStatus.ShowIdOnly,
+                                      InfoStatus ExpandSubgroups = InfoStatus.ShowIdOnly,
+                                      InfoStatus ExpandAttachedFiles = InfoStatus.ShowIdOnly,
+                                      InfoStatus IncludeAttachedFileSignatures = InfoStatus.ShowIdOnly)
         {
 
             var JSON = JSONObject.Create(
 
-                           Members.SafeAny()       && ExpandOrganizations != InfoStatus.Hidden
+                           Members.SafeAny() && ExpandOrganizations != InfoStatus.Hidden
                                ? ExpandSubgroups.Switch(
-                                       () => new JProperty("memberIds",      new JArray(Members.SafeSelect(organization => organization.Id.ToString()))),
-                                       () => new JProperty("members",        new JArray(Members.SafeSelect(organization => organization.   ToJSON(Embedded: true)))))
-                                                                                                                                            //ExpandParentGroup:  InfoStatus.Hidden,
-                                                                                                                                            //ExpandSubgroups:    InfoStatus.Expand)))))
+                                       () => new JProperty("memberIds", new JArray(Members.SafeSelect(organization => organization.Id.ToString()))),
+                                       () => new JProperty("members", new JArray(Members.SafeSelect(organization => organization.ToJSON(Embedded: true)))))
+                               //ExpandParentGroup:  InfoStatus.Hidden,
+                               //ExpandSubgroups:    InfoStatus.Expand)))))
                                : null,
 
-                           ParentGroup is not null && ExpandParentGroup  != InfoStatus.Hidden
+                           ParentGroup is not null && ExpandParentGroup != InfoStatus.Hidden
                                ? ExpandParentGroup.Switch(
-                                       () => new JProperty("parentGroupId",  ParentGroup.Id.ToString()),
-                                       () => new JProperty("parentGroup",    ParentGroup.   ToJSON()))
+                                       () => new JProperty("parentGroupId", ParentGroup.Id.ToString()),
+                                       () => new JProperty("parentGroup",   ParentGroup.ToJSON(true)))
                                : null,
 
-                           Subgroups.SafeAny()     && ExpandSubgroups    != InfoStatus.Hidden
+                           Subgroups.SafeAny() && ExpandSubgroups != InfoStatus.Hidden
                                ? ExpandSubgroups.Switch(
-                                       () => new JProperty("subgroupsIds",   new JArray(Subgroups.SafeSelect(subgroup => subgroup.Id.ToString()))),
-                                       () => new JProperty("subgroups",      new JArray(Subgroups.SafeSelect(subgroup => subgroup.   ToJSON(Embedded:           true,
-                                                                                                                                            ExpandParentGroup:  InfoStatus.Hidden,
-                                                                                                                                            ExpandSubgroups:    InfoStatus.Expanded)))))
+                                       () => new JProperty("subgroupsIds", new JArray(Subgroups.SafeSelect(subgroup => subgroup.Id.ToString()))),
+                                       () => new JProperty("subgroups", new JArray(Subgroups.SafeSelect(subgroup => subgroup.ToJSON(Embedded: true,
+                                                                                                                                            ExpandParentGroup: InfoStatus.Hidden,
+                                                                                                                                            ExpandSubgroups: InfoStatus.Expanded)))))
                                : null
 
                        );
@@ -234,12 +237,12 @@ namespace social.OpenData.UsersAPI
         /// <param name="OrganizationGroup">The parsed organization group.</param>
         /// <param name="ErrorResponse">An error message.</param>
         /// <param name="OrganizationGroupIdURL">An optional OrganizationGroup identification, e.g. from the HTTP URL.</param>
-        public static Boolean TryParseJSON(JObject                            JSONObject,
-                                           OrganizationGroupProviderDelegate  OrganizationGroupProvider,
-                                           OrganizationProviderDelegate       OrganizationProvider,
-                                           out OrganizationGroup?             OrganizationGroup,
-                                           out String?                        ErrorResponse,
-                                           OrganizationGroup_Id?              OrganizationGroupIdURL = null)
+        public static Boolean TryParseJSON(JObject JSONObject,
+                                           OrganizationGroupProviderDelegate OrganizationGroupProvider,
+                                           OrganizationProviderDelegate OrganizationProvider,
+                                           out OrganizationGroup? OrganizationGroup,
+                                           out String? ErrorResponse,
+                                           OrganizationGroup_Id? OrganizationGroupIdURL = null)
         {
 
             try
@@ -393,16 +396,16 @@ namespace social.OpenData.UsersAPI
 
                 }
 
-                List<Organization> Organizations = null;
+                List<IOrganization>? Organizations = null;
 
                 if (OrganizationIds?.Any() == true)
                 {
 
-                    Organizations = new List<Organization>();
+                    Organizations = new List<IOrganization>();
 
                     foreach (var organizationId in OrganizationIds)
                     {
-                        if (OrganizationProvider(organizationId, out Organization organization))
+                        if (OrganizationProvider(organizationId, out var organization))
                             Organizations.Add(organization);
                     }
 
@@ -420,7 +423,7 @@ namespace social.OpenData.UsersAPI
 
                 #region Parse CryptoHash       [optional]
 
-                var CryptoHash    = JSONObject.GetOptional("cryptoHash");
+                var CryptoHash = JSONObject.GetOptional("cryptoHash");
 
                 #endregion
 
@@ -445,8 +448,8 @@ namespace social.OpenData.UsersAPI
             }
             catch (Exception e)
             {
-                ErrorResponse      = e.Message;
-                OrganizationGroup  = null;
+                ErrorResponse = e.Message;
+                OrganizationGroup = null;
                 return false;
             }
 
@@ -457,7 +460,7 @@ namespace social.OpenData.UsersAPI
 
         #region CopyAllLinkedDataFrom(OldOrganizationGroup)
 
-        public override void CopyAllLinkedDataFrom(OrganizationGroup OldOrganizationGroup)
+        public override void CopyAllLinkedDataFrom(IOrganizationGroup OldOrganizationGroup)
         {
 
         }
@@ -475,7 +478,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OrganizationGroup1">A organization group.</param>
         /// <param name="OrganizationGroup2">Another organization group.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator == (OrganizationGroup OrganizationGroup1,
+        public static Boolean operator ==(OrganizationGroup OrganizationGroup1,
                                            OrganizationGroup OrganizationGroup2)
         {
 
@@ -501,7 +504,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OrganizationGroup1">A organization group.</param>
         /// <param name="OrganizationGroup2">Another organization group.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator != (OrganizationGroup OrganizationGroup1,
+        public static Boolean operator !=(OrganizationGroup OrganizationGroup1,
                                            OrganizationGroup OrganizationGroup2)
 
             => !(OrganizationGroup1 == OrganizationGroup2);
@@ -516,7 +519,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OrganizationGroup1">A organization group.</param>
         /// <param name="OrganizationGroup2">Another organization group.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator < (OrganizationGroup OrganizationGroup1,
+        public static Boolean operator <(OrganizationGroup OrganizationGroup1,
                                           OrganizationGroup OrganizationGroup2)
         {
 
@@ -537,7 +540,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OrganizationGroup1">A organization group.</param>
         /// <param name="OrganizationGroup2">Another organization group.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator <= (OrganizationGroup OrganizationGroup1,
+        public static Boolean operator <=(OrganizationGroup OrganizationGroup1,
                                            OrganizationGroup OrganizationGroup2)
 
             => !(OrganizationGroup1 > OrganizationGroup2);
@@ -552,7 +555,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OrganizationGroup1">A organization group.</param>
         /// <param name="OrganizationGroup2">Another organization group.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator > (OrganizationGroup OrganizationGroup1,
+        public static Boolean operator >(OrganizationGroup OrganizationGroup1,
                                           OrganizationGroup OrganizationGroup2)
         {
 
@@ -573,7 +576,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OrganizationGroup1">A organization group.</param>
         /// <param name="OrganizationGroup2">Another organization group.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator >= (OrganizationGroup OrganizationGroup1,
+        public static Boolean operator >=(OrganizationGroup OrganizationGroup1,
                                            OrganizationGroup OrganizationGroup2)
 
             => !(OrganizationGroup1 < OrganizationGroup2);
@@ -608,7 +611,7 @@ namespace social.OpenData.UsersAPI
         /// Compares two organization groups.
         /// </summary>
         /// <param name="OrganizationGroup">A organization group to compare with.</param>
-        public override Int32 CompareTo(OrganizationGroup OrganizationGroup)
+        public override Int32 CompareTo(IOrganizationGroup? OrganizationGroup)
         {
 
             if (OrganizationGroup is null)
@@ -650,7 +653,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="OrganizationGroup">A organization group to compare with.</param>
         /// <returns>True if both match; False otherwise.</returns>
-        public override Boolean Equals(OrganizationGroup OrganizationGroup)
+        public override Boolean Equals(IOrganizationGroup? OrganizationGroup)
         {
 
             if (OrganizationGroup is null)
@@ -693,19 +696,19 @@ namespace social.OpenData.UsersAPI
         /// <param name="NewOrganizationGroupId">An optional new organization group identification.</param>
         public Builder ToBuilder(OrganizationGroup_Id? NewOrganizationGroupId = null)
 
-            => new Builder(NewOrganizationGroupId ?? Id,
+            => new (NewOrganizationGroupId ?? Id,
 
-                           Name,
-                           Description,
-                           Members,
-                           ParentGroup,
-                           Subgroups,
+                    Name,
+                    Description,
+                    Members,
+                    ParentGroup,
+                    Subgroups,
 
-                           CustomData,
-                           AttachedFiles,
-                           JSONLDContext,
-                           DataSource,
-                           LastChangeDate);
+                    CustomData,
+                    AttachedFiles,
+                    JSONLDContext,
+                    DataSource,
+                    LastChangeDate);
 
         #endregion
 
@@ -715,9 +718,9 @@ namespace social.OpenData.UsersAPI
         /// A organization group builder.
         /// </summary>
         public new class Builder : AGroup<OrganizationGroup_Id,
-                                          OrganizationGroup,
+                                          IOrganizationGroup,
                                           Organization_Id,
-                                          Organization>.Builder
+                                          IOrganization>.Builder
         {
 
             #region Constructor(s)
@@ -738,21 +741,21 @@ namespace social.OpenData.UsersAPI
             /// <param name="JSONLDContext">The JSON-LD context of this organization group.</param>
             /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
             /// <param name="LastChange">The timestamp of the last changes within this organization group. Can e.g. be used as a HTTP ETag.</param>
-            public Builder(OrganizationGroup_Id?           Id              = default,
+            public Builder(OrganizationGroup_Id?             Id              = default,
 
-                           I18NString                      Name            = default,
-                           I18NString                      Description     = default,
-                           IEnumerable<Organization>       Organizations   = default,
-                           OrganizationGroup               ParentGroup     = default,
-                           IEnumerable<OrganizationGroup>  Subgroups       = default,
+                           I18NString?                       Name            = default,
+                           I18NString?                       Description     = default,
+                           IEnumerable<IOrganization>?       Organizations   = default,
+                           IOrganizationGroup?               ParentGroup     = default,
+                           IEnumerable<IOrganizationGroup>?  Subgroups       = default,
 
-                           JObject                         CustomData      = default,
-                           IEnumerable<AttachedFile>       AttachedFiles   = default,
-                           JSONLDContext?                  JSONLDContext   = default,
-                           String                          DataSource      = default,
-                           DateTime?                       LastChange      = default)
+                           JObject?                          CustomData      = default,
+                           IEnumerable<AttachedFile>?        AttachedFiles   = default,
+                           JSONLDContext?                    JSONLDContext   = default,
+                           String?                           DataSource      = default,
+                           DateTime?                         LastChange      = default)
 
-                : base(Id            ?? OrganizationGroup_Id.Random(),
+                : base(Id ?? OrganizationGroup_Id.Random(),
                        JSONLDContext ?? DefaultJSONLDContext,
 
                        Name,
@@ -773,7 +776,7 @@ namespace social.OpenData.UsersAPI
 
             #region CopyAllLinkedDataFrom(OldOrganizationGroup)
 
-            public override void CopyAllLinkedDataFrom(OrganizationGroup OldOrganizationGroup)
+            public override void CopyAllLinkedDataFrom(IOrganizationGroup OldOrganizationGroup)
             {
 
             }
@@ -796,19 +799,19 @@ namespace social.OpenData.UsersAPI
             /// </summary>
             public OrganizationGroup ToImmutable
 
-                => new OrganizationGroup(Id,
+                => new (Id,
 
-                                         Name,
-                                         Description,
-                                         Members,
-                                         ParentGroup,
-                                         Subgroups,
+                        Name,
+                        Description,
+                        Members,
+                        ParentGroup,
+                        Subgroups,
 
-                                         CustomData,
-                                         AttachedFiles,
-                                         JSONLDContext,
-                                         DataSource,
-                                         LastChangeDate);
+                        CustomData,
+                        AttachedFiles,
+                        JSONLDContext,
+                        DataSource,
+                        LastChangeDate);
 
             #endregion
 
@@ -823,7 +826,7 @@ namespace social.OpenData.UsersAPI
             /// <param name="Builder1">A organization group builder.</param>
             /// <param name="Builder2">Another organization group builder.</param>
             /// <returns>true|false</returns>
-            public static Boolean operator == (Builder Builder1,
+            public static Boolean operator ==(Builder Builder1,
                                                Builder Builder2)
             {
 
@@ -849,7 +852,7 @@ namespace social.OpenData.UsersAPI
             /// <param name="Builder1">A organization group builder.</param>
             /// <param name="Builder2">Another organization group builder.</param>
             /// <returns>true|false</returns>
-            public static Boolean operator != (Builder Builder1,
+            public static Boolean operator !=(Builder Builder1,
                                                Builder Builder2)
 
                 => !(Builder1 == Builder2);
@@ -864,7 +867,7 @@ namespace social.OpenData.UsersAPI
             /// <param name="Builder1">A organization group builder.</param>
             /// <param name="Builder2">Another organization group builder.</param>
             /// <returns>true|false</returns>
-            public static Boolean operator < (Builder Builder1,
+            public static Boolean operator <(Builder Builder1,
                                               Builder Builder2)
             {
 
@@ -885,7 +888,7 @@ namespace social.OpenData.UsersAPI
             /// <param name="Builder1">A organization group builder.</param>
             /// <param name="Builder2">Another organization group builder.</param>
             /// <returns>true|false</returns>
-            public static Boolean operator <= (Builder Builder1,
+            public static Boolean operator <=(Builder Builder1,
                                                Builder Builder2)
 
                 => !(Builder1 > Builder2);
@@ -900,7 +903,7 @@ namespace social.OpenData.UsersAPI
             /// <param name="Builder1">A organization group builder.</param>
             /// <param name="Builder2">Another organization group builder.</param>
             /// <returns>true|false</returns>
-            public static Boolean operator > (Builder Builder1,
+            public static Boolean operator >(Builder Builder1,
                                               Builder Builder2)
             {
 
@@ -921,7 +924,7 @@ namespace social.OpenData.UsersAPI
             /// <param name="Builder1">A organization group builder.</param>
             /// <param name="Builder2">Another organization group builder.</param>
             /// <returns>true|false</returns>
-            public static Boolean operator >= (Builder Builder1,
+            public static Boolean operator >=(Builder Builder1,
                                                Builder Builder2)
 
                 => !(Builder1 < Builder2);
@@ -956,7 +959,7 @@ namespace social.OpenData.UsersAPI
             /// Compares two organization groups.
             /// </summary>
             /// <param name="OrganizationGroup">A organization group to compare with.</param>
-            public override Int32 CompareTo(OrganizationGroup? OrganizationGroup)
+            public override Int32 CompareTo(IOrganizationGroup? OrganizationGroup)
             {
 
                 if (OrganizationGroup is null)
@@ -998,7 +1001,7 @@ namespace social.OpenData.UsersAPI
             /// </summary>
             /// <param name="OrganizationGroup">A organization group to compare with.</param>
             /// <returns>True if both match; False otherwise.</returns>
-            public override Boolean Equals(OrganizationGroup? OrganizationGroup)
+            public override Boolean Equals(IOrganizationGroup? OrganizationGroup)
             {
 
                 if (OrganizationGroup is null)
@@ -1035,6 +1038,7 @@ namespace social.OpenData.UsersAPI
         }
 
         #endregion
+
 
     }
 

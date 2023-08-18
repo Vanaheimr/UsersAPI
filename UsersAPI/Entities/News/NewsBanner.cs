@@ -154,7 +154,7 @@ namespace social.OpenData.UsersAPI
         /// The author of the news banner.
         /// </summary>
         [Mandatory]
-        public User         Author                { get; }
+        public IUser        Author                { get; }
 
         /// <summary>
         /// Whether the news banner is currently hidden.
@@ -177,11 +177,11 @@ namespace social.OpenData.UsersAPI
         public NewsBanner(I18NString  Text,
                           DateTime    StartTimestamp,
                           DateTime    EndTimestamp,
-                          User        Author,
+                          IUser       Author,
                           Boolean     IsHidden     = false,
 
-                          JObject     CustomData   = default,
-                          String      DataSource   = default,
+                          JObject?    CustomData   = default,
+                          String?     DataSource   = default,
                           DateTime?   LastChange   = default)
 
             : this(NewsBanner_Id.Random(),
@@ -211,18 +211,21 @@ namespace social.OpenData.UsersAPI
                           I18NString     Text,
                           DateTime       StartTimestamp,
                           DateTime       EndTimestamp,
-                          User           Author,
+                          IUser          Author,
                           Boolean        IsHidden     = false,
 
-                          JObject        CustomData   = default,
-                          String         DataSource   = default,
+                          JObject?       CustomData   = default,
+                          String?        DataSource   = default,
                           DateTime?      LastChange   = default)
 
             : base(Id,
                    DefaultJSONLDContext,
-                   LastChange,
+                   null,
+                   null,
                    null,
                    CustomData,
+                   null,
+                   LastChange,
                    DataSource)
 
         {
@@ -383,7 +386,7 @@ namespace social.OpenData.UsersAPI
 
                 #region Parse Author            [mandatory]
 
-                User Author = null;
+                IUser? Author = null;
 
                 if (JSONObject["author"] is JObject authorJSON &&
                     authorJSON.ParseMandatory("@id",
@@ -797,7 +800,7 @@ namespace social.OpenData.UsersAPI
             /// The author of the news banner.
             /// </summary>
             [Mandatory]
-            public User         Author                { get; set; }
+            public IUser        Author                { get; set; }
 
             /// <summary>
             /// Whether the news banner is currently hidden.
@@ -819,14 +822,14 @@ namespace social.OpenData.UsersAPI
             /// <param name="Author">The author of the news banner.</param>
             /// <param name="IsHidden">Whether the news banner is currently hidden.</param>
             public Builder(NewsBanner_Id?  Id               = null,
-                           I18NString      Text             = null,
+                           I18NString?     Text             = null,
                            DateTime?       StartTimestamp   = null,
                            DateTime?       EndTimestamp     = null,
-                           User            Author           = null,
+                           IUser?          Author           = null,
                            Boolean         IsHidden         = false,
 
-                           JObject         CustomData       = default,
-                           String          DataSource       = default,
+                           JObject?        CustomData       = default,
+                           String?         DataSource       = default,
                            DateTime?       LastChange       = default)
 
                 : base(Id ?? NewsBanner_Id.Random(),
@@ -834,6 +837,7 @@ namespace social.OpenData.UsersAPI
                        LastChange,
                        null,
                        CustomData,
+                       null,
                        DataSource)
 
             {

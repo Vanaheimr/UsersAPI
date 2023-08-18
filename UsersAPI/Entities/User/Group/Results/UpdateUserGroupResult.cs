@@ -25,93 +25,298 @@ using org.GraphDefined.Vanaheimr.Hermod;
 namespace social.OpenData.UsersAPI
 {
 
-    public class UpdateUserGroupResult : AResult<UserGroup>
+    /// <summary>
+    /// The result of an update user group request.
+    /// </summary>
+    public class UpdateUserGroupResult : AEnitityResult<IUserGroup, UserGroup_Id>
     {
 
-        public UserGroup UserGroup
+        #region Properties
+
+        public IUserGroup? UserGroup
             => Object;
 
+        #endregion
 
-        public UpdateUserGroupResult(UserGroup         UserGroup,
-                                     EventTracking_Id  EventTrackingId,
-                                     Boolean           IsSuccess,
-                                     String            Argument          = null,
-                                     I18NString        ErrorDescription  = null)
+        #region Constructor(s)
+
+        public UpdateUserGroupResult(IUserGroup             UserGroup,
+                                     CommandResult          Result,
+                                     EventTracking_Id?      EventTrackingId   = null,
+                                     IId?                   SenderId          = null,
+                                     Object?                Sender            = null,
+                                     I18NString?            Description       = null,
+                                     IEnumerable<Warning>?  Warnings          = null,
+                                     TimeSpan?              Runtime           = null)
 
             : base(UserGroup,
+                   Result,
                    EventTrackingId,
-                   IsSuccess,
-                   Argument,
-                   ErrorDescription)
+                   SenderId,
+                   Sender,
+                   Description,
+                   Warnings,
+                   Runtime)
 
         { }
 
 
-        public static UpdateUserGroupResult Success(UserGroup         UserGroup,
-                                                    EventTracking_Id  EventTrackingId)
 
-            => new UpdateUserGroupResult(UserGroup,
-                                         EventTrackingId,
-                                         true,
-                                         null,
-                                         null);
+        public UpdateUserGroupResult(UserGroup_Id           UserGroupId,
+                                     CommandResult          Result,
+                                     EventTracking_Id?      EventTrackingId   = null,
+                                     IId?                   SenderId          = null,
+                                     Object?                Sender            = null,
+                                     I18NString?            Description       = null,
+                                     IEnumerable<Warning>?  Warnings          = null,
+                                     TimeSpan?              Runtime           = null)
 
+            : base(UserGroupId,
+                   Result,
+                   EventTrackingId,
+                   SenderId,
+                   Sender,
+                   Description,
+                   Warnings,
+                   Runtime)
 
-        public static UpdateUserGroupResult ArgumentError(UserGroup         UserGroup,
-                                                          EventTracking_Id  EventTrackingId,
-                                                          String            Argument,
-                                                          String            Description)
+        { }
 
-            => new UpdateUserGroupResult(UserGroup,
-                                         EventTrackingId,
-                                         false,
-                                         Argument,
-                                         I18NString.Create(Languages.en,
-                                                           Description));
-
-        public static UpdateUserGroupResult ArgumentError(UserGroup         UserGroup,
-                                                          EventTracking_Id  EventTrackingId,
-                                                          String            Argument,
-                                                          I18NString        Description)
-
-            => new UpdateUserGroupResult(UserGroup,
-                                         EventTrackingId,
-                                         false,
-                                         Argument,
-                                         Description);
+        #endregion
 
 
-        public static UpdateUserGroupResult Failed(UserGroup         UserGroup,
-                                                   EventTracking_Id  EventTrackingId,
-                                                   String            Description)
+        #region (static) AdminDown    (UserGroup, ...)
 
-            => new UpdateUserGroupResult(UserGroup,
-                                         EventTrackingId,
-                                         false,
-                                         null,
-                                         I18NString.Create(Languages.en,
-                                                           Description));
+        public static UpdateUserGroupResult
 
-        public static UpdateUserGroupResult Failed(UserGroup         UserGroup,
-                                                   EventTracking_Id  EventTrackingId,
-                                                   I18NString        Description)
+            AdminDown(IUserGroup             UserGroup,
+                      EventTracking_Id?      EventTrackingId   = null,
+                      IId?                   SenderId          = null,
+                      Object?                Sender            = null,
+                      I18NString?            Description       = null,
+                      IEnumerable<Warning>?  Warnings          = null,
+                      TimeSpan?              Runtime           = null)
 
-            => new UpdateUserGroupResult(UserGroup,
-                                         EventTrackingId,
-                                         false,
-                                         null,
-                                         Description);
+                => new (UserGroup,
+                        CommandResult.AdminDown,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Description,
+                        Warnings,
+                        Runtime);
 
-        public static UpdateUserGroupResult Failed(UserGroup         UserGroup,
-                                                   EventTracking_Id  EventTrackingId,
-                                                   Exception         Exception)
+        #endregion
 
-            => new UpdateUserGroupResult(UserGroup,
-                                         EventTrackingId,
-                                         false,
-                                         null,
-                                         I18NString.Create(Languages.en,
-                                                           Exception.Message));
+        #region (static) NoOperation  (UserGroup, ...)
+
+        public static UpdateUserGroupResult
+
+            NoOperation(IUserGroup             UserGroup,
+                        EventTracking_Id?      EventTrackingId   = null,
+                        IId?                   SenderId          = null,
+                        Object?                Sender            = null,
+                        I18NString?            Description       = null,
+                        IEnumerable<Warning>?  Warnings          = null,
+                        TimeSpan?              Runtime           = null)
+
+                => new (UserGroup,
+                        CommandResult.NoOperation,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+
+        #region (static) Enqueued     (UserGroup, ...)
+
+        public static UpdateUserGroupResult
+
+            Enqueued(IUserGroup             UserGroup,
+                     EventTracking_Id?      EventTrackingId   = null,
+                     IId?                   SenderId          = null,
+                     Object?                Sender            = null,
+                     I18NString?            Description       = null,
+                     IEnumerable<Warning>?  Warnings          = null,
+                     TimeSpan?              Runtime           = null)
+
+                => new (UserGroup,
+                        CommandResult.Enqueued,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) Success      (UserGroup, ...)
+
+        public static UpdateUserGroupResult
+
+            Success(IUserGroup             UserGroup,
+                    EventTracking_Id?      EventTrackingId   = null,
+                    IId?                   SenderId          = null,
+                    Object?                Sender            = null,
+                    I18NString?            Description       = null,
+                    IEnumerable<Warning>?  Warnings          = null,
+                    TimeSpan?              Runtime           = null)
+
+                => new (UserGroup,
+                        CommandResult.Success,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+
+        #region (static) ArgumentError(UserGroup,   Description, ...)
+
+        public static UpdateUserGroupResult
+
+            ArgumentError(IUserGroup             UserGroup,
+                          I18NString             Description,
+                          EventTracking_Id?      EventTrackingId   = null,
+                          IId?                   SenderId          = null,
+                          Object?                Sender            = null,
+                          IEnumerable<Warning>?  Warnings          = null,
+                          TimeSpan?              Runtime           = null)
+
+                => new (UserGroup,
+                        CommandResult.ArgumentError,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) ArgumentError(UserGroupId, Description, ...)
+
+        public static UpdateUserGroupResult
+
+            ArgumentError(UserGroup_Id           UserGroupId,
+                          I18NString             Description,
+                          EventTracking_Id?      EventTrackingId   = null,
+                          IId?                   SenderId          = null,
+                          Object?                Sender            = null,
+                          IEnumerable<Warning>?  Warnings          = null,
+                          TimeSpan?              Runtime           = null)
+
+                => new (UserGroupId,
+                        CommandResult.ArgumentError,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) Error        (UserGroup,   Description, ...)
+
+        public static UpdateUserGroupResult
+
+            Error(IUserGroup             UserGroup,
+                  I18NString             Description,
+                  EventTracking_Id?      EventTrackingId   = null,
+                  IId?                   SenderId          = null,
+                  Object?                Sender            = null,
+                  IEnumerable<Warning>?  Warnings          = null,
+                  TimeSpan?              Runtime           = null)
+
+                => new (UserGroup,
+                        CommandResult.Error,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) Error        (UserGroup,   Exception,   ...)
+
+        public static UpdateUserGroupResult
+
+            Error(IUserGroup             UserGroup,
+                  Exception              Exception,
+                  EventTracking_Id?      EventTrackingId   = null,
+                  IId?                   SenderId          = null,
+                  Object?                Sender            = null,
+                  IEnumerable<Warning>?  Warnings          = null,
+                  TimeSpan?              Runtime           = null)
+
+                => new (UserGroup,
+                        CommandResult.Error,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Exception.Message.ToI18NString(),
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) Timeout      (UserGroup,   Timeout,     ...)
+
+        public static UpdateUserGroupResult
+
+            Timeout(IUserGroup             UserGroup,
+                    TimeSpan               Timeout,
+                    EventTracking_Id?      EventTrackingId   = null,
+                    IId?                   SenderId          = null,
+                    Object?                Sender            = null,
+                    IEnumerable<Warning>?  Warnings          = null,
+                    TimeSpan?              Runtime           = null)
+
+                => new (UserGroup,
+                        CommandResult.Timeout,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        $"Timeout after {Timeout.TotalSeconds} seconds!".ToI18NString(),
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) LockTimeout  (UserGroup,   Timeout,     ...)
+
+        public static UpdateUserGroupResult
+
+            LockTimeout(IUserGroup             UserGroup,
+                        TimeSpan               Timeout,
+                        EventTracking_Id?      EventTrackingId   = null,
+                        IId?                   SenderId          = null,
+                        Object?                Sender            = null,
+                        IEnumerable<Warning>?  Warnings          = null,
+                        TimeSpan?              Runtime           = null)
+
+                => new (UserGroup,
+                        CommandResult.LockTimeout,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        $"Lock timeout after {Timeout.TotalSeconds} seconds!".ToI18NString(),
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
 
     }
 

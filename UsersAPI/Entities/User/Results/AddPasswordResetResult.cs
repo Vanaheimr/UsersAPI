@@ -165,7 +165,7 @@ namespace social.OpenData.UsersAPI
                           I18NString             Description,
                           EventTracking_Id?      EventTrackingId   = null,
                           IId?                   SenderId          = null,
-                          IOrganization?         Organization      = null,
+                          Object?                Sender            = null,
                           IEnumerable<Warning>?  Warnings          = null,
                           TimeSpan?              Runtime           = null)
 

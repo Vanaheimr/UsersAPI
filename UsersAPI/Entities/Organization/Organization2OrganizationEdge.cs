@@ -34,7 +34,7 @@ namespace social.OpenData.UsersAPI
     }
 
 
-    public class Organization2OrganizationEdge : MiniEdge<Organization, Organization2OrganizationEdgeLabel, Organization>
+    public class Organization2OrganizationEdge : MiniEdge<IOrganization, Organization2OrganizationEdgeLabel, IOrganization>
     {
 
         /// <summary>
@@ -45,9 +45,9 @@ namespace social.OpenData.UsersAPI
         /// <param name="OrganizationB">The target of the edge</param>
         /// <param name="PrivacyLevel">The level of privacy of this edge.</param>
         /// <param name="Created">The creation timestamp of the miniedge.</param>
-        public Organization2OrganizationEdge(Organization                        OrganizationA,
+        public Organization2OrganizationEdge(IOrganization                       OrganizationA,
                                              Organization2OrganizationEdgeLabel  EdgeLabel,
-                                             Organization                        OrganizationB,
+                                             IOrganization                       OrganizationB,
                                              PrivacyLevel                        PrivacyLevel  = PrivacyLevel.Private,
                                              DateTime?                           Created       = null)
 

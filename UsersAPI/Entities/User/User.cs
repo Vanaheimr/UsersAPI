@@ -291,9 +291,9 @@ namespace social.OpenData.UsersAPI
 
         public User2UserEdge
 
-            AddIncomingEdge(User            SourceUser,
+            AddIncomingEdge(IUser               SourceUser,
                             User2UserEdgeTypes  EdgeLabel,
-                            PrivacyLevel    PrivacyLevel = PrivacyLevel.World)
+                            PrivacyLevel        PrivacyLevel = PrivacyLevel.World)
 
             => _User2User_Edges.AddAndReturnElement(new User2UserEdge(SourceUser, EdgeLabel, this, PrivacyLevel));
 
@@ -314,8 +314,8 @@ namespace social.OpenData.UsersAPI
         public User2UserEdge
 
             AddOutgoingEdge(User2UserEdgeTypes  EdgeLabel,
-                            User            Target,
-                            PrivacyLevel    PrivacyLevel = PrivacyLevel.World)
+                            IUser               Target,
+                            PrivacyLevel        PrivacyLevel = PrivacyLevel.World)
 
             => _User2User_Edges.AddAndReturnElement(new User2UserEdge(this, EdgeLabel, Target, PrivacyLevel));
 
@@ -327,7 +327,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// The gemini of this user.
         /// </summary>
-        public IEnumerable<User> Genimi
+        public IEnumerable<IUser> Genimi
         {
             get
             {
@@ -344,7 +344,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// This user follows this other users.
         /// </summary>
-        public IEnumerable<User> FollowsUsers
+        public IEnumerable<IUser> FollowsUsers
         {
             get
             {
@@ -361,7 +361,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// This user is followed by this other users.
         /// </summary>
-        public IEnumerable<User> IsFollowedBy
+        public IEnumerable<IUser> IsFollowedBy
         {
             get
             {
@@ -402,7 +402,7 @@ namespace social.OpenData.UsersAPI
         public User2OrganizationEdge
 
             AddOutgoingEdge(User2OrganizationEdgeLabel  EdgeLabel,
-                            Organization                Target,
+                            IOrganization               Target,
                             PrivacyLevel                PrivacyLevel = PrivacyLevel.World)
 
             => _User2Organization_Edges.AddAndReturnElement(new User2OrganizationEdge(this, EdgeLabel, Target, PrivacyLevel));
@@ -412,8 +412,8 @@ namespace social.OpenData.UsersAPI
         public User2UserGroupEdge
 
             AddToUserGroup(User2UserGroupEdgeLabel  EdgeLabel,
-                            UserGroup            Target,
-                            PrivacyLevel         PrivacyLevel = PrivacyLevel.World)
+                           IUserGroup               Target,
+                           PrivacyLevel             PrivacyLevel = PrivacyLevel.World)
 
             => _User2UserGroup_Edges.AddAndReturnElement(new User2UserGroupEdge(this, EdgeLabel, Target, PrivacyLevel));
 
@@ -428,7 +428,7 @@ namespace social.OpenData.UsersAPI
         /// All organizations this user belongs to,
         /// filtered by the given edge label.
         /// </summary>
-        public IEnumerable<User2OrganizationEdgeLabel> EdgeLabels(Organization Organization)
+        public IEnumerable<User2OrganizationEdgeLabel> EdgeLabels(IOrganization Organization)
 
             => _User2Organization_Edges.
                    Where (edge => edge.Target == Organization).
@@ -442,7 +442,7 @@ namespace social.OpenData.UsersAPI
         /// All organizations this user belongs to,
         /// filtered by the given edge label.
         /// </summary>
-        public IEnumerable<User2OrganizationEdge> Edges(Organization Organization)
+        public IEnumerable<User2OrganizationEdge> Edges(IOrganization Organization)
 
             => _User2Organization_Edges.
                    Where(edge => edge.Target == Organization);
@@ -455,7 +455,7 @@ namespace social.OpenData.UsersAPI
         /// All organizations this user belongs to,
         /// filtered by the given edge label.
         /// </summary>
-        public IEnumerable<User2OrganizationEdge> Edges(Organization                Organization,
+        public IEnumerable<User2OrganizationEdge> Edges(IOrganization               Organization,
                                                         User2OrganizationEdgeLabel  EdgeLabel)
 
             => _User2Organization_Edges.
@@ -467,7 +467,7 @@ namespace social.OpenData.UsersAPI
 
         #region ParentOrganizations()
 
-        public IEnumerable<Organization> ParentOrganizations()
+        public IEnumerable<IOrganization> ParentOrganizations()
 
             => _User2Organization_Edges.
                    Where(edge  => edge.EdgeLabel == User2OrganizationEdgeLabel.IsAdmin  ||
@@ -480,11 +480,11 @@ namespace social.OpenData.UsersAPI
 
         #region Organizations(RequireAdminAccess, RequireReadWriteAccess, Recursive = true)
 
-        public IEnumerable<Organization> Organizations(Access_Levels  AccessLevel,
-                                                       Boolean        Recursive = true)
+        public IEnumerable<IOrganization> Organizations(Access_Levels  AccessLevel,
+                                                        Boolean        Recursive = true)
         {
 
-            var allMyOrganizations = new HashSet<Organization>();
+            var allMyOrganizations = new HashSet<IOrganization>();
 
             switch (AccessLevel)
             {
@@ -534,7 +534,7 @@ namespace social.OpenData.UsersAPI
             if (Recursive)
             {
 
-                Organization[] Level2 = null;
+                IOrganization[]? Level2 = null;
 
                 do
                 {
@@ -562,7 +562,7 @@ namespace social.OpenData.UsersAPI
         #region HasAccessToOrganization(AccessLevel, Organization,   Recursive = true)
 
         public Boolean HasAccessToOrganization(Access_Levels  AccessLevel,
-                                               Organization   Organization,
+                                               IOrganization  Organization,
                                                Boolean        Recursive = true)
 
             => !(Organization is null) &&
@@ -616,7 +616,7 @@ namespace social.OpenData.UsersAPI
         /// All groups this user belongs to,
         /// filtered by the given edge label.
         /// </summary>
-        public IEnumerable<UserGroup> UserGroups(User2UserGroupEdgeLabel EdgeFilter)
+        public IEnumerable<IUserGroup> UserGroups(User2UserGroupEdgeLabel EdgeFilter)
 
             => _User2UserGroup_Edges.
                    Where(edge => edge.EdgeLabel == EdgeFilter).
@@ -626,8 +626,8 @@ namespace social.OpenData.UsersAPI
 
         #region UserGroups(RequireReadWriteAccess = false, Recursive = false)
 
-        public IEnumerable<UserGroup> UserGroups(Boolean RequireReadWriteAccess = false,
-                                                 Boolean Recursive = false)
+        public IEnumerable<IUserGroup> UserGroups(Boolean RequireReadWriteAccess = false,
+                                                  Boolean Recursive = false)
         {
 
             var _Groups = RequireReadWriteAccess
@@ -667,7 +667,7 @@ namespace social.OpenData.UsersAPI
 
             //}
 
-            return new HashSet<UserGroup>(_Groups);
+            return new HashSet<IUserGroup>(_Groups);
 
         }
 
@@ -845,43 +845,55 @@ namespace social.OpenData.UsersAPI
 
         private readonly NotificationStore notificationStore;
 
-        #region (internal) AddNotification(Notification,                           OnUpdate = null)
+        #region AddNotification(Notification,                           OnUpdate = null)
 
-        internal T AddNotification<T>(T Notification,
-                                      Action<T> OnUpdate = null)
+        public T AddNotification<T>(T           Notification,
+                                    Action<T>?  OnUpdate   = null)
 
             where T : ANotification
 
             => notificationStore.Add(Notification,
-                                  OnUpdate);
+                                     OnUpdate);
 
         #endregion
 
-        #region (internal) AddNotification(Notification, NotificationMessageType,  OnUpdate = null)
+        #region AddNotification(Notification, NotificationMessageType,  OnUpdate = null)
 
-        internal T AddNotification<T>(T Notification,
-                                      NotificationMessageType NotificationMessageType,
-                                      Action<T> OnUpdate = null)
+        public T AddNotification<T>(T                        Notification,
+                                    NotificationMessageType  NotificationMessageType,
+                                    Action<T>?               OnUpdate   = null)
 
             where T : ANotification
 
             => notificationStore.Add(Notification,
-                                  NotificationMessageType,
-                                  OnUpdate);
+                                     NotificationMessageType,
+                                     OnUpdate);
 
         #endregion
 
         #region (internal) AddNotification(Notification, NotificationMessageTypes, OnUpdate = null)
 
-        internal T AddNotification<T>(T Notification,
-                                      IEnumerable<NotificationMessageType> NotificationMessageTypes,
-                                      Action<T> OnUpdate = null)
+        public T AddNotification<T>(T                                     Notification,
+                                    IEnumerable<NotificationMessageType>  NotificationMessageTypes,
+                                    Action<T>?                            OnUpdate = null)
 
             where T : ANotification
 
             => notificationStore.Add(Notification,
-                                  NotificationMessageTypes,
-                                  OnUpdate);
+                                     NotificationMessageTypes,
+                                     OnUpdate);
+
+        #endregion
+
+        #region RemoveNotification(NotificationType,                           OnRemoval = null)
+
+        public Task RemoveNotification<T>(T           NotificationType,
+                                          Action<T>?  OnRemoval   = null)
+
+            where T : ANotification
+
+            => notificationStore.Remove(NotificationType,
+                                        OnRemoval);
 
         #endregion
 
@@ -984,19 +996,6 @@ namespace social.OpenData.UsersAPI
 
                                  )),
                                  new JProperty("notifications", notificationStore.ToJSON()));
-
-        #endregion
-
-
-        #region (internal) RemoveNotification(NotificationType,                           OnRemoval = null)
-
-        internal Task RemoveNotification<T>(T NotificationType,
-                                            Action<T> OnRemoval = null)
-
-            where T : ANotification
-
-            => notificationStore.Remove(NotificationType,
-                                         OnRemoval);
 
         #endregion
 
@@ -1487,6 +1486,9 @@ namespace social.OpenData.UsersAPI
 
         #region CopyAllLinkedDataFrom(OldUser)
 
+        public void CopyAllLinkedDataFrom(IUser OldUser)
+            => CopyAllLinkedDataFrom(OldUser as User);
+
         public override void CopyAllLinkedDataFrom(User OldUser)
         {
 
@@ -1936,11 +1938,11 @@ namespace social.OpenData.UsersAPI
 
             public User2UserEdge
 
-                AddIncomingEdge(User                SourceUser,
+                AddIncomingEdge(IUser               SourceUser,
                                 User2UserEdgeTypes  EdgeLabel,
                                 PrivacyLevel        PrivacyLevel = PrivacyLevel.World)
 
-                => _User2UserEdges.AddAndReturnElement(new User2UserEdge(SourceUser, EdgeLabel, this, PrivacyLevel));
+                => _User2UserEdges.AddAndReturnElement(new User2UserEdge(SourceUser, EdgeLabel, this.ToImmutable, PrivacyLevel));
 
             #endregion
 
@@ -1959,10 +1961,10 @@ namespace social.OpenData.UsersAPI
             public User2UserEdge
 
                 AddOutgoingEdge(User2UserEdgeTypes  EdgeLabel,
-                                User            Target,
-                                PrivacyLevel    PrivacyLevel = PrivacyLevel.World)
+                                IUser               Target,
+                                PrivacyLevel        PrivacyLevel = PrivacyLevel.World)
 
-                => _User2UserEdges.AddAndReturnElement(new User2UserEdge(this, EdgeLabel, Target, PrivacyLevel));
+                => _User2UserEdges.AddAndReturnElement(new User2UserEdge(this.ToImmutable, EdgeLabel, Target, PrivacyLevel));
 
             #endregion
 
@@ -1995,18 +1997,18 @@ namespace social.OpenData.UsersAPI
             public User2OrganizationEdge
 
                 AddOutgoingEdge(User2OrganizationEdgeLabel  EdgeLabel,
-                                Organization            Target,
-                                PrivacyLevel            PrivacyLevel = PrivacyLevel.World)
+                                IOrganization               Target,
+                                PrivacyLevel                PrivacyLevel = PrivacyLevel.World)
 
-                => _User2Organization_OutEdges.AddAndReturnElement(new User2OrganizationEdge(this, EdgeLabel, Target, PrivacyLevel));
+                => _User2Organization_OutEdges.AddAndReturnElement(new User2OrganizationEdge(this.ToImmutable, EdgeLabel, Target, PrivacyLevel));
 
 
 
             public User2UserGroupEdge
 
-                AddOutgoingEdge(User2UserGroupEdgeLabel EdgeLabel,
-                                UserGroup           Target,
-                                PrivacyLevel    PrivacyLevel = PrivacyLevel.World)
+                AddOutgoingEdge(User2UserGroupEdgeLabel  EdgeLabel,
+                                UserGroup                Target,
+                                PrivacyLevel             PrivacyLevel = PrivacyLevel.World)
 
                 => _User2Group_OutEdges.AddAndReturnElement(new User2UserGroupEdge(this.ToImmutable, EdgeLabel, Target, PrivacyLevel));
 
@@ -2017,11 +2019,11 @@ namespace social.OpenData.UsersAPI
 
             #region Organizations(RequireAdminAccess, RequireReadWriteAccess, Recursive)
 
-            public IEnumerable<Organization> Organizations(Access_Levels  AccessLevel,
-                                                           Boolean        Recursive)
+            public IEnumerable<IOrganization> Organizations(Access_Levels  AccessLevel,
+                                                            Boolean        Recursive)
             {
 
-                var AllMyOrganizations = new HashSet<Organization>();
+                var AllMyOrganizations = new HashSet<IOrganization>();
 
                 switch (AccessLevel)
                 {
@@ -2062,7 +2064,7 @@ namespace social.OpenData.UsersAPI
                 if (Recursive)
                 {
 
-                    Organization[]? Level2 = null;
+                    IOrganization[]? Level2 = null;
 
                     do
                     {
@@ -2118,8 +2120,8 @@ namespace social.OpenData.UsersAPI
 
             #region Groups(RequireReadWriteAccess = false, Recursive = false)
 
-            public IEnumerable<UserGroup> Groups(Boolean RequireReadWriteAccess  = false,
-                                                 Boolean Recursive               = false)
+            public IEnumerable<IUserGroup> Groups(Boolean  RequireReadWriteAccess   = false,
+                                                  Boolean  Recursive                = false)
             {
 
                 var _Groups = RequireReadWriteAccess
@@ -2159,7 +2161,7 @@ namespace social.OpenData.UsersAPI
 
                 //}
 
-                return new HashSet<UserGroup>(_Groups);
+                return new HashSet<IUserGroup>(_Groups);
 
             }
 
@@ -2176,7 +2178,7 @@ namespace social.OpenData.UsersAPI
             /// <summary>
             /// The gemini of this user.
             /// </summary>
-            public IEnumerable<User> Genimi
+            public IEnumerable<IUser> Genimi
             {
                 get
                 {
@@ -2193,7 +2195,7 @@ namespace social.OpenData.UsersAPI
             /// <summary>
             /// This user follows this other users.
             /// </summary>
-            public IEnumerable<User> FollowsUsers
+            public IEnumerable<IUser> FollowsUsers
             {
                 get
                 {
@@ -2210,7 +2212,7 @@ namespace social.OpenData.UsersAPI
             /// <summary>
             /// This user is followed by this other users.
             /// </summary>
-            public IEnumerable<User> IsFollowedBy
+            public IEnumerable<IUser> IsFollowedBy
             {
                 get
                 {
@@ -2227,7 +2229,7 @@ namespace social.OpenData.UsersAPI
             /// <summary>
             /// All groups this user belongs to.
             /// </summary>
-            public IEnumerable<UserGroup> Groups()
+            public IEnumerable<IUserGroup> Groups()
                 => _User2Group_OutEdges.
                        Select(edge => edge.Target);
 
@@ -2239,7 +2241,7 @@ namespace social.OpenData.UsersAPI
             /// All groups this user belongs to,
             /// filtered by the given edge label.
             /// </summary>
-            public IEnumerable<UserGroup> Groups(User2UserGroupEdgeLabel EdgeFilter)
+            public IEnumerable<IUserGroup> Groups(User2UserGroupEdgeLabel EdgeFilter)
                 => _User2Group_OutEdges.
                        Where (edge => edge.EdgeLabel == EdgeFilter).
                        Select(edge => edge.Target);
@@ -2539,6 +2541,9 @@ namespace social.OpenData.UsersAPI
 
             #region CopyAllLinkedDataFrom(OldUser)
 
+            public void CopyAllLinkedDataFrom(IUser OldUser)
+                => CopyAllLinkedDataFrom(OldUser as User);
+
             public override void CopyAllLinkedDataFrom(User OldUser)
             {
 
@@ -2548,7 +2553,7 @@ namespace social.OpenData.UsersAPI
                     Add(OldUser.__User2UserEdges);
 
                     foreach (var edge in __User2UserEdges)
-                        edge.Source = this;
+                        edge.Source = this.ToImmutable;
 
                 }
 
@@ -2558,7 +2563,7 @@ namespace social.OpenData.UsersAPI
                     Add(OldUser.User2Organization_OutEdges);
 
                     foreach (var edge in User2Organization_OutEdges)
-                        edge.Source = this;
+                        edge.Source = this.ToImmutable;
 
                 }
 
@@ -2862,6 +2867,7 @@ namespace social.OpenData.UsersAPI
         }
 
         #endregion
+
 
     }
 

@@ -25,49 +25,41 @@ using org.GraphDefined.Vanaheimr.Hermod;
 namespace social.OpenData.UsersAPI
 {
 
+    /// <summary>
+    /// The result of a reset password request.
+    /// </summary>
     public class ResetPasswordResult : AResult<IEnumerable<IUser>>
     {
 
-        public IUser? User
-            => Object?.FirstOrDefault();
+        #region Properties
 
-        public IEnumerable<IUser> Users
+        public IEnumerable<IUser>  Users
             => Object ?? Array.Empty<IUser>();
 
-        public PasswordReset?  PasswordReset    { get; internal set; }
+        public PasswordReset?      PasswordReset    { get; internal set; }
 
+        #endregion
 
-        public ResetPasswordResult(IUser             User,
-                                   EventTracking_Id  EventTrackingId,
-                                   Boolean           IsSuccess,
-                                   String?           Argument           = null,
-                                   I18NString?       ErrorDescription   = null,
-                                   PasswordReset?    PasswordReset      = null)
+        #region Constructor(s)
 
-            : base(new[] { User },
-                   EventTrackingId,
-                   IsSuccess,
-                   Argument,
-                   ErrorDescription)
-
-        {
-
-            this.PasswordReset = PasswordReset;
-
-        }
-
-        public ResetPasswordResult(IEnumerable<IUser>  Users,
-                                   EventTracking_Id   EventTrackingId,
-                                   Boolean            IsSuccess,
-                                   String?            Argument           = null,
-                                   I18NString?        ErrorDescription   = null,
-                                   PasswordReset?     PasswordReset      = null)
+        public ResetPasswordResult(IEnumerable<IUser>     Users,
+                                   CommandResult          Result,
+                                   EventTracking_Id?      EventTrackingId   = null,
+                                   IId?                   SenderId          = null,
+                                   Object?                Sender            = null,
+                                   PasswordReset?         PasswordReset     = null,
+                                   I18NString?            Description       = null,
+                                   IEnumerable<Warning>?  Warnings          = null,
+                                   TimeSpan?              Runtime           = null)
 
             : base(Users,
+                   Result,
                    EventTrackingId,
-                   IsSuccess,
-                   Argument,
-                   ErrorDescription)
+                   SenderId,
+                   Sender,
+                   Description,
+                   Warnings,
+                   Runtime)
 
         {
 
@@ -75,164 +67,236 @@ namespace social.OpenData.UsersAPI
 
         }
 
-
-        public static ResetPasswordResult Success(User              User,
-                                                  EventTracking_Id  EventTrackingId,
-                                                  PasswordReset?    PasswordReset   = null)
-
-            => new (User,
-                    EventTrackingId,
-                    true,
-                    null,
-                    null,
-                    PasswordReset);
-
-        public static ResetPasswordResult Success(IEnumerable<User>  Users,
-                                                  EventTracking_Id   EventTrackingId,
-                                                  PasswordReset?     PasswordReset   = null)
-
-            => new (Users,
-                    EventTrackingId,
-                    true,
-                    null,
-                    null,
-                    PasswordReset);
+        #endregion
 
 
-        public static ResetPasswordResult ArgumentError(User              User,
-                                                        EventTracking_Id  EventTrackingId,
-                                                        String            Argument,
-                                                        String            Description)
+        #region (static) AdminDown    (User, ...)
 
-            => new (User,
-                    EventTrackingId,
-                    false,
-                    Argument,
-                    I18NString.Create(
-                        Languages.en,
-                        Description
-                    ));
+        public static ResetPasswordResult
 
-        public static ResetPasswordResult ArgumentError(IEnumerable<User>  Users,
-                                                        EventTracking_Id   EventTrackingId,
-                                                        String             Argument,
-                                                        String             Description)
+            AdminDown(IEnumerable<IUser>     Users,
+                      EventTracking_Id?      EventTrackingId      = null,
+                      IId?                   SenderId             = null,
+                      Object?                Sender               = null,
+                      PasswordReset?         PasswordReset        = null,
+                      I18NString?            Description          = null,
+                      IEnumerable<Warning>?  Warnings             = null,
+                      TimeSpan?              Runtime              = null)
 
-            => new (Users,
-                    EventTrackingId,
-                    false,
-                    Argument,
-                    I18NString.Create(
-                        Languages.en,
-                        Description
-                    ));
+                => new (Users,
+                        CommandResult.AdminDown,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        PasswordReset,
+                        Description,
+                        Warnings,
+                        Runtime);
 
-        public static ResetPasswordResult ArgumentError(User              User,
-                                                        EventTracking_Id  EventTrackingId,
-                                                        String            Argument,
-                                                        I18NString        Description)
+        #endregion
 
-            => new (User,
-                    EventTrackingId,
-                    false,
-                    Argument,
-                    Description);
+        #region (static) NoOperation  (User, ...)
 
-        public static ResetPasswordResult ArgumentError(IEnumerable<User>  Users,
-                                                        EventTracking_Id   EventTrackingId,
-                                                        String             Argument,
-                                                        I18NString         Description)
+        public static ResetPasswordResult
 
-            => new (Users,
-                    EventTrackingId,
-                    false,
-                    Argument,
-                    Description);
+            NoOperation(IEnumerable<IUser>     Users,
+                        EventTracking_Id?      EventTrackingId      = null,
+                        IId?                   SenderId             = null,
+                        Object?                Sender               = null,
+                        PasswordReset?         PasswordReset        = null,
+                        I18NString?            Description          = null,
+                        IEnumerable<Warning>?  Warnings             = null,
+                        TimeSpan?              Runtime              = null)
+
+                => new (Users,
+                        CommandResult.NoOperation,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        PasswordReset,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
 
 
-        public static ResetPasswordResult Failed(User              User,
-                                                 EventTracking_Id  EventTrackingId,
-                                                 String            Description,
-                                                 PasswordReset?    PasswordReset   = null)
+        #region (static) Enqueued     (User, ...)
 
-            => new (User,
-                    EventTrackingId,
-                    false,
-                    null,
-                    I18NString.Create(
-                        Languages.en,
-                        Description
-                    ),
-                    PasswordReset);
+        public static ResetPasswordResult
 
-        public static ResetPasswordResult Failed(IEnumerable<User>  Users,
-                                                 EventTracking_Id   EventTrackingId,
-                                                 String             Description,
-                                                 PasswordReset?     PasswordReset   = null)
+            Enqueued(IEnumerable<IUser>     Users,
+                     EventTracking_Id?      EventTrackingId      = null,
+                     IId?                   SenderId             = null,
+                     Object?                Sender               = null,
+                     PasswordReset?         PasswordReset        = null,
+                     I18NString?            Description          = null,
+                     IEnumerable<Warning>?  Warnings             = null,
+                     TimeSpan?              Runtime              = null)
 
-            => new (Users,
-                    EventTrackingId,
-                    false,
-                    null,
-                    I18NString.Create(
-                        Languages.en,
-                        Description
-                    ),
-                    PasswordReset);
+                => new (Users,
+                        CommandResult.Enqueued,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        PasswordReset,
+                        Description,
+                        Warnings,
+                        Runtime);
 
-        public static ResetPasswordResult Failed(User              User,
-                                                 EventTracking_Id  EventTrackingId,
-                                                 I18NString        Description,
-                                                 PasswordReset?    PasswordReset   = null)
+        #endregion
 
-            => new (User,
-                    EventTrackingId,
-                    false,
-                    null,
-                    Description,
-                    PasswordReset);
+        #region (static) Success      (User, ...)
 
-        public static ResetPasswordResult Failed(IEnumerable<User>  Users,
-                                                 EventTracking_Id   EventTrackingId,
-                                                 I18NString         Description,
-                                                 PasswordReset?     PasswordReset   = null)
+        public static ResetPasswordResult
 
-            => new (Users,
-                    EventTrackingId,
-                    false,
-                    null,
-                    Description,
-                    PasswordReset);
+            Success(IEnumerable<IUser>     Users,
+                    EventTracking_Id?      EventTrackingId      = null,
+                    IId?                   SenderId             = null,
+                    Object?                Sender               = null,
+                    PasswordReset?         PasswordReset        = null,
+                    I18NString?            Description          = null,
+                    IEnumerable<Warning>?  Warnings             = null,
+                    TimeSpan?              Runtime              = null)
 
-        public static ResetPasswordResult Failed(User              User,
-                                                 EventTracking_Id  EventTrackingId,
-                                                 Exception         Exception,
-                                                 PasswordReset?    PasswordReset   = null)
+                => new (Users,
+                        CommandResult.Success,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        PasswordReset,
+                        Description,
+                        Warnings,
+                        Runtime);
 
-            => new (User,
-                    EventTrackingId,
-                    false,
-                    null,
-                    I18NString.Create(
-                        Languages.en,
-                        Exception.Message
-                    ),
-                    PasswordReset);
+        #endregion
 
-        public static ResetPasswordResult Failed(IEnumerable<User>  Users,
-                                                 EventTracking_Id   EventTrackingId,
-                                                 Exception          Exception,
-                                                 PasswordReset?     PasswordReset   = null)
 
-            => new (Users,
-                    EventTrackingId,
-                    false,
-                    null,
-                    I18NString.Create(
-                        Languages.en,
-                        Exception.Message
-                    ),
-                    PasswordReset);
+        #region (static) ArgumentError(User, Description, ...)
+
+        public static ResetPasswordResult
+
+            ArgumentError(IEnumerable<IUser>     Users,
+                          I18NString             Description,
+                          EventTracking_Id?      EventTrackingId      = null,
+                          IId?                   SenderId             = null,
+                          Object?                Sender               = null,
+                          PasswordReset?         PasswordReset        = null,
+                          IEnumerable<Warning>?  Warnings             = null,
+                          TimeSpan?              Runtime              = null)
+
+                => new (Users,
+                        CommandResult.ArgumentError,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        PasswordReset,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) Error        (User, Description, ...)
+
+        public static ResetPasswordResult
+
+            Error(IEnumerable<IUser>     Users,
+                  I18NString             Description,
+                  EventTracking_Id?      EventTrackingId      = null,
+                  IId?                   SenderId             = null,
+                  Object?                Sender               = null,
+                  PasswordReset?         PasswordReset        = null,
+                  IEnumerable<Warning>?  Warnings             = null,
+                  TimeSpan?              Runtime              = null)
+
+                => new (Users,
+                        CommandResult.Error,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        PasswordReset,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) Error        (User, Exception,   ...)
+
+        public static ResetPasswordResult
+
+            Error(IEnumerable<IUser>     Users,
+                  Exception              Exception,
+                  EventTracking_Id?      EventTrackingId      = null,
+                  IId?                   SenderId             = null,
+                  Object?                Sender               = null,
+                  PasswordReset?         PasswordReset        = null,
+                  IEnumerable<Warning>?  Warnings             = null,
+                  TimeSpan?              Runtime              = null)
+
+                => new (Users,
+                        CommandResult.Error,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        PasswordReset,
+                        Exception.Message.ToI18NString(),
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) Timeout      (User, Timeout,     ...)
+
+        public static ResetPasswordResult
+
+            Timeout(IEnumerable<IUser>     Users,
+                    TimeSpan               Timeout,
+                    EventTracking_Id?      EventTrackingId      = null,
+                    IId?                   SenderId             = null,
+                    Object?                Sender               = null,
+                    PasswordReset?         PasswordReset        = null,
+                    IEnumerable<Warning>?  Warnings             = null,
+                    TimeSpan?              Runtime              = null)
+
+                => new (Users,
+                        CommandResult.Timeout,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        PasswordReset,
+                        $"Timeout after {Timeout.TotalSeconds} seconds!".ToI18NString(),
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) LockTimeout  (User, Timeout,     ...)
+
+        public static ResetPasswordResult
+
+            LockTimeout(IEnumerable<IUser>     Users,
+                        TimeSpan               Timeout,
+                        EventTracking_Id?      EventTrackingId      = null,
+                        IId?                   SenderId             = null,
+                        Object?                Sender               = null,
+                        PasswordReset?         PasswordReset        = null,
+                        IEnumerable<Warning>?  Warnings             = null,
+                        TimeSpan?              Runtime              = null)
+
+                => new (Users,
+                        CommandResult.LockTimeout,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        PasswordReset,
+                        $"Lock timeout after {Timeout.TotalSeconds} seconds!".ToI18NString(),
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
 
     }
 

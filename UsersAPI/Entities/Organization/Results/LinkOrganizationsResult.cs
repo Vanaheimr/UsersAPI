@@ -25,21 +25,21 @@ using org.GraphDefined.Vanaheimr.Hermod;
 namespace social.OpenData.UsersAPI
 {
 
-    public class LinkOrganizationsResult : AResult<Organization, Organization>
+    public class LinkOrganizationsResult : AResult<IOrganization, IOrganization>
     {
 
-        public Organization                        OrganizationOut
+        public IOrganization                        OrganizationOut
             => Object1;
 
         public Organization2OrganizationEdgeLabel  EdgeLabel       { get; }
 
-        public Organization                        OrganizationIn
+        public IOrganization                        OrganizationIn
             => Object2;
 
 
-        public LinkOrganizationsResult(Organization                        OrganizationOut,
+        public LinkOrganizationsResult(IOrganization                        OrganizationOut,
                                        Organization2OrganizationEdgeLabel  EdgeLabel,
-                                       Organization                        OrganizationIn,
+                                       IOrganization                        OrganizationIn,
                                        EventTracking_Id                    EventTrackingId,
                                        Boolean                             IsSuccess,
                                        String                              Argument           = null,
@@ -59,9 +59,9 @@ namespace social.OpenData.UsersAPI
         }
 
 
-        public static LinkOrganizationsResult Success(Organization                        OrganizationOut,
+        public static LinkOrganizationsResult Success(IOrganization                        OrganizationOut,
                                                       Organization2OrganizationEdgeLabel  EdgeLabel,
-                                                      Organization                        OrganizationIn,
+                                                      IOrganization                        OrganizationIn,
                                                       EventTracking_Id                    EventTrackingId)
 
             => new LinkOrganizationsResult(OrganizationOut,
@@ -71,9 +71,9 @@ namespace social.OpenData.UsersAPI
                                            true);
 
 
-        public static LinkOrganizationsResult ArgumentError(Organization                        OrganizationOut,
+        public static LinkOrganizationsResult ArgumentError(IOrganization                        OrganizationOut,
                                                             Organization2OrganizationEdgeLabel  EdgeLabel,
-                                                            Organization                        OrganizationIn,
+                                                            IOrganization                        OrganizationIn,
                                                             EventTracking_Id                    EventTrackingId,
                                                             String                              Argument,
                                                             String                              Description)
@@ -87,9 +87,9 @@ namespace social.OpenData.UsersAPI
                                            I18NString.Create(Languages.en,
                                                              Description));
 
-        public static LinkOrganizationsResult ArgumentError(Organization                        OrganizationOut,
+        public static LinkOrganizationsResult ArgumentError(IOrganization                        OrganizationOut,
                                                             Organization2OrganizationEdgeLabel  EdgeLabel,
-                                                            Organization                        OrganizationIn,
+                                                            IOrganization                        OrganizationIn,
                                                             EventTracking_Id                    EventTrackingId,
                                                             String                              Argument,
                                                             I18NString                          Description)
@@ -103,9 +103,9 @@ namespace social.OpenData.UsersAPI
                                            Description);
 
 
-        public static LinkOrganizationsResult Failed(Organization                        OrganizationOut,
+        public static LinkOrganizationsResult Failed(IOrganization                        OrganizationOut,
                                                      Organization2OrganizationEdgeLabel  EdgeLabel,
-                                                     Organization                        OrganizationIn,
+                                                     IOrganization                        OrganizationIn,
                                                      EventTracking_Id                    EventTrackingId,
                                                      String                              Description)
 
@@ -118,9 +118,9 @@ namespace social.OpenData.UsersAPI
                                            I18NString.Create(Languages.en,
                                                              Description));
 
-        public static LinkOrganizationsResult Failed(Organization                        OrganizationOut,
+        public static LinkOrganizationsResult Failed(IOrganization                        OrganizationOut,
                                                      Organization2OrganizationEdgeLabel  EdgeLabel,
-                                                     Organization                        OrganizationIn,
+                                                     IOrganization                        OrganizationIn,
                                                      EventTracking_Id                    EventTrackingId,
                                                      I18NString                          Description)
 
@@ -132,9 +132,9 @@ namespace social.OpenData.UsersAPI
                                            null,
                                            Description);
 
-        public static LinkOrganizationsResult Failed(Organization                        OrganizationOut,
+        public static LinkOrganizationsResult Failed(IOrganization                        OrganizationOut,
                                                      Organization2OrganizationEdgeLabel  EdgeLabel,
-                                                     Organization                        OrganizationIn,
+                                                     IOrganization                        OrganizationIn,
                                                      EventTracking_Id                    EventTrackingId,
                                                      Exception                           Exception)
 

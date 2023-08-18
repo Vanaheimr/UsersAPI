@@ -239,8 +239,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An abstract group builder.
         /// </summary>
-        public new abstract class Builder : AEntity<TGroupId,
-                                                    TGroup>.Builder
+        public new abstract class Builder : AEntity<TGroupId, TGroup>.Builder
         {
 
             #region Properties

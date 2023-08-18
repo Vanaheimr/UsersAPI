@@ -17,11 +17,6 @@
 
 #region Usings
 
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-
 using Newtonsoft.Json.Linq;
 
 using org.GraphDefined.Vanaheimr.Illias;
@@ -42,11 +37,11 @@ namespace social.OpenData.UsersAPI.Notifications
         #region AddSMSNotification(this UsersAPI, User, NotificationMessageType,  Phonenumber = null, TextTemplate = null)
 
         public static Task AddSMSNotification(this UsersAPI            UsersAPI,
-                                              User                     User,
+                                              IUser                    User,
                                               NotificationMessageType  NotificationMessageType,
                                               PhoneNumber?             PhoneNumber       = null,
-                                              String                   TextTemplate      = null,
-                                              EventTracking_Id         EventTrackingId   = null,
+                                              String?                  TextTemplate      = null,
+                                              EventTracking_Id?        EventTrackingId   = null,
                                               User_Id?                 CurrentUserId     = null)
         {
 
@@ -56,8 +51,10 @@ namespace social.OpenData.UsersAPI.Notifications
                 throw new ArgumentNullException(nameof(PhoneNumber), "The given mobile phone number must not be null or empty!");
 
             return UsersAPI.AddNotification(User,
-                                            new SMSNotification(phoneNumber.Value,
-                                                                TextTemplate),
+                                            new SMSNotification(
+                                                phoneNumber.Value,
+                                                TextTemplate
+                                            ),
                                             NotificationMessageType,
                                             EventTrackingId,
                                             CurrentUserId);
@@ -69,11 +66,11 @@ namespace social.OpenData.UsersAPI.Notifications
         #region AddSMSNotification(this UsersAPI, User, NotificationMessageTypes, PhoneNumber = null, TextTemplate = null)
 
         public static Task AddSMSNotification(this UsersAPI                         UsersAPI,
-                                              User                                  User,
+                                              IUser                                 User,
                                               IEnumerable<NotificationMessageType>  NotificationMessageTypes,
                                               PhoneNumber?                          PhoneNumber       = null,
-                                              String                                TextTemplate      = null,
-                                              EventTracking_Id                      EventTrackingId   = null,
+                                              String?                               TextTemplate      = null,
+                                              EventTracking_Id?                     EventTrackingId   = null,
                                               User_Id?                              CurrentUserId     = null)
         {
 
@@ -83,8 +80,10 @@ namespace social.OpenData.UsersAPI.Notifications
                 throw new ArgumentNullException(nameof(PhoneNumber), "The given mobile phone number must not be null or empty!");
 
             return UsersAPI.AddNotification(User,
-                                            new SMSNotification(phoneNumber.Value,
-                                                                TextTemplate),
+                                            new SMSNotification(
+                                                phoneNumber.Value,
+                                                TextTemplate
+                                            ),
                                             NotificationMessageTypes,
                                             EventTrackingId,
                                             CurrentUserId);

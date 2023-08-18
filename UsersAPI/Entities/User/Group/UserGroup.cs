@@ -32,9 +32,9 @@ using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 namespace social.OpenData.UsersAPI
 {
 
-    public delegate Boolean UserGroupProviderDelegate(UserGroup_Id UserGroupId, out UserGroup UserGroup);
+    public delegate Boolean UserGroupProviderDelegate(UserGroup_Id UserGroupId, out IUserGroup UserGroup);
 
-    public delegate JObject UserGroupToJSONDelegate(UserGroup   UserGroup,
+    public delegate JObject UserGroupToJSONDelegate(IUserGroup  UserGroup,
                                                     Boolean     Embedded                        = false,
                                                     InfoStatus  ExpandUsers                     = InfoStatus.ShowIdOnly,
                                                     InfoStatus  ExpandParentGroup               = InfoStatus.ShowIdOnly,
@@ -58,16 +58,16 @@ namespace social.OpenData.UsersAPI
         /// <param name="Skip">The optional number of user groups to skip.</param>
         /// <param name="Take">The optional number of user groups to return.</param>
         /// <param name="Embedded">Whether this data is embedded into another data structure, e.g. into a user group.</param>
-        public static JArray ToJSON(this IEnumerable<UserGroup>  UserGroups,
-                                    UInt64?                      Skip                            = null,
-                                    UInt64?                      Take                            = null,
-                                    Boolean                      Embedded                        = false,
-                                    InfoStatus                   ExpandUsers                     = InfoStatus.ShowIdOnly,
-                                    InfoStatus                   ExpandParentGroup               = InfoStatus.ShowIdOnly,
-                                    InfoStatus                   ExpandSubgroups                 = InfoStatus.ShowIdOnly,
-                                    InfoStatus                   ExpandAttachedFiles             = InfoStatus.ShowIdOnly,
-                                    InfoStatus                   IncludeAttachedFileSignatures   = InfoStatus.ShowIdOnly,
-                                    UserGroupToJSONDelegate?     UserGroupToJSON                 = null)
+        public static JArray ToJSON(this IEnumerable<IUserGroup>  UserGroups,
+                                    UInt64?                       Skip                            = null,
+                                    UInt64?                       Take                            = null,
+                                    Boolean                       Embedded                        = false,
+                                    InfoStatus                    ExpandUsers                     = InfoStatus.ShowIdOnly,
+                                    InfoStatus                    ExpandParentGroup               = InfoStatus.ShowIdOnly,
+                                    InfoStatus                    ExpandSubgroups                 = InfoStatus.ShowIdOnly,
+                                    InfoStatus                    ExpandAttachedFiles             = InfoStatus.ShowIdOnly,
+                                    InfoStatus                    IncludeAttachedFileSignatures   = InfoStatus.ShowIdOnly,
+                                    UserGroupToJSONDelegate?      UserGroupToJSON                 = null)
 
 
             => UserGroups?.Any() != true
@@ -102,9 +102,10 @@ namespace social.OpenData.UsersAPI
     /// A user group.
     /// </summary>
     public class UserGroup : AGroup<UserGroup_Id,
-                                    UserGroup,
+                                    IUserGroup,
                                     User_Id,
-                                    IUser>
+                                    IUser>,
+                             IUserGroup
     {
 
         #region Data
@@ -124,9 +125,9 @@ namespace social.OpenData.UsersAPI
             => _User2UserGroup_Edges;
 
 
-        public User2UserGroupEdge AddUser(User2UserGroupEdgeLabel  EdgeLabel,
-                                          IUser                    Source,
-                                          PrivacyLevel             PrivacyLevel = PrivacyLevel.Private)
+        public User2UserGroupEdge AddUser(User2UserGroupEdgeLabel EdgeLabel,
+                                          IUser Source,
+                                          PrivacyLevel PrivacyLevel = PrivacyLevel.Private)
 
             => _User2UserGroup_Edges.
                    AddAndReturnElement(new User2UserGroupEdge(Source,
@@ -165,7 +166,7 @@ namespace social.OpenData.UsersAPI
         public IEnumerable<User2UserGroupEdge> Edges(IUser User)
 
             => _User2UserGroup_Edges.
-                   Where (edge => edge.Source == User);
+                   Where(edge => edge.Source == User);
 
 
         /// <summary>
@@ -173,11 +174,11 @@ namespace social.OpenData.UsersAPI
         /// filtered by the given edge label.
         /// </summary>
         /// <param name="User">Just return edges with the given user.</param>
-        public IEnumerable<User2UserGroupEdge> Edges(User2UserGroupEdgeLabel  EdgeLabel,
-                                                     IUser                    User)
+        public IEnumerable<User2UserGroupEdge> Edges(User2UserGroupEdgeLabel EdgeLabel,
+                                                     IUser User)
 
             => _User2UserGroup_Edges.
-                   Where (edge => edge.Source == User && edge.EdgeLabel == EdgeLabel);
+                   Where(edge => edge.Source == User && edge.EdgeLabel == EdgeLabel);
 
 
         /// <summary>
@@ -188,12 +189,12 @@ namespace social.OpenData.UsersAPI
         public IEnumerable<User2UserGroupEdgeLabel> EdgeLabels(IUser User)
 
             => _User2UserGroup_Edges.
-                   Where (edge => edge.Source == User).
+                   Where(edge => edge.Source == User).
                    Select(edge => edge.EdgeLabel);
 
 
-        public Boolean HasEdge(User2UserGroupEdgeLabel  EdgeLabel,
-                               IUser                    User)
+        public Boolean HasEdge(User2UserGroupEdgeLabel EdgeLabel,
+                               IUser User)
 
             => _User2UserGroup_Edges.
                    Any(edge => edge.EdgeLabel == EdgeLabel && edge.Source == User);
@@ -217,7 +218,7 @@ namespace social.OpenData.UsersAPI
         public UserGroup2UserGroupEdge AddEdge(UserGroup2UserGroupEdge Edge)
 
             => Edge.Target == this
-                   ? _UserGroup2UserGroup_InEdges. AddAndReturnElement(Edge)
+                   ? _UserGroup2UserGroup_InEdges.AddAndReturnElement(Edge)
                    : _UserGroup2UserGroup_OutEdges.AddAndReturnElement(Edge);
 
         #endregion
@@ -238,9 +239,9 @@ namespace social.OpenData.UsersAPI
 
         #region AddInEdge (EdgeLabel, SourceUserGroup, PrivacyLevel = PrivacyLevel.World)
 
-        public UserGroup2UserGroupEdge AddInEdge(UserGroup2UserGroupEdgeLabel  EdgeLabel,
-                                                 UserGroup                     SourceUserGroup,
-                                                 PrivacyLevel                  PrivacyLevel = PrivacyLevel.World)
+        public UserGroup2UserGroupEdge AddInEdge(UserGroup2UserGroupEdgeLabel EdgeLabel,
+                                                 UserGroup SourceUserGroup,
+                                                 PrivacyLevel PrivacyLevel = PrivacyLevel.World)
 
             => _UserGroup2UserGroup_InEdges.AddAndReturnElement(new UserGroup2UserGroupEdge(SourceUserGroup,
                                                                                             EdgeLabel,
@@ -251,9 +252,9 @@ namespace social.OpenData.UsersAPI
 
         #region AddOutEdge(EdgeLabel, TargetUserGroup, PrivacyLevel = PrivacyLevel.World)
 
-        public UserGroup2UserGroupEdge AddOutEdge(UserGroup2UserGroupEdgeLabel  EdgeLabel,
-                                                  UserGroup                     TargetUserGroup,
-                                                  PrivacyLevel                  PrivacyLevel = PrivacyLevel.World)
+        public UserGroup2UserGroupEdge AddOutEdge(UserGroup2UserGroupEdgeLabel EdgeLabel,
+                                                  UserGroup TargetUserGroup,
+                                                  PrivacyLevel PrivacyLevel = PrivacyLevel.World)
 
             => _UserGroup2UserGroup_OutEdges.AddAndReturnElement(new UserGroup2UserGroupEdge(this,
                                                                                              EdgeLabel,
@@ -269,8 +270,8 @@ namespace social.OpenData.UsersAPI
         {
 
             var parents = _UserGroup2UserGroup_OutEdges.
-                              Where  (edge => edge.Source == this && edge.EdgeLabel == UserGroup2UserGroupEdgeLabel.IsSubgroupOf).
-                              Select (edge => edge.Target).
+                              Where(edge => edge.Source == this && edge.EdgeLabel == UserGroup2UserGroupEdgeLabel.IsSubgroupOf).
+                              Select(edge => edge.Target).
                               ToArray();
 
             foreach (var parent in parents)
@@ -322,7 +323,7 @@ namespace social.OpenData.UsersAPI
         public IEnumerable<UserGroup> ParentUserGroups
 
             => _UserGroup2UserGroup_OutEdges.
-                   Where (edge => edge.Source == this && edge.EdgeLabel == UserGroup2UserGroupEdgeLabel.IsSubgroupOf).
+                   Where(edge => edge.Source == this && edge.EdgeLabel == UserGroup2UserGroupEdgeLabel.IsSubgroupOf).
                    Select(edge => edge.Target).
                    ToArray();
 
@@ -335,8 +336,8 @@ namespace social.OpenData.UsersAPI
         {
 
             var childs = _UserGroup2UserGroup_InEdges.
-                             Where  (edge => edge.Target == this && edge.EdgeLabel == UserGroup2UserGroupEdgeLabel.IsSubgroupOf).
-                             Select (edge => edge.Source).
+                             Where(edge => edge.Target == this && edge.EdgeLabel == UserGroup2UserGroupEdgeLabel.IsSubgroupOf).
+                             Select(edge => edge.Source).
                              ToArray();
 
             foreach (var child in childs)
@@ -391,7 +392,7 @@ namespace social.OpenData.UsersAPI
         public IEnumerable<UserGroup> SubUserGroups
 
             => _UserGroup2UserGroup_InEdges.
-                   Where (edge => edge.Target == this && edge.EdgeLabel == UserGroup2UserGroupEdgeLabel.IsSubgroupOf).
+                   Where(edge => edge.Target == this && edge.EdgeLabel == UserGroup2UserGroupEdgeLabel.IsSubgroupOf).
                    Select(edge => edge.Source).
                    ToArray();
 
@@ -410,11 +411,11 @@ namespace social.OpenData.UsersAPI
                    ? new UserGroup2UserGroupEdgeLabel[0]
 
                    : _UserGroup2UserGroup_InEdges.
-                         Where (edge => edge.Source == UserGroup).
+                         Where(edge => edge.Source == UserGroup).
                          Select(edge => edge.EdgeLabel).Concat(
 
                      _UserGroup2UserGroup_OutEdges.
-                         Where (edge => edge.Target == UserGroup).
+                         Where(edge => edge.Target == UserGroup).
                          Select(edge => edge.EdgeLabel));
 
         #endregion
@@ -430,13 +431,13 @@ namespace social.OpenData.UsersAPI
 
         #region RemoveInEdges (EdgeLabel, SourceUserGroup)
 
-        public void RemoveInEdges(UserGroup2UserGroupEdgeLabel  EdgeLabel,
-                                  UserGroup                     SourceUserGroup)
+        public void RemoveInEdges(UserGroup2UserGroupEdgeLabel EdgeLabel,
+                                  UserGroup SourceUserGroup)
         {
 
             var edges = _UserGroup2UserGroup_InEdges.
                             Where(edge => edge.EdgeLabel == EdgeLabel &&
-                                          edge.Source    == SourceUserGroup).
+                                          edge.Source == SourceUserGroup).
                             ToArray();
 
             foreach (var edge in edges)
@@ -456,13 +457,13 @@ namespace social.OpenData.UsersAPI
 
         #region RemoveOutEdges(EdgeLabel, TargetUserGroup)
 
-        public void RemoveOutEdges(UserGroup2UserGroupEdgeLabel  EdgeLabel,
-                                   UserGroup                     TargetUserGroup)
+        public void RemoveOutEdges(UserGroup2UserGroupEdgeLabel EdgeLabel,
+                                   UserGroup TargetUserGroup)
         {
 
             var edges = _UserGroup2UserGroup_OutEdges.
                             Where(edge => edge.EdgeLabel == EdgeLabel &&
-                                          edge.Target    == TargetUserGroup).
+                                          edge.Target == TargetUserGroup).
                             ToArray();
 
             foreach (var edge in edges)
@@ -473,6 +474,8 @@ namespace social.OpenData.UsersAPI
         #endregion
 
         #endregion
+
+        UsersAPI? IUserGroup.API { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         #region Constructor(s)
 
@@ -492,13 +495,13 @@ namespace social.OpenData.UsersAPI
         /// <param name="JSONLDContext">The JSON-LD context of this user group.</param>
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
         /// <param name="LastChange">The timestamp of the last changes within this user group. Can e.g. be used as a HTTP ETag.</param>
-        public UserGroup(UserGroup_Id                           Id,
+        public UserGroup(UserGroup_Id Id,
 
                          I18NString                             Name,
                          I18NString?                            Description                   = null,
                          IEnumerable<IUser>?                    Users                         = null,
-                         UserGroup?                             ParentGroup                   = null,
-                         IEnumerable<UserGroup>?                Subgroups                     = null,
+                         IUserGroup?                            ParentGroup                   = null,
+                         IEnumerable<IUserGroup>?               Subgroups                     = null,
 
                          IEnumerable<User2UserGroupEdge>?       User2GroupInEdges             = null,
                          IEnumerable<UserGroup2UserGroupEdge>?  UserGroup2UserGroupInEdges    = null,
@@ -543,12 +546,12 @@ namespace social.OpenData.UsersAPI
         /// <param name="Embedded">Whether this data structure is embedded into another data structure.</param>
         public override JObject ToJSON(Boolean Embedded = false)
 
-            => ToJSON(Embedded:                       false,
-                      ExpandUsers:                    InfoStatus.ShowIdOnly,
-                      ExpandParentGroup:              InfoStatus.ShowIdOnly,
-                      ExpandSubgroups:                InfoStatus.ShowIdOnly,
-                      ExpandAttachedFiles:            InfoStatus.ShowIdOnly,
-                      IncludeAttachedFileSignatures:  InfoStatus.ShowIdOnly);
+            => ToJSON(Embedded: false,
+                      ExpandUsers: InfoStatus.ShowIdOnly,
+                      ExpandParentGroup: InfoStatus.ShowIdOnly,
+                      ExpandSubgroups: InfoStatus.ShowIdOnly,
+                      ExpandAttachedFiles: InfoStatus.ShowIdOnly,
+                      IncludeAttachedFileSignatures: InfoStatus.ShowIdOnly);
 
 
         /// <summary>
@@ -556,12 +559,12 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="Embedded">Whether this data is embedded into another data structure, e.g. into a UserGroup.</param>
         /// <param name="IncludeCryptoHash">Whether to include the cryptograhical hash value of this object.</param>
-        public virtual JObject ToJSON(Boolean     Embedded                        = false,
-                                      InfoStatus  ExpandUsers                     = InfoStatus.ShowIdOnly,
-                                      InfoStatus  ExpandParentGroup               = InfoStatus.ShowIdOnly,
-                                      InfoStatus  ExpandSubgroups                 = InfoStatus.ShowIdOnly,
-                                      InfoStatus  ExpandAttachedFiles             = InfoStatus.ShowIdOnly,
-                                      InfoStatus  IncludeAttachedFileSignatures   = InfoStatus.ShowIdOnly)
+        public virtual JObject ToJSON(Boolean Embedded = false,
+                                      InfoStatus ExpandUsers = InfoStatus.ShowIdOnly,
+                                      InfoStatus ExpandParentGroup = InfoStatus.ShowIdOnly,
+                                      InfoStatus ExpandSubgroups = InfoStatus.ShowIdOnly,
+                                      InfoStatus ExpandAttachedFiles = InfoStatus.ShowIdOnly,
+                                      InfoStatus IncludeAttachedFileSignatures = InfoStatus.ShowIdOnly)
         {
 
 
@@ -569,10 +572,10 @@ namespace social.OpenData.UsersAPI
                                    false, //IncludeLastChange,
                                    null,
 
-                                   new JProperty("name",    Name.ToJSON()),
+                                   new JProperty("name", Name.ToJSON()),
 
                                    Description.IsNotNullOrEmpty()
-                                       ? new JProperty("description",    Description.ToJSON())
+                                       ? new JProperty("description", Description.ToJSON())
                                        : null,
 
                                    _User2UserGroup_Edges.Where(edge => edge.EdgeLabel == User2UserGroupEdgeLabel.IsMember).SafeAny()
@@ -581,24 +584,24 @@ namespace social.OpenData.UsersAPI
 
                                    Members.SafeAny() && ExpandUsers != InfoStatus.Hidden
                                        ? ExpandSubgroups.Switch(
-                                               () => new JProperty("memberIds",      new JArray(Members.SafeSelect(user => user.Id.ToString()))),
-                                               () => new JProperty("members",        new JArray(Members.SafeSelect(user => user.   ToJSON(Embedded: true)))))
-                                                                                                                                                    //ExpandParentGroup:  InfoStatus.Hidden,
-                                                                                                                                                    //ExpandSubgroups:    InfoStatus.Expand)))))
+                                               () => new JProperty("memberIds", new JArray(Members.SafeSelect(user => user.Id.ToString()))),
+                                               () => new JProperty("members", new JArray(Members.SafeSelect(user => user.ToJSON(Embedded: true)))))
+                                       //ExpandParentGroup:  InfoStatus.Hidden,
+                                       //ExpandSubgroups:    InfoStatus.Expand)))))
                                        : null,
 
-                                   ParentGroup is not null  && ExpandParentGroup  != InfoStatus.Hidden
+                                   ParentGroup is not null && ExpandParentGroup != InfoStatus.Hidden
                                        ? ExpandParentGroup.Switch(
-                                               () => new JProperty("parentGroupId",  ParentGroup.Id.ToString()),
-                                               () => new JProperty("parentGroup",    ParentGroup.   ToJSON()))
+                                               () => new JProperty("parentGroupId", ParentGroup.Id.ToString()),
+                                               () => new JProperty("parentGroup", ParentGroup.ToJSON(true)))
                                        : null,
 
-                                   Subgroups.SafeAny()      && ExpandSubgroups    != InfoStatus.Hidden
+                                   Subgroups.SafeAny() && ExpandSubgroups != InfoStatus.Hidden
                                        ? ExpandSubgroups.Switch(
-                                               () => new JProperty("subgroupsIds",   new JArray(Subgroups.SafeSelect(subgroup => subgroup.Id.ToString()))),
-                                               () => new JProperty("subgroups",      new JArray(Subgroups.SafeSelect(subgroup => subgroup.   ToJSON(Embedded:           true,
-                                                                                                                                                    ExpandParentGroup:  InfoStatus.Hidden,
-                                                                                                                                                    ExpandSubgroups:    InfoStatus.Expanded)))))
+                                               () => new JProperty("subgroupsIds", new JArray(Subgroups.SafeSelect(subgroup => subgroup.Id.ToString()))),
+                                               () => new JProperty("subgroups", new JArray(Subgroups.SafeSelect(subgroup => subgroup.ToJSON(Embedded: true,
+                                                                                                                                                    ExpandParentGroup: InfoStatus.Hidden,
+                                                                                                                                                    ExpandSubgroups: InfoStatus.Expanded)))))
                                        : null
 
                        );
@@ -733,7 +736,7 @@ namespace social.OpenData.UsersAPI
 
                 }
 
-                UserGroup ParentGroup = null;
+                IUserGroup? ParentGroup = null;
 
                 if (ParentGroupId.HasValue)
                     UserGroupProvider(ParentGroupId.Value, out ParentGroup);
@@ -754,16 +757,16 @@ namespace social.OpenData.UsersAPI
 
                 }
 
-                List<UserGroup> Subgroups = null;
+                List<IUserGroup>? Subgroups = null;
 
                 if (SubgroupIds?.Any() == true)
                 {
 
-                    Subgroups = new List<UserGroup>();
+                    Subgroups = new List<IUserGroup>();
 
                     foreach (var userGroupId in SubgroupIds)
                     {
-                        if (UserGroupProvider(userGroupId, out UserGroup userGroup))
+                        if (UserGroupProvider(userGroupId, out var userGroup))
                             Subgroups.Add(userGroup);
                     }
 
@@ -802,7 +805,7 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
- 
+
                 #region Get   DataSource       [optional]
 
                 var DataSource = JSONObject.GetOptional("dataSource");
@@ -812,7 +815,7 @@ namespace social.OpenData.UsersAPI
 
                 #region Parse CryptoHash       [optional]
 
-                var CryptoHash    = JSONObject.GetOptional("cryptoHash");
+                var CryptoHash = JSONObject.GetOptional("cryptoHash");
 
                 #endregion
 
@@ -841,8 +844,8 @@ namespace social.OpenData.UsersAPI
             }
             catch (Exception e)
             {
-                ErrorResponse  = e.Message;
-                UserGroup      = null;
+                ErrorResponse = e.Message;
+                UserGroup = null;
                 return false;
             }
 
@@ -853,15 +856,15 @@ namespace social.OpenData.UsersAPI
 
         #region CopyAllLinkedDataFrom(OldGroup)
 
-        public override void CopyAllLinkedDataFrom(UserGroup OldGroup)
+        public override void CopyAllLinkedDataFrom(IUserGroup OldGroup)
         {
 
-            if (OldGroup._User2UserGroup_Edges.Any() && !_User2UserGroup_Edges.Any())
+            if (OldGroup.User2UserGroupEdges.Any() && !User2UserGroupEdges.Any())
             {
 
-                AddUsers(OldGroup._User2UserGroup_Edges);
+                AddUsers(OldGroup.User2UserGroupEdges);
 
-                foreach (var edge in _User2UserGroup_Edges)
+                foreach (var edge in User2UserGroupEdges)
                     edge.Target = this;
 
             }
@@ -881,7 +884,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="UserGroup1">A user group.</param>
         /// <param name="UserGroup2">Another user group.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator == (UserGroup UserGroup1,
+        public static Boolean operator ==(UserGroup UserGroup1,
                                            UserGroup UserGroup2)
         {
 
@@ -907,7 +910,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="UserGroup1">A user group.</param>
         /// <param name="UserGroup2">Another user group.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator != (UserGroup UserGroup1,
+        public static Boolean operator !=(UserGroup UserGroup1,
                                            UserGroup UserGroup2)
 
             => !(UserGroup1 == UserGroup2);
@@ -922,7 +925,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="UserGroup1">A user group.</param>
         /// <param name="UserGroup2">Another user group.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator < (UserGroup UserGroup1,
+        public static Boolean operator <(UserGroup UserGroup1,
                                           UserGroup UserGroup2)
         {
 
@@ -943,7 +946,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="UserGroup1">A user group.</param>
         /// <param name="UserGroup2">Another user group.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator <= (UserGroup UserGroup1,
+        public static Boolean operator <=(UserGroup UserGroup1,
                                            UserGroup UserGroup2)
 
             => !(UserGroup1 > UserGroup2);
@@ -958,7 +961,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="UserGroup1">A user group.</param>
         /// <param name="UserGroup2">Another user group.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator > (UserGroup UserGroup1,
+        public static Boolean operator >(UserGroup UserGroup1,
                                           UserGroup UserGroup2)
         {
 
@@ -979,7 +982,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="UserGroup1">A user group.</param>
         /// <param name="UserGroup2">Another user group.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator >= (UserGroup UserGroup1,
+        public static Boolean operator >=(UserGroup UserGroup1,
                                            UserGroup UserGroup2)
 
             => !(UserGroup1 < UserGroup2);
@@ -1014,7 +1017,7 @@ namespace social.OpenData.UsersAPI
         /// Compares two user groups.
         /// </summary>
         /// <param name="UserGroup">A user group to compare with.</param>
-        public override Int32 CompareTo(UserGroup UserGroup)
+        public override Int32 CompareTo(IUserGroup? UserGroup)
         {
 
             if (UserGroup is null)
@@ -1056,7 +1059,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="UserGroup">A user group to compare with.</param>
         /// <returns>True if both match; False otherwise.</returns>
-        public override Boolean Equals(UserGroup UserGroup)
+        public override Boolean Equals(IUserGroup? UserGroup)
         {
 
             if (UserGroup is null)
@@ -1125,21 +1128,21 @@ namespace social.OpenData.UsersAPI
         /// A user group builder.
         /// </summary>
         public new class Builder : AGroup<UserGroup_Id,
-                                          UserGroup,
+                                          IUserGroup,
                                           User_Id,
                                           IUser>.Builder
         {
 
             #region User      -> UserGroup edges
 
-            protected readonly List<User2UserGroupEdge>       _User2UserGroup_Edges;
+            protected readonly List<User2UserGroupEdge> _User2UserGroup_Edges;
 
             #endregion
 
             #region UserGroup -> UserGroup edges
 
-            protected readonly List<UserGroup2UserGroupEdge>  _UserGroup2UserGroup_InEdges;
-            protected readonly List<UserGroup2UserGroupEdge>  _UserGroup2UserGroup_OutEdges;
+            protected readonly List<UserGroup2UserGroupEdge> _UserGroup2UserGroup_InEdges;
+            protected readonly List<UserGroup2UserGroupEdge> _UserGroup2UserGroup_OutEdges;
 
             #endregion
 
@@ -1166,8 +1169,8 @@ namespace social.OpenData.UsersAPI
                            I18NString?                            Name                          = null,
                            I18NString?                            Description                   = null,
                            IEnumerable<IUser>?                    Users                         = null,
-                           UserGroup?                             ParentGroup                   = null,
-                           IEnumerable<UserGroup>?                Subgroups                     = null,
+                           IUserGroup?                            ParentGroup                   = null,
+                           IEnumerable<IUserGroup>?               Subgroups                     = null,
 
                            IEnumerable<User2UserGroupEdge>?       User2UserGroupEdges           = null,
                            IEnumerable<UserGroup2UserGroupEdge>?  UserGroup2UserGroupInEdges    = null,
@@ -1204,7 +1207,7 @@ namespace social.OpenData.UsersAPI
 
             #region CopyAllLinkedDataFrom(OldGroup)
 
-            public override void CopyAllLinkedDataFrom(UserGroup OldGroup)
+            public override void CopyAllLinkedDataFrom(IUserGroup OldGroup)
             {
 
                 //if (OldGroup._User2GroupEdges.Any() && !_User2GroupEdges.Any())
@@ -1267,7 +1270,7 @@ namespace social.OpenData.UsersAPI
             /// <param name="Builder1">A user group builder.</param>
             /// <param name="Builder2">Another user group identification.</param>
             /// <returns>true|false</returns>
-            public static Boolean operator == (Builder Builder1,
+            public static Boolean operator ==(Builder Builder1,
                                                Builder Builder2)
             {
 
@@ -1293,7 +1296,7 @@ namespace social.OpenData.UsersAPI
             /// <param name="Builder1">A user group builder.</param>
             /// <param name="Builder2">Another user group identification.</param>
             /// <returns>true|false</returns>
-            public static Boolean operator != (Builder Builder1,
+            public static Boolean operator !=(Builder Builder1,
                                                Builder Builder2)
 
                 => !(Builder1 == Builder2);
@@ -1308,7 +1311,7 @@ namespace social.OpenData.UsersAPI
             /// <param name="Builder1">A user group builder.</param>
             /// <param name="Builder2">Another user group identification.</param>
             /// <returns>true|false</returns>
-            public static Boolean operator < (Builder Builder1,
+            public static Boolean operator <(Builder Builder1,
                                               Builder Builder2)
             {
 
@@ -1329,7 +1332,7 @@ namespace social.OpenData.UsersAPI
             /// <param name="Builder1">A user group builder.</param>
             /// <param name="Builder2">Another user group identification.</param>
             /// <returns>true|false</returns>
-            public static Boolean operator <= (Builder Builder1,
+            public static Boolean operator <=(Builder Builder1,
                                                Builder Builder2)
 
                 => !(Builder1 > Builder2);
@@ -1344,7 +1347,7 @@ namespace social.OpenData.UsersAPI
             /// <param name="Builder1">A user group builder.</param>
             /// <param name="Builder2">Another user group identification.</param>
             /// <returns>true|false</returns>
-            public static Boolean operator > (Builder Builder1,
+            public static Boolean operator >(Builder Builder1,
                                               Builder Builder2)
             {
 
@@ -1365,7 +1368,7 @@ namespace social.OpenData.UsersAPI
             /// <param name="Builder1">A user group builder.</param>
             /// <param name="Builder2">Another user group identification.</param>
             /// <returns>true|false</returns>
-            public static Boolean operator >= (Builder Builder1,
+            public static Boolean operator >=(Builder Builder1,
                                                Builder Builder2)
 
                 => !(Builder1 < Builder2);
@@ -1400,7 +1403,7 @@ namespace social.OpenData.UsersAPI
             /// Compares two user groups.
             /// </summary>
             /// <param name="UserGroup">A user group to compare with.</param>
-            public override Int32 CompareTo(UserGroup? UserGroup)
+            public override Int32 CompareTo(IUserGroup? UserGroup)
 
                 => UserGroup is UserGroup
                        ? Id.CompareTo(UserGroup.Id)
@@ -1438,7 +1441,7 @@ namespace social.OpenData.UsersAPI
             /// </summary>
             /// <param name="UserGroup">A user group to compare with.</param>
             /// <returns>True if both match; False otherwise.</returns>
-            public override Boolean Equals(UserGroup? UserGroup)
+            public override Boolean Equals(IUserGroup? UserGroup)
             {
 
                 if (UserGroup is null)

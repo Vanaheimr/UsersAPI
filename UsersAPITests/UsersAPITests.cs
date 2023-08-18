@@ -17,16 +17,10 @@
 
 #region Usings
 
-using System;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-
 using NUnit.Framework;
 
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod;
-using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 using org.GraphDefined.Vanaheimr.Hermod.Mail;
 using org.GraphDefined.Vanaheimr.Hermod.SMTP;
 
@@ -143,7 +137,7 @@ namespace social.OpenData.UsersAPI.tests
 
             var result01a = await usersAPI.AddUser(new User(
                                                        User_Id.Parse("apiAdmin01"),
-                                                       "API Admin 01",
+                                                       "API Admin 01".ToI18NString(),
                                                        SimpleEMailAddress.Parse("apiAdmin01@test.local"),
                                                        MobilePhone: PhoneNumber.Parse("+49 170 111111")
                                                    ),
@@ -151,11 +145,12 @@ namespace social.OpenData.UsersAPI.tests
                                                    usersAPI.GetOrganization(Organization_Id.Parse("admins")));
 
             Assert.IsNotNull(result01a);
-            Assert.IsTrue   (result01a.IsSuccess);
+            Assert.IsTrue   (result01a.Result == CommandResult.Success);
+            Assert.IsNotNull(result01a.User);
             Assert.AreEqual (1, usersAPI.Users.Count());
 
-            await usersAPI.AddEMailNotification(result01a.User,
-                                                new NotificationMessageType[] {
+            await usersAPI.AddEMailNotification(result01a.User!,
+                                                new[] {
                                                     UsersAPI.addUser_MessageType,
                                                     UsersAPI.updateUser_MessageType,
                                                     UsersAPI.deleteUser_MessageType,
@@ -171,8 +166,8 @@ namespace social.OpenData.UsersAPI.tests
                                                     UsersAPI.unlinkOrganizations_MessageType
                                                 });
 
-            await usersAPI.AddSMSNotification  (result01a.User,
-                                                new NotificationMessageType[] {
+            await usersAPI.AddSMSNotification  (result01a.User!,
+                                                new[] {
                                                     UsersAPI.addUser_MessageType,
                                                     UsersAPI.updateUser_MessageType,
                                                     UsersAPI.deleteUser_MessageType,
@@ -191,20 +186,21 @@ namespace social.OpenData.UsersAPI.tests
 
             var result01b = await usersAPI.AddUser(new User(
                                                        User_Id.Parse("apiAdmin02"),
-                                                       "API Admin 02",
+                                                       "API Admin 02".ToI18NString(),
                                                        SimpleEMailAddress.Parse("apiAdmin02@test.local")
                                                    ),
                                                    User2OrganizationEdgeLabel.IsAdmin,
                                                    usersAPI.GetOrganization(Organization_Id.Parse("admins")));
 
             Assert.IsNotNull(result01b);
-            Assert.IsTrue   (result01b.IsSuccess);
+            Assert.IsTrue   (result01b.Result == CommandResult.Success);
+            Assert.IsNotNull(result01b.User);
             Assert.AreEqual (2, usersAPI.Users.Count());
 
 
             var result01c = await usersAPI.AddUser(new User(
                                                        User_Id.Parse("apiMember01"),
-                                                       "API Member 01",
+                                                       "API Member 01".ToI18NString(),
                                                        SimpleEMailAddress.Parse("apiMember01@test.local"),
                                                        MobilePhone: PhoneNumber.Parse("+49 170 222222")
                                                    ),
@@ -212,11 +208,12 @@ namespace social.OpenData.UsersAPI.tests
                                                    usersAPI.GetOrganization(Organization_Id.Parse("admins")));
 
             Assert.IsNotNull(result01c);
-            Assert.IsTrue   (result01c.IsSuccess);
+            Assert.IsTrue   (result01c.Result == CommandResult.Success);
+            Assert.IsNotNull(result01c.User);
             Assert.AreEqual (3, usersAPI.Users.Count());
 
-            await usersAPI.AddEMailNotification(result01c.User,
-                                                new NotificationMessageType[] {
+            await usersAPI.AddEMailNotification(result01c.User!,
+                                                new[] {
                                                     UsersAPI.addUser_MessageType,
                                                     UsersAPI.updateUser_MessageType,
                                                     UsersAPI.deleteUser_MessageType,
@@ -232,8 +229,8 @@ namespace social.OpenData.UsersAPI.tests
                                                     UsersAPI.unlinkOrganizations_MessageType
                                                 });
 
-            await usersAPI.AddSMSNotification  (result01c.User,
-                                                new NotificationMessageType[] {
+            await usersAPI.AddSMSNotification  (result01c.User!,
+                                                new[] {
                                                     UsersAPI.addUser_MessageType,
                                                     UsersAPI.updateUser_MessageType,
                                                     UsersAPI.deleteUser_MessageType,
@@ -252,14 +249,15 @@ namespace social.OpenData.UsersAPI.tests
 
             var result01d = await usersAPI.AddUser(new User(
                                                        User_Id.Parse("apiMember02"),
-                                                       "API Member 02",
+                                                       "API Member 02".ToI18NString(),
                                                        SimpleEMailAddress.Parse("apiMember02@test.local")
                                                    ),
                                                    User2OrganizationEdgeLabel.IsMember,
                                                    usersAPI.GetOrganization(Organization_Id.Parse("admins")));
 
             Assert.IsNotNull(result01d);
-            Assert.IsTrue   (result01d.IsSuccess);
+            Assert.IsTrue   (result01d.Result == CommandResult.Success);
+            Assert.IsNotNull(result01d.User);
             Assert.AreEqual (4, usersAPI.Users.Count());
 
 
@@ -283,7 +281,7 @@ namespace social.OpenData.UsersAPI.tests
 
             var result04a = await usersAPI.AddUser(new User(
                                                        User_Id.Parse("firstOrgAdmin01"),
-                                                       "First Org Admin 01",
+                                                       "First Org Admin 01".ToI18NString(),
                                                        SimpleEMailAddress.Parse("firstOrgAdmin01@test.local"),
                                                        MobilePhone: PhoneNumber.Parse("+49 170 333333")
                                                    ),
@@ -291,11 +289,12 @@ namespace social.OpenData.UsersAPI.tests
                                                    result03.Organization);
 
             Assert.IsNotNull(result04a);
-            Assert.IsTrue   (result04a.IsSuccess);
+            Assert.IsTrue   (result04a.Result == CommandResult.Success);
+            Assert.IsNotNull(result04a.User);
             Assert.AreEqual (5, usersAPI.Users.Count());
 
-            await usersAPI.AddEMailNotification(result04a.User,
-                                                new NotificationMessageType[] {
+            await usersAPI.AddEMailNotification(result04a.User!,
+                                                new[] {
                                                     UsersAPI.addUser_MessageType,
                                                     UsersAPI.updateUser_MessageType,
                                                     UsersAPI.deleteUser_MessageType,
@@ -311,8 +310,8 @@ namespace social.OpenData.UsersAPI.tests
                                                     UsersAPI.unlinkOrganizations_MessageType
                                                 });
 
-            await usersAPI.AddSMSNotification  (result04a.User,
-                                                new NotificationMessageType[] {
+            await usersAPI.AddSMSNotification  (result04a.User!,
+                                                new[] {
                                                     UsersAPI.addUser_MessageType,
                                                     UsersAPI.updateUser_MessageType,
                                                     UsersAPI.deleteUser_MessageType,
@@ -331,20 +330,21 @@ namespace social.OpenData.UsersAPI.tests
 
             var result04b = await usersAPI.AddUser(new User(
                                                        User_Id.Parse("firstOrgAdmin02"),
-                                                       "First Org Admin 02",
+                                                       "First Org Admin 02".ToI18NString(),
                                                        SimpleEMailAddress.Parse("firstOrgAdmin02@test.local")
                                                    ),
                                                    User2OrganizationEdgeLabel.IsAdmin,
                                                    result03.Organization);
 
             Assert.IsNotNull(result04b);
-            Assert.IsTrue   (result04b.IsSuccess);
+            Assert.IsTrue   (result04b.Result == CommandResult.Success);
+            Assert.IsNotNull(result04b.User);
             Assert.AreEqual (6, usersAPI.Users.Count());
 
 
             var result04c = await usersAPI.AddUser(new User(
                                                        User_Id.Parse("firstOrgMember01"),
-                                                       "First Org Member 01",
+                                                       "First Org Member 01".ToI18NString(),
                                                        SimpleEMailAddress.Parse("firstOrgMember01@test.local"),
                                                        MobilePhone: PhoneNumber.Parse("+49 170 444444")
                                                    ),
@@ -353,11 +353,12 @@ namespace social.OpenData.UsersAPI.tests
 
 
             Assert.IsNotNull(result04c);
-            Assert.IsTrue   (result04c.IsSuccess);
+            Assert.IsTrue   (result04c.Result == CommandResult.Success);
+            Assert.IsNotNull(result04c.User);
             Assert.AreEqual (7, usersAPI.Users.Count());
 
-            await usersAPI.AddEMailNotification(result04c.User,
-                                                new NotificationMessageType[] {
+            await usersAPI.AddEMailNotification(result04c.User!,
+                                                new[] {
                                                     UsersAPI.addUser_MessageType,
                                                     UsersAPI.updateUser_MessageType,
                                                     UsersAPI.deleteUser_MessageType,
@@ -373,8 +374,8 @@ namespace social.OpenData.UsersAPI.tests
                                                     UsersAPI.unlinkOrganizations_MessageType
                                                 });
 
-            await usersAPI.AddSMSNotification  (result04c.User,
-                                                new NotificationMessageType[] {
+            await usersAPI.AddSMSNotification  (result04c.User!,
+                                                new[] {
                                                     UsersAPI.addUser_MessageType,
                                                     UsersAPI.updateUser_MessageType,
                                                     UsersAPI.deleteUser_MessageType,
@@ -393,14 +394,15 @@ namespace social.OpenData.UsersAPI.tests
 
             var result04d = await usersAPI.AddUser(new User(
                                                        User_Id.Parse("firstOrgMember02"),
-                                                       "First Org Member 02",
+                                                       "First Org Member 02".ToI18NString(),
                                                        SimpleEMailAddress.Parse("firstOrgMember02@test.local")
                                                    ),
                                                    User2OrganizationEdgeLabel.IsMember,
                                                    result03.Organization);
 
             Assert.IsNotNull(result04d);
-            Assert.IsTrue   (result04d.IsSuccess);
+            Assert.IsTrue   (result04d.Result == CommandResult.Success);
+            Assert.IsNotNull(result04d.User);
             Assert.AreEqual (8, usersAPI.Users.Count());
 
             #endregion
@@ -425,7 +427,7 @@ namespace social.OpenData.UsersAPI.tests
 
             var result14a = await usersAPI.AddUser(new User(
                                                        User_Id.Parse("secondOrgAdmin01"),
-                                                       "Second Org Admin 01",
+                                                       "Second Org Admin 01".ToI18NString(),
                                                        SimpleEMailAddress.Parse("secondOrgAdmin01@test.local"),
                                                        MobilePhone: PhoneNumber.Parse("+49 170 555555")
                                                    ),
@@ -433,11 +435,12 @@ namespace social.OpenData.UsersAPI.tests
                                                    result13.Organization);
 
             Assert.IsNotNull(result14a);
-            Assert.IsTrue   (result14a.IsSuccess);
+            Assert.IsTrue   (result14a.Result == CommandResult.Success);
+            Assert.IsNotNull(result14a.User);
             Assert.AreEqual (9, usersAPI.Users.Count());
 
-            await usersAPI.AddEMailNotification(result14a.User,
-                                                new NotificationMessageType[] {
+            await usersAPI.AddEMailNotification(result14a.User!,
+                                                new[] {
                                                     UsersAPI.addUser_MessageType,
                                                     UsersAPI.updateUser_MessageType,
                                                     UsersAPI.deleteUser_MessageType,
@@ -453,8 +456,8 @@ namespace social.OpenData.UsersAPI.tests
                                                     UsersAPI.unlinkOrganizations_MessageType
                                                 });
 
-            await usersAPI.AddSMSNotification  (result14a.User,
-                                                new NotificationMessageType[] {
+            await usersAPI.AddSMSNotification  (result14a.User!,
+                                                new[] {
                                                     UsersAPI.addUser_MessageType,
                                                     UsersAPI.updateUser_MessageType,
                                                     UsersAPI.deleteUser_MessageType,
@@ -473,20 +476,21 @@ namespace social.OpenData.UsersAPI.tests
 
             var result14b = await usersAPI.AddUser(new User(
                                                        User_Id.Parse("secondOrgAdmin02"),
-                                                       "Second Org Admin 02",
+                                                       "Second Org Admin 02".ToI18NString(),
                                                        SimpleEMailAddress.Parse("secondOrgAdmin02@test.local")
                                                    ),
                                                    User2OrganizationEdgeLabel.IsAdmin,
                                                    result13.Organization);
 
             Assert.IsNotNull(result14b);
-            Assert.IsTrue   (result14b.IsSuccess);
+            Assert.IsTrue   (result14b.Result == CommandResult.Success);
+            Assert.IsNotNull(result14b.User);
             Assert.AreEqual (10, usersAPI.Users.Count());
 
 
             var result14c = await usersAPI.AddUser(new User(
                                                        User_Id.Parse("secondOrgMember01"),
-                                                       "Second Org Member 01",
+                                                       "Second Org Member 01".ToI18NString(),
                                                        SimpleEMailAddress.Parse("secondOrgMember01@test.local"),
                                                        MobilePhone: PhoneNumber.Parse("+49 170 666666")
                                                    ),
@@ -495,11 +499,12 @@ namespace social.OpenData.UsersAPI.tests
 
 
             Assert.IsNotNull(result14c);
-            Assert.IsTrue   (result14c.IsSuccess);
+            Assert.IsTrue   (result14c.Result == CommandResult.Success);
+            Assert.IsNotNull(result14c.User);
             Assert.AreEqual (11, usersAPI.Users.Count());
 
-            await usersAPI.AddEMailNotification(result14c.User,
-                                                new NotificationMessageType[] {
+            await usersAPI.AddEMailNotification(result14c.User!,
+                                                new[] {
                                                     UsersAPI.addUser_MessageType,
                                                     UsersAPI.updateUser_MessageType,
                                                     UsersAPI.deleteUser_MessageType,
@@ -515,8 +520,8 @@ namespace social.OpenData.UsersAPI.tests
                                                     UsersAPI.unlinkOrganizations_MessageType
                                                 });
 
-            await usersAPI.AddSMSNotification  (result14c.User,
-                                                new NotificationMessageType[] {
+            await usersAPI.AddSMSNotification  (result14c.User!,
+                                                new[] {
                                                     UsersAPI.addUser_MessageType,
                                                     UsersAPI.updateUser_MessageType,
                                                     UsersAPI.deleteUser_MessageType,
@@ -535,14 +540,15 @@ namespace social.OpenData.UsersAPI.tests
 
             var result14d = await usersAPI.AddUser(new User(
                                                        User_Id.Parse("secondOrgMember02"),
-                                                       "Second Org Member 02",
+                                                       "Second Org Member 02".ToI18NString(),
                                                        SimpleEMailAddress.Parse("secondOrgMember02@test.local")
                                                    ),
                                                    User2OrganizationEdgeLabel.IsMember,
                                                    result13.Organization);
 
             Assert.IsNotNull(result14d);
-            Assert.IsTrue   (result14d.IsSuccess);
+            Assert.IsTrue   (result14d.Result == CommandResult.Success);
+            Assert.IsNotNull(result14d.User);
             Assert.AreEqual (12, usersAPI.Users.Count());
 
             #endregion

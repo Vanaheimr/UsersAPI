@@ -74,12 +74,12 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An enumeration of users affected by a service ticket.
         /// </summary>
-        protected readonly HashSet<MessageHolder<User_Id,          User>>           _Users;
+        protected readonly HashSet<MessageHolder<User_Id,          IUser>>          _Users;
 
         /// <summary>
         /// An enumeration of organizations affected by a service ticket.
         /// </summary>
-        protected readonly HashSet<MessageHolder<Organization_Id,  Organization>>   _Organizations;
+        protected readonly HashSet<MessageHolder<Organization_Id,  IOrganization>>  _Organizations;
 
         #endregion
 
@@ -94,13 +94,13 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An enumeration of users affected by a service ticket.
         /// </summary>
-        public IEnumerable<MessageHolder<User_Id, User>>                    Users
+        public IEnumerable<MessageHolder<User_Id, IUser>>                   Users
             => _Users;
 
         /// <summary>
         /// An enumeration of organizations affected by a service ticket.
         /// </summary>
-        public IEnumerable<MessageHolder<Organization_Id, Organization>>    Organizations
+        public IEnumerable<MessageHolder<Organization_Id, IOrganization>>   Organizations
             => _Organizations;
 
         #endregion
@@ -121,23 +121,23 @@ namespace social.OpenData.UsersAPI
         /// <param name="Organizations">An enumeration of organizations affected by a service ticket.</param>
         /// <param name="OrganizationIds">An enumeration of organizations affected by a service ticket.</param>
         /// <param name="OrganizationLinks">An enumeration of organizations affected by a service ticket.</param>
-        public Affected(IEnumerable<ServiceTicket>                                   ServiceTickets       = null,
-                        IEnumerable<ServiceTicket_Id>                                ServiceTicketIds     = null,
-                        IEnumerable<MessageHolder<ServiceTicket_Id, ServiceTicket>>  ServiceTicketLinks   = null,
+        public Affected(IEnumerable<ServiceTicket>?                                   ServiceTickets       = null,
+                        IEnumerable<ServiceTicket_Id>?                                ServiceTicketIds     = null,
+                        IEnumerable<MessageHolder<ServiceTicket_Id, ServiceTicket>>?  ServiceTicketLinks   = null,
 
-                        IEnumerable<User>                                            Users                = null,
-                        IEnumerable<User_Id>                                         UserIds              = null,
-                        IEnumerable<MessageHolder<User_Id, User>>                    UserLinks            = null,
+                        IEnumerable<IUser>?                                           Users                = null,
+                        IEnumerable<User_Id>?                                         UserIds              = null,
+                        IEnumerable<MessageHolder<User_Id, IUser>>?                   UserLinks            = null,
 
-                        IEnumerable<Organization>                                    Organizations        = null,
-                        IEnumerable<Organization_Id>                                 OrganizationIds      = null,
-                        IEnumerable<MessageHolder<Organization_Id, Organization>>    OrganizationLinks    = null)
+                        IEnumerable<IOrganization>?                                   Organizations        = null,
+                        IEnumerable<Organization_Id>?                                 OrganizationIds      = null,
+                        IEnumerable<MessageHolder<Organization_Id, IOrganization>>?   OrganizationLinks    = null)
 
         {
 
             _ServiceTickets  = new HashSet<MessageHolder<ServiceTicket_Id, ServiceTicket>>();
-            _Users           = new HashSet<MessageHolder<User_Id,          User>>();
-            _Organizations   = new HashSet<MessageHolder<Organization_Id,  Organization>>();
+            _Users           = new HashSet<MessageHolder<User_Id,          IUser>>();
+            _Organizations   = new HashSet<MessageHolder<Organization_Id,  IOrganization>>();
 
 
             if (ServiceTicketLinks.SafeAny())
@@ -159,11 +159,11 @@ namespace social.OpenData.UsersAPI
 
             if (Users.SafeAny())
                 foreach (var user in Users)
-                    _Users.Add(new MessageHolder<User_Id,  User>(user.Id, user));
+                    _Users.Add(new MessageHolder<User_Id, IUser>(user.Id, user));
 
             if (UserIds.SafeAny())
                 foreach (var userId in UserIds)
-                    _Users.Add(new MessageHolder<User_Id,   User>(userId));
+                    _Users.Add(new MessageHolder<User_Id, IUser>(userId));
 
 
             if (OrganizationLinks.SafeAny())
@@ -172,11 +172,11 @@ namespace social.OpenData.UsersAPI
 
             if (Organizations.SafeAny())
                 foreach (var organization in Organizations)
-                    _Organizations.Add(new MessageHolder<Organization_Id,  Organization>(organization.Id, organization));
+                    _Organizations.Add(new MessageHolder<Organization_Id, IOrganization>(organization.Id, organization));
 
             if (OrganizationIds.SafeAny())
                 foreach (var organizationId in OrganizationIds)
-                    _Organizations.Add(new MessageHolder<Organization_Id,   Organization>(organizationId));
+                    _Organizations.Add(new MessageHolder<Organization_Id, IOrganization>(organizationId));
 
         }
 
@@ -267,7 +267,7 @@ namespace social.OpenData.UsersAPI
 
                 #region Parse Users            [optional]
 
-                var RelatedUsers = new HashSet<MessageHolder<User_Id, User>>();
+                var RelatedUsers = new HashSet<MessageHolder<User_Id, IUser>>();
 
                 if (JSONObject.ParseOptionalHashSet("userIds",
                                                     "related users",
@@ -281,8 +281,8 @@ namespace social.OpenData.UsersAPI
 
                     if (UserProvider != null)
                         foreach (var relatedUserId in RelatedUserIds)
-                            if (UserProvider(relatedUserId, out User relatedUser))
-                                RelatedUsers.Add(new MessageHolder<User_Id, User>(relatedUserId, relatedUser));
+                            if (UserProvider(relatedUserId, out var relatedUser))
+                                RelatedUsers.Add(new MessageHolder<User_Id, IUser>(relatedUserId, relatedUser));
 
                 }
 
@@ -290,7 +290,7 @@ namespace social.OpenData.UsersAPI
 
                 #region Parse Organizations    [optional]
 
-                var RelatedOrganizations = new HashSet<MessageHolder<Organization_Id, Organization>>();
+                var RelatedOrganizations = new HashSet<MessageHolder<Organization_Id, IOrganization>>();
 
                 if (JSONObject.ParseOptionalHashSet("organizationIds",
                                                     "related organizations",
@@ -304,8 +304,8 @@ namespace social.OpenData.UsersAPI
 
                     if (OrganizationProvider != null)
                         foreach (var relatedOrganizationId in RelatedOrganizationIds)
-                            if (OrganizationProvider(relatedOrganizationId, out Organization relatedOrganization))
-                                RelatedOrganizations.Add(new MessageHolder<Organization_Id, Organization>(relatedOrganizationId, relatedOrganization));
+                            if (OrganizationProvider(relatedOrganizationId, out var relatedOrganization))
+                                RelatedOrganizations.Add(new MessageHolder<Organization_Id, IOrganization>(relatedOrganizationId, relatedOrganization));
 
                 }
 
@@ -350,12 +350,12 @@ namespace social.OpenData.UsersAPI
             /// <summary>
             /// An enumeration of users affected by a service ticket.
             /// </summary>
-            public HashSet<MessageHolder<User_Id, User>>                    Users                 { get; }
+            public HashSet<MessageHolder<User_Id, IUser>>                   Users                 { get; }
 
             /// <summary>
             /// An enumeration of organizations affected by a service ticket.
             /// </summary>
-            public HashSet<MessageHolder<Organization_Id, Organization>>    Organizations         { get; }
+            public HashSet<MessageHolder<Organization_Id, IOrganization>>   Organizations         { get; }
 
             #endregion
 
@@ -375,23 +375,23 @@ namespace social.OpenData.UsersAPI
             /// <param name="Organizations">An enumeration of organizations affected by a service ticket.</param>
             /// <param name="OrganizationIds">An enumeration of organizations affected by a service ticket.</param>
             /// <param name="OrganizationLinks">An enumeration of organizations affected by a service ticket.</param>
-            public Builder(IEnumerable<ServiceTicket>                                   ServiceTickets       = null,
-                           IEnumerable<ServiceTicket_Id>                                ServiceTicketIds     = null,
-                           IEnumerable<MessageHolder<ServiceTicket_Id, ServiceTicket>>  ServiceTicketLinks   = null,
+            public Builder(IEnumerable<ServiceTicket>?                                   ServiceTickets       = null,
+                           IEnumerable<ServiceTicket_Id>?                                ServiceTicketIds     = null,
+                           IEnumerable<MessageHolder<ServiceTicket_Id, ServiceTicket>>?  ServiceTicketLinks   = null,
 
-                           IEnumerable<User>                                            Users                = null,
-                           IEnumerable<User_Id>                                         UserIds              = null,
-                           IEnumerable<MessageHolder<User_Id, User>>                    UserLinks            = null,
+                           IEnumerable<IUser>?                                           Users                = null,
+                           IEnumerable<User_Id>?                                         UserIds              = null,
+                           IEnumerable<MessageHolder<User_Id, IUser>>?                   UserLinks            = null,
 
-                           IEnumerable<Organization>                                    Organizations        = null,
-                           IEnumerable<Organization_Id>                                 OrganizationIds      = null,
-                           IEnumerable<MessageHolder<Organization_Id, Organization>>    OrganizationLinks    = null)
+                           IEnumerable<IOrganization>?                                   Organizations        = null,
+                           IEnumerable<Organization_Id>?                                 OrganizationIds      = null,
+                           IEnumerable<MessageHolder<Organization_Id, IOrganization>>?   OrganizationLinks    = null)
 
             {
 
                 this.ServiceTickets      = new HashSet<MessageHolder<ServiceTicket_Id, ServiceTicket>>();
-                this.Users               = new HashSet<MessageHolder<User_Id,          User>>();
-                this.Organizations       = new HashSet<MessageHolder<Organization_Id,  Organization>>();
+                this.Users               = new HashSet<MessageHolder<User_Id,          IUser>>();
+                this.Organizations       = new HashSet<MessageHolder<Organization_Id,  IOrganization>>();
 
 
                 if (ServiceTicketLinks.SafeAny())
@@ -413,11 +413,11 @@ namespace social.OpenData.UsersAPI
 
                 if (Users.SafeAny())
                     foreach (var user in Users)
-                        this.Users.Add(new MessageHolder<User_Id,  User>(user.Id, user));
+                        this.Users.Add(new MessageHolder<User_Id, IUser>(user.Id, user));
 
                 if (UserIds.SafeAny())
                     foreach (var userId in UserIds)
-                        this.Users.Add(new MessageHolder<User_Id,   User>(userId));
+                        this.Users.Add(new MessageHolder<User_Id, IUser>(userId));
 
 
                 if (OrganizationLinks.SafeAny())
@@ -426,11 +426,11 @@ namespace social.OpenData.UsersAPI
 
                 if (Organizations.SafeAny())
                     foreach (var relatedOrganization in Organizations)
-                        this.Organizations. Add(new MessageHolder<Organization_Id,  Organization> (relatedOrganization.Id, relatedOrganization));
+                        this.Organizations. Add(new MessageHolder<Organization_Id, IOrganization> (relatedOrganization.Id, relatedOrganization));
 
                 if (OrganizationIds.SafeAny())
                     foreach (var relatedOrganizationId in OrganizationIds)
-                        this.Organizations.Add(new MessageHolder<Organization_Id,   Organization> (relatedOrganizationId));
+                        this.Organizations.Add(new MessageHolder<Organization_Id, IOrganization> (relatedOrganizationId));
 
             }
 

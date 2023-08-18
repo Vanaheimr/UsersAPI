@@ -17,11 +17,6 @@
 
 #region Usings
 
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-
 using Newtonsoft.Json.Linq;
 
 using org.GraphDefined.Vanaheimr.Illias;
@@ -41,18 +36,20 @@ namespace social.OpenData.UsersAPI.Notifications
         #region AddEMailNotification(this UsersAPI, User, NotificationMessageType,  EMailAddress = null, Subject = null, SubjectPrefix = null)
 
         public static Task AddEMailNotification(this UsersAPI            UsersAPI,
-                                                User                     User,
+                                                IUser                    User,
                                                 NotificationMessageType  NotificationMessageType,
-                                                EMailAddress             EMailAddress      = null,
-                                                String                   Subject           = null,
-                                                String                   SubjectPrefix     = null,
-                                                EventTracking_Id         EventTrackingId   = null,
+                                                EMailAddress?            EMailAddress      = null,
+                                                String?                  Subject           = null,
+                                                String?                  SubjectPrefix     = null,
+                                                EventTracking_Id?        EventTrackingId   = null,
                                                 User_Id?                 CurrentUserId     = null)
 
             => UsersAPI.AddNotification(User,
-                                        new EMailNotification(EMailAddress ?? User.EMail,
-                                                              Subject,
-                                                              SubjectPrefix),
+                                        new EMailNotification(
+                                            EMailAddress ?? User.EMail,
+                                            Subject,
+                                            SubjectPrefix
+                                        ),
                                         NotificationMessageType,
                                         EventTrackingId,
                                         CurrentUserId);
@@ -62,18 +59,20 @@ namespace social.OpenData.UsersAPI.Notifications
         #region AddEMailNotification(this UsersAPI, User, NotificationMessageTypes, EMailAddress = null, Subject = null, SubjectPrefix = null)
 
         public static Task AddEMailNotification(this UsersAPI                         UsersAPI,
-                                                User                                  User,
+                                                IUser                                 User,
                                                 IEnumerable<NotificationMessageType>  NotificationMessageTypes,
-                                                EMailAddress                          EMailAddress      = null,
-                                                String                                Subject           = null,
-                                                String                                SubjectPrefix     = null,
-                                                EventTracking_Id                      EventTrackingId   = null,
+                                                EMailAddress?                         EMailAddress      = null,
+                                                String?                               Subject           = null,
+                                                String?                               SubjectPrefix     = null,
+                                                EventTracking_Id?                     EventTrackingId   = null,
                                                 User_Id?                              CurrentUserId     = null)
 
             => UsersAPI.AddNotification(User,
-                                        new EMailNotification(EMailAddress ?? User.EMail,
-                                                              Subject,
-                                                              SubjectPrefix),
+                                        new EMailNotification(
+                                            EMailAddress ?? User.EMail,
+                                            Subject,
+                                            SubjectPrefix
+                                        ),
                                         NotificationMessageTypes,
                                         EventTrackingId,
                                         CurrentUserId);

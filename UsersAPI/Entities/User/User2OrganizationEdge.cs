@@ -15,13 +15,6 @@
  * limitations under the License.
  */
 
-#region Usings
-
-using System;
-using social.OpenData.UsersAPI;
-
-#endregion
-
 namespace social.OpenData.UsersAPI
 {
 
@@ -37,7 +30,7 @@ namespace social.OpenData.UsersAPI
     }
 
 
-    public class User2OrganizationEdge : MiniEdge<User, User2OrganizationEdgeLabel, Organization>
+    public class User2OrganizationEdge : MiniEdge<IUser, User2OrganizationEdgeLabel, IOrganization>
     {
 
         /// <summary>
@@ -48,9 +41,9 @@ namespace social.OpenData.UsersAPI
         /// <param name="Organization">The target of the edge</param>
         /// <param name="PrivacyLevel">The level of privacy of this edge.</param>
         /// <param name="Created">The creation timestamp of the miniedge.</param>
-        public User2OrganizationEdge(User                        User,
+        public User2OrganizationEdge(IUser                       User,
                                      User2OrganizationEdgeLabel  EdgeLabel,
-                                     Organization                Organization,
+                                     IOrganization               Organization,
                                      PrivacyLevel                PrivacyLevel  = PrivacyLevel.Private,
                                      DateTime?                   Created       = null)
 

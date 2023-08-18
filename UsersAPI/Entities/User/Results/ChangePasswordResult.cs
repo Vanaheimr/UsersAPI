@@ -25,184 +25,253 @@ using org.GraphDefined.Vanaheimr.Hermod;
 namespace social.OpenData.UsersAPI
 {
 
+    /// <summary>
+    /// The result of a change password request.
+    /// </summary>
     public class ChangePasswordResult : AResult<IEnumerable<IUser>>
     {
 
-        public IUser? User
-            => Object?.FirstOrDefault();
+        #region Properties
 
-        public IEnumerable<IUser> Users
+        public IEnumerable<IUser>  Users
             => Object ?? Array.Empty<IUser>();
 
-        public ChangePasswordResult(IUser             User,
-                                    EventTracking_Id  EventTrackingId,
-                                    Boolean           IsSuccess,
-                                    String?           Argument           = null,
-                                    I18NString?       ErrorDescription   = null)
+        #endregion
 
-            : base(new[] { User },
-                   EventTrackingId,
-                   IsSuccess,
-                   Argument,
-                   ErrorDescription)
+        #region Constructor(s)
 
-        { }
-
-        public ChangePasswordResult(IEnumerable<IUser>  Users,
-                                    EventTracking_Id    EventTrackingId,
-                                    Boolean             IsSuccess,
-                                    String?             Argument           = null,
-                                    I18NString?         ErrorDescription   = null)
+        public ChangePasswordResult(IEnumerable<IUser>     Users,
+                                    CommandResult          Result,
+                                    EventTracking_Id?      EventTrackingId   = null,
+                                    IId?                   SenderId          = null,
+                                    Object?                Sender            = null,
+                                    I18NString?            Description       = null,
+                                    IEnumerable<Warning>?  Warnings          = null,
+                                    TimeSpan?              Runtime           = null)
 
             : base(Users,
+                   Result,
                    EventTrackingId,
-                   IsSuccess,
-                   Argument,
-                   ErrorDescription)
+                   SenderId,
+                   Sender,
+                   Description,
+                   Warnings,
+                   Runtime)
 
         { }
 
-
-        public static ChangePasswordResult Success(IUser             User,
-                                                   EventTracking_Id  EventTrackingId)
-
-            => new (User,
-                    EventTrackingId,
-                    true,
-                    null,
-                    null);
-        public static ChangePasswordResult Success(IEnumerable<IUser>  Users,
-                                                   EventTracking_Id    EventTrackingId)
-
-            => new (Users,
-                    EventTrackingId,
-                    true,
-                    null,
-                    null);
+        #endregion
 
 
-        public static ChangePasswordResult ArgumentError(IUser             User,
-                                                         EventTracking_Id  EventTrackingId,
-                                                         String            Argument,
-                                                         String            Description)
+        #region (static) AdminDown    (User, ...)
 
-            => new (User,
-                    EventTrackingId,
-                    false,
-                    Argument,
-                    I18NString.Create(
-                        Languages.en,
-                        Description
-                    ));
+        public static ChangePasswordResult
 
-        public static ChangePasswordResult ArgumentError(IEnumerable<IUser>  Users,
-                                                         EventTracking_Id    EventTrackingId,
-                                                         String              Argument,
-                                                         String              Description)
+            AdminDown(IEnumerable<IUser>     Users,
+                      EventTracking_Id?      EventTrackingId   = null,
+                      IId?                   SenderId          = null,
+                      Object?                Sender            = null,
+                      I18NString?            Description       = null,
+                      IEnumerable<Warning>?  Warnings          = null,
+                      TimeSpan?              Runtime           = null)
 
-            => new (Users,
-                    EventTrackingId,
-                    false,
-                    Argument,
-                    I18NString.Create(
-                        Languages.en,
-                        Description
-                    ));
+                => new (Users,
+                        CommandResult.AdminDown,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Description,
+                        Warnings,
+                        Runtime);
 
-        public static ChangePasswordResult ArgumentError(IUser             User,
-                                                         EventTracking_Id  EventTrackingId,
-                                                         String            Argument,
-                                                         I18NString        Description)
+        #endregion
 
-            => new (User,
-                    EventTrackingId,
-                    false,
-                    Argument,
-                    Description);
+        #region (static) NoOperation  (User, ...)
 
-        public static ChangePasswordResult ArgumentError(IEnumerable<IUser>  Users,
-                                                         EventTracking_Id    EventTrackingId,
-                                                         String              Argument,
-                                                         I18NString          Description)
+        public static ChangePasswordResult
 
-            => new (Users,
-                    EventTrackingId,
-                    false,
-                    Argument,
-                    Description);
+            NoOperation(IEnumerable<IUser>     Users,
+                        EventTracking_Id?      EventTrackingId   = null,
+                        IId?                   SenderId          = null,
+                        Object?                Sender            = null,
+                        I18NString?            Description       = null,
+                        IEnumerable<Warning>?  Warnings          = null,
+                        TimeSpan?              Runtime           = null)
+
+                => new (Users,
+                        CommandResult.NoOperation,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
 
 
-        public static ChangePasswordResult Failed(IUser             User,
-                                                  EventTracking_Id  EventTrackingId,
-                                                  String            Description)
+        #region (static) Enqueued     (User, ...)
 
-            => new (User,
-                    EventTrackingId,
-                    false,
-                    null,
-                    I18NString.Create(
-                        Languages.en,
-                        Description
-                    ));
+        public static ChangePasswordResult
 
-        public static ChangePasswordResult Failed(IEnumerable<IUser>  Users,
-                                                  EventTracking_Id    EventTrackingId,
-                                                  String              Description)
+            Enqueued(IEnumerable<IUser>     Users,
+                     EventTracking_Id?      EventTrackingId   = null,
+                     IId?                   SenderId          = null,
+                     Object?                Sender            = null,
+                     I18NString?            Description       = null,
+                     IEnumerable<Warning>?  Warnings          = null,
+                     TimeSpan?              Runtime           = null)
 
-            => new (Users,
-                    EventTrackingId,
-                    false,
-                    null,
-                    I18NString.Create(
-                        Languages.en,
-                        Description
-                    ));
+                => new (Users,
+                        CommandResult.Enqueued,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Description,
+                        Warnings,
+                        Runtime);
 
-        public static ChangePasswordResult Failed(IUser             User,
-                                                  EventTracking_Id  EventTrackingId,
-                                                  I18NString        Description)
+        #endregion
 
-            => new (User,
-                    EventTrackingId,
-                    false,
-                    null,
-                    Description);
+        #region (static) Success      (User, ...)
 
-        public static ChangePasswordResult Failed(IEnumerable<IUser>  Users,
-                                                  EventTracking_Id    EventTrackingId,
-                                                  I18NString          Description)
+        public static ChangePasswordResult
 
-            => new (Users,
-                    EventTrackingId,
-                    false,
-                    null,
-                    Description);
+            Success(IEnumerable<IUser>     Users,
+                    EventTracking_Id?      EventTrackingId   = null,
+                    IId?                   SenderId          = null,
+                    Object?                Sender            = null,
+                    I18NString?            Description       = null,
+                    IEnumerable<Warning>?  Warnings          = null,
+                    TimeSpan?              Runtime           = null)
 
-        public static ChangePasswordResult Failed(IUser             User,
-                                                  EventTracking_Id  EventTrackingId,
-                                                  Exception         Exception)
+                => new (Users,
+                        CommandResult.Success,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Description,
+                        Warnings,
+                        Runtime);
 
-            => new (User,
-                    EventTrackingId,
-                    false,
-                    null,
-                    I18NString.Create(
-                        Languages.en,
-                        Exception.Message
-                    ));
+        #endregion
 
-        public static ChangePasswordResult Failed(IEnumerable<IUser>  Users,
-                                                  EventTracking_Id    EventTrackingId,
-                                                  Exception           Exception)
 
-            => new (Users,
-                    EventTrackingId,
-                    false,
-                    null,
-                    I18NString.Create(
-                        Languages.en,
-                        Exception.Message
-                    ));
+        #region (static) ArgumentError(User, Description, ...)
+
+        public static ChangePasswordResult
+
+            ArgumentError(IEnumerable<IUser>     Users,
+                          I18NString             Description,
+                          EventTracking_Id?      EventTrackingId   = null,
+                          IId?                   SenderId          = null,
+                          Object?                Sender            = null,
+                          IEnumerable<Warning>?  Warnings          = null,
+                          TimeSpan?              Runtime           = null)
+
+                => new (Users,
+                        CommandResult.ArgumentError,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) Error        (User, Description, ...)
+
+        public static ChangePasswordResult
+
+            Error(IEnumerable<IUser>     Users,
+                  I18NString             Description,
+                  EventTracking_Id?      EventTrackingId   = null,
+                  IId?                   SenderId          = null,
+                  Object?                Sender            = null,
+                  IEnumerable<Warning>?  Warnings          = null,
+                  TimeSpan?              Runtime           = null)
+
+                => new (Users,
+                        CommandResult.Error,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Description,
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) Error        (User, Exception,   ...)
+
+        public static ChangePasswordResult
+
+            Error(IEnumerable<IUser>     Users,
+                  Exception              Exception,
+                  EventTracking_Id?      EventTrackingId   = null,
+                  IId?                   SenderId          = null,
+                  Object?                Sender            = null,
+                  IEnumerable<Warning>?  Warnings          = null,
+                  TimeSpan?              Runtime           = null)
+
+                => new (Users,
+                        CommandResult.Error,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        Exception.Message.ToI18NString(),
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) Timeout      (User, Timeout,     ...)
+
+        public static ChangePasswordResult
+
+            Timeout(IEnumerable<IUser>     Users,
+                    TimeSpan               Timeout,
+                    EventTracking_Id?      EventTrackingId   = null,
+                    IId?                   SenderId          = null,
+                    Object?                Sender            = null,
+                    IEnumerable<Warning>?  Warnings          = null,
+                    TimeSpan?              Runtime           = null)
+
+                => new (Users,
+                        CommandResult.Timeout,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        $"Timeout after {Timeout.TotalSeconds} seconds!".ToI18NString(),
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
+        #region (static) LockTimeout  (User, Timeout,     ...)
+
+        public static ChangePasswordResult
+
+            LockTimeout(IEnumerable<IUser>     Users,
+                        TimeSpan               Timeout,
+                        EventTracking_Id?      EventTrackingId   = null,
+                        IId?                   SenderId          = null,
+                        Object?                Sender            = null,
+                        IEnumerable<Warning>?  Warnings          = null,
+                        TimeSpan?              Runtime           = null)
+
+                => new (Users,
+                        CommandResult.LockTimeout,
+                        EventTrackingId,
+                        SenderId,
+                        Sender,
+                        $"Lock timeout after {Timeout.TotalSeconds} seconds!".ToI18NString(),
+                        Warnings,
+                        Runtime);
+
+        #endregion
+
 
     }
 

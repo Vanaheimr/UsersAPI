@@ -68,7 +68,7 @@ namespace social.OpenData.UsersAPI
 
         #region Properties
 
-        public   User                    You                               { get; }
+        public   IUser                   You                               { get; }
         //public   IEnumerable<User>       Admins                            { get; }
         //public   IEnumerable<User>       Members                           { get; }
 
@@ -87,8 +87,8 @@ namespace social.OpenData.UsersAPI
 
         #region Constructor(s)
 
-        public OrganizationInfo2(Organization  organization,
-                                 User          You)
+        public OrganizationInfo2(IOrganization  organization,
+                                 IUser          You)
 
             : base(organization.Id,
                    organization.Name,
@@ -120,10 +120,10 @@ namespace social.OpenData.UsersAPI
             //this.Members                         = _User2Organization_InEdges.Where(_ => _.EdgeLabel == User2OrganizationEdgeTypes.IsMember).SafeSelect(edge => edge.Source).ToArray();
             //this.Guests                          = _User2Organization_InEdges.Where(_ => _.EdgeLabel == User2OrganizationEdgeTypes.IsGuest). SafeSelect(edge => edge.Source).ToArray();
 
-            void CheckAccessRights(Organization  OOORg,
-                                   ref Boolean  _YouAreMemberRecursion,
-                                   ref Boolean  _YouCanAddMembersRecursion,
-                                   ref Boolean  _YouCanCreateChildOrganizationsRecursion)
+            void CheckAccessRights(IOrganization  OOORg,
+                                   ref Boolean    _YouAreMemberRecursion,
+                                   ref Boolean    _YouCanAddMembersRecursion,
+                                   ref Boolean    _YouCanCreateChildOrganizationsRecursion)
             {
 
                 foreach (var parent in OOORg.ParentOrganizations)
@@ -161,10 +161,10 @@ namespace social.OpenData.UsersAPI
 
             #region GetChilds(Org, ...)
 
-            IEnumerable<OrganizationInfo> GetChilds(Organization  Org,
-                                                    Boolean       YouAreMemberRecursion,
-                                                    Boolean       YouCanAddMembersRecursion,
-                                                    Boolean       YouCanCreateChildOrganizationsRecursion)
+            IEnumerable<OrganizationInfo> GetChilds(IOrganization  Org,
+                                                    Boolean        YouAreMemberRecursion,
+                                                    Boolean        YouCanAddMembersRecursion,
+                                                    Boolean        YouCanCreateChildOrganizationsRecursion)
 
                 => Org.Organization2OrganizationInEdges.
                        Where     (edge => edge.EdgeLabel == Organization2OrganizationEdgeLabel.IsChildOf).

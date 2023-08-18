@@ -130,7 +130,7 @@ namespace social.OpenData.UsersAPI.Notifications
                                    NotificationMessageType       Type,
                                    JObject                       Data,
                                    IEnumerable<Organization_Id>  Owners,
-                                   IEnumerable<Signature>        Signatures    = null)
+                                   IEnumerable<Signature>?      Signatures    = null)
 
             : this(NotificationMessage_Id.Random(),
                    Timestamp,
@@ -156,17 +156,20 @@ namespace social.OpenData.UsersAPI.Notifications
                                    NotificationMessageType       Type,
                                    JObject                       Data,
                                    IEnumerable<Organization_Id>  Owners,
-                                   IEnumerable<Signature>        Signatures   = null,
+                                   IEnumerable<Signature>?       Signatures   = null,
 
-                                   JObject                       CustomData   = default,
-                                   String                        DataSource   = default,
+                                   JObject?                      CustomData   = default,
+                                   String?                       DataSource   = default,
                                    DateTime?                     LastChange   = default)
 
             : base(Id,
                    DefaultJSONLDContext,
-                   LastChange,
+                   null,
+                   null,
                    Signatures,
                    CustomData,
+                   null,
+                   LastChange,
                    DataSource)
 
         {
@@ -723,22 +726,23 @@ namespace social.OpenData.UsersAPI.Notifications
             /// <summary>
             /// Create a new News builder.
             /// </summary>
-            public Builder(NotificationMessage_Id?       Id                = null,
-                           DateTime?                     Timestamp         = null,
-                           NotificationMessageType?      Type              = null,
-                           JObject                       Data              = null,
-                           IEnumerable<Organization_Id>  Owners            = null,
-                           IEnumerable<Signature>        Signatures        = null,
+            public Builder(NotificationMessage_Id?        Id                = null,
+                           DateTime?                      Timestamp         = null,
+                           NotificationMessageType?       Type              = null,
+                           JObject?                       Data              = null,
+                           IEnumerable<Organization_Id>?  Owners            = null,
+                           IEnumerable<Signature>?        Signatures        = null,
 
-                           JObject                       CustomData        = default,
-                           String                        DataSource        = default,
-                           DateTime?                     LastChange        = default)
+                           JObject?                       CustomData        = default,
+                           String?                        DataSource        = default,
+                           DateTime?                      LastChange        = default)
 
                 : base(Id ?? NotificationMessage_Id.Random(),
                        DefaultJSONLDContext,
                        LastChange,
                        null,
                        CustomData,
+                       null,
                        DataSource)
 
             {

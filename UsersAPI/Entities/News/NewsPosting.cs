@@ -91,8 +91,7 @@ namespace social.OpenData.UsersAPI
     /// <summary>
     /// A news posting.
     /// </summary>
-    public class NewsPosting : AEntity<NewsPosting_Id,
-                                       NewsPosting>
+    public class NewsPosting : AEntity<NewsPosting_Id, NewsPosting>
     {
 
         #region Data
@@ -209,9 +208,12 @@ namespace social.OpenData.UsersAPI
 
             : base(Id ?? NewsPosting_Id.Random(),
                    DefaultJSONLDContext,
-                   LastChangeDate,
+                   null,
+                   null,
                    Signatures,
                    CustomData,
+                   null,
+                   LastChangeDate,
                    DataSource)
 
         {
@@ -374,7 +376,7 @@ namespace social.OpenData.UsersAPI
 
                 #region Parse Author            [mandatory]
 
-                User Author = null;
+                IUser? Author = null;
 
                 if (JSONObject["author"] is JObject authorJSON &&
                     authorJSON.ParseMandatory("@id",
@@ -741,8 +743,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// A news posting builder.
         /// </summary>
-        public new class Builder : AEntity<NewsPosting_Id,
-                                           NewsPosting>.Builder
+        public new class Builder : AEntity<NewsPosting_Id, NewsPosting>.Builder
         {
 
             #region Properties
@@ -817,6 +818,7 @@ namespace social.OpenData.UsersAPI
                        LastChangeDate,
                        Signatures,
                        CustomData,
+                       null,
                        DataSource)
 
             {

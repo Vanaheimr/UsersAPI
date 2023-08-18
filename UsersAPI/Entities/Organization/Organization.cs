@@ -33,15 +33,15 @@ using social.OpenData.UsersAPI.Notifications;
 namespace social.OpenData.UsersAPI
 {
 
-    public delegate Boolean OrganizationProviderDelegate(Organization_Id OrganizationId, out Organization Organization);
+    public delegate Boolean OrganizationProviderDelegate(Organization_Id OrganizationId, out IOrganization Organization);
 
-    public delegate JObject OrganizationToJSONDelegate(Organization  Organization,
-                                                       Boolean       Embedded                 = false,
-                                                       InfoStatus    ExpandMembers            = InfoStatus.ShowIdOnly,
-                                                       InfoStatus    ExpandParents            = InfoStatus.ShowIdOnly,
-                                                       InfoStatus    ExpandSubOrganizations   = InfoStatus.ShowIdOnly,
-                                                       InfoStatus    ExpandTags               = InfoStatus.ShowIdOnly,
-                                                       Boolean       IncludeCryptoHash        = true);
+    public delegate JObject OrganizationToJSONDelegate(IOrganization  Organization,
+                                                       Boolean        Embedded                 = false,
+                                                       InfoStatus     ExpandMembers            = InfoStatus.ShowIdOnly,
+                                                       InfoStatus     ExpandParents            = InfoStatus.ShowIdOnly,
+                                                       InfoStatus     ExpandSubOrganizations   = InfoStatus.ShowIdOnly,
+                                                       InfoStatus     ExpandTags               = InfoStatus.ShowIdOnly,
+                                                       Boolean        IncludeCryptoHash        = true);
 
 
     /// <summary>
@@ -59,16 +59,16 @@ namespace social.OpenData.UsersAPI
         /// <param name="Skip">The optional number of organizations to skip.</param>
         /// <param name="Take">The optional number of organizations to return.</param>
         /// <param name="Embedded">Whether this data structure is embedded into another data structure.</param>
-        public static JArray ToJSON(this IEnumerable<Organization>  Organizations,
-                                    UInt64?                         Skip                     = null,
-                                    UInt64?                         Take                     = null,
-                                    Boolean                         Embedded                 = false,
-                                    InfoStatus                      ExpandMembers            = InfoStatus.ShowIdOnly,
-                                    InfoStatus                      ExpandParents            = InfoStatus.ShowIdOnly,
-                                    InfoStatus                      ExpandSubOrganizations   = InfoStatus.ShowIdOnly,
-                                    InfoStatus                      ExpandTags               = InfoStatus.ShowIdOnly,
-                                    OrganizationToJSONDelegate      OrganizationToJSON       = null,
-                                    Boolean                         IncludeCryptoHash        = true)
+        public static JArray ToJSON(this IEnumerable<IOrganization>  Organizations,
+                                    UInt64?                          Skip                     = null,
+                                    UInt64?                          Take                     = null,
+                                    Boolean                          Embedded                 = false,
+                                    InfoStatus                       ExpandMembers            = InfoStatus.ShowIdOnly,
+                                    InfoStatus                       ExpandParents            = InfoStatus.ShowIdOnly,
+                                    InfoStatus                       ExpandSubOrganizations   = InfoStatus.ShowIdOnly,
+                                    InfoStatus                       ExpandTags               = InfoStatus.ShowIdOnly,
+                                    OrganizationToJSONDelegate?      OrganizationToJSON       = null,
+                                    Boolean                          IncludeCryptoHash        = true)
 
 
             => Organizations?.Any() != true
@@ -76,24 +76,24 @@ namespace social.OpenData.UsersAPI
                    ? new JArray()
 
                    : new JArray(Organizations.
-                                    Where     (dataSet =>  dataSet != null).
-                                    OrderBy   (dataSet => dataSet.Id).
+                                    Where         (dataSet => dataSet is not null).
+                                    OrderBy       (dataSet => dataSet.Id).
                                     SkipTakeFilter(Skip, Take).
-                                    SafeSelect(organization => OrganizationToJSON != null
-                                                                    ? OrganizationToJSON (organization,
-                                                                                          Embedded,
-                                                                                          ExpandMembers,
-                                                                                          ExpandParents,
-                                                                                          ExpandSubOrganizations,
-                                                                                          ExpandTags,
-                                                                                          IncludeCryptoHash)
+                                    SafeSelect    (organization => OrganizationToJSON is not null
+                                                                       ? OrganizationToJSON (organization,
+                                                                                             Embedded,
+                                                                                             ExpandMembers,
+                                                                                             ExpandParents,
+                                                                                             ExpandSubOrganizations,
+                                                                                             ExpandTags,
+                                                                                             IncludeCryptoHash)
 
-                                                                    : organization.ToJSON(Embedded,
-                                                                                          ExpandMembers,
-                                                                                          ExpandParents,
-                                                                                          ExpandSubOrganizations,
-                                                                                          ExpandTags,
-                                                                                          IncludeCryptoHash)));
+                                                                       : organization.ToJSON(Embedded,
+                                                                                             ExpandMembers,
+                                                                                             ExpandParents,
+                                                                                             ExpandSubOrganizations,
+                                                                                             ExpandTags,
+                                                                                             IncludeCryptoHash)));
 
         #endregion
 
@@ -226,7 +226,7 @@ namespace social.OpenData.UsersAPI
 
         public User2OrganizationEdge
 
-            AddUser(User                        Source,
+            AddUser(IUser                       Source,
                     User2OrganizationEdgeLabel  EdgeLabel,
                     PrivacyLevel                PrivacyLevel = PrivacyLevel.World)
 
@@ -247,25 +247,25 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        public IEnumerable<User> Admins
+        public IEnumerable<IUser> Admins
 
             => _User2Organization_Edges.Where(edge => edge.EdgeLabel == User2OrganizationEdgeLabel.IsAdmin).
                                         SafeSelect(edge => edge.Source).
                                         Distinct();
 
-        public IEnumerable<User> Members
+        public IEnumerable<IUser> Members
 
             => _User2Organization_Edges.Where(edge => edge.EdgeLabel == User2OrganizationEdgeLabel.IsMember).
                                         SafeSelect(edge => edge.Source).
                                         Distinct();
 
-        public IEnumerable<User> Guests
+        public IEnumerable<IUser> Guests
 
             => _User2Organization_Edges.Where(edge => edge.EdgeLabel == User2OrganizationEdgeLabel.IsGuest).
                                         SafeSelect(edge => edge.Source).
                                         Distinct();
 
-        public IEnumerable<User> Users
+        public IEnumerable<IUser> Users
 
             => _User2Organization_Edges.Where(edge => edge.EdgeLabel == User2OrganizationEdgeLabel.IsAdmin ||
                                                            edge.EdgeLabel == User2OrganizationEdgeLabel.IsMember ||
@@ -280,7 +280,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// The edge labels of all (incoming) edges between the given user and this organization.
         /// </summary>
-        public IEnumerable<User2OrganizationEdge> User2OrganizationInEdges(User User)
+        public IEnumerable<User2OrganizationEdge> User2OrganizationInEdges(IUser User)
 
             => _User2Organization_Edges.
                    Where(edge => edge.Source == User);
@@ -292,7 +292,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// The edge labels of all (incoming) edges between the given user and this organization.
         /// </summary>
-        public IEnumerable<User2OrganizationEdgeLabel> User2OrganizationInEdgeLabels(User User)
+        public IEnumerable<User2OrganizationEdgeLabel> User2OrganizationInEdgeLabels(IUser User)
 
             => _User2Organization_Edges.
                    Where(edge => edge.Source == User).
@@ -304,7 +304,7 @@ namespace social.OpenData.UsersAPI
         #region RemoveUser(EdgeLabel, User)
 
         public void RemoveUser(User2OrganizationEdgeLabel EdgeLabel,
-                               User User)
+                               IUser User)
         {
 
             var edges = _User2Organization_Edges.
@@ -367,9 +367,9 @@ namespace social.OpenData.UsersAPI
 
         #region AddInEdge (EdgeLabel, SourceOrganization, PrivacyLevel = PrivacyLevel.World)
 
-        public Organization2OrganizationEdge AddInEdge(Organization2OrganizationEdgeLabel EdgeLabel,
-                                                       Organization SourceOrganization,
-                                                       PrivacyLevel PrivacyLevel = PrivacyLevel.World)
+        public Organization2OrganizationEdge AddInEdge(Organization2OrganizationEdgeLabel  EdgeLabel,
+                                                       IOrganization                       SourceOrganization,
+                                                       PrivacyLevel                        PrivacyLevel = PrivacyLevel.World)
 
             => _Organization2Organization_InEdges.AddAndReturnElement(new Organization2OrganizationEdge(SourceOrganization,
                                                                                                         EdgeLabel,
@@ -380,9 +380,9 @@ namespace social.OpenData.UsersAPI
 
         #region AddOutEdge(EdgeLabel, TargetOrganization, PrivacyLevel = PrivacyLevel.World)
 
-        public Organization2OrganizationEdge AddOutEdge(Organization2OrganizationEdgeLabel EdgeLabel,
-                                                        Organization TargetOrganization,
-                                                        PrivacyLevel PrivacyLevel = PrivacyLevel.World)
+        public Organization2OrganizationEdge AddOutEdge(Organization2OrganizationEdgeLabel  EdgeLabel,
+                                                        IOrganization                       TargetOrganization,
+                                                        PrivacyLevel                        PrivacyLevel = PrivacyLevel.World)
 
             => _Organization2Organization_OutEdges.AddAndReturnElement(new Organization2OrganizationEdge(this,
                                                                                                          EdgeLabel,
@@ -392,13 +392,13 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (private) _GetAllParents(ref Parents)
+        #region GetAllParents(ref Parents)
 
-        private void _GetAllParents(ref HashSet<Organization> Parents)
+        public void GetAllParents(ref HashSet<IOrganization> Parents)
         {
 
             var parents = _Organization2Organization_OutEdges.
-                              Where(edge => edge.Source == this && edge.EdgeLabel == Organization2OrganizationEdgeLabel.IsChildOf).
+                              Where (edge => edge.Source == this && edge.EdgeLabel == Organization2OrganizationEdgeLabel.IsChildOf).
                               Select(edge => edge.Target).
                               ToArray();
 
@@ -406,7 +406,7 @@ namespace social.OpenData.UsersAPI
             {
                 // Detect loops!
                 if (Parents.Add(parent))
-                    parent._GetAllParents(ref Parents);
+                    parent.GetAllParents(ref Parents);
             }
 
         }
@@ -415,13 +415,14 @@ namespace social.OpenData.UsersAPI
 
         #region GetAllParents(Filter = null)
 
-        public IEnumerable<Organization> GetAllParents(Func<Organization, Boolean> Include = null)
+        public IEnumerable<IOrganization> GetAllParents(Func<IOrganization, Boolean>? Include = null)
         {
 
-            var parents = new HashSet<Organization>();
-            _GetAllParents(ref parents);
+            var parents = new HashSet<IOrganization>();
 
-            return Include != null
+            GetAllParents(ref parents);
+
+            return Include is not null
                        ? parents.Where(Include)
                        : parents;
 
@@ -431,14 +432,16 @@ namespace social.OpenData.UsersAPI
 
         #region GetMeAndAllMyParents(Filter = null)
 
-        public IEnumerable<Organization> GetMeAndAllMyParents(Func<Organization, Boolean> Include = null)
+        public IEnumerable<IOrganization> GetMeAndAllMyParents(Func<IOrganization, Boolean>? Include = null)
         {
 
-            var parentsAndMe = new HashSet<Organization>();
-            parentsAndMe.Add(this);
-            _GetAllParents(ref parentsAndMe);
+            var parentsAndMe = new HashSet<IOrganization> {
+                                   this
+                               };
 
-            return Include != null
+            GetAllParents(ref parentsAndMe);
+
+            return Include is not null
                        ? parentsAndMe.Where(Include)
                        : parentsAndMe;
 
@@ -448,7 +451,7 @@ namespace social.OpenData.UsersAPI
 
         #region ParentOrganizations
 
-        public IEnumerable<Organization> ParentOrganizations
+        public IEnumerable<IOrganization> ParentOrganizations
 
             => _Organization2Organization_OutEdges.
                    Where(edge => edge.Source == this && edge.EdgeLabel == Organization2OrganizationEdgeLabel.IsChildOf).
@@ -458,13 +461,13 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (private) _GetAllChilds(ref Childs)
+        #region GetAllChilds(ref Childs)
 
-        private void _GetAllChilds(ref HashSet<Organization> Childs)
+        public void GetAllChilds(ref HashSet<IOrganization> Childs)
         {
 
             var childs = _Organization2Organization_InEdges.
-                             Where(edge => edge.Target == this && edge.EdgeLabel == Organization2OrganizationEdgeLabel.IsChildOf).
+                             Where (edge => edge.Target == this && edge.EdgeLabel == Organization2OrganizationEdgeLabel.IsChildOf).
                              Select(edge => edge.Source).
                              ToArray();
 
@@ -472,7 +475,7 @@ namespace social.OpenData.UsersAPI
             {
                 // Detect loops!
                 if (Childs.Add(child))
-                    child._GetAllChilds(ref Childs);
+                    child.GetAllChilds(ref Childs);
             }
 
         }
@@ -481,13 +484,14 @@ namespace social.OpenData.UsersAPI
 
         #region GetAllChilds(Filter = null)
 
-        public IEnumerable<Organization> GetAllChilds(Func<Organization, Boolean> Include = null)
+        public IEnumerable<IOrganization> GetAllChilds(Func<IOrganization, Boolean>? Include = null)
         {
 
-            var childs = new HashSet<Organization>();
-            _GetAllChilds(ref childs);
+            var childs = new HashSet<IOrganization>();
 
-            return Include != null
+            GetAllChilds(ref childs);
+
+            return Include is not null
                        ? childs.Where(Include)
                        : childs;
 
@@ -497,12 +501,14 @@ namespace social.OpenData.UsersAPI
 
         #region GetMeAndAllMyChilds(Filter = null)
 
-        public IEnumerable<Organization> GetMeAndAllMyChilds(Func<Organization, Boolean> Include = null)
+        public IEnumerable<IOrganization> GetMeAndAllMyChilds(Func<IOrganization, Boolean>? Include = null)
         {
 
-            var childAndMe = new HashSet<Organization>();
-            childAndMe.Add(this);
-            _GetAllChilds(ref childAndMe);
+            var childAndMe = new HashSet<IOrganization> {
+                                 this
+                             };
+
+            GetAllChilds(ref childAndMe);
 
             return Include != null
                        ? childAndMe.Where(Include)
@@ -517,7 +523,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// A relationship between two organizations where the first includes the second, e.g., as a subsidiary. See also: the more specific 'department' property.
         /// </summary>
-        public IEnumerable<Organization> SubOrganizations
+        public IEnumerable<IOrganization> SubOrganizations
 
             => _Organization2Organization_InEdges.
                    Where(edge => edge.Target == this && edge.EdgeLabel == Organization2OrganizationEdgeLabel.IsChildOf).
@@ -560,7 +566,7 @@ namespace social.OpenData.UsersAPI
         #region RemoveInEdges (EdgeLabel, SourceOrganization)
 
         public void RemoveInEdges(Organization2OrganizationEdgeLabel EdgeLabel,
-                                  Organization SourceOrganization)
+                                  IOrganization SourceOrganization)
         {
 
             var edges = _Organization2Organization_InEdges.
@@ -586,7 +592,7 @@ namespace social.OpenData.UsersAPI
         #region RemoveOutEdges(EdgeLabel, TargetOrganization)
 
         public void RemoveOutEdges(Organization2OrganizationEdgeLabel EdgeLabel,
-                                   Organization TargetOrganization)
+                                   IOrganization TargetOrganization)
         {
 
             var edges = _Organization2Organization_OutEdges.
@@ -698,43 +704,55 @@ namespace social.OpenData.UsersAPI
 
         private readonly NotificationStore notifications;
 
-        #region (internal) AddNotification(Notification,                           OnUpdate = null)
+        #region AddNotification(Notification,                           OnUpdate = null)
 
-        internal T AddNotification<T>(T          Notification,
-                                      Action<T>  OnUpdate  = null)
+        public T AddNotification<T>(T           Notification,
+                                    Action<T>?  OnUpdate   = null)
 
             where T : ANotification
 
             => notifications.Add(Notification,
-                                  OnUpdate);
+                                 OnUpdate);
 
         #endregion
 
-        #region (internal) AddNotification(Notification, NotificationMessageType,  OnUpdate = null)
+        #region AddNotification(Notification, NotificationMessageType,  OnUpdate = null)
 
-        internal T AddNotification<T>(T                        Notification,
-                                      NotificationMessageType  NotificationMessageType,
-                                      Action<T>                OnUpdate  = null)
+        public T AddNotification<T>(T                        Notification,
+                                    NotificationMessageType  NotificationMessageType,
+                                    Action<T>?               OnUpdate  = null)
 
             where T : ANotification
 
             => notifications.Add(Notification,
-                                  NotificationMessageType,
-                                  OnUpdate);
+                                 NotificationMessageType,
+                                 OnUpdate);
 
         #endregion
 
-        #region (internal) AddNotification(Notification, NotificationMessageTypes, OnUpdate = null)
+        #region AddNotification(Notification, NotificationMessageTypes, OnUpdate = null)
 
-        internal T AddNotification<T>(T                                     Notification,
-                                      IEnumerable<NotificationMessageType>  NotificationMessageTypes,
-                                      Action<T>                             OnUpdate  = null)
+        public T AddNotification<T>(T                                     Notification,
+                                    IEnumerable<NotificationMessageType>  NotificationMessageTypes,
+                                    Action<T>?                            OnUpdate  = null)
 
             where T : ANotification
 
             => notifications.Add(Notification,
-                                  NotificationMessageTypes,
-                                  OnUpdate);
+                                 NotificationMessageTypes,
+                                 OnUpdate);
+
+        #endregion
+
+        #region RemoveNotification(NotificationType,                           OnRemoval = null)
+
+        public Task RemoveNotification<T>(T           NotificationType,
+                                          Action<T>?  OnRemoval   = null)
+
+            where T : ANotification
+
+            => notifications.Remove(NotificationType,
+                                    OnRemoval);
 
         #endregion
 
@@ -824,19 +842,6 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-
-        #region (internal) RemoveNotification(NotificationType,                           OnRemoval = null)
-
-        internal Task RemoveNotification<T>(T          NotificationType,
-                                            Action<T>  OnRemoval  = null)
-
-            where T : ANotification
-
-            => notifications.Remove(NotificationType,
-                                     OnRemoval);
-
-        #endregion
-
         #endregion
 
 
@@ -908,14 +913,14 @@ namespace social.OpenData.UsersAPI
                                                                                     Where     (edge => edge.EdgeLabel == Organization2OrganizationEdgeLabel.IsChildOf).
                                                                                     SafeSelect(edge => ExpandParents.Switch(edge,
                                                                                                                             _edge => _edge.Target.Id.ToString(),
-                                                                                                                            _edge => _edge.Target.ToJSON()))),
+                                                                                                                            _edge => _edge.Target.ToJSON(true)))),
 
                                        Organization2OrganizationInEdges.SafeAny(edge => edge.EdgeLabel == Organization2OrganizationEdgeLabel.IsChildOf)
                                            ? new JProperty("subOrganizations",  Organization2OrganizationInEdges.
                                                                                     Where     (edge => edge.EdgeLabel == Organization2OrganizationEdgeLabel.IsChildOf).
                                                                                     SafeSelect(edge => ExpandSubOrganizations.Switch(edge,
                                                                                                                            _edge => _edge.Source.Id.ToString(),
-                                                                                                                           _edge => _edge.Source.ToJSON())))
+                                                                                                                           _edge => _edge.Source.ToJSON(true))))
                                            : null,
 
                                        Admins.SafeAny()
@@ -1185,6 +1190,9 @@ namespace social.OpenData.UsersAPI
 
 
         #region CopyAllLinkedDataFrom(OldOrganization)
+
+        public void CopyAllLinkedDataFrom(IOrganization OldOrganization)
+            => CopyAllLinkedDataFrom(OldOrganization as Organization);
 
         public override void CopyAllLinkedDataFrom(Organization OldOrganization)
         {
@@ -1568,9 +1576,9 @@ namespace social.OpenData.UsersAPI
 
                 => _User2Organization_Edges.
                        AddAndReturnElement(new User2OrganizationEdge(Source,
-                                                                                                    EdgeLabel,
-                                                                                                    this,
-                                                                                                    PrivacyLevel));
+                                                                     EdgeLabel,
+                                                                     this.ToImmutable,
+                                                                     PrivacyLevel));
 
             #endregion
 
@@ -1651,14 +1659,14 @@ namespace social.OpenData.UsersAPI
 
             public Organization2OrganizationEdge
 
-                AddInEdge(Organization2OrganizationEdgeLabel EdgeLabel,
-                           Organization SourceOrganization,
-                           PrivacyLevel PrivacyLevel = PrivacyLevel.World)
+                AddInEdge(Organization2OrganizationEdgeLabel  EdgeLabel,
+                          Organization                        SourceOrganization,
+                          PrivacyLevel                        PrivacyLevel = PrivacyLevel.World)
 
                 => _Organization2Organization_InEdges.AddAndReturnElement(new Organization2OrganizationEdge(SourceOrganization,
-                                                                                                                                                    EdgeLabel,
-                                                                                                                                                    this,
-                                                                                                                                                    PrivacyLevel));
+                                                                                                            EdgeLabel,
+                                                                                                            this.ToImmutable,
+                                                                                                            PrivacyLevel));
 
             #endregion
 
@@ -1718,10 +1726,10 @@ namespace social.OpenData.UsersAPI
                            Organization TargetOrganization,
                            PrivacyLevel PrivacyLevel = PrivacyLevel.World)
 
-                => _Organization2Organization_OutEdges.AddAndReturnElement(new Organization2OrganizationEdge(this,
-                                                                                                                                                    EdgeLabel,
-                                                                                                                                                    TargetOrganization,
-                                                                                                                                                    PrivacyLevel));
+                => _Organization2Organization_OutEdges.AddAndReturnElement(new Organization2OrganizationEdge(this.ToImmutable,
+                                                                                                             EdgeLabel,
+                                                                                                             TargetOrganization,
+                                                                                                             PrivacyLevel));
 
             #endregion
 
@@ -2031,7 +2039,7 @@ namespace social.OpenData.UsersAPI
                     Add(OldOrganization._User2Organization_Edges);
 
                     foreach (var edge in _User2Organization_Edges)
-                        edge.Target = this;
+                        edge.Target = this.ToImmutable;
 
                 }
 
@@ -2041,7 +2049,7 @@ namespace social.OpenData.UsersAPI
                     AddInEdges(OldOrganization._Organization2Organization_InEdges);
 
                     foreach (var edge in _Organization2Organization_InEdges)
-                        edge.Target = this;
+                        edge.Target = this.ToImmutable;
 
                 }
 
@@ -2051,7 +2059,7 @@ namespace social.OpenData.UsersAPI
                     AddOutEdges(OldOrganization._Organization2Organization_OutEdges);
 
                     foreach (var edge in _Organization2Organization_OutEdges)
-                        edge.Source = this;
+                        edge.Source = this.ToImmutable;
 
                 }
 
