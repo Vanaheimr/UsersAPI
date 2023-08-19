@@ -3480,7 +3480,7 @@ namespace social.OpenData.UsersAPI
                 Request.Cookies. TryGet     (SessionCookieName,           out var cookie)              &&
                 cookie is not null &&
                 SecurityToken_Id.TryParse   (cookie.FirstOrDefault().Key, out var securityTokenId)     &&
-                _HTTPCookies.    TryGetValue(securityTokenId,             out var securityInformation) &&
+                httpCookies.    TryGetValue(securityTokenId,             out var securityInformation) &&
                 Timestamp.Now < securityInformation.Expires                                            &&
                 TryGetUser(securityInformation.UserId, out User))
             {
@@ -3578,7 +3578,7 @@ namespace social.OpenData.UsersAPI
                 Request.Cookies. TryGet     (SessionCookieName,           out var cookie)              &&
                 cookie is not null &&
                 SecurityToken_Id.TryParse   (cookie.FirstOrDefault().Key, out var securityTokenId)     &&
-                _HTTPCookies.    TryGetValue(securityTokenId,             out var securityInformation) &&
+                httpCookies.    TryGetValue(securityTokenId,             out var securityInformation) &&
                 Timestamp.Now < securityInformation.Expires                                            &&
                 TryGetUser(securityInformation.SuperUserId ?? securityInformation.UserId, out User))
             {
@@ -5797,7 +5797,7 @@ namespace social.OpenData.UsersAPI
 
                                   #region Check JSON HTTP body...
 
-                                  if (!Request.TryParseJObjectRequestBody(out var jsonRequest,
+                                  if (!Request.TryParseJSONObjectRequestBody(out var jsonRequest,
                                                                           out var httpResponse,
                                                                           AllowEmptyHTTPBody: false) ||
                                        jsonRequest is null)
