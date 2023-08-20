@@ -67,471 +67,6 @@ namespace social.OpenData.UsersAPI
     public static class UsersAPIExtensions
     {
 
-        #region ParseUserId(this HTTPRequest, UsersAPI, out UserId,           out HTTPResponse)
-
-        /// <summary>
-        /// Parse the given HTTP request and return the user identification
-        /// for the given HTTP hostname and HTTP query parameter
-        /// or an HTTP error response.
-        /// </summary>
-        /// <param name="HTTPRequest">A HTTP request.</param>
-        /// <param name="UsersAPI">The Users API.</param>
-        /// <param name="UserId">The parsed unique user identification.</param>
-        /// <param name="HTTPResponse">A HTTP error response.</param>
-        /// <returns>True, when user identification was found; false else.</returns>
-        public static Boolean ParseUserId(this HTTPRequest           HTTPRequest,
-                                          UsersAPI                   UsersAPI,
-                                          out User_Id?               UserId,
-                                          out HTTPResponse.Builder?  HTTPResponse)
-        {
-
-            #region Initial checks
-
-            if (HTTPRequest is null)
-                throw new ArgumentNullException(nameof(HTTPRequest),  "The given HTTP request must not be null!");
-
-            if (UsersAPI    is null)
-                throw new ArgumentNullException(nameof(UsersAPI),     "The given Users API must not be null!");
-
-            #endregion
-
-            UserId        = null;
-            HTTPResponse  = null;
-
-            if (HTTPRequest.ParsedURLParameters.Length < 1)
-            {
-
-                HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
-                    HTTPStatusCode  = HTTPStatusCode.BadRequest,
-                    Server          = UsersAPI.HTTPServer.DefaultServerName,
-                    Date            = Timestamp.Now,
-                    Connection      = "close"
-                };
-
-                return false;
-
-            }
-
-            UserId = User_Id.TryParse(HTTPRequest.ParsedURLParameters[0]);
-
-            if (!UserId.HasValue)
-            {
-
-                HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
-                    HTTPStatusCode  = HTTPStatusCode.BadRequest,
-                    Server          = UsersAPI.HTTPServer.DefaultServerName,
-                    Date            = Timestamp.Now,
-                    ContentType     = HTTPContentType.JSON_UTF8,
-                    Content         = @"{ ""description"": ""Invalid UserId!"" }".ToUTF8Bytes(),
-                    Connection      = "close"
-                };
-
-                return false;
-
-            }
-
-            return true;
-
-        }
-
-        #endregion
-
-        #region ParseUser  (this HTTPRequest, UsersAPI, out UserId, out User, out HTTPResponse)
-
-        /// <summary>
-        /// Parse the given HTTP request and return the user identification
-        /// for the given HTTP hostname and HTTP query parameter
-        /// or an HTTP error response.
-        /// </summary>
-        /// <param name="HTTPRequest">A HTTP request.</param>
-        /// <param name="UsersAPI">The Users API.</param>
-        /// <param name="UserId">The parsed unique user identification.</param>
-        /// <param name="User">The resolved user.</param>
-        /// <param name="HTTPResponse">A HTTP error response.</param>
-        /// <returns>True, when user identification was found; false else.</returns>
-        public static Boolean ParseUser(this HTTPRequest           HTTPRequest,
-                                        UsersAPI                   UsersAPI,
-                                        out User_Id?               UserId,
-                                        out IUser?                 User,
-                                        out HTTPResponse.Builder?  HTTPResponse)
-        {
-
-            #region Initial checks
-
-            if (HTTPRequest is null)
-                throw new ArgumentNullException(nameof(HTTPRequest),  "The given HTTP request must not be null!");
-
-            if (UsersAPI    is null)
-                throw new ArgumentNullException(nameof(UsersAPI),     "The given Users API must not be null!");
-
-            #endregion
-
-            UserId        = null;
-            User          = null;
-            HTTPResponse  = null;
-
-            if (HTTPRequest.ParsedURLParameters.Length < 1) {
-
-                HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
-                    HTTPStatusCode  = HTTPStatusCode.BadRequest,
-                    Server          = UsersAPI.HTTPServer.DefaultServerName,
-                    Date            = Timestamp.Now,
-                    Connection      = "close"
-                };
-
-                return false;
-
-            }
-
-            UserId = User_Id.TryParse(HTTPRequest.ParsedURLParameters[0]);
-
-            if (!UserId.HasValue) {
-
-                HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
-                    HTTPStatusCode  = HTTPStatusCode.BadRequest,
-                    Server          = UsersAPI.HTTPServer.DefaultServerName,
-                    Date            = Timestamp.Now,
-                    ContentType     = HTTPContentType.JSON_UTF8,
-                    Content         = @"{ ""description"": ""Invalid UserId!"" }".ToUTF8Bytes(),
-                    Connection      = "close"
-                };
-
-                return false;
-
-            }
-
-            if (!UsersAPI.TryGetUser(UserId.Value, out User)) {
-
-                HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
-                    HTTPStatusCode  = HTTPStatusCode.NotFound,
-                    Server          = UsersAPI.HTTPServer.DefaultServerName,
-                    Date            = Timestamp.Now,
-                    ContentType     = HTTPContentType.JSON_UTF8,
-                    Content         = @"{ ""description"": ""Unknown UserId!"" }".ToUTF8Bytes(),
-                    Connection      = "close"
-                };
-
-                return false;
-
-            }
-
-            return true;
-
-        }
-
-        #endregion
-
-
-        #region ParseUserGroupId(this HTTPRequest, UsersAPI, out UsersAPI,                   out HTTPResponse)
-
-        /// <summary>
-        /// Parse the given HTTP request and return the user identification
-        /// for the given HTTP hostname and HTTP query parameter
-        /// or an HTTP error response.
-        /// </summary>
-        /// <param name="HTTPRequest">A HTTP request.</param>
-        /// <param name="UsersAPI">The Users API.</param>
-        /// <param name="UserGroupId">The parsed unique user identification.</param>
-        /// <param name="HTTPResponse">A HTTP error response.</param>
-        /// <returns>True, when user identification was found; false else.</returns>
-        public static Boolean ParseUserGroupId(this HTTPRequest           HTTPRequest,
-                                               UsersAPI                   UsersAPI,
-                                               out UserGroup_Id?          UserGroupId,
-                                               out HTTPResponse.Builder?  HTTPResponse)
-        {
-
-            #region Initial checks
-
-            if (HTTPRequest is null)
-                throw new ArgumentNullException(nameof(HTTPRequest),  "The given HTTP request must not be null!");
-
-            if (UsersAPI    is null)
-                throw new ArgumentNullException(nameof(UsersAPI),     "The given Users API must not be null!");
-
-            #endregion
-
-            UserGroupId   = null;
-            HTTPResponse  = null;
-
-            if (HTTPRequest.ParsedURLParameters.Length < 1)
-            {
-
-                HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
-                    HTTPStatusCode  = HTTPStatusCode.BadRequest,
-                    Server          = UsersAPI.HTTPServer.DefaultServerName,
-                    Date            = Timestamp.Now,
-                    Connection      = "close"
-                };
-
-                return false;
-
-            }
-
-            UserGroupId = UserGroup_Id.TryParse(HTTPRequest.ParsedURLParameters[0]);
-
-            if (!UserGroupId.HasValue)
-            {
-
-                HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
-                    HTTPStatusCode  = HTTPStatusCode.BadRequest,
-                    Server          = UsersAPI.HTTPServer.DefaultServerName,
-                    Date            = Timestamp.Now,
-                    ContentType     = HTTPContentType.JSON_UTF8,
-                    Content         = @"{ ""description"": ""Invalid UserGroupId!"" }".ToUTF8Bytes(),
-                    Connection      = "close"
-                };
-
-                return false;
-
-            }
-
-            return true;
-
-        }
-
-        #endregion
-
-        #region ParseUserGroup  (this HTTPRequest, UsersAPI, out UserGroupId, out UserGroup, out HTTPResponse)
-
-        /// <summary>
-        /// Parse the given HTTP request and return the user identification
-        /// for the given HTTP hostname and HTTP query parameter
-        /// or an HTTP error response.
-        /// </summary>
-        /// <param name="HTTPRequest">A HTTP request.</param>
-        /// <param name="UsersAPI">The Users API.</param>
-        /// <param name="UserGroupId">The parsed unique user identification.</param>
-        /// <param name="UserGroup">The resolved user.</param>
-        /// <param name="HTTPResponse">A HTTP error response.</param>
-        /// <returns>True, when user identification was found; false else.</returns>
-        public static Boolean ParseUserGroup(this HTTPRequest           HTTPRequest,
-                                             UsersAPI                   UsersAPI,
-                                             out UserGroup_Id?          UserGroupId,
-                                             out IUserGroup?            UserGroup,
-                                             out HTTPResponse.Builder?  HTTPResponse)
-        {
-
-            #region Initial checks
-
-            if (HTTPRequest is null)
-                throw new ArgumentNullException(nameof(HTTPRequest),  "The given HTTP request must not be null!");
-
-            if (UsersAPI    is null)
-                throw new ArgumentNullException(nameof(UsersAPI),     "The given Users API must not be null!");
-
-            #endregion
-
-            UserGroupId   = null;
-            UserGroup     = null;
-            HTTPResponse  = null;
-
-            if (HTTPRequest.ParsedURLParameters.Length < 1) {
-
-                HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
-                    HTTPStatusCode  = HTTPStatusCode.BadRequest,
-                    Server          = UsersAPI.HTTPServer.DefaultServerName,
-                    Date            = Timestamp.Now,
-                    Connection      = "close"
-                };
-
-                return false;
-
-            }
-
-            UserGroupId = UserGroup_Id.TryParse(HTTPRequest.ParsedURLParameters[0]);
-
-            if (!UserGroupId.HasValue) {
-
-                HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
-                    HTTPStatusCode  = HTTPStatusCode.BadRequest,
-                    Server          = UsersAPI.HTTPServer.DefaultServerName,
-                    Date            = Timestamp.Now,
-                    ContentType     = HTTPContentType.JSON_UTF8,
-                    Content         = @"{ ""description"": ""Invalid UserGroupId!"" }".ToUTF8Bytes(),
-                    Connection      = "close"
-                };
-
-                return false;
-
-            }
-
-            if (!UsersAPI.TryGetUserGroup(UserGroupId.Value, out UserGroup)) {
-
-                HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
-                    HTTPStatusCode  = HTTPStatusCode.NotFound,
-                    Server          = UsersAPI.HTTPServer.DefaultServerName,
-                    Date            = Timestamp.Now,
-                    ContentType     = HTTPContentType.JSON_UTF8,
-                    Content         = @"{ ""description"": ""Unknown UserGroupId!"" }".ToUTF8Bytes(),
-                    Connection      = "close"
-                };
-
-                return false;
-
-            }
-
-            return true;
-
-        }
-
-        #endregion
-
-
-        #region ParseOrganizationId(this HTTPRequest, UsersAPI, out OrganizationId,                   out HTTPResponse)
-
-        /// <summary>
-        /// Parse the given HTTP request and return the user identification
-        /// for the given HTTP hostname and HTTP query parameter
-        /// or an HTTP error response.
-        /// </summary>
-        /// <param name="HTTPRequest">A HTTP request.</param>
-        /// <param name="UsersAPI">The Organizations API.</param>
-        /// <param name="OrganizationId">The parsed unique user identification.</param>
-        /// <param name="HTTPResponse">A HTTP error response.</param>
-        /// <returns>True, when user identification was found; false else.</returns>
-        public static Boolean ParseOrganizationId(this HTTPRequest           HTTPRequest,
-                                                  UsersAPI                   UsersAPI,
-                                                  out Organization_Id?       OrganizationId,
-                                                  out HTTPResponse.Builder?  HTTPResponse)
-        {
-
-            #region Initial checks
-
-            if (HTTPRequest is null)
-                throw new ArgumentNullException(nameof(HTTPRequest),  "The given HTTP request must not be null!");
-
-            if (UsersAPI    is null)
-                throw new ArgumentNullException(nameof(UsersAPI),     "The given Organizations API must not be null!");
-
-            #endregion
-
-            OrganizationId  = null;
-            HTTPResponse    = null;
-
-            if (HTTPRequest.ParsedURLParameters.Length < 1)
-            {
-
-                HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
-                    HTTPStatusCode  = HTTPStatusCode.BadRequest,
-                    Server          = UsersAPI.HTTPServer.DefaultServerName,
-                    Date            = Timestamp.Now,
-                    Connection      = "close"
-                };
-
-                return false;
-
-            }
-
-            OrganizationId = Organization_Id.TryParse(HTTPRequest.ParsedURLParameters[0]);
-
-            if (!OrganizationId.HasValue)
-            {
-
-                HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
-                    HTTPStatusCode  = HTTPStatusCode.BadRequest,
-                    Server          = UsersAPI.HTTPServer.DefaultServerName,
-                    Date            = Timestamp.Now,
-                    ContentType     = HTTPContentType.JSON_UTF8,
-                    Content         = @"{ ""description"": ""Invalid OrganizationId!"" }".ToUTF8Bytes(),
-                    Connection      = "close"
-                };
-
-                return false;
-
-            }
-
-            return true;
-
-        }
-
-        #endregion
-
-        #region ParseOrganization  (this HTTPRequest, UsersAPI, out OrganizationId, out Organization, out HTTPResponse)
-
-        /// <summary>
-        /// Parse the given HTTP request and return the user identification
-        /// for the given HTTP hostname and HTTP query parameter
-        /// or an HTTP error response.
-        /// </summary>
-        /// <param name="HTTPRequest">A HTTP request.</param>
-        /// <param name="UsersAPI">The Organizations API.</param>
-        /// <param name="OrganizationId">The parsed unique user identification.</param>
-        /// <param name="Organization">The resolved user.</param>
-        /// <param name="HTTPResponse">A HTTP error response.</param>
-        /// <returns>True, when user identification was found; false else.</returns>
-        public static Boolean ParseOrganization(this HTTPRequest           HTTPRequest,
-                                                UsersAPI                   UsersAPI,
-                                                out Organization_Id?       OrganizationId,
-                                                out IOrganization?         Organization,
-                                                out HTTPResponse.Builder?  HTTPResponse)
-        {
-
-            #region Initial checks
-
-            if (HTTPRequest is null)
-                throw new ArgumentNullException(nameof(HTTPRequest),  "The given HTTP request must not be null!");
-
-            if (UsersAPI    is null)
-                throw new ArgumentNullException(nameof(UsersAPI),     "The given Organizations API must not be null!");
-
-            #endregion
-
-            OrganizationId  = null;
-            Organization    = null;
-            HTTPResponse    = null;
-
-            if (HTTPRequest.ParsedURLParameters.Length < 1) {
-
-                HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
-                    HTTPStatusCode  = HTTPStatusCode.BadRequest,
-                    Server          = UsersAPI.HTTPServer.DefaultServerName,
-                    Date            = Timestamp.Now,
-                    Connection      = "close"
-                };
-
-                return false;
-
-            }
-
-            OrganizationId = Organization_Id.TryParse(HTTPRequest.ParsedURLParameters[0]);
-
-            if (!OrganizationId.HasValue) {
-
-                HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
-                    HTTPStatusCode  = HTTPStatusCode.BadRequest,
-                    Server          = UsersAPI.HTTPServer.DefaultServerName,
-                    Date            = Timestamp.Now,
-                    ContentType     = HTTPContentType.JSON_UTF8,
-                    Content         = @"{ ""description"": ""Invalid OrganizationId!"" }".ToUTF8Bytes(),
-                    Connection      = "close"
-                };
-
-                return false;
-
-            }
-
-            if (!UsersAPI.TryGetOrganization(OrganizationId.Value, out Organization)) {
-
-                HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
-                    HTTPStatusCode  = HTTPStatusCode.NotFound,
-                    Server          = UsersAPI.HTTPServer.DefaultServerName,
-                    Date            = Timestamp.Now,
-                    ContentType     = HTTPContentType.JSON_UTF8,
-                    Content         = @"{ ""description"": ""Unknown OrganizationId!"" }".ToUTF8Bytes(),
-                    Connection      = "close"
-                };
-
-                return false;
-
-            }
-
-            return true;
-
-        }
-
-        #endregion
-
-
         #region ParseBlogPostingId(this HTTPRequest, UsersAPI, out BlogPostingId,                  out HTTPResponse)
 
         /// <summary>
@@ -996,7 +531,6 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-
     }
 
 
@@ -1075,22 +609,10 @@ namespace social.OpenData.UsersAPI
         #region Properties
 
         /// <summary>
-        /// The API database file.
-        /// </summary>
-        public String                         DatabaseFileName                   { get; }
-
-
-        /// <summary>
         /// The API version hash (git commit hash value).
         /// </summary>
-        public String                         APIVersionHash                     { get; }
+        public new String?                    APIVersionHash                     { get; }
 
-
-        public Organization_Id                AdminOrganizationId                { get; }
-
-        public String                         UsersAPIPath                       { get; }
-        public String                         NotificationsPath                  { get; }
-        public String                         SMTPLoggingPath                    { get; }
         public String                         TelegramLoggingPath                { get; }
         public String                         SMSAPILoggingPath                  { get; }
 
@@ -1103,16 +625,6 @@ namespace social.OpenData.UsersAPI
         /// The e-mail address used for the default newsletter.
         /// </summary>
         public String                         NewsletterGPGPassphrase            { get; set; }
-
-        /// <summary>
-        /// The passphrase of the PGP/GPG secret key of the API.
-        /// </summary>
-        public String                         APIRobotGPGPassphrase              { get; }
-
-        /// <summary>
-        /// A SMTP client to be used by the API.
-        /// </summary>
-        public ISMTPClient                    SMTPClient                         { get; }
 
         /// <summary>
         /// The SMSAPI.
@@ -1139,70 +651,10 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         public ITelegramStore                 TelegramClient                      { get; }
 
-        public HTTPCookieName                 CookieName                         { get; }
-
-        public HTTPCookieName                 SessionCookieName                  { get; }
-
-        /// <summary>
-        /// Force the web browser to send cookies only via HTTPS.
-        /// </summary>
-        public Boolean                        UseSecureCookies                   { get; }
-
-
-        /// <summary>
-        /// The default language used within this API.
-        /// </summary>
-        public Languages                      DefaultLanguage                    { get; }
-
-        /// <summary>
-        /// The maximum sign-in session lifetime.
-        /// </summary>
-        public TimeSpan                       MaxSignInSessionLifetime           { get; }
-
-        /// <summary>
-        /// The minimal user identification length.
-        /// </summary>
-        public Byte                           MinUserIdLength                    { get; }
-
-        /// <summary>
-        /// The minimal realm length.
-        /// </summary>
-        public Byte                           MinRealmLength                     { get; }
-
-        /// <summary>
-        /// A delegate to ensure a minimal password quality.
-        /// </summary>
-        public PasswordQualityCheckDelegate   PasswordQualityCheck               { get; }
-
-        /// <summary>
-        /// The minimal user name length.
-        /// </summary>
-        public Byte                           MinUserNameLength                  { get; }
-
-        /// <summary>
-        /// The minimal user group identification length.
-        /// </summary>
-        public Byte                           MinUserGroupIdLength               { get; }
-
-        /// <summary>
-        /// The minimal API key length.
-        /// </summary>
-        public UInt16                         MinAPIKeyLength                    { get; }
-
         /// <summary>
         /// The minimal message identification length.
         /// </summary>
         public Byte                           MinMessageIdLength                 { get; }
-
-        /// <summary>
-        /// The minimal message identification length.
-        /// </summary>
-        public Byte                           MinOrganizationIdLength            { get; }
-
-        /// <summary>
-        /// The minimal message identification length.
-        /// </summary>
-        public Byte                           MinOrganizationGroupIdLength       { get; }
 
         /// <summary>
         /// The minimal notification message identification length.
@@ -1228,36 +680,6 @@ namespace social.OpenData.UsersAPI
         /// The minimal FAQ identification length.
         /// </summary>
         public Byte                           MinFAQIdLength                     { get; }
-
-
-        /// <summary>
-        /// The current hash value of the API.
-        /// </summary>
-        public String                         CurrentDatabaseHashValue           { get; protected set; }
-
-        /// <summary>
-        /// Disable external notifications.
-        /// </summary>
-        public Boolean                        DisableNotifications               { get; set; }
-
-
-        private readonly HashSet<URLWithAPIKey>  remoteAuthServers;
-
-        /// <summary>
-        /// Servers for remote authorization.
-        /// </summary>
-        public IEnumerable<URLWithAPIKey>    RemoteAuthServers
-            => RemoteAuthServers;
-
-
-        private readonly HashSet<APIKey_Id>  remoteAuthAPIKeys;
-
-        /// <summary>
-        /// API key for incoming remote authorizations.
-        /// </summary>
-        public IEnumerable<APIKey_Id>         RemoteAuthAPIKeys
-            => remoteAuthAPIKeys;
-
 
         /// <summary>
         /// An optional HTML template.
@@ -2300,9 +1722,6 @@ namespace social.OpenData.UsersAPI
                    APIRobotEMailAddress,
                    APIRobotGPGPassphrase,
                    SMTPClient,
-                   //SMSClient,
-                   //SMSSenderName,
-                   //TelegramClient,
 
                    PasswordQualityCheck,
                    CookieName,
@@ -2359,7 +1778,6 @@ namespace social.OpenData.UsersAPI
 
             #region Init data
 
-            this.dataLicenses                    = new Dictionary<OpenDataLicense_Id,         OpenDataLicense>();
             this._NewsletterRemoteIPAddresses    = new Dictionary<IIPAddress,                 DateTime>();
             this._NewsletterSignups              = new Dictionary<SecurityToken_Id,           NewsletterSignup>();
             this._NewsletterEMails               = new Dictionary<Newsletter_Id,              EMailAddress>();
@@ -2376,11 +1794,6 @@ namespace social.OpenData.UsersAPI
             if (this.APIVersionHash.IsNullOrEmpty())
                 this.APIVersionHash              = "unknown";
 
-            this.DatabaseFileName                = this.LoggingPath + (DatabaseFileName ?? DefaultUsersAPI_DatabaseFileName);
-
-            this.UsersAPIPath                    = this.LoggingPath + "UsersAPI"       + Path.DirectorySeparatorChar;
-            this.NotificationsPath               = this.LoggingPath + "Notifications"  + Path.DirectorySeparatorChar;
-            this.SMTPLoggingPath                 = this.LoggingPath + "SMTPClient"     + Path.DirectorySeparatorChar;
             this.TelegramLoggingPath             = this.LoggingPath + "Telegram"       + Path.DirectorySeparatorChar;
             this.SMSAPILoggingPath               = this.LoggingPath + "SMSAPIClient"   + Path.DirectorySeparatorChar;
 
@@ -2388,7 +1801,6 @@ namespace social.OpenData.UsersAPI
 
             if (!DisableLogging)
             {
-                Directory.CreateDirectory(this.UsersAPIPath);
                 Directory.CreateDirectory(this.NotificationsPath);
                 Directory.CreateDirectory(this.SMTPLoggingPath);
                 Directory.CreateDirectory(this.TelegramLoggingPath);
@@ -2397,50 +1809,11 @@ namespace social.OpenData.UsersAPI
 
             CurrentAsyncLocalUserId.Value        = Robot.Id;
 
-            this.AdminOrganizationId             = AdminOrganizationId            ?? DefaultAdminOrganizationId;
-            this.APIRobotGPGPassphrase           = APIRobotGPGPassphrase;
-            this.SMTPClient                      = SMTPClient                     ?? throw new ArgumentNullException(nameof(SMTPClient), "The given API SMTP client must not be null!");
-
-            this.CookieName                      = CookieName                     ?? DefaultCookieName;
-            this.SessionCookieName               = this.CookieName + "Session";
-            this.UseSecureCookies                = UseSecureCookies;
-            this.DefaultLanguage                 = DefaultLanguage                ?? DefaultDefaultLanguage;
-
-            this.MinUserIdLength                 = MinUserIdLength                ?? DefaultMinUserIdLength;
-            this.MinRealmLength                  = MinRealmLength                 ?? DefaultMinRealmLength;
-            this.MinUserNameLength               = MinUserNameLength              ?? DefaultMinUserNameLength;
-            this.MinUserGroupIdLength            = MinUserGroupIdLength           ?? DefaultMinUserGroupIdLength;
-            this.MinAPIKeyLength                 = MinAPIKeyLength                ?? DefaultMinAPIKeyLength;
             this.MinMessageIdLength              = MinMessageIdLength             ?? DefaultMinMessageIdLength;
-            this.MinOrganizationIdLength         = MinOrganizationIdLength        ?? DefaultMinOrganizationIdLength;
-            this.MinOrganizationGroupIdLength    = MinOrganizationGroupIdLength   ?? DefaultMinOrganizationGroupIdLength;
             this.MinNotificationMessageIdLength  = MinNotificationMessageIdLength ?? DefaultMinNotificationMessageIdLength;
             this.MinNewsPostingIdLength          = MinNewsPostingIdLength         ?? DefaultMinNewsPostingIdLength;
             this.MinNewsBannerIdLength           = MinNewsBannerIdLength          ?? DefaultMinNewsBannerIdLength;
             this.MinFAQIdLength                  = MinFAQIdLength                 ?? DefaultMinFAQIdLength;
-
-            this.PasswordQualityCheck            = PasswordQualityCheck           ?? DefaultPasswordQualityCheck;
-            this.MaxSignInSessionLifetime        = MaxSignInSessionLifetime       ?? DefaultMaxSignInSessionLifetime;
-
-            this.remoteAuthServers               = RemoteAuthServers is not null   ? new HashSet<URLWithAPIKey>(RemoteAuthServers) : new HashSet<URLWithAPIKey>();
-            this.remoteAuthAPIKeys               = RemoteAuthAPIKeys is not null   ? new HashSet<APIKey_Id>    (RemoteAuthAPIKeys) : new HashSet<APIKey_Id>();
-
-            #endregion
-
-            #region Reflect data licenses
-
-            foreach (var dataLicense in typeof(OpenDataLicense).GetFields(System.Reflection.BindingFlags.Public |
-                                                                      System.Reflection.BindingFlags.Static).
-                                                            Where (fieldinfo => fieldinfo.ReflectedType == typeof(OpenDataLicense) &&
-                                                                                fieldinfo.FieldType     == typeof(OpenDataLicense)).
-                                                            Select(fieldinfo => fieldinfo.GetValue(OpenDataLicense.None)).
-                                                            Cast<OpenDataLicense>())
-            {
-
-                dataLicenses.Add(dataLicense.Id,
-                                 dataLicense);
-
-            }
 
             #endregion
 
@@ -3393,622 +2766,6 @@ namespace social.OpenData.UsersAPI
 
         #region (private) RegisterURLTemplates()
 
-        #region (private)   GenerateCookieUserData(ValidUser, Astronaut = null)
-
-        private String GenerateCookieUserData(IUser   User,
-                                              IUser?  Astronaut  = null)
-
-            => String.Concat("=login=",            User.     Id.      ToString().ToBase64(),
-                             Astronaut is not null
-                                 ? ":astronaut=" + Astronaut.Id.      ToString().ToBase64()
-                                 : "",
-                             ":username=",         User.Name.FirstText().ToBase64(),
-                             ":email=",            User.EMail.Address.ToString().ToBase64(),
-                             ":language=",         User.UserLanguage. AsText().  ToBase64(),
-                             IsAdmin(User) == Access_Levels.ReadOnly  ? ":isAdminRO" : "",
-                             IsAdmin(User) == Access_Levels.ReadWrite ? ":isAdminRW" : "");
-
-
-        #endregion
-
-        #region (private)   GenerateCookieSettings(Expires)
-
-        private String GenerateCookieSettings(DateTime Expires)
-
-            => String.Concat("; Expires=",  Expires.ToRfc1123(),
-                             HTTPCookieDomain.IsNotNullOrEmpty()
-                                 ? "; Domain=" + HTTPCookieDomain
-                                 : "",
-                             "; Path=",     URLPathPrefix.ToString(),
-                             "; SameSite=strict",
-                             UseSecureCookies
-                                 ? "; secure"
-                                 : "");
-
-        #endregion
-
-        #region (protected) TryGetSecurityTokenFromCookie(Request)
-
-        protected SecurityToken_Id? TryGetSecurityTokenFromCookie(HTTPRequest Request)
-        {
-
-            if (Request.Cookies is null)
-                return null;
-
-            if (Request.Cookies. TryGet  (SessionCookieName,  out var cookie) &&
-                cookie is not null &&
-                cookie.Any() &&
-                SecurityToken_Id.TryParse(cookie.First().Key, out var securityTokenId))
-            {
-                return securityTokenId;
-            }
-
-            return null;
-
-        }
-
-        #endregion
-
-        #region (protected) TryGetSecurityTokenFromCookie(Request, SecurityTokenId)
-
-        protected Boolean TryGetSecurityTokenFromCookie(HTTPRequest Request, out SecurityToken_Id SecurityTokenId)
-        {
-
-            if (Request.Cookies  is not null &&
-                Request.Cookies. TryGet  (SessionCookieName,           out var cookie) &&
-                cookie is not null &&
-                SecurityToken_Id.TryParse(cookie.FirstOrDefault().Key, out     SecurityTokenId))
-            {
-                return true;
-            }
-
-            SecurityTokenId = default;
-            return false;
-
-        }
-
-        #endregion
-
-        #region (protected) TryGetHTTPUser (Request, out User)
-
-        protected Boolean TryGetHTTPUser(HTTPRequest Request, out IUser? User)
-        {
-
-            #region Get user from cookie...
-
-            if (Request.Cookies is not null                                                            &&
-                Request.Cookies. TryGet     (SessionCookieName,           out var cookie)              &&
-                cookie is not null &&
-                SecurityToken_Id.TryParse   (cookie.FirstOrDefault().Key, out var securityTokenId)     &&
-                httpCookies.    TryGetValue(securityTokenId,             out var securityInformation) &&
-                Timestamp.Now < securityInformation.Expires                                            &&
-                TryGetUser(securityInformation.UserId, out User))
-            {
-                return true;
-            }
-
-            #endregion
-
-            #region Get user from Basic-Auth...
-
-            if (Request.Authorization is HTTPBasicAuthentication basicAuth)
-            {
-
-                #region Find username or e-mail addresses...
-
-                var possibleUsers = new HashSet<IUser>();
-                var validUsers    = new HashSet<IUser>();
-
-                if (User_Id.TryParse   (basicAuth.Username, out var _UserId) &&
-                    users.  TryGetValue(_UserId,            out var _User))
-                {
-                    possibleUsers.Add(_User);
-                }
-
-                if (possibleUsers.Count == 0)
-                {
-                    foreach (var user2 in users.Values)
-                    {
-                        if (String.Equals(basicAuth.Username,
-                                          user2.EMail.Address.ToString(),
-                                          StringComparison.OrdinalIgnoreCase))
-                        {
-                            possibleUsers.Add(user2);
-                        }
-                    }
-                }
-
-                if (possibleUsers.Count > 0)
-                {
-                    foreach (var possibleUser in possibleUsers)
-                    {
-                        if (loginPasswords.TryGetValue(possibleUser.Id, out var loginPassword) &&
-                            loginPassword.VerifyPassword(basicAuth.Password))
-                        {
-                            validUsers.Add(possibleUser);
-                        }
-                    }
-                }
-
-                #endregion
-
-                #region HTTP Basic Auth is ok!
-
-                var user = validUsers.FirstOrDefault();
-
-                if (user is not null &&
-                    user.AcceptedEULA.HasValue &&
-                    user.AcceptedEULA.Value < Timestamp.Now)
-                {
-                    User = user;
-                    return true;
-                }
-
-                #endregion
-
-            }
-
-            #endregion
-
-            #region Get user from API Key...
-
-            if (TryGetValidAPIKey(Request.API_Key, out var apiKey) &&
-                apiKey is not null &&
-                TryGetUser(apiKey.UserId, out User))
-            {
-                return true;
-            }
-
-            #endregion
-
-            User = null;
-            return false;
-
-        }
-
-        #endregion
-
-        #region (protected) TryGetAstronaut(Request, out User)
-
-        protected Boolean TryGetAstronaut(HTTPRequest Request, out IUser? User)
-        {
-
-            // Get user from cookie...
-            if (Request.Cookies is not null                                                            &&
-                Request.Cookies. TryGet     (SessionCookieName,           out var cookie)              &&
-                cookie is not null &&
-                SecurityToken_Id.TryParse   (cookie.FirstOrDefault().Key, out var securityTokenId)     &&
-                httpCookies.    TryGetValue(securityTokenId,             out var securityInformation) &&
-                Timestamp.Now < securityInformation.Expires                                            &&
-                TryGetUser(securityInformation.SuperUserId ?? securityInformation.UserId, out User))
-            {
-                return true;
-            }
-
-            User = null;
-            return false;
-
-        }
-
-        #endregion
-
-        #region (protected) TryGetHTTPUser (Request, User, Organizations, Response, AccessLevel = ReadOnly, Recursive = false)
-
-        protected Boolean TryGetHTTPUser(HTTPRequest                 Request,
-                                         out IUser?                  User,
-                                         out HashSet<IOrganization>  Organizations,
-                                         out HTTPResponse.Builder?   Response,
-                                         Access_Levels               AccessLevel  = Access_Levels.ReadOnly,
-                                         Boolean                     Recursive    = false)
-        {
-
-            //if (Request.RemoteSocket.IPAddress.IsIPv4 &&
-            //    Request.RemoteSocket.IPAddress.IsLocalhost)
-            //{
-            //    User           = Admins.User2GroupInEdges(edgelabel => edgelabel == User2GroupEdges.IsAdmin).FirstOrDefault()?.Source;
-            //    Organizations  = User.Organizations(RequireReadWriteAccess, Recursive);
-            //    Response       = null;
-            //    return true;
-            //}
-
-            Organizations  = TryGetHTTPUser(Request, out User) && User is not null
-                                 ? new HashSet<IOrganization>(User.Organizations(AccessLevel, Recursive))
-                                 : new HashSet<IOrganization>();
-
-            Response       = Organizations.SafeAny()
-                                 ? null
-                                 : new HTTPResponse.Builder(Request) {
-                                       HTTPStatusCode      = HTTPStatusCode.Unauthorized,
-                                       Location            = Location.From(URLPathPrefix + "login?redirect=" + Request.Path.ToString()),
-                                       Date                = Timestamp.Now,
-                                       Server              = HTTPServer.DefaultServerName,
-                                       CacheControl        = "private, max-age=0, no-cache",
-                                       XLocationAfterAuth  = Request.Path,
-                                       Connection          = "close"
-                                   };
-
-            return Organizations.SafeAny();
-
-        }
-
-        #endregion
-
-        #region (protected) TryGetAstronaut(Request, User, Organizations, Response, AccessLevel = ReadOnly, Recursive = false)
-
-        protected Boolean TryGetSuperUser(HTTPRequest                 Request,
-                                          out IUser?                  User,
-                                          out HashSet<IOrganization>  Organizations,
-                                          out HTTPResponse.Builder?   Response,
-                                          Access_Levels               AccessLevel  = Access_Levels.ReadOnly,
-                                          Boolean                     Recursive    = false)
-        {
-
-            if (!TryGetAstronaut(Request, out User))
-            {
-
-                //if (Request.RemoteSocket.IPAddress.IsIPv4 &&
-                //    Request.RemoteSocket.IPAddress.IsLocalhost)
-                //{
-                //    User           = Admins.User2GroupInEdges(edgelabel => edgelabel == User2GroupEdges.IsAdmin).FirstOrDefault()?.Source;
-                //    Organizations  = User.Organizations(RequireReadWriteAccess, Recursive);
-                //    Response       = null;
-                //    return true;
-                //}
-
-                Organizations  = new HashSet<IOrganization>();
-                Response       = new HTTPResponse.Builder(Request) {
-                                     HTTPStatusCode  = HTTPStatusCode.Unauthorized,
-                                     Location        = Location.From(URLPathPrefix + "login"),
-                                     Date            = Timestamp.Now,
-                                     Server          = HTTPServer.DefaultServerName,
-                                     CacheControl    = "private, max-age=0, no-cache",
-                                     Connection      = "close"
-                                 };
-
-                return false;
-
-            }
-
-            Organizations  = User is not null
-                                 ? new HashSet<IOrganization>(User.Organizations(AccessLevel, Recursive))
-                                 : new HashSet<IOrganization>();
-
-            Response       = null;
-
-            return true;
-
-        }
-
-        #endregion
-
-        #region (protected) TryGetHTTPUser (Request, User, Organizations,           AccessLevel = ReadOnly, Recursive = false)
-
-        //protected void TryGetHTTPUser(HTTPRequest                Request,
-        //                              out User                   User,
-        //                              out HashSet<Organization>  Organizations,
-        //                              Access_Levels              AccessLevel  = Access_Levels.ReadOnly,
-        //                              Boolean                    Recursive    = false)
-        //{
-
-        //    if (!TryGetHTTPUser(Request, out User))
-        //    {
-
-        //        //if (Request.HTTPSource.IPAddress.IsIPv4 &&
-        //        //    Request.HTTPSource.IPAddress.IsLocalhost)
-        //        //{
-        //        //    User           = AdminOrganization.User2OrganizationInEdges(edge => edge label == User2OrganizationEdgeTypes.IsAdmin).FirstOrDefault()?.Source;
-        //        //    Organizations  = new HashSet<Organization>(User.Organizations(AccessLevel, Recursive));
-        //        //    return;
-        //        //}
-
-        //        Organizations  = null;
-        //        return;
-
-        //    }
-
-        //    Organizations  = User != null
-        //                         ? new HashSet<Organization>(User.Organizations(AccessLevel, Recursive))
-        //                         : new HashSet<Organization>();
-
-        //}
-
-        #endregion
-
-        #region AddEventSource(HTTPEventSourceId, URLTemplate, IncludeFilterAtRuntime, CreateState, ...)
-
-        public void AddEventSource<TData, TState>(HTTPEventSource_Id                              HTTPEventSourceId,
-                                                  HTTPAPI                                         HTTPAPI,
-                                                  HTTPPath                                        URLTemplate,
-
-                                                  Func<TState, IUser, HTTPEvent<TData>, Boolean>  IncludeFilterAtRuntime,
-                                                  Func<TState>                                    CreatePerRequestState,
-
-                                                  HTTPHostname?                                   Hostname                   = null,
-                                                  HTTPMethod?                                     HttpMethod                 = null,
-                                                  HTTPContentType?                                HTTPContentType            = null,
-
-                                                  HTTPAuthentication?                             URLAuthentication          = null,
-                                                  HTTPAuthentication?                             HTTPMethodAuthentication   = null,
-
-                                                  HTTPDelegate?                                   DefaultErrorHandler        = null)
-        {
-
-            if (IncludeFilterAtRuntime == null)
-                IncludeFilterAtRuntime = (s, u, e) => true;
-
-            if (TryGet(HTTPEventSourceId, out IHTTPEventSource<TData> _EventSource))
-            {
-
-                AddMethodCallback(Hostname        ?? HTTPHostname.Any,
-                                  HttpMethod      ?? HTTPMethod.GET,
-                                  URLTemplate,
-                                  HTTPContentType ?? HTTPContentType.EVENTSTREAM,
-                                  URLAuthentication:         URLAuthentication,
-                                  HTTPMethodAuthentication:  HTTPMethodAuthentication,
-                                  DefaultErrorHandler:       DefaultErrorHandler,
-                                  HTTPDelegate:              Request => {
-
-                                      #region Get HTTP user and its organizations
-
-                                                 // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
-                                                 if (!TryGetHTTPUser(Request,
-                                                                     out var HTTPUser,
-                                                                     out var HTTPOrganizations,
-                                                                     out var Response,
-                                                                     AccessLevel:  Access_Levels.ReadWrite,
-                                                                     Recursive:    true))
-                                                 {
-                                                     return Task.FromResult(Response.AsImmutable);
-                                                 }
-
-                                                 #endregion
-
-                                      var State        = CreatePerRequestState != null ? CreatePerRequestState() : default(TState);
-                                      var _HTTPEvents  = _EventSource.GetAllEventsGreater(Request.GetHeaderField(HTTPRequestHeaderField.LastEventId)).
-                                                                      Where  (_event => IncludeFilterAtRuntime(State,
-                                                                                                               HTTPUser,
-                                                                                                               _event)).
-                                                                      Reverse().
-                                                                      Skip   (Request.QueryString.GetUInt64("skip")).
-                                                                      Take   (Request.QueryString.GetUInt64("take")).
-                                                                      Reverse().
-                                                                      Aggregate(new StringBuilder(),
-                                                                                (stringBuilder, httpEvent) => stringBuilder.Append(httpEvent.SerializedHeader).
-                                                                                                                            AppendLine(httpEvent.SerializedData).
-                                                                                                                            AppendLine()).
-                                                                      Append(Environment.NewLine).
-                                                                      Append("retry: ").Append((UInt32) _EventSource.RetryIntervall.TotalMilliseconds).
-                                                                      Append(Environment.NewLine).
-                                                                      Append(Environment.NewLine).
-                                                                      ToString();
-
-                                      return Task.FromResult(
-                                          new HTTPResponse.Builder(Request) {
-                                              HTTPStatusCode  = HTTPStatusCode.OK,
-                                              Server          = HTTPServer.DefaultHTTPServerName,
-                                              ContentType     = HTTPContentType.EVENTSTREAM,
-                                              CacheControl    = "no-cache",
-                                              Connection      = "keep-alive",
-                                              KeepAlive       = new KeepAliveType(TimeSpan.FromSeconds(2 * _EventSource.RetryIntervall.TotalSeconds)),
-                                              Content         = _HTTPEvents.ToUTF8Bytes()
-                                          }.AsImmutable);
-
-                                  });
-
-
-                AddMethodCallback(Hostname        ?? HTTPHostname.Any,
-                                  HttpMethod      ?? HTTPMethod.GET,
-                                  URLTemplate,
-                                  HTTPContentType ?? HTTPContentType.JSON_UTF8,
-                                  URLAuthentication:         URLAuthentication,
-                                  HTTPMethodAuthentication:  HTTPMethodAuthentication,
-                                  DefaultErrorHandler:       DefaultErrorHandler,
-                                  HTTPDelegate:              Request => {
-
-                                      #region Get HTTP user and its organizations
-
-                                      // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
-                                      if (!TryGetHTTPUser(Request,
-                                                          out var HTTPUser,
-                                                          out var HTTPOrganizations,
-                                                          out var Response,
-                                                          AccessLevel:  Access_Levels.ReadWrite,
-                                                          Recursive:    true))
-                                      {
-                                          return Task.FromResult(Response.AsImmutable);
-                                      }
-
-                                      #endregion
-
-                                      var State        = CreatePerRequestState != null ? CreatePerRequestState() : default(TState);
-                                      var _HTTPEvents  = _EventSource.Where(httpEvent => IncludeFilterAtRuntime(State,
-                                                                                                                HTTPUser,
-                                                                                                                httpEvent)).
-                                                                      Skip (Request.QueryString.GetUInt64("skip")).
-                                                                      Take (Request.QueryString.GetUInt64("take")).
-                                                                      Aggregate(new StringBuilder().AppendLine("["),
-                                                                                (stringBuilder, httpEvent) => stringBuilder.Append    (@"[""").
-                                                                                                                            Append    (httpEvent.Subevent ?? "").
-                                                                                                                            Append    (@""",").
-                                                                                                                            Append    (httpEvent.SerializedData).
-                                                                                                                            AppendLine("],")).
-                                                                      ToString().
-                                                                      TrimEnd();
-
-
-                                      return Task.FromResult(
-                                          new HTTPResponse.Builder(Request) {
-                                              HTTPStatusCode  = HTTPStatusCode.OK,
-                                              Server          = HTTPServer.DefaultHTTPServerName,
-                                              ContentType     = HTTPContentType.JSON_UTF8,
-                                              CacheControl    = "no-cache",
-                                              Connection      = "keep-alive",
-                                              KeepAlive       = new KeepAliveType(TimeSpan.FromSeconds(2 * _EventSource.RetryIntervall.TotalSeconds)),
-                                              Content         = (_HTTPEvents.Length > 1
-                                                                     ? _HTTPEvents.Remove(_HTTPEvents.Length - 1, 1) + Environment.NewLine + "]"
-                                                                     : "]").ToUTF8Bytes()
-                                          }.AsImmutable);
-
-                                  });
-
-            }
-
-            else
-                throw new ArgumentException("Event source '" + HTTPEventSourceId + "' could not be found!", nameof(HTTPEventSourceId));
-
-        }
-
-        #endregion
-
-        #region AddEventSource(HTTPEventSourceId, URLTemplate, IncludeFilterAtRuntime, CreateState, ...)
-
-        public void AddEventSource<TData, TState>(HTTPEventSource_Id                                                          HTTPEventSourceId,
-                                                  HTTPAPI                                                                     HTTPAPI,
-                                                  HTTPPath                                                                    URLTemplate,
-
-                                                  Func<TState, IUser, IEnumerable<IOrganization>, HTTPEvent<TData>, Boolean>  IncludeFilterAtRuntime,
-                                                  Func<TState>                                                                CreatePerRequestState,
-
-                                                  HTTPHostname?                                                               Hostname                   = null,
-                                                  HTTPMethod?                                                                 HttpMethod                 = null,
-                                                  HTTPContentType?                                                            HTTPContentType            = null,
-
-                                                  HTTPAuthentication?                                                         URLAuthentication          = null,
-                                                  HTTPAuthentication?                                                         HTTPMethodAuthentication   = null,
-
-                                                  HTTPDelegate?                                                               DefaultErrorHandler        = null)
-        {
-
-            if (IncludeFilterAtRuntime == null)
-                IncludeFilterAtRuntime = (s, u, o, e) => true;
-
-            if (TryGet<TData>(HTTPEventSourceId, out var _EventSource))
-            {
-
-                AddMethodCallback(Hostname        ?? HTTPHostname.Any,
-                                  HttpMethod      ?? HTTPMethod.GET,
-                                  URLTemplate,
-                                  HTTPContentType ?? HTTPContentType.EVENTSTREAM,
-                                  URLAuthentication:         URLAuthentication,
-                                  HTTPMethodAuthentication:  HTTPMethodAuthentication,
-                                  DefaultErrorHandler:       DefaultErrorHandler,
-                                  HTTPDelegate:              Request => {
-
-                                      #region Get HTTP user and its organizations
-
-                                                 // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
-                                                 if (!TryGetHTTPUser(Request,
-                                                                     out var HTTPUser,
-                                                                     out var HTTPOrganizations,
-                                                                     out var Response,
-                                                                     AccessLevel:  Access_Levels.ReadWrite,
-                                                                     Recursive:    true))
-                                                 {
-                                                     return Task.FromResult(Response.AsImmutable);
-                                                 }
-
-                                                 #endregion
-
-                                      var State        = CreatePerRequestState is not null ? CreatePerRequestState() : default;
-                                      var _HTTPEvents  = _EventSource.GetAllEventsGreater(Request.GetHeaderField(HTTPRequestHeaderField.LastEventId)).
-                                                                      Where  (httpEvent => IncludeFilterAtRuntime(State,
-                                                                                                                  HTTPUser,
-                                                                                                                  HTTPOrganizations,
-                                                                                                                  httpEvent)).
-                                                                      Reverse().
-                                                                      Skip   (Request.QueryString.GetUInt64("skip")).
-                                                                      Take   (Request.QueryString.GetUInt64("take")).
-                                                                      Reverse().
-                                                                      Aggregate(new StringBuilder(),
-                                                                                (stringBuilder, httpEvent) => stringBuilder.Append(httpEvent.SerializedHeader).
-                                                                                                                            AppendLine(httpEvent.SerializedData).
-                                                                                                                            AppendLine()).
-                                                                      Append(Environment.NewLine).
-                                                                      Append("retry: ").Append((UInt32) _EventSource.RetryIntervall.TotalMilliseconds).
-                                                                      Append(Environment.NewLine).
-                                                                      Append(Environment.NewLine).
-                                                                      ToString();
-
-                                      return Task.FromResult(
-                                          new HTTPResponse.Builder(Request) {
-                                              HTTPStatusCode  = HTTPStatusCode.OK,
-                                              Server          = HTTPServer.DefaultHTTPServerName,
-                                              ContentType     = HTTPContentType.EVENTSTREAM,
-                                              CacheControl    = "no-cache",
-                                              Connection      = "keep-alive",
-                                              KeepAlive       = new KeepAliveType(TimeSpan.FromSeconds(2 * _EventSource.RetryIntervall.TotalSeconds)),
-                                              Content         = _HTTPEvents.ToUTF8Bytes()
-                                          }.AsImmutable);
-
-                                  });
-
-
-                AddMethodCallback(Hostname        ?? HTTPHostname.Any,
-                                  HttpMethod      ?? HTTPMethod.GET,
-                                  URLTemplate,
-                                  HTTPContentType ?? HTTPContentType.JSON_UTF8,
-                                  URLAuthentication:         URLAuthentication,
-                                  HTTPMethodAuthentication:  HTTPMethodAuthentication,
-                                  DefaultErrorHandler:       DefaultErrorHandler,
-                                  HTTPDelegate:              Request => {
-
-                                      #region Get HTTP user and its organizations
-
-                                      // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
-                                      if (!TryGetHTTPUser(Request,
-                                                          out var HTTPUser,
-                                                          out var HTTPOrganizations,
-                                                          out var Response,
-                                                          AccessLevel:  Access_Levels.ReadWrite,
-                                                          Recursive:    true))
-                                      {
-                                          return Task.FromResult(Response.AsImmutable);
-                                      }
-
-                                      #endregion
-
-                                      var State        = CreatePerRequestState != null ? CreatePerRequestState() : default(TState);
-                                      var _HTTPEvents  = _EventSource.Where(httpEvent => IncludeFilterAtRuntime(State,
-                                                                                                                HTTPUser,
-                                                                                                                HTTPOrganizations,
-                                                                                                                httpEvent)).
-                                                                      Skip (Request.QueryString.GetUInt64("skip")).
-                                                                      Take (Request.QueryString.GetUInt64("take")).
-                                                                      Aggregate(new StringBuilder().AppendLine("["),
-                                                                                (stringBuilder, httpEvent) => stringBuilder.Append(@"[""").
-                                                                                                                            Append(httpEvent.Subevent ?? "").
-                                                                                                                            Append(@""",").
-                                                                                                                            Append(httpEvent.SerializedData).
-                                                                                                                            AppendLine("],")).
-                                                                      ToString().
-                                                                      TrimEnd();
-
-
-                                      return Task.FromResult(
-                                          new HTTPResponse.Builder(Request) {
-                                              HTTPStatusCode  = HTTPStatusCode.OK,
-                                              Server          = HTTPServer.DefaultHTTPServerName,
-                                              ContentType     = HTTPContentType.JSON_UTF8,
-                                              CacheControl    = "no-cache",
-                                              Connection      = "keep-alive",
-                                              KeepAlive       = new KeepAliveType(TimeSpan.FromSeconds(2 * _EventSource.RetryIntervall.TotalSeconds)),
-                                              Content         = (_HTTPEvents.Length > 1
-                                                                     ? _HTTPEvents.Remove(_HTTPEvents.Length - 1, 1) + Environment.NewLine + "]"
-                                                                     : "]").ToUTF8Bytes()
-                                          }.AsImmutable);
-
-                                  });
-
-            }
-
-            else
-                throw new ArgumentException("Event source '" + HTTPEventSourceId + "' could not be found!", nameof(HTTPEventSourceId));
-
-        }
-
-        #endregion
-
-
         #region Manage HTTP Resources
 
         #region (protected override) GetResourceStream      (ResourceName)
@@ -4480,8 +3237,6 @@ namespace social.OpenData.UsersAPI
 
             #region GET         ~/users
 
-            #region HTML
-
             // -------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:3001/users
             // -------------------------------------------------------------------
@@ -4523,26 +3278,7 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
-            #endregion
-
-            #region EXISTS      ~/users/{UserId}
-
-            // ---------------------------------------------------------------------------------
-            // curl -v -X EXITS -H "Accept: application/json" http://127.0.0.1:2100/users/ahzf
-            // ---------------------------------------------------------------------------------
-            HTTPServer.ITEM_EXISTS<User_Id, IUser>(this,
-                                                   URLPathPrefix + "users/{UserId}",
-                                                   User_Id.TryParse,
-                                                   text   => "Invalid user identification '" + text + "'!",
-                                                   users.TryGetValue,
-                                                   user   => user.PrivacyLevel == PrivacyLevel.World,
-                                                   userId => "Unknown user '" + userId + "'!");
-
-            #endregion
-
             #region GET         ~/users/{UserId}
-
-            #region HTML
 
             // ------------------------------------------------------------------------------
             // curl -v -H "Accept: text/html" http://127.0.0.1:2100/users/Organization
@@ -4612,8 +3348,6 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
-            #endregion
-
             #region GET         ~/users/{UserId}/profilephoto
 
             HTTPServer.RegisterFilesystemFile(this,
@@ -4625,8 +3359,6 @@ namespace social.OpenData.UsersAPI
             #endregion
 
             #region GET         ~/users/{UserId}/notifications
-
-            #region HTML
 
             // -------------------------------------------------------------------------------
             // curl -v -H "Accept: text/html" http://127.0.0.1:2100/users/ahzf/notifications
@@ -4694,11 +3426,7 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
-            #endregion
-
             #region GET         ~/users/{UserId}/notifications/{notificationId}
-
-            #region HTML
 
             // ------------------------------------------------------------------------------------------------
             // curl -v -H "Accept: text/html" http://127.0.0.1:2100/users/ahzf/notifications/{notificationId}
@@ -4784,8 +3512,6 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
-            #endregion
-
             #region GET         ~/users/{UserId}/notification/_new
 
             // ------------------------------------------------------------------------------------
@@ -4862,8 +3588,6 @@ namespace social.OpenData.UsersAPI
 
             #region GET         ~/userGroups
 
-            #region HTML
-
             // -------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:3001/userGroups
             // -------------------------------------------------------------------
@@ -4906,12 +3630,8 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
-            #endregion
-
 
             #region GET         ~/userGroups/{UserGroupId}
-
-            #region HTML
 
             // --------------------------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:3001/userGroups/{UserGroupId}
@@ -4956,14 +3676,10 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
-            #endregion
-
 
             #region ~/organizations
 
             #region GET         ~/organizations
-
-            #region HTML
 
             // ----------------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:3001/organizations
@@ -5006,11 +3722,7 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
-            #endregion
-
             #region GET         ~/organizations/{OrganizationId}
-
-            #region HTML
 
             // ------------------------------------------------------------------------------
             // curl -v -H "Accept: text/html" http://127.0.0.1:3001/organizations/GraphDefined
@@ -5048,7 +3760,7 @@ namespace social.OpenData.UsersAPI
                                   #endregion
 
 
-                                  if (Organization != null && HTTPOrganizations.Contains(Organization))
+                                  if (Organization is not null && HTTPOrganizations.Contains(Organization))
                                   {
 
                                       return Task.FromResult(
@@ -5079,8 +3791,6 @@ namespace social.OpenData.UsersAPI
                                              }.AsImmutable);
 
                               });
-
-            #endregion
 
             #endregion
 
@@ -5452,8 +4162,6 @@ namespace social.OpenData.UsersAPI
 
             #region GET         ~/organizationGroups
 
-            #region HTML
-
             // --------------------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:3001/organizationGroups
             // --------------------------------------------------------------------------------
@@ -5497,14 +4205,10 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
-            #endregion
-
 
             #region ~/notifications
 
             #region GET         ~/notifications
-
-            #region HTML
 
             // ----------------------------------------------------------------------------
             // curl -v -H "Accept: text/html" http://127.0.0.1:3001/notifications
@@ -5545,8 +4249,6 @@ namespace social.OpenData.UsersAPI
                                       }.AsImmutable);
 
                               });
-
-            #endregion
 
             #endregion
 
@@ -5659,8 +4361,6 @@ namespace social.OpenData.UsersAPI
 
             #region GET         ~/newNotification
 
-            #region HTML
-
             // ----------------------------------------------------------------------
             // curl -v -H "Accept: text/html" http://127.0.0.1:3001/newNotification
             // ----------------------------------------------------------------------
@@ -5700,8 +4400,6 @@ namespace social.OpenData.UsersAPI
                                       }.AsImmutable);
 
                               });
-
-            #endregion
 
             #endregion
 
@@ -5756,9 +4454,7 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
-
-
-            #region ~/newsletterss
+            #region ~/newsletters
 
             #region SIGNUP    ~/newsletters
 
@@ -5947,7 +4643,7 @@ namespace social.OpenData.UsersAPI
                                           )
                                       );
 
-                                      File.AppendAllText(UsersAPIPath + DefaultNewsletterSignupFile,
+                                      File.AppendAllText(HTTPAPIPath + DefaultNewsletterSignupFile,
                                                          String.Concat("add;", securityTokenId, ";", email.Value, ";", expires.ToIso8601(), Environment.NewLine));
 
                                   }
@@ -6051,7 +4747,7 @@ namespace social.OpenData.UsersAPI
                                       lock (_NewsletterSignups)
                                       {
 
-                                          File.AppendAllText(UsersAPIPath + DefaultNewsletterSignupFile,
+                                          File.AppendAllText(HTTPAPIPath + DefaultNewsletterSignupFile,
                                                              String.Concat("remove;", securityTokenId, ";", newsletterSignup.EMailAddress, ";", newsletterSignup.NewsletterId, Environment.NewLine));
 
                                           _NewsletterSignups.Remove(securityTokenId);
@@ -6064,7 +4760,7 @@ namespace social.OpenData.UsersAPI
                                           _NewsletterEMails.Add(newsletterSignup.NewsletterId,
                                                                 newsletterSignup.EMailAddress);
 
-                                          File.AppendAllText(UsersAPIPath + DefaultNewsletterEMailsFile,
+                                          File.AppendAllText(HTTPAPIPath + DefaultNewsletterEMailsFile,
                                                              String.Concat("add;", newsletterSignup.EMailAddress, ";", newsletterSignup.NewsletterId, ";", Timestamp.Now.ToIso8601(), Environment.NewLine));
 
                                       }
@@ -7488,379 +6184,6 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region Database file...
-
-        #region (protected) ReadDatabaseFiles(ProcessEventDelegate, DatabaseFileName = null)
-
-        /// <summary>
-        /// Read the database file.
-        /// </summary>
-        /// <param name="ProcessEventDelegate">A delegate to process each database entry.</param>
-        /// <param name="DatabaseFileName">The optional database file name.</param>
-        protected async Task ReadDatabaseFiles(Func<String, JObject, String, UInt64?, Task>  ProcessEventDelegate,
-                                               String?                                       DatabaseFileName = null)
-        {
-
-            if (DisableLogging)
-                return;
-
-            String databaseFileName = DatabaseFileName ?? this.DatabaseFileName;
-
-            DebugX.Log("Reloading database file '" + databaseFileName + "'...");
-
-            try
-            {
-
-                JObject JSONLine;
-                String  JSONCommand;
-
-                File.ReadLines(databaseFileName).ForEachCounted(async (line, lineNumber) => {
-
-                    if (line.IsNeitherNullNorEmpty() &&
-                       !line.StartsWith("#") &&
-                       !line.StartsWith("//"))
-                    {
-
-                        try
-                        {
-
-                            JSONLine  = JObject.Parse(line);
-
-                            if (JSONLine.First is JProperty jsonProperty)
-                            {
-
-                                JSONCommand  = jsonProperty.Name;
-
-                                if (JSONCommand.IsNotNullOrEmpty() &&
-                                    jsonProperty.Value is JObject jsonObject)
-                                {
-
-                                    CurrentDatabaseHashValue = JSONLine?["sha256hash"]?["hashValue"]?.Value<String>() ?? "";
-
-                                    await ProcessEventDelegate(JSONCommand,
-                                                               jsonObject,
-                                                               databaseFileName,
-                                                               lineNumber);
-
-                                }
-
-                            }
-
-                        }
-                        catch (Exception e)
-                        {
-                            DebugX.Log("Could not (re-)load database file ''" + databaseFileName + "' line " + lineNumber + ": " + e.Message);
-                        }
-
-                    }
-
-                });
-
-            }
-            catch (FileNotFoundException)
-            {
-                DebugX.LogT("Could not find database file '" + databaseFileName + "'!");
-            }
-            catch (Exception e)
-            {
-                DebugX.LogT("Could not (re-)load database file '" + databaseFileName + "': " + e.Message);
-            }
-
-
-
-            DebugX.Log("Reloading all UsersAPI database helper files...");
-
-
-            DebugX.Log("Reloading of all UsersAPI database helper files finished...");
-
-        }
-
-        #endregion
-
-
-
-        #region (protected) LoadChangeSetsFromAPI(ProcessEventDelegate, LastKnownSHA256HashValue = null)
-
-        /// <summary>
-        /// Read the database file.
-        /// </summary>
-        /// <param name="ProcessEventDelegate">A delegate to process each database entry.</param>
-        /// <param name="LastKnownSHA256HashValue">The optional last known SHA256 hash value.</param>
-        public async Task LoadChangeSetsFromAPI(Func<String, JObject, String, UInt64?, Task>  ProcessEventDelegate,
-                                                String?                                       LastKnownSHA256HashValue = null)
-        {
-
-            try
-            {
-
-                JArray? jsonChangeSets = null;
-
-                #region Get change sets from remote API
-
-                var retries     = -1;
-                var maxRetries  = 3;
-
-                var _remoteAuthServers = Array.Empty<URLWithAPIKey>();
-
-                lock (remoteAuthServers)
-                {
-                    _remoteAuthServers = remoteAuthServers.ToArray();
-                }
-
-                var usedRemoteAuthServer = _remoteAuthServers.FirstOrDefault();
-
-                do
-                {
-
-                    retries++;
-
-                    foreach (var remoteAuthServer in _remoteAuthServers)
-                    {
-
-                        try
-                        {
-
-                            #region Upstream HTTP(S) request...
-
-                            var httpresult = await HTTPClientFactory.Create(remoteAuthServer.URL,
-                                                                            //VirtualHostname,
-                                                                            //Description,
-                                                                            //RemoteCertificateValidator,
-                                                                            //ClientCertificateSelector,
-                                                                            //ClientCert,
-                                                                            //HTTPUserAgent,
-                                                                            //RequestTimeout,
-                                                                            //TransmissionRetryDelay,
-                                                                            //MaxNumberOfRetries,
-                                                                            //UseHTTPPipelining,
-                                                                            //HTTPLogger,
-                                                                            DNSClient: DNSClient).
-
-                                                        Execute(client => client.GETRequest(remoteAuthServer.URL.Path + (LastKnownSHA256HashValue is not null ? "changeSets?skipUntil=" + LastKnownSHA256HashValue : "changeSets"),
-                                                                                            requestbuilder => {
-                                                                                                requestbuilder.Host         = remoteAuthServer.URL.Hostname;
-                                                                                                requestbuilder.API_Key      = remoteAuthServer.APIKeyId;
-                                                                                                requestbuilder.Accept.Add(HTTPContentType.JSON_UTF8);
-                                                                                            }),
-
-                                                                //RequestLogDelegate:   OnGetCDRsHTTPRequest,
-                                                                //ResponseLogDelegate:  OnGetCDRsHTTPResponse,
-                                                                //CancellationToken:    CancellationToken,
-                                                                //EventTrackingId:      EventTrackingId,
-                                                                RequestTimeout: TimeSpan.FromSeconds(5)).
-
-                                                        ConfigureAwait(false);
-
-                            #endregion
-
-                            #region HTTPStatusCode.OK
-
-                            if (httpresult.HTTPStatusCode == HTTPStatusCode.OK)
-                            {
-
-                                jsonChangeSets        = JArray.Parse(httpresult.HTTPBody.ToUTF8String());
-                                usedRemoteAuthServer  = remoteAuthServer;
-
-                                DebugX.Log("Loaded " + jsonChangeSets.Count + " remote change sets from '" + remoteAuthServer.URL.ToString() + (LastKnownSHA256HashValue is not null ? "/changeSets?skipUntil=" + LastKnownSHA256HashValue : "/changeSets"));
-
-                            }
-
-                            #endregion
-
-                        }
-                        catch (Exception e)
-                        {
-                            DebugX.Log("Could not load remote change set from '" + remoteAuthServer.URL.ToString() + (LastKnownSHA256HashValue is not null ? "/changeSets?skipUntil=" + LastKnownSHA256HashValue : "/changeSets") + ": " + e.Message);
-                        }
-
-                    }
-
-                } while (jsonChangeSets is null && retries < maxRetries);
-
-                #endregion
-
-                #region Process change sets
-
-                if (jsonChangeSets is not null)
-                {
-
-                    jsonChangeSets.ForEachCounted(async (line, lineNumber) =>
-                    {
-
-                        if (line is JObject JSONLine)
-                        {
-
-                            try
-                            {
-
-                                if (JSONLine.First is JProperty jsonProperty)
-                                {
-
-                                    var JSONCommand = jsonProperty.Name;
-
-                                    if (JSONCommand.IsNotNullOrEmpty() &&
-                                        jsonProperty.Value is JObject jsonObject)
-                                    {
-
-                                        CurrentDatabaseHashValue = JSONLine?["sha256hash"]?["hashValue"]?.Value<String>() ?? "";
-
-                                        await ProcessEventDelegate(JSONCommand,
-                                                                   jsonObject,
-                                                                   usedRemoteAuthServer.URL.ToString(),
-                                                                   lineNumber);
-
-                                    }
-
-                                }
-
-                            }
-                            catch (Exception e)
-                            {
-                                DebugX.Log("Could not load remote change set from '" + usedRemoteAuthServer.URL.ToString() + (LastKnownSHA256HashValue is not null ? "/changeSets?skipUntil=" + LastKnownSHA256HashValue : "/changeSets") + "' line " + lineNumber + ": " + e.Message);
-                            }
-
-                        }
-
-                    });
-
-                }
-
-                #endregion
-
-            }
-            catch (Exception e)
-            {
-                DebugX.LogT("Could not load remote change set: " + e.Message);
-            }
-
-        }
-
-        #endregion
-
-        #region (protected) LoadChangeSets(Since = null, SkipUntil = null, MatchFilter = null, Skip = null, Take = null, DatabaseFileName = null)
-
-        /// <summary>
-        /// Read all change sets from the database file.
-        /// </summary>
-        /// <param name="DatabaseFileName">The optional database file name.</param>
-        protected async Task<(IEnumerable<JObject>, UInt64, String)>
-
-            LoadChangeSetsFromDisc(DateTime?               Since              = null,
-                                   String?                 SkipUntil          = null,
-                                   Func<String, Boolean>?  MatchFilter        = null,
-                                   UInt64?                 Skip               = null,
-                                   UInt64?                 Take               = null,
-                                   String?                 DatabaseFileName   = null)
-
-        {
-
-            if (MatchFilter is null)
-                MatchFilter = line => true;
-
-            var     jsonList           = new List<JObject>();
-            String  databaseFileName   = DatabaseFileName ?? this.DatabaseFileName;
-            var     totalCount         = 0UL;
-            var     skipUntil_reached  = SkipUntil is null;
-            var     lastValidLine      = "";
-            var     ETag               = "";
-
-            try
-            {
-
-                var lines = await File.ReadAllLinesAsync(databaseFileName);
-
-                lines?.ForEachCounted((line, lineNumber) =>
-                {
-
-                    if (line.IsNeitherNullNorEmpty() &&
-                       !line.StartsWith("#")         &&
-                       !line.StartsWith("//"))
-                    {
-
-                        try
-                        {
-
-                            var jsonLine = JObject.Parse(line);
-
-                            if (jsonLine is JObject &&
-                                jsonLine.First is JProperty jsonProperty)
-                            {
-
-                                if (jsonProperty.Name.IsNotNullOrEmpty() &&
-                                    jsonProperty.Value is JObject jsonObject)
-                                {
-
-                                    totalCount++;
-                                    lastValidLine = line;
-
-                                    var skip = false;
-
-                                    if (Since is not null)
-                                    {
-
-                                        var timestamp = jsonLine["timestamp"]?.Value<DateTime>();
-
-                                        if (timestamp is not null)
-                                        {
-                                            if (timestamp < Since.Value)
-                                                skip = true;
-                                        }
-
-                                    }
-
-                                    if (skip              == false &&
-                                        skipUntil_reached == false &&
-                                        SkipUntil is not null)
-                                    {
-
-                                        var sha256hash = jsonLine["sha256hash"]?["hashValue"]?.Value<String>();
-
-                                        if (sha256hash is not null)
-                                        {
-                                            if (sha256hash == SkipUntil)
-                                                skipUntil_reached = true;
-                                        }
-
-                                    }
-
-                                    if (skip == false && skipUntil_reached && MatchFilter(line))
-                                        jsonList.Add(jsonLine);
-
-                                }
-
-                            }
-
-                        }
-                        catch (Exception e)
-                        {
-                            DebugX.Log("Could not load change set file ''" + databaseFileName + "' line " + lineNumber + ": " + e.Message);
-                        }
-
-                    }
-
-                });
-
-                ETag = JObject.Parse(lastValidLine)?["sha256hash"]?["hashValue"]?.Value<String>() ?? "0";
-
-            }
-            catch (FileNotFoundException)
-            {
-                DebugX.LogT("Could not find change set file '" + databaseFileName + "'!");
-            }
-            catch (Exception e)
-            {
-                DebugX.LogT("Could not (re-)load change set file '" + databaseFileName + "': " + e.Message);
-            }
-
-            return (jsonList.SkipTakeFilter(Skip, Take),
-                    totalCount,
-                    ETag);
-
-        }
-
-        #endregion
-
-        //ToDo: Receive Network Database Events
 
         #region (protected virtual) ProcessEvent(Command, Data, Sender = null, LineNumber = null)
 
@@ -7871,10 +6194,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="Data">The event data.</param>
         /// <param name="Sender">The event sender or file name.</param>
         /// <param name="LineNumber">The event line number within the event file.</param>
-        protected virtual async Task ProcessEvent(String   Command,
-                                                  JObject  Data,
-                                                  String?  Sender       = null,
-                                                  UInt64?  LineNumber   = null)
+        protected override async Task ProcessEvent(String   Command,
+                                                   JObject  Data,
+                                                   String?  Sender       = null,
+                                                   UInt64?  LineNumber   = null)
         {
 
             #region Initial checks
@@ -7882,10 +6205,10 @@ namespace social.OpenData.UsersAPI
             if (Command.IsNullOrEmpty() || Data == null)
                 return;
 
-            NewsPosting      newsPosting;
-            NewsBanner       newsBanner;
-            FAQ              faq;
-            String           ErrorResponse;
+            NewsPosting?  newsPosting;
+            NewsBanner?   newsBanner;
+            FAQ?          faq;
+            String?       errorResponse;
 
             #endregion
 
@@ -7899,7 +6222,7 @@ namespace social.OpenData.UsersAPI
                     if (NewsPosting.TryParseJSON(Data,
                                                  users.TryGetValue,
                                                  out newsPosting,
-                                                 out ErrorResponse))
+                                                 out errorResponse) && newsPosting is not null)
                     {
 
                         if (!_NewsPostings.ContainsKey(newsPosting.Id))
@@ -7911,12 +6234,11 @@ namespace social.OpenData.UsersAPI
                     }
 
                     else
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, Sender.IsNotNullOrEmpty() ? " via " + Sender : "", LineNumber.HasValue ? ", line " + LineNumber.Value : "", ": ", ErrorResponse));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, Sender.IsNotNullOrEmpty() ? " via " + Sender : "", LineNumber.HasValue ? ", line " + LineNumber.Value : "", ": ", errorResponse));
 
                     break;
 
                 #endregion
-
 
                 #region Add news banner if not exists
 
@@ -7925,7 +6247,7 @@ namespace social.OpenData.UsersAPI
                     if (NewsBanner.TryParseJSON(Data,
                                                 users.TryGetValue,
                                                 out newsBanner,
-                                                out ErrorResponse))
+                                                out errorResponse) && newsBanner is not null)
                     {
 
                         if (!_NewsBanners.ContainsKey(newsBanner.Id))
@@ -7937,12 +6259,11 @@ namespace social.OpenData.UsersAPI
                     }
 
                     else
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, Sender.IsNotNullOrEmpty() ? " via " + Sender : "", LineNumber.HasValue ? ", line " + LineNumber.Value : "", ": ", ErrorResponse));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, Sender.IsNotNullOrEmpty() ? " via " + Sender : "", LineNumber.HasValue ? ", line " + LineNumber.Value : "", ": ", errorResponse));
 
                     break;
 
                 #endregion
-
 
                 #region Add FAQ if not exists
 
@@ -7951,7 +6272,7 @@ namespace social.OpenData.UsersAPI
                     if (FAQ.TryParseJSON(Data,
                                          users.TryGetValue,
                                          out faq,
-                                         out ErrorResponse))
+                                         out errorResponse) && faq is not null)
                     {
 
                         if (!_FAQs.ContainsKey(faq.Id))
@@ -7963,7 +6284,7 @@ namespace social.OpenData.UsersAPI
                     }
 
                     else
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, Sender.IsNotNullOrEmpty() ? " via " + Sender : "", LineNumber.HasValue ? ", line " + LineNumber.Value : "", ": ", ErrorResponse));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, Sender.IsNotNullOrEmpty() ? " via " + Sender : "", LineNumber.HasValue ? ", line " + LineNumber.Value : "", ": ", errorResponse));
 
                     break;
 
@@ -7971,295 +6292,15 @@ namespace social.OpenData.UsersAPI
 
 
                 default:
-                    DebugX.Log(String.Concat(nameof(UsersAPI), ": does not know what to do with event '", Command,
-                                             Sender.IsNotNullOrEmpty() ? " via " + Sender : "",
-                                             LineNumber.HasValue ? ", line " + LineNumber.Value : "",
-                                             "'!"));
+                    await base.ProcessEvent(Command,
+                                            Data,
+                                            Sender,
+                                            LineNumber);
                     break;
 
             }
 
         }
-
-        #endregion
-
-
-        #region (protected internal) WriteToDatabaseFile(              MessageType, JSONData, EventTrackingId, ...)
-
-        /// <summary>
-        /// Write data to a log file.
-        /// </summary>
-        /// <param name="MessageType">The type of the message.</param>
-        /// <param name="JSONData">The JSON data of the message.</param>
-        /// <param name="EventTrackingId">An unique event tracking identification for correlating this request with other events.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected internal Task WriteToDatabaseFile(NotificationMessageType  MessageType,
-                                                    JObject                  JSONData,
-                                                    EventTracking_Id?        EventTrackingId,
-                                                    User_Id?                 CurrentUserId   = null)
-
-            => WriteToDatabaseFile(DatabaseFileName,
-                                   MessageType,
-                                   JSONData,
-                                   EventTrackingId,
-                                   CurrentUserId);
-
-        #endregion
-
-        #region (protected internal) WriteToDatabaseFile(DatabaseFile, MessageType, JSONData, EventTrackingId, ...)
-
-        /// <summary>
-        /// Write data to a database file.
-        /// </summary>
-        /// <param name="DatabaseFile">The database file.</param>
-        /// <param name="MessageType">The type of the message.</param>
-        /// <param name="JSONData">The JSON data of the message.</param>
-        /// <param name="EventTrackingId">An unique event tracking identification for correlating this request with other events.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected internal async Task WriteToDatabaseFile(String                   DatabaseFile,
-                                                          NotificationMessageType  MessageType,
-                                                          JObject                  JSONData,
-                                                          EventTracking_Id?        EventTrackingId,
-                                                          User_Id?                 CurrentUserId     = null)
-        {
-
-            if (!DisableLogging || !DisableNotifications)
-            {
-
-                try
-                {
-
-                    var Now          = Timestamp.Now;
-
-                    var JSONMessage  = new JObject(
-                                           new JProperty(MessageType.ToString(),  JSONData),
-                                           new JProperty("eventTrackingId",       (EventTrackingId ?? EventTracking_Id.New).ToString()),
-                                           new JProperty("userId",                (CurrentUserId ?? CurrentAsyncLocalUserId.Value ?? Robot.Id).ToString()),
-                                           new JProperty("systemId",              SystemId.ToString()),
-                                           new JProperty("timestamp",             Now.ToIso8601()),
-                                           new JProperty("sha256hash",            new JObject(
-                                               new JProperty("nonce",                 Guid.NewGuid().ToString().Replace("-", "")),
-                                               new JProperty("parentHash",            CurrentDatabaseHashValue)
-                                           ))
-                                       );
-
-                    var SHA256                = new SHA256Managed();
-                    CurrentDatabaseHashValue  = SHA256.ComputeHash(Encoding.Unicode.GetBytes(JSONMessage.ToString(Newtonsoft.Json.Formatting.None))).
-                                                       Select(value => String.Format("{0:x2}", value)).
-                                                       Aggregate();
-
-                    (JSONMessage["sha256hash"] as JObject)?.Add(new JProperty("hashValue",  CurrentDatabaseHashValue));
-
-
-                    #region Write to database file
-
-                    if (!DisableLogging)
-                    {
-
-                        try
-                        {
-
-                            await LogFileSemaphore.WaitAsync();
-
-                            var retry       = 0;
-                            var maxRetries  = 23;
-
-                            do
-                            {
-
-                                try
-                                {
-
-                                    File.AppendAllText(DatabaseFile ?? DatabaseFileName,
-                                                       JSONMessage.ToString(Newtonsoft.Json.Formatting.None) + Environment.NewLine);
-
-                                    retry = maxRetries;
-
-                                }
-                                catch (IOException ioEx)
-                                {
-                                    DebugX.Log("Retry " + retry + ": Could not write message '" + MessageType + "' to logfile '" + DatabaseFile + "': " + ioEx.Message);
-                                    await Task.Delay(10);
-                                    retry++;
-                                }
-                                catch (Exception e)
-                                {
-                                    DebugX.Log("Retry " + retry + ": Could not write message '" + MessageType + "' to logfile '" + DatabaseFile + "': " + e.Message);
-                                    await Task.Delay(10);
-                                    retry++;
-                                }
-
-                            } while (retry < maxRetries);
-
-                        }
-                        catch (Exception e)
-                        {
-                            //ToDo: Handle WriteToLogfileAndNotify(...Write to logfile...) exceptions!
-                        }
-                        finally
-                        {
-                            LogFileSemaphore.Release();
-                        }
-
-                    }
-
-                    #endregion
-
-                }
-                catch (Exception e)
-                {
-                    //ToDo: Handle WriteToLogfileAndNotify(...) exceptions!
-                }
-
-            }
-
-        }
-
-        #endregion
-
-        #region WriteCommentToDatabaseFile(Comment = null, DatabaseFile = APIDatabaseFile, ...)
-
-        /// <summary>
-        /// Write a comment or just an empty comment to a database file.
-        /// </summary>
-        /// <param name="Comment">An optional comment.</param>
-        /// <param name="DatabaseFile">An optional database file.</param>
-        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task WriteCommentToDatabaseFile(String            Comment           = null,
-                                                     String            DatabaseFile      = null,
-                                                     EventTracking_Id? EventTrackingId   = null,
-                                                     User_Id?          CurrentUserId     = null)
-        {
-
-            if (!DisableLogging || !DisableNotifications)
-            {
-
-                try
-                {
-
-                    if (!DisableLogging)
-                    {
-
-                        try
-                        {
-
-                            await LogFileSemaphore.WaitAsync();
-
-                            var retry       = 0;
-                            var maxRetries  = 23;
-                            var text1       = (Comment ?? "no comment!") + (CurrentUserId.HasValue ? "by " + CurrentUserId.ToString() + " " : "");
-                            var text2       = "# --" + (text1 != null ? "< " + text1 + " >" : "");
-                            var text3       = text2 + new String('-', Math.Max(10, 200 - text2.Length)) + Environment.NewLine;
-
-                            do
-                            {
-
-                                try
-                                {
-                                    File.AppendAllText(DatabaseFile ?? DatabaseFileName, text3);
-                                    retry = maxRetries;
-                                }
-                                catch (IOException ioEx)
-                                {
-                                    DebugX.Log("Retry " + retry + ": Could not write comment '" + Comment + "' to logfile '" + DatabaseFile + "': " + ioEx.Message);
-                                    await Task.Delay(10);
-                                    retry++;
-                                }
-                                catch (Exception e)
-                                {
-                                    DebugX.Log("Retry " + retry + ": Could not write comment '" + Comment + "' to logfile '" + DatabaseFile + "': " + e.Message);
-                                    await Task.Delay(10);
-                                    retry++;
-                                }
-
-                            } while (retry < maxRetries);
-
-                        }
-                        catch (Exception e)
-                        {
-                            //ToDo: Handle WriteToLogfileAndNotify(...Write to logfile...) exceptions!
-                        }
-                        finally
-                        {
-                            LogFileSemaphore.Release();
-                        }
-
-                    }
-
-                }
-                catch (Exception e)
-                {
-                    //ToDo: Handle WriteToLogfileAndNotify(...) exceptions!
-                }
-
-            }
-
-        }
-
-        #endregion
-
-        #region WriteToCustomLogfile(Logfilename, Lock, Data)
-
-        public async Task WriteToCustomLogfile(String         Logfilename,
-                                               SemaphoreSlim  Lock,
-                                               String         Data)
-        {
-
-            if (!DisableLogging)
-            {
-
-                try
-                {
-
-                    await Lock.WaitAsync();
-
-                    var retry       = 0;
-                    var maxRetries  = 23;
-
-                    do
-                    {
-
-                        try
-                        {
-
-                            File.AppendAllText(Logfilename,
-                                               Data +
-                                               Environment.NewLine);
-
-                            retry = maxRetries;
-
-                        }
-                        catch (IOException ioEx)
-                        {
-                            DebugX.Log("Retry " + retry + ": Could not write custom logfile '" + Logfilename + "': " + ioEx.Message);
-                            await Task.Delay(10);
-                            retry++;
-                        }
-                        catch (Exception e)
-                        {
-                            DebugX.Log("Retry " + retry + ": Could not write custom logfile '" + Logfilename + "': " + e.Message);
-                            await Task.Delay(10);
-                            retry++;
-                        }
-
-                    } while (retry < maxRetries);
-
-                }
-                catch (Exception e)
-                {
-                    //ToDo: Handle WriteToCustomLogfile(...) exceptions!
-                }
-                finally
-                {
-                    Lock.Release();
-                }
-
-            }
-
-        }
-
-        #endregion
 
         #endregion
 
@@ -9447,1120 +7488,6 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region Notifications
-
-        private JObject GetNotifications(IUser User)
-        {
-
-            var notificationsJSON = User.GetNotificationInfos();
-
-            notificationsJSON.AddFirst(new JProperty("notificationGroups", new JArray(
-                                           _NotificationGroups.Values.Select(notificationGroup => notificationGroup.ToJSON())
-                                      )));
-
-            return notificationsJSON;
-
-        }
-
-        private JObject GetNotification(IUser User, UInt32 NotificationId)
-        {
-
-            var notificationJSON = User.GetNotificationInfo(NotificationId);
-
-            notificationJSON.AddFirst(new JProperty("notificationGroups", new JArray(
-                                          _NotificationGroups.Values.Select(notificationGroup => notificationGroup.ToJSON())
-                                     )));
-
-            return notificationJSON;
-
-        }
-
-        private JObject GetNotifications(IOrganization Organization)
-        {
-
-            var notificationsJSON = Organization.GetNotificationInfos();
-
-            notificationsJSON.AddFirst(new JProperty("notificationGroups", new JArray(
-                                           _NotificationGroups.Values.Select(notificationGroup => notificationGroup.ToJSON())
-                                      )));
-
-            return notificationsJSON;
-
-        }
-
-
-
-
-        // ToDo: Add locks
-        // ToDo: Add logging!
-
-        #region AddNotification(User,           NotificationType,                           CurrentUserId = null)
-
-        protected async Task _AddNotification<T>(IUser              User,
-                                                 T                  NotificationType,
-                                                 EventTracking_Id?  EventTrackingId   = null,
-                                                 User_Id?           CurrentUserId     = null)
-
-            where T : ANotification
-
-        {
-
-            User.AddNotification(NotificationType,
-                                 async update => await WriteToDatabaseFile(addNotification_MessageType,
-                                                                           update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
-                                                                           EventTrackingId,
-                                                                           CurrentUserId));
-
-        }
-
-
-        public async Task AddNotification<T>(IUser              User,
-                                             T                  NotificationType,
-                                             EventTracking_Id?  EventTrackingId   = null,
-                                             User_Id?           CurrentUserId     = null)
-
-            where T : ANotification
-
-        {
-
-            try
-            {
-
-                await UsersSemaphore.WaitAsync();
-
-                await _AddNotification(User,
-                                       NotificationType,
-                                       EventTrackingId,
-                                       CurrentUserId);
-
-            }
-            finally
-            {
-                UsersSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region AddNotification(UserId,         NotificationType,                           CurrentUserId = null)
-
-        public async Task AddNotification<T>(User_Id           UserId,
-                                             T                 NotificationType,
-                                             EventTracking_Id? EventTrackingId   = null,
-                                             User_Id?          CurrentUserId     = null)
-
-            where T : ANotification
-
-        {
-
-            try
-            {
-
-                await UsersSemaphore.WaitAsync();
-
-                if (users.TryGetValue(UserId, out var User))
-                {
-
-                    User.AddNotification(NotificationType,
-                                         async update => await WriteToDatabaseFile(addNotification_MessageType,
-                                                                                   update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
-                                                                                   EventTrackingId,
-                                                                                   CurrentUserId));
-
-                }
-
-            }
-            finally
-            {
-                UsersSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region AddNotification(User,           NotificationType, NotificationMessageType,  CurrentUserId = null)
-
-        public async Task AddNotification<T>(IUser                    User,
-                                             T                        NotificationType,
-                                             NotificationMessageType  NotificationMessageType,
-                                             EventTracking_Id?        EventTrackingId   = null,
-                                             User_Id?                 CurrentUserId     = null)
-
-            where T : ANotification
-
-        {
-
-            try
-            {
-
-                await UsersSemaphore.WaitAsync();
-
-                User.AddNotification(NotificationType,
-                                     NotificationMessageType,
-                                     async update => await WriteToDatabaseFile(addNotification_MessageType,
-                                                                               update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
-                                                                               EventTrackingId,
-                                                                               CurrentUserId));
-
-            }
-            finally
-            {
-                UsersSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region AddNotification(UserId,         NotificationType, NotificationMessageType,  CurrentUserId = null)
-
-        public async Task AddNotification<T>(User_Id                  UserId,
-                                             T                        NotificationType,
-                                             NotificationMessageType  NotificationMessageType,
-                                             EventTracking_Id?        EventTrackingId   = null,
-                                             User_Id?                 CurrentUserId     = null)
-
-            where T : ANotification
-
-        {
-
-            try
-            {
-
-                await UsersSemaphore.WaitAsync();
-
-                if (users.TryGetValue(UserId, out var User))
-                {
-
-                    User.AddNotification(NotificationType,
-                                         NotificationMessageType,
-                                         async update => await WriteToDatabaseFile(addNotification_MessageType,
-                                                                                   update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
-                                                                                   EventTrackingId,
-                                                                                   CurrentUserId));
-
-                }
-
-                else
-                    throw new ArgumentException("The given user '" + UserId + "' is unknown!");
-
-            }
-            finally
-            {
-                UsersSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region AddNotification(User,           NotificationType, NotificationMessageTypes, ...)
-
-        public async Task AddNotification<T>(IUser                                 User,
-                                             T                                     NotificationType,
-                                             IEnumerable<NotificationMessageType>  NotificationMessageTypes,
-                                             EventTracking_Id?                     EventTrackingId   = null,
-                                             User_Id?                              CurrentUserId     = null)
-
-            where T : ANotification
-
-        {
-
-            try
-            {
-
-                await UsersSemaphore.WaitAsync();
-
-                User.AddNotification(NotificationType,
-                                     NotificationMessageTypes,
-                                     async update => await WriteToDatabaseFile(addNotification_MessageType,
-                                                                               update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
-                                                                               EventTrackingId,
-                                                                               CurrentUserId));
-
-            }
-            finally
-            {
-                UsersSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region AddNotification(UserId,         NotificationType, NotificationMessageTypes, ...)
-
-        public async Task AddNotification<T>(User_Id                               UserId,
-                                             T                                     NotificationType,
-                                             IEnumerable<NotificationMessageType>  NotificationMessageTypes,
-                                             EventTracking_Id?                     EventTrackingId   = null,
-                                             User_Id?                              CurrentUserId     = null)
-
-            where T : ANotification
-
-        {
-
-            try
-            {
-
-                await UsersSemaphore.WaitAsync();
-
-                if (users.TryGetValue(UserId, out var User))
-                {
-
-                    User.AddNotification(NotificationType,
-                                         NotificationMessageTypes,
-                                         async update => await WriteToDatabaseFile(addNotification_MessageType,
-                                                                                   update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
-                                                                                   EventTrackingId,
-                                                                                   CurrentUserId));
-
-                }
-
-                else
-                    throw new ArgumentException("The given user '" + UserId + "' is unknown!");
-
-            }
-            finally
-            {
-                UsersSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-
-        #region AddNotification(Organization,   NotificationType,                           CurrentUserId = null)
-
-        public async Task AddNotification<T>(IOrganization      Organization,
-                                             T                  NotificationType,
-                                             EventTracking_Id?  EventTrackingId   = null,
-                                             User_Id?           CurrentUserId     = null)
-
-            where T : ANotification
-
-        {
-
-            try
-            {
-
-                await UsersSemaphore.WaitAsync();
-
-                Organization.AddNotification(NotificationType,
-                                             async update => await WriteToDatabaseFile(addNotification_MessageType,
-                                                                                       update.ToJSON(false).AddFirstAndReturn(new JProperty("organizationId", Organization.Id.ToString())),
-                                                                                       EventTrackingId,
-                                                                                       CurrentUserId));
-
-            }
-            finally
-            {
-                UsersSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region AddNotification(OrganizationId, NotificationType,                           CurrentUserId = null)
-
-        public async Task AddNotification<T>(Organization_Id   OrganizationId,
-                                             T                 NotificationType,
-                                             EventTracking_Id? EventTrackingId   = null,
-                                             User_Id?          CurrentUserId     = null)
-
-            where T : ANotification
-
-        {
-
-            try
-            {
-
-                await UsersSemaphore.WaitAsync();
-
-                if (organizations.TryGetValue(OrganizationId, out var Organization))
-                {
-
-                    Organization.AddNotification(NotificationType,
-                                                 async update => await WriteToDatabaseFile(addNotification_MessageType,
-                                                                                           update.ToJSON(false).AddFirstAndReturn(new JProperty("organizationId", Organization.Id.ToString())),
-                                                                                           EventTrackingId,
-                                                                                           CurrentUserId));
-
-                }
-
-            }
-            finally
-            {
-                UsersSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region AddNotification(Organization,   NotificationType, NotificationMessageType,  CurrentUserId = null)
-
-        public async Task AddNotification<T>(IOrganization            Organization,
-                                             T                        NotificationType,
-                                             NotificationMessageType  NotificationMessageType,
-                                             EventTracking_Id?        EventTrackingId   = null,
-                                             User_Id?                 CurrentUserId     = null)
-
-            where T : ANotification
-
-        {
-
-            try
-            {
-
-                await UsersSemaphore.WaitAsync();
-
-                Organization.AddNotification(NotificationType,
-                                             NotificationMessageType,
-                                             async update => await WriteToDatabaseFile(addNotification_MessageType,
-                                                                                       update.ToJSON(false).AddFirstAndReturn(new JProperty("organizationId", Organization.Id.ToString())),
-                                                                                       EventTrackingId,
-                                                                                       CurrentUserId));
-
-            }
-            finally
-            {
-                UsersSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region AddNotification(OrganizationId, NotificationType, NotificationMessageType,  CurrentUserId = null)
-
-        public async Task AddNotification<T>(Organization_Id          OrganizationId,
-                                             T                        NotificationType,
-                                             NotificationMessageType  NotificationMessageType,
-                                             EventTracking_Id?        EventTrackingId   = null,
-                                             User_Id?                 CurrentUserId     = null)
-
-            where T : ANotification
-
-        {
-
-            try
-            {
-
-                await UsersSemaphore.WaitAsync();
-
-                if (organizations.TryGetValue(OrganizationId, out var Organization))
-                {
-
-                    Organization.AddNotification(NotificationType,
-                                                 NotificationMessageType,
-                                                 async update => await WriteToDatabaseFile(addNotification_MessageType,
-                                                                                           update.ToJSON(false).AddFirstAndReturn(new JProperty("organizationId", Organization.Id.ToString())),
-                                                                                           EventTrackingId,
-                                                                                           CurrentUserId));
-
-                }
-
-                else
-                    throw new ArgumentException("The given organization '" + OrganizationId + "' is unknown!");
-
-            }
-            finally
-            {
-                UsersSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region AddNotification(Organization,   NotificationType, NotificationMessageTypes, ...)
-
-        public async Task AddNotification<T>(IOrganization                         Organization,
-                                             T                                     NotificationType,
-                                             IEnumerable<NotificationMessageType>  NotificationMessageTypes,
-                                             EventTracking_Id?                     EventTrackingId   = null,
-                                             User_Id?                              CurrentUserId     = null)
-
-            where T : ANotification
-
-        {
-
-            try
-            {
-
-                await UsersSemaphore.WaitAsync();
-
-                Organization.AddNotification(NotificationType,
-                                             NotificationMessageTypes,
-                                             async update => await WriteToDatabaseFile(addNotification_MessageType,
-                                                                                       update.ToJSON(false).AddFirstAndReturn(new JProperty("organizationId", Organization.Id.ToString())),
-                                                                                       EventTrackingId,
-                                                                                       CurrentUserId));
-
-            }
-            finally
-            {
-                UsersSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region AddNotification(OrganizationId, NotificationType, NotificationMessageTypes, ...)
-
-        public async Task AddNotification<T>(Organization_Id                       OrganizationId,
-                                             T                                     NotificationType,
-                                             IEnumerable<NotificationMessageType>  NotificationMessageTypes,
-                                             EventTracking_Id?                     EventTrackingId   = null,
-                                             User_Id?                              CurrentUserId     = null)
-
-            where T : ANotification
-
-        {
-
-            try
-            {
-
-                await UsersSemaphore.WaitAsync();
-
-                if (organizations.TryGetValue(OrganizationId, out var Organization))
-                {
-
-                    Organization.AddNotification(NotificationType,
-                                                 NotificationMessageTypes,
-                                                 async update => await WriteToDatabaseFile(addNotification_MessageType,
-                                                                                           update.ToJSON(false).AddFirstAndReturn(new JProperty("organizationId", Organization.Id.ToString())),
-                                                                                           EventTrackingId,
-                                                                                           CurrentUserId));
-
-                }
-
-                else
-                    throw new ArgumentException("The given organization '" + OrganizationId + "' is unknown!");
-
-            }
-            finally
-            {
-                UsersSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-
-
-        #region GetNotifications  (User,           NotificationMessageType = null)
-
-        public IEnumerable<ANotification> GetNotifications(IUser                     User,
-                                                           NotificationMessageType?  NotificationMessageType = null)
-        {
-
-            if (UsersSemaphore.Wait(SemaphoreSlimTimeout))
-            {
-                try
-                {
-
-                    return User.GetNotifications(NotificationMessageType);
-
-                }
-                catch
-                { }
-                finally
-                {
-                    try
-                    {
-                        UsersSemaphore.Release();
-                    }
-                    catch
-                    { }
-                }
-            }
-
-            return Array.Empty<ANotification>();
-
-        }
-
-        #endregion
-
-        #region GetNotifications  (UserId,         NotificationMessageType = null)
-
-        public IEnumerable<ANotification> GetNotifications(User_Id                   UserId,
-                                                           NotificationMessageType?  NotificationMessageType = null)
-        {
-
-            if (UsersSemaphore.Wait(SemaphoreSlimTimeout))
-            {
-                try
-                {
-
-                    if (users.TryGetValue(UserId, out var user))
-                        return user.GetNotifications(NotificationMessageType);
-
-                }
-                catch
-                { }
-                finally
-                {
-                    try
-                    {
-                        UsersSemaphore.Release();
-                    }
-                    catch
-                    { }
-                }
-            }
-
-            return Array.Empty<ANotification>();
-
-        }
-
-        #endregion
-
-
-        #region GetNotificationsOf(User,           params NotificationMessageTypes)
-
-        public IEnumerable<T> GetNotificationsOf<T>(IUser                             User,
-                                                    params NotificationMessageType[]  NotificationMessageTypes)
-
-            where T : ANotification
-
-        {
-
-            if (UsersSemaphore.Wait(SemaphoreSlimTimeout))
-            {
-                try
-                {
-
-                    return User.GetNotificationsOf<T>(NotificationMessageTypes);
-
-                }
-                catch
-                { }
-                finally
-                {
-                    try
-                    {
-                        UsersSemaphore.Release();
-                    }
-                    catch
-                    { }
-                }
-            }
-
-            return Array.Empty<T>();
-
-        }
-
-        #endregion
-
-        #region GetNotificationsOf(UserId,         params NotificationMessageTypes)
-
-        public IEnumerable<T> GetNotificationsOf<T>(User_Id                           UserId,
-                                                    params NotificationMessageType[]  NotificationMessageTypes)
-
-            where T : ANotification
-
-        {
-
-            if (UsersSemaphore.Wait(SemaphoreSlimTimeout))
-            {
-                try
-                {
-
-                    if (users.TryGetValue(UserId, out var user))
-                        return user.GetNotificationsOf<T>(NotificationMessageTypes);
-
-                }
-                catch
-                { }
-                finally
-                {
-                    try
-                    {
-                        UsersSemaphore.Release();
-                    }
-                    catch
-                    { }
-                }
-            }
-
-            return Array.Empty<T>();
-
-        }
-
-        #endregion
-
-        #region GetNotificationsOf(Organization,   params NotificationMessageTypes)
-
-        public IEnumerable<T> GetNotificationsOf<T>(Organization                      Organization,
-                                                    params NotificationMessageType[]  NotificationMessageTypes)
-
-            where T : ANotification
-
-        {
-
-            if (UsersSemaphore.Wait(SemaphoreSlimTimeout))
-            {
-                if (OrganizationsSemaphore.Wait(SemaphoreSlimTimeout))
-                {
-                    try
-                    {
-
-                        return Organization.
-                                   GetMeAndAllMyParents(parent => parent != NoOwner).
-                                   SelectMany          (parent => parent.User2OrganizationEdges).
-                                   SelectMany          (edge   => edge.Source.GetNotificationsOf<T>(NotificationMessageTypes));
-
-                    }
-                    catch
-                    { }
-                    finally
-                    {
-                        try
-                        {
-                            UsersSemaphore.Release();
-                        }
-                        catch
-                        { }
-
-                        try
-                        {
-                            OrganizationsSemaphore.Release();
-                        }
-                        catch
-                        { }
-                    }
-                }
-                else
-                    UsersSemaphore.Release();
-            }
-
-            return Array.Empty<T>();
-
-        }
-
-        #endregion
-
-        #region GetNotificationsOf(OrganizationId, params NotificationMessageTypes)
-
-        public IEnumerable<T> GetNotificationsOf<T>(Organization_Id                   OrganizationId,
-                                                    params NotificationMessageType[]  NotificationMessageTypes)
-
-            where T : ANotification
-
-        {
-
-            if (UsersSemaphore.Wait(SemaphoreSlimTimeout))
-            {
-                if (OrganizationsSemaphore.Wait(SemaphoreSlimTimeout))
-                {
-                    try
-                    {
-
-                        if (organizations.TryGetValue(OrganizationId, out var organization))
-                            return organization.
-                                       GetMeAndAllMyParents(parent => parent != NoOwner).
-                                       SelectMany          (parent => parent.User2OrganizationEdges).
-                                       SelectMany          (edge   => edge.Source.GetNotificationsOf<T>(NotificationMessageTypes));
-
-                    }
-                    catch
-                    { }
-                    finally
-                    {
-                        try
-                        {
-                            UsersSemaphore.Release();
-                        }
-                        catch
-                        { }
-
-                        try
-                        {
-                            OrganizationsSemaphore.Release();
-                        }
-                        catch
-                        { }
-                    }
-                }
-                else
-                    UsersSemaphore.Release();
-            }
-
-            return Array.Empty<T>();
-
-        }
-
-        #endregion
-
-        #region GetNotificationsOf(UserGroup,      params NotificationMessageTypes)
-
-        public IEnumerable<T> GetNotificationsOf<T>(UserGroup                         UserGroup,
-                                                    params NotificationMessageType[]  NotificationMessageTypes)
-
-            where T : ANotification
-
-        {
-
-            if (UsersSemaphore.Wait(SemaphoreSlimTimeout))
-            {
-                if (UserGroupsSemaphore.Wait(SemaphoreSlimTimeout))
-                {
-                    try
-                    {
-
-                        return UserGroup.
-                                   GetMeAndAllMyParents().
-                                   SelectMany(parent => parent.User2UserGroupEdges).
-                                   SelectMany(edge   => edge.Source.GetNotificationsOf<T>(NotificationMessageTypes));
-
-                    }
-                    catch
-                    { }
-                    finally
-                    {
-                        try
-                        {
-                            UsersSemaphore.Release();
-                        }
-                        catch
-                        { }
-
-                        try
-                        {
-                            UserGroupsSemaphore.Release();
-                        }
-                        catch
-                        { }
-                    }
-                }
-                else
-                    UsersSemaphore.Release();
-            }
-
-            return Array.Empty<T>();
-
-        }
-
-        #endregion
-
-        #region GetNotificationsOf(UserGroupId,    params NotificationMessageTypes)
-
-        public IEnumerable<T> GetNotificationsOf<T>(UserGroup_Id                      UserGroupId,
-                                                    params NotificationMessageType[]  NotificationMessageTypes)
-
-            where T : ANotification
-
-        {
-
-            if (UsersSemaphore.Wait(SemaphoreSlimTimeout))
-            {
-                if (UserGroupsSemaphore.Wait(SemaphoreSlimTimeout))
-                {
-                    try
-                    {
-
-                        if (userGroups.TryGetValue(UserGroupId, out var userGroup))
-                            return userGroup.
-                                       GetMeAndAllMyParents().
-                                       SelectMany(parent => parent.User2UserGroupEdges).
-                                       SelectMany(edge   => edge.Source.GetNotificationsOf<T>(NotificationMessageTypes));
-
-                    }
-                    catch
-                    { }
-                    finally
-                    {
-                        try
-                        {
-                            UsersSemaphore.Release();
-                        }
-                        catch
-                        { }
-
-                        try
-                        {
-                            UserGroupsSemaphore.Release();
-                        }
-                        catch
-                        { }
-                    }
-                }
-                else
-                    UsersSemaphore.Release();
-            }
-
-            return Array.Empty<T>();
-
-        }
-
-        #endregion
-
-
-
-        #region GetNotifications  (User,   NotificationMessageTypeFilter)
-
-        public IEnumerable<ANotification> GetNotifications(IUser                                   User,
-                                                           Func<NotificationMessageType, Boolean>  NotificationMessageTypeFilter)
-
-            => User.GetNotifications(NotificationMessageTypeFilter);
-
-        #endregion
-
-        #region GetNotifications  (UserId, NotificationMessageTypeFilter)
-
-        public IEnumerable<ANotification> GetNotifications(User_Id                                 UserId,
-                                                           Func<NotificationMessageType, Boolean>  NotificationMessageTypeFilter)
-
-            => TryGetUser(UserId, out var user) && user is not null
-                   ? user.GetNotifications(NotificationMessageTypeFilter)
-                   : Array.Empty<ANotification>();
-
-        #endregion
-
-        #region GetNotificationsOf(User,   NotificationMessageTypeFilter)
-
-        public IEnumerable<T> GetNotificationsOf<T>(IUser                                   User,
-                                                    Func<NotificationMessageType, Boolean>  NotificationMessageTypeFilter)
-
-            where T : ANotification
-
-            => User.GetNotificationsOf<T>(NotificationMessageTypeFilter);
-
-        #endregion
-
-        #region GetNotificationsOf(UserId, NotificationMessageTypeFilter)
-
-        public IEnumerable<T> GetNotificationsOf<T>(User_Id                                 UserId,
-                                                    Func<NotificationMessageType, Boolean>  NotificationMessageTypeFilter)
-
-            where T : ANotification
-
-            => TryGetUser(UserId, out var user) && user is not null
-                   ? user.GetNotificationsOf<T>(NotificationMessageTypeFilter)
-                   : Array.Empty<T>();
-
-        #endregion
-
-
-        #region RemoveNotification(User,           NotificationType, ...)
-
-        public async Task RemoveNotification<T>(IUser              User,
-                                                T                  NotificationType,
-                                                EventTracking_Id?  EventTrackingId   = null,
-                                                User_Id?           CurrentUserId     = null)
-
-            where T : ANotification
-
-        {
-
-            try
-            {
-
-                await UsersSemaphore.WaitAsync();
-
-                await User.RemoveNotification(NotificationType,
-                                              async update => await WriteToDatabaseFile(removeNotification_MessageType,
-                                                                                        update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
-                                                                                        EventTrackingId,
-                                                                                        CurrentUserId));
-
-            }
-            finally
-            {
-                UsersSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region RemoveNotification(UserId,         NotificationType, ...)
-
-        public async Task RemoveNotification<T>(User_Id           UserId,
-                                                T                 NotificationType,
-                                                EventTracking_Id? EventTrackingId   = null,
-                                                User_Id?          CurrentUserId     = null)
-
-            where T : ANotification
-
-        {
-
-            try
-            {
-
-                await UsersSemaphore.WaitAsync();
-
-                if (users.TryGetValue(UserId, out var user) && user is not null)
-                {
-
-                    user.RemoveNotification(NotificationType,
-                                            async update => await WriteToDatabaseFile(removeNotification_MessageType,
-                                                                                      update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", UserId.ToString())),
-                                                                                      EventTrackingId,
-                                                                                      CurrentUserId));
-
-                }
-
-            }
-            finally
-            {
-                UsersSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-
-        #region RemoveNotification(Organization,   NotificationType, ...)
-
-        public async Task RemoveNotification<T>(IOrganization      Organization,
-                                                T                  NotificationType,
-                                                EventTracking_Id?  EventTrackingId   = null,
-                                                User_Id?           CurrentUserId     = null)
-
-            where T : ANotification
-
-        {
-
-            try
-            {
-
-                await UsersSemaphore.WaitAsync();
-
-                await Organization.RemoveNotification(NotificationType,
-                                                      async update => await WriteToDatabaseFile(removeNotification_MessageType,
-                                                                                                update.ToJSON(false).AddFirstAndReturn(new JProperty("organizationId", Organization.Id.ToString())),
-                                                                                                EventTrackingId,
-                                                                                                CurrentUserId));
-
-            }
-            finally
-            {
-                UsersSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region RemoveNotification(OrganizationId, NotificationType, ...)
-
-        public async Task RemoveNotification<T>(Organization_Id   OrganizationId,
-                                                T                 NotificationType,
-                                                EventTracking_Id? EventTrackingId   = null,
-                                                User_Id?          CurrentUserId     = null)
-
-            where T : ANotification
-
-        {
-
-            try
-            {
-
-                await UsersSemaphore.WaitAsync();
-
-                if (organizations.TryGetValue(OrganizationId, out var organization) && organization is not null)
-                {
-
-                    organization.RemoveNotification(NotificationType,
-                                                    async update => await WriteToDatabaseFile(removeNotification_MessageType,
-                                                                                              update.ToJSON(false).AddFirstAndReturn(new JProperty("organizationId", OrganizationId.ToString())),
-                                                                                              EventTrackingId,
-                                                                                              CurrentUserId));
-
-                }
-
-            }
-            finally
-            {
-                UsersSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #endregion
-
-        #region Notification Groups
-
-        #region Data
-
-        /// <summary>
-        /// An enumeration of all notification groups.
-        /// </summary>
-        protected readonly Dictionary<NotificationGroup_Id, NotificationGroup> _NotificationGroups = new ();
-
-        /// <summary>
-        /// An enumeration of all notification groups.
-        /// </summary>
-        public IEnumerable<NotificationGroup> NotificationGroups
-        {
-            get
-            {
-
-                if (UsersSemaphore.Wait(SemaphoreSlimTimeout))
-                {
-                    try
-                    {
-
-                        return _NotificationGroups.Values.ToArray();
-
-                    }
-                    finally
-                    {
-                        try
-                        {
-                            UsersSemaphore.Release();
-                        }
-                        catch
-                        { }
-                    }
-                }
-
-                return Array.Empty<NotificationGroup>();
-
-            }
-        }
-
-        #endregion
-
-
-        protected Boolean _AddNotificationGroup(NotificationGroup NotificationGroup)
-        {
-            _NotificationGroups.Add(NotificationGroup.Id, NotificationGroup);
-            return true;
-        }
-
-        public async Task<Boolean> AddNotificationGroup(NotificationGroup NotificationGroup)
-        {
-
-            try
-            {
-
-                await UsersSemaphore.WaitAsync();
-
-                return _AddNotificationGroup(NotificationGroup);
-
-            }
-            finally
-            {
-                UsersSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
         #region Dashboards
 
         #region Data
@@ -11004,7 +7931,6 @@ namespace social.OpenData.UsersAPI
         #endregion
 
         #endregion
-
 
         #region ServiceTickets
 
@@ -16590,125 +13516,6 @@ namespace social.OpenData.UsersAPI
         }
 
         #endregion
-
-        #endregion
-
-        #endregion
-
-        #region DataLicenses
-
-        protected internal readonly Dictionary<OpenDataLicense_Id, OpenDataLicense> dataLicenses;
-
-        /// <summary>
-        /// Return an enumeration of all data licenses.
-        /// </summary>
-        public IEnumerable<OpenDataLicense> DataLicenses
-            => dataLicenses.Values;
-
-
-        #region CreateDataLicense           (Id, Description, params URLs)
-
-        /// <summary>
-        /// Create a new data license.
-        /// </summary>
-        /// <param name="Id">The unique identification of the data license.</param>
-        /// <param name="Description">The description of the data license.</param>
-        /// <param name="URLs">Optional URLs for more information on the data license.</param>
-        public OpenDataLicense CreateDataLicense(OpenDataLicense_Id  Id,
-                                                 I18NString          Description,
-                                                 params URL[]        URLs)
-        {
-
-            lock (dataLicenses)
-            {
-
-                if (dataLicenses.ContainsKey(Id))
-                    throw new ArgumentException("The given data license already exists!", nameof(Id));
-
-
-                var DataLicense = new OpenDataLicense(Id,
-                                                      Description,
-                                                      URLs);
-
-                WriteToDatabaseFile(NotificationMessageType.Parse("createDataLicense"),
-                                    DataLicense.ToJSON(),
-                                    EventTracking_Id.New,
-                                    Robot.Id);
-
-                return dataLicenses.AddAndReturnValue(DataLicense.Id, DataLicense);
-
-            }
-
-        }
-
-        #endregion
-
-        #region CreateDataLicenseIfNotExists(Id, Description, params URLs)
-
-        /// <summary>
-        /// Create a new data license.
-        /// </summary>
-        /// <param name="Id">The unique identification of the data license.</param>
-        /// <param name="Description">The description of the data license.</param>
-        /// <param name="URLs">Optional URLs for more information on the data license.</param>
-        public OpenDataLicense CreateDataLicenseIfNotExists(OpenDataLicense_Id  Id,
-                                                            I18NString          Description,
-                                                            params URL[]        URLs)
-        {
-
-            lock (dataLicenses)
-            {
-
-                if (dataLicenses.ContainsKey(Id))
-                    return dataLicenses[Id];
-
-                return CreateDataLicense(Id,
-                                         Description,
-                                         URLs);
-
-            }
-
-        }
-
-        #endregion
-
-
-        #region GetDataLicense   (DataLicenseId)
-
-        /// <summary>
-        /// Get the data license having the given unique identification.
-        /// </summary>
-        /// <param name="DataLicenseId">The unique identification of the data license.</param>
-        public OpenDataLicense? GetDataLicense(OpenDataLicense_Id  DataLicenseId)
-        {
-            lock (dataLicenses)
-            {
-
-                if (dataLicenses.TryGetValue(DataLicenseId, out var dataLicense))
-                    return dataLicense;
-
-                return null;
-
-            }
-        }
-
-        #endregion
-
-        #region TryGetDataLicense(DataLicenseId, out DataLicense)
-
-        /// <summary>
-        /// Try to get the data license having the given unique identification.
-        /// </summary>
-        /// <param name="DataLicenseId">The unique identification of the data license.</param>
-        /// <param name="DataLicense">The data license.</param>
-        public Boolean TryGetDataLicense(OpenDataLicense_Id    DataLicenseId,
-                                         out OpenDataLicense?  DataLicense)
-        {
-            lock (dataLicenses)
-            {
-                return dataLicenses.TryGetValue(DataLicenseId, out DataLicense);
-            }
-        }
 
         #endregion
 
