@@ -941,7 +941,7 @@ namespace social.OpenData.UsersAPI
 
         #region CopyAllLinkedDataFrom(OldServiceTicketChangeSet)
 
-        public override void CopyAllLinkedDataFrom(ServiceTicketChangeSet OldServiceTicketChangeSet)
+        public override void CopyAllLinkedDataFromBase(ServiceTicketChangeSet OldServiceTicketChangeSet)
         {
 
 
@@ -1385,7 +1385,7 @@ namespace social.OpenData.UsersAPI
 
             #region CopyAllLinkedDataFrom(OldServiceTicketChangeSet)
 
-            public override void CopyAllLinkedDataFrom(ServiceTicketChangeSet OldServiceTicketChangeSet)
+            public override void CopyAllLinkedDataFromBase(ServiceTicketChangeSet OldServiceTicketChangeSet)
             {
 
 

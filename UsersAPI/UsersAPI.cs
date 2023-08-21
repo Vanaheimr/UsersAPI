@@ -2223,172 +2223,6 @@ namespace social.OpenData.UsersAPI
 
         #region E-Mail templates
 
-        #region NewUserSignUpEMailCreatorDelegate
-
-        /// <summary>
-        /// A delegate for sending a sign-up e-mail to a new user.
-        /// </summary>
-        public virtual EMail NewUserSignUpEMailCreator(IUser             User,
-                                                       EMailAddressList  EMailRecipients,
-                                                       SecurityToken_Id  SecurityToken,
-                                                       Boolean           Use2FactorAuth,
-                                                       Languages         Language,
-                                                       EventTracking_Id? EventTrackingId)
-
-            =>  new HTMLEMailBuilder() {
-
-                    From           = Robot.EMail,
-                    To             = EMailRecipients,
-                    Passphrase     = APIRobotGPGPassphrase,
-                    Subject        = "Your " + ServiceName + " account has been created",
-
-                    HTMLText       = String.Concat(
-                                         HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.System),
-                                             "Dear ", User.Name, ",<br /><br />" + Environment.NewLine,
-                                             "your " + ServiceName + " account has been created!<br /><br />" + Environment.NewLine,
-                                             "Please click the following link to set a new password for your account" + (Use2FactorAuth ? " and check your mobile phone for an additional security token" : "") + "...<br /><br />" + Environment.NewLine,
-                                             "<a href=\"https://" + ExternalDNSName + (BasePath?.ToString() ?? "") + "/setPassword?" + SecurityToken + (Use2FactorAuth ? "&2factor" : "") + "\" style=\"text-decoration: none; color: #FFFFFF; background-color: #ff7300; Border: solid #ff7300; border-width: 10px 20px; line-height: 2; font-weight: bold; text-align: center; cursor: pointer; display: inline-block; border-radius: 4px; margin-top: 20px; font-size: 70%\">Set a new password</a>" + Environment.NewLine,
-                                         HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.System)
-                                     ),
-
-                    PlainText      = String.Concat(
-                                         TextEMailHeader(ExternalDNSName, BasePath, EMailType.System) +
-                                             "Dear ", User.Name, ", " + Environment.NewLine +
-                                             "your " + ServiceName + " account has been created!" + Environment.NewLine + Environment.NewLine +
-                                             "Please click the following link to set a new password for your account" + (Use2FactorAuth ? " and check your mobile phone for an additional security token" : "") + "..." + Environment.NewLine + Environment.NewLine +
-                                             "https://" + ExternalDNSName + (BasePath?.ToString() ?? "") + "/setPassword?" + SecurityToken + (Use2FactorAuth ? "&2factor" : "") +
-                                         TextEMailFooter(ExternalDNSName, BasePath, EMailType.System)
-                                    ),
-
-                    SecurityLevel  = EMailSecurity.autosign
-
-                }.AsImmutable;
-
-        #endregion
-
-        #region NewUserWelcomeEMailCreatorDelegate
-
-        /// <summary>
-        /// A delegate for sending a welcome e-mail to a new user.
-        /// </summary>
-        public virtual EMail NewUserWelcomeEMailCreator(IUser              User,
-                                                        EMailAddressList   EMailRecipients,
-                                                        Languages          Language,
-                                                        EventTracking_Id?  EventTrackingId)
-
-            => new HTMLEMailBuilder() {
-
-                   From           = Robot.EMail,
-                   To             = EMailRecipients,
-                   Passphrase     = APIRobotGPGPassphrase,
-                   Subject        = "Welcome to " + ServiceName + "...",
-
-                   HTMLText       = String.Concat(
-                                        HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.System) +
-                                            "Dear " + User.Name + ",<br /><br />" + Environment.NewLine +
-                                            "welcome to your new " + ServiceName + " account!<br /><br />" + Environment.NewLine +
-                                            "<a href=\"https://" + ExternalDNSName + (BasePath?.ToString() ?? "") + "/login\" style=\"text-decoration: none; color: #FFFFFF; background-color: #ff7300; Border: solid #ff7300; border-width: 10px 20px; line-height: 2; font-weight: bold; text-align: center; cursor: pointer; display: inline-block; border-radius: 4px; margin-top: 20px; font-size: 70%\">Login</a>" + Environment.NewLine +
-                                        HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.System)
-                                    ),
-
-                   PlainText      = String.Concat(
-                                        TextEMailHeader(ExternalDNSName, BasePath, EMailType.System) +
-                                            "Dear " + User.Name + "," + Environment.NewLine +
-                                            "welcome to your new " + ServiceName + " account!" + Environment.NewLine + Environment.NewLine +
-                                            "Please login via: https://" + ExternalDNSName + (BasePath?.ToString() ?? "") + "/login" + Environment.NewLine + Environment.NewLine +
-                                        TextEMailFooter(ExternalDNSName, BasePath, EMailType.System)
-                                    ),
-
-                   SecurityLevel  = EMailSecurity.autosign
-
-               }.//AddAttachment("Hi there!".ToUTF8Bytes(), "welcome.txt", MailContentTypes.text_plain).
-                 AsImmutable;
-
-        #endregion
-
-        #region ResetPasswordEMailCreatorDelegate
-
-        /// <summary>
-        /// A delegate for sending a reset password e-mail to a user.
-        /// </summary>
-        public virtual EMail ResetPasswordEMailCreator(IUser              User,
-                                                       EMailAddressList   EMailRecipients,
-                                                       SecurityToken_Id   SecurityToken,
-                                                       Boolean            Use2FactorAuth,
-                                                       Languages          Language,
-                                                       EventTracking_Id?  EventTrackingId)
-
-            => new HTMLEMailBuilder() {
-
-                   From           = Robot.EMail,
-                   To             = EMailRecipients,
-                   Passphrase     = APIRobotGPGPassphrase,
-                   Subject        = ServiceName + " password reset...",
-
-                   HTMLText       = String.Concat(
-                                        HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.System) +
-                                            "Dear " + User.Name + ",<br /><br />" + Environment.NewLine +
-                                            "someone - hopefully you - requested us to change your password!<br />" + Environment.NewLine +
-                                            "If this request was your intention, please click the following link to set a new password...<br /><br />" + Environment.NewLine +
-                                            "<a href=\"https://" + ExternalDNSName + (BasePath?.ToString() ?? "") + "/setPassword?" + SecurityToken + (Use2FactorAuth ? "&2factor" : "") + "\" style=\"text-decoration: none; color: #FFFFFF; background-color: #ff7300; Border: solid #ff7300; border-width: 10px 20px; line-height: 2; font-weight: bold; text-align: center; cursor: pointer; display: inline-block; border-radius: 4px; margin-top: 20px; font-size: 70%\">Set a new password</a>" + Environment.NewLine +
-                                        HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.System)
-                                    ),
-
-                   PlainText      = String.Concat(
-                                        TextEMailHeader(ExternalDNSName, BasePath, EMailType.System) +
-                                            "Dear " + User.Name + "," + Environment.NewLine +
-                                            "someone - hopefully you - requested us to change your password!" + Environment.NewLine +
-                                            "If this request was your intention, please click the following link to set a new password..." + Environment.NewLine + Environment.NewLine +
-                                            "https://" + ExternalDNSName + (BasePath?.ToString() ?? "") + "/setPassword?" + SecurityToken + (Use2FactorAuth ? "&2factor" : "") +
-                                        TextEMailFooter(ExternalDNSName, BasePath, EMailType.System)
-                                    ),
-
-                   SecurityLevel  = EMailSecurity.autosign
-
-               }.AsImmutable;
-
-        #endregion
-
-        #region PasswordChangedEMailCreatorDelegate
-
-        /// <summary>
-        /// A delegate for sending a reset password e-mail to a user.
-        /// </summary>
-        public virtual EMail PasswordChangedEMailCreator(IUser              User,
-                                                         EMailAddressList   EMailRecipients,
-                                                         Languages          Language,
-                                                         EventTracking_Id?  EventTrackingId)
-
-            => new HTMLEMailBuilder() {
-
-                   From           = Robot.EMail,
-                   To             = EMailRecipients,
-                   Passphrase     = APIRobotGPGPassphrase,
-                   Subject        = "Your " + ServiceName + " password changed...",
-
-                   HTMLText       = String.Concat(
-                                        HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.System) +
-                                            "Dear " + User.Name + ",<br /><br />" + Environment.NewLine +
-                                            "your password has successfully been changed!<br />" + Environment.NewLine +
-                                            "<a href=\"https://" + ExternalDNSName + (BasePath?.ToString() ?? "") + "/login?" + User.Id + "\" style=\"text-decoration: none; color: #FFFFFF; background-color: #ff7300; Border: solid #ff7300; border-width: 10px 20px; line-height: 2; font-weight: bold; text-align: center; cursor: pointer; display: inline-block; border-radius: 4px; margin-top: 20px; font-size: 70%\">Login</a>" + Environment.NewLine +
-                                        HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.System)
-                                    ),
-
-                   PlainText      = String.Concat(
-                                        TextEMailHeader(ExternalDNSName, BasePath, EMailType.System) +
-                                            "Dear " + User.Name + "," + Environment.NewLine +
-                                            "your password has successfully been changed!" + Environment.NewLine +
-                                            "https://" + ExternalDNSName + (BasePath?.ToString() ?? "") + "/login?" + User.Id +
-                                        TextEMailFooter(ExternalDNSName, BasePath, EMailType.System)
-                                    ),
-
-                   SecurityLevel  = EMailSecurity.autosign
-
-               }.AsImmutable;
-
-        #endregion
-
-
         #region NewServiceTicketMessageReceivedDelegate
 
         ///// <summary>
@@ -3345,16 +3179,6 @@ namespace social.OpenData.UsersAPI
                                                 }.AsImmutable);
 
                               });
-
-            #endregion
-
-            #region GET         ~/users/{UserId}/profilephoto
-
-            HTTPServer.RegisterFilesystemFile(this,
-                                              HTTPHostname.Any,
-                                              URLPathPrefix + "users/{UserId}/profilephoto",
-                                              URLParams => "LocalHTTPRoot/data/Users/" + URLParams[0] + ".png",
-                                              DefaultFile: "HTTPRoot/images/defaults/DefaultUser.png");
 
             #endregion
 
@@ -6780,7 +6604,7 @@ namespace social.OpenData.UsersAPI
             if (_Messages.TryGetValue(Message.Id, out var OldMessage))
             {
                 _Messages.Remove(OldMessage.Id);
-                Message.CopyAllLinkedDataFrom(OldMessage);
+                Message.CopyAllLinkedDataFromBase(OldMessage);
             }
 
             _Messages.Add(Message.Id, Message);
@@ -6943,7 +6767,7 @@ namespace social.OpenData.UsersAPI
                                       CurrentUserId);
 
             _Messages.Remove(OldMessage.Id);
-            Message.CopyAllLinkedDataFrom(OldMessage);
+            Message.CopyAllLinkedDataFromBase(OldMessage);
 
 
             var OnMessageUpdatedLocal = OnMessageUpdated;
@@ -7057,7 +6881,7 @@ namespace social.OpenData.UsersAPI
                                       CurrentUserId);
 
             _Messages.Remove(OldMessage.Id);
-            NewMessage.CopyAllLinkedDataFrom(OldMessage);
+            NewMessage.CopyAllLinkedDataFromBase(OldMessage);
 
 
             var OnMessageUpdatedLocal = OnMessageUpdated;
@@ -7695,7 +7519,7 @@ namespace social.OpenData.UsersAPI
                                           EventTracking_Id.New,
                                           CurrentUserId);
 
-                Dashboard.CopyAllLinkedDataFrom(OldDashboard);
+                Dashboard.CopyAllLinkedDataFromBase(OldDashboard);
 
                 return _Dashboards.AddAndReturnValue(Dashboard.Id, Dashboard);
 
@@ -7745,7 +7569,7 @@ namespace social.OpenData.UsersAPI
                 NewDashboard.API = this;
 
                 _Dashboards.Remove(OldDashboard.Id);
-                NewDashboard.CopyAllLinkedDataFrom(OldDashboard);
+                NewDashboard.CopyAllLinkedDataFromBase(OldDashboard);
 
                 return _Dashboards.AddAndReturnValue(NewDashboard.Id, NewDashboard);
 
@@ -8395,7 +8219,7 @@ namespace social.OpenData.UsersAPI
                 if (_ServiceTickets.TryRemove(ServiceTicket.Id, out OldServiceTicket))
                 {
 
-                    ServiceTicket.CopyAllLinkedDataFrom(OldServiceTicket);
+                    ServiceTicket.CopyAllLinkedDataFromBase(OldServiceTicket);
 
                     //// Only run when the admin status changed!
                     //if (!DoNotAnalyzeTheServiceTicketStatus &&
@@ -8503,7 +8327,7 @@ namespace social.OpenData.UsersAPI
                     ServiceTicket.API = this;
 
                 _ServiceTickets.TryRemove(OldServiceTicket.Id, out ServiceTicket removedServiceTicket);
-                ServiceTicket.CopyAllLinkedDataFrom(OldServiceTicket);
+                ServiceTicket.CopyAllLinkedDataFromBase(OldServiceTicket);
 
                 _ServiceTickets.AddOrUpdate(ServiceTicket.Id,
                                             id                     => ServiceTicket,
@@ -9276,7 +9100,7 @@ namespace social.OpenData.UsersAPI
             if (_BlogPostings.TryGetValue(BlogPosting.Id, out BlogPosting OldBlogPosting))
             {
                 _BlogPostings.Remove(OldBlogPosting.Id);
-                BlogPosting.CopyAllLinkedDataFrom(OldBlogPosting);
+                BlogPosting.CopyAllLinkedDataFromBase(OldBlogPosting);
             }
 
             _BlogPostings.Add(BlogPosting.Id, BlogPosting);
@@ -9439,7 +9263,7 @@ namespace social.OpenData.UsersAPI
                                       CurrentUserId);
 
             _BlogPostings.Remove(OldBlogPosting.Id);
-            BlogPosting.CopyAllLinkedDataFrom(OldBlogPosting);
+            BlogPosting.CopyAllLinkedDataFromBase(OldBlogPosting);
 
 
             var OnBlogPostingUpdatedLocal = OnBlogPostingUpdated;
@@ -9553,7 +9377,7 @@ namespace social.OpenData.UsersAPI
                                       CurrentUserId);
 
             _BlogPostings.Remove(OldBlogPosting.Id);
-            NewBlogPosting.CopyAllLinkedDataFrom(OldBlogPosting);
+            NewBlogPosting.CopyAllLinkedDataFromBase(OldBlogPosting);
 
 
             var OnBlogPostingUpdatedLocal = OnBlogPostingUpdated;
@@ -10455,7 +10279,7 @@ namespace social.OpenData.UsersAPI
             if (_NewsPostings.TryGetValue(NewsPosting.Id, out NewsPosting OldNewsPosting))
             {
                 _NewsPostings.Remove(OldNewsPosting.Id);
-                NewsPosting.CopyAllLinkedDataFrom(OldNewsPosting);
+                NewsPosting.CopyAllLinkedDataFromBase(OldNewsPosting);
             }
 
             _NewsPostings.Add(NewsPosting.Id, NewsPosting);
@@ -10618,7 +10442,7 @@ namespace social.OpenData.UsersAPI
                                       CurrentUserId);
 
             _NewsPostings.Remove(OldNewsPosting.Id);
-            NewsPosting.CopyAllLinkedDataFrom(OldNewsPosting);
+            NewsPosting.CopyAllLinkedDataFromBase(OldNewsPosting);
 
 
             var OnNewsPostingUpdatedLocal = OnNewsPostingUpdated;
@@ -10732,7 +10556,7 @@ namespace social.OpenData.UsersAPI
                                       CurrentUserId);
 
             _NewsPostings.Remove(OldNewsPosting.Id);
-            NewNewsPosting.CopyAllLinkedDataFrom(OldNewsPosting);
+            NewNewsPosting.CopyAllLinkedDataFromBase(OldNewsPosting);
 
 
             var OnNewsPostingUpdatedLocal = OnNewsPostingUpdated;
@@ -11634,7 +11458,7 @@ namespace social.OpenData.UsersAPI
             if (_NewsBanners.TryGetValue(NewsBanner.Id, out NewsBanner OldNewsBanner))
             {
                 _NewsBanners.Remove(OldNewsBanner.Id);
-                NewsBanner.CopyAllLinkedDataFrom(OldNewsBanner);
+                NewsBanner.CopyAllLinkedDataFromBase(OldNewsBanner);
             }
 
             _NewsBanners.Add(NewsBanner.Id, NewsBanner);
@@ -11797,7 +11621,7 @@ namespace social.OpenData.UsersAPI
                                       CurrentUserId);
 
             _NewsBanners.Remove(OldNewsBanner.Id);
-            NewsBanner.CopyAllLinkedDataFrom(OldNewsBanner);
+            NewsBanner.CopyAllLinkedDataFromBase(OldNewsBanner);
 
 
             var OnNewsBannerUpdatedLocal = OnNewsBannerUpdated;
@@ -11911,7 +11735,7 @@ namespace social.OpenData.UsersAPI
                                       CurrentUserId);
 
             _NewsBanners.Remove(OldNewsBanner.Id);
-            NewNewsBanner.CopyAllLinkedDataFrom(OldNewsBanner);
+            NewNewsBanner.CopyAllLinkedDataFromBase(OldNewsBanner);
 
 
             var OnNewsBannerUpdatedLocal = OnNewsBannerUpdated;
@@ -12813,7 +12637,7 @@ namespace social.OpenData.UsersAPI
             if (_FAQs.TryGetValue(FAQ.Id, out FAQ OldFAQ))
             {
                 _FAQs.Remove(OldFAQ.Id);
-                FAQ.CopyAllLinkedDataFrom(OldFAQ);
+                FAQ.CopyAllLinkedDataFromBase(OldFAQ);
             }
 
             _FAQs.Add(FAQ.Id, FAQ);
@@ -12976,7 +12800,7 @@ namespace social.OpenData.UsersAPI
                                       CurrentUserId);
 
             _FAQs.Remove(OldFAQ.Id);
-            FAQ.CopyAllLinkedDataFrom(OldFAQ);
+            FAQ.CopyAllLinkedDataFromBase(OldFAQ);
 
 
             var OnFAQUpdatedLocal = OnFAQUpdated;
@@ -13090,7 +12914,7 @@ namespace social.OpenData.UsersAPI
                                       CurrentUserId);
 
             _FAQs.Remove(OldFAQ.Id);
-            NewFAQ.CopyAllLinkedDataFrom(OldFAQ);
+            NewFAQ.CopyAllLinkedDataFromBase(OldFAQ);
 
 
             var OnFAQUpdatedLocal = OnFAQUpdated;

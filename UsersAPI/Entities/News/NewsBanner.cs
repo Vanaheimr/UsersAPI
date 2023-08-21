@@ -486,7 +486,7 @@ namespace social.OpenData.UsersAPI
 
         #region CopyAllLinkedDataFrom(OldNewsBanner)
 
-        public override void CopyAllLinkedDataFrom(NewsBanner OldNewsBanner)
+        public override void CopyAllLinkedDataFromBase(NewsBanner OldNewsBanner)
         {
 
         }
@@ -854,7 +854,7 @@ namespace social.OpenData.UsersAPI
 
 
 
-            public override void CopyAllLinkedDataFrom(NewsBanner OldEnity)
+            public override void CopyAllLinkedDataFromBase(NewsBanner OldEnity)
             {
             }
 

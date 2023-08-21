@@ -525,7 +525,7 @@ namespace social.OpenData.UsersAPI
 
         #region CopyAllLinkedDataFrom(OldFAQ)
 
-        public override void CopyAllLinkedDataFrom(FAQ OldFAQ)
+        public override void CopyAllLinkedDataFromBase(FAQ OldFAQ)
         {
 
         }
@@ -923,7 +923,7 @@ namespace social.OpenData.UsersAPI
             }
 
 
-            public override void CopyAllLinkedDataFrom(FAQ OldEnity)
+            public override void CopyAllLinkedDataFromBase(FAQ OldEnity)
             {
             }
 

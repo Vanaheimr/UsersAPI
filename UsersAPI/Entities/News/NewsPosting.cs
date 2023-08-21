@@ -488,7 +488,7 @@ namespace social.OpenData.UsersAPI
 
         #region CopyAllLinkedDataFrom(OldNews)
 
-        public override void CopyAllLinkedDataFrom(NewsPosting OldNews)
+        public override void CopyAllLinkedDataFromBase(NewsPosting OldNews)
         {
 
         }
@@ -882,7 +882,7 @@ namespace social.OpenData.UsersAPI
             }
 
 
-            public override void CopyAllLinkedDataFrom(NewsPosting OldEnity)
+            public override void CopyAllLinkedDataFromBase(NewsPosting OldEnity)
             {
             }
 

@@ -191,7 +191,7 @@ namespace social.OpenData.UsersAPI
 
         #region CopyAllLinkedDataFrom(OldMessage)
 
-        public override void CopyAllLinkedDataFrom(Message OldMessage)
+        public override void CopyAllLinkedDataFromBase(Message OldMessage)
         {
 
         }
@@ -421,7 +421,7 @@ namespace social.OpenData.UsersAPI
 
             #region CopyAllLinkedDataFrom(OldMessage)
 
-            public override void CopyAllLinkedDataFrom(Message OldMessage)
+            public override void CopyAllLinkedDataFromBase(Message OldMessage)
             {
 
             }

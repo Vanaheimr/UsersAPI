@@ -420,7 +420,7 @@ namespace social.OpenData.UsersAPI
 
         #region CopyAllLinkedDataFrom(OldDashboard)
 
-        public override void CopyAllLinkedDataFrom(Dashboard OldDashboard)
+        public override void CopyAllLinkedDataFromBase(Dashboard OldDashboard)
         {
 
         }

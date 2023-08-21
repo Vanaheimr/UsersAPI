@@ -574,7 +574,7 @@ namespace social.OpenData.UsersAPI
 
         #region CopyAllLinkedDataFrom(OldPosting)
 
-        public override void CopyAllLinkedDataFrom(BlogPosting OldPosting)
+        public override void CopyAllLinkedDataFromBase(BlogPosting OldPosting)
         {
 
 
@@ -1013,7 +1013,7 @@ namespace social.OpenData.UsersAPI
             }
 
 
-            public override void CopyAllLinkedDataFrom(BlogPosting OldEnity)
+            public override void CopyAllLinkedDataFromBase(BlogPosting OldEnity)
             {
             }
 
