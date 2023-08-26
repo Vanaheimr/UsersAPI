@@ -263,7 +263,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region GetHashCode()
+        #region (override) GetHashCode()
 
         /// <summary>
         /// Get the hashcode of this object.
