@@ -1854,9 +1854,9 @@ namespace social.OpenData.UsersAPI
                                                                      From           = Robot.EMail,
                                                                      To             = EMailAddressList.Create(adminOrganization.Admins.Select(admin => admin.EMail)),
                                                                      Passphrase     = APIRobotGPGPassphrase,
-                                                                     Subject        = ServiceName + " is low on disc (<" + HDPercentageFree + "%, " + MBytesFree + " MB free)",
-                                                                     HTMLText       = ServiceName + " is low on disc (<" + HDPercentageFree + "%, " + MBytesFree + " MB free)" + Environment.NewLine + Environment.NewLine,
-                                                                     PlainText      = ServiceName + " is low on disc (<" + HDPercentageFree + "%, " + MBytesFree + " MB free)" + Environment.NewLine + Environment.NewLine,
+                                                                     Subject        = HTTPServiceName + " is low on disc (<" + HDPercentageFree + "%, " + MBytesFree + " MB free)",
+                                                                     HTMLText       = HTTPServiceName + " is low on disc (<" + HDPercentageFree + "%, " + MBytesFree + " MB free)" + Environment.NewLine + Environment.NewLine,
+                                                                     PlainText      = HTTPServiceName + " is low on disc (<" + HDPercentageFree + "%, " + MBytesFree + " MB free)" + Environment.NewLine + Environment.NewLine,
                                                                      SecurityLevel  = EMailSecurity.autosign
                                                                  }).ConfigureAwait(false);
 
