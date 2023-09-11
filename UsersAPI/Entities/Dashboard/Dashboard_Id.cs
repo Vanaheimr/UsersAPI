@@ -27,9 +27,9 @@ namespace social.OpenData.UsersAPI
     /// <summary>
     /// The unique identification of a dashboard.
     /// </summary>
-    public struct Dashboard_Id : IId,
-                                 IEquatable<Dashboard_Id>,
-                                 IComparable<Dashboard_Id>
+    public readonly struct Dashboard_Id : IId,
+                                          IEquatable<Dashboard_Id>,
+                                          IComparable<Dashboard_Id>
 
     {
 
