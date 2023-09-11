@@ -17,10 +17,6 @@
 
 #region Usings
 
-using System;
-using System.Linq;
-using System.Collections.Generic;
-
 using org.GraphDefined.Vanaheimr.Illias;
 
 #endregion
@@ -55,10 +51,16 @@ namespace social.OpenData.UsersAPI
             => InternalId.IsNullOrEmpty();
 
         /// <summary>
+        /// Indicates whether this identification is NOT null or empty.
+        /// </summary>
+        public Boolean IsNotNullOrEmpty
+            => InternalId.IsNeitherNullNorEmpty();
+
+        /// <summary>
         /// The length of the service ticket status.
         /// </summary>
         public UInt64 Length
-            => (UInt64) InternalText.Length;
+            => (UInt64) (InternalText?.Length ?? 0);
 
         #endregion
 
