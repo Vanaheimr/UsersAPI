@@ -98,7 +98,7 @@ namespace social.OpenData.UsersAPI.tests
             //                                                                AccessControlAllowOrigin   = "*",
             //                                                                AccessControlAllowMethods  = new[] { "GET" },
             //                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-            //                                                                ContentType                = HTTPContentType.TEXT_UTF8,
+            //                                                                ContentType                = HTTPContentType.Text.TEXT_UTF8,
             //                                                                Content                    = "Hello World!".ToUTF8Bytes(),
             //                                                                Connection                 = "close"
             //                                                            }.AsImmutable));

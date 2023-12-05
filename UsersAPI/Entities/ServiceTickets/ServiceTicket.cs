@@ -881,7 +881,7 @@ namespace social.OpenData.UsersAPI
                         //                   AccessControlAllowMethods  = new[] { "GET", "SET" },
                         //                   AccessControlAllowHeaders  = new[] { "Content-Type", "Accept", "Authorization" },
                         //                   ETag                       = "1",
-                        //                   ContentType                = HTTPContentType.JSON_UTF8,
+                        //                   ContentType                = HTTPContentType.Application.JSON_UTF8,
                         //                   Content                    = JSONObject.Create(
                         //                                                    new JProperty("description", "The given data license '" + dataLicenseId + "' is unknown!")
                         //                                                ).ToUTF8Bytes(),

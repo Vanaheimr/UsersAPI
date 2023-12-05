@@ -121,7 +121,7 @@ namespace social.OpenData.UsersAPI
                     HTTPStatusCode  = HTTPStatusCode.BadRequest,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
                     Date            = Timestamp.Now,
-                    ContentType     = HTTPContentType.JSON_UTF8,
+                    ContentType     = HTTPContentType.Application.JSON_UTF8,
                     Content         = @"{ ""description"": ""Invalid BlogId!"" }".ToUTF8Bytes(),
                     Connection      = "close"
                 };
@@ -191,7 +191,7 @@ namespace social.OpenData.UsersAPI
                     HTTPStatusCode  = HTTPStatusCode.BadRequest,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
                     Date            = Timestamp.Now,
-                    ContentType     = HTTPContentType.JSON_UTF8,
+                    ContentType     = HTTPContentType.Application.JSON_UTF8,
                     Content         = @"{ ""description"": ""Invalid BlogId!"" }".ToUTF8Bytes(),
                     Connection      = "close"
                 };
@@ -206,7 +206,7 @@ namespace social.OpenData.UsersAPI
                     HTTPStatusCode  = HTTPStatusCode.NotFound,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
                     Date            = Timestamp.Now,
-                    ContentType     = HTTPContentType.JSON_UTF8,
+                    ContentType     = HTTPContentType.Application.JSON_UTF8,
                     Content         = @"{ ""description"": ""Unknown BlogId!"" }".ToUTF8Bytes(),
                     Connection      = "close"
                 };
@@ -276,7 +276,7 @@ namespace social.OpenData.UsersAPI
                     HTTPStatusCode  = HTTPStatusCode.BadRequest,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
                     Date            = Timestamp.Now,
-                    ContentType     = HTTPContentType.JSON_UTF8,
+                    ContentType     = HTTPContentType.Application.JSON_UTF8,
                     Content         = @"{ ""description"": ""Invalid NewsId!"" }".ToUTF8Bytes(),
                     Connection      = "close"
                 };
@@ -346,7 +346,7 @@ namespace social.OpenData.UsersAPI
                     HTTPStatusCode  = HTTPStatusCode.BadRequest,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
                     Date            = Timestamp.Now,
-                    ContentType     = HTTPContentType.JSON_UTF8,
+                    ContentType     = HTTPContentType.Application.JSON_UTF8,
                     Content         = @"{ ""description"": ""Invalid NewsId!"" }".ToUTF8Bytes(),
                     Connection      = "close"
                 };
@@ -361,7 +361,7 @@ namespace social.OpenData.UsersAPI
                     HTTPStatusCode  = HTTPStatusCode.NotFound,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
                     Date            = Timestamp.Now,
-                    ContentType     = HTTPContentType.JSON_UTF8,
+                    ContentType     = HTTPContentType.Application.JSON_UTF8,
                     Content         = @"{ ""description"": ""Unknown NewsId!"" }".ToUTF8Bytes(),
                     Connection      = "close"
                 };
@@ -431,7 +431,7 @@ namespace social.OpenData.UsersAPI
                     HTTPStatusCode  = HTTPStatusCode.BadRequest,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
                     Date            = Timestamp.Now,
-                    ContentType     = HTTPContentType.JSON_UTF8,
+                    ContentType     = HTTPContentType.Application.JSON_UTF8,
                     Content         = @"{ ""description"": ""Invalid NewsId!"" }".ToUTF8Bytes(),
                     Connection      = "close"
                 };
@@ -501,7 +501,7 @@ namespace social.OpenData.UsersAPI
                     HTTPStatusCode  = HTTPStatusCode.BadRequest,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
                     Date            = Timestamp.Now,
-                    ContentType     = HTTPContentType.JSON_UTF8,
+                    ContentType     = HTTPContentType.Application.JSON_UTF8,
                     Content         = @"{ ""description"": ""Invalid NewsId!"" }".ToUTF8Bytes(),
                     Connection      = "close"
                 };
@@ -516,7 +516,7 @@ namespace social.OpenData.UsersAPI
                     HTTPStatusCode  = HTTPStatusCode.NotFound,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
                     Date            = Timestamp.Now,
-                    ContentType     = HTTPContentType.JSON_UTF8,
+                    ContentType     = HTTPContentType.Application.JSON_UTF8,
                     Content         = @"{ ""description"": ""Unknown NewsId!"" }".ToUTF8Bytes(),
                     Connection      = "close"
                 };
@@ -2504,7 +2504,7 @@ namespace social.OpenData.UsersAPI
                                                    Host           = notification.RemoteURL.Hostname,
                                                    Path           = notification.RemoteURL.Path,
                                                    Content        = new JArray(JSONNotification).ToUTF8Bytes(),
-                                                   ContentType    = HTTPContentType.JSON_UTF8,
+                                                   ContentType    = HTTPContentType.Application.JSON_UTF8,
                                                    UserAgent      = "UsersAPI Notification API",
                                                    API_Key        = notification.APIKey.HasValue
                                                                         ? notification.APIKey
@@ -2722,7 +2722,7 @@ namespace social.OpenData.UsersAPI
                         AccessControlAllowOrigin  = "*",
                         AccessControlMaxAge       = 3600,
                         CacheControl              = "private, max-age=0, no-cache",
-                        ContentType               = HTTPContentType.JSON_UTF8,
+                        ContentType               = HTTPContentType.Application.JSON_UTF8,
                         Content                   = JSONObject.Create(new JProperty("message", "Please accept the EULA within the portal!")).ToUTF8Bytes(),
                         Connection                = "close"
                     };
@@ -2739,7 +2739,7 @@ namespace social.OpenData.UsersAPI
                         return null;
 
                     if (request.HTTPMethod == HTTPMethod.GET &&
-                        request.Accept.BestMatchingContentType(HTTPContentType.HTML_UTF8) == HTTPContentType.HTML_UTF8)
+                        request.Accept.BestMatchingContentType(HTTPContentType.Text.HTML_UTF8) == HTTPContentType.Text.HTML_UTF8)
                     {
                         return new HTTPResponse.Builder(request) {
                             HTTPStatusCode      = HTTPStatusCode.TemporaryRedirect,
@@ -2765,7 +2765,7 @@ namespace social.OpenData.UsersAPI
                             AccessControlAllowOrigin  = "*",
                             AccessControlMaxAge       = 3600,
                             CacheControl              = "private, max-age=0, no-cache",
-                            ContentType               = HTTPContentType.JSON_UTF8,
+                            ContentType               = HTTPContentType.Application.JSON_UTF8,
                             Content                   = JSONObject.Create(new JProperty("message", "Invalid login!")).ToUTF8Bytes(),
                             Connection                = "close"
                         };
@@ -2781,11 +2781,10 @@ namespace social.OpenData.UsersAPI
 
             #region /shared/UsersAPI
 
-            HTTPServer.RegisterResourcesFolder(this,
-                                               HTTPHostname.Any,
-                                               URLPathPrefix + "shared/UsersAPI",
-                                               HTTPRoot.Substring(0, HTTPRoot.Length - 1),
-                                               typeof(UsersAPI).Assembly);
+            this.MapResourceAssemblyFolder(HTTPHostname.Any,
+                                           URLPathPrefix + "shared/UsersAPI",
+                                           HTTPRoot.Substring(0, HTTPRoot.Length - 1),
+                                           typeof(UsersAPI).Assembly);
 
             #endregion
 
@@ -2800,7 +2799,7 @@ namespace social.OpenData.UsersAPI
             //HTTPServer.AddMethodCallback(HTTPHostname.Any,
             //                             HTTPMethod.GET,
             //                             URLPathPrefix + "signup",
-            //                             HTTPContentType.HTML_UTF8,
+            //                             HTTPContentType.Text.HTML_UTF8,
             //                             HTTPDelegate: async Request => {
 
             //                                 var _MemoryStream1 = new MemoryStream();
@@ -2816,7 +2815,7 @@ namespace social.OpenData.UsersAPI
 
             //                                 return new HTTPResponse.Builder(Request) {
             //                                     HTTPStatusCode  = HTTPStatusCode.OK,
-            //                                     ContentType     = HTTPContentType.HTML_UTF8,
+            //                                     ContentType     = HTTPContentType.Text.HTML_UTF8,
             //                                     Content         = HTML.ToUTF8Bytes(),
             //                                     Connection      = "close"
             //                                 };
@@ -2837,7 +2836,7 @@ namespace social.OpenData.UsersAPI
             //HTTPServer.AddMethodCallback(HTTPHostname.Any,
             //                             HTTPMethod.GET,
             //                             HTTPPath.Parse("/verificationtokens/{VerificationToken}"),
-            //                             HTTPContentType.HTML_UTF8,
+            //                             HTTPContentType.Text.HTML_UTF8,
             //                             HTTPDelegate: async Request => {
 
             //                                 if (VerificationToken. TryParse   (Request.ParsedURLParameters[0], out VerificationToken verificationToken) &&
@@ -2891,7 +2890,7 @@ namespace social.OpenData.UsersAPI
             //                                             return new HTTPResponse.Builder(Request) {
             //                                                        HTTPStatusCode  = HTTPStatusCode.Created,
             //                                                        Server          = HTTPServer.DefaultServerName,
-            //                                                        ContentType     = HTTPContentType.JSON_UTF8,
+            //                                                        ContentType     = HTTPContentType.Application.JSON_UTF8,
             //                                                        Content         = new JObject(
             //                                                                              new JProperty("@context", ""),
             //                                                                              new JProperty("@id",   user.Id.   ToString()),
@@ -2911,7 +2910,7 @@ namespace social.OpenData.UsersAPI
             //                                     return new HTTPResponse.Builder(Request) {
             //                                                HTTPStatusCode  = HTTPStatusCode.OK,
             //                                                Server          = HTTPServer.DefaultServerName,
-            //                                                ContentType     = HTTPContentType.HTML_UTF8,
+            //                                                ContentType     = HTTPContentType.Text.HTML_UTF8,
             //                                                Content         = ("Account '" + user.Id + "' activated!").ToUTF8Bytes(),
             //                                                CacheControl    = "public",
             //                                                ETag            = "1",
@@ -2924,7 +2923,7 @@ namespace social.OpenData.UsersAPI
             //                                 return new HTTPResponse.Builder(Request) {
             //                                            HTTPStatusCode  = HTTPStatusCode.NotFound,
             //                                            Server          = HTTPServer.DefaultServerName,
-            //                                            ContentType     = HTTPContentType.HTML_UTF8,
+            //                                            ContentType     = HTTPContentType.Text.HTML_UTF8,
             //                                            Content         = "VerificationToken not found!".ToUTF8Bytes(),
             //                                            CacheControl    = "public",
             //                                            Connection      = "close"
@@ -2945,7 +2944,7 @@ namespace social.OpenData.UsersAPI
             AddMethodCallback(HTTPHostname.Any,
                               HTTPMethod.GET,
                               URLPathPrefix + "login",
-                              HTTPContentType.HTML_UTF8,
+                              HTTPContentType.Text.HTML_UTF8,
                               HTTPDelegate: Request =>
 
                                  Task.FromResult(
@@ -2956,7 +2955,7 @@ namespace social.OpenData.UsersAPI
                                          AccessControlAllowOrigin   = "*",
                                          AccessControlAllowMethods  = new[] { "GET" },
                                          AccessControlAllowHeaders  = new[] { "Content-Type", "Accept", "Authorization" },
-                                         ContentType                = HTTPContentType.HTML_UTF8,
+                                         ContentType                = HTTPContentType.Text.HTML_UTF8,
                                          Content                    = GetResourceBytes($"login.login-{DefaultLanguage}.html"),
                                          Connection                 = "close"
                                      }.AsImmutable),
@@ -2973,7 +2972,7 @@ namespace social.OpenData.UsersAPI
             AddMethodCallback(HTTPHostname.Any,
                               HTTPMethod.GET,
                               URLPathPrefix + "lostPassword",
-                              HTTPContentType.HTML_UTF8,
+                              HTTPContentType.Text.HTML_UTF8,
                               HTTPDelegate: Request =>
 
                                  Task.FromResult(
@@ -2984,7 +2983,7 @@ namespace social.OpenData.UsersAPI
                                          AccessControlAllowOrigin   = "*",
                                          AccessControlAllowMethods  = new[] { "GET" },
                                          AccessControlAllowHeaders  = new[] { "Content-Type", "Accept", "Authorization" },
-                                         ContentType                = HTTPContentType.HTML_UTF8,
+                                         ContentType                = HTTPContentType.Text.HTML_UTF8,
                                          Content                    = GetResourceBytes($"login.lostPassword-{DefaultLanguage}.html"),
                                          Connection                 = "close"
                                      }.AsImmutable),
@@ -3001,7 +3000,7 @@ namespace social.OpenData.UsersAPI
             AddMethodCallback(HTTPHostname.Any,
                               HTTPMethod.GET,
                               URLPathPrefix + "setPassword",
-                              HTTPContentType.HTML_UTF8,
+                              HTTPContentType.Text.HTML_UTF8,
                               HTTPDelegate: Request =>
 
                                  Task.FromResult(
@@ -3012,7 +3011,7 @@ namespace social.OpenData.UsersAPI
                                          AccessControlAllowOrigin   = "*",
                                          AccessControlAllowMethods  = new[] { "GET" },
                                          AccessControlAllowHeaders  = new[] { "Content-Type", "Accept", "Authorization" },
-                                         ContentType                = HTTPContentType.HTML_UTF8,
+                                         ContentType                = HTTPContentType.Text.HTML_UTF8,
                                          ContentStream              = GetResourceStream("login.setPassword-" + DefaultLanguage.ToString() + ".html"),
                                          Connection                 = "close"
                                      }.AsImmutable),
@@ -3030,7 +3029,7 @@ namespace social.OpenData.UsersAPI
             AddMethodCallback(Hostname,
                               HTTPMethod.GET,
                               URLPathPrefix + "profile",
-                              HTTPContentType.HTML_UTF8,
+                              HTTPContentType.Text.HTML_UTF8,
                               HTTPDelegate: Request => {
 
                                   #region Get HTTP user and its organizations
@@ -3056,7 +3055,7 @@ namespace social.OpenData.UsersAPI
                                           AccessControlAllowOrigin    = "*",
                                           AccessControlAllowMethods   = new[] { "GET" },
                                           AccessControlAllowHeaders   = new[] { "Content-Type", "Accept", "Authorization" },
-                                          ContentType                 = HTTPContentType.HTML_UTF8,
+                                          ContentType                 = HTTPContentType.Text.HTML_UTF8,
                                           Content                     = MixWithHTMLTemplate("profile.profile.shtml").ToUTF8Bytes(),
                                           Connection                  = "close",
                                           Vary                        = "Accept"
@@ -3077,7 +3076,7 @@ namespace social.OpenData.UsersAPI
             AddMethodCallback(Hostname,
                               HTTPMethod.GET,
                               URLPathPrefix + "users",
-                              HTTPContentType.HTML_UTF8,
+                              HTTPContentType.Text.HTML_UTF8,
                               HTTPDelegate: Request => {
 
                                   #region Get HTTP user and its users
@@ -3102,7 +3101,7 @@ namespace social.OpenData.UsersAPI
                                               AccessControlAllowOrigin   = "*",
                                               AccessControlAllowMethods  = new[] { "GET" },
                                               AccessControlAllowHeaders  = new[] { "Content-Type", "Accept", "Authorization" },
-                                              ContentType                = HTTPContentType.HTML_UTF8,
+                                              ContentType                = HTTPContentType.Text.HTML_UTF8,
                                               Content                    = MixWithHTMLTemplate("user.users.shtml").ToUTF8Bytes(),
                                               Connection                 = "close",
                                               Vary                       = "Accept"
@@ -3120,7 +3119,7 @@ namespace social.OpenData.UsersAPI
             AddMethodCallback(Hostname,
                               HTTPMethod.GET,
                               URLPathPrefix + "users/{UserId}",
-                              HTTPContentType.HTML_UTF8,
+                              HTTPContentType.Text.HTML_UTF8,
                               HTTPDelegate: Request => {
 
                                   #region Get HTTP user and its organizations
@@ -3162,7 +3161,7 @@ namespace social.OpenData.UsersAPI
                                                     AccessControlAllowOrigin    = "*",
                                                     AccessControlAllowMethods   = new[] { "GET" },
                                                     AccessControlAllowHeaders   = new[] { "Content-Type", "Accept", "Authorization" },
-                                                    ContentType                 = HTTPContentType.HTML_UTF8,
+                                                    ContentType                 = HTTPContentType.Text.HTML_UTF8,
                                                     Content                     = MixWithHTMLTemplate("user.user.shtml").ToUTF8Bytes(),
                                                     Connection                  = "close",
                                                     Vary                        = "Accept"
@@ -3190,7 +3189,7 @@ namespace social.OpenData.UsersAPI
             AddMethodCallback(Hostname,
                               HTTPMethod.GET,
                               URLPathPrefix + "users/{UserId}/notifications",
-                              HTTPContentType.HTML_UTF8,
+                              HTTPContentType.Text.HTML_UTF8,
                               HTTPDelegate: Request => {
 
                                   #region Get HTTP user and its organizations
@@ -3230,7 +3229,7 @@ namespace social.OpenData.UsersAPI
                                                     AccessControlAllowOrigin    = "*",
                                                     AccessControlAllowMethods   = new[] { "GET" },
                                                     AccessControlAllowHeaders   = new[] { "Content-Type", "Accept", "Authorization" },
-                                                    ContentType                 = HTTPContentType.HTML_UTF8,
+                                                    ContentType                 = HTTPContentType.Text.HTML_UTF8,
                                                     Content                     = MixWithHTMLTemplate("user.notifications.shtml").ToUTF8Bytes(),
                                                     Connection                  = "close",
                                                     Vary                        = "Accept"
@@ -3258,7 +3257,7 @@ namespace social.OpenData.UsersAPI
             AddMethodCallback(Hostname,
                               HTTPMethod.GET,
                               URLPathPrefix + "users/{UserId}/notifications/{notificationId}",
-                              HTTPContentType.HTML_UTF8,
+                              HTTPContentType.Text.HTML_UTF8,
                               HTTPDelegate: Request => {
 
                                   #region Get HTTP user and its organizations
@@ -3316,7 +3315,7 @@ namespace social.OpenData.UsersAPI
                                                     AccessControlAllowOrigin    = "*",
                                                     AccessControlAllowMethods   = new[] { "GET" },
                                                     AccessControlAllowHeaders   = new[] { "Content-Type", "Accept", "Authorization" },
-                                                    ContentType                 = HTTPContentType.HTML_UTF8,
+                                                    ContentType                 = HTTPContentType.Text.HTML_UTF8,
                                                     Content                     = MixWithHTMLTemplate("user.editNotification.shtml").ToUTF8Bytes(),
                                                     Connection                  = "close",
                                                     Vary                        = "Accept"
@@ -3344,7 +3343,7 @@ namespace social.OpenData.UsersAPI
             AddMethodCallback(Hostname,
                               HTTPMethod.GET,
                               URLPathPrefix + "users/{UserId}/notification/_new",
-                              HTTPContentType.HTML_UTF8,
+                              HTTPContentType.Text.HTML_UTF8,
                               HTTPDelegate: Request => {
 
                                   #region Get HTTP user and its organizations
@@ -3396,7 +3395,7 @@ namespace social.OpenData.UsersAPI
                                           AccessControlAllowOrigin    = "*",
                                           AccessControlAllowMethods   = new[] { "GET" },
                                           AccessControlAllowHeaders   = new[] { "Content-Type", "Accept", "Authorization" },
-                                          ContentType                 = HTTPContentType.HTML_UTF8,
+                                          ContentType                 = HTTPContentType.Text.HTML_UTF8,
                                           Content                     = MixWithHTMLTemplate("user.editNotification.shtml").ToUTF8Bytes(),
                                           Connection                  = "close",
                                           Vary                        = "Accept"
@@ -3419,7 +3418,7 @@ namespace social.OpenData.UsersAPI
                                          Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "userGroups",
-                                         HTTPContentType.HTML_UTF8,
+                                         HTTPContentType.Text.HTML_UTF8,
                                          HTTPDelegate: Request => {
 
                                              #region Get HTTP user and its users
@@ -3444,7 +3443,7 @@ namespace social.OpenData.UsersAPI
                                                          AccessControlAllowOrigin   = "*",
                                                          AccessControlAllowMethods  = new[] { "GET" },
                                                          AccessControlAllowHeaders  = new[] { "Content-Type", "Accept", "Authorization" },
-                                                         ContentType                = HTTPContentType.HTML_UTF8,
+                                                         ContentType                = HTTPContentType.Text.HTML_UTF8,
                                                          Content                    = MixWithHTMLTemplate("user.userGroups.shtml").ToUTF8Bytes(),
                                                          Connection                 = "close",
                                                          Vary                       = "Accept"
@@ -3463,7 +3462,7 @@ namespace social.OpenData.UsersAPI
             AddMethodCallback(Hostname,
                               HTTPMethod.GET,
                               URLPathPrefix + "userGroups/{UserGroupId}",
-                              HTTPContentType.HTML_UTF8,
+                              HTTPContentType.Text.HTML_UTF8,
                               HTTPDelegate: Request => {
 
                                   #region Get HTTP user and its users
@@ -3488,7 +3487,7 @@ namespace social.OpenData.UsersAPI
                                               AccessControlAllowOrigin   = "*",
                                               AccessControlAllowMethods  = new[] { "GET" },
                                               AccessControlAllowHeaders  = new[] { "Content-Type", "Accept", "Authorization" },
-                                              ContentType                = HTTPContentType.HTML_UTF8,
+                                              ContentType                = HTTPContentType.Text.HTML_UTF8,
                                               Content                    = MixWithHTMLTemplate("user.userGroup.shtml").ToUTF8Bytes(),
                                               Connection                 = "close",
                                               Vary                       = "Accept"
@@ -3511,7 +3510,7 @@ namespace social.OpenData.UsersAPI
             AddMethodCallback(Hostname,
                               HTTPMethod.GET,
                               URLPathPrefix + "organizations",
-                              HTTPContentType.HTML_UTF8,
+                              HTTPContentType.Text.HTML_UTF8,
                               HTTPDelegate: Request => {
 
                                   #region Get HTTP user and its organizations
@@ -3536,7 +3535,7 @@ namespace social.OpenData.UsersAPI
                                               AccessControlAllowOrigin   = "*",
                                               AccessControlAllowMethods  = new[] { "OPTIONS", "GET", "COUNT", "ADD" },
                                               AccessControlAllowHeaders  = new[] { "Content-Type", "Accept", "Authorization" },
-                                              ContentType                = HTTPContentType.HTML_UTF8,
+                                              ContentType                = HTTPContentType.Text.HTML_UTF8,
                                               Content                    = MixWithHTMLTemplate("organization.organizations.shtml").ToUTF8Bytes(),
                                               Connection                 = "close",
                                               Vary                       = "Accept"
@@ -3554,7 +3553,7 @@ namespace social.OpenData.UsersAPI
             AddMethodCallback(Hostname,
                               HTTPMethod.GET,
                               URLPathPrefix + "organizations/{OrganizationId}",
-                              HTTPContentType.HTML_UTF8,
+                              HTTPContentType.Text.HTML_UTF8,
                               HTTPDelegate: Request => {
 
                                   #region Get HTTP user and its organizations
@@ -3595,7 +3594,7 @@ namespace social.OpenData.UsersAPI
                                               AccessControlAllowOrigin    = "*",
                                               AccessControlAllowMethods   = new[] { "GET" },
                                               AccessControlAllowHeaders   = new[] { "Content-Type", "Accept", "Authorization" },
-                                              ContentType                 = HTTPContentType.HTML_UTF8,
+                                              ContentType                 = HTTPContentType.Text.HTML_UTF8,
                                               Content                     = MixWithHTMLTemplate("organization.organization.shtml").ToUTF8Bytes(),
                                               Connection                  = "close",
                                               Vary                        = "Accept"
@@ -3626,7 +3625,7 @@ namespace social.OpenData.UsersAPI
             AddMethodCallback(Hostname,
                               HTTPMethod.GET,
                               URLPathPrefix + "organizations/{OrganizationId}/address",
-                              HTTPContentType.HTML_UTF8,
+                              HTTPContentType.Text.HTML_UTF8,
                               HTTPDelegate: Request => {
 
                                   #region Get HTTP user and its organizations
@@ -3668,7 +3667,7 @@ namespace social.OpenData.UsersAPI
                                               AccessControlAllowOrigin    = "*",
                                               AccessControlAllowMethods   = new[] { "GET" },
                                               AccessControlAllowHeaders   = new[] { "Content-Type", "Accept", "Authorization" },
-                                              ContentType                 = HTTPContentType.HTML_UTF8,
+                                              ContentType                 = HTTPContentType.Text.HTML_UTF8,
                                               Content                     = MixWithHTMLTemplate("organization.address.shtml").ToUTF8Bytes(),
                                               Connection                  = "close",
                                               Vary                        = "Accept"
@@ -3699,7 +3698,7 @@ namespace social.OpenData.UsersAPI
             AddMethodCallback(Hostname,
                               HTTPMethod.GET,
                               URLPathPrefix + "organizations/{OrganizationId}/members",
-                              HTTPContentType.HTML_UTF8,
+                              HTTPContentType.Text.HTML_UTF8,
                               HTTPDelegate: Request => {
 
                                   #region Get HTTP user and its organizations
@@ -3741,7 +3740,7 @@ namespace social.OpenData.UsersAPI
                                               AccessControlAllowOrigin    = "*",
                                               AccessControlAllowMethods   = new[] { "GET" },
                                               AccessControlAllowHeaders   = new[] { "Content-Type", "Accept", "Authorization" },
-                                              ContentType                 = HTTPContentType.HTML_UTF8,
+                                              ContentType                 = HTTPContentType.Text.HTML_UTF8,
                                               Content                     = MixWithHTMLTemplate("organization.members.shtml").ToUTF8Bytes(),
                                               Connection                  = "close",
                                               Vary                        = "Accept"
@@ -3772,7 +3771,7 @@ namespace social.OpenData.UsersAPI
             AddMethodCallback(Hostname,
                               HTTPMethod.GET,
                               URLPathPrefix + "organizations/{OrganizationId}/newMember",
-                              HTTPContentType.HTML_UTF8,
+                              HTTPContentType.Text.HTML_UTF8,
                               HTTPDelegate: Request => {
 
                                   #region Get HTTP user and its organizations
@@ -3812,7 +3811,7 @@ namespace social.OpenData.UsersAPI
                                               AccessControlAllowOrigin    = "*",
                                               AccessControlAllowMethods   = new[] { "GET" },
                                               AccessControlAllowHeaders   = new[] { "Content-Type", "Accept", "Authorization" },
-                                              ContentType                 = HTTPContentType.HTML_UTF8,
+                                              ContentType                 = HTTPContentType.Text.HTML_UTF8,
                                               Content                     = MixWithHTMLTemplate("organization.newMember.shtml").ToUTF8Bytes(),
                                               Connection                  = "close",
                                               Vary                        = "Accept"
@@ -3842,7 +3841,7 @@ namespace social.OpenData.UsersAPI
             AddMethodCallback(Hostname,
                               HTTPMethod.GET,
                               URLPathPrefix + "organizations/{OrganizationId}/subOrganizations",
-                              HTTPContentType.HTML_UTF8,
+                              HTTPContentType.Text.HTML_UTF8,
                               HTTPDelegate: Request => {
 
                                   #region Get HTTP user and its organizations
@@ -3884,7 +3883,7 @@ namespace social.OpenData.UsersAPI
                                               AccessControlAllowOrigin    = "*",
                                               AccessControlAllowMethods   = new[] { "GET" },
                                               AccessControlAllowHeaders   = new[] { "Content-Type", "Accept", "Authorization" },
-                                              ContentType                 = HTTPContentType.HTML_UTF8,
+                                              ContentType                 = HTTPContentType.Text.HTML_UTF8,
                                               Content                     = MixWithHTMLTemplate("organization.subOrganizations.shtml").ToUTF8Bytes(),
                                               Connection                  = "close",
                                               Vary                        = "Accept"
@@ -3915,7 +3914,7 @@ namespace social.OpenData.UsersAPI
             AddMethodCallback(Hostname,
                               HTTPMethod.GET,
                               URLPathPrefix + "organizations/{OrganizationId}/newSubOrganization",
-                              HTTPContentType.HTML_UTF8,
+                              HTTPContentType.Text.HTML_UTF8,
                               HTTPDelegate: Request => {
 
                                   #region Get HTTP user and its organizations
@@ -3957,7 +3956,7 @@ namespace social.OpenData.UsersAPI
                                               AccessControlAllowOrigin    = "*",
                                               AccessControlAllowMethods   = new[] { "GET" },
                                               AccessControlAllowHeaders   = new[] { "Content-Type", "Accept", "Authorization" },
-                                              ContentType                 = HTTPContentType.HTML_UTF8,
+                                              ContentType                 = HTTPContentType.Text.HTML_UTF8,
                                               Content                     = MixWithHTMLTemplate("organization.newSubOrganization.shtml").ToUTF8Bytes(),
                                               Connection                  = "close",
                                               Vary                        = "Accept"
@@ -3992,7 +3991,7 @@ namespace social.OpenData.UsersAPI
             AddMethodCallback(Hostname,
                               HTTPMethod.GET,
                               URLPathPrefix + "organizationGroups",
-                              HTTPContentType.HTML_UTF8,
+                              HTTPContentType.Text.HTML_UTF8,
                               HTTPDelegate: Request => {
 
                                   #region Get HTTP organization and its organizations
@@ -4017,7 +4016,7 @@ namespace social.OpenData.UsersAPI
                                               AccessControlAllowOrigin   = "*",
                                               AccessControlAllowMethods  = new[] { "GET" },
                                               AccessControlAllowHeaders  = new[] { "Content-Type", "Accept", "Authorization" },
-                                              ContentType                = HTTPContentType.HTML_UTF8,
+                                              ContentType                = HTTPContentType.Text.HTML_UTF8,
                                               Content                    = MixWithHTMLTemplate("organization.organizationGroups.shtml").ToUTF8Bytes(),
                                               Connection                 = "close",
                                               Vary                       = "Accept"
@@ -4040,7 +4039,7 @@ namespace social.OpenData.UsersAPI
             AddMethodCallback(Hostname,
                               HTTPMethod.GET,
                               URLPathPrefix + "notifications",
-                              HTTPContentType.HTML_UTF8,
+                              HTTPContentType.Text.HTML_UTF8,
                               HTTPDelegate: Request => {
 
                                   #region Get HTTP user and its organizations
@@ -4066,7 +4065,7 @@ namespace social.OpenData.UsersAPI
                                           AccessControlAllowOrigin    = "*",
                                           AccessControlAllowMethods   = new[] { "GET" },
                                           AccessControlAllowHeaders   = new[] { "Content-Type", "Accept", "Authorization" },
-                                          ContentType                 = HTTPContentType.HTML_UTF8,
+                                          ContentType                 = HTTPContentType.Text.HTML_UTF8,
                                           Content                     = MixWithHTMLTemplate("notification.messages.shtml").ToUTF8Bytes(),
                                           Connection                  = "close",
                                           Vary                        = "Accept"
@@ -4084,7 +4083,7 @@ namespace social.OpenData.UsersAPI
             AddMethodCallback(Hostname,
                               HTTPMethod.GET,
                               URLPathPrefix + "notifications/{notificationId}",
-                              HTTPContentType.HTML_UTF8,
+                              HTTPContentType.Text.HTML_UTF8,
                               HTTPDelegate: Request => {
 
                                   #region Get HTTP user and its organizations
@@ -4128,7 +4127,7 @@ namespace social.OpenData.UsersAPI
                                           AccessControlAllowOrigin    = "*",
                                           AccessControlAllowMethods   = new[] { "GET" },
                                           AccessControlAllowHeaders   = new[] { "Content-Type", "Accept", "Authorization" },
-                                          ContentType                 = HTTPContentType.HTML_UTF8,
+                                          ContentType                 = HTTPContentType.Text.HTML_UTF8,
                                           Content                     = MixWithHTMLTemplate("notification.editNotification.shtml").ToUTF8Bytes(),
                                           Connection                  = "close",
                                           Vary                        = "Accept"
@@ -4146,7 +4145,7 @@ namespace social.OpenData.UsersAPI
             AddMethodCallback(Hostname,
                               HTTPMethod.GET,
                               URLPathPrefix + "notificationSettings",
-                              HTTPContentType.HTML_UTF8,
+                              HTTPContentType.Text.HTML_UTF8,
                               HTTPDelegate: Request => {
 
                                   #region Get HTTP user and its organizations
@@ -4172,7 +4171,7 @@ namespace social.OpenData.UsersAPI
                                           AccessControlAllowOrigin    = "*",
                                           AccessControlAllowMethods   = new[] { "GET" },
                                           AccessControlAllowHeaders   = new[] { "Content-Type", "Accept", "Authorization" },
-                                          ContentType                 = HTTPContentType.HTML_UTF8,
+                                          ContentType                 = HTTPContentType.Text.HTML_UTF8,
                                           Content                     = MixWithHTMLTemplate("notification.settings.shtml").ToUTF8Bytes(),
                                           Connection                  = "close",
                                           Vary                        = "Accept"
@@ -4191,7 +4190,7 @@ namespace social.OpenData.UsersAPI
             AddMethodCallback(Hostname,
                               HTTPMethod.GET,
                               URLPathPrefix + "newNotification",
-                              HTTPContentType.HTML_UTF8,
+                              HTTPContentType.Text.HTML_UTF8,
                               HTTPDelegate: Request => {
 
                                   #region Get HTTP user and its organizations
@@ -4217,7 +4216,7 @@ namespace social.OpenData.UsersAPI
                                           AccessControlAllowOrigin    = "*",
                                           AccessControlAllowMethods   = new[] { "GET" },
                                           AccessControlAllowHeaders   = new[] { "Content-Type", "Accept", "Authorization" },
-                                          ContentType                 = HTTPContentType.HTML_UTF8,
+                                          ContentType                 = HTTPContentType.Text.HTML_UTF8,
                                           Content                     = MixWithHTMLTemplate("notification.editNotification.shtml").ToUTF8Bytes(),
                                           Connection                  = "close",
                                           Vary                        = "Accept"
@@ -4240,7 +4239,7 @@ namespace social.OpenData.UsersAPI
             //HTTPServer.AddMethodCallback(Hostname,
             //                             HTTPMethod.GET,
             //                             URLPathPrefix + "dashboard",
-            //                             HTTPContentType.HTML_UTF8,
+            //                             HTTPContentType.Text.HTML_UTF8,
             //                             HTTPDelegate: Request => {
 
             //                                 #region Get HTTP user and its organizations
@@ -4266,7 +4265,7 @@ namespace social.OpenData.UsersAPI
             //                                         AccessControlAllowOrigin    = "*",
             //                                         AccessControlAllowMethods   = new[] { "GET" },
             //                                         AccessControlAllowHeaders   = new[] { "Content-Type", "Accept", "Authorization" },
-            //                                         ContentType                 = HTTPContentType.HTML_UTF8,
+            //                                         ContentType                 = HTTPContentType.Text.HTML_UTF8,
             //                                         Content                     = MixWithHTMLTemplate("dashboard.dashboard.shtml").ToUTF8Bytes(),
             //                                         Connection                  = "close",
             //                                         Vary                        = "Accept"
@@ -4285,7 +4284,7 @@ namespace social.OpenData.UsersAPI
             AddMethodCallback(HTTPHostname.Any,
                               HTTPMethod.SIGNUP,
                               URLPathPrefix + "/newsletters",
-                              HTTPContentType.JSON_UTF8,
+                              HTTPContentType.Application.JSON_UTF8,
                               HTTPDelegate: Request => {
 
                                   #region Check remote IP address
@@ -4300,7 +4299,7 @@ namespace social.OpenData.UsersAPI
                                   //        new HTTPResponse.Builder(Request) {
                                   //            HTTPStatusCode  = HTTPStatusCode.PreconditionRequired,
                                   //            Server          = HTTPServer.DefaultServerName,
-                                  //            ContentType     = HTTPContentType.JSON_UTF8,
+                                  //            ContentType     = HTTPContentType.Application.JSON_UTF8,
                                   //            Content         = new JObject(
                                   //                                  //new JProperty("@context",     SignInOutContext),
                                   //                                  //new JProperty("statuscode",   400),
@@ -4338,7 +4337,7 @@ namespace social.OpenData.UsersAPI
                                           new HTTPResponse.Builder(Request) {
                                               HTTPStatusCode  = HTTPStatusCode.BadRequest,
                                               Server          = HTTPServer.DefaultServerName,
-                                              ContentType     = HTTPContentType.JSON_UTF8,
+                                              ContentType     = HTTPContentType.Application.JSON_UTF8,
                                               Content         = new JObject(
                                                                     //new JProperty("@context",     SignInOutContext),
                                                                     //new JProperty("statuscode",   400),
@@ -4360,7 +4359,7 @@ namespace social.OpenData.UsersAPI
                                           new HTTPResponse.Builder(Request) {
                                               HTTPStatusCode  = HTTPStatusCode.BadRequest,
                                               Server          = HTTPServer.DefaultServerName,
-                                              ContentType     = HTTPContentType.JSON_UTF8,
+                                              ContentType     = HTTPContentType.Application.JSON_UTF8,
                                               Content         = new JObject(
                                                                     //new JProperty("@context",     SignInOutContext),
                                                                     //new JProperty("statuscode",   400),
@@ -4386,7 +4385,7 @@ namespace social.OpenData.UsersAPI
                                           new HTTPResponse.Builder(Request) {
                                               HTTPStatusCode  = HTTPStatusCode.BadRequest,
                                               Server          = HTTPServer.DefaultServerName,
-                                              ContentType     = HTTPContentType.JSON_UTF8,
+                                              ContentType     = HTTPContentType.Application.JSON_UTF8,
                                               Content         = new JObject(
                                                                     //new JProperty("@context",     SignInOutContext),
                                                                     //new JProperty("statuscode",   400),
@@ -4412,7 +4411,7 @@ namespace social.OpenData.UsersAPI
                                           new HTTPResponse.Builder(Request) {
                                               HTTPStatusCode  = HTTPStatusCode.Conflict,
                                               Server          = HTTPServer.DefaultServerName,
-                                              ContentType     = HTTPContentType.JSON_UTF8,
+                                              ContentType     = HTTPContentType.Application.JSON_UTF8,
                                               Content         = new JObject(
                                                                     //new JProperty("@context",     SignInOutContext),
                                                                     //new JProperty("statuscode",   400),
@@ -4531,7 +4530,7 @@ namespace social.OpenData.UsersAPI
                                           new HTTPResponse.Builder(Request) {
                                               HTTPStatusCode  = HTTPStatusCode.OK,
                                               Server          = HTTPServer.DefaultServerName,
-                                              ContentType     = HTTPContentType.HTML_UTF8,
+                                              ContentType     = HTTPContentType.Text.HTML_UTF8,
                                               Content         = GetResourceString($"newsletters.{newsletterSignup.NewsletterId}-{DefaultLanguage}.html").
                                                                     Replace("{securityTokenId}", securityTokenId.              ToString()).
                                                                     Replace("{eMailAddress}",    newsletterSignup.EMailAddress.ToString()).
@@ -4648,7 +4647,7 @@ namespace social.OpenData.UsersAPI
             AddMethodCallback(HTTPHostname.Any,
                               HTTPMethod.GET,
                               URLPathPrefix + "/blog",
-                              HTTPContentType.HTML_UTF8,
+                              HTTPContentType.Text.HTML_UTF8,
                               HTTPDelegate: Request => {
 
                                   #region Get HTTP user and its organizations
@@ -4673,7 +4672,7 @@ namespace social.OpenData.UsersAPI
                                               AccessControlAllowOrigin   = "*",
                                               AccessControlAllowMethods  = new[] { "GET", "OPTIONS" },
                                               AccessControlAllowHeaders  = new[] { "Content-Type", "Accept", "Authorization" },
-                                              ContentType                = HTTPContentType.HTML_UTF8,
+                                              ContentType                = HTTPContentType.Text.HTML_UTF8,
                                               Content                    = MixWithHTMLTemplate(BlogTemplate, "blog.blogPostings.shtml").ToUTF8Bytes(),
                                               Connection                 = "close",
                                               Vary                       = "Accept"
@@ -4720,7 +4719,7 @@ namespace social.OpenData.UsersAPI
                               Hostname,
                               HTTPMethod.GET,
                               URLPathPrefix + "blog/postings",
-                              HTTPContentType.JSON_UTF8,
+                              HTTPContentType.Application.JSON_UTF8,
                               HTTPDelegate: Request => {
 
                                   #region Get HTTP user and its organizations
@@ -4783,7 +4782,7 @@ namespace social.OpenData.UsersAPI
                                                  AccessControlAllowOrigin      = "*",
                                                  AccessControlAllowMethods     = new[] { "GET", "COUNT", "OPTIONS" },
                                                  AccessControlAllowHeaders     = new[] { "Content-Type", "Accept", "Authorization" },
-                                                 ContentType                   = HTTPContentType.JSON_UTF8,
+                                                 ContentType                   = HTTPContentType.Application.JSON_UTF8,
                                                  Content                       = withMetadata
                                                                                      ? JSONObject.Create(
                                                                                            new JProperty("totalCount",     totalCount),
@@ -4809,7 +4808,7 @@ namespace social.OpenData.UsersAPI
                                          HTTPHostname.Any,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "/blog/postings",
-                                         HTTPContentType.HTML_UTF8,
+                                         HTTPContentType.Text.HTML_UTF8,
                                          HTTPDelegate: Request => {
 
                                              #region Get HTTP user and its organizations
@@ -4834,7 +4833,7 @@ namespace social.OpenData.UsersAPI
                                                          AccessControlAllowOrigin   = "*",
                                                          AccessControlAllowMethods  = new[] { "GET", "COUNT", "OPTIONS" },
                                                          AccessControlAllowHeaders  = new[] { "Content-Type", "Accept", "Authorization" },
-                                                         ContentType                = HTTPContentType.HTML_UTF8,
+                                                         ContentType                = HTTPContentType.Text.HTML_UTF8,
                                                          Content                    = MixWithHTMLTemplate(BlogTemplate, "blog.blogPostings.shtml").ToUTF8Bytes(),
                                                          Connection                 = "close",
                                                          Vary                       = "Accept"
@@ -4855,7 +4854,7 @@ namespace social.OpenData.UsersAPI
                                          Hostname,
                                          HTTPMethod.COUNT,
                                          URLPathPrefix + "blog",
-                                         HTTPContentType.JSON_UTF8,
+                                         HTTPContentType.Application.JSON_UTF8,
                                          HTTPDelegate: Request => {
 
                                              var since  = Request.QueryString.GetDateTime("since");
@@ -4868,7 +4867,7 @@ namespace social.OpenData.UsersAPI
                                                             AccessControlAllowOrigin      = "*",
                                                             AccessControlAllowMethods     = new[] { "GET", "COUNT", "OPTIONS" },
                                                             AccessControlAllowHeaders     = new[] { "Content-Type", "Accept", "Authorization" },
-                                                            ContentType                   = HTTPContentType.JSON_UTF8,
+                                                            ContentType                   = HTTPContentType.Application.JSON_UTF8,
                                                             Content                       = JSONObject.Create(
                                                                                                 new JProperty("count",
                                                                                                               _BlogPostings.Values.ULongCount(blog => !since.HasValue || blog.PublicationDate >= since.Value))
@@ -4918,7 +4917,7 @@ namespace social.OpenData.UsersAPI
                                          Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "blog/postings/{postingId}",
-                                         HTTPContentType.JSON_UTF8,
+                                         HTTPContentType.Application.JSON_UTF8,
                                          HTTPDelegate: Request => {
 
                                              #region Check BlogPostingId URI parameter
@@ -4961,7 +4960,7 @@ namespace social.OpenData.UsersAPI
                                                             AccessControlAllowMethods  = new[] { "GET", "SET" },
                                                             AccessControlAllowHeaders  = new[] { "X-PINGOTHER", "Content-Type", "Accept", "Authorization", "X-App-Version" },
                                                             ETag                       = "1",
-                                                            ContentType                = HTTPContentType.JSON_UTF8,
+                                                            ContentType                = HTTPContentType.Application.JSON_UTF8,
                                                             Content                    = GetBlogPostingSerializator(Request, Anonymous)
                                                                                                             (BlogPosting,
                                                                                                              false, //Embedded
@@ -4985,7 +4984,7 @@ namespace social.OpenData.UsersAPI
                                          Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "blog/postings/{postingId}",
-                                         HTTPContentType.HTML_UTF8,
+                                         HTTPContentType.Text.HTML_UTF8,
                                          HTTPDelegate: Request => {
 
                                              #region Get HTTP user and its organizations
@@ -5023,7 +5022,7 @@ namespace social.OpenData.UsersAPI
                                                      AccessControlAllowOrigin   = "*",
                                                      AccessControlAllowMethods  = new[] { "GET" },
                                                      AccessControlAllowHeaders  = new[] { "Content-Type", "Accept", "Authorization" },
-                                                     ContentType                = HTTPContentType.HTML_UTF8,
+                                                     ContentType                = HTTPContentType.Text.HTML_UTF8,
                                                      Content                    = MixWithHTMLTemplate(BlogTemplate, "blog.blogPosting.shtml").ToUTF8Bytes(),
                                                      Connection                 = "close",
                                                      Vary                       = "Accept"
@@ -5076,7 +5075,7 @@ namespace social.OpenData.UsersAPI
                                          Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "newsPostings",
-                                         HTTPContentType.JSON_UTF8,
+                                         HTTPContentType.Application.JSON_UTF8,
                                          HTTPDelegate: Request => {
 
                                              #region Get HTTP user and its organizations
@@ -5139,7 +5138,7 @@ namespace social.OpenData.UsersAPI
                                                             AccessControlAllowOrigin      = "*",
                                                             AccessControlAllowMethods     = new[] { "GET" },
                                                             AccessControlAllowHeaders     = new[] { "Content-Type", "Accept", "Authorization" },
-                                                            ContentType                   = HTTPContentType.JSON_UTF8,
+                                                            ContentType                   = HTTPContentType.Application.JSON_UTF8,
                                                             Content                       = withMetadata
                                                                                                 ? JSONObject.Create(
                                                                                                       new JProperty("totalCount",     totalCount),
@@ -5165,7 +5164,7 @@ namespace social.OpenData.UsersAPI
                                          Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "newsPostings",
-                                         HTTPContentType.HTML_UTF8,
+                                         HTTPContentType.Text.HTML_UTF8,
                                          HTTPDelegate: Request => {
 
                                              #region Get HTTP user and its organizations
@@ -5190,7 +5189,7 @@ namespace social.OpenData.UsersAPI
                                                      AccessControlAllowOrigin   = "*",
                                                      AccessControlAllowMethods  = new[] { "GET" },
                                                      AccessControlAllowHeaders  = new[] { "Content-Type", "Accept", "Authorization" },
-                                                     ContentType                = HTTPContentType.HTML_UTF8,
+                                                     ContentType                = HTTPContentType.Text.HTML_UTF8,
                                                      Content                    = MixWithHTMLTemplate("newsPosting.newsPostings.shtml").ToUTF8Bytes(),
                                                      Connection                 = "close",
                                                      Vary                       = "Accept"
@@ -5211,7 +5210,7 @@ namespace social.OpenData.UsersAPI
                                          Hostname,
                                          HTTPMethod.COUNT,
                                          URLPathPrefix + "newsPostings",
-                                         HTTPContentType.JSON_UTF8,
+                                         HTTPContentType.Application.JSON_UTF8,
                                          HTTPDelegate: Request => {
 
                                              var since  = Request.QueryString.GetDateTime("since");
@@ -5224,7 +5223,7 @@ namespace social.OpenData.UsersAPI
                                                             AccessControlAllowOrigin      = "*",
                                                             AccessControlAllowMethods     = new[] { "GET" },
                                                             AccessControlAllowHeaders     = new[] { "Content-Type", "Accept", "Authorization" },
-                                                            ContentType                   = HTTPContentType.JSON_UTF8,
+                                                            ContentType                   = HTTPContentType.Application.JSON_UTF8,
                                                             Content                       = JSONObject.Create(
                                                                                                 new JProperty("count",
                                                                                                               _NewsPostings.Values.ULongCount(news => !since.HasValue || news.PublicationDate >= since.Value))
@@ -5274,7 +5273,7 @@ namespace social.OpenData.UsersAPI
                                          Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "newsPostings/{postingId}",
-                                         HTTPContentType.JSON_UTF8,
+                                         HTTPContentType.Application.JSON_UTF8,
                                          HTTPDelegate: Request => {
 
                                              #region Check NewsPostingId URI parameter
@@ -5317,7 +5316,7 @@ namespace social.OpenData.UsersAPI
                                                             AccessControlAllowMethods  = new[] { "GET", "SET" },
                                                             AccessControlAllowHeaders  = new[] { "X-PINGOTHER", "Content-Type", "Accept", "Authorization", "X-App-Version" },
                                                             ETag                       = "1",
-                                                            ContentType                = HTTPContentType.JSON_UTF8,
+                                                            ContentType                = HTTPContentType.Application.JSON_UTF8,
                                                             Content                    = GetNewsPostingSerializator(Request, HTTPUser)
                                                                                                             (NewsPosting,
                                                                                                              false, //Embedded
@@ -5341,7 +5340,7 @@ namespace social.OpenData.UsersAPI
                                          Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "newsPostings/{postingId}",
-                                         HTTPContentType.HTML_UTF8,
+                                         HTTPContentType.Text.HTML_UTF8,
                                          HTTPDelegate: Request => {
 
                                              #region Get HTTP user and its organizations
@@ -5379,7 +5378,7 @@ namespace social.OpenData.UsersAPI
                                                      AccessControlAllowOrigin   = "*",
                                                      AccessControlAllowMethods  = new[] { "GET" },
                                                      AccessControlAllowHeaders  = new[] { "Content-Type", "Accept", "Authorization" },
-                                                     ContentType                = HTTPContentType.HTML_UTF8,
+                                                     ContentType                = HTTPContentType.Text.HTML_UTF8,
                                                      Content                    = MixWithHTMLTemplate("News.News.shtml").ToUTF8Bytes(),
                                                      Connection                 = "close",
                                                      Vary                       = "Accept"
@@ -5432,7 +5431,7 @@ namespace social.OpenData.UsersAPI
                                          Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "newsBanners",
-                                         HTTPContentType.JSON_UTF8,
+                                         HTTPContentType.Application.JSON_UTF8,
                                          HTTPDelegate: Request => {
 
                                              #region Get HTTP user and its organizations
@@ -5492,7 +5491,7 @@ namespace social.OpenData.UsersAPI
                                                             AccessControlAllowOrigin      = "*",
                                                             AccessControlAllowMethods     = new[] { "GET" },
                                                             AccessControlAllowHeaders     = new[] { "Content-Type", "Accept", "Authorization" },
-                                                            ContentType                   = HTTPContentType.JSON_UTF8,
+                                                            ContentType                   = HTTPContentType.Application.JSON_UTF8,
                                                             Content                       = withMetadata
                                                                                                 ? JSONObject.Create(
                                                                                                       new JProperty("totalCount",     totalCount),
@@ -5518,7 +5517,7 @@ namespace social.OpenData.UsersAPI
                                          Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "newsBanners",
-                                         HTTPContentType.HTML_UTF8,
+                                         HTTPContentType.Text.HTML_UTF8,
                                          HTTPDelegate: Request => {
 
                                              #region Get HTTP user and its organizations
@@ -5543,7 +5542,7 @@ namespace social.OpenData.UsersAPI
                                                      AccessControlAllowOrigin   = "*",
                                                      AccessControlAllowMethods  = new[] { "GET" },
                                                      AccessControlAllowHeaders  = new[] { "Content-Type", "Accept", "Authorization" },
-                                                     ContentType                = HTTPContentType.HTML_UTF8,
+                                                     ContentType                = HTTPContentType.Text.HTML_UTF8,
                                                      Content                    = MixWithHTMLTemplate("newsBanner.newsBanners.shtml").ToUTF8Bytes(),
                                                      Connection                 = "close",
                                                      Vary                       = "Accept"
@@ -5564,7 +5563,7 @@ namespace social.OpenData.UsersAPI
                                          Hostname,
                                          HTTPMethod.COUNT,
                                          URLPathPrefix + "newsBanners",
-                                         HTTPContentType.JSON_UTF8,
+                                         HTTPContentType.Application.JSON_UTF8,
                                          HTTPDelegate: Request => {
 
                                              var since  = Request.QueryString.GetDateTime("since");
@@ -5577,7 +5576,7 @@ namespace social.OpenData.UsersAPI
                                                             AccessControlAllowOrigin      = "*",
                                                             AccessControlAllowMethods     = new[] { "GET" },
                                                             AccessControlAllowHeaders     = new[] { "Content-Type", "Accept", "Authorization" },
-                                                            ContentType                   = HTTPContentType.JSON_UTF8,
+                                                            ContentType                   = HTTPContentType.Application.JSON_UTF8,
                                                             Content                       = JSONObject.Create(
                                                                                                 new JProperty("count",
                                                                                                               _NewsBanners.Values.ULongCount(news => !since.HasValue || news.StartTimestamp >= since.Value))
@@ -5627,7 +5626,7 @@ namespace social.OpenData.UsersAPI
                                          Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "newsBanners/{bannerId}",
-                                         HTTPContentType.JSON_UTF8,
+                                         HTTPContentType.Application.JSON_UTF8,
                                          HTTPDelegate: Request => {
 
                                              #region Check NewsId URI parameter
@@ -5671,7 +5670,7 @@ namespace social.OpenData.UsersAPI
                                                                 AccessControlAllowMethods  = new[] { "GET", "SET" },
                                                                 AccessControlAllowHeaders  = new[] { "X-PINGOTHER", "Content-Type", "Accept", "Authorization", "X-App-Version" },
                                                                 ETag                       = "1",
-                                                                ContentType                = HTTPContentType.JSON_UTF8,
+                                                                ContentType                = HTTPContentType.Application.JSON_UTF8,
                                                                 Content                    = GetNewsBannerSerializator(Request, HTTPUser)
                                                                                                                        (NewsBanner,
                                                                                                                         false, //Embedded
@@ -5695,7 +5694,7 @@ namespace social.OpenData.UsersAPI
                                          Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "newsBanners/{bannerId}",
-                                         HTTPContentType.HTML_UTF8,
+                                         HTTPContentType.Text.HTML_UTF8,
                                          HTTPDelegate: Request => {
 
                                              #region Get HTTP user and its organizations
@@ -5733,7 +5732,7 @@ namespace social.OpenData.UsersAPI
                                                          AccessControlAllowOrigin   = "*",
                                                          AccessControlAllowMethods  = new[] { "GET" },
                                                          AccessControlAllowHeaders  = new[] { "Content-Type", "Accept", "Authorization" },
-                                                         ContentType                = HTTPContentType.HTML_UTF8,
+                                                         ContentType                = HTTPContentType.Text.HTML_UTF8,
                                                          Content                    = MixWithHTMLTemplate("News.News.shtml").ToUTF8Bytes(),
                                                          Connection                 = "close",
                                                          Vary                       = "Accept"
@@ -5787,7 +5786,7 @@ namespace social.OpenData.UsersAPI
                                          Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "FAQs",
-                                         HTTPContentType.JSON_UTF8,
+                                         HTTPContentType.Application.JSON_UTF8,
                                          HTTPDelegate: Request => {
 
                                              #region Get HTTP user and its organizations
@@ -5848,7 +5847,7 @@ namespace social.OpenData.UsersAPI
                                                             AccessControlAllowOrigin      = "*",
                                                             AccessControlAllowMethods     = new[] { "GET" },
                                                             AccessControlAllowHeaders     = new[] { "Content-Type", "Accept", "Authorization" },
-                                                            ContentType                   = HTTPContentType.JSON_UTF8,
+                                                            ContentType                   = HTTPContentType.Application.JSON_UTF8,
                                                             Content                       = withMetadata
                                                                                                 ? JSONObject.Create(
                                                                                                       new JProperty("totalCount",     totalCount),
@@ -5874,7 +5873,7 @@ namespace social.OpenData.UsersAPI
                                          Hostname,
                                          HTTPMethod.GET,
                                          URLPathPrefix + "FAQs",
-                                         HTTPContentType.HTML_UTF8,
+                                         HTTPContentType.Text.HTML_UTF8,
                                          HTTPDelegate: Request => {
 
                                              #region Get HTTP user and its organizations
@@ -5899,7 +5898,7 @@ namespace social.OpenData.UsersAPI
                                                      AccessControlAllowOrigin   = "*",
                                                      AccessControlAllowMethods  = new[] { "GET" },
                                                      AccessControlAllowHeaders  = new[] { "Content-Type", "Accept", "Authorization" },
-                                                     ContentType                = HTTPContentType.HTML_UTF8,
+                                                     ContentType                = HTTPContentType.Text.HTML_UTF8,
                                                      Content                    = MixWithHTMLTemplate("FAQ.FAQs.shtml").ToUTF8Bytes(),
                                                      Connection                 = "close",
                                                      Vary                       = "Accept"
@@ -5920,7 +5919,7 @@ namespace social.OpenData.UsersAPI
                                          Hostname,
                                          HTTPMethod.COUNT,
                                          URLPathPrefix + "FAQs",
-                                         HTTPContentType.JSON_UTF8,
+                                         HTTPContentType.Application.JSON_UTF8,
                                          HTTPDelegate: Request => {
 
                                              var since  = Request.QueryString.GetDateTime("since");
@@ -5933,7 +5932,7 @@ namespace social.OpenData.UsersAPI
                                                             AccessControlAllowOrigin      = "*",
                                                             AccessControlAllowMethods     = new[] { "GET" },
                                                             AccessControlAllowHeaders     = new[] { "Content-Type", "Accept", "Authorization" },
-                                                            ContentType                   = HTTPContentType.JSON_UTF8,
+                                                            ContentType                   = HTTPContentType.Application.JSON_UTF8,
                                                             Content                       = JSONObject.Create(
                                                                                                 new JProperty("count",
                                                                                                               _FAQs.Values.ULongCount(news => !since.HasValue || news.PublicationDate >= since.Value))
@@ -5954,7 +5953,7 @@ namespace social.OpenData.UsersAPI
             //HTTPServer.AddMethodCallback(Hostname,
             //                             HTTPMethod.GET,
             //                             URIPrefix + "FAQ/_new",
-            //                             HTTPContentType.HTML_UTF8,
+            //                             HTTPContentType.Text.HTML_UTF8,
             //                             HTTPDelegate: Request => {
 
             //                                 #region Get HTTP user and its organizations
@@ -5987,7 +5986,7 @@ namespace social.OpenData.UsersAPI
             //                                         AccessControlAllowMethods  = new[] { "GET", "SET" },
             //                                         AccessControlAllowHeaders  = new[] { "Content-Type", "Accept", "Authorization" },
             //                                         ETag                       = "1",
-            //                                         ContentType                = HTTPContentType.HTML_UTF8,
+            //                                         ContentType                = HTTPContentType.Text.HTML_UTF8,
             //                                         Content                    = Template.Replace("<%= content %>", _MemoryStream2.ToArray().ToUTF8String()).
             //                                                                                            Replace("<%= logoimage %>", String.Concat(@"<img src=""", LogoImage, @""" /> ")).
             //                                                                                            //Replace("/defibrillator/defibrillator.min.css", "/defibrillator/newDefibrillator.min.css").

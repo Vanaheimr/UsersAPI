@@ -84,7 +84,7 @@ namespace social.OpenData.UsersAPI
                                          HTTPHostname.Any,
                                          HTTPMethod.GET,
                                          URLTemplate,
-                                         HTTPContentType.JSON_UTF8,
+                                         HTTPContentType.Application.JSON_UTF8,
                                          HTTPDelegate: async Request => {
 
                                              var skip      = Request.QueryString.GetUInt32("skip");
@@ -101,7 +101,7 @@ namespace social.OpenData.UsersAPI
                                              return new HTTPResponse.Builder(Request) {
                                                                            HTTPStatusCode  = HTTPStatusCode.OK,
                                                                            Server          = HTTPServer.DefaultServerName,
-                                                                           ContentType     = HTTPContentType.JSON_UTF8,
+                                                                           ContentType     = HTTPContentType.Application.JSON_UTF8,
                                                                            Content         = ToJSONDelegate(AllItems).ToUTF8Bytes(),
                                                                            ETag            = "1",
                                                                            CacheControl    = "public",
@@ -133,7 +133,7 @@ namespace social.OpenData.UsersAPI
                                          HTTPHostname.Any,
                                          HTTPMethod.EXISTS,
                                          URLTemplate,
-                                         HTTPContentType.JSON_UTF8,
+                                         HTTPContentType.Application.JSON_UTF8,
                                          HTTPDelegate: async Request => {
 
                                              if (!ParseIdDelegate(Request.ParsedURLParameters[0], out TId Id))
@@ -145,7 +145,7 @@ namespace social.OpenData.UsersAPI
                                                      AccessControlAllowMethods  = new[] { "GET", "EXISTS", "COUNT" },
                                                      AccessControlAllowHeaders  = new[] { "Content-Type", "Accept", "Authorization" },
                                                      ETag                       = "1",
-                                                     ContentType                = HTTPContentType.JSON_UTF8,
+                                                     ContentType                = HTTPContentType.Application.JSON_UTF8,
                                                      Content                    = ErrorMessage(ParseIdError(Request.ParsedURLParameters[0])).ToUTF8Bytes(),
                                                      CacheControl               = "no-cache",
                                                      Connection                 = "close"
@@ -156,7 +156,7 @@ namespace social.OpenData.UsersAPI
                                                      HTTPStatusCode  = HTTPStatusCode.NotFound,
                                                      Server          = HTTPServerName,
                                                      Date            = Timestamp.Now,
-                                                     ContentType     = HTTPContentType.JSON_UTF8,
+                                                     ContentType     = HTTPContentType.Application.JSON_UTF8,
                                                      Content         = ErrorMessage(TryGetItemError(Id)).ToUTF8Bytes(),
                                                      CacheControl    = "no-cache",
                                                      Connection      = "close"
@@ -196,7 +196,7 @@ namespace social.OpenData.UsersAPI
                                          HTTPHostname.Any,
                                          HTTPMethod.GET,
                                          URLTemplate,
-                                         HTTPContentType.JSON_UTF8,
+                                         HTTPContentType.Application.JSON_UTF8,
                                          HTTPDelegate: async Request => {
 
                                              TId   Id;
@@ -206,7 +206,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                      HTTPStatusCode  = HTTPStatusCode.BadRequest,
                                                      Server          = HTTPServer.DefaultServerName,
-                                                     ContentType     = HTTPContentType.JSON_UTF8,
+                                                     ContentType     = HTTPContentType.Application.JSON_UTF8,
                                                      Content         = ErrorMessage(ParseIdError(Request.ParsedURLParameters[0])).ToUTF8Bytes(),
                                                      CacheControl    = "no-cache",
                                                      Connection      = "close"
@@ -216,7 +216,7 @@ namespace social.OpenData.UsersAPI
                                                  return new HTTPResponse.Builder(Request) {
                                                      HTTPStatusCode  = HTTPStatusCode.NotFound,
                                                      Server          = HTTPServer.DefaultServerName,
-                                                     ContentType     = HTTPContentType.JSON_UTF8,
+                                                     ContentType     = HTTPContentType.Application.JSON_UTF8,
                                                      Content         = ErrorMessage(TryGetItemError(Id)).ToUTF8Bytes(),
                                                      CacheControl    = "no-cache",
                                                      Connection      = "close"
@@ -225,7 +225,7 @@ namespace social.OpenData.UsersAPI
                                              return new HTTPResponse.Builder(Request) {
                                                  HTTPStatusCode  = HTTPStatusCode.OK,
                                                  Server          = HTTPServer.DefaultServerName,
-                                                 ContentType     = HTTPContentType.JSON_UTF8,
+                                                 ContentType     = HTTPContentType.Application.JSON_UTF8,
                                                  Content         = ToJSONDelegate(Item).ToUTF8Bytes(),
                                                  ETag            = "1",
                                                  CacheControl    = "public",
