@@ -18,6 +18,7 @@
 #region Usings
 
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod;
@@ -128,11 +129,11 @@ namespace social.OpenData.UsersAPI.tests
         public async Task UsersAPI_Test01()
         {
 
-            Assert.AreEqual(0, usersAPI.Users.        Count());
-            Assert.AreEqual(2, usersAPI.Organizations.Count());
+            ClassicAssert.AreEqual(0, usersAPI.Users.        Count());
+            ClassicAssert.AreEqual(2, usersAPI.Organizations.Count());
 
-            Assert.IsTrue  (usersAPI.OrganizationExists(Organization_Id.Parse("NoOwner")));
-            Assert.IsTrue  (usersAPI.OrganizationExists(Organization_Id.Parse("admins")));
+            ClassicAssert.IsTrue  (usersAPI.OrganizationExists(Organization_Id.Parse("NoOwner")));
+            ClassicAssert.IsTrue  (usersAPI.OrganizationExists(Organization_Id.Parse("admins")));
 
 
             var result01a = await usersAPI.AddUser(new User(
@@ -144,10 +145,10 @@ namespace social.OpenData.UsersAPI.tests
                                                    User2OrganizationEdgeLabel.IsAdmin,
                                                    usersAPI.GetOrganization(Organization_Id.Parse("admins")));
 
-            Assert.IsNotNull(result01a);
-            Assert.IsTrue   (result01a.Result == CommandResult.Success);
-            Assert.IsNotNull(result01a.User);
-            Assert.AreEqual (1, usersAPI.Users.Count());
+            ClassicAssert.IsNotNull(result01a);
+            ClassicAssert.IsTrue   (result01a.Result == CommandResult.Success);
+            ClassicAssert.IsNotNull(result01a.User);
+            ClassicAssert.AreEqual (1, usersAPI.Users.Count());
 
             await usersAPI.AddEMailNotification(result01a.User!,
                                                 new[] {
@@ -192,10 +193,10 @@ namespace social.OpenData.UsersAPI.tests
                                                    User2OrganizationEdgeLabel.IsAdmin,
                                                    usersAPI.GetOrganization(Organization_Id.Parse("admins")));
 
-            Assert.IsNotNull(result01b);
-            Assert.IsTrue   (result01b.Result == CommandResult.Success);
-            Assert.IsNotNull(result01b.User);
-            Assert.AreEqual (2, usersAPI.Users.Count());
+            ClassicAssert.IsNotNull(result01b);
+            ClassicAssert.IsTrue   (result01b.Result == CommandResult.Success);
+            ClassicAssert.IsNotNull(result01b.User);
+            ClassicAssert.AreEqual (2, usersAPI.Users.Count());
 
 
             var result01c = await usersAPI.AddUser(new User(
@@ -207,10 +208,10 @@ namespace social.OpenData.UsersAPI.tests
                                                    User2OrganizationEdgeLabel.IsMember,
                                                    usersAPI.GetOrganization(Organization_Id.Parse("admins")));
 
-            Assert.IsNotNull(result01c);
-            Assert.IsTrue   (result01c.Result == CommandResult.Success);
-            Assert.IsNotNull(result01c.User);
-            Assert.AreEqual (3, usersAPI.Users.Count());
+            ClassicAssert.IsNotNull(result01c);
+            ClassicAssert.IsTrue   (result01c.Result == CommandResult.Success);
+            ClassicAssert.IsNotNull(result01c.User);
+            ClassicAssert.AreEqual (3, usersAPI.Users.Count());
 
             await usersAPI.AddEMailNotification(result01c.User!,
                                                 new[] {
@@ -255,10 +256,10 @@ namespace social.OpenData.UsersAPI.tests
                                                    User2OrganizationEdgeLabel.IsMember,
                                                    usersAPI.GetOrganization(Organization_Id.Parse("admins")));
 
-            Assert.IsNotNull(result01d);
-            Assert.IsTrue   (result01d.Result == CommandResult.Success);
-            Assert.IsNotNull(result01d.User);
-            Assert.AreEqual (4, usersAPI.Users.Count());
+            ClassicAssert.IsNotNull(result01d);
+            ClassicAssert.IsTrue   (result01d.Result == CommandResult.Success);
+            ClassicAssert.IsNotNull(result01d.User);
+            ClassicAssert.AreEqual (4, usersAPI.Users.Count());
 
 
             #region Setup FirstOrg
@@ -269,14 +270,14 @@ namespace social.OpenData.UsersAPI.tests
                                                           ),
                                                           ParentOrganization: result01a.Organization);
 
-            Assert.AreEqual(3, usersAPI.Organizations.Count());
-            Assert.IsTrue  (usersAPI.OrganizationExists(Organization_Id.Parse("firstOrg")));
+            ClassicAssert.AreEqual(3, usersAPI.Organizations.Count());
+            ClassicAssert.IsTrue  (usersAPI.OrganizationExists(Organization_Id.Parse("firstOrg")));
 
             var IsChildOrganizationEdge1 = result03.Organization.Organization2OrganizationOutEdges.FirstOrDefault();
 
-            Assert.IsNotNull(IsChildOrganizationEdge1);
-            Assert.AreEqual(Organization_Id.Parse("firstOrg"), IsChildOrganizationEdge1.Source.Id);
-            Assert.AreEqual(usersAPI.AdminOrganizationId,      IsChildOrganizationEdge1.Target.Id);
+            ClassicAssert.IsNotNull(IsChildOrganizationEdge1);
+            ClassicAssert.AreEqual(Organization_Id.Parse("firstOrg"), IsChildOrganizationEdge1.Source.Id);
+            ClassicAssert.AreEqual(usersAPI.AdminOrganizationId,      IsChildOrganizationEdge1.Target.Id);
 
 
             var result04a = await usersAPI.AddUser(new User(
@@ -288,10 +289,10 @@ namespace social.OpenData.UsersAPI.tests
                                                    User2OrganizationEdgeLabel.IsAdmin,
                                                    result03.Organization);
 
-            Assert.IsNotNull(result04a);
-            Assert.IsTrue   (result04a.Result == CommandResult.Success);
-            Assert.IsNotNull(result04a.User);
-            Assert.AreEqual (5, usersAPI.Users.Count());
+            ClassicAssert.IsNotNull(result04a);
+            ClassicAssert.IsTrue   (result04a.Result == CommandResult.Success);
+            ClassicAssert.IsNotNull(result04a.User);
+            ClassicAssert.AreEqual (5, usersAPI.Users.Count());
 
             await usersAPI.AddEMailNotification(result04a.User!,
                                                 new[] {
@@ -336,10 +337,10 @@ namespace social.OpenData.UsersAPI.tests
                                                    User2OrganizationEdgeLabel.IsAdmin,
                                                    result03.Organization);
 
-            Assert.IsNotNull(result04b);
-            Assert.IsTrue   (result04b.Result == CommandResult.Success);
-            Assert.IsNotNull(result04b.User);
-            Assert.AreEqual (6, usersAPI.Users.Count());
+            ClassicAssert.IsNotNull(result04b);
+            ClassicAssert.IsTrue   (result04b.Result == CommandResult.Success);
+            ClassicAssert.IsNotNull(result04b.User);
+            ClassicAssert.AreEqual (6, usersAPI.Users.Count());
 
 
             var result04c = await usersAPI.AddUser(new User(
@@ -352,10 +353,10 @@ namespace social.OpenData.UsersAPI.tests
                                                    result03.Organization);
 
 
-            Assert.IsNotNull(result04c);
-            Assert.IsTrue   (result04c.Result == CommandResult.Success);
-            Assert.IsNotNull(result04c.User);
-            Assert.AreEqual (7, usersAPI.Users.Count());
+            ClassicAssert.IsNotNull(result04c);
+            ClassicAssert.IsTrue   (result04c.Result == CommandResult.Success);
+            ClassicAssert.IsNotNull(result04c.User);
+            ClassicAssert.AreEqual (7, usersAPI.Users.Count());
 
             await usersAPI.AddEMailNotification(result04c.User!,
                                                 new[] {
@@ -400,10 +401,10 @@ namespace social.OpenData.UsersAPI.tests
                                                    User2OrganizationEdgeLabel.IsMember,
                                                    result03.Organization);
 
-            Assert.IsNotNull(result04d);
-            Assert.IsTrue   (result04d.Result == CommandResult.Success);
-            Assert.IsNotNull(result04d.User);
-            Assert.AreEqual (8, usersAPI.Users.Count());
+            ClassicAssert.IsNotNull(result04d);
+            ClassicAssert.IsTrue   (result04d.Result == CommandResult.Success);
+            ClassicAssert.IsNotNull(result04d.User);
+            ClassicAssert.AreEqual (8, usersAPI.Users.Count());
 
             #endregion
 
@@ -415,14 +416,14 @@ namespace social.OpenData.UsersAPI.tests
                                                           ),
                                                           ParentOrganization: result03.Organization);
 
-            Assert.AreEqual(4, usersAPI.Organizations.Count());
-            Assert.IsTrue  (usersAPI.OrganizationExists(Organization_Id.Parse("secondOrg")));
+            ClassicAssert.AreEqual(4, usersAPI.Organizations.Count());
+            ClassicAssert.IsTrue  (usersAPI.OrganizationExists(Organization_Id.Parse("secondOrg")));
 
             var IsChildOrganizationEdge2 = result13.Organization.Organization2OrganizationOutEdges.FirstOrDefault();
 
-            Assert.IsNotNull(IsChildOrganizationEdge2);
-            Assert.AreEqual(Organization_Id.Parse("secondOrg"), IsChildOrganizationEdge2.Source.Id);
-            Assert.AreEqual(Organization_Id.Parse("firstOrg"),  IsChildOrganizationEdge2.Target.Id);
+            ClassicAssert.IsNotNull(IsChildOrganizationEdge2);
+            ClassicAssert.AreEqual(Organization_Id.Parse("secondOrg"), IsChildOrganizationEdge2.Source.Id);
+            ClassicAssert.AreEqual(Organization_Id.Parse("firstOrg"),  IsChildOrganizationEdge2.Target.Id);
 
 
             var result14a = await usersAPI.AddUser(new User(
@@ -434,10 +435,10 @@ namespace social.OpenData.UsersAPI.tests
                                                    User2OrganizationEdgeLabel.IsAdmin,
                                                    result13.Organization);
 
-            Assert.IsNotNull(result14a);
-            Assert.IsTrue   (result14a.Result == CommandResult.Success);
-            Assert.IsNotNull(result14a.User);
-            Assert.AreEqual (9, usersAPI.Users.Count());
+            ClassicAssert.IsNotNull(result14a);
+            ClassicAssert.IsTrue   (result14a.Result == CommandResult.Success);
+            ClassicAssert.IsNotNull(result14a.User);
+            ClassicAssert.AreEqual (9, usersAPI.Users.Count());
 
             await usersAPI.AddEMailNotification(result14a.User!,
                                                 new[] {
@@ -482,10 +483,10 @@ namespace social.OpenData.UsersAPI.tests
                                                    User2OrganizationEdgeLabel.IsAdmin,
                                                    result13.Organization);
 
-            Assert.IsNotNull(result14b);
-            Assert.IsTrue   (result14b.Result == CommandResult.Success);
-            Assert.IsNotNull(result14b.User);
-            Assert.AreEqual (10, usersAPI.Users.Count());
+            ClassicAssert.IsNotNull(result14b);
+            ClassicAssert.IsTrue   (result14b.Result == CommandResult.Success);
+            ClassicAssert.IsNotNull(result14b.User);
+            ClassicAssert.AreEqual (10, usersAPI.Users.Count());
 
 
             var result14c = await usersAPI.AddUser(new User(
@@ -498,10 +499,10 @@ namespace social.OpenData.UsersAPI.tests
                                                    result13.Organization);
 
 
-            Assert.IsNotNull(result14c);
-            Assert.IsTrue   (result14c.Result == CommandResult.Success);
-            Assert.IsNotNull(result14c.User);
-            Assert.AreEqual (11, usersAPI.Users.Count());
+            ClassicAssert.IsNotNull(result14c);
+            ClassicAssert.IsTrue   (result14c.Result == CommandResult.Success);
+            ClassicAssert.IsNotNull(result14c.User);
+            ClassicAssert.AreEqual (11, usersAPI.Users.Count());
 
             await usersAPI.AddEMailNotification(result14c.User!,
                                                 new[] {
@@ -546,15 +547,15 @@ namespace social.OpenData.UsersAPI.tests
                                                    User2OrganizationEdgeLabel.IsMember,
                                                    result13.Organization);
 
-            Assert.IsNotNull(result14d);
-            Assert.IsTrue   (result14d.Result == CommandResult.Success);
-            Assert.IsNotNull(result14d.User);
-            Assert.AreEqual (12, usersAPI.Users.Count());
+            ClassicAssert.IsNotNull(result14d);
+            ClassicAssert.IsTrue   (result14d.Result == CommandResult.Success);
+            ClassicAssert.IsNotNull(result14d.User);
+            ClassicAssert.AreEqual (12, usersAPI.Users.Count());
 
             #endregion
 
 
-            Assert.IsTrue(nullMailer.EMailEnvelops.Any(), "Not a single notification e-mail was sent!");
+            ClassicAssert.IsTrue(nullMailer.EMailEnvelops.Any(), "Not a single notification e-mail was sent!");
 
             var maxEMailSubjectLength  = nullMailer.EMailEnvelops.Max   (emailEnvelope => emailEnvelope.Mail.Subject.Length);
             var allEMailNotifications  = nullMailer.EMailEnvelops.Select(emailEnvelope => emailEnvelope.Mail.Subject.PadRight(maxEMailSubjectLength + 2) + " => " + emailEnvelope.RcptTo.Select(email => email.Address).OrderBy(_ => _).AggregateWith(", ")).ToArray();
@@ -590,7 +591,7 @@ namespace social.OpenData.UsersAPI.tests
             // User 'Second Org Member 02' was added to organization 'Second Organization' as member.   => secondOrgAdmin01@test.local, secondOrgMember01@test.local, firstOrgAdmin01@test.local, firstOrgMember01@test.local, apiAdmin01@test.local, apiMember01@test.local
 
 
-            Assert.IsTrue(nullSMSClient.SMSs.Any(), "Not a single notification SMS was sent!");
+            ClassicAssert.IsTrue(nullSMSClient.SMSs.Any(), "Not a single notification SMS was sent!");
 
             var maxSMSMessageLength  = nullSMSClient.SMSs.Max   (sms => sms.Text.Length);
             var allSMSNotifications  = nullSMSClient.SMSs.Select(sms => sms.Text.PadRight(maxSMSMessageLength + 2) + " => " + sms.Receivers.OrderBy(_ =>_).AggregateWith(", ")).ToArray();

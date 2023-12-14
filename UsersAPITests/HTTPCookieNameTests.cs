@@ -18,6 +18,7 @@
 #region Usings
 
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 
@@ -55,13 +56,13 @@ namespace social.OpenData.users.api.tests
         public void TryParse_Null()
         {
 
-            Assert.IsNull  (HTTPCookieName.TryParse(null));
-            Assert.IsFalse (HTTPCookieName.TryParse(null).HasValue);
+            ClassicAssert.IsNull  (HTTPCookieName.TryParse(null));
+            ClassicAssert.IsFalse (HTTPCookieName.TryParse(null).HasValue);
 
-            Assert.IsFalse (HTTPCookieName.TryParse(null, out var httpCookieName));
-            Assert.IsTrue  (httpCookieName.IsNullOrEmpty);
-            Assert.AreEqual(0,  httpCookieName.Length);
-            Assert.AreEqual("", httpCookieName.ToString());
+            ClassicAssert.IsFalse (HTTPCookieName.TryParse(null, out var httpCookieName));
+            ClassicAssert.IsTrue  (httpCookieName.IsNullOrEmpty);
+            ClassicAssert.AreEqual(0,  httpCookieName.Length);
+            ClassicAssert.AreEqual("", httpCookieName.ToString());
 
         }
 
@@ -69,13 +70,13 @@ namespace social.OpenData.users.api.tests
         public void TryParse_Empty()
         {
 
-            Assert.IsNull  (HTTPCookieName.TryParse(""));
-            Assert.IsFalse (HTTPCookieName.TryParse("").HasValue);
+            ClassicAssert.IsNull  (HTTPCookieName.TryParse(""));
+            ClassicAssert.IsFalse (HTTPCookieName.TryParse("").HasValue);
 
-            Assert.IsFalse (HTTPCookieName.TryParse("", out var httpCookieName));
-            Assert.IsTrue  (httpCookieName.IsNullOrEmpty);
-            Assert.AreEqual(0,  httpCookieName.Length);
-            Assert.AreEqual("", httpCookieName.ToString());
+            ClassicAssert.IsFalse (HTTPCookieName.TryParse("", out var httpCookieName));
+            ClassicAssert.IsTrue  (httpCookieName.IsNullOrEmpty);
+            ClassicAssert.AreEqual(0,  httpCookieName.Length);
+            ClassicAssert.AreEqual("", httpCookieName.ToString());
 
         }
 
@@ -83,74 +84,74 @@ namespace social.OpenData.users.api.tests
         public void TryParse_Whitespace()
         {
 
-            Assert.IsNull  (HTTPCookieName.TryParse("   "));
-            Assert.IsFalse (HTTPCookieName.TryParse("   ").HasValue);
+            ClassicAssert.IsNull  (HTTPCookieName.TryParse("   "));
+            ClassicAssert.IsFalse (HTTPCookieName.TryParse("   ").HasValue);
 
-            Assert.IsFalse (HTTPCookieName.TryParse("   ", out var httpCookieName));
-            Assert.IsTrue  (httpCookieName.IsNullOrEmpty);
-            Assert.AreEqual(0,  httpCookieName.Length);
-            Assert.AreEqual("", httpCookieName.ToString());
+            ClassicAssert.IsFalse (HTTPCookieName.TryParse("   ", out var httpCookieName));
+            ClassicAssert.IsTrue  (httpCookieName.IsNullOrEmpty);
+            ClassicAssert.AreEqual(0,  httpCookieName.Length);
+            ClassicAssert.AreEqual("", httpCookieName.ToString());
 
         }
 
         [Test]
         public void Length()
         {
-            Assert.AreEqual(3, HTTPCookieName.Parse("abc").Length);
+            ClassicAssert.AreEqual(3, HTTPCookieName.Parse("abc").Length);
         }
 
         [Test]
         public void Equality()
         {
-            Assert.AreEqual(HTTPCookieName.Parse("abc"), HTTPCookieName.Parse("abc"));
-            Assert.IsTrue  (HTTPCookieName.Parse("abc").Equals(HTTPCookieName.Parse("abc")));
+            ClassicAssert.AreEqual(HTTPCookieName.Parse("abc"), HTTPCookieName.Parse("abc"));
+            ClassicAssert.IsTrue  (HTTPCookieName.Parse("abc").Equals(HTTPCookieName.Parse("abc")));
         }
 
         [Test]
         public void OperatorEquality()
         {
-            Assert.IsTrue(HTTPCookieName.Parse("abc") == HTTPCookieName.Parse("abc"));
+            ClassicAssert.IsTrue(HTTPCookieName.Parse("abc") == HTTPCookieName.Parse("abc"));
         }
 
         [Test]
         public void OperatorInequality()
         {
-            Assert.IsFalse(HTTPCookieName.Parse("abc") != HTTPCookieName.Parse("abc"));
+            ClassicAssert.IsFalse(HTTPCookieName.Parse("abc") != HTTPCookieName.Parse("abc"));
         }
 
         [Test]
         public void OperatorSmaller()
         {
-            Assert.IsFalse(HTTPCookieName.Parse("abc") < HTTPCookieName.Parse("abc"));
-            Assert.IsTrue (HTTPCookieName.Parse("abc") < HTTPCookieName.Parse("abc2"));
+            ClassicAssert.IsFalse(HTTPCookieName.Parse("abc") < HTTPCookieName.Parse("abc"));
+            ClassicAssert.IsTrue (HTTPCookieName.Parse("abc") < HTTPCookieName.Parse("abc2"));
         }
 
         [Test]
         public void OperatorSmallerOrEquals()
         {
-            Assert.IsTrue(HTTPCookieName.Parse("abc") <= HTTPCookieName.Parse("abc"));
-            Assert.IsTrue(HTTPCookieName.Parse("abc") <= HTTPCookieName.Parse("abc2"));
+            ClassicAssert.IsTrue(HTTPCookieName.Parse("abc") <= HTTPCookieName.Parse("abc"));
+            ClassicAssert.IsTrue(HTTPCookieName.Parse("abc") <= HTTPCookieName.Parse("abc2"));
         }
 
         [Test]
         public void OperatorBigger()
         {
-            Assert.IsFalse(HTTPCookieName.Parse("abc")  > HTTPCookieName.Parse("abc"));
-            Assert.IsTrue (HTTPCookieName.Parse("abc2") > HTTPCookieName.Parse("abc"));
+            ClassicAssert.IsFalse(HTTPCookieName.Parse("abc")  > HTTPCookieName.Parse("abc"));
+            ClassicAssert.IsTrue (HTTPCookieName.Parse("abc2") > HTTPCookieName.Parse("abc"));
         }
 
         [Test]
         public void OperatorBiggerOrEquals()
         {
-            Assert.IsTrue(HTTPCookieName.Parse("abc")  >= HTTPCookieName.Parse("abc"));
-            Assert.IsTrue(HTTPCookieName.Parse("abc2") >= HTTPCookieName.Parse("abc"));
+            ClassicAssert.IsTrue(HTTPCookieName.Parse("abc")  >= HTTPCookieName.Parse("abc"));
+            ClassicAssert.IsTrue(HTTPCookieName.Parse("abc2") >= HTTPCookieName.Parse("abc"));
         }
 
         [Test]
         public void HashCodeEquality()
         {
-            Assert.AreEqual   (HTTPCookieName.Parse("abc").GetHashCode(), HTTPCookieName.Parse("abc"). GetHashCode());
-            Assert.AreNotEqual(HTTPCookieName.Parse("abc").GetHashCode(), HTTPCookieName.Parse("abc2").GetHashCode());
+            ClassicAssert.AreEqual   (HTTPCookieName.Parse("abc").GetHashCode(), HTTPCookieName.Parse("abc"). GetHashCode());
+            ClassicAssert.AreNotEqual(HTTPCookieName.Parse("abc").GetHashCode(), HTTPCookieName.Parse("abc2").GetHashCode());
         }
 
         [Test]
@@ -161,7 +162,7 @@ namespace social.OpenData.users.api.tests
                              { HTTPCookieName.Parse("abc01"), "DifferentCases_DictionaryKeyEquality()" }
                          };
 
-            Assert.IsTrue(Lookup.ContainsKey(HTTPCookieName.Parse("abc01")));
+            ClassicAssert.IsTrue(Lookup.ContainsKey(HTTPCookieName.Parse("abc01")));
 
         }
 
@@ -173,22 +174,22 @@ namespace social.OpenData.users.api.tests
             var cookie2  = HTTPCookieName.Parse("def");
             var text     = "123";
 
-            Assert.AreEqual(HTTPCookieName.Parse("abcdef"),  cookie1 + cookie2);
-            Assert.AreEqual("abcdef",                       (cookie1 + cookie2).ToString());
+            ClassicAssert.AreEqual(HTTPCookieName.Parse("abcdef"),  cookie1 + cookie2);
+            ClassicAssert.AreEqual("abcdef",                       (cookie1 + cookie2).ToString());
 
-            Assert.AreEqual(HTTPCookieName.Parse("abc123"),  cookie1 + text);
-            Assert.AreEqual("abc123",                       (cookie1 + text).   ToString());
+            ClassicAssert.AreEqual(HTTPCookieName.Parse("abc123"),  cookie1 + text);
+            ClassicAssert.AreEqual("abc123",                       (cookie1 + text).   ToString());
 
-            Assert.AreEqual(HTTPCookieName.Parse("123def"),  text    + cookie2);
-            Assert.AreEqual("123def",                       (text    + cookie2).ToString());
+            ClassicAssert.AreEqual(HTTPCookieName.Parse("123def"),  text    + cookie2);
+            ClassicAssert.AreEqual("123def",                       (text    + cookie2).ToString());
 
         }
 
         [Test]
         public void Test_ToString()
         {
-            Assert.AreEqual("abc", HTTPCookieName.Parse("abc").ToString());
-            Assert.AreEqual("aBc", HTTPCookieName.Parse("aBc").ToString());
+            ClassicAssert.AreEqual("abc", HTTPCookieName.Parse("abc").ToString());
+            ClassicAssert.AreEqual("aBc", HTTPCookieName.Parse("aBc").ToString());
         }
 
     }
