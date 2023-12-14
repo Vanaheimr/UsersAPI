@@ -551,7 +551,7 @@
 //                                    });
 
 
-//            return CustomServiceTicketSerializer != null
+//            return CustomServiceTicketSerializer is not null
 //                       ? CustomServiceTicketSerializer(JSON)
 //                       : JSON;
 

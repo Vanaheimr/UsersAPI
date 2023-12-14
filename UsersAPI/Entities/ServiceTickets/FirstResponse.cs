@@ -270,7 +270,7 @@ namespace social.OpenData.UsersAPI
                            new JProperty("changeSetId",   ChangeSetId.ToString())
                        );
 
-            return CustomFirstResponseSerializer != null
+            return CustomFirstResponseSerializer is not null
                        ? CustomFirstResponseSerializer(this, JSON)
                        : JSON;
 
