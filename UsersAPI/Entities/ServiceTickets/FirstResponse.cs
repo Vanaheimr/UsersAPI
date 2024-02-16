@@ -85,7 +85,7 @@ namespace social.OpenData.UsersAPI
         /// Parse the given JSON representation of a first response.
         /// </summary>
         /// <param name="JSON">The JSON to parse.</param>
-        /// <param name="CustomFirstResponseParser">A delegate to parse custom first response JSON objects.</param>
+        /// <param name="CustomFirstResponseParser">An optional delegate to parse custom first response JSON objects.</param>
         public static FirstResponse Parse(JObject                                     JSON,
                                           CustomJObjectParserDelegate<FirstResponse>  CustomFirstResponseParser   = null)
         {
@@ -110,7 +110,7 @@ namespace social.OpenData.UsersAPI
         /// Parse the given text representation of a first response.
         /// </summary>
         /// <param name="Text">The text to parse.</param>
-        /// <param name="CustomFirstResponseParser">A delegate to parse custom first response JSON objects.</param>
+        /// <param name="CustomFirstResponseParser">An optional delegate to parse custom first response JSON objects.</param>
         public static FirstResponse Parse(String                                      Text,
                                           CustomJObjectParserDelegate<FirstResponse>  CustomFirstResponseParser   = null)
         {
@@ -155,7 +155,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="JSON">The JSON to parse.</param>
         /// <param name="FirstResponse">The parsed connector.</param>
         /// <param name="ErrorResponse">An optional error response.</param>
-        /// <param name="CustomFirstResponseParser">A delegate to parse custom first response JSON objects.</param>
+        /// <param name="CustomFirstResponseParser">An optional delegate to parse custom first response JSON objects.</param>
         public static Boolean TryParse(JObject                                     JSON,
                                        out FirstResponse                           FirstResponse,
                                        out String                                  ErrorResponse,
@@ -229,7 +229,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="Text">The text to parse.</param>
         /// <param name="FirstResponse">The parsed connector.</param>
         /// <param name="ErrorResponse">An optional error response.</param>
-        /// <param name="CustomFirstResponseParser">A delegate to parse custom first response JSON objects.</param>
+        /// <param name="CustomFirstResponseParser">An optional delegate to parse custom first response JSON objects.</param>
         public static Boolean TryParse(String                                      Text,
                                        out FirstResponse                           FirstResponse,
                                        out String                                  ErrorResponse,
