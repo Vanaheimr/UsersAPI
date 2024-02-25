@@ -143,7 +143,7 @@ namespace social.OpenData.UsersAPI
                                                      Date                       = Timestamp.Now,
                                                      AccessControlAllowOrigin   = "*",
                                                      AccessControlAllowMethods  = new[] { "GET", "EXISTS", "COUNT" },
-                                                     AccessControlAllowHeaders  = new[] { "Content-Type", "Accept", "Authorization" },
+                                                     AccessControlAllowHeaders  = [ "Content-Type", "Accept", "Authorization" ],
                                                      ETag                       = "1",
                                                      ContentType                = HTTPContentType.Application.JSON_UTF8,
                                                      Content                    = ErrorMessage(ParseIdError(Request.ParsedURLParameters[0])).ToUTF8Bytes(),
