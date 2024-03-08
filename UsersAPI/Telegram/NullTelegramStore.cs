@@ -339,7 +339,7 @@ namespace social.OpenData.UsersAPI
             #endregion
 
             var eventTrackingId  = EventTracking_Id.New;
-            var message          = I18NString.Create(Languages.en, Message);
+            var message          = I18NString.Create(Message);
             var usernames        = new String[] { Username };
 
             #region Send OnSendTelegramRequest event
@@ -546,7 +546,7 @@ namespace social.OpenData.UsersAPI
             #endregion
 
             var eventTrackingId  = EventTracking_Id.New;
-            var message          = I18NString.Create(Languages.en, Message);
+            var message          = I18NString.Create(Message);
 
             #region Send OnSendTelegramRequest event
 

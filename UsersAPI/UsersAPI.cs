@@ -2092,35 +2092,35 @@ namespace social.OpenData.UsersAPI
 
             await AddNotificationGroup(new NotificationGroup(
                                            ServiceTicketsNotifications,
-                                           I18NString.Create(Languages.en, "Service Tickets"),
-                                           I18NString.Create(Languages.en, "Service Ticket notifications"),
+                                           I18NString.Create("Service Tickets"),
+                                           I18NString.Create("Service Ticket notifications"),
                                            NotificationVisibility.Customers,
                                            new NotificationMessageDescription[] {
-                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "(New) service ticket added"),                  I18NString.Create(Languages.en, ""), NotificationVisibility.Customers, NotificationTag.NewUserDefault, addServiceTicket_MessageType),
-                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "(New) service ticket added (did not exist)"),  I18NString.Create(Languages.en, ""), NotificationVisibility.System,    NotificationTag.NewUserDefault, addServiceTicketIfNotExists_MessageType),
-                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "(New) service ticket added or updated"),       I18NString.Create(Languages.en, ""), NotificationVisibility.System,    NotificationTag.NewUserDefault, addOrUpdateServiceTicket_MessageType),
-                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "ServiceTicket updated"),                       I18NString.Create(Languages.en, ""), NotificationVisibility.Customers, NotificationTag.NewUserDefault, updateServiceTicket_MessageType),
-                                               //new NotificationMessageDescription(I18NString.Create(Languages.en, "ServiceTicket removed"),                       I18NString.Create(Languages.en, ""), NotificationVisibility.Customers, NotificationTag.NewUserDefault, removeServiceTicket_MessageType),
-                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "ServiceTicket status changed"),                I18NString.Create(Languages.en, ""), NotificationVisibility.Customers, NotificationTag.NewUserDefault, changeServiceTicketStatus_MessageType)
+                                               new NotificationMessageDescription(I18NString.Create("(New) service ticket added"),                  I18NString.Create(""), NotificationVisibility.Customers, NotificationTag.NewUserDefault, addServiceTicket_MessageType),
+                                               new NotificationMessageDescription(I18NString.Create("(New) service ticket added (did not exist)"),  I18NString.Create(""), NotificationVisibility.System,    NotificationTag.NewUserDefault, addServiceTicketIfNotExists_MessageType),
+                                               new NotificationMessageDescription(I18NString.Create("(New) service ticket added or updated"),       I18NString.Create(""), NotificationVisibility.System,    NotificationTag.NewUserDefault, addOrUpdateServiceTicket_MessageType),
+                                               new NotificationMessageDescription(I18NString.Create("ServiceTicket updated"),                       I18NString.Create(""), NotificationVisibility.Customers, NotificationTag.NewUserDefault, updateServiceTicket_MessageType),
+                                               //new NotificationMessageDescription(I18NString.Create("ServiceTicket removed"),                       I18NString.Create(""), NotificationVisibility.Customers, NotificationTag.NewUserDefault, removeServiceTicket_MessageType),
+                                               new NotificationMessageDescription(I18NString.Create("ServiceTicket status changed"),                I18NString.Create(""), NotificationVisibility.Customers, NotificationTag.NewUserDefault, changeServiceTicketStatus_MessageType)
                                            }));
 
             await AddNotificationGroup(new NotificationGroup(
                                            UsersManagementNotifications,
-                                           I18NString.Create(Languages.en, "Users Management"),
-                                           I18NString.Create(Languages.en, "Users Management notifications"),
+                                           I18NString.Create("Users Management"),
+                                           I18NString.Create("Users Management notifications"),
                                            NotificationVisibility.Customers,
                                            new NotificationMessageDescription[] {
-                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "New user created"),                            I18NString.Create(Languages.en, "A new user was added to portal."),                   NotificationVisibility.Admins,     addUser_MessageType),
-                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "User added to organization"),                  I18NString.Create(Languages.en, "The user was added to an organization."),            NotificationVisibility.Customers,  addUserToOrganization_MessageType),
-                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "User information updated"),                    I18NString.Create(Languages.en, "The user information was updated."),                 NotificationVisibility.Customers,  updateUser_MessageType),
-                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "User removed from portal"),                    I18NString.Create(Languages.en, "The user was removed from the portal."),             NotificationVisibility.Admins,     deleteUser_MessageType),
-                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "User removed from organization"),              I18NString.Create(Languages.en, "The user was removed from an organization."),        NotificationVisibility.Customers,  removeUserFromOrganization_MessageType),
+                                               new NotificationMessageDescription(I18NString.Create("New user created"),                            I18NString.Create("A new user was added to portal."),                   NotificationVisibility.Admins,     addUser_MessageType),
+                                               new NotificationMessageDescription(I18NString.Create("User added to organization"),                  I18NString.Create("The user was added to an organization."),            NotificationVisibility.Customers,  addUserToOrganization_MessageType),
+                                               new NotificationMessageDescription(I18NString.Create("User information updated"),                    I18NString.Create("The user information was updated."),                 NotificationVisibility.Customers,  updateUser_MessageType),
+                                               new NotificationMessageDescription(I18NString.Create("User removed from portal"),                    I18NString.Create("The user was removed from the portal."),             NotificationVisibility.Admins,     deleteUser_MessageType),
+                                               new NotificationMessageDescription(I18NString.Create("User removed from organization"),              I18NString.Create("The user was removed from an organization."),        NotificationVisibility.Customers,  removeUserFromOrganization_MessageType),
 
-                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "New organization created"),                    I18NString.Create(Languages.en, "A new organization was created."),                   NotificationVisibility.Admins,     addOrganization_MessageType),
-                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "Sub organization added to organization"),      I18NString.Create(Languages.en, "A sub organization was added to an organization."),  NotificationVisibility.Customers,  linkOrganizations_MessageType),
-                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "Organization information updated"),            I18NString.Create(Languages.en, "An organization information was updated."),          NotificationVisibility.Customers,  updateOrganization_MessageType),
-                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "Organization removed"),                        I18NString.Create(Languages.en, "An organization was removed."),                      NotificationVisibility.Admins,     deleteOrganization_MessageType),
-                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "Sub organization removed from organization"),  I18NString.Create(Languages.en, "A sub organization removed from an organization."),  NotificationVisibility.Customers,  unlinkOrganizations_MessageType),
+                                               new NotificationMessageDescription(I18NString.Create("New organization created"),                    I18NString.Create("A new organization was created."),                   NotificationVisibility.Admins,     addOrganization_MessageType),
+                                               new NotificationMessageDescription(I18NString.Create("Sub organization added to organization"),      I18NString.Create("A sub organization was added to an organization."),  NotificationVisibility.Customers,  linkOrganizations_MessageType),
+                                               new NotificationMessageDescription(I18NString.Create("Organization information updated"),            I18NString.Create("An organization information was updated."),          NotificationVisibility.Customers,  updateOrganization_MessageType),
+                                               new NotificationMessageDescription(I18NString.Create("Organization removed"),                        I18NString.Create("An organization was removed."),                      NotificationVisibility.Admins,     deleteOrganization_MessageType),
+                                               new NotificationMessageDescription(I18NString.Create("Sub organization removed from organization"),  I18NString.Create("A sub organization removed from an organization."),  NotificationVisibility.Customers,  unlinkOrganizations_MessageType),
                                            }));
 
         }
@@ -7006,7 +7006,7 @@ namespace social.OpenData.UsersAPI
             public static DeleteMessageResult Failed(Exception Exception)
 
                 => new DeleteMessageResult(false,
-                                             I18NString.Create(Languages.en,
+                                             I18NString.Create(
                                                                Exception.Message));
 
             public override String ToString()
@@ -9660,7 +9660,7 @@ namespace social.OpenData.UsersAPI
             public static DeleteBlogPostingResult Failed(Exception Exception)
 
                 => new DeleteBlogPostingResult(false,
-                                             I18NString.Create(Languages.en,
+                                             I18NString.Create(
                                                                Exception.Message));
 
             public override String ToString()
@@ -10839,7 +10839,7 @@ namespace social.OpenData.UsersAPI
             public static DeleteNewsPostingResult Failed(Exception Exception)
 
                 => new DeleteNewsPostingResult(false,
-                                             I18NString.Create(Languages.en,
+                                             I18NString.Create(
                                                                Exception.Message));
 
             public override String ToString()
@@ -12018,7 +12018,7 @@ namespace social.OpenData.UsersAPI
             public static DeleteNewsBannerResult Failed(Exception Exception)
 
                 => new DeleteNewsBannerResult(false,
-                                             I18NString.Create(Languages.en,
+                                             I18NString.Create(
                                                                Exception.Message));
 
             public override String ToString()
@@ -13197,7 +13197,7 @@ namespace social.OpenData.UsersAPI
             public static DeleteFAQResult Failed(Exception Exception)
 
                 => new DeleteFAQResult(false,
-                                             I18NString.Create(Languages.en,
+                                             I18NString.Create(
                                                                Exception.Message));
 
             public override String ToString()

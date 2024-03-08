@@ -95,7 +95,7 @@ namespace social.OpenData.UsersAPI.tests
             //                                                            new HTTPResponse.Builder(Request) {
             //                                                                HTTPStatusCode             = HTTPStatusCode.OK,
             //                                                                Server                     = "Test Server",
-            //                                                                Date                       = DateTime.UtcNow,
+            //                                                                Date                       = org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
             //                                                                AccessControlAllowOrigin   = "*",
             //                                                                AccessControlAllowMethods  = [ "GET" ],
             //                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
@@ -266,7 +266,7 @@ namespace social.OpenData.UsersAPI.tests
 
             var result03 = await usersAPI.AddOrganization(new Organization(
                                                               Organization_Id.Parse("firstOrg"),
-                                                              I18NString.Create(Languages.en, "First Organization")
+                                                              I18NString.Create("First Organization")
                                                           ),
                                                           ParentOrganization: result01a.Organization);
 
@@ -412,7 +412,7 @@ namespace social.OpenData.UsersAPI.tests
 
             var result13 = await usersAPI.AddOrganization(new Organization(
                                                               Organization_Id.Parse("secondOrg"),
-                                                              I18NString.Create(Languages.en, "Second Organization")
+                                                              I18NString.Create("Second Organization")
                                                           ),
                                                           ParentOrganization: result03.Organization);
 
