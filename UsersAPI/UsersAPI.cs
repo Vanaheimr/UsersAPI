@@ -2783,7 +2783,7 @@ namespace social.OpenData.UsersAPI
 
             this.MapResourceAssemblyFolder(HTTPHostname.Any,
                                            URLPathPrefix + "shared/UsersAPI",
-                                           HTTPRoot.Substring(0, HTTPRoot.Length - 1),
+                                           HTTPRoot,
                                            typeof(UsersAPI).Assembly);
 
             #endregion
