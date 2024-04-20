@@ -1569,7 +1569,7 @@ namespace social.OpenData.UsersAPI
         /// 
         /// <param name="ServerCertificateSelector">An optional delegate to select a TLS server certificate.</param>
         /// <param name="ClientCertificateValidator">An optional delegate to verify the TLS client certificate used for authentication.</param>
-        /// <param name="ClientCertificateSelector">An optional delegate to select the TLS client certificate used for authentication.</param>
+        /// <param name="LocalCertificateSelector">An optional delegate to select the TLS client certificate used for authentication.</param>
         /// <param name="AllowedTLSProtocols">The TLS protocol(s) allowed for this connection.</param>
         /// 
         /// <param name="ServerThreadName">The optional name of the TCP server thread.</param>
@@ -1633,7 +1633,7 @@ namespace social.OpenData.UsersAPI
 
                         ServerCertificateSelectorDelegate?                         ServerCertificateSelector        = null,
                         RemoteTLSClientCertificateValidationHandler<IHTTPServer>?  ClientCertificateValidator       = null,
-                        LocalCertificateSelectionHandler?                          ClientCertificateSelector        = null,
+                        LocalCertificateSelectionHandler?                          LocalCertificateSelector         = null,
                         SslProtocols?                                              AllowedTLSProtocols              = null,
                         Boolean?                                                   ClientCertificateRequired        = null,
                         Boolean?                                                   CheckCertificateRevocation       = null,
@@ -1707,7 +1707,7 @@ namespace social.OpenData.UsersAPI
 
                    ServerCertificateSelector,
                    ClientCertificateValidator,
-                   ClientCertificateSelector,
+                   LocalCertificateSelector,
                    AllowedTLSProtocols,
                    ClientCertificateRequired,
                    CheckCertificateRevocation,
