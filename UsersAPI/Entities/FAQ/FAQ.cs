@@ -197,7 +197,7 @@ namespace social.OpenData.UsersAPI
                    IEnumerable<TagRelevance>?  Tags              = null,
                    Boolean                     IsHidden          = false,
 
-                   IEnumerable<Signature>?     Signatures        = null,
+                   IEnumerable<Signature23>?   Signatures        = null,
 
                    JObject?                    CustomData        = default,
                    String?                     DataSource        = default,
@@ -236,7 +236,7 @@ namespace social.OpenData.UsersAPI
                    IEnumerable<TagRelevance>?  Tags              = null,
                    Boolean                     IsHidden          = false,
 
-                   IEnumerable<Signature>?     Signatures        = null,
+                   IEnumerable<Signature23>?   Signatures        = null,
 
                    JObject?                    CustomData        = default,
                    String?                     DataSource        = default,
@@ -258,7 +258,7 @@ namespace social.OpenData.UsersAPI
             this.Answer           = Answer          ?? throw new ArgumentNullException(nameof(Answer),    "The given answer must not be null!");
             this.Author           = Author          ?? throw new ArgumentNullException(nameof(Author),    "The given author must not be null!");
             this.PublicationDate  = PublicationDate ?? DateTime.Now;
-            this.Tags             = Tags            ?? Array.Empty<TagRelevance>();
+            this.Tags             = Tags            ?? [];
             this.IsHidden         = IsHidden;
 
         }
@@ -462,7 +462,7 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                var Signatures       = new Signature[0];
+                var Signatures       = new Signature23[0];
 
                 var CustomData = JSONObject["CustomData"] as JObject;
 
@@ -844,7 +844,7 @@ namespace social.OpenData.UsersAPI
                            DateTime?                   PublicationDate   = null,
                            IEnumerable<TagRelevance>?  Tags              = null,
                            Boolean                     IsHidden          = false,
-                           IEnumerable<Signature>?     Signatures        = null,
+                           IEnumerable<Signature23>?   Signatures        = null,
 
                            JObject?                    CustomData        = default,
                            String?                     DataSource        = default,
@@ -904,8 +904,8 @@ namespace social.OpenData.UsersAPI
                 signer.BlockUpdate(SHA256Hash, 0, BlockSize);
 
                 var signature   = signer.GenerateSignature().ToHexString();
-                var signatures  = new List<Signature>(Signatures);
-                signatures.Add(new Signature("json", "secp256k1", "DER+HEX", signature));
+                var signatures  = new List<Signature23>(Signatures);
+                signatures.Add(new Signature23("json", "secp256k1", "DER+HEX", signature));
 
                 return new FAQ(Id,
                                Question,

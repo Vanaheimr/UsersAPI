@@ -202,7 +202,7 @@ namespace social.OpenData.UsersAPI
                            PrivacyLevel?               PrivacyLevel      = null,
                            Boolean                     IsHidden          = false,
 
-                           IEnumerable<Signature>?     Signatures        = null,
+                           IEnumerable<Signature23>?   Signatures        = null,
                            JObject?                    CustomData        = default,
                            String?                     DataSource        = default)
 
@@ -445,7 +445,7 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                var Signatures       = Array.Empty<Signature>();
+                var Signatures       = Array.Empty<Signature23>();
 
                 var CustomData = JSONObject["CustomData"] as JObject;
 
@@ -808,7 +808,7 @@ namespace social.OpenData.UsersAPI
                            DateTime?                   LastChangeDate    = null,
                            IEnumerable<TagRelevance>?  Tags              = null,
                            Boolean                     IsHidden          = false,
-                           IEnumerable<Signature>?     Signatures        = null,
+                           IEnumerable<Signature23>?   Signatures        = null,
 
                            JObject?                    CustomData        = default,
                            String?                     DataSource        = default)
@@ -865,8 +865,8 @@ namespace social.OpenData.UsersAPI
                 signer.BlockUpdate(SHA256Hash, 0, BlockSize);
 
                 var signature   = signer.GenerateSignature().ToHexString();
-                var signatures  = new List<Signature>(Signatures);
-                signatures.Add(new Signature("json", "secp256k1", "DER+HEX", signature));
+                var signatures  = new List<Signature23>(Signatures);
+                signatures.Add(new Signature23("json", "secp256k1", "DER+HEX", signature));
 
                 return new NewsPosting(Headline,
                                        Text,

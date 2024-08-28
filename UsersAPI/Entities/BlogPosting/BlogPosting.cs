@@ -246,7 +246,7 @@ namespace social.OpenData.UsersAPI
                            PrivacyLevel?               PrivacyLevel      = null,
                            Boolean                     IsHidden          = false,
 
-                           IEnumerable<Signature>?     Signatures        = null,
+                           IEnumerable<Signature23>?   Signatures        = null,
                            JObject?                    CustomData        = default,
                            String?                     DataSource        = default)
 
@@ -528,7 +528,7 @@ namespace social.OpenData.UsersAPI
 
                 var IsHidden         = JSONObject["isHidden"]?.     Value<Boolean>();
 
-                var Signatures       = Array.Empty<Signature>();
+                var Signatures       = Array.Empty<Signature23>();
 
                 #region Get   DataSource         [optional]
 
@@ -920,7 +920,7 @@ namespace social.OpenData.UsersAPI
                            PrivacyLevel?               PrivacyLevel      = null,
                            Boolean                     IsHidden          = false,
 
-                           IEnumerable<Signature>?     Signatures        = null,
+                           IEnumerable<Signature23>?   Signatures        = null,
                            JObject?                    CustomData        = null,
                            String?                     DataSource        = null)
 
@@ -987,8 +987,8 @@ namespace social.OpenData.UsersAPI
                 signer.BlockUpdate(SHA256Hash, 0, 32);
 
                 var signature   = signer.GenerateSignature().ToHexString();
-                var signatures  = new List<Signature>(Signatures) {
-                                      new Signature("json", "secp256k1", "DER+HEX", signature)
+                var signatures  = new List<Signature23>(Signatures) {
+                                      new Signature23("json", "secp256k1", "DER+HEX", signature)
                                   };
 
                 return new BlogPosting(
