@@ -101,7 +101,7 @@ namespace social.OpenData.UsersAPI.tests
             //                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
             //                                                                ContentType                = HTTPContentType.Text.TEXT_UTF8,
             //                                                                Content                    = "Hello World!".ToUTF8Bytes(),
-            //                                                                Connection                 = "close"
+            //                                                                Connection                 = ConnectionType.Close
             //                                                            }.AsImmutable));
 
             #endregion

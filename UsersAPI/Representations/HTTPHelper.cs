@@ -99,15 +99,15 @@ namespace social.OpenData.UsersAPI
                                                                 Take(take.Value);
 
                                              return new HTTPResponse.Builder(Request) {
-                                                                           HTTPStatusCode  = HTTPStatusCode.OK,
-                                                                           Server          = HTTPServer.DefaultServerName,
-                                                                           ContentType     = HTTPContentType.Application.JSON_UTF8,
-                                                                           Content         = ToJSONDelegate(AllItems).ToUTF8Bytes(),
-                                                                           ETag            = "1",
-                                                                           CacheControl    = "public",
-                                                                           //Expires         = "Mon, 25 Jun 2015 21:31:12 GMT",
-                                                                           Connection      = "close"
-                                                                       };
+                                                        HTTPStatusCode  = HTTPStatusCode.OK,
+                                                        Server          = HTTPServer.DefaultServerName,
+                                                        ContentType     = HTTPContentType.Application.JSON_UTF8,
+                                                        Content         = ToJSONDelegate(AllItems).ToUTF8Bytes(),
+                                                        ETag            = "1",
+                                                        CacheControl    = "public",
+                                                        //Expires         = "Mon, 25 Jun 2015 21:31:12 GMT",
+                                                        Connection      = ConnectionType.Close
+                                                    };
 
                                          });
 
@@ -148,7 +148,7 @@ namespace social.OpenData.UsersAPI
                                                      ContentType                = HTTPContentType.Application.JSON_UTF8,
                                                      Content                    = ErrorMessage(ParseIdError(Request.ParsedURLParameters[0])).ToUTF8Bytes(),
                                                      CacheControl               = "no-cache",
-                                                     Connection                 = "close"
+                                                     Connection                 = ConnectionType.Close
                                                  };
 
                                              if (!TryGetItemDelegate(Id, out TItem Item) || !ItemFilterDelegate(Item))
@@ -159,7 +159,7 @@ namespace social.OpenData.UsersAPI
                                                      ContentType     = HTTPContentType.Application.JSON_UTF8,
                                                      Content         = ErrorMessage(TryGetItemError(Id)).ToUTF8Bytes(),
                                                      CacheControl    = "no-cache",
-                                                     Connection      = "close"
+                                                     Connection      = ConnectionType.Close
                                                  };
 
                                              return new HTTPResponse.Builder(Request) {
@@ -169,7 +169,7 @@ namespace social.OpenData.UsersAPI
                                                  ETag            = "1",
                                                  CacheControl    = "public",
                                                  //Expires         = "Mon, 25 Jun 2015 21:31:12 GMT",
-                                                 Connection      = "close"
+                                                 Connection      = ConnectionType.Close
                                              };
 
                                          });
@@ -209,7 +209,7 @@ namespace social.OpenData.UsersAPI
                                                      ContentType     = HTTPContentType.Application.JSON_UTF8,
                                                      Content         = ErrorMessage(ParseIdError(Request.ParsedURLParameters[0])).ToUTF8Bytes(),
                                                      CacheControl    = "no-cache",
-                                                     Connection      = "close"
+                                                     Connection      = ConnectionType.Close
                                                  };
 
                                              if (!TryGetItemDelegate(Id, out Item) || !ItemFilterDelegate(Item))
@@ -219,7 +219,7 @@ namespace social.OpenData.UsersAPI
                                                      ContentType     = HTTPContentType.Application.JSON_UTF8,
                                                      Content         = ErrorMessage(TryGetItemError(Id)).ToUTF8Bytes(),
                                                      CacheControl    = "no-cache",
-                                                     Connection      = "close"
+                                                     Connection      = ConnectionType.Close
                                                  };
 
                                              return new HTTPResponse.Builder(Request) {
@@ -230,7 +230,7 @@ namespace social.OpenData.UsersAPI
                                                  ETag            = "1",
                                                  CacheControl    = "public",
                                                  //Expires         = "Mon, 25 Jun 2015 21:31:12 GMT",
-                                                 Connection      = "close"
+                                                 Connection      = ConnectionType.Close
                                              };
 
                                          });

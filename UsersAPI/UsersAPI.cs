@@ -106,7 +106,7 @@ namespace social.OpenData.UsersAPI
                     HTTPStatusCode  = HTTPStatusCode.BadRequest,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
                     Date            = Timestamp.Now,
-                    Connection      = "close"
+                    Connection      = ConnectionType.Close
                 };
 
                 return false;
@@ -124,7 +124,7 @@ namespace social.OpenData.UsersAPI
                     Date            = Timestamp.Now,
                     ContentType     = HTTPContentType.Application.JSON_UTF8,
                     Content         = @"{ ""description"": ""Invalid BlogId!"" }".ToUTF8Bytes(),
-                    Connection      = "close"
+                    Connection      = ConnectionType.Close
                 };
 
                 return false;
@@ -177,7 +177,7 @@ namespace social.OpenData.UsersAPI
                     HTTPStatusCode  = HTTPStatusCode.BadRequest,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
                     Date            = Timestamp.Now,
-                    Connection      = "close"
+                    Connection      = ConnectionType.Close
                 };
 
                 return false;
@@ -194,7 +194,7 @@ namespace social.OpenData.UsersAPI
                     Date            = Timestamp.Now,
                     ContentType     = HTTPContentType.Application.JSON_UTF8,
                     Content         = @"{ ""description"": ""Invalid BlogId!"" }".ToUTF8Bytes(),
-                    Connection      = "close"
+                    Connection      = ConnectionType.Close
                 };
 
                 return false;
@@ -209,7 +209,7 @@ namespace social.OpenData.UsersAPI
                     Date            = Timestamp.Now,
                     ContentType     = HTTPContentType.Application.JSON_UTF8,
                     Content         = @"{ ""description"": ""Unknown BlogId!"" }".ToUTF8Bytes(),
-                    Connection      = "close"
+                    Connection      = ConnectionType.Close
                 };
 
                 return false;
@@ -261,7 +261,7 @@ namespace social.OpenData.UsersAPI
                     HTTPStatusCode  = HTTPStatusCode.BadRequest,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
                     Date            = Timestamp.Now,
-                    Connection      = "close"
+                    Connection      = ConnectionType.Close
                 };
 
                 return false;
@@ -279,7 +279,7 @@ namespace social.OpenData.UsersAPI
                     Date            = Timestamp.Now,
                     ContentType     = HTTPContentType.Application.JSON_UTF8,
                     Content         = @"{ ""description"": ""Invalid NewsId!"" }".ToUTF8Bytes(),
-                    Connection      = "close"
+                    Connection      = ConnectionType.Close
                 };
 
                 return false;
@@ -332,7 +332,7 @@ namespace social.OpenData.UsersAPI
                     HTTPStatusCode  = HTTPStatusCode.BadRequest,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
                     Date            = Timestamp.Now,
-                    Connection      = "close"
+                    Connection      = ConnectionType.Close
                 };
 
                 return false;
@@ -349,7 +349,7 @@ namespace social.OpenData.UsersAPI
                     Date            = Timestamp.Now,
                     ContentType     = HTTPContentType.Application.JSON_UTF8,
                     Content         = @"{ ""description"": ""Invalid NewsId!"" }".ToUTF8Bytes(),
-                    Connection      = "close"
+                    Connection      = ConnectionType.Close
                 };
 
                 return false;
@@ -364,7 +364,7 @@ namespace social.OpenData.UsersAPI
                     Date            = Timestamp.Now,
                     ContentType     = HTTPContentType.Application.JSON_UTF8,
                     Content         = @"{ ""description"": ""Unknown NewsId!"" }".ToUTF8Bytes(),
-                    Connection      = "close"
+                    Connection      = ConnectionType.Close
                 };
 
                 return false;
@@ -416,7 +416,7 @@ namespace social.OpenData.UsersAPI
                     HTTPStatusCode  = HTTPStatusCode.BadRequest,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
                     Date            = Timestamp.Now,
-                    Connection      = "close"
+                    Connection      = ConnectionType.Close
                 };
 
                 return false;
@@ -434,7 +434,7 @@ namespace social.OpenData.UsersAPI
                     Date            = Timestamp.Now,
                     ContentType     = HTTPContentType.Application.JSON_UTF8,
                     Content         = @"{ ""description"": ""Invalid NewsId!"" }".ToUTF8Bytes(),
-                    Connection      = "close"
+                    Connection      = ConnectionType.Close
                 };
 
                 return false;
@@ -487,7 +487,7 @@ namespace social.OpenData.UsersAPI
                     HTTPStatusCode  = HTTPStatusCode.BadRequest,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
                     Date            = Timestamp.Now,
-                    Connection      = "close"
+                    Connection      = ConnectionType.Close
                 };
 
                 return false;
@@ -504,7 +504,7 @@ namespace social.OpenData.UsersAPI
                     Date            = Timestamp.Now,
                     ContentType     = HTTPContentType.Application.JSON_UTF8,
                     Content         = @"{ ""description"": ""Invalid NewsId!"" }".ToUTF8Bytes(),
-                    Connection      = "close"
+                    Connection      = ConnectionType.Close
                 };
 
                 return false;
@@ -519,7 +519,7 @@ namespace social.OpenData.UsersAPI
                     Date            = Timestamp.Now,
                     ContentType     = HTTPContentType.Application.JSON_UTF8,
                     Content         = @"{ ""description"": ""Unknown NewsId!"" }".ToUTF8Bytes(),
-                    Connection      = "close"
+                    Connection      = ConnectionType.Close
                 };
 
                 return false;
@@ -2725,7 +2725,7 @@ namespace social.OpenData.UsersAPI
                         CacheControl              = "private, max-age=0, no-cache",
                         ContentType               = HTTPContentType.Application.JSON_UTF8,
                         Content                   = JSONObject.Create(new JProperty("message", "Please accept the EULA within the portal!")).ToUTF8Bytes(),
-                        Connection                = "close"
+                        Connection                = ConnectionType.Close
                     };
                 }
 
@@ -2754,7 +2754,7 @@ namespace social.OpenData.UsersAPI
                             //                                    "; Path=", URLPathPrefix),
                             XLocationAfterAuth  = request.Path,
                             CacheControl        = "private, max-age=0, no-cache",
-                            Connection          = "close"
+                            Connection          = ConnectionType.Close
                         };
                     }
 
@@ -2768,7 +2768,7 @@ namespace social.OpenData.UsersAPI
                             CacheControl              = "private, max-age=0, no-cache",
                             ContentType               = HTTPContentType.Application.JSON_UTF8,
                             Content                   = JSONObject.Create(new JProperty("message", "Invalid login!")).ToUTF8Bytes(),
-                            Connection                = "close"
+                            Connection                = ConnectionType.Close
                         };
 
                 }
@@ -2818,7 +2818,7 @@ namespace social.OpenData.UsersAPI
             //                                     HTTPStatusCode  = HTTPStatusCode.OK,
             //                                     ContentType     = HTTPContentType.Text.HTML_UTF8,
             //                                     Content         = HTML.ToUTF8Bytes(),
-            //                                     Connection      = "close"
+            //                                     Connection      = ConnectionType.Close
             //                                 };
 
             //                             }, AllowReplacement: URLReplacement.Allow);
@@ -2899,7 +2899,7 @@ namespace social.OpenData.UsersAPI
             //                                                                          ).ToString().ToUTF8Bytes(),
             //                                                        CacheControl    = "public",
             //                                                        //Expires         = "Mon, 25 Jun 2015 21:31:12 GMT",
-            //                                                        Connection      = "close"
+            //                                                        Connection      = ConnectionType.Close
             //                                                    }.AsImmutable;
 
             //                                         }
@@ -2916,7 +2916,7 @@ namespace social.OpenData.UsersAPI
             //                                                CacheControl    = "public",
             //                                                ETag            = "1",
             //                                                //Expires         = "Mon, 25 Jun 2015 21:31:12 GMT",
-            //                                                Connection      = "close"
+            //                                                Connection      = ConnectionType.Close
             //                                            }.AsImmutable;
 
             //                                 }
@@ -2927,7 +2927,7 @@ namespace social.OpenData.UsersAPI
             //                                            ContentType     = HTTPContentType.Text.HTML_UTF8,
             //                                            Content         = "VerificationToken not found!".ToUTF8Bytes(),
             //                                            CacheControl    = "public",
-            //                                            Connection      = "close"
+            //                                            Connection      = ConnectionType.Close
             //                                        }.AsImmutable;
 
             //                              }, AllowReplacement: URLReplacement.Allow);
@@ -2958,7 +2958,7 @@ namespace social.OpenData.UsersAPI
                                          AccessControlAllowHeaders  = [ "Content-Type", "Accept", "Authorization" ],
                                          ContentType                = HTTPContentType.Text.HTML_UTF8,
                                          Content                    = GetResourceBytes($"login.login-{DefaultLanguage}.html"),
-                                         Connection                 = "close"
+                                         Connection                 = ConnectionType.Close
                                      }.AsImmutable),
 
                               AllowReplacement: URLReplacement.Allow);
@@ -2986,7 +2986,7 @@ namespace social.OpenData.UsersAPI
                                          AccessControlAllowHeaders  = [ "Content-Type", "Accept", "Authorization" ],
                                          ContentType                = HTTPContentType.Text.HTML_UTF8,
                                          Content                    = GetResourceBytes($"login.lostPassword-{DefaultLanguage}.html"),
-                                         Connection                 = "close"
+                                         Connection                 = ConnectionType.Close
                                      }.AsImmutable),
 
                               AllowReplacement: URLReplacement.Allow);
@@ -3014,7 +3014,7 @@ namespace social.OpenData.UsersAPI
                                          AccessControlAllowHeaders  = [ "Content-Type", "Accept", "Authorization" ],
                                          ContentType                = HTTPContentType.Text.HTML_UTF8,
                                          ContentStream              = GetResourceStream("login.setPassword-" + DefaultLanguage.ToString() + ".html"),
-                                         Connection                 = "close"
+                                         Connection                 = ConnectionType.Close
                                      }.AsImmutable),
 
                               AllowReplacement: URLReplacement.Allow);
@@ -3058,7 +3058,7 @@ namespace social.OpenData.UsersAPI
                                           AccessControlAllowHeaders   = [ "Content-Type", "Accept", "Authorization" ],
                                           ContentType                 = HTTPContentType.Text.HTML_UTF8,
                                           Content                     = MixWithHTMLTemplate("profile.profile.shtml").ToUTF8Bytes(),
-                                          Connection                  = "close",
+                                          Connection                  = ConnectionType.Close,
                                           Vary                        = "Accept"
                                       }.AsImmutable);
 
@@ -3104,7 +3104,7 @@ namespace social.OpenData.UsersAPI
                                               AccessControlAllowHeaders  = [ "Content-Type", "Accept", "Authorization" ],
                                               ContentType                = HTTPContentType.Text.HTML_UTF8,
                                               Content                    = MixWithHTMLTemplate("user.users.shtml").ToUTF8Bytes(),
-                                              Connection                 = "close",
+                                              Connection                 = ConnectionType.Close,
                                               Vary                       = "Accept"
                                           }.AsImmutable);
 
@@ -3164,7 +3164,7 @@ namespace social.OpenData.UsersAPI
                                                     AccessControlAllowHeaders   = [ "Content-Type", "Accept", "Authorization" ],
                                                     ContentType                 = HTTPContentType.Text.HTML_UTF8,
                                                     Content                     = MixWithHTMLTemplate("user.user.shtml").ToUTF8Bytes(),
-                                                    Connection                  = "close",
+                                                    Connection                  = ConnectionType.Close,
                                                     Vary                        = "Accept"
                                                 }.AsImmutable
 
@@ -3175,7 +3175,7 @@ namespace social.OpenData.UsersAPI
                                                     AccessControlAllowOrigin    = "*",
                                                     AccessControlAllowMethods   = [ "GET" ],
                                                     AccessControlAllowHeaders   = [ "Content-Type", "Accept", "Authorization" ],
-                                                    Connection                  = "close"
+                                                    Connection                  = ConnectionType.Close
                                                 }.AsImmutable);
 
                               });
@@ -3232,7 +3232,7 @@ namespace social.OpenData.UsersAPI
                                                     AccessControlAllowHeaders   = [ "Content-Type", "Accept", "Authorization" ],
                                                     ContentType                 = HTTPContentType.Text.HTML_UTF8,
                                                     Content                     = MixWithHTMLTemplate("user.notifications.shtml").ToUTF8Bytes(),
-                                                    Connection                  = "close",
+                                                    Connection                  = ConnectionType.Close,
                                                     Vary                        = "Accept"
                                                 }.AsImmutable
 
@@ -3243,7 +3243,7 @@ namespace social.OpenData.UsersAPI
                                                     AccessControlAllowOrigin    = "*",
                                                     AccessControlAllowMethods   = [ "GET" ],
                                                     AccessControlAllowHeaders   = [ "Content-Type", "Accept", "Authorization" ],
-                                                    Connection                  = "close"
+                                                    Connection                  = ConnectionType.Close
                                                 }.AsImmutable);
 
                               });
@@ -3298,7 +3298,7 @@ namespace social.OpenData.UsersAPI
                                                      HTTPStatusCode  = HTTPStatusCode.BadRequest,
                                                      Server          = HTTPServer.DefaultServerName,
                                                      Date            = Timestamp.Now,
-                                                     Connection      = "close"
+                                                     Connection      = ConnectionType.Close
                                                  }.AsImmutable);
 
                                   }
@@ -3318,7 +3318,7 @@ namespace social.OpenData.UsersAPI
                                                     AccessControlAllowHeaders   = [ "Content-Type", "Accept", "Authorization" ],
                                                     ContentType                 = HTTPContentType.Text.HTML_UTF8,
                                                     Content                     = MixWithHTMLTemplate("user.editNotification.shtml").ToUTF8Bytes(),
-                                                    Connection                  = "close",
+                                                    Connection                  = ConnectionType.Close,
                                                     Vary                        = "Accept"
                                                 }.AsImmutable
 
@@ -3329,7 +3329,7 @@ namespace social.OpenData.UsersAPI
                                                     AccessControlAllowOrigin    = "*",
                                                     AccessControlAllowMethods   = [ "GET" ],
                                                     AccessControlAllowHeaders   = [ "Content-Type", "Accept", "Authorization" ],
-                                                    Connection                  = "close"
+                                                    Connection                  = ConnectionType.Close
                                                 }.AsImmutable);
 
                               });
@@ -3381,7 +3381,7 @@ namespace social.OpenData.UsersAPI
                                                      AccessControlAllowOrigin    = "*",
                                                      AccessControlAllowMethods   = [ "GET" ],
                                                      AccessControlAllowHeaders   = [ "Content-Type", "Accept", "Authorization" ],
-                                                     Connection                  = "close"
+                                                     Connection                  = ConnectionType.Close
                                                  }.AsImmutable);
                                   }
 
@@ -3398,7 +3398,7 @@ namespace social.OpenData.UsersAPI
                                           AccessControlAllowHeaders   = [ "Content-Type", "Accept", "Authorization" ],
                                           ContentType                 = HTTPContentType.Text.HTML_UTF8,
                                           Content                     = MixWithHTMLTemplate("user.editNotification.shtml").ToUTF8Bytes(),
-                                          Connection                  = "close",
+                                          Connection                  = ConnectionType.Close,
                                           Vary                        = "Accept"
                                       }.AsImmutable);
 
@@ -3446,7 +3446,7 @@ namespace social.OpenData.UsersAPI
                                                          AccessControlAllowHeaders  = [ "Content-Type", "Accept", "Authorization" ],
                                                          ContentType                = HTTPContentType.Text.HTML_UTF8,
                                                          Content                    = MixWithHTMLTemplate("user.userGroups.shtml").ToUTF8Bytes(),
-                                                         Connection                 = "close",
+                                                         Connection                 = ConnectionType.Close,
                                                          Vary                       = "Accept"
                                                      }.AsImmutable);
 
@@ -3490,7 +3490,7 @@ namespace social.OpenData.UsersAPI
                                               AccessControlAllowHeaders  = [ "Content-Type", "Accept", "Authorization" ],
                                               ContentType                = HTTPContentType.Text.HTML_UTF8,
                                               Content                    = MixWithHTMLTemplate("user.userGroup.shtml").ToUTF8Bytes(),
-                                              Connection                 = "close",
+                                              Connection                 = ConnectionType.Close,
                                               Vary                       = "Accept"
                                           }.AsImmutable);
 
@@ -3538,7 +3538,7 @@ namespace social.OpenData.UsersAPI
                                               AccessControlAllowHeaders  = [ "Content-Type", "Accept", "Authorization" ],
                                               ContentType                = HTTPContentType.Text.HTML_UTF8,
                                               Content                    = MixWithHTMLTemplate("organization.organizations.shtml").ToUTF8Bytes(),
-                                              Connection                 = "close",
+                                              Connection                 = ConnectionType.Close,
                                               Vary                       = "Accept"
                                           }.AsImmutable);
 
@@ -3597,7 +3597,7 @@ namespace social.OpenData.UsersAPI
                                               AccessControlAllowHeaders   = [ "Content-Type", "Accept", "Authorization" ],
                                               ContentType                 = HTTPContentType.Text.HTML_UTF8,
                                               Content                     = MixWithHTMLTemplate("organization.organization.shtml").ToUTF8Bytes(),
-                                              Connection                  = "close",
+                                              Connection                  = ConnectionType.Close,
                                               Vary                        = "Accept"
                                           }.AsImmutable);
 
@@ -3611,7 +3611,7 @@ namespace social.OpenData.UsersAPI
                                                  AccessControlAllowOrigin    = "*",
                                                  AccessControlAllowMethods   = [ "GET" ],
                                                  AccessControlAllowHeaders   = [ "Content-Type", "Accept", "Authorization" ],
-                                                 Connection                  = "close"
+                                                 Connection                  = ConnectionType.Close
                                              }.AsImmutable);
 
                               });
@@ -3670,7 +3670,7 @@ namespace social.OpenData.UsersAPI
                                               AccessControlAllowHeaders   = [ "Content-Type", "Accept", "Authorization" ],
                                               ContentType                 = HTTPContentType.Text.HTML_UTF8,
                                               Content                     = MixWithHTMLTemplate("organization.address.shtml").ToUTF8Bytes(),
-                                              Connection                  = "close",
+                                              Connection                  = ConnectionType.Close,
                                               Vary                        = "Accept"
                                           }.AsImmutable);
 
@@ -3684,7 +3684,7 @@ namespace social.OpenData.UsersAPI
                                                  AccessControlAllowOrigin    = "*",
                                                  AccessControlAllowMethods   = [ "GET" ],
                                                  AccessControlAllowHeaders   = [ "Content-Type", "Accept", "Authorization" ],
-                                                 Connection                  = "close"
+                                                 Connection                  = ConnectionType.Close
                                              }.AsImmutable);
 
                               });
@@ -3743,7 +3743,7 @@ namespace social.OpenData.UsersAPI
                                               AccessControlAllowHeaders   = [ "Content-Type", "Accept", "Authorization" ],
                                               ContentType                 = HTTPContentType.Text.HTML_UTF8,
                                               Content                     = MixWithHTMLTemplate("organization.members.shtml").ToUTF8Bytes(),
-                                              Connection                  = "close",
+                                              Connection                  = ConnectionType.Close,
                                               Vary                        = "Accept"
                                           }.AsImmutable);
 
@@ -3757,7 +3757,7 @@ namespace social.OpenData.UsersAPI
                                                  AccessControlAllowOrigin    = "*",
                                                  AccessControlAllowMethods   = [ "GET" ],
                                                  AccessControlAllowHeaders   = [ "Content-Type", "Accept", "Authorization" ],
-                                                 Connection                  = "close"
+                                                 Connection                  = ConnectionType.Close
                                              }.AsImmutable);
 
                               });
@@ -3814,7 +3814,7 @@ namespace social.OpenData.UsersAPI
                                               AccessControlAllowHeaders   = [ "Content-Type", "Accept", "Authorization" ],
                                               ContentType                 = HTTPContentType.Text.HTML_UTF8,
                                               Content                     = MixWithHTMLTemplate("organization.newMember.shtml").ToUTF8Bytes(),
-                                              Connection                  = "close",
+                                              Connection                  = ConnectionType.Close,
                                               Vary                        = "Accept"
                                           }.AsImmutable);
 
@@ -3827,7 +3827,7 @@ namespace social.OpenData.UsersAPI
                                                  AccessControlAllowOrigin    = "*",
                                                  AccessControlAllowMethods   = [ "GET" ],
                                                  AccessControlAllowHeaders   = [ "Content-Type", "Accept", "Authorization" ],
-                                                 Connection                  = "close"
+                                                 Connection                  = ConnectionType.Close
                                              }.AsImmutable);
 
                               });
@@ -3886,7 +3886,7 @@ namespace social.OpenData.UsersAPI
                                               AccessControlAllowHeaders   = [ "Content-Type", "Accept", "Authorization" ],
                                               ContentType                 = HTTPContentType.Text.HTML_UTF8,
                                               Content                     = MixWithHTMLTemplate("organization.subOrganizations.shtml").ToUTF8Bytes(),
-                                              Connection                  = "close",
+                                              Connection                  = ConnectionType.Close,
                                               Vary                        = "Accept"
                                           }.AsImmutable);
 
@@ -3900,7 +3900,7 @@ namespace social.OpenData.UsersAPI
                                                  AccessControlAllowOrigin    = "*",
                                                  AccessControlAllowMethods   = [ "GET" ],
                                                  AccessControlAllowHeaders   = [ "Content-Type", "Accept", "Authorization" ],
-                                                 Connection                  = "close"
+                                                 Connection                  = ConnectionType.Close
                                              }.AsImmutable);
 
                               });
@@ -3959,7 +3959,7 @@ namespace social.OpenData.UsersAPI
                                               AccessControlAllowHeaders   = [ "Content-Type", "Accept", "Authorization" ],
                                               ContentType                 = HTTPContentType.Text.HTML_UTF8,
                                               Content                     = MixWithHTMLTemplate("organization.newSubOrganization.shtml").ToUTF8Bytes(),
-                                              Connection                  = "close",
+                                              Connection                  = ConnectionType.Close,
                                               Vary                        = "Accept"
                                           }.AsImmutable);
 
@@ -3973,7 +3973,7 @@ namespace social.OpenData.UsersAPI
                                                  AccessControlAllowOrigin    = "*",
                                                  AccessControlAllowMethods   = [ "GET" ],
                                                  AccessControlAllowHeaders   = [ "Content-Type", "Accept", "Authorization" ],
-                                                 Connection                  = "close"
+                                                 Connection                  = ConnectionType.Close
                                              }.AsImmutable);
 
                               });
@@ -4019,7 +4019,7 @@ namespace social.OpenData.UsersAPI
                                               AccessControlAllowHeaders  = [ "Content-Type", "Accept", "Authorization" ],
                                               ContentType                = HTTPContentType.Text.HTML_UTF8,
                                               Content                    = MixWithHTMLTemplate("organization.organizationGroups.shtml").ToUTF8Bytes(),
-                                              Connection                 = "close",
+                                              Connection                 = ConnectionType.Close,
                                               Vary                       = "Accept"
                                           }.AsImmutable);
 
@@ -4068,7 +4068,7 @@ namespace social.OpenData.UsersAPI
                                           AccessControlAllowHeaders   = [ "Content-Type", "Accept", "Authorization" ],
                                           ContentType                 = HTTPContentType.Text.HTML_UTF8,
                                           Content                     = MixWithHTMLTemplate("notification.messages.shtml").ToUTF8Bytes(),
-                                          Connection                  = "close",
+                                          Connection                  = ConnectionType.Close,
                                           Vary                        = "Accept"
                                       }.AsImmutable);
 
@@ -4112,7 +4112,7 @@ namespace social.OpenData.UsersAPI
                                                      HTTPStatusCode  = HTTPStatusCode.BadRequest,
                                                      Server          = HTTPServer.DefaultServerName,
                                                      Date            = Timestamp.Now,
-                                                     Connection      = "close"
+                                                     Connection      = ConnectionType.Close
                                                  }.AsImmutable);
 
                                   }
@@ -4130,7 +4130,7 @@ namespace social.OpenData.UsersAPI
                                           AccessControlAllowHeaders   = [ "Content-Type", "Accept", "Authorization" ],
                                           ContentType                 = HTTPContentType.Text.HTML_UTF8,
                                           Content                     = MixWithHTMLTemplate("notification.editNotification.shtml").ToUTF8Bytes(),
-                                          Connection                  = "close",
+                                          Connection                  = ConnectionType.Close,
                                           Vary                        = "Accept"
                                       }.AsImmutable);
 
@@ -4174,7 +4174,7 @@ namespace social.OpenData.UsersAPI
                                           AccessControlAllowHeaders   = [ "Content-Type", "Accept", "Authorization" ],
                                           ContentType                 = HTTPContentType.Text.HTML_UTF8,
                                           Content                     = MixWithHTMLTemplate("notification.settings.shtml").ToUTF8Bytes(),
-                                          Connection                  = "close",
+                                          Connection                  = ConnectionType.Close,
                                           Vary                        = "Accept"
                                       }.AsImmutable);
 
@@ -4219,7 +4219,7 @@ namespace social.OpenData.UsersAPI
                                           AccessControlAllowHeaders   = [ "Content-Type", "Accept", "Authorization" ],
                                           ContentType                 = HTTPContentType.Text.HTML_UTF8,
                                           Content                     = MixWithHTMLTemplate("notification.editNotification.shtml").ToUTF8Bytes(),
-                                          Connection                  = "close",
+                                          Connection                  = ConnectionType.Close,
                                           Vary                        = "Accept"
                                       }.AsImmutable);
 
@@ -4268,7 +4268,7 @@ namespace social.OpenData.UsersAPI
             //                                         AccessControlAllowHeaders   = [ "Content-Type", "Accept", "Authorization" ],
             //                                         ContentType                 = HTTPContentType.Text.HTML_UTF8,
             //                                         Content                     = MixWithHTMLTemplate("dashboard.dashboard.shtml").ToUTF8Bytes(),
-            //                                         Connection                  = "close",
+            //                                         Connection                  = ConnectionType.Close,
             //                                         Vary                        = "Accept"
             //                                     }.AsImmutable);
 
@@ -4308,7 +4308,7 @@ namespace social.OpenData.UsersAPI
                                   //                                  new JProperty("description",  "Too many requests. Please come back later!")
                                   //                              ).ToString().ToUTF8Bytes(),
                                   //            CacheControl     = "private",
-                                  //            Connection       = "close"
+                                  //            Connection       = ConnectionType.Close
                                   //        }.AsImmutable);
 
                                   //}
@@ -4346,7 +4346,7 @@ namespace social.OpenData.UsersAPI
                                                                     new JProperty("description",  "The given e-mail address must not be null or empty!")
                                                                 ).ToString().ToUTF8Bytes(),
                                               CacheControl     = "private",
-                                              Connection       = "close"
+                                              Connection       = ConnectionType.Close
                                           }.AsImmutable);
 
                                   }
@@ -4368,7 +4368,7 @@ namespace social.OpenData.UsersAPI
                                                                     new JProperty("description",  "The given e-mail address '" + emailString + "' is invalid!")
                                                                 ).ToString().ToUTF8Bytes(),
                                               CacheControl     = "private",
-                                              Connection       = "close"
+                                              Connection       = ConnectionType.Close
                                           }.AsImmutable);
 
                                   }
@@ -4394,7 +4394,7 @@ namespace social.OpenData.UsersAPI
                                                                     new JProperty("description",  "The given newsletter identification '" + (jsonRequest["newsletterId"]?.Value<String>() ?? "") + "'must not be null or empty!")
                                                                 ).ToString().ToUTF8Bytes(),
                                               CacheControl    = "private",
-                                              Connection      = "close"
+                                              Connection      = ConnectionType.Close
                                           }.AsImmutable);
 
                                   }
@@ -4420,7 +4420,7 @@ namespace social.OpenData.UsersAPI
                                                                     new JProperty("description",  "The given e-mail address '" + emailString + "' is already subscribed!")
                                                                 ).ToString().ToUTF8Bytes(),
                                               CacheControl     = "private",
-                                              Connection       = "close"
+                                              Connection       = ConnectionType.Close
                                           }.AsImmutable);
 
                                   }
@@ -4507,7 +4507,7 @@ namespace social.OpenData.UsersAPI
                                       new HTTPResponse.Builder(Request) {
                                           HTTPStatusCode  = HTTPStatusCode.Created,
                                           CacheControl    = "private",
-                                          Connection      = "close"
+                                          Connection      = ConnectionType.Close
                                       }.AsImmutable);
 
                               });
@@ -4538,7 +4538,7 @@ namespace social.OpenData.UsersAPI
                                                                     Replace("{newsletterId}",    newsletterSignup.NewsletterId.ToString()).
                                                                     ToUTF8Bytes(),
                                               CacheControl    = "private",
-                                              Connection      = "close"
+                                              Connection      = ConnectionType.Close
                                           }.AsImmutable);
 
                                   }
@@ -4548,7 +4548,7 @@ namespace social.OpenData.UsersAPI
                                           HTTPStatusCode  = HTTPStatusCode.NotFound,
                                           Server          = HTTPServer.DefaultServerName,
                                           CacheControl    = "private",
-                                          Connection      = "close"
+                                          Connection      = ConnectionType.Close
                                       }.AsImmutable);
 
                               });
@@ -4594,7 +4594,7 @@ namespace social.OpenData.UsersAPI
                                               HTTPStatusCode  = HTTPStatusCode.Created,
                                               Server          = HTTPServer.DefaultServerName,
                                               CacheControl    = "private",
-                                              Connection      = "close"
+                                              Connection      = ConnectionType.Close
                                           }.AsImmutable);
 
                                   }
@@ -4604,7 +4604,7 @@ namespace social.OpenData.UsersAPI
                                           HTTPStatusCode  = HTTPStatusCode.NotFound,
                                           Server          = HTTPServer.DefaultServerName,
                                           CacheControl    = "private",
-                                          Connection      = "close"
+                                          Connection      = ConnectionType.Close
                                       }.AsImmutable);
 
                               });
@@ -4633,7 +4633,7 @@ namespace social.OpenData.UsersAPI
                                           AccessControlAllowOrigin   = "*",
                                           AccessControlAllowMethods  = new[] { "GET", "OPTIONS" },
                                           AccessControlAllowHeaders  = new[] { "X-PINGOTHER", "Content-Type", "Accept", "Authorization", "X-App-Version" },
-                                          Connection                 = "close"
+                                          Connection                 = ConnectionType.Close
                                       }.AsImmutable);
 
                               });
@@ -4675,7 +4675,7 @@ namespace social.OpenData.UsersAPI
                                               AccessControlAllowHeaders  = [ "Content-Type", "Accept", "Authorization" ],
                                               ContentType                = HTTPContentType.Text.HTML_UTF8,
                                               Content                    = MixWithHTMLTemplate(BlogTemplate, "blog.blogPostings.shtml").ToUTF8Bytes(),
-                                              Connection                 = "close",
+                                              Connection                 = ConnectionType.Close,
                                               Vary                       = "Accept"
                                           }.AsImmutable);
 
@@ -4702,7 +4702,7 @@ namespace social.OpenData.UsersAPI
                                           AccessControlAllowOrigin   = "*",
                                           AccessControlAllowMethods  = new[] { "GET", "COUNT", "OPTIONS" },
                                           AccessControlAllowHeaders  = new[] { "X-PINGOTHER", "Content-Type", "Accept", "Authorization", "X-App-Version" },
-                                          Connection                 = "close"
+                                          Connection                 = ConnectionType.Close
                                       }.AsImmutable);
 
                               });
@@ -4792,7 +4792,7 @@ namespace social.OpenData.UsersAPI
                                                                                        ).ToUTF8Bytes()
                                                                                      : JSONResults.ToUTF8Bytes(),
                                                  X_ExpectedTotalNumberOfItems  = filteredCount,
-                                                 Connection                    = "close",
+                                                 Connection                    = ConnectionType.Close,
                                                  Vary                          = "Accept"
                                              }.AsImmutable);
 
@@ -4836,7 +4836,7 @@ namespace social.OpenData.UsersAPI
                                                          AccessControlAllowHeaders  = [ "Content-Type", "Accept", "Authorization" ],
                                                          ContentType                = HTTPContentType.Text.HTML_UTF8,
                                                          Content                    = MixWithHTMLTemplate(BlogTemplate, "blog.blogPostings.shtml").ToUTF8Bytes(),
-                                                         Connection                 = "close",
+                                                         Connection                 = ConnectionType.Close,
                                                          Vary                       = "Accept"
                                                      }.AsImmutable);
 
@@ -4873,7 +4873,7 @@ namespace social.OpenData.UsersAPI
                                                                                                 new JProperty("count",
                                                                                                               _BlogPostings.Values.ULongCount(blog => !since.HasValue || blog.PublicationDate >= since.Value))
                                                                                             ).ToUTF8Bytes(),
-                                                            Connection                    = "close"
+                                                            Connection                    = ConnectionType.Close
                                                      }.AsImmutable);
 
                                          });
@@ -4900,7 +4900,7 @@ namespace social.OpenData.UsersAPI
                                                      AccessControlAllowOrigin   = "*",
                                                      AccessControlAllowMethods  = new[] { "GET", "COUNT", "SEARCH", "OPTIONS" },
                                                      AccessControlAllowHeaders  = new[] { "X-PINGOTHER", "Content-Type", "Accept", "Authorization", "X-App-Version" },
-                                                     Connection                 = "close"
+                                                     Connection                 = ConnectionType.Close
                                                  }.AsImmutable);
 
                                          });
@@ -4968,7 +4968,7 @@ namespace social.OpenData.UsersAPI
                                                                                                              expandTags,
                                                                                                              expandAuthorId).
                                                                                                          ToUTF8Bytes(),
-                                                            Connection                 = "close",
+                                                            Connection                 = ConnectionType.Close,
                                                             Vary                       = "Accept"
                                                         }.AsImmutable);
 
@@ -5025,7 +5025,7 @@ namespace social.OpenData.UsersAPI
                                                      AccessControlAllowHeaders  = [ "Content-Type", "Accept", "Authorization" ],
                                                      ContentType                = HTTPContentType.Text.HTML_UTF8,
                                                      Content                    = MixWithHTMLTemplate(BlogTemplate, "blog.blogPosting.shtml").ToUTF8Bytes(),
-                                                     Connection                 = "close",
+                                                     Connection                 = ConnectionType.Close,
                                                      Vary                       = "Accept"
                                                  }.AsImmutable);
 
@@ -5058,7 +5058,7 @@ namespace social.OpenData.UsersAPI
                                                      AccessControlAllowOrigin   = "*",
                                                      AccessControlAllowMethods  = new[] { "GET", "COUNT", "SEARCH", "OPTIONS" },
                                                      AccessControlAllowHeaders  = new[] { "X-PINGOTHER", "Content-Type", "Accept", "Authorization", "X-App-Version" },
-                                                     Connection                 = "close"
+                                                     Connection                 = ConnectionType.Close
                                                  }.AsImmutable);
 
                                          });
@@ -5148,7 +5148,7 @@ namespace social.OpenData.UsersAPI
                                                                                                   ).ToUTF8Bytes()
                                                                                                 : JSONResults.ToUTF8Bytes(),
                                                             X_ExpectedTotalNumberOfItems  = filteredCount,
-                                                            Connection                    = "close",
+                                                            Connection                    = ConnectionType.Close,
                                                             Vary                          = "Accept"
                                                         }.AsImmutable);
 
@@ -5192,7 +5192,7 @@ namespace social.OpenData.UsersAPI
                                                      AccessControlAllowHeaders  = [ "Content-Type", "Accept", "Authorization" ],
                                                      ContentType                = HTTPContentType.Text.HTML_UTF8,
                                                      Content                    = MixWithHTMLTemplate("newsPosting.newsPostings.shtml").ToUTF8Bytes(),
-                                                     Connection                 = "close",
+                                                     Connection                 = ConnectionType.Close,
                                                      Vary                       = "Accept"
                                                  }.AsImmutable);
 
@@ -5229,7 +5229,7 @@ namespace social.OpenData.UsersAPI
                                                                                                 new JProperty("count",
                                                                                                               _NewsPostings.Values.ULongCount(news => !since.HasValue || news.PublicationDate >= since.Value))
                                                                                             ).ToUTF8Bytes(),
-                                                            Connection                    = "close"
+                                                            Connection                    = ConnectionType.Close
                                                      }.AsImmutable);
 
                                          });
@@ -5256,7 +5256,7 @@ namespace social.OpenData.UsersAPI
                                                      AccessControlAllowOrigin   = "*",
                                                      AccessControlAllowMethods  = new[] { "GET", "COUNT", "SEARCH", "OPTIONS" },
                                                      AccessControlAllowHeaders  = new[] { "X-PINGOTHER", "Content-Type", "Accept", "Authorization", "X-App-Version" },
-                                                     Connection                 = "close"
+                                                     Connection                 = ConnectionType.Close
                                                  }.AsImmutable);
 
                                          });
@@ -5324,7 +5324,7 @@ namespace social.OpenData.UsersAPI
                                                                                                              expandTags,
                                                                                                              expandAuthorId).
                                                                                                          ToUTF8Bytes(),
-                                                            Connection                 = "close",
+                                                            Connection                 = ConnectionType.Close,
                                                             Vary                       = "Accept"
                                                         }.AsImmutable);
 
@@ -5381,7 +5381,7 @@ namespace social.OpenData.UsersAPI
                                                      AccessControlAllowHeaders  = [ "Content-Type", "Accept", "Authorization" ],
                                                      ContentType                = HTTPContentType.Text.HTML_UTF8,
                                                      Content                    = MixWithHTMLTemplate("News.News.shtml").ToUTF8Bytes(),
-                                                     Connection                 = "close",
+                                                     Connection                 = ConnectionType.Close,
                                                      Vary                       = "Accept"
                                                  }.AsImmutable);
 
@@ -5414,7 +5414,7 @@ namespace social.OpenData.UsersAPI
                                                      AccessControlAllowOrigin   = "*",
                                                      AccessControlAllowMethods  = new[] { "GET", "COUNT", "SEARCH", "OPTIONS" },
                                                      AccessControlAllowHeaders  = new[] { "X-PINGOTHER", "Content-Type", "Accept", "Authorization", "X-App-Version" },
-                                                     Connection                 = "close"
+                                                     Connection                 = ConnectionType.Close
                                                  }.AsImmutable);
 
                                          });
@@ -5501,7 +5501,7 @@ namespace social.OpenData.UsersAPI
                                                                                                   ).ToUTF8Bytes()
                                                                                                 : JSONResults.ToUTF8Bytes(),
                                                             X_ExpectedTotalNumberOfItems  = filteredCount,
-                                                            Connection                    = "close",
+                                                            Connection                    = ConnectionType.Close,
                                                             Vary                          = "Accept"
                                                         }.AsImmutable);
 
@@ -5545,7 +5545,7 @@ namespace social.OpenData.UsersAPI
                                                      AccessControlAllowHeaders  = [ "Content-Type", "Accept", "Authorization" ],
                                                      ContentType                = HTTPContentType.Text.HTML_UTF8,
                                                      Content                    = MixWithHTMLTemplate("newsBanner.newsBanners.shtml").ToUTF8Bytes(),
-                                                     Connection                 = "close",
+                                                     Connection                 = ConnectionType.Close,
                                                      Vary                       = "Accept"
                                                  }.AsImmutable);
 
@@ -5582,7 +5582,7 @@ namespace social.OpenData.UsersAPI
                                                                                                 new JProperty("count",
                                                                                                               _NewsBanners.Values.ULongCount(news => !since.HasValue || news.StartTimestamp >= since.Value))
                                                                                             ).ToUTF8Bytes(),
-                                                            Connection                    = "close"
+                                                            Connection                    = ConnectionType.Close
                                                      }.AsImmutable);
 
                                          });
@@ -5609,7 +5609,7 @@ namespace social.OpenData.UsersAPI
                                                      AccessControlAllowOrigin   = "*",
                                                      AccessControlAllowMethods  = new[] { "GET", "COUNT", "SEARCH", "OPTIONS" },
                                                      AccessControlAllowHeaders  = new[] { "X-PINGOTHER", "Content-Type", "Accept", "Authorization", "X-App-Version" },
-                                                     Connection                 = "close"
+                                                     Connection                 = ConnectionType.Close
                                                  }.AsImmutable);
 
                                          });
@@ -5678,7 +5678,7 @@ namespace social.OpenData.UsersAPI
                                                                                                                         expandTags,
                                                                                                                         expandOwnerId).
                                                                                                                     ToUTF8Bytes(),
-                                                                Connection                 = "close",
+                                                                Connection                 = ConnectionType.Close,
                                                                 Vary                       = "Accept"
                                                             }.AsImmutable);
 
@@ -5735,7 +5735,7 @@ namespace social.OpenData.UsersAPI
                                                          AccessControlAllowHeaders  = [ "Content-Type", "Accept", "Authorization" ],
                                                          ContentType                = HTTPContentType.Text.HTML_UTF8,
                                                          Content                    = MixWithHTMLTemplate("News.News.shtml").ToUTF8Bytes(),
-                                                         Connection                 = "close",
+                                                         Connection                 = ConnectionType.Close,
                                                          Vary                       = "Accept"
                                                      }.AsImmutable);
 
@@ -5769,7 +5769,7 @@ namespace social.OpenData.UsersAPI
                                                      AccessControlAllowOrigin   = "*",
                                                      AccessControlAllowMethods  = new[] { "GET", "COUNT", "SEARCH", "OPTIONS" },
                                                      AccessControlAllowHeaders  = new[] { "X-PINGOTHER", "Content-Type", "Accept", "Authorization", "X-App-Version" },
-                                                     Connection                 = "close"
+                                                     Connection                 = ConnectionType.Close
                                                  }.AsImmutable);
 
                                          });
@@ -5857,7 +5857,7 @@ namespace social.OpenData.UsersAPI
                                                                                                   ).ToUTF8Bytes()
                                                                                                 : JSONResults.ToUTF8Bytes(),
                                                             X_ExpectedTotalNumberOfItems  = filteredCount,
-                                                            Connection                    = "close",
+                                                            Connection                    = ConnectionType.Close,
                                                             Vary                          = "Accept"
                                                         }.AsImmutable);
 
@@ -5901,7 +5901,7 @@ namespace social.OpenData.UsersAPI
                                                      AccessControlAllowHeaders  = [ "Content-Type", "Accept", "Authorization" ],
                                                      ContentType                = HTTPContentType.Text.HTML_UTF8,
                                                      Content                    = MixWithHTMLTemplate("FAQ.FAQs.shtml").ToUTF8Bytes(),
-                                                     Connection                 = "close",
+                                                     Connection                 = ConnectionType.Close,
                                                      Vary                       = "Accept"
                                                  }.AsImmutable);
 
@@ -5938,7 +5938,7 @@ namespace social.OpenData.UsersAPI
                                                                                                 new JProperty("count",
                                                                                                               _FAQs.Values.ULongCount(news => !since.HasValue || news.PublicationDate >= since.Value))
                                                                                             ).ToUTF8Bytes(),
-                                                            Connection                    = "close"
+                                                            Connection                    = ConnectionType.Close
                                                      }.AsImmutable);
 
                                          });
@@ -5994,7 +5994,7 @@ namespace social.OpenData.UsersAPI
             //                                                                                            //Replace("/defibrillator/defibrillator.js",      "/defibrillator/newDefibrillator.js").
             //                                                                                            //Replace("StartDefibrillator(true);",            "StartNewDefibrillator(true);").
             //                                                                                            ToUTF8Bytes(),
-            //                                         Connection                 = "close"
+            //                                         Connection                 = ConnectionType.Close
             //                                     }.AsImmutable);
 
             //                             });

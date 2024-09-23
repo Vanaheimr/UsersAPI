@@ -885,7 +885,7 @@ namespace social.OpenData.UsersAPI
                         //                   Content                    = JSONObject.Create(
                         //                                                    new JProperty("description", "The given data license '" + dataLicenseId + "' is unknown!")
                         //                                                ).ToUTF8Bytes(),
-                        //                   Connection                 = "close"
+                        //                   Connection                 = ConnectionType.Close
                         //               }.AsImmutable());
 
                         //}
