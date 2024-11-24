@@ -9,6 +9,7 @@
   },
   "files": [
     "HTTPRoot/defaults/defaults.ts",
+    "HTTPRoot/defaults/tools.ts",
     "HTTPRoot/login/SignInOut.ts",
     "HTTPRoot/defaults/search.ts",
     "HTTPRoot/defaults/views.ts",

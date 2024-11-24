@@ -30,6 +30,8 @@
     <None Remove="HTTPRoot\defaults\search.js" />
     <None Remove="HTTPRoot\defaults\search.js.map" />
     <None Remove="HTTPRoot\defaults\search.ts" />
+    <None Remove="HTTPRoot\defaults\tools.js" />
+    <None Remove="HTTPRoot\defaults\tools.js.map" />
     <None Remove="HTTPRoot\defaults\views.js" />
     <None Remove="HTTPRoot\defaults\views.js.map" />
     <None Remove="HTTPRoot\defaults\views.ts" />
@@ -219,24 +221,6 @@
     <None Remove="HTTPRoot\user\users.scss" />
     <None Remove="HTTPRoot\user\users.shtml" />
     <None Remove="HTTPRoot\user\users.ts" />
-    <None Remove="HTTPRoot\webfonts\fa-brands-400.eot" />
-    <None Remove="HTTPRoot\webfonts\fa-brands-400.svg" />
-    <None Remove="HTTPRoot\webfonts\fa-brands-400.ttf" />
-    <None Remove="HTTPRoot\webfonts\fa-brands-400.woff" />
-    <None Remove="HTTPRoot\webfonts\fa-brands-400.woff2" />
-    <None Remove="HTTPRoot\webfonts\fa-regular-400.eot" />
-    <None Remove="HTTPRoot\webfonts\fa-regular-400.svg" />
-    <None Remove="HTTPRoot\webfonts\fa-regular-400.ttf" />
-    <None Remove="HTTPRoot\webfonts\fa-regular-400.woff" />
-    <None Remove="HTTPRoot\webfonts\fa-regular-400.woff2" />
-    <None Remove="HTTPRoot\webfonts\fa-solid-900.eot" />
-    <None Remove="HTTPRoot\webfonts\fa-solid-900.svg" />
-    <None Remove="HTTPRoot\webfonts\fa-solid-900.ttf" />
-    <None Remove="HTTPRoot\webfonts\fa-solid-900.woff" />
-    <None Remove="HTTPRoot\webfonts\fa-solid-900.woff2" />
-    <None Remove="HTTPRoot\webfonts\fa-v4compatibility.ttf" />
-    <None Remove="HTTPRoot\webfonts\fa-v4compatibility.woff2" />
-    <None Remove="HTTPRoot\webfonts\LICENSE.txt" />
   </ItemGroup>
 
   <ItemGroup>
@@ -245,6 +229,15 @@
     <EmbeddedResource Include="HTTPRoot\admin\admin.scss" />
     <EmbeddedResource Include="HTTPRoot\css\AppPanels.css" />
     <EmbeddedResource Include="HTTPRoot\css\edgeslist.css" />
+    <EmbeddedResource Include="HTTPRoot\css\FontAwesome\css\all.min.css" />
+    <EmbeddedResource Include="HTTPRoot\css\FontAwesome\webfonts\fa-brands-400.ttf" />
+    <EmbeddedResource Include="HTTPRoot\css\FontAwesome\webfonts\fa-brands-400.woff2" />
+    <EmbeddedResource Include="HTTPRoot\css\FontAwesome\webfonts\fa-regular-400.ttf" />
+    <EmbeddedResource Include="HTTPRoot\css\FontAwesome\webfonts\fa-regular-400.woff2" />
+    <EmbeddedResource Include="HTTPRoot\css\FontAwesome\webfonts\fa-solid-900.ttf" />
+    <EmbeddedResource Include="HTTPRoot\css\FontAwesome\webfonts\fa-solid-900.woff2" />
+    <EmbeddedResource Include="HTTPRoot\css\FontAwesome\webfonts\fa-v4compatibility.ttf" />
+    <EmbeddedResource Include="HTTPRoot\css\FontAwesome\webfonts\fa-v4compatibility.woff2" />
     <EmbeddedResource Include="HTTPRoot\css\Infobox.css" />
     <EmbeddedResource Include="HTTPRoot\css\style.css" />
     <EmbeddedResource Include="HTTPRoot\css\verticeslist.css" />
@@ -254,10 +247,12 @@
     <EmbeddedResource Include="HTTPRoot\defaults\datePicker.min.css" />
     <EmbeddedResource Include="HTTPRoot\defaults\datePicker.scss" />
     <EmbeddedResource Include="HTTPRoot\defaults\datePicker.ts" />
+    <EmbeddedResource Include="HTTPRoot\defaults\tools.js" />
+    <EmbeddedResource Include="HTTPRoot\defaults\tools.js.map" />
+    <EmbeddedResource Include="HTTPRoot\defaults\tools.ts" />
     <EmbeddedResource Include="HTTPRoot\defaults\defaults.js" />
     <EmbeddedResource Include="HTTPRoot\defaults\defaults.js.map" />
     <EmbeddedResource Include="HTTPRoot\defaults\defaults.ts" />
-    <EmbeddedResource Include="HTTPRoot\css\fontawesome-all.min.css" />
     <EmbeddedResource Include="HTTPRoot\defaults\search.js" />
     <EmbeddedResource Include="HTTPRoot\defaults\search.js.map" />
     <EmbeddedResource Include="HTTPRoot\defaults\search.ts" />
@@ -450,15 +445,6 @@
     <EmbeddedResource Include="HTTPRoot\user\users.scss" />
     <EmbeddedResource Include="HTTPRoot\user\users.shtml" />
     <EmbeddedResource Include="HTTPRoot\user\users.ts" />
-    <EmbeddedResource Include="HTTPRoot\webfonts\fa-brands-400.ttf" />
-    <EmbeddedResource Include="HTTPRoot\webfonts\fa-brands-400.woff2" />
-    <EmbeddedResource Include="HTTPRoot\webfonts\fa-regular-400.ttf" />
-    <EmbeddedResource Include="HTTPRoot\webfonts\fa-regular-400.woff2" />
-    <EmbeddedResource Include="HTTPRoot\webfonts\fa-solid-900.ttf" />
-    <EmbeddedResource Include="HTTPRoot\webfonts\fa-solid-900.woff2" />
-    <EmbeddedResource Include="HTTPRoot\webfonts\fa-v4compatibility.ttf" />
-    <EmbeddedResource Include="HTTPRoot\webfonts\fa-v4compatibility.woff2" />
-    <EmbeddedResource Include="HTTPRoot\webfonts\LICENSE.txt" />
   </ItemGroup>
 
   <ItemGroup>
