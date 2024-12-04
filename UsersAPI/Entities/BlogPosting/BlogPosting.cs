@@ -483,11 +483,11 @@ namespace social.OpenData.UsersAPI
 
                 #region Parse GeoLocation        [optional]
 
-                if (JSONObject.ParseOptionalStruct("geoLocation",
-                                                   "Geo location",
-                                                   GeoCoordinate.TryParseJSON,
-                                                   out GeoCoordinate? GeoLocation,
-                                                   out ErrorResponse))
+                if (JSONObject.ParseOptionalJSON("geoLocation",
+                                                 "Geo location",
+                                                 GeoCoordinate.TryParse,
+                                                 out GeoCoordinate? GeoLocation,
+                                                 out ErrorResponse))
                 {
 
                     if (ErrorResponse is not null)
@@ -539,22 +539,24 @@ namespace social.OpenData.UsersAPI
                 var CustomData       = JSONObject["CustomData"] as JObject;
 
 
-                BlogPosting = new BlogPosting(Title,
-                                              Teaser,
-                                              TeaserImage,
-                                              Text,
-                                              BlogPostingIdBody ?? BlogPostingIdURL ?? BlogPosting_Id.Random(),
-                                              null,
-                                              PublicationDate,
-                                              LastChangeDate,
-                                              GeoLocation,
-                                              Category,
-                                              Tags,
-                                              PrivacyLevel,
-                                              IsHidden          ?? false,
-                                              Signatures,
-                                              CustomData,
-                                              DataSource);
+                BlogPosting = new BlogPosting(
+                                  Title,
+                                  Teaser,
+                                  TeaserImage,
+                                  Text,
+                                  BlogPostingIdBody ?? BlogPostingIdURL ?? BlogPosting_Id.Random(),
+                                  null,
+                                  PublicationDate,
+                                  LastChangeDate,
+                                  GeoLocation,
+                                  Category,
+                                  Tags,
+                                  PrivacyLevel,
+                                  IsHidden          ?? false,
+                                  Signatures,
+                                  CustomData,
+                                  DataSource
+                              );
 
                 ErrorResponse = null;
                 return true;

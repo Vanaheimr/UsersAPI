@@ -667,11 +667,11 @@ namespace social.OpenData.UsersAPI
 
                 #region Parse GeoLocation                [optional]
 
-                if (JSONObject.ParseOptionalStruct("geoLocation",
-                                                   "geo location",
-                                                   GeoCoordinate.TryParseJSON,
-                                                   out GeoCoordinate? GeoLocation,
-                                                   out ErrorResponse))
+                if (JSONObject.ParseOptionalJSON("geoLocation",
+                                                 "geo location",
+                                                 GeoCoordinate.TryParse,
+                                                 out GeoCoordinate? GeoLocation,
+                                                 out ErrorResponse))
                 {
 
                     if (ErrorResponse is not null)
@@ -881,32 +881,34 @@ namespace social.OpenData.UsersAPI
                 #endregion
 
 
-                ServiceTicketChangeSet = new ServiceTicketChangeSet(ServiceTicketChangeSetIdBody ?? ServiceTicketChangeSetIdURL.Value,
-                                                                    Context,
+                ServiceTicketChangeSet = new ServiceTicketChangeSet(
+                                             ServiceTicketChangeSetIdBody ?? ServiceTicketChangeSetIdURL.Value,
+                                             Context,
 
-                                                                    Timestamp,
-                                                                    Author,
-                                                                    Status,
-                                                                    Title,
-                                                                    Affected,
-                                                                    Priority,
-                                                                    Location,
-                                                                    GeoLocation,
-                                                                    ProblemDescriptions,
-                                                                    StatusIndicators,
-                                                                    FirstResponse,
-                                                                    Reactions,
-                                                                    AdditionalInfo,
-                                                                    null,
-                                                                    AttachedFiles,
-                                                                    TicketReferences,
-                                                                    DataLicenses,
+                                             Timestamp,
+                                             Author,
+                                             Status,
+                                             Title,
+                                             Affected,
+                                             Priority,
+                                             Location,
+                                             GeoLocation,
+                                             ProblemDescriptions,
+                                             StatusIndicators,
+                                             FirstResponse,
+                                             Reactions,
+                                             AdditionalInfo,
+                                             null,
+                                             AttachedFiles,
+                                             TicketReferences,
+                                             DataLicenses,
 
-                                                                    Comment,
-                                                                    InReplyTo,
-                                                                    CommentReferences,
+                                             Comment,
+                                             InReplyTo,
+                                             CommentReferences,
 
-                                                                    DataSource);
+                                             DataSource
+                                         );
 
                 ErrorResponse = null;
                 return true;

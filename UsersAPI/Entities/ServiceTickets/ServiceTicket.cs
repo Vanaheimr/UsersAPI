@@ -726,11 +726,11 @@ namespace social.OpenData.UsersAPI
 
                 #region Parse GeoLocation                [optional]
 
-                if (JSONObject.ParseOptionalStruct("geoLocation",
-                                                   "geo location",
-                                                   GeoCoordinate.TryParseJSON,
-                                                   out GeoCoordinate? GeoLocation,
-                                                   out ErrorResponse))
+                if (JSONObject.ParseOptionalJSON("geoLocation",
+                                                 "geo location",
+                                                 GeoCoordinate.TryParse,
+                                                 out GeoCoordinate? GeoLocation,
+                                                 out ErrorResponse))
                 {
 
                     if (ErrorResponse is not null)
@@ -988,32 +988,36 @@ namespace social.OpenData.UsersAPI
 
                 ServiceTicket = ChangeSets.SafeAny()
 
-                                    ? new ServiceTicket(ServiceTicketIdBody ?? ServiceTicketIdURL.Value,
-                                                        ChangeSets,
-                                                        Context)
+                                    ? new ServiceTicket(
+                                          ServiceTicketIdBody ?? ServiceTicketIdURL.Value,
+                                          ChangeSets,
+                                          Context
+                                      )
 
-                                    : new ServiceTicket(ServiceTicketIdBody ?? ServiceTicketIdURL.Value,
-                                                        Context,
+                                    : new ServiceTicket(
+                                          ServiceTicketIdBody ?? ServiceTicketIdURL.Value,
+                                          Context,
 
-                                                        Timestamp.Now,
-                                                        Author,
-                                                        ServiceTicketStatusTypes.New,
-                                                        Title,
-                                                        Affected,
-                                                        Priority,
-                                                        Location,
-                                                        GeoLocation,
-                                                        ProblemDescriptions,
-                                                        StatusIndicators,
-                                                        FirstResponse,
-                                                        null, // Reactions
-                                                        AdditionalInfo,
-                                                        null, // CustomData
-                                                        AttachedFiles,
-                                                        null, // TicketReferences
-                                                        DataLicenses,
+                                          Timestamp.Now,
+                                          Author,
+                                          ServiceTicketStatusTypes.New,
+                                          Title,
+                                          Affected,
+                                          Priority,
+                                          Location,
+                                          GeoLocation,
+                                          ProblemDescriptions,
+                                          StatusIndicators,
+                                          FirstResponse,
+                                          null, // Reactions
+                                          AdditionalInfo,
+                                          null, // CustomData
+                                          AttachedFiles,
+                                          null, // TicketReferences
+                                          DataLicenses,
 
-                                                        DataSource);
+                                          DataSource
+                                      );
 
 
                 ErrorResponse = null;
