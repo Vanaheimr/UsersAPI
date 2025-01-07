@@ -156,15 +156,15 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region Clone
+        #region Clone()
 
         /// <summary>
         /// Clone this faq identification.
         /// </summary>
-        public FAQ_Id Clone
+        public FAQ_Id Clone()
 
-            => new FAQ_Id(
-                   new String(InternalId?.ToCharArray())
+            => new (
+                   InternalId.CloneString()
                );
 
         #endregion

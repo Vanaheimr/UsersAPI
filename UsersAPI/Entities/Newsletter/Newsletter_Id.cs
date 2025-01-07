@@ -178,15 +178,15 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region Clone
+        #region Clone()
 
         /// <summary>
         /// Clone this newsletter identification.
         /// </summary>
-        public Newsletter_Id Clone
+        public Newsletter_Id Clone()
 
             => new (
-                   new String(InternalId?.ToCharArray())
+                   InternalId.CloneString()
                );
 
         #endregion

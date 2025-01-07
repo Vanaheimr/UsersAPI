@@ -163,15 +163,15 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region Clone
+        #region Clone()
 
         /// <summary>
         /// Clone this news posting identification.
         /// </summary>
-        public NewsPosting_Id Clone
+        public NewsPosting_Id Clone()
 
-            => new NewsPosting_Id(
-                   new String(InternalId?.ToCharArray())
+            => new (
+                   InternalId.CloneString()
                );
 
         #endregion

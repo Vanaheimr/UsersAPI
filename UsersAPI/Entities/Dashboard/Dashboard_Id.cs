@@ -156,15 +156,15 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region Clone
+        #region Clone()
 
         /// <summary>
         /// Clone this dashboard identification.
         /// </summary>
-        public Dashboard_Id Clone
+        public Dashboard_Id Clone()
 
-            => new Dashboard_Id(
-                   new String(InternalId?.ToCharArray())
+            => new (
+                   InternalId.CloneString()
                );
 
         #endregion

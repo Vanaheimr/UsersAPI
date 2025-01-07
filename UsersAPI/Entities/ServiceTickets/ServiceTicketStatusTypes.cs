@@ -23,12 +23,13 @@ using org.GraphDefined.Vanaheimr.Illias;
 
 namespace social.OpenData.UsersAPI
 {
+
     /// <summary>
     /// The unique identification of a communicator.
     /// </summary>
-    public partial struct ServiceTicketStatusTypes : IId,
-                                                     IEquatable<ServiceTicketStatusTypes>,
-                                                     IComparable<ServiceTicketStatusTypes>
+    public readonly partial struct ServiceTicketStatusTypes : IId,
+                                                              IEquatable<ServiceTicketStatusTypes>,
+                                                              IComparable<ServiceTicketStatusTypes>
     {
 
         #region Data
@@ -272,14 +273,16 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region Clone
+        #region Clone()
 
         /// <summary>
         /// Clone this service ticket status.
         /// </summary>
+        public ServiceTicketStatusTypes Clone()
 
-        public ServiceTicketStatusTypes Clone
-            => new ServiceTicketStatusTypes(InternalId.AggregateWith('.'));
+            => new (
+                   InternalId.AggregateWith('.')
+               );
 
         #endregion
 

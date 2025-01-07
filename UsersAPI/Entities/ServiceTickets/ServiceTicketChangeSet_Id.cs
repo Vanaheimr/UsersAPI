@@ -155,15 +155,15 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region Clone
+        #region Clone()
 
         /// <summary>
         /// Clone this service ticket change set identification.
         /// </summary>
-        public ServiceTicketChangeSet_Id Clone
+        public ServiceTicketChangeSet_Id Clone()
 
-            => new ServiceTicketChangeSet_Id(
-                   new String(InternalId?.ToCharArray())
+            => new (
+                   InternalId.CloneString()
                );
 
         #endregion

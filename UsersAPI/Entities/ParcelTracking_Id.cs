@@ -143,15 +143,15 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region Clone
+        #region Clone()
 
         /// <summary>
         /// Clone this parcel tracking identification.
         /// </summary>
-        public ParcelTracking_Id Clone
+        public ParcelTracking_Id Clone()
 
-            => new ParcelTracking_Id(
-                   new String(InternalId?.ToCharArray())
+            => new (
+                   InternalId.CloneString()
                );
 
         #endregion
