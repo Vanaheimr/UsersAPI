@@ -815,6 +815,7 @@ namespace social.OpenData.UsersAPI
 
                 : base(Id ?? NewsPosting_Id.Random(),
                        DefaultJSONLDContext,
+                       null,
                        LastChangeDate,
                        Signatures,
                        CustomData,

@@ -928,6 +928,7 @@ namespace social.OpenData.UsersAPI
 
                 : base(Id ?? BlogPosting_Id.Random(),
                        DefaultJSONLDContext,
+                       null,
                        LastChangeDate,
                        Signatures,
                        CustomData,

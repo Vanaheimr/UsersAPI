@@ -1339,7 +1339,7 @@ namespace social.OpenData.UsersAPI
                            JObject?                                       CustomData            = null,
                            IEnumerable<AttachedFile>?                     AttachedFiles         = null,
                            IEnumerable<ServiceTicketReference>?           TicketReferences      = null,
-                           IEnumerable<DataLicense>?                  DataLicenses          = null,
+                           IEnumerable<DataLicense>?                      DataLicenses          = null,
 
                            I18NString?                                    Comment               = null,
                            ServiceTicketChangeSet_Id?                     InReplyTo             = null,
@@ -1349,6 +1349,7 @@ namespace social.OpenData.UsersAPI
 
                 : base(Id            ?? ServiceTicketChangeSet_Id.Random(),
                        JSONLDContext ?? DefaultJSONLDContext,
+                       null,
                        Timestamp,
                        null,
                        CustomData,

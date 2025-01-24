@@ -834,6 +834,7 @@ namespace social.OpenData.UsersAPI
 
                 : base(Id ?? NewsBanner_Id.Random(),
                        DefaultJSONLDContext,
+                       null,
                        LastChange,
                        null,
                        CustomData,

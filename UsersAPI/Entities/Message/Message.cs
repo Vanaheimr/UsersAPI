@@ -399,6 +399,7 @@ namespace social.OpenData.UsersAPI
 
                 : base(Id,
                        JSONLDContext ?? DefaultJSONLDContext,
+                       null,
                        LastChange,
                        null,
                        CustomData,
