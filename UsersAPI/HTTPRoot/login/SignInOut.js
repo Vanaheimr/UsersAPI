@@ -378,7 +378,7 @@ function SignIn() {
         SignInErrors.innerText = JSON.parse(response).description;
     });
 }
-function checkSignedIn(RedirectUnkownUsers) {
+function checkSignedIn(RedirectUnknownUsers) {
     WithCookie(HTTPCookieId, cookie => {
         isAdmin = "false";
         Astronaut = "";
@@ -430,22 +430,22 @@ function checkSignedIn(RedirectUnkownUsers) {
         const usernameDiv = document.querySelector('#username');
         if (usernameDiv != null)
             usernameDiv.innerText = "anonymous";
-        if (RedirectUnkownUsers)
+        if (RedirectUnknownUsers)
             location.href = (URLPathPrefix !== null && URLPathPrefix !== void 0 ? URLPathPrefix : "") + "/login";
     });
     WithCookie(newsBannersCookieId, cookie => checkNewsBanner(cookie.split(":")), () => checkNewsBanner([]));
 }
-function checkAdminSignedIn(RedirectUnkownUsers) {
+function checkAdminSignedIn(RedirectUnknownUsers) {
     WithCookie(HTTPCookieId, cookie => {
         ShowElement('#admin');
         ShowElement('.admin');
         if (cookie.indexOf(":isAdmin") < 0)
             location.href = URLPathPrefix != null && URLPathPrefix != "" ? URLPathPrefix : "/";
     }, () => {
-        if (RedirectUnkownUsers)
+        if (RedirectUnknownUsers)
             location.href = (URLPathPrefix !== null && URLPathPrefix !== void 0 ? URLPathPrefix : "") + "/login";
     });
-    checkSignedIn(RedirectUnkownUsers);
+    checkSignedIn(RedirectUnknownUsers);
 }
 function checkNotSignedIn() {
     WithCookie(HTTPCookieId, () => {
