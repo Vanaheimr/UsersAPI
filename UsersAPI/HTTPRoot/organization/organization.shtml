@@ -41,17 +41,17 @@
 
         <div class="row">
             <div class="key">Website</div>
-            <div class="value"><input id="website" placeholder="The offical website..." /></div>
+            <div class="value"><input id="website" placeholder="The official website..." /></div>
         </div>
 
         <div class="row">
             <div class="key">E-Mail</div>
-            <div class="value"><input id="email" placeholder="The offical e-mail address..." /></div>
+            <div class="value"><input id="email" placeholder="The official e-mail address..." /></div>
         </div>
 
         <div class="row">
             <div class="key">Telephone</div>
-            <div class="value"><input id="telephone" placeholder="The offical telephone number..." /></div>
+            <div class="value"><input id="telephone" placeholder="The official telephone number..." /></div>
         </div>
 
 

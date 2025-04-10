@@ -1557,7 +1557,7 @@ namespace social.OpenData.UsersAPI
         /// Create a new HTTP server and attach this Open Data HTTP API to it.
         /// </summary>
         /// <param name="HTTPHostname">The HTTP hostname for all URLs within this API.</param>
-        /// <param name="ExternalDNSName">The offical URL/DNS name of this service, e.g. for sending e-mails.</param>
+        /// <param name="ExternalDNSName">The official URL/DNS name of this service, e.g. for sending e-mails.</param>
         /// <param name="HTTPServerPort">A TCP port to listen on.</param>
         /// <param name="BasePath">When the API is served from an optional subdirectory path.</param>
         /// <param name="HTTPServerName">The default HTTP servername, used whenever no HTTP Host-header has been given.</param>
@@ -1891,7 +1891,7 @@ namespace social.OpenData.UsersAPI
         ///// <param name="HTTPServer">An existing HTTP server.</param>
         ///// <param name="HTTPHostname">The HTTP hostname for all URLs within this API.</param>
         ///// <param name="ServiceName">The name of the service.</param>
-        ///// <param name="ExternalDNSName">The offical URL/DNS name of this service, e.g. for sending e-mails.</param>
+        ///// <param name="ExternalDNSName">The official URL/DNS name of this service, e.g. for sending e-mails.</param>
         ///// <param name="URLPathPrefix">A common prefix for all URLs.</param>
         ///// <param name="HTMLTemplate">An optional HTML template.</param>
         ///// <param name="APIVersionHashes">The API version hashes (git commit hash values).</param>
