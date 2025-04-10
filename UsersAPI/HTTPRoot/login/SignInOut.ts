@@ -574,7 +574,7 @@ function SignIn() {
 
 }
 
-function checkSignedIn(RedirectUnkownUsers: boolean) {
+function checkSignedIn(RedirectUnknownUsers: boolean) {
 
     WithCookie(HTTPCookieId,
 
@@ -654,7 +654,7 @@ function checkSignedIn(RedirectUnkownUsers: boolean) {
                    if (usernameDiv != null)
                        usernameDiv.innerText = "anonymous";
 
-                   if (RedirectUnkownUsers)
+                   if (RedirectUnknownUsers)
                        location.href = (URLPathPrefix ?? "") + "/login";
 
                }
@@ -668,7 +668,7 @@ function checkSignedIn(RedirectUnkownUsers: boolean) {
 
 }
 
-function checkAdminSignedIn(RedirectUnkownUsers: boolean) {
+function checkAdminSignedIn(RedirectUnknownUsers: boolean) {
 
     WithCookie(HTTPCookieId,
 
@@ -684,14 +684,14 @@ function checkAdminSignedIn(RedirectUnkownUsers: boolean) {
 
                () => {
 
-                   if (RedirectUnkownUsers)
+                   if (RedirectUnknownUsers)
                        location.href = (URLPathPrefix ?? "") + "/login";
 
                }
 
     );
 
-    checkSignedIn(RedirectUnkownUsers);
+    checkSignedIn(RedirectUnknownUsers);
 
 }
 

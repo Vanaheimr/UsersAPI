@@ -1600,11 +1600,11 @@ namespace social.OpenData.UsersAPI
         /// 
         /// <param name="DisableMaintenanceTasks">Disable all maintenance tasks.</param>
         /// <param name="MaintenanceInitialDelay">The initial delay of the maintenance tasks.</param>
-        /// <param name="MaintenanceEvery">The maintenance intervall.</param>
+        /// <param name="MaintenanceEvery">The maintenance interval.</param>
         /// 
         /// <param name="DisableWardenTasks">Disable all warden tasks.</param>
         /// <param name="WardenInitialDelay">The initial delay of the warden tasks.</param>
-        /// <param name="WardenCheckEvery">The warden intervall.</param>
+        /// <param name="WardenCheckEvery">The warden interval.</param>
         /// 
         /// <param name="RemoteAuthServers">Servers for remote authorization.</param>
         /// <param name="RemoteAuthAPIKeys">API keys for incoming remote authorizations.</param>
@@ -1914,10 +1914,10 @@ namespace social.OpenData.UsersAPI
         ///// 
         ///// <param name="DisableMaintenanceTasks">Disable all maintenance tasks.</param>
         ///// <param name="MaintenanceInitialDelay">The initial delay of the maintenance tasks.</param>
-        ///// <param name="MaintenanceEvery">The maintenance intervall.</param>
+        ///// <param name="MaintenanceEvery">The maintenance interval.</param>
         ///// <param name="DisableWardenTasks">Disable all warden tasks.</param>
         ///// <param name="WardenInitialDelay">The initial delay of the warden tasks.</param>
-        ///// <param name="WardenCheckEvery">The warden intervall.</param>
+        ///// <param name="WardenCheckEvery">The warden interval.</param>
         ///// 
         ///// <param name="SkipURLTemplates">Skip URL templates.</param>
         ///// <param name="DisableNotifications">Disable external notifications.</param>
