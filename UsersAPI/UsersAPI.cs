@@ -579,7 +579,7 @@ namespace social.OpenData.UsersAPI
         protected static readonly  SemaphoreSlim  FAQsSemaphore                        = new (1, 1);
 
         /// <summary>
-        /// The HTTP root for embedded ressources.
+        /// The HTTP root for embedded resources.
         /// </summary>
         public new const          String                                        HTTPRoot                                = "social.OpenData.UsersAPI.HTTPRoot.";
 
