@@ -430,7 +430,7 @@ namespace social.OpenData.UsersAPI
                                        new JProperty("status",                     new JObject((StatusHistory as IEnumerable<Timestamped<ServiceTicketStatusTypes>>).
                                                                                                    Reverse().
                                                                                                    Take   (MaxStatus).
-                                                                                                   Select (timestamped => new JProperty(timestamped.Timestamp.ToIso8601(),
+                                                                                                   Select (timestamped => new JProperty(timestamped.Timestamp.ToISO8601(),
                                                                                                                                         timestamped.Value.    ToString()))
                                                                                               )),
 
@@ -1061,7 +1061,7 @@ namespace social.OpenData.UsersAPI
                                         (ageDays == 0 && ageHours < 4 ? ageMinutes + " minutes" : "");
 
             return String.Concat(Status.    Value.ToString(),                                                                           UnitSeparator,
-                                 Status.Timestamp.ToIso8601(),                                                                          UnitSeparator,
+                                 Status.Timestamp.ToISO8601(),                                                                          UnitSeparator,
                                  Title.           FirstText(),                                                                          UnitSeparator,
                                  ProblemDescriptions.Select(problemDescription => problemDescription.FirstText()).AggregateWith(". "),  UnitSeparator,
                                  //!Affected.IsEmpty()

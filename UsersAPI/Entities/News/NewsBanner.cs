@@ -275,8 +275,8 @@ namespace social.OpenData.UsersAPI
 
                    new JProperty("text",            Text.          ToJSON()),
 
-                   new JProperty("startTimestamp",  StartTimestamp.ToIso8601()),
-                   new JProperty("endTimestamp",    EndTimestamp.  ToIso8601()),
+                   new JProperty("startTimestamp",  StartTimestamp.ToISO8601()),
+                   new JProperty("endTimestamp",    EndTimestamp.  ToISO8601()),
                    new JProperty("author",          JSONObject.Create(
                                                         new JProperty("@id",  Author.Id.ToString()),
                                                         new JProperty("name", Author.Name)

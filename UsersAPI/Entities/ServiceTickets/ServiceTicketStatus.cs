@@ -322,7 +322,7 @@ namespace social.OpenData.UsersAPI
             => String.Concat(Id, " -> ",
                              Status.Value,
                              " since ",
-                             Status.Timestamp.ToIso8601());
+                             Status.Timestamp.ToISO8601());
 
         #endregion
 

@@ -303,7 +303,7 @@ namespace social.OpenData.UsersAPI
                                                              new JProperty("name", Author.Name)
                                                          )),
 
-                   new JProperty("publicationDate",      PublicationDate.ToIso8601()),
+                   new JProperty("publicationDate",      PublicationDate.ToISO8601()),
 
                    Tags.Any()
                        ? new JProperty("tags",           Tags.SafeSelect(tag => tag.ToJSON(ExpandTags)))

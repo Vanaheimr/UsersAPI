@@ -2428,7 +2428,7 @@ namespace social.OpenData.UsersAPI
 
                     Logfile.WriteLine(
                         String.Concat(Request.HTTPSource.ToString(), Environment.NewLine,
-                                      Request.Timestamp.ToIso8601(), Environment.NewLine,
+                                      Request.Timestamp.ToISO8601(), Environment.NewLine,
                                       Request.EventTrackingId, Environment.NewLine,
                                       Request.EntirePDU, Environment.NewLine,
                                       "======================================================================================"));
@@ -4468,7 +4468,7 @@ namespace social.OpenData.UsersAPI
                                       );
 
                                       File.AppendAllText(HTTPAPIPath + DefaultNewsletterSignupFile,
-                                                         String.Concat("add;", securityTokenId, ";", email.Value, ";", expires.ToIso8601(), Environment.NewLine));
+                                                         String.Concat("add;", securityTokenId, ";", email.Value, ";", expires.ToISO8601(), Environment.NewLine));
 
                                   }
 
@@ -4585,7 +4585,7 @@ namespace social.OpenData.UsersAPI
                                                                 newsletterSignup.EMailAddress);
 
                                           File.AppendAllText(HTTPAPIPath + DefaultNewsletterEMailsFile,
-                                                             String.Concat("add;", newsletterSignup.EMailAddress, ";", newsletterSignup.NewsletterId, ";", Timestamp.Now.ToIso8601(), Environment.NewLine));
+                                                             String.Concat("add;", newsletterSignup.EMailAddress, ";", newsletterSignup.NewsletterId, ";", Timestamp.Now.ToISO8601(), Environment.NewLine));
 
                                       }
 
@@ -7972,7 +7972,7 @@ namespace social.OpenData.UsersAPI
                                                    new JProperty("addServiceTicket",
                                                        ServiceTicket.ToJSON()
                                                    ),
-                                                   new JProperty("timestamp", Timestamp.Now.ToIso8601())
+                                                   new JProperty("timestamp", Timestamp.Now.ToISO8601())
                                                );
 
                         else if (messageTypes.Contains(addServiceTicketIfNotExists_MessageType))
@@ -7980,7 +7980,7 @@ namespace social.OpenData.UsersAPI
                                                    new JProperty("addServiceTicketIfNotExists",
                                                        ServiceTicket.ToJSON()
                                                    ),
-                                                   new JProperty("timestamp", Timestamp.Now.ToIso8601())
+                                                   new JProperty("timestamp", Timestamp.Now.ToISO8601())
                                                );
 
                         else if (messageTypes.Contains(addOrUpdateServiceTicket_MessageType))
@@ -7988,7 +7988,7 @@ namespace social.OpenData.UsersAPI
                                                    new JProperty("addOrUpdateServiceTicket",
                                                        ServiceTicket.ToJSON()
                                                    ),
-                                                   new JProperty("timestamp", Timestamp.Now.ToIso8601())
+                                                   new JProperty("timestamp", Timestamp.Now.ToISO8601())
                                                );
 
                         else if (messageTypes.Contains(updateServiceTicket_MessageType))
@@ -7996,7 +7996,7 @@ namespace social.OpenData.UsersAPI
                                                    new JProperty("updateServiceTicket",
                                                        ServiceTicket.ToJSON()
                                                    ),
-                                                   new JProperty("timestamp", Timestamp.Now.ToIso8601())
+                                                   new JProperty("timestamp", Timestamp.Now.ToISO8601())
                                                );
 
                         else if (messageTypes.Contains(removeServiceTicket_MessageType))
@@ -8004,7 +8004,7 @@ namespace social.OpenData.UsersAPI
                                                    new JProperty("removeServiceTicket",
                                                        ServiceTicket.ToJSON()
                                                    ),
-                                                   new JProperty("timestamp", Timestamp.Now.ToIso8601())
+                                                   new JProperty("timestamp", Timestamp.Now.ToISO8601())
                                                );
 
                         else if (messageTypes.Contains(changeServiceTicketStatus_MessageType))
@@ -8012,7 +8012,7 @@ namespace social.OpenData.UsersAPI
                                                    new JProperty("changeServiceTicketStatus",
                                                        ServiceTicket.ToJSON()
                                                    ),
-                                                   new JProperty("timestamp", Timestamp.Now.ToIso8601())
+                                                   new JProperty("timestamp", Timestamp.Now.ToISO8601())
                                                );
 
                         #endregion

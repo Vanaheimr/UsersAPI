@@ -334,7 +334,7 @@ namespace social.OpenData.UsersAPI
 
                 new JProperty("@context",                        JSONLDContext.ToString()),
 
-                new JProperty("timestamp",                       Timestamp.ToIso8601()),
+                new JProperty("timestamp",                       Timestamp.ToISO8601()),
 
                 Author != null
                     ? ExpandAuthorId.Switch(

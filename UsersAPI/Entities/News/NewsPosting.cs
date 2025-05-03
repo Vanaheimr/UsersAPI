@@ -273,8 +273,8 @@ namespace social.OpenData.UsersAPI
                                                                                                new JProperty("name", author.Name)
                                                                                            )))),
 
-                   new JProperty("publicationDate",    PublicationDate.ToIso8601()),
-                   new JProperty("lastChangeDate",     LastChangeDate. ToIso8601()),
+                   new JProperty("publicationDate",    PublicationDate.ToISO8601()),
+                   new JProperty("lastChangeDate",     LastChangeDate. ToISO8601()),
 
                    Tags.Any()
                        ? new JProperty("tags",         new JArray(Tags.Select(tag => tag.ToJSON(ExpandTags))))

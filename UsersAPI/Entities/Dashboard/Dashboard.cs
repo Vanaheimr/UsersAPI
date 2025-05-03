@@ -266,7 +266,7 @@ namespace social.OpenData.UsersAPI
                        ? new JProperty("description",    Description.ToJSON())
                        : null,
 
-                   new JProperty("creationDate",         CreationDate.ToIso8601()),
+                   new JProperty("creationDate",         CreationDate.ToISO8601()),
 
                    Tags.Any()
                        ? new JProperty("tags",           Tags.SafeSelect(tag => tag.ToJSON(ExpandTags)))

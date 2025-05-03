@@ -292,7 +292,7 @@ namespace social.OpenData.UsersAPI
             => String.Concat(
                    EMailAddress.ToString(), ", ",
                    NewsletterId.ToString(), ", ",
-                   Timestamp.   ToIso8601()
+                   Timestamp.   ToISO8601()
                );
 
         #endregion
