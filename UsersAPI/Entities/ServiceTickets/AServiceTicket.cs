@@ -490,7 +490,7 @@
 //                                                                                                   Reverse().
 //                                                                                                   Where (timestamped => IncludeStatus != null ? IncludeStatus(timestamped.Timestamp, timestamped.Value) : true).
 //                                                                                                   Take  (MaxStatus).
-//                                                                                                   Select(timestamped => new JProperty(timestamped.Timestamp.ToIso8601(),
+//                                                                                                   Select(timestamped => new JProperty(timestamped.Timestamp.ToISO8601(),
 //                                                                                                                                       timestamped.Value.    ToString()))
 //                                                                                              )),
 
