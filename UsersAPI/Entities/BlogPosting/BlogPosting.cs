@@ -181,7 +181,7 @@ namespace social.OpenData.UsersAPI
         public GeoCoordinate?                     GeoLocation           { get; }
 
         /// <summary>
-        /// The optinal category of the blog posting.
+        /// The optional category of the blog posting.
         /// </summary>
         [Optional]
         public I18NString?                        Category              { get; }
@@ -224,7 +224,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="PublicationDate">The timestamp of the publication of this blog posting.</param>
         /// <param name="LastChangeDate">The timestamp of the last change of this blog posting.</param>
         /// <param name="GeoLocation">An optional geographical location of this blog posting.</param>
-        /// <param name="Category">The optinal category of the blog posting.</param>
+        /// <param name="Category">The optional category of the blog posting.</param>
         /// <param name="Tags">An enumeration of multi-language tags and their relevance.</param>
         /// <param name="PrivacyLevel">Whether the blog posting will be shown in blog posting listings, or not.</param>
         /// <param name="IsHidden">The blog posting is hidden.</param>
@@ -900,7 +900,7 @@ namespace social.OpenData.UsersAPI
             /// <param name="PublicationDate">The timestamp of the publication of this blog posting.</param>
             /// <param name="LastChangeDate">The timestamp of the last change of this blog posting.</param>
             /// <param name="GeoLocation">An optional geographical location of this blog posting.</param>
-            /// <param name="Category">The optinal category of the blog posting.</param>
+            /// <param name="Category">The optional category of the blog posting.</param>
             /// <param name="Tags">An enumeration of multi-language tags and their relevance.</param>
             /// <param name="PrivacyLevel">Whether the blog posting will be shown in blog posting listings, or not.</param>
             /// <param name="IsHidden">The blog posting is hidden.</param>
