@@ -5590,7 +5590,7 @@ function BYTES_TO_DWORD(fourChars) {
 
 function RMD(message) {
   var MDbuf = new Array(RMDsize / 32);
-  var hashcode = new Array(RMDsize / 8);
+  var hash code = new Array(RMDsize / 8);
   var length;
   var nbytes;
 
@@ -5612,22 +5612,22 @@ function RMD(message) {
   MDfinish(MDbuf, message.substr(j), length, 0);
 
   for (i = 0; i < RMDsize / 8; i += 4) {
-    hashcode[i] = MDbuf[i >>> 2] & 255;
-    hashcode[i + 1] = (MDbuf[i >>> 2] >>> 8) & 255;
-    hashcode[i + 2] = (MDbuf[i >>> 2] >>> 16) & 255;
-    hashcode[i + 3] = (MDbuf[i >>> 2] >>> 24) & 255;
+    hash code[i] = MDbuf[i >>> 2] & 255;
+    hash code[i + 1] = (MDbuf[i >>> 2] >>> 8) & 255;
+    hash code[i + 2] = (MDbuf[i >>> 2] >>> 16) & 255;
+    hash code[i + 3] = (MDbuf[i >>> 2] >>> 24) & 255;
   }
 
-  return hashcode;
+  return hash code;
 }
 
 
 function RMDstring(message) {
-  var hashcode = RMD(message);
+  var hash code = RMD(message);
   var retString = "";
 
   for (var i = 0; i < RMDsize / 8; i++) {
-    retString += String.fromCharCode(hashcode[i]);
+    retString += String.fromCharCode(hash code[i]);
   }
 
   return retString;
