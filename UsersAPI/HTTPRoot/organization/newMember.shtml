@@ -43,7 +43,7 @@
         <div class="row">
             <div class="key">Login</div>
             <div class="value" id="loginDiv">
-                <input id="login" type="text" placeholder = "An optional login (unqiue identification) of the new user...">
+                <input id="login" type="text" placeholder = "An optional login (unique identification) of the new user...">
                 <div class="validationError"></div>
             </div>
         </div>

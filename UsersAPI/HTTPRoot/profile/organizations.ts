@@ -97,7 +97,7 @@ function ShowOrganizations() {
 
             const newUserIdInput = newUserIdValue.appendChild(document.createElement('input')) as HTMLInputElement;
             newUserIdInput.className = "value";
-            newUserIdInput.placeholder = "The login (unqiue identification) of the new user...";
+            newUserIdInput.placeholder = "The login (unique identification) of the new user...";
 
             const newUserIdError = newUserIdValue.appendChild(document.createElement('div')) as HTMLDivElement;
             newUserIdError.className = "validationError";

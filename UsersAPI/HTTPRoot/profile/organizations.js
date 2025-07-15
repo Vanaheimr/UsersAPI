@@ -64,7 +64,7 @@ function ShowOrganizations() {
             newUserIdValue.className = "value";
             const newUserIdInput = newUserIdValue.appendChild(document.createElement('input'));
             newUserIdInput.className = "value";
-            newUserIdInput.placeholder = "The login (unqiue identification) of the new user...";
+            newUserIdInput.placeholder = "The login (unique identification) of the new user...";
             const newUserIdError = newUserIdValue.appendChild(document.createElement('div'));
             newUserIdError.className = "validationError";
             newUserIdInput.onchange = () => {
