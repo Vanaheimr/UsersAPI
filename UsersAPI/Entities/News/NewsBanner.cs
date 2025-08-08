@@ -136,31 +136,31 @@ namespace social.OpenData.UsersAPI
         /// The (multi-language) text of the news banner.
         /// </summary>
         [Mandatory]
-        public I18NString   Text                  { get; }
+        public I18NString      Text                  { get; }
 
         /// <summary>
         /// The timestamp of the publication start of this news banner.
         /// </summary>
         [Mandatory]
-        public DateTime     StartTimestamp        { get; }
+        public DateTimeOffset  StartTimestamp        { get; }
 
         /// <summary>
         /// The timestamp of the publication end of this news banner.
         /// </summary>
         [Mandatory]
-        public DateTime     EndTimestamp          { get; }
+        public DateTimeOffset  EndTimestamp          { get; }
 
         /// <summary>
         /// The author of the news banner.
         /// </summary>
         [Mandatory]
-        public IUser        Author                { get; }
+        public IUser           Author                { get; }
 
         /// <summary>
         /// Whether the news banner is currently hidden.
         /// </summary>
         [Optional]
-        public Boolean      IsHidden              { get; }
+        public Boolean         IsHidden              { get; }
 
         #endregion
 
@@ -174,15 +174,15 @@ namespace social.OpenData.UsersAPI
         /// <param name="EndTimestamp">The timestamp of the publication end of this news banner.</param>
         /// <param name="Author">The author of the news banner.</param>
         /// <param name="IsHidden">Whether the news banner is currently hidden.</param>
-        public NewsBanner(I18NString  Text,
-                          DateTime    StartTimestamp,
-                          DateTime    EndTimestamp,
-                          IUser       Author,
-                          Boolean     IsHidden     = false,
+        public NewsBanner(I18NString       Text,
+                          DateTimeOffset   StartTimestamp,
+                          DateTimeOffset   EndTimestamp,
+                          IUser            Author,
+                          Boolean          IsHidden     = false,
 
-                          JObject?    CustomData   = default,
-                          String?     DataSource   = default,
-                          DateTime?   LastChange   = default)
+                          JObject?         CustomData   = default,
+                          String?          DataSource   = default,
+                          DateTimeOffset?  LastChange   = default)
 
             : this(NewsBanner_Id.Random(),
                    Text,
@@ -207,16 +207,16 @@ namespace social.OpenData.UsersAPI
         /// <param name="EndTimestamp">The timestamp of the publication end of this news banner.</param>
         /// <param name="Author">The author of the news banner.</param>
         /// <param name="IsHidden">Whether the news banner is currently hidden.</param>
-        public NewsBanner(NewsBanner_Id  Id,
-                          I18NString     Text,
-                          DateTime       StartTimestamp,
-                          DateTime       EndTimestamp,
-                          IUser          Author,
-                          Boolean        IsHidden     = false,
+        public NewsBanner(NewsBanner_Id    Id,
+                          I18NString       Text,
+                          DateTimeOffset   StartTimestamp,
+                          DateTimeOffset   EndTimestamp,
+                          IUser            Author,
+                          Boolean          IsHidden     = false,
 
-                          JObject?       CustomData   = default,
-                          String?        DataSource   = default,
-                          DateTime?      LastChange   = default)
+                          JObject?         CustomData   = default,
+                          String?          DataSource   = default,
+                          DateTimeOffset?  LastChange   = default)
 
             : base(Id,
                    DefaultJSONLDContext,
@@ -721,16 +721,18 @@ namespace social.OpenData.UsersAPI
         /// <param name="NewNewsBannerId">An optional new news banner identification.</param>
         public Builder ToBuilder(NewsBanner_Id? NewNewsBannerId = null)
 
-            => new Builder(NewNewsBannerId ?? Id,
-                           Text,
-                           StartTimestamp,
-                           EndTimestamp,
-                           Author,
-                           IsHidden,
+            => new (
+                   NewNewsBannerId ?? Id,
+                   Text,
+                   StartTimestamp,
+                   EndTimestamp,
+                   Author,
+                   IsHidden,
 
-                           CustomData,
-                           DataSource,
-                           LastChangeDate);
+                   CustomData,
+                   DataSource,
+                   LastChangeDate
+               );
 
         #endregion
 
@@ -782,31 +784,31 @@ namespace social.OpenData.UsersAPI
             /// The (multi-language) text of the news banner.
             /// </summary>
             [Mandatory]
-            public I18NString   Text                  { get; set; }
+            public I18NString       Text                  { get; set; }
 
             /// <summary>
             /// The timestamp of the publication start of this news banner.
             /// </summary>
             [Mandatory]
-            public DateTime?    StartTimestamp        { get; set; }
+            public DateTimeOffset?  StartTimestamp        { get; set; }
 
             /// <summary>
             /// The timestamp of the publication end of this news banner.
             /// </summary>
             [Mandatory]
-            public DateTime?    EndTimestamp          { get; set; }
+            public DateTimeOffset?  EndTimestamp          { get; set; }
 
             /// <summary>
             /// The author of the news banner.
             /// </summary>
             [Mandatory]
-            public IUser        Author                { get; set; }
+            public IUser            Author                { get; set; }
 
             /// <summary>
             /// Whether the news banner is currently hidden.
             /// </summary>
             [Optional]
-            public Boolean      IsHidden              { get; set; }
+            public Boolean          IsHidden              { get; set; }
 
             #endregion
 
@@ -821,16 +823,16 @@ namespace social.OpenData.UsersAPI
             /// <param name="EndTimestamp">The timestamp of the publication end of this news banner.</param>
             /// <param name="Author">The author of the news banner.</param>
             /// <param name="IsHidden">Whether the news banner is currently hidden.</param>
-            public Builder(NewsBanner_Id?  Id               = null,
-                           I18NString?     Text             = null,
-                           DateTime?       StartTimestamp   = null,
-                           DateTime?       EndTimestamp     = null,
-                           IUser?          Author           = null,
-                           Boolean         IsHidden         = false,
+            public Builder(NewsBanner_Id?   Id               = null,
+                           I18NString?      Text             = null,
+                           DateTimeOffset?  StartTimestamp   = null,
+                           DateTimeOffset?  EndTimestamp     = null,
+                           IUser?           Author           = null,
+                           Boolean          IsHidden         = false,
 
-                           JObject?        CustomData       = default,
-                           String?         DataSource       = default,
-                           DateTime?       LastChange       = default)
+                           JObject?         CustomData       = default,
+                           String?          DataSource       = default,
+                           DateTimeOffset?  LastChange       = default)
 
                 : base(Id ?? NewsBanner_Id.Random(),
                        DefaultJSONLDContext,
@@ -891,16 +893,18 @@ namespace social.OpenData.UsersAPI
             /// </summary>
             public NewsBanner ToImmutable
 
-                => new NewsBanner(Id,
-                                  Text,
-                                  StartTimestamp ?? Timestamp.Now,
-                                  EndTimestamp   ?? Timestamp.Now + TimeSpan.FromDays(14),
-                                  Author,
-                                  IsHidden,
+                => new (
+                       Id,
+                       Text,
+                       StartTimestamp ?? Timestamp.Now,
+                       EndTimestamp   ?? Timestamp.Now + TimeSpan.FromDays(14),
+                       Author,
+                       IsHidden,
 
-                                  CustomData,
-                                  DataSource,
-                                  LastChangeDate);
+                       CustomData,
+                       DataSource,
+                       LastChangeDate
+                   );
 
             #endregion
 

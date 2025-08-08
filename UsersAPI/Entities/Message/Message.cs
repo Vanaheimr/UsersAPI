@@ -137,7 +137,7 @@ namespace social.OpenData.UsersAPI
                        IEnumerable<AttachedFile>?  AttachedFiles   = default,
                        JSONLDContext?              JSONLDContext   = default,
                        String?                     DataSource      = default,
-                       DateTime?                   LastChange      = default)
+                       DateTimeOffset?             LastChange      = default)
 
             : base(Id,
                    JSONLDContext ?? DefaultJSONLDContext,
@@ -318,18 +318,20 @@ namespace social.OpenData.UsersAPI
         /// <param name="NewMessageId">An optional new message identification.</param>
         public Builder ToBuilder(Message_Id? NewMessageId = null)
 
-            => new Builder(NewMessageId ?? Id,
-                           Sender,
-                           Receivers,
-                           Subject,
-                           Text,
-                           InReplyTo,
+            => new (
+                   NewMessageId ?? Id,
+                   Sender,
+                   Receivers,
+                   Subject,
+                   Text,
+                   InReplyTo,
 
-                           CustomData,
-                           AttachedFiles,
-                           JSONLDContext,
-                           DataSource,
-                           LastChangeDate);
+                   CustomData,
+                   AttachedFiles,
+                   JSONLDContext,
+                   DataSource,
+                   LastChangeDate
+               );
 
         #endregion
 
@@ -395,7 +397,7 @@ namespace social.OpenData.UsersAPI
                            IEnumerable<AttachedFile>?  AttachedFiles   = default,
                            JSONLDContext?              JSONLDContext   = default,
                            String?                     DataSource      = default,
-                           DateTime?                   LastChange      = default)
+                           DateTimeOffset?             LastChange      = default)
 
                 : base(Id,
                        JSONLDContext ?? DefaultJSONLDContext,
@@ -446,18 +448,20 @@ namespace social.OpenData.UsersAPI
             /// </summary>
             public Message ToImmutable
 
-                => new Message(Id,
-                               Sender,
-                               Receivers,
-                               Subject,
-                               Text,
-                               InReplyTo,
+                => new (
+                       Id,
+                       Sender,
+                       Receivers,
+                       Subject,
+                       Text,
+                       InReplyTo,
 
-                               CustomData,
-                               AttachedFiles,
-                               JSONLDContext,
-                               DataSource,
-                               LastChangeDate);
+                       CustomData,
+                       AttachedFiles,
+                       JSONLDContext,
+                       DataSource,
+                       LastChangeDate
+                   );
 
             #endregion
 

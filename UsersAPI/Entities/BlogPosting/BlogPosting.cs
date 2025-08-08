@@ -172,7 +172,7 @@ namespace social.OpenData.UsersAPI
         /// The timestamp of the publication of this blog posting.
         /// </summary>
         [Mandatory]
-        public DateTime                           PublicationDate       { get; }
+        public DateTimeOffset                     PublicationDate       { get; }
 
         /// <summary>
         /// An optional geographical location of this blog posting.
@@ -238,8 +238,8 @@ namespace social.OpenData.UsersAPI
                            I18NString                  Text,
                            BlogPosting_Id?             Id                = null,
                            IEnumerable<IUser>?         Authors           = null,
-                           DateTime?                   PublicationDate   = null,
-                           DateTime?                   LastChangeDate    = null,
+                           DateTimeOffset?             PublicationDate   = null,
+                           DateTimeOffset?             LastChangeDate    = null,
                            GeoCoordinate?              GeoLocation       = null,
                            I18NString?                 Category          = null,
                            IEnumerable<TagRelevance>?  Tags              = null,
@@ -852,7 +852,7 @@ namespace social.OpenData.UsersAPI
             /// The timestamp of the publication of this blog posting.
             /// </summary>
             [Mandatory]
-            public DateTime                           PublicationDate       { get; set; }
+            public DateTimeOffset                     PublicationDate       { get; set; }
 
             /// <summary>
             /// An optional geographical location of this blog posting.
@@ -914,8 +914,8 @@ namespace social.OpenData.UsersAPI
                            String?                     TeaserImage       = null,
                            I18NString?                 Text              = null,
                            IEnumerable<IUser>?         Authors           = null,
-                           DateTime?                   PublicationDate   = null,
-                           DateTime?                   LastChangeDate    = null,
+                           DateTimeOffset?             PublicationDate   = null,
+                           DateTimeOffset?             LastChangeDate    = null,
                            GeoCoordinate?              GeoLocation       = null,
                            I18NString?                 Category          = null,
                            IEnumerable<TagRelevance>?  Tags              = null,

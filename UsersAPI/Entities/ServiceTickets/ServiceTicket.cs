@@ -113,10 +113,10 @@ namespace social.OpenData.UsersAPI
         public IEnumerable<ServiceTicketChangeSet>      ChangeSets              { get; }
 
 
-        /// <summary>
-        /// The timestamp when this ticket was created.
-        /// </summary>
-        public DateTime                                 Created                 { get; }
+        ///// <summary>
+        ///// The timestamp when this ticket was created.
+        ///// </summary>
+        //public DateTimeOffset                           Created                 { get; }
 
         /// <summary>
         /// The initial author of this service ticket.
@@ -315,7 +315,7 @@ namespace social.OpenData.UsersAPI
         public ServiceTicket(ServiceTicket_Id?                     Id                    = null,
                              JSONLDContext?                        JSONLDContext         = null,
 
-                             DateTime?                             Timestamp             = null,
+                             DateTimeOffset?                       Timestamp             = null,
                              IUser?                                Author                = null,
                              ServiceTicketStatusTypes?             Status                = null,
                              I18NString?                           Title                 = null,
@@ -331,13 +331,13 @@ namespace social.OpenData.UsersAPI
                              JObject?                              CustomData            = null,
                              IEnumerable<AttachedFile>?            AttachedFiles         = null,
                              IEnumerable<ServiceTicketReference>?  TicketReferences      = null,
-                             IEnumerable<DataLicense>?         DataLicenses          = null,
+                             IEnumerable<DataLicense>?             DataLicenses          = null,
 
                              String?                               DataSource            = null)
 
 
             : this(Id ?? ServiceTicket_Id.Random(),
-                   new List<ServiceTicketChangeSet>() {
+                   [
                        new ServiceTicketChangeSet(
                            ServiceTicketChangeSet_Id.Random(),
                            ServiceTicketChangeSet.DefaultJSONLDContext,
@@ -365,7 +365,7 @@ namespace social.OpenData.UsersAPI
 
                            DataSource
                        )
-                   },
+                   ],
                    JSONLDContext ?? DefaultJSONLDContext)
 
         { }
@@ -1512,7 +1512,7 @@ namespace social.OpenData.UsersAPI
             {
 
                 this.Id           = Id;
-                this._ChangeSets  = ChangeSets != null ? new List<ServiceTicketChangeSet>(ChangeSets) : new List<ServiceTicketChangeSet>();
+                this._ChangeSets  = ChangeSets != null ? [.. ChangeSets] : [];
 
             }
 
@@ -1546,7 +1546,7 @@ namespace social.OpenData.UsersAPI
                            JSONLDContext?                        JSONLDContext              = null,
 
                            ServiceTicketChangeSet_Id?            ServiceTicketChangeSetId   = null,
-                           DateTime?                             Timestamp                  = null,
+                           DateTimeOffset?                       Timestamp                  = null,
                            IUser?                                Author                     = null,
                            ServiceTicketStatusTypes?             Status                     = null,
                            I18NString?                           Title                      = null,
@@ -1568,7 +1568,7 @@ namespace social.OpenData.UsersAPI
 
 
                 : this(Id ?? ServiceTicket_Id.Random(),
-                       new List<ServiceTicketChangeSet>() {
+                       [
                            new ServiceTicketChangeSet(
                                ServiceTicketChangeSetId ?? ServiceTicketChangeSet_Id.Random(),
                                JSONLDContext,
@@ -1596,7 +1596,7 @@ namespace social.OpenData.UsersAPI
                                null, // CommentReferences
 
                                DataSource)
-                       },
+                       ],
                        JSONLDContext)
 
             { }

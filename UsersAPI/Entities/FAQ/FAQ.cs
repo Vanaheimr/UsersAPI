@@ -201,7 +201,7 @@ namespace social.OpenData.UsersAPI
 
                    JObject?                    CustomData        = default,
                    String?                     DataSource        = default,
-                   DateTime?                   LastChange        = default)
+                   DateTimeOffset?             LastChange        = default)
 
             : this(FAQ_Id.Random(),
                    Question,
@@ -240,7 +240,7 @@ namespace social.OpenData.UsersAPI
 
                    JObject?                    CustomData        = default,
                    String?                     DataSource        = default,
-                   DateTime?                   LastChange        = default)
+                   DateTimeOffset?             LastChange        = default)
 
             : base(Id,
                    DefaultJSONLDContext,
@@ -760,18 +760,20 @@ namespace social.OpenData.UsersAPI
         /// <param name="NewFAQId">An optional new FAQ identification.</param>
         public Builder ToBuilder(FAQ_Id? NewFAQId = null)
 
-            => new Builder(NewFAQId ?? Id,
-                           Question,
-                           Answer,
-                           Author,
-                           PublicationDate,
-                           Tags,
-                           IsHidden,
-                           Signatures,
+            => new (
+                   NewFAQId ?? Id,
+                   Question,
+                   Answer,
+                   Author,
+                   PublicationDate,
+                   Tags,
+                   IsHidden,
+                   Signatures,
 
-                           CustomData,
-                           DataSource,
-                           LastChangeDate);
+                   CustomData,
+                   DataSource,
+                   LastChangeDate
+               );
 
         #endregion
 
@@ -848,7 +850,7 @@ namespace social.OpenData.UsersAPI
 
                            JObject?                    CustomData        = default,
                            String?                     DataSource        = default,
-                           DateTime?                   LastChange        = default)
+                           DateTimeOffset?             LastChange        = default)
 
                 : base(Id ?? FAQ_Id.Random(),
                        DefaultJSONLDContext,
@@ -879,18 +881,20 @@ namespace social.OpenData.UsersAPI
             public FAQ Sign(ICipherParameters PrivateKey)
             {
 
-                var FAQ        = new FAQ(Id,
-                                         Question,
-                                         Answer,
-                                         Author,
-                                         PublicationDate,
-                                         Tags,
-                                         IsHidden,
-                                         Signatures,
+                var FAQ         = new FAQ(
+                                      Id,
+                                      Question,
+                                      Answer,
+                                      Author,
+                                      PublicationDate,
+                                      Tags,
+                                      IsHidden,
+                                      Signatures,
 
-                                         CustomData,
-                                         DataSource,
-                                         LastChangeDate);;
+                                      CustomData,
+                                      DataSource,
+                                      LastChangeDate
+                                  );
 
                 var ctext       = FAQ.ToJSON  (Embedded:   false,
                                                ExpandTags: InfoStatus.ShowIdOnly).

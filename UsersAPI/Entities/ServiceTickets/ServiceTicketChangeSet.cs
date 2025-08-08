@@ -114,7 +114,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// The timestamp of this service ticket change set.
         /// </summary>
-        public DateTime                                      Timestamp                   { get; }
+        public DateTimeOffset                                Timestamp                   { get; }
 
         /// <summary>
         /// The author of this service ticket change set.
@@ -243,7 +243,7 @@ namespace social.OpenData.UsersAPI
         public ServiceTicketChangeSet(ServiceTicketChangeSet_Id?                     Id                    = null,
                                       JSONLDContext?                                 JSONLDContext         = default,
 
-                                      DateTime?                                      Timestamp             = null,
+                                      DateTimeOffset?                                Timestamp             = null,
                                       IUser?                                         Author                = null,
                                       ServiceTicketStatusTypes?                      Status                = null,
                                       I18NString?                                    Title                 = null,
@@ -259,7 +259,7 @@ namespace social.OpenData.UsersAPI
                                       JObject?                                       CustomData            = null,
                                       IEnumerable<AttachedFile>?                     AttachedFiles         = null,
                                       IEnumerable<ServiceTicketReference>?           TicketReferences      = null,
-                                      IEnumerable<DataLicense>?                  DataLicenses          = null,
+                                      IEnumerable<DataLicense>?                      DataLicenses          = null,
 
                                       I18NString?                                    Comment               = null,
                                       ServiceTicketChangeSet_Id?                     InReplyTo             = null,
@@ -1153,32 +1153,34 @@ namespace social.OpenData.UsersAPI
         /// <param name="NewServiceTicketChangeSetId">An optional new service ticket change set identification.</param>
         public Builder ToBuilder(ServiceTicketChangeSet_Id? NewServiceTicketChangeSetId = null)
 
-            => new Builder(NewServiceTicketChangeSetId ?? Id,
-                           JSONLDContext,
+            => new (
+                   NewServiceTicketChangeSetId ?? Id,
+                   JSONLDContext,
 
-                           Timestamp,
-                           Author,
-                           Status,
-                           Title,
-                           Affected,
-                           Priority,
-                           Location,
-                           GeoLocation,
-                           ProblemDescriptions,
-                           StatusIndicators,
-                           FirstResponse,
-                           Reactions,
-                           AdditionalInfo,
-                           CustomData,
-                           AttachedFiles,
-                           TicketReferences,
-                           DataLicenses,
+                   Timestamp,
+                   Author,
+                   Status,
+                   Title,
+                   Affected,
+                   Priority,
+                   Location,
+                   GeoLocation,
+                   ProblemDescriptions,
+                   StatusIndicators,
+                   FirstResponse,
+                   Reactions,
+                   AdditionalInfo,
+                   CustomData,
+                   AttachedFiles,
+                   TicketReferences,
+                   DataLicenses,
 
-                           Comment,
-                           InReplyTo,
-                           CommentReferences,
+                   Comment,
+                   InReplyTo,
+                   CommentReferences,
 
-                           DataSource);
+                   DataSource
+               );
 
         #endregion
 
@@ -1196,7 +1198,7 @@ namespace social.OpenData.UsersAPI
             /// <summary>
             /// The timestamp of this service ticket change set.
             /// </summary>
-            public DateTime                                      Timestamp                 { get; set; }
+            public DateTimeOffset                                Timestamp                 { get; set; }
 
             /// <summary>
             /// The initial author of this service ticket change set (if known).
@@ -1323,7 +1325,7 @@ namespace social.OpenData.UsersAPI
             public Builder(ServiceTicketChangeSet_Id?                     Id                    = null,
                            JSONLDContext?                                 JSONLDContext         = default,
 
-                           DateTime?                                      Timestamp             = null,
+                           DateTimeOffset?                                Timestamp             = null,
                            IUser?                                         Author                = null,
                            ServiceTicketStatusTypes?                      Status                = null,
                            I18NString?                                    Title                 = null,

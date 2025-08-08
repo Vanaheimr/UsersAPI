@@ -595,7 +595,7 @@ namespace social.OpenData.UsersAPI
         public  const             String                                        SignUpContext                           = "";
         public  const             String                                        SignInOutContext                        = "";
 
-        protected readonly        Dictionary<IIPAddress,       DateTime>          _NewsletterRemoteIPAddresses;
+        protected readonly        Dictionary<IIPAddress,       DateTimeOffset>    _NewsletterRemoteIPAddresses;
         protected readonly        Dictionary<SecurityToken_Id, NewsletterSignup>  _NewsletterSignups;
         protected readonly        Dictionary<Newsletter_Id,    EMailAddress>      _NewsletterEMails;
 
@@ -1779,7 +1779,7 @@ namespace social.OpenData.UsersAPI
 
             #region Init data
 
-            this._NewsletterRemoteIPAddresses    = new Dictionary<IIPAddress,                 DateTime>();
+            this._NewsletterRemoteIPAddresses    = new Dictionary<IIPAddress,                 DateTimeOffset>();
             this._NewsletterSignups              = new Dictionary<SecurityToken_Id,           NewsletterSignup>();
             this._NewsletterEMails               = new Dictionary<Newsletter_Id,              EMailAddress>();
             this._Messages                       = new Dictionary<Message_Id,                 Message>();
@@ -6323,10 +6323,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="Message">The added message.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public delegate Task OnMessageAddedDelegate(DateTime          Timestamp,
-                                                    Message           Message,
-                                                    EventTracking_Id? EventTrackingId   = null,
-                                                    User_Id?          CurrentUserId     = null);
+        public delegate Task OnMessageAddedDelegate(DateTimeOffset     Timestamp,
+                                                    Message            Message,
+                                                    EventTracking_Id?  EventTrackingId   = null,
+                                                    User_Id?           CurrentUserId     = null);
 
         /// <summary>
         /// An event fired whenever a message was added.
@@ -6717,11 +6717,11 @@ namespace social.OpenData.UsersAPI
         /// <param name="OldMessage">The old message.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking message identification</param>
-        public delegate Task OnMessageUpdatedDelegate(DateTime          Timestamp,
-                                                      Message           Message,
-                                                      Message           OldMessage,
-                                                      EventTracking_Id? EventTrackingId   = null,
-                                                      User_Id?          CurrentUserId     = null);
+        public delegate Task OnMessageUpdatedDelegate(DateTimeOffset     Timestamp,
+                                                      Message            Message,
+                                                      Message            OldMessage,
+                                                      EventTracking_Id?  EventTrackingId   = null,
+                                                      User_Id?           CurrentUserId     = null);
 
         /// <summary>
         /// An event fired whenever a message was updated.
@@ -6966,7 +6966,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="Message">The removed message.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking message identification</param>
-        public delegate Task OnMessageRemovedDelegate(DateTime           Timestamp,
+        public delegate Task OnMessageRemovedDelegate(DateTimeOffset     Timestamp,
                                                       Message            Message,
                                                       EventTracking_Id?  EventTrackingId   = null,
                                                       User_Id?           CurrentUserId     = null);
@@ -8205,9 +8205,9 @@ namespace social.OpenData.UsersAPI
             if (ServiceTicket.API != null && ServiceTicket.API != this)
                 throw new ArgumentException(nameof(ServiceTicket), "The given service ticket is already attached to another API!");
 
-            ServiceTicket  OldServiceTicket                = null;
-            DateTime       Now                             = Timestamp.Now;
-            Boolean        FastAnalyzeServiceTicketStatus  = false;
+            ServiceTicket   OldServiceTicket                = null;
+            DateTimeOffset  Now                             = Timestamp.Now;
+            Boolean         FastAnalyzeServiceTicketStatus  = false;
 
             try
             {
@@ -8306,8 +8306,8 @@ namespace social.OpenData.UsersAPI
             if (ServiceTicket.API != null && ServiceTicket.API != this)
                 throw new ArgumentException(nameof(ServiceTicket), "The given service ticket is already attached to another API!");
 
-            ServiceTicket OldServiceTicket;
-            DateTime       Now = Timestamp.Now;
+            ServiceTicket   OldServiceTicket;
+            DateTimeOffset  Now = Timestamp.Now;
 
             try
             {
@@ -8394,7 +8394,7 @@ namespace social.OpenData.UsersAPI
 
             TServiceTicket  castedOldServiceTicket;
             TServiceTicket  ServiceTicket;
-            DateTime        Now = Timestamp.Now;
+            DateTimeOffset  Now = Timestamp.Now;
 
             try
             {
@@ -8617,7 +8617,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="ServiceTicketId">The unique service ticket identification.</param>
         /// <param name="OldStatus">The old status.</param>
         /// <param name="NewStatus">The new status.</param>
-        public delegate Task ServiceTicketStatusChangedDelegate     (DateTime                               Timestamp,
+        public delegate Task ServiceTicketStatusChangedDelegate     (DateTimeOffset                         Timestamp,
                                                                      ServiceTicket_Id                       ServiceTicketId,
                                                                      Timestamped<ServiceTicketStatusTypes>  OldStatus,
                                                                      Timestamped<ServiceTicketStatusTypes>  NewStatus);
@@ -8819,10 +8819,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="BlogPosting">The added blog posting.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public delegate Task OnBlogPostingAddedDelegate(DateTime          Timestamp,
-                                                        BlogPosting       BlogPosting,
-                                                        EventTracking_Id? EventTrackingId   = null,
-                                                        User_Id?          CurrentUserId     = null);
+        public delegate Task OnBlogPostingAddedDelegate(DateTimeOffset     Timestamp,
+                                                        BlogPosting        BlogPosting,
+                                                        EventTracking_Id?  EventTrackingId   = null,
+                                                        User_Id?           CurrentUserId     = null);
 
         /// <summary>
         /// An event fired whenever a blog posting was added.
@@ -9213,11 +9213,11 @@ namespace social.OpenData.UsersAPI
         /// <param name="OldBlogPosting">The old blog posting.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking blog posting identification</param>
-        public delegate Task OnBlogPostingUpdatedDelegate(DateTime          Timestamp,
-                                                          BlogPosting       BlogPosting,
-                                                          BlogPosting       OldBlogPosting,
-                                                          EventTracking_Id? EventTrackingId   = null,
-                                                          User_Id?          CurrentUserId     = null);
+        public delegate Task OnBlogPostingUpdatedDelegate(DateTimeOffset     Timestamp,
+                                                          BlogPosting        BlogPosting,
+                                                          BlogPosting        OldBlogPosting,
+                                                          EventTracking_Id?  EventTrackingId   = null,
+                                                          User_Id?           CurrentUserId     = null);
 
         /// <summary>
         /// An event fired whenever a blog posting was updated.
@@ -9620,10 +9620,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="BlogPosting">The removed blog posting.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking blog posting identification</param>
-        public delegate Task OnBlogPostingRemovedDelegate(DateTime          Timestamp,
-                                                          BlogPosting       BlogPosting,
-                                                          EventTracking_Id? EventTrackingId   = null,
-                                                          User_Id?          CurrentUserId     = null);
+        public delegate Task OnBlogPostingRemovedDelegate(DateTimeOffset     Timestamp,
+                                                          BlogPosting        BlogPosting,
+                                                          EventTracking_Id?  EventTrackingId   = null,
+                                                          User_Id?           CurrentUserId     = null);
 
         /// <summary>
         /// An event fired whenever a blog posting was removed.
@@ -9998,10 +9998,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="NewsPosting">The added news posting.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public delegate Task OnNewsPostingAddedDelegate(DateTime          Timestamp,
-                                                        NewsPosting       NewsPosting,
-                                                        EventTracking_Id? EventTrackingId   = null,
-                                                        User_Id?          CurrentUserId     = null);
+        public delegate Task OnNewsPostingAddedDelegate(DateTimeOffset     Timestamp,
+                                                        NewsPosting        NewsPosting,
+                                                        EventTracking_Id?  EventTrackingId   = null,
+                                                        User_Id?           CurrentUserId     = null);
 
         /// <summary>
         /// An event fired whenever a news posting was added.
@@ -10392,11 +10392,11 @@ namespace social.OpenData.UsersAPI
         /// <param name="OldNewsPosting">The old news posting.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking news posting identification</param>
-        public delegate Task OnNewsPostingUpdatedDelegate(DateTime          Timestamp,
-                                                          NewsPosting       NewsPosting,
-                                                          NewsPosting       OldNewsPosting,
-                                                          EventTracking_Id? EventTrackingId   = null,
-                                                          User_Id?          CurrentUserId     = null);
+        public delegate Task OnNewsPostingUpdatedDelegate(DateTimeOffset     Timestamp,
+                                                          NewsPosting        NewsPosting,
+                                                          NewsPosting        OldNewsPosting,
+                                                          EventTracking_Id?  EventTrackingId   = null,
+                                                          User_Id?           CurrentUserId     = null);
 
         /// <summary>
         /// An event fired whenever a news posting was updated.
@@ -10799,10 +10799,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="NewsPosting">The removed news posting.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking news posting identification</param>
-        public delegate Task OnNewsPostingRemovedDelegate(DateTime          Timestamp,
-                                                          NewsPosting       NewsPosting,
-                                                          EventTracking_Id? EventTrackingId   = null,
-                                                          User_Id?          CurrentUserId     = null);
+        public delegate Task OnNewsPostingRemovedDelegate(DateTimeOffset     Timestamp,
+                                                          NewsPosting        NewsPosting,
+                                                          EventTracking_Id?  EventTrackingId   = null,
+                                                          User_Id?           CurrentUserId     = null);
 
         /// <summary>
         /// An event fired whenever a news posting was removed.
@@ -11177,10 +11177,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="NewsBanner">The added news banner.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public delegate Task OnNewsBannerAddedDelegate(DateTime          Timestamp,
-                                                        NewsBanner       NewsBanner,
-                                                        EventTracking_Id? EventTrackingId   = null,
-                                                        User_Id?          CurrentUserId     = null);
+        public delegate Task OnNewsBannerAddedDelegate(DateTimeOffset     Timestamp,
+                                                       NewsBanner         NewsBanner,
+                                                       EventTracking_Id?  EventTrackingId   = null,
+                                                       User_Id?           CurrentUserId     = null);
 
         /// <summary>
         /// An event fired whenever a news banner was added.
@@ -11571,11 +11571,11 @@ namespace social.OpenData.UsersAPI
         /// <param name="OldNewsBanner">The old news banner.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking news banner identification</param>
-        public delegate Task OnNewsBannerUpdatedDelegate(DateTime          Timestamp,
-                                                          NewsBanner       NewsBanner,
-                                                          NewsBanner       OldNewsBanner,
-                                                          EventTracking_Id? EventTrackingId   = null,
-                                                          User_Id?          CurrentUserId     = null);
+        public delegate Task OnNewsBannerUpdatedDelegate(DateTimeOffset    Timestamp,
+                                                         NewsBanner        NewsBanner,
+                                                         NewsBanner        OldNewsBanner,
+                                                         EventTracking_Id? EventTrackingId   = null,
+                                                         User_Id?          CurrentUserId     = null);
 
         /// <summary>
         /// An event fired whenever a news banner was updated.
@@ -11627,10 +11627,10 @@ namespace social.OpenData.UsersAPI
             var OnNewsBannerUpdatedLocal = OnNewsBannerUpdated;
             if (OnNewsBannerUpdatedLocal is not null)
                 await OnNewsBannerUpdatedLocal?.Invoke(Timestamp.Now,
-                                                        NewsBanner,
-                                                        OldNewsBanner,
-                                                        eventTrackingId,
-                                                        CurrentUserId);
+                                                       NewsBanner,
+                                                       OldNewsBanner,
+                                                       eventTrackingId,
+                                                       CurrentUserId);
 
             await SendNotifications(NewsBanner,
                                     updateNewsBanner_MessageType,
@@ -11978,10 +11978,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="NewsBanner">The removed news banner.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking news banner identification</param>
-        public delegate Task OnNewsBannerRemovedDelegate(DateTime          Timestamp,
-                                                          NewsBanner       NewsBanner,
-                                                          EventTracking_Id? EventTrackingId   = null,
-                                                          User_Id?          CurrentUserId     = null);
+        public delegate Task OnNewsBannerRemovedDelegate(DateTimeOffset     Timestamp,
+                                                         NewsBanner         NewsBanner,
+                                                         EventTracking_Id?  EventTrackingId   = null,
+                                                         User_Id?           CurrentUserId     = null);
 
         /// <summary>
         /// An event fired whenever a news banner was removed.
@@ -12356,10 +12356,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="FAQ">The added FAQ.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public delegate Task OnFAQAddedDelegate(DateTime          Timestamp,
-                                                        FAQ       FAQ,
-                                                        EventTracking_Id? EventTrackingId   = null,
-                                                        User_Id?          CurrentUserId     = null);
+        public delegate Task OnFAQAddedDelegate(DateTimeOffset     Timestamp,
+                                                FAQ                FAQ,
+                                                EventTracking_Id?  EventTrackingId   = null,
+                                                User_Id?           CurrentUserId     = null);
 
         /// <summary>
         /// An event fired whenever a FAQ was added.
@@ -12377,9 +12377,9 @@ namespace social.OpenData.UsersAPI
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         protected internal async Task<FAQ> _AddFAQ(FAQ                            FAQ,
-                                                          Action<FAQ, EventTracking_Id>  OnAdded           = null,
-                                                          EventTracking_Id?                      EventTrackingId   = null,
-                                                          User_Id?                               CurrentUserId     = null)
+                                                   Action<FAQ, EventTracking_Id>  OnAdded           = null,
+                                                   EventTracking_Id?              EventTrackingId   = null,
+                                                   User_Id?                       CurrentUserId     = null)
         {
 
             if (FAQ is null)
@@ -12414,9 +12414,9 @@ namespace social.OpenData.UsersAPI
             var OnFAQAddedLocal = OnFAQAdded;
             if (OnFAQAddedLocal is not null)
                 await OnFAQAddedLocal?.Invoke(Timestamp.Now,
-                                                      FAQ,
-                                                      eventTrackingId,
-                                                      CurrentUserId);
+                                              FAQ,
+                                              eventTrackingId,
+                                              CurrentUserId);
 
             await SendNotifications(FAQ,
                                     addUser_MessageType,
@@ -12750,11 +12750,11 @@ namespace social.OpenData.UsersAPI
         /// <param name="OldFAQ">The old FAQ.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking FAQ identification</param>
-        public delegate Task OnFAQUpdatedDelegate(DateTime          Timestamp,
-                                                          FAQ       FAQ,
-                                                          FAQ       OldFAQ,
-                                                          EventTracking_Id? EventTrackingId   = null,
-                                                          User_Id?          CurrentUserId     = null);
+        public delegate Task OnFAQUpdatedDelegate(DateTimeOffset     Timestamp,
+                                                  FAQ                FAQ,
+                                                  FAQ                OldFAQ,
+                                                  EventTracking_Id?  EventTrackingId   = null,
+                                                  User_Id?           CurrentUserId     = null);
 
         /// <summary>
         /// An event fired whenever a FAQ was updated.
@@ -13157,10 +13157,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="FAQ">The removed FAQ.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking FAQ identification</param>
-        public delegate Task OnFAQRemovedDelegate(DateTime          Timestamp,
-                                                          FAQ       FAQ,
-                                                          EventTracking_Id? EventTrackingId   = null,
-                                                          User_Id?          CurrentUserId     = null);
+        public delegate Task OnFAQRemovedDelegate(DateTimeOffset     Timestamp,
+                                                  FAQ                FAQ,
+                                                  EventTracking_Id?  EventTrackingId   = null,
+                                                  User_Id?           CurrentUserId     = null);
 
         /// <summary>
         /// An event fired whenever a FAQ was removed.

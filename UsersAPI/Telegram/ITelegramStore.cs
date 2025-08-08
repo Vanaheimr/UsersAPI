@@ -17,32 +17,24 @@
 
 #region Usings
 
-using System;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-
-using Telegram.Bot;
-
-using org.GraphDefined.Vanaheimr.Illias;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
-using System.Threading;
+
+using org.GraphDefined.Vanaheimr.Illias;
 
 #endregion
 
 namespace social.OpenData.UsersAPI
 {
 
-    public delegate Task OnSendTelegramRequestDelegate (DateTime                      LogTimestamp,
+    public delegate Task OnSendTelegramRequestDelegate (DateTimeOffset                LogTimestamp,
                                                         ITelegramStore                Sender,
                                                         EventTracking_Id              EventTrackingId,
                                                         I18NString                    Message,
                                                         IEnumerable<String>           Usernames);
 
-    public delegate Task OnSendTelegramResponseDelegate(DateTime                      LogTimestamp,
+    public delegate Task OnSendTelegramResponseDelegate(DateTimeOffset                LogTimestamp,
                                                         ITelegramStore                Sender,
                                                         EventTracking_Id              EventTrackingId,
                                                         I18NString                    Message,

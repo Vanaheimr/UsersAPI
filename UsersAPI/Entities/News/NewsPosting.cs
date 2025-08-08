@@ -159,7 +159,7 @@ namespace social.OpenData.UsersAPI
         /// The publication timestamp of this news posting.
         /// </summary>
         [Mandatory]
-        public DateTime                           PublicationDate       { get; }
+        public DateTimeOffset                     PublicationDate       { get; }
 
         /// <summary>
         /// An enumeration of multi-language tags and their relevance.
@@ -196,8 +196,8 @@ namespace social.OpenData.UsersAPI
                            I18NString                  Text,
                            NewsPosting_Id?             Id                = null,
                            IEnumerable<User>?          Authors           = null,
-                           DateTime?                   PublicationDate   = null,
-                           DateTime?                   LastChangeDate    = null,
+                           DateTimeOffset?             PublicationDate   = null,
+                           DateTimeOffset?             LastChangeDate    = null,
                            IEnumerable<TagRelevance>?  Tags              = null,
                            PrivacyLevel?               PrivacyLevel      = null,
                            Boolean                     IsHidden          = false,
@@ -226,9 +226,9 @@ namespace social.OpenData.UsersAPI
 
             this.Headline         = Headline;
             this.Text             = Text;
-            this.Authors          = Authors         ?? Array.Empty<User>();
+            this.Authors          = Authors         ?? [];
             this.PublicationDate  = PublicationDate ?? Timestamp.Now;
-            this.Tags             = Tags            ?? Array.Empty<TagRelevance>();
+            this.Tags             = Tags            ?? [];
             this.IsHidden         = IsHidden;
 
         }
@@ -770,7 +770,7 @@ namespace social.OpenData.UsersAPI
             /// The publication timestamp of this news posting.
             /// </summary>
             [Mandatory]
-            public DateTime?                          PublicationDate       { get; set; }
+            public DateTimeOffset?                    PublicationDate       { get; set; }
 
             /// <summary>
             /// An enumeration of multi-language tags and their relevance.
@@ -804,8 +804,8 @@ namespace social.OpenData.UsersAPI
                            I18NString?                 Headline          = null,
                            I18NString?                 Text              = null,
                            IEnumerable<User>?          Authors           = null,
-                           DateTime?                   PublicationDate   = null,
-                           DateTime?                   LastChangeDate    = null,
+                           DateTimeOffset?             PublicationDate   = null,
+                           DateTimeOffset?             LastChangeDate    = null,
                            IEnumerable<TagRelevance>?  Tags              = null,
                            Boolean                     IsHidden          = false,
                            IEnumerable<Signature23>?   Signatures        = null,
@@ -843,16 +843,18 @@ namespace social.OpenData.UsersAPI
             public NewsPosting Sign(ICipherParameters PrivateKey)
             {
 
-                var news        = new NewsPosting(Headline,
-                                                  Text,
-                                                  Id,
-                                                  Authors,
-                                                  PublicationDate,
-                                                  LastChangeDate,
-                                                  Tags,
-                                                  PrivacyLevel.World,
-                                                  IsHidden,
-                                                  Signatures);
+                var news        = new NewsPosting(
+                                      Headline,
+                                      Text,
+                                      Id,
+                                      Authors,
+                                      PublicationDate,
+                                      LastChangeDate,
+                                      Tags,
+                                      PrivacyLevel.World,
+                                      IsHidden,
+                                      Signatures
+                                  );
 
                 var ctext       = news.ToJSON(Embedded:    false,
                                               ExpandTags:  InfoStatus.ShowIdOnly).ToString(Newtonsoft.Json.Formatting.None);

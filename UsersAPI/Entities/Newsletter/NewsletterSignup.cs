@@ -49,7 +49,7 @@ namespace social.OpenData.UsersAPI
         public Newsletter_Id       NewsletterId    { get; }
 
         [Mandatory]
-        public DateTime            Timestamp       { get; }
+        public DateTimeOffset      Timestamp       { get; }
 
         #endregion
 
@@ -57,7 +57,7 @@ namespace social.OpenData.UsersAPI
 
         public NewsletterSignup(SimpleEMailAddress  EMailAddress,
                                 Newsletter_Id       NewsletterId,
-                                DateTime            Timestamp)
+                                DateTimeOffset      Timestamp)
         {
 
             this.EMailAddress  = EMailAddress;

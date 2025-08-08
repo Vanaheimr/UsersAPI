@@ -129,23 +129,23 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        /// <summary>
-        /// The (multi-language) name of this dashboard.
-        /// </summary>
-        [Mandatory]
-        public I18NString                         Name                  { get; }
+        ///// <summary>
+        ///// The (multi-language) name of this dashboard.
+        ///// </summary>
+        //[Mandatory]
+        //public I18NString                         Name                  { get; }
 
-        /// <summary>
-        /// The (multi-language) description of this dashboard.
-        /// </summary>
-        [Optional]
-        public I18NString                         Description           { get; }
+        ///// <summary>
+        ///// The (multi-language) description of this dashboard.
+        ///// </summary>
+        //[Optional]
+        //public I18NString                         Description           { get; }
 
         /// <summary>
         /// The timestamp of the creation of this dashboard.
         /// </summary>
         [Mandatory]
-        public DateTime                           CreationDate          { get; }
+        public DateTimeOffset                     CreationDate          { get; }
 
         /// <summary>
         /// An enumeration of multi-language tags and their relevance.
@@ -174,7 +174,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
         public Dashboard(I18NString                  Name,
                          I18NString?                 Description    = null,
-                         DateTime?                   CreationDate   = null,
+                         DateTimeOffset?             CreationDate   = null,
                          IEnumerable<TagRelevance>?  Tags           = null,
                          Boolean?                    IsDisabled     = false,
                          String                      DataSource     = "")
@@ -203,7 +203,7 @@ namespace social.OpenData.UsersAPI
         public Dashboard(Dashboard_Id                Id,
                          I18NString                  Name,
                          I18NString?                 Description    = null,
-                         DateTime?                   CreationDate   = null,
+                         DateTimeOffset?             CreationDate   = null,
                          IEnumerable<TagRelevance>?  Tags           = null,
                          Boolean?                    IsDisabled     = false,
                          String                      DataSource     = "")
@@ -220,10 +220,10 @@ namespace social.OpenData.UsersAPI
 
         {
 
-            this.Name          = Name         ?? throw new ArgumentNullException(nameof(Name), "The given name must not be null!");
-            this.Description   = Description  ?? I18NString.Empty;
+            //this.Name          = Name         ?? throw new ArgumentNullException(nameof(Name), "The given name must not be null!");
+            //this.Description   = Description  ?? I18NString.Empty;
             this.CreationDate  = CreationDate ?? Timestamp.Now;
-            this.Tags          = Tags         ?? Array.Empty<TagRelevance>();
+            this.Tags          = Tags         ?? [];
             this.IsDisabled    = IsDisabled   ?? false;
 
         }
@@ -670,7 +670,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// A dashboard builder.
         /// </summary>
-        public class Builder
+        public new class Builder
         {
 
             #region Properties
@@ -696,7 +696,7 @@ namespace social.OpenData.UsersAPI
             /// The timestamp of the creation of this dashboard.
             /// </summary>
             [Mandatory]
-            public DateTime                           CreationDate          { get; set; }
+            public DateTimeOffset                     CreationDate          { get; set; }
 
             /// <summary>
             /// An enumeration of multi-language tags and their relevance.
@@ -731,7 +731,7 @@ namespace social.OpenData.UsersAPI
             /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
             public Builder(I18NString                 Name,
                            I18NString                 Description    = null,
-                           DateTime?                  CreationDate   = null,
+                           DateTimeOffset?            CreationDate   = null,
                            IEnumerable<TagRelevance>  Tags           = null,
                            Boolean?                   IsDisabled     = false,
                            String                     DataSource     = "")
@@ -760,7 +760,7 @@ namespace social.OpenData.UsersAPI
             public Builder(Dashboard_Id               Id,
                            I18NString                 Name,
                            I18NString                 Description    = null,
-                           DateTime?                  CreationDate   = null,
+                           DateTimeOffset?            CreationDate   = null,
                            IEnumerable<TagRelevance>  Tags           = null,
                            Boolean?                   IsDisabled     = false,
                            String                     DataSource     = "")
