@@ -76,12 +76,12 @@ namespace social.OpenData.UsersAPI
 
         #region API
 
-        private UsersAPI _API;
+        private UsersAPIX _API;
 
         /// <summary>
         /// The UsersAPI of this service ticket.
         /// </summary>
-        public UsersAPI API
+        public UsersAPIX API
         {
 
             get
@@ -108,7 +108,7 @@ namespace social.OpenData.UsersAPI
 
 
         /// <summary>
-        /// An enumeration of historichal changes to this ticket.
+        /// An enumeration of historical changes to this ticket.
         /// </summary>
         public IEnumerable<ServiceTicketChangeSet>      ChangeSets              { get; }
 
