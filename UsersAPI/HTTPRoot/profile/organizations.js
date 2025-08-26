@@ -176,13 +176,13 @@ function ShowOrganizations() {
                     newUserDiv.remove();
                 }, (statusCode, status, response) => {
                     var responseJSON = { "description": "HTTP Error " + statusCode + " - " + status + "!" };
-                    if (response != null && response != "") {
+                    if (response !== null && response != "") {
                         try {
                             responseJSON = JSON.parse(response);
                         }
                         catch (_a) { }
                     }
-                    responseDiv.innerHTML = "<div class=\"HTTP Error\">Storing new user data failed!" + (responseJSON.description != null ? responseJSON.description : "") + "</div>";
+                    responseDiv.innerHTML = "<div class=\"HTTP Error\">Storing new user data failed!" + (responseJSON.description !== null ? responseJSON.description : "") + "</div>";
                 });
             };
             //- Cancel -----------------------------------------------------------
@@ -329,7 +329,7 @@ function ShowOrganizations() {
                     newChildOrganizationDiv.remove();
                 }, (statusCode, status, response) => {
                     var responseJSON = response != "" ? JSON.parse(response) : {};
-                    var info = responseJSON.description != null ? "<br />" + responseJSON.description : "";
+                    var info = responseJSON.description !== null ? "<br />" + responseJSON.description : "";
                     responseDiv.innerHTML = "<div class=\"HTTP Error\">Storing new child organization data failed!" + info + "</div>";
                 });
             };
@@ -406,7 +406,7 @@ function ShowOrganizations() {
         let propertiesDiv = organizationDiv.appendChild(document.createElement('div'));
         propertiesDiv.className = "properties";
         // Show admins...
-        if (organization.admins != null && organization.admins.length > 0) {
+        if (organization.admins !== null && organization.admins.length > 0) {
             let adminsDiv = propertiesDiv.appendChild(document.createElement('div'));
             adminsDiv.className = "admins";
             let infoDiv = adminsDiv.appendChild(document.createElement('div'));
@@ -420,7 +420,7 @@ function ShowOrganizations() {
                 PrintUser(admin, usersDiv, "admin", false, false);
         }
         // Show members... only when you are also a member!
-        if (organization.youAreMember && organization.members != null && organization.members.length > 0) {
+        if (organization.youAreMember && organization.members !== null && organization.members.length > 0) {
             myOrgs.push(orgDiv);
             let membersDiv = propertiesDiv.appendChild(document.createElement('div'));
             membersDiv.id = "members";
@@ -431,7 +431,7 @@ function ShowOrganizations() {
             wrapperDiv.id = "wrapper";
             let usersDiv = wrapperDiv.appendChild(document.createElement('div'));
             usersDiv.className = "users";
-            if (organization.members != null && organization.members.length > 0) {
+            if (organization.members !== null && organization.members.length > 0) {
                 for (var member of organization.members)
                     PrintUser(member, usersDiv, "member", true, true);
             }

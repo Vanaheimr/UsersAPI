@@ -68,7 +68,7 @@ namespace social.OpenData.UsersAPI
             set
             {
 
-                if (_API != null)
+                if (_API is not null)
                     throw new ArgumentException("Illegal attempt to change the API!");
 
                 _API = value ?? throw new ArgumentException("Illegal attempt to delete the API!");
@@ -210,11 +210,11 @@ namespace social.OpenData.UsersAPI
         public override Int32 CompareTo(Object Object)
         {
 
-            if (Object == null)
+            if (Object is null)
                 throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
 
             var Message = Object as Message;
-            if ((Object) Message == null)
+            if ((Object) Message is null)
                 throw new ArgumentException("The given object is not an message!");
 
             return CompareTo(Message);
@@ -232,7 +232,7 @@ namespace social.OpenData.UsersAPI
         public override Int32 CompareTo(Message Message)
         {
 
-            if ((Object) Message == null)
+            if ((Object) Message is null)
                 throw new ArgumentNullException(nameof(Message), "The given message must not be null!");
 
             return Id.CompareTo(Message.Id);
@@ -255,11 +255,11 @@ namespace social.OpenData.UsersAPI
         public override Boolean Equals(Object Object)
         {
 
-            if (Object == null)
+            if (Object is null)
                 return false;
 
             var Message = Object as Message;
-            if ((Object) Message == null)
+            if ((Object) Message is null)
                 return false;
 
             return Equals(Message);
@@ -278,7 +278,7 @@ namespace social.OpenData.UsersAPI
         public override Boolean Equals(Message Message)
         {
 
-            if ((Object) Message == null)
+            if ((Object) Message is null)
                 return false;
 
             return Id.Equals(Message.Id);
@@ -411,11 +411,11 @@ namespace social.OpenData.UsersAPI
             {
 
                 this.Sender         = Sender;
-                this.Receivers      = AttachedFiles != null ?  new HashSet<User_Id>     (Receivers)     : new HashSet<User_Id>();
-                this.Subject        = Subject               ?? new I18NString();
-                this.Text           = Text                  ?? new I18NString();
+                this.Receivers      = AttachedFiles is not null ? [.. Receivers]     : [];
+                this.Subject        = Subject ?? new I18NString();
+                this.Text           = Text    ?? new I18NString();
                 this.InReplyTo      = InReplyTo;
-                this.AttachedFiles  = AttachedFiles != null ?  new HashSet<AttachedFile>(AttachedFiles) : new HashSet<AttachedFile>();
+                this.AttachedFiles  = AttachedFiles is not null ? [.. AttachedFiles] : [];
 
             }
 

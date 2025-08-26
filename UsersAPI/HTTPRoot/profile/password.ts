@@ -79,7 +79,7 @@ function StartChangePassword() {
 
                     var responseJSON = { "description": "HTTP Error " + HTTPStatus + " - " + StatusText + "!" };
 
-                    if (ResponseText != null && ResponseText != "") {
+                    if (ResponseText !== null && ResponseText != "") {
                         try {
                             responseJSON = JSON.parse(ResponseText);
                         }
@@ -87,7 +87,7 @@ function StartChangePassword() {
                     }
 
                     responseDiv.style.display = 'block';
-                    responseDiv.innerHTML = "<div class=\"HTTP Error\">Updating your password failed!" + (responseJSON.description != null ? responseJSON.description : "") + "</div>";
+                    responseDiv.innerHTML = "<div class=\"HTTP Error\">Updating your password failed!" + (responseJSON.description !== null ? responseJSON.description : "") + "</div>";
 
                 }
 

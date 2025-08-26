@@ -124,10 +124,10 @@ namespace social.OpenData.UsersAPI
             set
             {
 
-                if (_API != null)
+                if (_API is not null)
                     throw new ArgumentException("Illegal attempt to change the API of this communicator!");
 
-                if (value == null)
+                if (value is null)
                     throw new ArgumentException("Illegal attempt to delete the API reference of this communicator!");
 
                 _API = value;

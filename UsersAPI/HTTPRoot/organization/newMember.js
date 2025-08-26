@@ -192,12 +192,12 @@ function StartNewMember() {
         }
     }
     function VerifyAll() {
-        if (newUserJSON["@id"] != null &&
+        if (newUserJSON["@id"] !== null &&
             newUserJSON.name != "" &&
             newUserJSON.email != "" &&
-            newUserJSON.telephone != null &&
-            newUserJSON.mobilephone != null &&
-            newUserJSON.homepage != null) {
+            newUserJSON.telephone !== null &&
+            newUserJSON.mobilephone !== null &&
+            newUserJSON.homepage !== null) {
             saveButton.disabled = false;
             responseDiv.innerHTML = "";
         }
@@ -225,7 +225,7 @@ function StartNewMember() {
                     const responseJSON = JSON.parse(response);
                     const userId = responseJSON["@id"];
                     // Redirect to updated organization members view after 2 sec!
-                    if (userId != null && userId != "") {
+                    if (userId !== null && userId != "") {
                         setTimeout(function () {
                             window.location.href = "../../users/" + userId;
                         }, 2000);
@@ -239,7 +239,7 @@ function StartNewMember() {
                 try {
                     const responseJSON = JSON.parse(response);
                     responseDiv.innerHTML = "<div class=\"HTTP Error\">Storing the new member failed!<br />" +
-                        (responseJSON.description != null
+                        (responseJSON.description !== null
                             ? responseJSON.description
                             : "HTTP Error " + statusCode + " - " + status) +
                         "</div>";
@@ -256,7 +256,7 @@ function StartNewMember() {
             organizationJSON = ParseJSON_LD(response);
             headlineDiv.querySelector("#name #language").innerText = firstKey(organizationJSON.name);
             headlineDiv.querySelector("#name #I18NText").innerText = firstValue(organizationJSON.name);
-            if (organizationJSON.description != null && firstValue(organizationJSON.description) != null) {
+            if (organizationJSON.description !== null && firstValue(organizationJSON.description) !== null) {
                 headlineDiv.querySelector("#description").style.display = "block";
                 headlineDiv.querySelector("#description #language").innerText = firstKey(organizationJSON.description);
                 headlineDiv.querySelector("#description #I18NText").innerText = firstValue(organizationJSON.description);
@@ -271,7 +271,7 @@ function StartNewMember() {
         try {
             const responseJSON = JSON.parse(response);
             responseDiv.innerHTML = "<div class=\"HTTP Error\">Could not fetch organization data from server!<br />" +
-                (responseJSON.description != null
+                (responseJSON.description !== null
                     ? responseJSON.description
                     : "HTTP Error " + statusCode + " - " + status) +
                 "</div>";

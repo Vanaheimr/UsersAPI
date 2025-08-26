@@ -108,21 +108,21 @@ function MenuHighlight(name: string, NoURIupdate?: boolean) {
     if (CurrentlyHighlightedMenuItem != "") {
 
         const OldItem = document.getElementById('Item' + CurrentlyHighlightedMenuItem) as HTMLDivElement;
-        if (OldItem != null)
+        if (OldItem !== null)
             OldItem.classList.remove('active');
 
         const OldMenu = document.getElementById('Menu' + CurrentlyHighlightedMenuItem) as HTMLDivElement;
-        if (OldMenu != null)
+        if (OldMenu !== null)
             OldMenu.style.display = "none";
 
     }
 
     const NewItem = document.getElementById('Item' + name) as HTMLDivElement;
-    if (NewItem != null)
+    if (NewItem !== null)
         NewItem.classList.add('active');
 
     const NewMenu = document.getElementById('Menu' + name) as HTMLDivElement;
-    if (NewMenu != null)
+    if (NewMenu !== null)
         NewMenu.style.display = "block";
 
     CurrentlyHighlightedMenuItem = name;
@@ -149,13 +149,13 @@ function SubmenuHighlight(name: string, subname: string, NoURIupdate?: boolean) 
     if (CurrentlyHighlightedSubmenuItem != "") {
 
         const OldItem = document.getElementById('Item' + CurrentlyHighlightedSubmenuItem) as HTMLDivElement;
-        if (OldItem != null)
+        if (OldItem !== null)
             OldItem.classList.remove('active');
 
     }
 
     const NewItem = document.getElementById('Item' + name + "/" + subname) as HTMLDivElement;
-    if (NewItem != null)
+    if (NewItem !== null)
         NewItem.classList.add('active');
 
     CurrentlyHighlightedSubmenuItem = name + "/" + subname;
@@ -177,7 +177,7 @@ function SendJSON(HTTPVerb, URI, Data, OnSuccess, OnError) {
     ajax.setRequestHeader("Accept",       "application/json; charset=UTF-8");
     ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
 
-    if (APIKey != null)
+    if (APIKey !== null)
         ajax.setRequestHeader("APIKey", APIKey);
 
     ajax.onreadystatechange = function () {
@@ -206,7 +206,7 @@ function SendJSON(HTTPVerb, URI, Data, OnSuccess, OnError) {
 
     }
 
-    if (Data != null)
+    if (Data !== null)
         ajax.send(JSON.stringify(Data));
     else
         ajax.send();
@@ -390,7 +390,7 @@ function HTTP(Method:       string,
     ajax.setRequestHeader("Accept",       "application/json; charset=UTF-8");
     ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
 
-    if (APIKey != null)
+    if (APIKey !== null)
         ajax.setRequestHeader("APIKey", APIKey);
 
     ajax.onreadystatechange = function () {
@@ -419,7 +419,7 @@ function HTTP(Method:       string,
 
     }
 
-    if (Data != null)
+    if (Data !== null)
         ajax.send(JSON.stringify(Data));
     else
         ajax.send();
@@ -445,7 +445,7 @@ function HTTPGet(RessourceURI: string,
     ajax.setRequestHeader("X-Portal", "true");
     //ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
 
-    //if (APIKey != null)
+    //if (APIKey !== null)
     //    ajax.setRequestHeader("APIKey", APIKey);
 
     ajax.onreadystatechange = function () {
@@ -496,7 +496,7 @@ function HTTPCount(RessourceURI: string,
     ajax.setRequestHeader("Accept",       "application/json; charset=UTF-8");
     //ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
 
-    if (APIKey != null)
+    if (APIKey !== null)
         ajax.setRequestHeader("APIKey", APIKey);
 
     ajax.onreadystatechange = function () {
@@ -525,7 +525,7 @@ function HTTPCount(RessourceURI: string,
 
     }
 
-    if (Data != null)
+    if (Data !== null)
         ajax.send(JSON.stringify(Data));
     else
         ajax.send();
@@ -549,7 +549,7 @@ function Exists(RessourceURI: string,
     ajax.setRequestHeader("Accept",       "application/json; charset=UTF-8");
     //ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
 
-    if (APIKey != null)
+    if (APIKey !== null)
         ajax.setRequestHeader("APIKey", APIKey);
 
     ajax.onreadystatechange = function () {
@@ -600,7 +600,7 @@ function HTTPSet(RessourceURI: string,
     ajax.setRequestHeader("Accept",       "application/json; charset=UTF-8");
     ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
 
-    if (APIKey != null)
+    if (APIKey !== null)
         ajax.setRequestHeader("APIKey", APIKey);
 
     ajax.onreadystatechange = function () {
@@ -629,7 +629,7 @@ function HTTPSet(RessourceURI: string,
 
     }
 
-    if (Data != null)
+    if (Data !== null)
         ajax.send(JSON.stringify(Data));
     else
         ajax.send();
@@ -654,7 +654,7 @@ function HTTPAdd(RessourceURI: string,
     ajax.setRequestHeader("Accept",       "application/json; charset=UTF-8");
     ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
 
-    if (APIKey != null)
+    if (APIKey !== null)
         ajax.setRequestHeader("APIKey", APIKey);
 
     ajax.onreadystatechange = function () {
@@ -683,7 +683,7 @@ function HTTPAdd(RessourceURI: string,
 
     }
 
-    if (Data != null)
+    if (Data !== null)
         ajax.send(JSON.stringify(Data));
     else
         ajax.send();
@@ -708,7 +708,7 @@ function HTTPAddIfNotExists(RessourceURI: string,
     ajax.setRequestHeader("Accept",       "application/json; charset=UTF-8");
     ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
 
-    if (APIKey != null)
+    if (APIKey !== null)
         ajax.setRequestHeader("APIKey", APIKey);
 
     ajax.onreadystatechange = function () {
@@ -737,7 +737,7 @@ function HTTPAddIfNotExists(RessourceURI: string,
 
     }
 
-    if (Data != null)
+    if (Data !== null)
         ajax.send(JSON.stringify(Data));
     else
         ajax.send();
@@ -761,7 +761,7 @@ function HTTPDelete(RessourceURI: string,
     ajax.open("DELETE", RessourceURI, true); // , user, password);
     ajax.setRequestHeader("Accept",       "application/json; charset=UTF-8");
 
-    if (APIKey != null)
+    if (APIKey !== null)
         ajax.setRequestHeader("APIKey", APIKey);
 
     ajax.onreadystatechange = function () {
@@ -826,7 +826,7 @@ function HTTPChown(RessourceURI: string,
     ajax.setRequestHeader("Accept",       "application/json; charset=UTF-8");
     ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
 
-    if (APIKey != null)
+    if (APIKey !== null)
         ajax.setRequestHeader("APIKey", APIKey);
 
     ajax.onreadystatechange = function () {
@@ -855,7 +855,7 @@ function HTTPChown(RessourceURI: string,
 
     }
 
-    if (Data != null)
+    if (Data !== null)
         ajax.send(JSON.stringify(Data));
     else
         ajax.send();
@@ -878,7 +878,7 @@ function HTTPCheck(RessourceURI: string,
     ajax.setRequestHeader("Accept",       "application/json; charset=UTF-8");
     ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
 
-    if (APIKey != null)
+    if (APIKey !== null)
         ajax.setRequestHeader("APIKey", APIKey);
 
     ajax.onreadystatechange = function () {
@@ -912,7 +912,7 @@ function HTTPCheck(RessourceURI: string,
             OnError(this.status, this.statusText, ajax.responseText);
     }
 
-    if (Data != null)
+    if (Data !== null)
         ajax.send(JSON.stringify(Data));
     else
         ajax.send();
@@ -1037,10 +1037,10 @@ function HTTPSet__SYNCED(RessourceURI: string,
     ajax.setRequestHeader("Accept",       "application/json; charset=UTF-8");
     ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
 
-    if (APIKey != null)
+    if (APIKey !== null)
         ajax.setRequestHeader("APIKey", APIKey);
 
-    if (Data != null)
+    if (Data !== null)
         ajax.send(JSON.stringify(Data));
     else
         ajax.send();
@@ -1258,10 +1258,10 @@ function CreateDiv(parent: HTMLDivElement|HTMLAnchorElement, className?: string,
 
     const newDiv = parent.appendChild(document.createElement('div')) as HTMLDivElement;
 
-    if (className != null)
+    if (className !== null)
         newDiv.className = className;
 
-    if (innerHTML != null)
+    if (innerHTML !== null)
     {
 
         if (typeof innerHTML === 'string')

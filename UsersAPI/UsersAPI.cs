@@ -1830,7 +1830,7 @@ namespace social.OpenData.UsersAPI
 
             this.TelegramClient = TelegramClient;
 
-            if (this.TelegramClient != null)
+            if (this.TelegramClient is not null)
                 this.TelegramClient.OnMessage += ReceiveTelegramMessage;
 
             #endregion
@@ -2374,7 +2374,7 @@ namespace social.OpenData.UsersAPI
 
                 var smsSend = SMSClient.Send(Text, To);
 
-                if (smsSend != null)
+                if (smsSend is not null)
                     return smsSend.SetSender(Sender ?? SMSSenderName).Execute();
 
             }
@@ -2811,7 +2811,7 @@ namespace social.OpenData.UsersAPI
             //                                 typeof(UsersAPI).Assembly.GetManifestResourceStream(HTTPRoot + "SignUp.SignUp-" + DefaultLanguage.ToString() + ".html").SeekAndCopyTo(_MemoryStream2, 0);
             //                                 var HTML     = Template.Replace("<%= content %>",   _MemoryStream2.ToArray().ToUTF8String());
 
-            //                                 //if (LogoImage != null)
+            //                                 //if (LogoImage is not null)
             //                                 //    HTML = HTML.Replace("<%= logoimage %>", String.Concat(@"<img src=""", LogoImage, @""" /> "));
 
             //                                 return new HTTPResponse.Builder(Request) {
@@ -2863,7 +2863,7 @@ namespace social.OpenData.UsersAPI
             //                                                                                  //DNSHostname:       "https://" + Request.Host.SimpleString,
             //                                                                                  Language:          DefaultLanguage);
 
-            //                                     if (NewUserMail != null)
+            //                                     if (NewUserMail is not null)
             //                                     {
 
             //                                         var MailResultTask = APISMTPClient.Send(NewUserMail);
@@ -3657,7 +3657,7 @@ namespace social.OpenData.UsersAPI
                                   #endregion
 
 
-                                  if (Organization != null && HTTPOrganizations.Contains(Organization))
+                                  if (Organization is not null && HTTPOrganizations.Contains(Organization))
                                   {
 
                                       return Task.FromResult(
@@ -3730,7 +3730,7 @@ namespace social.OpenData.UsersAPI
                                   #endregion
 
 
-                                  if (Organization != null && HTTPOrganizations.Contains(Organization))
+                                  if (Organization is not null && HTTPOrganizations.Contains(Organization))
                                   {
 
                                       return Task.FromResult(
@@ -3803,7 +3803,7 @@ namespace social.OpenData.UsersAPI
                                   #endregion
 
 
-                                  if (Organization != null && HTTPOrganizations.Contains(Organization))
+                                  if (Organization is not null && HTTPOrganizations.Contains(Organization))
                                       return Task.FromResult(
                                           new HTTPResponse.Builder(Request) {
                                               HTTPStatusCode              = HTTPStatusCode.OK,
@@ -3873,7 +3873,7 @@ namespace social.OpenData.UsersAPI
                                   #endregion
 
 
-                                  if (Organization != null && HTTPOrganizations.Contains(Organization))
+                                  if (Organization is not null && HTTPOrganizations.Contains(Organization))
                                   {
 
                                       return Task.FromResult(
@@ -3946,7 +3946,7 @@ namespace social.OpenData.UsersAPI
                                   #endregion
 
 
-                                  if (Organization != null && HTTPOrganizations.Contains(Organization))
+                                  if (Organization is not null && HTTPOrganizations.Contains(Organization))
                                   {
 
                                       return Task.FromResult(
@@ -6026,7 +6026,7 @@ namespace social.OpenData.UsersAPI
 
             #region Initial checks
 
-            if (Command.IsNullOrEmpty() || Data == null)
+            if (Command.IsNullOrEmpty() || Data is null)
                 return;
 
             NewsPosting?  newsPosting;
@@ -6269,7 +6269,7 @@ namespace social.OpenData.UsersAPI
                 messageTypesHash.Add(addUser_MessageType);
 
             if (messageTypesHash.Contains(addOrUpdateUser_MessageType))
-                messageTypesHash.Add(OldMessage == null
+                messageTypesHash.Add(OldMessage is null
                                        ? addUser_MessageType
                                        : updateUser_MessageType);
 
@@ -6353,7 +6353,7 @@ namespace social.OpenData.UsersAPI
                 throw new ArgumentNullException(nameof(Message),
                                                 "The given message must not be null!");
 
-            if (Message.API != null && Message.API != this)
+            if (Message.API is not null && Message.API != this)
                 throw new ArgumentException    ("The given message is already attached to another API!",
                                                 nameof(Message));
 
@@ -6468,7 +6468,7 @@ namespace social.OpenData.UsersAPI
                 throw new ArgumentNullException(nameof(Message),
                                                 "The given message must not be null!");
 
-            if (Message.API != null && Message.API != this)
+            if (Message.API is not null && Message.API != this)
                 throw new ArgumentException    ("The given message is already attached to another API!",
                                                 nameof(Message));
 
@@ -6580,7 +6580,7 @@ namespace social.OpenData.UsersAPI
                 throw new ArgumentNullException(nameof(Message),
                                                 "The given message must not be null!");
 
-            if (Message.API != null && Message.API != this)
+            if (Message.API is not null && Message.API != this)
                 throw new ArgumentException    ("The given message is already attached to another API!",
                                                 nameof(Message));
 
@@ -6609,7 +6609,7 @@ namespace social.OpenData.UsersAPI
 
             _Messages.Add(Message.Id, Message);
 
-            if (OldMessage != null)
+            if (OldMessage is not null)
             {
 
                 var OnMessageUpdatedLocal = OnMessageUpdated;
@@ -6748,7 +6748,7 @@ namespace social.OpenData.UsersAPI
                 throw new ArgumentNullException(nameof(Message),
                                                 "The given message must not be null!");
 
-            if (Message.API != null && Message.API != this)
+            if (Message.API is not null && Message.API != this)
                 throw new ArgumentException    ("The given message is already attached to another API!",
                                                 nameof(Message));
 
@@ -6860,7 +6860,7 @@ namespace social.OpenData.UsersAPI
                 throw new ArgumentNullException(nameof(MessageId),
                                                 "The given message identification must not be null or empty!");
 
-            if (UpdateDelegate == null)
+            if (UpdateDelegate is null)
                 throw new ArgumentNullException(nameof(UpdateDelegate),
                                                 "The given update delegate must not be null!");
 
@@ -7062,7 +7062,7 @@ namespace social.OpenData.UsersAPI
 
             var result = CanDeleteMessage(Message);
 
-            if (result == null)
+            if (result is null)
             {
 
                 var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -7365,7 +7365,7 @@ namespace social.OpenData.UsersAPI
 
                 await DashboardsSemaphore.WaitAsync();
 
-                if (Dashboard.API != null && Dashboard.API != this)
+                if (Dashboard.API is not null && Dashboard.API != this)
                     throw new ArgumentException(nameof(Dashboard), "The given dashboard is already attached to another API!");
 
                 if (_Dashboards.ContainsKey(Dashboard.Id))
@@ -7409,7 +7409,7 @@ namespace social.OpenData.UsersAPI
 
                 await DashboardsSemaphore.WaitAsync();
 
-                if (Dashboard.API != null && Dashboard.API != this)
+                if (Dashboard.API is not null && Dashboard.API != this)
                     throw new ArgumentException(nameof(Dashboard), "The given dashboard is already attached to another API!");
 
                 if (_Dashboards.ContainsKey(Dashboard.Id))
@@ -7452,7 +7452,7 @@ namespace social.OpenData.UsersAPI
 
                 await DashboardsSemaphore.WaitAsync();
 
-                if (Dashboard.API != null && Dashboard.API != this)
+                if (Dashboard.API is not null && Dashboard.API != this)
                     throw new ArgumentException(nameof(Dashboard), "The given dashboard is already attached to another API!");
 
                 if (_Dashboards.TryGetValue(Dashboard.Id, out Dashboard OldDashboard))
@@ -7499,7 +7499,7 @@ namespace social.OpenData.UsersAPI
 
                 await DashboardsSemaphore.WaitAsync();
 
-                if (Dashboard.API != null && Dashboard.API != this)
+                if (Dashboard.API is not null && Dashboard.API != this)
                     throw new ArgumentException(nameof(Dashboard), "The given dashboard is already attached to another API!");
 
                 if (!_Dashboards.TryGetValue(Dashboard.Id, out Dashboard OldDashboard))
@@ -7549,7 +7549,7 @@ namespace social.OpenData.UsersAPI
             try
             {
 
-                if (UpdateDelegate == null)
+                if (UpdateDelegate is null)
                     throw new Exception("The given update delegate must not be null!");
 
                 await DashboardsSemaphore.WaitAsync();
@@ -7868,7 +7868,7 @@ namespace social.OpenData.UsersAPI
                 messageTypesHash.Add(addServiceTicket_MessageType);
 
             if (messageTypesHash.Contains(addOrUpdateServiceTicket_MessageType))
-                messageTypesHash.Add(OldServiceTicket == null
+                messageTypesHash.Add(OldServiceTicket is null
                                        ? addServiceTicket_MessageType
                                        : updateServiceTicket_MessageType);
 
@@ -7880,7 +7880,7 @@ namespace social.OpenData.UsersAPI
 
                 #region Telegram Notifications
 
-                if (TelegramClient != null)
+                if (TelegramClient is not null)
                 {
                     try
                     {
@@ -7889,7 +7889,7 @@ namespace social.OpenData.UsersAPI
                                                                      GetNotificationsOf<EMailNotification>(messageTypes).
                                                                      ToSafeHashSet();
 
-                        if (ServiceTicket.Affected != null)
+                        if (ServiceTicket.Affected is not null)
                         {
 
                             if (ServiceTicket.Affected.Users.SafeAny())
@@ -8032,7 +8032,7 @@ namespace social.OpenData.UsersAPI
 
                 #region EMailNotifications
 
-                if (SMTPClient != null)
+                if (SMTPClient is not null)
                 {
                     try
                     {
@@ -8092,7 +8092,7 @@ namespace social.OpenData.UsersAPI
             if (ServiceTicket is null)
                 throw new ArgumentNullException(nameof(ServiceTicket), "The given service ticket must not be null!");
 
-            //if (ServiceTicket.API != null && ServiceTicket.API != this)
+            //if (ServiceTicket.API is not null && ServiceTicket.API != this)
             //    throw new ArgumentException("The given service ticket is already attached to another API!", nameof(ServiceTicket));
 
             try
@@ -8146,7 +8146,7 @@ namespace social.OpenData.UsersAPI
             if (ServiceTicket is null)
                 throw new ArgumentNullException(nameof(ServiceTicket), "The given service ticket must not be null!");
 
-            //if (ServiceTicket.API != null && ServiceTicket.API != this)
+            //if (ServiceTicket.API is not null && ServiceTicket.API != this)
             //    throw new ArgumentException(nameof(ServiceTicket), "The given service ticket is already attached to another API!");
 
             try
@@ -8202,7 +8202,7 @@ namespace social.OpenData.UsersAPI
             if (ServiceTicket is null)
                 throw new ArgumentNullException(nameof(ServiceTicket), "The given service ticket must not be null!");
 
-            //if (ServiceTicket.API != null && ServiceTicket.API != this)
+            //if (ServiceTicket.API is not null && ServiceTicket.API != this)
             //    throw new ArgumentException(nameof(ServiceTicket), "The given service ticket is already attached to another API!");
 
             ServiceTicket   OldServiceTicket                = null;
@@ -8263,7 +8263,7 @@ namespace social.OpenData.UsersAPI
 
             #region Call OnServiceTicket(Admin)StatusChanged events...
 
-            if (OldServiceTicket != null)
+            if (OldServiceTicket is not null)
             {
 
                 if (OldServiceTicket.Status != ServiceTicket.Status)
@@ -8303,7 +8303,7 @@ namespace social.OpenData.UsersAPI
             if (ServiceTicket is null)
                 throw new ArgumentNullException(nameof(ServiceTicket), "The given service ticket must not be null!");
 
-            //if (ServiceTicket.API != null && ServiceTicket.API != this)
+            //if (ServiceTicket.API is not null && ServiceTicket.API != this)
             //    throw new ArgumentException(nameof(ServiceTicket), "The given service ticket is already attached to another API!");
 
             ServiceTicket   OldServiceTicket;
@@ -8323,7 +8323,7 @@ namespace social.OpenData.UsersAPI
                                                    EventTracking_Id.New,
                                                    CurrentUserId);
 
-                //if (ServiceTicket.API == null)
+                //if (ServiceTicket.API is null)
                     //ServiceTicket.API = this;
 
                 _ServiceTickets.TryRemove(OldServiceTicket.Id, out ServiceTicket removedServiceTicket);
@@ -8399,7 +8399,7 @@ namespace social.OpenData.UsersAPI
             try
             {
 
-                if (UpdateDelegate == null)
+                if (UpdateDelegate is null)
                     throw new Exception("The given update delegate must not be null!");
 
                 await ServiceTicketsSemaphore.WaitAsync();
@@ -8409,7 +8409,7 @@ namespace social.OpenData.UsersAPI
 
                 castedOldServiceTicket = OldServiceTicket as TServiceTicket;
 
-                if (castedOldServiceTicket == null)
+                if (castedOldServiceTicket is null)
                     throw new Exception("ServiceTicket '" + ServiceTicketId + "' is not of type TServiceTicket!");
 
                 ServiceTicket = UpdateDelegate(castedOldServiceTicket);
@@ -8593,7 +8593,7 @@ namespace social.OpenData.UsersAPI
                 if (_ServiceTickets.TryGetValue(ServiceTicketId, out ServiceTicket serviceTicket))
                 {
                     ServiceTicket = serviceTicket as TServiceTicket;
-                    return ServiceTicket != null;
+                    return ServiceTicket is not null;
                 }
 
                 ServiceTicket = null;
@@ -8767,7 +8767,7 @@ namespace social.OpenData.UsersAPI
                 messageTypesHash.Add(addUser_MessageType);
 
             if (messageTypesHash.Contains(addOrUpdateUser_MessageType))
-                messageTypesHash.Add(OldBlogPosting == null
+                messageTypesHash.Add(OldBlogPosting is null
                                        ? addUser_MessageType
                                        : updateUser_MessageType);
 
@@ -8849,7 +8849,7 @@ namespace social.OpenData.UsersAPI
                 throw new ArgumentNullException(nameof(BlogPosting),
                                                 "The given blog posting must not be null!");
 
-            if (BlogPosting.API != null && BlogPosting.API != this)
+            if (BlogPosting.API is not null && BlogPosting.API != this)
                 throw new ArgumentException    ("The given blog posting is already attached to another API!",
                                                 nameof(BlogPosting));
 
@@ -8964,7 +8964,7 @@ namespace social.OpenData.UsersAPI
                 throw new ArgumentNullException(nameof(BlogPosting),
                                                 "The given blog posting must not be null!");
 
-            if (BlogPosting.API != null && BlogPosting.API != this)
+            if (BlogPosting.API is not null && BlogPosting.API != this)
                 throw new ArgumentException    ("The given blog posting is already attached to another API!",
                                                 nameof(BlogPosting));
 
@@ -9076,7 +9076,7 @@ namespace social.OpenData.UsersAPI
                 throw new ArgumentNullException(nameof(BlogPosting),
                                                 "The given blog posting must not be null!");
 
-            if (BlogPosting.API != null && BlogPosting.API != this)
+            if (BlogPosting.API is not null && BlogPosting.API != this)
                 throw new ArgumentException    ("The given blog posting is already attached to another API!",
                                                 nameof(BlogPosting));
 
@@ -9105,7 +9105,7 @@ namespace social.OpenData.UsersAPI
 
             _BlogPostings.Add(BlogPosting.Id, BlogPosting);
 
-            if (OldBlogPosting != null)
+            if (OldBlogPosting is not null)
             {
 
                 var OnBlogPostingUpdatedLocal = OnBlogPostingUpdated;
@@ -9244,7 +9244,7 @@ namespace social.OpenData.UsersAPI
                 throw new ArgumentNullException(nameof(BlogPosting),
                                                 "The given blog posting must not be null!");
 
-            if (BlogPosting.API != null && BlogPosting.API != this)
+            if (BlogPosting.API is not null && BlogPosting.API != this)
                 throw new ArgumentException    ("The given blog posting is already attached to another API!",
                                                 nameof(BlogPosting));
 
@@ -9356,7 +9356,7 @@ namespace social.OpenData.UsersAPI
                 throw new ArgumentNullException(nameof(BlogPostingId),
                                                 "The given blog posting identification must not be null or empty!");
 
-            if (UpdateDelegate == null)
+            if (UpdateDelegate is null)
                 throw new ArgumentNullException(nameof(UpdateDelegate),
                                                 "The given update delegate must not be null!");
 
@@ -9716,7 +9716,7 @@ namespace social.OpenData.UsersAPI
 
             var result = CanDeleteBlogPosting(BlogPosting);
 
-            if (result == null)
+            if (result is null)
             {
 
                 var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -9946,7 +9946,7 @@ namespace social.OpenData.UsersAPI
                 messageTypesHash.Add(addUser_MessageType);
 
             if (messageTypesHash.Contains(addOrUpdateUser_MessageType))
-                messageTypesHash.Add(OldNewsPosting == null
+                messageTypesHash.Add(OldNewsPosting is null
                                        ? addUser_MessageType
                                        : updateUser_MessageType);
 
@@ -10028,7 +10028,7 @@ namespace social.OpenData.UsersAPI
                 throw new ArgumentNullException(nameof(NewsPosting),
                                                 "The given news posting must not be null!");
 
-            if (NewsPosting.API != null && NewsPosting.API != this)
+            if (NewsPosting.API is not null && NewsPosting.API != this)
                 throw new ArgumentException    ("The given news posting is already attached to another API!",
                                                 nameof(NewsPosting));
 
@@ -10143,7 +10143,7 @@ namespace social.OpenData.UsersAPI
                 throw new ArgumentNullException(nameof(NewsPosting),
                                                 "The given news posting must not be null!");
 
-            if (NewsPosting.API != null && NewsPosting.API != this)
+            if (NewsPosting.API is not null && NewsPosting.API != this)
                 throw new ArgumentException    ("The given news posting is already attached to another API!",
                                                 nameof(NewsPosting));
 
@@ -10255,7 +10255,7 @@ namespace social.OpenData.UsersAPI
                 throw new ArgumentNullException(nameof(NewsPosting),
                                                 "The given news posting must not be null!");
 
-            if (NewsPosting.API != null && NewsPosting.API != this)
+            if (NewsPosting.API is not null && NewsPosting.API != this)
                 throw new ArgumentException    ("The given news posting is already attached to another API!",
                                                 nameof(NewsPosting));
 
@@ -10284,7 +10284,7 @@ namespace social.OpenData.UsersAPI
 
             _NewsPostings.Add(NewsPosting.Id, NewsPosting);
 
-            if (OldNewsPosting != null)
+            if (OldNewsPosting is not null)
             {
 
                 var OnNewsPostingUpdatedLocal = OnNewsPostingUpdated;
@@ -10423,7 +10423,7 @@ namespace social.OpenData.UsersAPI
                 throw new ArgumentNullException(nameof(NewsPosting),
                                                 "The given news posting must not be null!");
 
-            if (NewsPosting.API != null && NewsPosting.API != this)
+            if (NewsPosting.API is not null && NewsPosting.API != this)
                 throw new ArgumentException    ("The given news posting is already attached to another API!",
                                                 nameof(NewsPosting));
 
@@ -10535,7 +10535,7 @@ namespace social.OpenData.UsersAPI
                 throw new ArgumentNullException(nameof(NewsPostingId),
                                                 "The given news posting identification must not be null or empty!");
 
-            if (UpdateDelegate == null)
+            if (UpdateDelegate is null)
                 throw new ArgumentNullException(nameof(UpdateDelegate),
                                                 "The given update delegate must not be null!");
 
@@ -10895,7 +10895,7 @@ namespace social.OpenData.UsersAPI
 
             var result = CanDeleteNewsPosting(NewsPosting);
 
-            if (result == null)
+            if (result is null)
             {
 
                 var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -11125,7 +11125,7 @@ namespace social.OpenData.UsersAPI
                 messageTypesHash.Add(addUser_MessageType);
 
             if (messageTypesHash.Contains(addOrUpdateUser_MessageType))
-                messageTypesHash.Add(OldNewsBanner == null
+                messageTypesHash.Add(OldNewsBanner is null
                                        ? addUser_MessageType
                                        : updateUser_MessageType);
 
@@ -11207,7 +11207,7 @@ namespace social.OpenData.UsersAPI
                 throw new ArgumentNullException(nameof(NewsBanner),
                                                 "The given news banner must not be null!");
 
-            if (NewsBanner.API != null && NewsBanner.API != this)
+            if (NewsBanner.API is not null && NewsBanner.API != this)
                 throw new ArgumentException    ("The given news banner is already attached to another API!",
                                                 nameof(NewsBanner));
 
@@ -11322,7 +11322,7 @@ namespace social.OpenData.UsersAPI
                 throw new ArgumentNullException(nameof(NewsBanner),
                                                 "The given news banner must not be null!");
 
-            if (NewsBanner.API != null && NewsBanner.API != this)
+            if (NewsBanner.API is not null && NewsBanner.API != this)
                 throw new ArgumentException    ("The given news banner is already attached to another API!",
                                                 nameof(NewsBanner));
 
@@ -11434,7 +11434,7 @@ namespace social.OpenData.UsersAPI
                 throw new ArgumentNullException(nameof(NewsBanner),
                                                 "The given news banner must not be null!");
 
-            if (NewsBanner.API != null && NewsBanner.API != this)
+            if (NewsBanner.API is not null && NewsBanner.API != this)
                 throw new ArgumentException    ("The given news banner is already attached to another API!",
                                                 nameof(NewsBanner));
 
@@ -11463,7 +11463,7 @@ namespace social.OpenData.UsersAPI
 
             _NewsBanners.Add(NewsBanner.Id, NewsBanner);
 
-            if (OldNewsBanner != null)
+            if (OldNewsBanner is not null)
             {
 
                 var OnNewsBannerUpdatedLocal = OnNewsBannerUpdated;
@@ -11602,7 +11602,7 @@ namespace social.OpenData.UsersAPI
                 throw new ArgumentNullException(nameof(NewsBanner),
                                                 "The given news banner must not be null!");
 
-            if (NewsBanner.API != null && NewsBanner.API != this)
+            if (NewsBanner.API is not null && NewsBanner.API != this)
                 throw new ArgumentException    ("The given news banner is already attached to another API!",
                                                 nameof(NewsBanner));
 
@@ -11714,7 +11714,7 @@ namespace social.OpenData.UsersAPI
                 throw new ArgumentNullException(nameof(NewsBannerId),
                                                 "The given news banner identification must not be null or empty!");
 
-            if (UpdateDelegate == null)
+            if (UpdateDelegate is null)
                 throw new ArgumentNullException(nameof(UpdateDelegate),
                                                 "The given update delegate must not be null!");
 
@@ -12074,7 +12074,7 @@ namespace social.OpenData.UsersAPI
 
             var result = CanDeleteNewsBanner(NewsBanner);
 
-            if (result == null)
+            if (result is null)
             {
 
                 var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
@@ -12304,7 +12304,7 @@ namespace social.OpenData.UsersAPI
                 messageTypesHash.Add(addUser_MessageType);
 
             if (messageTypesHash.Contains(addOrUpdateUser_MessageType))
-                messageTypesHash.Add(OldFAQ == null
+                messageTypesHash.Add(OldFAQ is null
                                        ? addUser_MessageType
                                        : updateUser_MessageType);
 
@@ -12386,7 +12386,7 @@ namespace social.OpenData.UsersAPI
                 throw new ArgumentNullException(nameof(FAQ),
                                                 "The given FAQ must not be null!");
 
-            if (FAQ.API != null && FAQ.API != this)
+            if (FAQ.API is not null && FAQ.API != this)
                 throw new ArgumentException    ("The given FAQ is already attached to another API!",
                                                 nameof(FAQ));
 
@@ -12501,7 +12501,7 @@ namespace social.OpenData.UsersAPI
                 throw new ArgumentNullException(nameof(FAQ),
                                                 "The given FAQ must not be null!");
 
-            if (FAQ.API != null && FAQ.API != this)
+            if (FAQ.API is not null && FAQ.API != this)
                 throw new ArgumentException    ("The given FAQ is already attached to another API!",
                                                 nameof(FAQ));
 
@@ -12613,7 +12613,7 @@ namespace social.OpenData.UsersAPI
                 throw new ArgumentNullException(nameof(FAQ),
                                                 "The given FAQ must not be null!");
 
-            if (FAQ.API != null && FAQ.API != this)
+            if (FAQ.API is not null && FAQ.API != this)
                 throw new ArgumentException    ("The given FAQ is already attached to another API!",
                                                 nameof(FAQ));
 
@@ -12642,7 +12642,7 @@ namespace social.OpenData.UsersAPI
 
             _FAQs.Add(FAQ.Id, FAQ);
 
-            if (OldFAQ != null)
+            if (OldFAQ is not null)
             {
 
                 var OnFAQUpdatedLocal = OnFAQUpdated;
@@ -12781,7 +12781,7 @@ namespace social.OpenData.UsersAPI
                 throw new ArgumentNullException(nameof(FAQ),
                                                 "The given FAQ must not be null!");
 
-            if (FAQ.API != null && FAQ.API != this)
+            if (FAQ.API is not null && FAQ.API != this)
                 throw new ArgumentException    ("The given FAQ is already attached to another API!",
                                                 nameof(FAQ));
 
@@ -12893,7 +12893,7 @@ namespace social.OpenData.UsersAPI
                 throw new ArgumentNullException(nameof(FAQId),
                                                 "The given FAQ identification must not be null or empty!");
 
-            if (UpdateDelegate == null)
+            if (UpdateDelegate is null)
                 throw new ArgumentNullException(nameof(UpdateDelegate),
                                                 "The given update delegate must not be null!");
 
@@ -13253,7 +13253,7 @@ namespace social.OpenData.UsersAPI
 
             var result = CanDeleteFAQ(FAQ);
 
-            if (result == null)
+            if (result is null)
             {
 
                 var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;

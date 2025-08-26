@@ -84,12 +84,12 @@
 //    //               ? new JArray()
 
 //    //               : new JArray(ServiceTickets.
-//    //                                Where(serviceticket => serviceticket          != null                                                       &&
-//    //                                                       (IncludeStatus         == null || IncludeWithStatus    (serviceticket.Status.Value)) &&
-//    //                                                       (IncludeWithPriorities == null || IncludeWithPriorities(serviceticket.Priority))).
+//    //                                Where(serviceticket => serviceticket          is not null                                                       &&
+//    //                                                       (IncludeStatus         is null || IncludeWithStatus    (serviceticket.Status.Value)) &&
+//    //                                                       (IncludeWithPriorities is null || IncludeWithPriorities(serviceticket.Priority))).
 //    //                                //OrderBy(serviceticket => serviceticket.Id).
 //    //                                SkipTakeFilter(Skip, Take).
-//    //                                SafeSelect(serviceticket => ServiceTicketToJSON != null
+//    //                                SafeSelect(serviceticket => ServiceTicketToJSON is not null
 //    //                                                                ? ServiceTicketToJSON (serviceticket,
 //    //                                                                                       Embedded,
 //    //                                                                                       MaxStatus,
@@ -173,7 +173,7 @@
 //                if (_API == value)
 //                    return;
 
-//                if (_API != null)
+//                if (_API is not null)
 //                    throw new ArgumentException("Illegal attempt to change the API of this service ticket!");
 
 //                _API = value ?? throw new ArgumentException("Illegal attempt to delete the API reference of this service ticket!");
@@ -294,7 +294,7 @@
 
 //        {
 
-//            if (ChangeSets == null || !ChangeSets.Any())
+//            if (ChangeSets is null || !ChangeSets.Any())
 //                throw new ArgumentNullException(nameof(AServiceTicket.ChangeSets),  "The enumeration of change sets (the service ticket history) of the service ticket must not be null!");
 
 //            this.ChangeSets      = ChangeSets.OrderByDescending(changeSet => changeSet.Timestamp).ToArray();
@@ -305,14 +305,14 @@
 
 //            Author               = this.ChangeSets.LastOrDefault()?.Author;
 
-//            if (this.Author == null)
+//            if (this.Author is null)
 //                throw new ArgumentNullException(nameof(Author),   "The author of the service ticket must not be null!");
 
 
 //            var latestStatus     = this.ChangeSets.Where(entry => entry.Status.HasValue).
 //                                                   FirstOrDefault();
 
-//            Status               = latestStatus != null
+//            Status               = latestStatus is not null
 //                                       ? new Timestamped<ServiceTicketStatusTypes>(latestStatus.Timestamp,
 //                                                                                   latestStatus.Status.Value)
 //                                       : new Timestamped<ServiceTicketStatusTypes>(this.Created,
@@ -326,7 +326,7 @@
 //                throw new ArgumentNullException(nameof(Title),    "The title of the service ticket must not be null or empty!");
 
 
-//            Affected             = this.ChangeSets.Where(entry => entry.Affected            != null).
+//            Affected             = this.ChangeSets.Where(entry => entry.Affected            is not null).
 //                                                   FirstOrDefault()?.Affected;
 
 //            Priority             = this.ChangeSets.Where(entry => entry.Priority.HasValue).
@@ -488,17 +488,17 @@
 
 //                                       new JProperty("status",                     new JObject((StatusHistory as IEnumerable<Timestamped<ServiceTicketStatusTypes>>).
 //                                                                                                   Reverse().
-//                                                                                                   Where (timestamped => IncludeStatus != null ? IncludeStatus(timestamped.Timestamp, timestamped.Value) : true).
+//                                                                                                   Where (timestamped => IncludeStatus is not null ? IncludeStatus(timestamped.Timestamp, timestamped.Value) : true).
 //                                                                                                   Take  (MaxStatus).
 //                                                                                                   Select(timestamped => new JProperty(timestamped.Timestamp.ToISO8601(),
 //                                                                                                                                       timestamped.Value.    ToString()))
 //                                                                                              )),
 
-//                                       Affected != null && !Affected.IsEmpty
+//                                       Affected is not null && !Affected.IsEmpty
 //                                           ? new JProperty("affected", Affected.ToJSON())
 //                                           : null,
 
-//                                       Author != null
+//                                       Author is not null
 //                                           ? ExpandAuthorId.Switch(
 //                                                 () => new JProperty("author",  new JObject(
 //                                                                                    new JProperty("@id",   Author.Id.ToString()),
@@ -582,7 +582,7 @@
 //        //        return true;
 
 //        //    // If one is null, but not both, return false.
-//        //    if (((Object) ServiceTicket1 == null) || ((Object) ServiceTicket2 == null))
+//        //    if (((Object) ServiceTicket1 is null) || ((Object) ServiceTicket2 is null))
 //        //        return false;
 
 //        //    return ServiceTicket1.Equals(ServiceTicket2);
@@ -615,7 +615,7 @@
 //        //public static Boolean operator < (AServiceTicket ServiceTicket1, AServiceTicket ServiceTicket2)
 //        //{
 
-//        //    if ((Object) ServiceTicket1 == null)
+//        //    if ((Object) ServiceTicket1 is null)
 //        //        throw new ArgumentNullException(nameof(ServiceTicket1), "The given ServiceTicket1 must not be null!");
 
 //        //    return ServiceTicket1.CompareTo(ServiceTicket2) < 0;
@@ -648,7 +648,7 @@
 //        //public static Boolean operator > (AServiceTicket ServiceTicket1, AServiceTicket ServiceTicket2)
 //        //{
 
-//        //    if ((Object) ServiceTicket1 == null)
+//        //    if ((Object) ServiceTicket1 is null)
 //        //        throw new ArgumentNullException(nameof(ServiceTicket1), "The given ServiceTicket1 must not be null!");
 
 //        //    return ServiceTicket1.CompareTo(ServiceTicket2) > 0;
@@ -683,7 +683,7 @@
 //        //public new Int32 CompareTo(Object Object)
 //        //{
 
-//        //    if (Object == null)
+//        //    if (Object is null)
 //        //        throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
 
 //        //    if (!(Object is AServiceTicket ServiceTicket))
@@ -727,7 +727,7 @@
 //        //public override Boolean Equals(Object Object)
 //        //{
 
-//        //    if (Object == null)
+//        //    if (Object is null)
 //        //        return false;
 
 //        //    if (!(Object is AServiceTicket ServiceTicket))
@@ -833,7 +833,7 @@
 //                    var latestStatus = ChangeSets?.Where(entry => entry.Status.HasValue).
 //                                                FirstOrDefault();
 
-//                    return latestStatus != null
+//                    return latestStatus is not null
 //                               ? new Timestamped<ServiceTicketStatusTypes>(latestStatus.Timestamp,
 //                                                                           latestStatus.Status.Value)
 //                               : new Timestamped<ServiceTicketStatusTypes>?();
@@ -852,7 +852,7 @@
 //            /// Affected devices or services by this service ticket.
 //            /// </summary>
 //            public Affected Affected
-//                => ChangeSets?.Where(entry => entry.Affected != null).
+//                => ChangeSets?.Where(entry => entry.Affected is not null).
 //                               FirstOrDefault()?.Affected;
 
 //            /// <summary>
@@ -944,7 +944,7 @@
 //            {
 
 //                this.Id           = Id;
-//                this._ChangeSets  = ChangeSets != null ? new List<AServiceTicketChangeSet>(ChangeSets) : new List<AServiceTicketChangeSet>();
+//                this._ChangeSets  = ChangeSets is not null ? new List<AServiceTicketChangeSet>(ChangeSets) : new List<AServiceTicketChangeSet>();
 //                this.DataSource   = DataSource;
 
 //            }

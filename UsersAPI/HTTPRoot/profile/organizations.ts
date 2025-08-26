@@ -264,7 +264,7 @@ function ShowOrganizations() {
 
                             var responseJSON = { "description": "HTTP Error " + statusCode + " - " + status + "!" };
 
-                            if (response != null && response != "") {
+                            if (response !== null && response != "") {
                                 try
                                 {
                                     responseJSON = JSON.parse(response);
@@ -272,7 +272,7 @@ function ShowOrganizations() {
                                 catch { }
                             }
 
-                            responseDiv.innerHTML = "<div class=\"HTTP Error\">Storing new user data failed!" + (responseJSON.description != null ? responseJSON.description : "") + "</div>";
+                            responseDiv.innerHTML = "<div class=\"HTTP Error\">Storing new user data failed!" + (responseJSON.description !== null ? responseJSON.description : "") + "</div>";
 
                         });
 
@@ -484,7 +484,7 @@ function ShowOrganizations() {
 
                         (statusCode, status, response) => {
                             var responseJSON = response != "" ? JSON.parse(response) : {};
-                            var info         = responseJSON.description != null ? "<br />" + responseJSON.description : "";
+                            var info         = responseJSON.description !== null ? "<br />" + responseJSON.description : "";
                             responseDiv.innerHTML = "<div class=\"HTTP Error\">Storing new child organization data failed!" + info + "</div>";
                         });
 
@@ -598,7 +598,7 @@ function ShowOrganizations() {
         propertiesDiv.className = "properties";
 
         // Show admins...
-        if (organization.admins != null && organization.admins.length > 0) {
+        if (organization.admins !== null && organization.admins.length > 0) {
 
             let adminsDiv = propertiesDiv.appendChild(document.createElement('div')) as HTMLDivElement;
             adminsDiv.className = "admins";
@@ -619,7 +619,7 @@ function ShowOrganizations() {
         }
 
         // Show members... only when you are also a member!
-        if (organization.youAreMember && organization.members != null && organization.members.length > 0) {
+        if (organization.youAreMember && organization.members !== null && organization.members.length > 0) {
 
             myOrgs.push(orgDiv);
 
@@ -636,7 +636,7 @@ function ShowOrganizations() {
             let usersDiv = wrapperDiv.appendChild(document.createElement('div')) as HTMLDivElement;
             usersDiv.className = "users";
 
-            if (organization.members != null && organization.members.length > 0) {
+            if (organization.members !== null && organization.members.length > 0) {
                 for (var member of organization.members)
                     PrintUser(member, usersDiv, "member", true, true);
             }

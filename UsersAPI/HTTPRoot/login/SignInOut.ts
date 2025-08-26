@@ -11,7 +11,7 @@ function HideElement(DivName) {
 
     const div = document.querySelector(DivName);
 
-    if (div != null)
+    if (div !== null)
         div.style.display = "none";
 
     return div;
@@ -28,7 +28,7 @@ function ShowElement2(DivName, displaymode) {
         displaymode = "flex";
 
     const div = document.querySelector(DivName);
-    if (div != null)
+    if (div !== null)
         div.style.display = displaymode;
 
     return div;
@@ -197,12 +197,12 @@ function VerifyLogin() {
 
             if (responseJSON.username == null || responseJSON.email == null) {
 
-                if (responseJSON.error != null) {
+                if (responseJSON.error !== null) {
                     responseDiv.style.display = 'block';
                     responseDiv.innerHTML     = "<i class='fas fa-exclamation-triangle  fa-2x menuicons'></i> " + responseJSON.error;
                 }
 
-                if (responseJSON.description != null) {
+                if (responseJSON.description !== null) {
                     responseDiv.style.display = 'block';
                     responseDiv.innerHTML     = "<i class='fas fa-exclamation-triangle  fa-2x menuicons'></i> " + responseJSON.description;
                 }
@@ -292,7 +292,7 @@ function LostPassword() {
 
                         const responseJSON = JSON.parse(ResponseText);
 
-                        if (responseJSON.numberOfAccountsFound != null) {
+                        if (responseJSON.numberOfAccountsFound !== null) {
                             responseDiv.style.display = 'block';
                             responseDiv.innerHTML = "<i class='fas fa-user-check  fa-2x menuicons'></i> Found " + responseJSON.numberOfAccountsFound + " account(s). Please check your e-mails!";
                             responseDiv.classList.remove("responseError");
@@ -442,7 +442,7 @@ function SetPassword() {
 
                         var responseJSON = JSON.parse(ResponseText);
 
-                        if (responseJSON.numberOfAccountsFound != null) {
+                        if (responseJSON.numberOfAccountsFound !== null) {
                             responseDiv.style.display        = 'block';
                             responseDiv.innerHTML            = "<i class='fas fa-user-check  fa-2x menuicons'></i> Succssfully resetted your password!";
                             responseDiv.classList.remove("responseError");
@@ -564,7 +564,7 @@ function SignIn() {
 
              function (status, response) {
                  //(<HTMLFormElement> document.querySelector('#loginform')).submit();
-                 location.href = URLPathPrefix != null && URLPathPrefix != "" ? URLPathPrefix : "/";
+                 location.href = URLPathPrefix !== null && URLPathPrefix != "" ? URLPathPrefix : "/";
              },
 
              function (HTTPStatus, status, response) {
@@ -651,7 +651,7 @@ function checkSignedIn(RedirectUnknownUsers: boolean) {
 
                    const usernameDiv = document.querySelector('#username') as HTMLElement;
 
-                   if (usernameDiv != null)
+                   if (usernameDiv !== null)
                        usernameDiv.innerText = "anonymous";
 
                    if (RedirectUnknownUsers)
@@ -678,7 +678,7 @@ function checkAdminSignedIn(RedirectUnknownUsers: boolean) {
                    ShowElement('.admin');
 
                    if (cookie.indexOf(":isAdmin") < 0)
-                       location.href = URLPathPrefix != null && URLPathPrefix != "" ? URLPathPrefix : "/";
+                       location.href = URLPathPrefix !== null && URLPathPrefix != "" ? URLPathPrefix : "/";
 
                },
 
@@ -780,7 +780,7 @@ function checkNewsBanner(knownNewsIds: string[]) {
                                 newsBannerDiv.style.display = "flex";
 
                                 const bannerTextDiv = newsBannerDiv.querySelector("#bannerText") as HTMLDivElement;
-                                bannerTextDiv.innerHTML = newsBanner.text != undefined && newsBanner.text != null
+                                bannerTextDiv.innerHTML = newsBanner.text != undefined && newsBanner.text !== null
                                     ? firstValue(newsBanner.text)
                                     : "No news found!";
 

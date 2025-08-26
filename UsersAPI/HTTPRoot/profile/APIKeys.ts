@@ -63,7 +63,7 @@ function ShowAPIKey(parentDiv: HTMLDivElement, JSON: any) {
 
     const NotBeforeDiv2 = NotBeforeDiv.appendChild(document.createElement('div')) as HTMLDivElement;
     NotBeforeDiv2.className = "value";
-    NotBeforeDiv2.innerText = JSON["notBefore"] != null ? JSON["notBefore"] : "-";
+    NotBeforeDiv2.innerText = JSON["notBefore"] !== null ? JSON["notBefore"] : "-";
 
 
     const NotAfterDiv = parentDiv.appendChild(document.createElement('div')) as HTMLDivElement;
@@ -75,7 +75,7 @@ function ShowAPIKey(parentDiv: HTMLDivElement, JSON: any) {
 
     const NotAfterDiv2 = NotAfterDiv.appendChild(document.createElement('div')) as HTMLDivElement;
     NotAfterDiv2.className = "value";
-    NotAfterDiv2.innerText = JSON["notAfter"] != null ? JSON["notAfter"] : "-";
+    NotAfterDiv2.innerText = JSON["notAfter"] !== null ? JSON["notAfter"] : "-";
 
 
 
@@ -88,7 +88,7 @@ function ShowAPIKey(parentDiv: HTMLDivElement, JSON: any) {
 
     const IsDisabledDiv2 = IsDisabledDiv.appendChild(document.createElement('div')) as HTMLDivElement;
     IsDisabledDiv2.className = "value";
-    IsDisabledDiv2.innerText = JSON["isDisabled"] != null ? JSON["isDisabled"] : false;
+    IsDisabledDiv2.innerText = JSON["isDisabled"] !== null ? JSON["isDisabled"] : false;
 
 }
 

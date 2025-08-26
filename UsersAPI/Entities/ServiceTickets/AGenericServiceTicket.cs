@@ -205,7 +205,7 @@
 //                return true;
 
 //            // If one is null, but not both, return false.
-//            if (((Object) ServiceTicket1 == null) || ((Object) ServiceTicket2 == null))
+//            if (((Object) ServiceTicket1 is null) || ((Object) ServiceTicket2 is null))
 //                return false;
 
 //            return ServiceTicket1.Equals(ServiceTicket2);
@@ -238,7 +238,7 @@
 //        public static Boolean operator < (AGenericServiceTicket<TId, TStatus> ServiceTicket1, AGenericServiceTicket<TId, TStatus> ServiceTicket2)
 //        {
 
-//            if ((Object) ServiceTicket1 == null)
+//            if ((Object) ServiceTicket1 is null)
 //                throw new ArgumentNullException(nameof(ServiceTicket1), "The given ServiceTicket1 must not be null!");
 
 //            return ServiceTicket1.CompareTo(ServiceTicket2) < 0;
@@ -271,7 +271,7 @@
 //        public static Boolean operator > (AGenericServiceTicket<TId, TStatus> ServiceTicket1, AGenericServiceTicket<TId, TStatus> ServiceTicket2)
 //        {
 
-//            if ((Object) ServiceTicket1 == null)
+//            if ((Object) ServiceTicket1 is null)
 //                throw new ArgumentNullException(nameof(ServiceTicket1), "The given ServiceTicket1 must not be null!");
 
 //            return ServiceTicket1.CompareTo(ServiceTicket2) > 0;
@@ -306,7 +306,7 @@
 //        public new Int32 CompareTo(Object Object)
 //        {
 
-//            if (Object == null)
+//            if (Object is null)
 //                throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
 
 //            if (!(Object is AGenericServiceTicket<TId, TStatus> ServiceTicket))
@@ -350,7 +350,7 @@
 //        public override Boolean Equals(Object Object)
 //        {
 
-//            if (Object == null)
+//            if (Object is null)
 //                return false;
 
 //            if (!(Object is AGenericServiceTicket<TId, TStatus> ServiceTicket))
@@ -512,14 +512,14 @@
 //                this.Id                       = Id;
 //                this.Title                    = Title;
 //                this.Author                   = Author;
-//                this.Affected                 = Affected                != null ? Affected.ToBuilder() : new Affected.Builder();
+//                this.Affected                 = Affected                is not null ? Affected.ToBuilder() : new Affected.Builder();
 //                this.ProblemLocation          = ProblemLocation         ?? I18NString.Empty;
 //                this.GeoLocation              = GeoLocation;
-//                this.ProblemDescriptions      = ProblemDescriptions     != null ? new HashSet<Tag>(ProblemDescriptions)                          : new HashSet<Tag>();
-//                this.ProblemIndicators        = ProblemIndicators       != null ? new HashSet<Tag>(ProblemIndicators)                            : new HashSet<Tag>();
+//                this.ProblemDescriptions      = ProblemDescriptions     is not null ? new HashSet<Tag>(ProblemDescriptions)                          : new HashSet<Tag>();
+//                this.ProblemIndicators        = ProblemIndicators       is not null ? new HashSet<Tag>(ProblemIndicators)                            : new HashSet<Tag>();
 //                this.AdditionalInfo           = AdditionalInfo          ?? new I18NString();
-//                this.AttachedFiles            = AttachedFiles           != null ? new HashSet<HTTPPath>(AttachedFiles)                           : new HashSet<HTTPPath>();
-//                this.History                  = History                 != null ? new HashSet<AServiceTicketChangeSet>(History)           : new HashSet<AServiceTicketChangeSet>();
+//                this.AttachedFiles            = AttachedFiles           is not null ? new HashSet<HTTPPath>(AttachedFiles)                           : new HashSet<HTTPPath>();
+//                this.History                  = History                 is not null ? new HashSet<AServiceTicketChangeSet>(History)           : new HashSet<AServiceTicketChangeSet>();
 
 //                this.DataSource               = DataSource              ?? "";
 

@@ -86,7 +86,7 @@ function StartOrganizationMembers() {
                         try {
                             confirmToRemoveUserDiv.style.display = "none";
                             const responseJSON = response !== "" ? JSON.parse(response) : {};
-                            const info = responseJSON.description != null ? "<br />" + responseJSON.description : "";
+                            const info = responseJSON.description !== null ? "<br />" + responseJSON.description : "";
                             responseDiv.innerHTML = "<div class=\"HTTP Error\">Removing this user from the organization failed!<br />" + info + "</div>";
                         }
                         catch (exception) {

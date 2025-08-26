@@ -95,7 +95,7 @@ namespace social.OpenData.UsersAPI
                 if (_API == value)
                     return;
 
-                if (_API != null)
+                if (_API is not null)
                     throw new ArgumentException("Illegal attempt to change the API of this service ticket!");
 
                 _API = value ?? throw new ArgumentException("Illegal attempt to delete the API reference of this service ticket!");
@@ -225,14 +225,14 @@ namespace social.OpenData.UsersAPI
 
             Author               = this.ChangeSets.LastOrDefault()?.Author;
 
-            if (this.Author == null)
+            if (this.Author is null)
                 throw new ArgumentNullException(nameof(Author),   "The author of the service ticket must not be null!");
 
 
             var latestStatus     = this.ChangeSets.Where(entry => entry.Status.HasValue).
                                                     FirstOrDefault();
 
-            Status               = latestStatus != null
+            Status               = latestStatus is not null
                                         ? new Timestamped<ServiceTicketStatusTypes>(latestStatus.Timestamp,
                                                                                     latestStatus.Status.Value)
                                         : new Timestamped<ServiceTicketStatusTypes>(this.Created,
@@ -438,7 +438,7 @@ namespace social.OpenData.UsersAPI
                                            ? new JProperty("affected", Affected.ToJSON())
                                            : null,
 
-                                       Author != null
+                                       Author is not null
                                            ? ExpandAuthorId.Switch(
                                                  () => new JProperty("author",  new JObject(
                                                                                     new JProperty("@id",   Author.Id.ToString()),
@@ -666,7 +666,7 @@ namespace social.OpenData.UsersAPI
                     if (ErrorResponse is not null)
                         return false;
 
-                    if (AffectedJSON != null)
+                    if (AffectedJSON is not null)
                     {
 
                         try
@@ -769,7 +769,7 @@ namespace social.OpenData.UsersAPI
                     if (ErrorResponse is not null)
                         return false;
 
-                    if (statusIndicatorsJSON != null)
+                    if (statusIndicatorsJSON is not null)
                     {
 
                         var text = "";
@@ -913,7 +913,7 @@ namespace social.OpenData.UsersAPI
                     if (ErrorResponse is not null)
                         return false;
 
-                    if (ChangeSetsJSON != null)
+                    if (ChangeSetsJSON is not null)
                     {
                         foreach (var changeSet in ChangeSetsJSON)
                         {
@@ -1400,7 +1400,7 @@ namespace social.OpenData.UsersAPI
                     var latestStatus = ChangeSets?.Where(entry => entry.Status.HasValue).
                                                 FirstOrDefault();
 
-                    return latestStatus != null
+                    return latestStatus is not null
                                ? new Timestamped<ServiceTicketStatusTypes>(latestStatus.Timestamp,
                                                                            latestStatus.Status.Value)
                                : new Timestamped<ServiceTicketStatusTypes>?();
@@ -1419,7 +1419,7 @@ namespace social.OpenData.UsersAPI
             /// Affected devices or services by this service ticket.
             /// </summary>
             public Affected Affected
-                => ChangeSets?.Where(entry => entry.Affected != null).
+                => ChangeSets?.Where(entry => entry.Affected is not null).
                                FirstOrDefault()?.Affected;
 
             /// <summary>
@@ -1512,7 +1512,7 @@ namespace social.OpenData.UsersAPI
             {
 
                 this.Id           = Id;
-                this._ChangeSets  = ChangeSets != null ? [.. ChangeSets] : [];
+                this._ChangeSets  = ChangeSets is not null ? [.. ChangeSets] : [];
 
             }
 

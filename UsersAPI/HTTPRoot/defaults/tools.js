@@ -6,17 +6,17 @@ let CurrentlyHighlightedMenuItem = "";
 function MenuHighlight(name, NoURIupdate) {
     if (CurrentlyHighlightedMenuItem != "") {
         const OldItem = document.getElementById('Item' + CurrentlyHighlightedMenuItem);
-        if (OldItem != null)
+        if (OldItem !== null)
             OldItem.classList.remove('active');
         const OldMenu = document.getElementById('Menu' + CurrentlyHighlightedMenuItem);
-        if (OldMenu != null)
+        if (OldMenu !== null)
             OldMenu.style.display = "none";
     }
     const NewItem = document.getElementById('Item' + name);
-    if (NewItem != null)
+    if (NewItem !== null)
         NewItem.classList.add('active');
     const NewMenu = document.getElementById('Menu' + name);
-    if (NewMenu != null)
+    if (NewMenu !== null)
         NewMenu.style.display = "block";
     CurrentlyHighlightedMenuItem = name;
     if (history && history.pushState && !NoURIupdate) {
@@ -30,11 +30,11 @@ function SubmenuHighlight(name, subname, NoURIupdate) {
     MenuHighlight(name, true);
     if (CurrentlyHighlightedSubmenuItem != "") {
         const OldItem = document.getElementById('Item' + CurrentlyHighlightedSubmenuItem);
-        if (OldItem != null)
+        if (OldItem !== null)
             OldItem.classList.remove('active');
     }
     const NewItem = document.getElementById('Item' + name + "/" + subname);
-    if (NewItem != null)
+    if (NewItem !== null)
         NewItem.classList.add('active');
     CurrentlyHighlightedSubmenuItem = name + "/" + subname;
     //if (history && history.pushState && !NoURIupdate) {
@@ -48,7 +48,7 @@ function SendJSON(HTTPVerb, URI, Data, OnSuccess, OnError) {
     ajax.open(HTTPVerb, URI, true); // , user, password);
     ajax.setRequestHeader("Accept", "application/json; charset=UTF-8");
     ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
-    if (APIKey != null)
+    if (APIKey !== null)
         ajax.setRequestHeader("APIKey", APIKey);
     ajax.onreadystatechange = function () {
         // 0 UNSENT | 1 OPENED | 2 HEADERS_RECEIVED | 3 LOADING | 4 DONE
@@ -66,7 +66,7 @@ function SendJSON(HTTPVerb, URI, Data, OnSuccess, OnError) {
                 OnError(this.status, this.statusText, ajax.responseText);
         }
     };
-    if (Data != null)
+    if (Data !== null)
         ajax.send(JSON.stringify(Data));
     else
         ajax.send();
@@ -174,7 +174,7 @@ function HTTP(Method, RessourceURI, Data, OnSuccess, OnError) {
     ajax.open(Method, RessourceURI, true);
     ajax.setRequestHeader("Accept", "application/json; charset=UTF-8");
     ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
-    if (APIKey != null)
+    if (APIKey !== null)
         ajax.setRequestHeader("APIKey", APIKey);
     ajax.onreadystatechange = function () {
         // 0 UNSENT | 1 OPENED | 2 HEADERS_RECEIVED | 3 LOADING | 4 DONE
@@ -192,7 +192,7 @@ function HTTP(Method, RessourceURI, Data, OnSuccess, OnError) {
                 OnError(this.status, this.statusText, ajax.responseText);
         }
     };
-    if (Data != null)
+    if (Data !== null)
         ajax.send(JSON.stringify(Data));
     else
         ajax.send();
@@ -207,7 +207,7 @@ function HTTPGet(RessourceURI, OnSuccess, OnError) {
     ajax.setRequestHeader("Accept", "application/json; charset=UTF-8");
     ajax.setRequestHeader("X-Portal", "true");
     //ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
-    //if (APIKey != null)
+    //if (APIKey !== null)
     //    ajax.setRequestHeader("APIKey", APIKey);
     ajax.onreadystatechange = function () {
         // 0 UNSENT | 1 OPENED | 2 HEADERS_RECEIVED | 3 LOADING | 4 DONE
@@ -236,7 +236,7 @@ function HTTPCount(RessourceURI, Data, OnSuccess, OnError) {
     ajax.open("COUNT", RessourceURI, true); // , user, password);
     ajax.setRequestHeader("Accept", "application/json; charset=UTF-8");
     //ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
-    if (APIKey != null)
+    if (APIKey !== null)
         ajax.setRequestHeader("APIKey", APIKey);
     ajax.onreadystatechange = function () {
         // 0 UNSENT | 1 OPENED | 2 HEADERS_RECEIVED | 3 LOADING | 4 DONE
@@ -254,7 +254,7 @@ function HTTPCount(RessourceURI, Data, OnSuccess, OnError) {
                 OnError(this.status, this.statusText, ajax.responseText);
         }
     };
-    if (Data != null)
+    if (Data !== null)
         ajax.send(JSON.stringify(Data));
     else
         ajax.send();
@@ -268,7 +268,7 @@ function Exists(RessourceURI, OnSuccess, OnError) {
     ajax.open("GET", RessourceURI, true); // , user, password);
     ajax.setRequestHeader("Accept", "application/json; charset=UTF-8");
     //ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
-    if (APIKey != null)
+    if (APIKey !== null)
         ajax.setRequestHeader("APIKey", APIKey);
     ajax.onreadystatechange = function () {
         // 0 UNSENT | 1 OPENED | 2 HEADERS_RECEIVED | 3 LOADING | 4 DONE
@@ -297,7 +297,7 @@ function HTTPSet(RessourceURI, Data, OnSuccess, OnError) {
     ajax.open("SET", RessourceURI, true);
     ajax.setRequestHeader("Accept", "application/json; charset=UTF-8");
     ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
-    if (APIKey != null)
+    if (APIKey !== null)
         ajax.setRequestHeader("APIKey", APIKey);
     ajax.onreadystatechange = function () {
         // 0 UNSENT | 1 OPENED | 2 HEADERS_RECEIVED | 3 LOADING | 4 DONE
@@ -315,7 +315,7 @@ function HTTPSet(RessourceURI, Data, OnSuccess, OnError) {
                 OnError(this.status, this.statusText, ajax.responseText);
         }
     };
-    if (Data != null)
+    if (Data !== null)
         ajax.send(JSON.stringify(Data));
     else
         ajax.send();
@@ -329,7 +329,7 @@ function HTTPAdd(RessourceURI, Data, OnSuccess, OnError) {
     ajax.open("ADD", RessourceURI, true); // , user, password);
     ajax.setRequestHeader("Accept", "application/json; charset=UTF-8");
     ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
-    if (APIKey != null)
+    if (APIKey !== null)
         ajax.setRequestHeader("APIKey", APIKey);
     ajax.onreadystatechange = function () {
         // 0 UNSENT | 1 OPENED | 2 HEADERS_RECEIVED | 3 LOADING | 4 DONE
@@ -347,7 +347,7 @@ function HTTPAdd(RessourceURI, Data, OnSuccess, OnError) {
                 OnError(this.status, this.statusText, ajax.responseText);
         }
     };
-    if (Data != null)
+    if (Data !== null)
         ajax.send(JSON.stringify(Data));
     else
         ajax.send();
@@ -361,7 +361,7 @@ function HTTPAddIfNotExists(RessourceURI, Data, OnSuccess, OnError) {
     ajax.open("ADDIFNOTEXISTS", RessourceURI, true); // , user, password);
     ajax.setRequestHeader("Accept", "application/json; charset=UTF-8");
     ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
-    if (APIKey != null)
+    if (APIKey !== null)
         ajax.setRequestHeader("APIKey", APIKey);
     ajax.onreadystatechange = function () {
         // 0 UNSENT | 1 OPENED | 2 HEADERS_RECEIVED | 3 LOADING | 4 DONE
@@ -379,7 +379,7 @@ function HTTPAddIfNotExists(RessourceURI, Data, OnSuccess, OnError) {
                 OnError(this.status, this.statusText, ajax.responseText);
         }
     };
-    if (Data != null)
+    if (Data !== null)
         ajax.send(JSON.stringify(Data));
     else
         ajax.send();
@@ -392,7 +392,7 @@ function HTTPDelete(RessourceURI, OnSuccess, OnDenied, OnError) {
     const ajax = new XMLHttpRequest();
     ajax.open("DELETE", RessourceURI, true); // , user, password);
     ajax.setRequestHeader("Accept", "application/json; charset=UTF-8");
-    if (APIKey != null)
+    if (APIKey !== null)
         ajax.setRequestHeader("APIKey", APIKey);
     ajax.onreadystatechange = function () {
         // 0 UNSENT | 1 OPENED | 2 HEADERS_RECEIVED | 3 LOADING | 4 DONE
@@ -430,7 +430,7 @@ function HTTPChown(RessourceURI, Data, OnSuccess, OnError) {
     ajax.open("CHOWN", RessourceURI, true); // , user, password);
     ajax.setRequestHeader("Accept", "application/json; charset=UTF-8");
     ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
-    if (APIKey != null)
+    if (APIKey !== null)
         ajax.setRequestHeader("APIKey", APIKey);
     ajax.onreadystatechange = function () {
         // 0 UNSENT | 1 OPENED | 2 HEADERS_RECEIVED | 3 LOADING | 4 DONE
@@ -448,7 +448,7 @@ function HTTPChown(RessourceURI, Data, OnSuccess, OnError) {
                 OnError(this.status, this.statusText, ajax.responseText);
         }
     };
-    if (Data != null)
+    if (Data !== null)
         ajax.send(JSON.stringify(Data));
     else
         ajax.send();
@@ -461,7 +461,7 @@ function HTTPCheck(RessourceURI, Data, OnSuccess, OnError) {
     ajax.open("CHECK", RessourceURI, true); // , user, password);
     ajax.setRequestHeader("Accept", "application/json; charset=UTF-8");
     ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
-    if (APIKey != null)
+    if (APIKey !== null)
         ajax.setRequestHeader("APIKey", APIKey);
     ajax.onreadystatechange = function () {
         // 0 UNSENT | 1 OPENED | 2 HEADERS_RECEIVED | 3 LOADING | 4 DONE
@@ -483,7 +483,7 @@ function HTTPCheck(RessourceURI, Data, OnSuccess, OnError) {
         if (OnError && typeof OnError === 'function')
             OnError(this.status, this.statusText, ajax.responseText);
     };
-    if (Data != null)
+    if (Data !== null)
         ajax.send(JSON.stringify(Data));
     else
         ajax.send();
@@ -556,9 +556,9 @@ function HTTPSet__SYNCED(RessourceURI, Data) {
     ajax.open("SET", RessourceURI, false); // NOT ASYNC!
     ajax.setRequestHeader("Accept", "application/json; charset=UTF-8");
     ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
-    if (APIKey != null)
+    if (APIKey !== null)
         ajax.setRequestHeader("APIKey", APIKey);
-    if (Data != null)
+    if (Data !== null)
         ajax.send(JSON.stringify(Data));
     else
         ajax.send();
@@ -679,9 +679,9 @@ function CreateI18NDiv(I18NString, CSSClassNames) {
 //}
 function CreateDiv(parent, className, innerHTML) {
     const newDiv = parent.appendChild(document.createElement('div'));
-    if (className != null)
+    if (className !== null)
         newDiv.className = className;
-    if (innerHTML != null) {
+    if (innerHTML !== null) {
         if (typeof innerHTML === 'string')
             newDiv.innerHTML = innerHTML;
         else if (innerHTML instanceof HTMLDivElement)

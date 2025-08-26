@@ -213,7 +213,7 @@ namespace social.OpenData.UsersAPI
         //        return true;
 
         //    // If one is null, but not both, return false.
-        //    if (((Object) ServiceTicketReference1 == null) || ((Object) ServiceTicketReference2 == null))
+        //    if (((Object) ServiceTicketReference1 is null) || ((Object) ServiceTicketReference2 is null))
         //        return false;
 
         //    return ServiceTicketReference1.Equals(ServiceTicketReference2);
@@ -246,7 +246,7 @@ namespace social.OpenData.UsersAPI
         //public static Boolean operator < (ServiceTicketReference ServiceTicketReference1, ServiceTicketReference ServiceTicketReference2)
         //{
 
-        //    if ((Object) ServiceTicketReference1 == null)
+        //    if ((Object) ServiceTicketReference1 is null)
         //        throw new ArgumentNullException(nameof(ServiceTicketReference1), "The given ServiceTicketReference1 must not be null!");
 
         //    return ServiceTicketReference1.CompareTo(ServiceTicketReference2) < 0;
@@ -279,7 +279,7 @@ namespace social.OpenData.UsersAPI
         //public static Boolean operator > (ServiceTicketReference ServiceTicketReference1, ServiceTicketReference ServiceTicketReference2)
         //{
 
-        //    if ((Object) ServiceTicketReference1 == null)
+        //    if ((Object) ServiceTicketReference1 is null)
         //        throw new ArgumentNullException(nameof(ServiceTicketReference1), "The given ServiceTicketReference1 must not be null!");
 
         //    return ServiceTicketReference1.CompareTo(ServiceTicketReference2) > 0;
@@ -314,7 +314,7 @@ namespace social.OpenData.UsersAPI
         public Int32 CompareTo(Object Object)
         {
 
-            if (Object == null)
+            if (Object is null)
                 throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
 
             if (!(Object is ServiceTicketReference))
@@ -336,7 +336,7 @@ namespace social.OpenData.UsersAPI
         public Int32 CompareTo(ServiceTicketReference ServiceTicketReference)
         {
 
-            if ((Object) ServiceTicketReference == null)
+            if ((Object) ServiceTicketReference is null)
                 throw new ArgumentNullException(nameof(ServiceTicketReference), "The given ServiceTicketReference must not be null!");
 
             // Compare ServiceTicket Ids
@@ -366,7 +366,7 @@ namespace social.OpenData.UsersAPI
         public override Boolean Equals(Object Object)
         {
 
-            if (Object == null)
+            if (Object is null)
                 return false;
 
             if (!(Object is ServiceTicketReference))
@@ -388,7 +388,7 @@ namespace social.OpenData.UsersAPI
         public Boolean Equals(ServiceTicketReference ServiceTicketReference)
         {
 
-            if ((Object) ServiceTicketReference == null)
+            if ((Object) ServiceTicketReference is null)
                 return false;
 
             return Id.Equals(ServiceTicketReference.Id);// &&

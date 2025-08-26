@@ -123,10 +123,10 @@ namespace social.OpenData.UsersAPI
             set
             {
 
-                if (_API != null)
+                if (_API is not null)
                     throw new ArgumentException("Illegal attempt to change the API of this communicator!");
 
-                if (value == null)
+                if (value is null)
                     throw new ArgumentException("Illegal attempt to delete the API reference of this communicator!");
 
                 _API = value;
@@ -551,7 +551,7 @@ namespace social.OpenData.UsersAPI
                 return true;
 
             // If one is null, but not both, return false.
-            if (((Object) FAQId1 == null) || ((Object) FAQId2 == null))
+            if (((Object) FAQId1 is null) || ((Object) FAQId2 is null))
                 return false;
 
             return FAQId1.Equals(FAQId2);
@@ -584,7 +584,7 @@ namespace social.OpenData.UsersAPI
         public static Boolean operator < (FAQ FAQId1, FAQ FAQId2)
         {
 
-            if ((Object) FAQId1 == null)
+            if ((Object) FAQId1 is null)
                 throw new ArgumentNullException(nameof(FAQId1), "The given FAQId1 must not be null!");
 
             return FAQId1.CompareTo(FAQId2) < 0;
@@ -617,7 +617,7 @@ namespace social.OpenData.UsersAPI
         public static Boolean operator > (FAQ FAQId1, FAQ FAQId2)
         {
 
-            if ((Object) FAQId1 == null)
+            if ((Object) FAQId1 is null)
                 throw new ArgumentNullException(nameof(FAQId1), "The given FAQId1 must not be null!");
 
             return FAQId1.CompareTo(FAQId2) > 0;
@@ -652,11 +652,11 @@ namespace social.OpenData.UsersAPI
         public override Int32 CompareTo(Object Object)
         {
 
-            if (Object == null)
+            if (Object is null)
                 throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
 
             var FAQ = Object as FAQ;
-            if ((Object) FAQ == null)
+            if ((Object) FAQ is null)
                 throw new ArgumentException("The given object is not an FAQ!");
 
             return CompareTo(FAQ);
@@ -674,7 +674,7 @@ namespace social.OpenData.UsersAPI
         public override Int32 CompareTo(FAQ FAQ)
         {
 
-            if ((Object) FAQ == null)
+            if ((Object) FAQ is null)
                 throw new ArgumentNullException("The given FAQ must not be null!");
 
             return Id.CompareTo(FAQ.Id);
@@ -697,11 +697,11 @@ namespace social.OpenData.UsersAPI
         public override Boolean Equals(Object Object)
         {
 
-            if (Object == null)
+            if (Object is null)
                 return false;
 
             var FAQ = Object as FAQ;
-            if ((Object) FAQ == null)
+            if ((Object) FAQ is null)
                 return false;
 
             return Equals(FAQ);
@@ -720,7 +720,7 @@ namespace social.OpenData.UsersAPI
         public override Boolean Equals(FAQ FAQ)
         {
 
-            if ((Object) FAQ == null)
+            if ((Object) FAQ is null)
                 return false;
 
             return Id.Equals(FAQ.Id);
@@ -868,7 +868,7 @@ namespace social.OpenData.UsersAPI
                 this.Answer           = Answer;
                 this.Author           = Author;
                 this.PublicationDate  = PublicationDate;
-                this.Tags             = Tags != null
+                this.Tags             = Tags is not null
                                             ? new List<TagRelevance>(Tags)
                                             : new List<TagRelevance>();
                 this.IsHidden         = IsHidden;

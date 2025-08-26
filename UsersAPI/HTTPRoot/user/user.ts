@@ -198,7 +198,7 @@ function StartUser() {
 
                     let responseJSON = { "description": "HTTP Error " + statusCode + " - " + status + "!" };
 
-                    if (response != null && response != "") {
+                    if (response !== null && response != "") {
                         try
                         {
                             responseJSON = JSON.parse(response);
@@ -207,7 +207,7 @@ function StartUser() {
                     }
 
                     responseDiv.innerHTML = "<div class=\"HTTP Error\">Storing user profile data failed!" +
-                                                (responseJSON.description != null ? "<br />" + responseJSON.description : "") +
+                                                (responseJSON.description !== null ? "<br />" + responseJSON.description : "") +
                                             "</div>";
 
                 });
@@ -380,12 +380,12 @@ function StartUser() {
 
     function VerifyAll() {
 
-        //if (newUserJSON["@id"]      != null &&
+        //if (newUserJSON["@id"]      !== null &&
         //    newUserJSON.username    != ""   &&
         //    newUserJSON.email       != ""   &&
-        //    newUserJSON.telephone   != null &&
-        //    newUserJSON.mobilephone != null &&
-        //    newUserJSON.homepage    != null)
+        //    newUserJSON.telephone   !== null &&
+        //    newUserJSON.mobilephone !== null &&
+        //    newUserJSON.homepage    !== null)
         //{
         //    saveButton.disabled    = false;
         //    responseDiv.innerHTML  = "";
@@ -517,7 +517,7 @@ function StartUser() {
                         //                           confirmToDeleteUserDiv.style.display = "none";
 
                         //                           const responseJSON = response !== "" ? JSON.parse(response) : {};
-                        //                           const info         = responseJSON.description != null ? "<br />" + responseJSON.description : "";
+                        //                           const info         = responseJSON.description !== null ? "<br />" + responseJSON.description : "";
                         //                           responseDiv.innerHTML = "<div class=\"HTTP Error\">Deleting this user failed!<br />" + info + "</div>";
 
                         //                       }

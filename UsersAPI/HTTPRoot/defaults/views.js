@@ -39,7 +39,7 @@ class View {
         var DivValue = DivRow.appendChild(document.createElement('div'));
         DivValue.id = Prefix + "Value";
         DivValue.className = "value";
-        if (greeter != null)
+        if (greeter !== null)
             greeter(DivValue);
         return DivValue;
     }

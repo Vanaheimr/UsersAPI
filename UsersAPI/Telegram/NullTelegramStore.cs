@@ -260,7 +260,7 @@ namespace social.OpenData.UsersAPI
                 if (messageText.IsNeitherNullNorEmpty())
                     messageText.Trim();
 
-                if (messageChat != null)
+                if (messageChat is not null)
                 {
 
                     if (messageChat.Id >= 0)
@@ -349,7 +349,7 @@ namespace social.OpenData.UsersAPI
             try
             {
 
-                if (OnSendTelegramRequest != null)
+                if (OnSendTelegramRequest is not null)
                     await Task.WhenAll(OnSendTelegramRequest.GetInvocationList().
                                        Cast<OnSendTelegramRequestDelegate>().
                                        Select(e => e(StartTime,
@@ -383,7 +383,7 @@ namespace social.OpenData.UsersAPI
             try
             {
 
-                if (OnSendTelegramResponse != null)
+                if (OnSendTelegramResponse is not null)
                     await Task.WhenAll(OnSendTelegramResponse.GetInvocationList().
                                        Cast<OnSendTelegramResponseDelegate>().
                                        Select(e => e(Endtime,
@@ -442,7 +442,7 @@ namespace social.OpenData.UsersAPI
             try
             {
 
-                if (OnSendTelegramRequest != null)
+                if (OnSendTelegramRequest is not null)
                     await Task.WhenAll(OnSendTelegramRequest.GetInvocationList().
                                        Cast<OnSendTelegramRequestDelegate>().
                                        Select(e => e(StartTime,
@@ -477,7 +477,7 @@ namespace social.OpenData.UsersAPI
             try
             {
 
-                if (OnSendTelegramResponse != null)
+                if (OnSendTelegramResponse is not null)
                     await Task.WhenAll(OnSendTelegramResponse.GetInvocationList().
                                        Cast<OnSendTelegramResponseDelegate>().
                                        Select(e => e(Endtime,
@@ -555,7 +555,7 @@ namespace social.OpenData.UsersAPI
             try
             {
 
-                if (OnSendTelegramRequest != null)
+                if (OnSendTelegramRequest is not null)
                     await Task.WhenAll(OnSendTelegramRequest.GetInvocationList().
                                        Cast<OnSendTelegramRequestDelegate>().
                                        Select(e => e(StartTime,
@@ -595,7 +595,7 @@ namespace social.OpenData.UsersAPI
             try
             {
 
-                if (OnSendTelegramResponse != null)
+                if (OnSendTelegramResponse is not null)
                     await Task.WhenAll(OnSendTelegramResponse.GetInvocationList().
                                        Cast<OnSendTelegramResponseDelegate>().
                                        Select(e => e(Endtime,
@@ -668,7 +668,7 @@ namespace social.OpenData.UsersAPI
             try
             {
 
-                if (OnSendTelegramRequest != null)
+                if (OnSendTelegramRequest is not null)
                     await Task.WhenAll(OnSendTelegramRequest.GetInvocationList().
                                        Cast<OnSendTelegramRequestDelegate>().
                                        Select(e => e(StartTime,
@@ -708,7 +708,7 @@ namespace social.OpenData.UsersAPI
             try
             {
 
-                if (OnSendTelegramResponse != null)
+                if (OnSendTelegramResponse is not null)
                     await Task.WhenAll(OnSendTelegramResponse.GetInvocationList().
                                        Cast<OnSendTelegramResponseDelegate>().
                                        Select(e => e(Endtime,

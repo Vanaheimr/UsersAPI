@@ -27,7 +27,7 @@ function StartOrganizationGeoLocation() {
 
         else {
 
-            if (geoMarker != null) {
+            if (geoMarker !== null) {
                 geoMarker.remove();
                 geoMarker = null;
             }

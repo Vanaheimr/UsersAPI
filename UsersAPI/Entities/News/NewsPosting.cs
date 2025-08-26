@@ -123,10 +123,10 @@ namespace social.OpenData.UsersAPI
             set
             {
 
-                if (_API != null)
+                if (_API is not null)
                     throw new ArgumentException("Illegal attempt to change the API of this news posting!");
 
-                if (value == null)
+                if (value is null)
                     throw new ArgumentException("Illegal attempt to delete the API reference of this news posting!");
 
                 _API = value;
@@ -514,7 +514,7 @@ namespace social.OpenData.UsersAPI
                 return true;
 
             // If one is null, but not both, return false.
-            if (((Object) NewsId1 == null) || ((Object) NewsId2 == null))
+            if (((Object) NewsId1 is null) || ((Object) NewsId2 is null))
                 return false;
 
             return NewsId1.Equals(NewsId2);
@@ -547,7 +547,7 @@ namespace social.OpenData.UsersAPI
         public static Boolean operator < (NewsPosting NewsId1, NewsPosting NewsId2)
         {
 
-            if ((Object) NewsId1 == null)
+            if ((Object) NewsId1 is null)
                 throw new ArgumentNullException(nameof(NewsId1), "The given NewsId1 must not be null!");
 
             return NewsId1.CompareTo(NewsId2) < 0;
@@ -580,7 +580,7 @@ namespace social.OpenData.UsersAPI
         public static Boolean operator > (NewsPosting NewsId1, NewsPosting NewsId2)
         {
 
-            if ((Object) NewsId1 == null)
+            if ((Object) NewsId1 is null)
                 throw new ArgumentNullException(nameof(NewsId1), "The given NewsId1 must not be null!");
 
             return NewsId1.CompareTo(NewsId2) > 0;
@@ -615,11 +615,11 @@ namespace social.OpenData.UsersAPI
         public override Int32 CompareTo(Object Object)
         {
 
-            if (Object == null)
+            if (Object is null)
                 throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
 
             var News = Object as NewsPosting;
-            if ((Object) News == null)
+            if ((Object) News is null)
                 throw new ArgumentException("The given object is not an News!");
 
             return CompareTo(News);
@@ -637,7 +637,7 @@ namespace social.OpenData.UsersAPI
         public override Int32 CompareTo(NewsPosting News)
         {
 
-            if ((Object) News == null)
+            if ((Object) News is null)
                 throw new ArgumentNullException("The given News must not be null!");
 
             return Id.CompareTo(News.Id);
@@ -660,11 +660,11 @@ namespace social.OpenData.UsersAPI
         public override Boolean Equals(Object Object)
         {
 
-            if (Object == null)
+            if (Object is null)
                 return false;
 
             var News = Object as NewsPosting;
-            if ((Object) News == null)
+            if ((Object) News is null)
                 return false;
 
             return Equals(News);
@@ -683,7 +683,7 @@ namespace social.OpenData.UsersAPI
         public override Boolean Equals(NewsPosting News)
         {
 
-            if ((Object) News == null)
+            if ((Object) News is null)
                 return false;
 
             return Id.Equals(News.Id);

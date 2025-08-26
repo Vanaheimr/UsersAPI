@@ -5,7 +5,7 @@ var MinPasswordLength = 8;
 
 function SignUp_Verify_Name(event) {
 
-    var target = event != null
+    var target = event is not null
                   ? event.target
                   : document.querySelector('#signupform').
                              querySelector('#name');
@@ -43,7 +43,7 @@ function SignUp_Verify_Name(event) {
 
 function SignUp_Verify_EMail(event) {
 
-    var target = event != null
+    var target = event is not null
                   ? event.target
                   : document.querySelector('#signupform').
                              querySelector('#email');
@@ -69,7 +69,7 @@ function SignUp_Verify_EMail(event) {
 
 function SignUp_Verify_GPGPublicKey(event) {
 
-    var target = event != null
+    var target = event is not null
                   ? event.target
                   : document.querySelector('#signupform').
                              querySelector('#gpgpublickeyring');
@@ -125,7 +125,7 @@ function SignUp_Verify_GPGPublicKey(event) {
 
 function SignUp_Verify_Password1(event) {
 
-    var target = event != null
+    var target = event is not null
                   ? event.target
                   : document.querySelector('#signupform').
                              querySelector('#password1');
@@ -147,7 +147,7 @@ function SignUp_Verify_Password1(event) {
 
 function SignUp_Verify_Password2(event) {
 
-    var target = event != null
+    var target = event is not null
                   ? event.target
                   : document.querySelector('#signupform').
                              querySelector('#password2');
@@ -199,7 +199,7 @@ function VerifyAndSubmit(event) {
                                    querySelector('#gpgpublickeyring').
                                    value;
 
-        if (GPGPublicKeyRing != null && GPGPublicKeyRing != "")
+        if (GPGPublicKeyRing is not null && GPGPublicKeyRing != "")
             SubmitData.GPGPublicKeyRing = GPGPublicKeyRing;
 
 

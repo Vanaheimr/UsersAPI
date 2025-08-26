@@ -313,7 +313,7 @@ var QRCode;
             self._fSuccess = fSuccess;
 
             // Check it just once
-            if (self._bSupportDataURI === null) {
+            if (self._bSupportDataURI =is null) {
                 var el = document.createElement("img");
                 var fOnError = function() {
                     self._bSupportDataURI = false;

@@ -6,7 +6,7 @@ let isAdmin = "";
 const newsBannersCookieId = "newsBanners";
 function HideElement(DivName) {
     const div = document.querySelector(DivName);
-    if (div != null)
+    if (div !== null)
         div.style.display = "none";
     return div;
 }
@@ -17,7 +17,7 @@ function ShowElement2(DivName, displaymode) {
     if (displaymode == undefined)
         displaymode = "flex";
     const div = document.querySelector(DivName);
-    if (div != null)
+    if (div !== null)
         div.style.display = displaymode;
     return div;
 }
@@ -127,11 +127,11 @@ function VerifyLogin() {
                 return false;
             }
             if (responseJSON.username == null || responseJSON.email == null) {
-                if (responseJSON.error != null) {
+                if (responseJSON.error !== null) {
                     responseDiv.style.display = 'block';
                     responseDiv.innerHTML = "<i class='fas fa-exclamation-triangle  fa-2x menuicons'></i> " + responseJSON.error;
                 }
-                if (responseJSON.description != null) {
+                if (responseJSON.description !== null) {
                     responseDiv.style.display = 'block';
                     responseDiv.innerHTML = "<i class='fas fa-exclamation-triangle  fa-2x menuicons'></i> " + responseJSON.description;
                 }
@@ -189,7 +189,7 @@ function LostPassword() {
         }, (HTTPStatus, ResponseText) => {
             try {
                 const responseJSON = JSON.parse(ResponseText);
-                if (responseJSON.numberOfAccountsFound != null) {
+                if (responseJSON.numberOfAccountsFound !== null) {
                     responseDiv.style.display = 'block';
                     responseDiv.innerHTML = "<i class='fas fa-user-check  fa-2x menuicons'></i> Found " + responseJSON.numberOfAccountsFound + " account(s). Please check your e-mails!";
                     responseDiv.classList.remove("responseError");
@@ -291,7 +291,7 @@ function SetPassword() {
         HTTPSet((URLPathPrefix !== null && URLPathPrefix !== void 0 ? URLPathPrefix : "") + "/setPassword", SetPasswordJSON, (HTTPStatus, ResponseText) => {
             try {
                 var responseJSON = JSON.parse(ResponseText);
-                if (responseJSON.numberOfAccountsFound != null) {
+                if (responseJSON.numberOfAccountsFound !== null) {
                     responseDiv.style.display = 'block';
                     responseDiv.innerHTML = "<i class='fas fa-user-check  fa-2x menuicons'></i> Succssfully resetted your password!";
                     responseDiv.classList.remove("responseError");
@@ -372,7 +372,7 @@ function SignIn() {
         "rememberme": RememberMe
     }, function (status, response) {
         //(<HTMLFormElement> document.querySelector('#loginform')).submit();
-        location.href = URLPathPrefix != null && URLPathPrefix != "" ? URLPathPrefix : "/";
+        location.href = URLPathPrefix !== null && URLPathPrefix != "" ? URLPathPrefix : "/";
     }, function (HTTPStatus, status, response) {
         SignInErrors.style.display = "block";
         SignInErrors.innerText = JSON.parse(response).description;
@@ -428,7 +428,7 @@ function checkSignedIn(RedirectUnknownUsers) {
         ShowElement('#SignIn');
         ShowElement('.SignIn');
         const usernameDiv = document.querySelector('#username');
-        if (usernameDiv != null)
+        if (usernameDiv !== null)
             usernameDiv.innerText = "anonymous";
         if (RedirectUnknownUsers)
             location.href = (URLPathPrefix !== null && URLPathPrefix !== void 0 ? URLPathPrefix : "") + "/login";
@@ -440,7 +440,7 @@ function checkAdminSignedIn(RedirectUnknownUsers) {
         ShowElement('#admin');
         ShowElement('.admin');
         if (cookie.indexOf(":isAdmin") < 0)
-            location.href = URLPathPrefix != null && URLPathPrefix != "" ? URLPathPrefix : "/";
+            location.href = URLPathPrefix !== null && URLPathPrefix != "" ? URLPathPrefix : "/";
     }, () => {
         if (RedirectUnknownUsers)
             location.href = (URLPathPrefix !== null && URLPathPrefix !== void 0 ? URLPathPrefix : "") + "/login";
@@ -485,7 +485,7 @@ function checkNewsBanner(knownNewsIds) {
                         const newsBannerDiv = document.getElementById("newsBanner");
                         newsBannerDiv.style.display = "flex";
                         const bannerTextDiv = newsBannerDiv.querySelector("#bannerText");
-                        bannerTextDiv.innerHTML = newsBanner.text != undefined && newsBanner.text != null
+                        bannerTextDiv.innerHTML = newsBanner.text != undefined && newsBanner.text !== null
                             ? firstValue(newsBanner.text)
                             : "No news found!";
                         const ignoreNewsButton = newsBannerDiv.querySelector("#ignoreNewsButton");

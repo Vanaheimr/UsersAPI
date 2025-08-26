@@ -46,14 +46,14 @@ function StartChangePassword() {
             responseDiv.innerHTML = "<div class=\"HTTP OK\">Successfully updated your password.</div>";
         }, (HTTPStatus, StatusText, ResponseText) => {
             var responseJSON = { "description": "HTTP Error " + HTTPStatus + " - " + StatusText + "!" };
-            if (ResponseText != null && ResponseText != "") {
+            if (ResponseText !== null && ResponseText != "") {
                 try {
                     responseJSON = JSON.parse(ResponseText);
                 }
                 catch (_a) { }
             }
             responseDiv.style.display = 'block';
-            responseDiv.innerHTML = "<div class=\"HTTP Error\">Updating your password failed!" + (responseJSON.description != null ? responseJSON.description : "") + "</div>";
+            responseDiv.innerHTML = "<div class=\"HTTP Error\">Updating your password failed!" + (responseJSON.description !== null ? responseJSON.description : "") + "</div>";
         });
     }
     const changePasswordInfos = document.getElementById('changePasswordInfos');

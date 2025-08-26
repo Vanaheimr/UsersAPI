@@ -91,7 +91,7 @@ namespace social.OpenData.UsersAPI
 
             #region Initial checks
 
-            if (Text != null)
+            if (Text is not null)
                 Text = Text.Trim();
 
             if (Text.IsNullOrEmpty())
@@ -115,7 +115,7 @@ namespace social.OpenData.UsersAPI
 
             #region Initial checks
 
-            if (Text != null && Text.Any())
+            if (Text is not null && Text.Any())
                 Text = Text.Select (_ => _?.Trim()).
                             Where  (_ => _.IsNotNullOrEmpty()).
                             ToArray();
@@ -141,7 +141,7 @@ namespace social.OpenData.UsersAPI
 
             #region Initial checks
 
-            if (Text != null && Text.Any())
+            if (Text is not null && Text.Any())
                 Text = Text.Select (_ => _?.Trim()).
                             Where  (_ => _.IsNotNullOrEmpty());
 
@@ -217,7 +217,7 @@ namespace social.OpenData.UsersAPI
 
             #region Initial checks
 
-            if (Text != null)
+            if (Text is not null)
                 Text = Text.Trim();
 
             if (Text.IsNullOrEmpty())
@@ -250,7 +250,7 @@ namespace social.OpenData.UsersAPI
 
             #region Initial checks
 
-            if (Text != null && Text.Any())
+            if (Text is not null && Text.Any())
                 Text = Text.Select (_ => _?.Trim()).
                             Where  (_ => _.IsNotNullOrEmpty()).
                             ToArray();

@@ -41,14 +41,14 @@ function StartUserGroup() {
             }
         }, (statusCode, status, response) => {
             let responseJSON = { "description": "HTTP Error " + statusCode + " - " + status + "!" };
-            if (response != null && response != "") {
+            if (response !== null && response != "") {
                 try {
                     responseJSON = JSON.parse(response);
                 }
                 catch (_a) { }
             }
             responseDiv.innerHTML = "<div class=\"HTTP Error\">Storing user profile data failed!" +
-                (responseJSON.description != null ? "<br />" + responseJSON.description : "") +
+                (responseJSON.description !== null ? "<br />" + responseJSON.description : "") +
                 "</div>";
         });
     }

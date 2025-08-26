@@ -25,7 +25,7 @@ function StartUserNotificationSettings() {
             valueDiv.className = "infos"
             valueDiv.innerHTML = "<i class=\"fas fa-chart-line\"></i> " + JSON["name"];
 
-            if (JSON["description"] != null) {
+            if (JSON["description"] !== null) {
                 var descriptionDiv = parentDiv.appendChild(document.createElement('div')) as HTMLDivElement;
                 descriptionDiv.className = "description";
                 descriptionDiv.innerText = JSON["description"];
@@ -43,7 +43,7 @@ function StartUserNotificationSettings() {
             valueDiv.className = "infos"
             valueDiv.innerHTML = "<i class=\"fab fa-telegram-plane\"></i> " + JSON["username"];
 
-            if (JSON["description"] != null) {
+            if (JSON["description"] !== null) {
                 var descriptionDiv = parentDiv.appendChild(document.createElement('div')) as HTMLDivElement;
                 descriptionDiv.className = "description";
                 descriptionDiv.innerText = JSON["description"];
@@ -61,7 +61,7 @@ function StartUserNotificationSettings() {
             valueDiv.className = "infos"
             valueDiv.innerHTML = "<i class=\"fab fa-telegram-plane\"></i> " + JSON["groupName"];
 
-            if (JSON["description"] != null) {
+            if (JSON["description"] !== null) {
                 var descriptionDiv = parentDiv.appendChild(document.createElement('div')) as HTMLDivElement;
                 descriptionDiv.className = "description";
                 descriptionDiv.innerText = JSON["description"];
@@ -79,7 +79,7 @@ function StartUserNotificationSettings() {
             valueDiv.className = "infos"
             valueDiv.innerHTML = "<i class=\"fas fa-mobile-alt\"></i> " + JSON["phoneNumber"];
 
-            if (JSON["description"] != null) {
+            if (JSON["description"] !== null) {
                 var descriptionDiv = parentDiv.appendChild(document.createElement('div')) as HTMLDivElement;
                 descriptionDiv.className = "description";
                 descriptionDiv.innerText = JSON["description"];
@@ -97,19 +97,19 @@ function StartUserNotificationSettings() {
             valueDiv.className = "infos";
             valueDiv.innerHTML = "<i class=\"fas fa-globe\"></i> " + JSON["URL"];
 
-            if (JSON["APIKey"] != null && JSON["APIKey"] != "") {
+            if (JSON["APIKey"] !== null && JSON["APIKey"] != "") {
                 var APIKeyDiv = parentDiv.appendChild(document.createElement('div')) as HTMLDivElement;
                 APIKeyDiv.className = "parameter";
                 APIKeyDiv.innerText = "APIKey: " + JSON["APIKey"];
             }
 
-            if (JSON["basicAuth"] != null && JSON["basicAuth"] != "") {
+            if (JSON["basicAuth"] !== null && JSON["basicAuth"] != "") {
                 var basicAuthDiv = parentDiv.appendChild(document.createElement('div')) as HTMLDivElement;
                 basicAuthDiv.className = "parameter";
                 basicAuthDiv.innerHTML = "Basic Authentication '" + JSON["basicAuth"]["login"] + "' / '" + JSON["basicAuth"]["password"];
             }
 
-            if (JSON["description"] != null && JSON["description"] != "") {
+            if (JSON["description"] !== null && JSON["description"] != "") {
                 var descriptionDiv = parentDiv.appendChild(document.createElement('div')) as HTMLDivElement;
                 descriptionDiv.className = "description";
                 descriptionDiv.innerText = "Description: " + JSON["description"];
@@ -139,7 +139,7 @@ function StartUserNotificationSettings() {
             valueDiv.className = "infos"
             valueDiv.innerHTML = "<i class=\"far fa-envelope\"></i> " + JSON["email"]["ownerName"] + " &lt;" + JSON["email"]["address"] + "&gt;";
 
-            if (JSON["description"] != null) {
+            if (JSON["description"] !== null) {
                 var descriptionDiv = parentDiv.appendChild(document.createElement('div')) as HTMLDivElement;
                 descriptionDiv.className = "description";
                 descriptionDiv.innerText = JSON["description"];
@@ -180,7 +180,7 @@ function StartUserNotificationSettings() {
 
         }
 
-        if (JSON.messageTypes != null && valueDiv != null) {
+        if (JSON.messageTypes !== null && valueDiv !== null) {
 
             var messageTypesDiv = valueDiv.appendChild(document.createElement('div')) as HTMLDivElement;
             messageTypesDiv.className = "messageTypes";
@@ -219,7 +219,7 @@ function StartUserNotificationSettings() {
                         const showNotificationsDiv = document.getElementById('showNotifications') as HTMLDivElement;
                         showNotificationsDiv.innerText = "";
 
-                        if (showNotificationsDiv != null && responseJSON.notifications.length > 0) {
+                        if (showNotificationsDiv !== null && responseJSON.notifications.length > 0) {
                             for (let i = 0, len = responseJSON.notifications.length; i < len; i++)
                                 ShowNotification(showNotificationsDiv, responseJSON.notifications[i]);
                         }

@@ -39,7 +39,7 @@ function ShowAPIKey(parentDiv, JSON) {
     NotBeforeDiv1.innerText = "NotBefore";
     const NotBeforeDiv2 = NotBeforeDiv.appendChild(document.createElement('div'));
     NotBeforeDiv2.className = "value";
-    NotBeforeDiv2.innerText = JSON["notBefore"] != null ? JSON["notBefore"] : "-";
+    NotBeforeDiv2.innerText = JSON["notBefore"] !== null ? JSON["notBefore"] : "-";
     const NotAfterDiv = parentDiv.appendChild(document.createElement('div'));
     NotAfterDiv.className = "row NotAfter";
     const NotAfterDiv1 = NotAfterDiv.appendChild(document.createElement('div'));
@@ -47,7 +47,7 @@ function ShowAPIKey(parentDiv, JSON) {
     NotAfterDiv1.innerText = "NotAfter";
     const NotAfterDiv2 = NotAfterDiv.appendChild(document.createElement('div'));
     NotAfterDiv2.className = "value";
-    NotAfterDiv2.innerText = JSON["notAfter"] != null ? JSON["notAfter"] : "-";
+    NotAfterDiv2.innerText = JSON["notAfter"] !== null ? JSON["notAfter"] : "-";
     const IsDisabledDiv = parentDiv.appendChild(document.createElement('div'));
     IsDisabledDiv.className = "row IsDisabled";
     const IsDisabledDiv1 = IsDisabledDiv.appendChild(document.createElement('div'));
@@ -55,7 +55,7 @@ function ShowAPIKey(parentDiv, JSON) {
     IsDisabledDiv1.innerText = "Disabled";
     const IsDisabledDiv2 = IsDisabledDiv.appendChild(document.createElement('div'));
     IsDisabledDiv2.className = "value";
-    IsDisabledDiv2.innerText = JSON["isDisabled"] != null ? JSON["isDisabled"] : false;
+    IsDisabledDiv2.innerText = JSON["isDisabled"] !== null ? JSON["isDisabled"] : false;
 }
 function StartAPIKeys() {
     checkSignedIn(true);

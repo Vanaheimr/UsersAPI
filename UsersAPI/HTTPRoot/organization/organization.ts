@@ -148,7 +148,7 @@ function StartOrganization() {
                 {
 
                     const responseJSON  = ResponseText             != ""   ? JSON.parse(ResponseText) : {};
-                    //const info          = responseJSON.description != null ? "<br />" + firstValue(responseJSON.description) : "";
+                    //const info          = responseJSON.description !== null ? "<br />" + firstValue(responseJSON.description) : "";
 
                     //saveButton.disabled   = !AnyChangesMade();
                     responseDiv.innerHTML = "<div class=\"HTTP OK\">Successfully stored updated organization data.</div>";
@@ -173,7 +173,7 @@ function StartOrganization() {
                 {
 
                     const responseJSON  = ResponseText             != ""   ? JSON.parse(ResponseText) : {};
-                    const info          = responseJSON.description != null ? "<br />" + responseJSON.description : "";
+                    const info          = responseJSON.description !== null ? "<br />" + responseJSON.description : "";
 
                     responseDiv.innerHTML = "<div class=\"HTTP Error\">Storing organization data failed!<br />" + info + "</div>";
 
@@ -366,7 +366,7 @@ function StartOrganization() {
                                                    confirmToDeleteDiv.style.display = "none";
 
                                                    const responseJSON = response !== "" ? JSON.parse(response) : {};
-                                                   const info         = responseJSON.description != null ? "<br />" + responseJSON.description : "";
+                                                   const info         = responseJSON.description !== null ? "<br />" + responseJSON.description : "";
                                                    responseDiv.innerHTML = "<div class=\"HTTP Error\">Deleting this organization failed!<br />" + info + "</div>";
 
                                                }

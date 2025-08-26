@@ -107,7 +107,7 @@ namespace social.OpenData.UsersAPI
                 return true;
 
             // If one is null, but not both, return false.
-            if (((Object) ServiceTicketStatus1 == null) || ((Object) ServiceTicketStatus2 == null))
+            if (((Object) ServiceTicketStatus1 is null) || ((Object) ServiceTicketStatus2 is null))
                 return false;
 
             return ServiceTicketStatus1.Equals(ServiceTicketStatus2);
@@ -140,7 +140,7 @@ namespace social.OpenData.UsersAPI
         public static Boolean operator < (ServiceTicketStatus ServiceTicketStatus1, ServiceTicketStatus ServiceTicketStatus2)
         {
 
-            if ((Object) ServiceTicketStatus1 == null)
+            if ((Object) ServiceTicketStatus1 is null)
                 throw new ArgumentNullException(nameof(ServiceTicketStatus1), "The given ServiceTicketStatus1 must not be null!");
 
             return ServiceTicketStatus1.CompareTo(ServiceTicketStatus2) < 0;
@@ -173,7 +173,7 @@ namespace social.OpenData.UsersAPI
         public static Boolean operator > (ServiceTicketStatus ServiceTicketStatus1, ServiceTicketStatus ServiceTicketStatus2)
         {
 
-            if ((Object) ServiceTicketStatus1 == null)
+            if ((Object) ServiceTicketStatus1 is null)
                 throw new ArgumentNullException(nameof(ServiceTicketStatus1), "The given ServiceTicketStatus1 must not be null!");
 
             return ServiceTicketStatus1.CompareTo(ServiceTicketStatus2) > 0;
@@ -208,7 +208,7 @@ namespace social.OpenData.UsersAPI
         public Int32 CompareTo(Object Object)
         {
 
-            if (Object == null)
+            if (Object is null)
                 throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
 
             if (!(Object is ServiceTicketStatus))
@@ -230,7 +230,7 @@ namespace social.OpenData.UsersAPI
         public Int32 CompareTo(ServiceTicketStatus ServiceTicketStatus)
         {
 
-            if ((Object) ServiceTicketStatus == null)
+            if ((Object) ServiceTicketStatus is null)
                 throw new ArgumentNullException(nameof(ServiceTicketStatus), "The given ServiceTicketStatus must not be null!");
 
             // Compare ServiceTicket Ids
@@ -260,7 +260,7 @@ namespace social.OpenData.UsersAPI
         public override Boolean Equals(Object Object)
         {
 
-            if (Object == null)
+            if (Object is null)
                 return false;
 
             if (!(Object is ServiceTicketStatus))
@@ -282,7 +282,7 @@ namespace social.OpenData.UsersAPI
         public Boolean Equals(ServiceTicketStatus ServiceTicketStatus)
         {
 
-            if ((Object) ServiceTicketStatus == null)
+            if ((Object) ServiceTicketStatus is null)
                 return false;
 
             return Id.    Equals(ServiceTicketStatus.Id) &&

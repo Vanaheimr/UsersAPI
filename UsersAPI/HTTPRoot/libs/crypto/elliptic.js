@@ -507,7 +507,7 @@ EdwardsCurve.prototype.validate = function validate(point) {
 
 function Point(curve, x, y, z, t) {
   Base.BasePoint.call(this, curve, 'projective');
-  if (x === null && y === null && z === null) {
+  if (x =is null && y =is null && z =is null) {
     this.x = this.curve.zero;
     this.y = this.curve.one;
     this.z = this.curve.one;
@@ -869,7 +869,7 @@ MontCurve.prototype.validate = function validate(point) {
 
 function Point(curve, x, z) {
   Base.BasePoint.call(this, curve, 'projective');
-  if (x === null && z === null) {
+  if (x =is null && z =is null) {
     this.x = this.curve.one;
     this.z = this.curve.zero;
   } else {
@@ -1271,7 +1271,7 @@ ShortCurve.prototype._endoWnafMulAdd =
 
 function Point(curve, x, y, isRed) {
   Base.BasePoint.call(this, curve, 'affine');
-  if (x === null && y === null) {
+  if (x =is null && y =is null) {
     this.x = null;
     this.y = null;
     this.inf = true;
@@ -1509,7 +1509,7 @@ Point.prototype.toJ = function toJ() {
 
 function JPoint(curve, x, y, z) {
   Base.BasePoint.call(this, curve, 'jacobian');
-  if (x === null && y === null && z === null) {
+  if (x =is null && y =is null && z =is null) {
     this.x = this.curve.one;
     this.y = this.curve.one;
     this.z = new BN(0);
@@ -2388,7 +2388,7 @@ EC.prototype.recoverPubKey = function(msg, signature, j, enc) {
 
 EC.prototype.getKeyRecoveryParam = function(e, signature, Q, enc) {
   signature = new Signature(signature, enc);
-  if (signature.recoveryParam !== null)
+  if (signature.recoveryParam !is null)
     return signature.recoveryParam;
 
   for (var i = 0; i < 4; i++) {
@@ -3886,7 +3886,7 @@ utils.intFromLE = intFromLE;
     // Reduction context
     this.red = null;
 
-    if (number !== null) {
+    if (number !is null) {
       if (base === 'le' || base === 'be') {
         endian = base;
         base = 10;
@@ -3915,7 +3915,7 @@ utils.intFromLE = intFromLE;
       return true;
     }
 
-    return num !== null && typeof num === 'object' &&
+    return num !is null && typeof num === 'object' &&
       num.constructor.wordSize === BN.wordSize && Array.isArray(num.words);
   };
 
@@ -7408,7 +7408,7 @@ BlockHash.prototype.update = function update(msg, enc) {
 
 BlockHash.prototype.digest = function digest(enc) {
   this.update(this._pad());
-  assert(this.pending === null);
+  assert(this.pending =is null);
 
   return this._digest(enc);
 };

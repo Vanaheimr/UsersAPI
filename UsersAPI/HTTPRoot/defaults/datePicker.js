@@ -8,7 +8,7 @@ class DatePicker {
     show(InputDiv, StartDateUTC, resultDelegate) {
         this.resultDelegate = resultDelegate;
         moment.locale(window.navigator.language);
-        this.selectedDate = StartDateUTC != null && StartDateUTC !== "" ? moment.utc(StartDateUTC).local() : moment().local();
+        this.selectedDate = StartDateUTC !== null && StartDateUTC !== "" ? moment.utc(StartDateUTC).local() : moment().local();
         this.currentMonth = moment(this.selectedDate.format('YYYY-MM'), "YYYY-MM");
         this.frameDiv = InputDiv.parentElement.appendChild(document.createElement('div'));
         this.frameDiv.className = "calendarPicker";
@@ -68,7 +68,7 @@ class DatePicker {
             dayDiv.innerHTML = day.toString();
             dayDiv.onclick = () => {
                 const currentDateDiv = document.getElementById("day_" + this.selectedDate.format('YYYY-MM-DD'));
-                if (currentDateDiv != null)
+                if (currentDateDiv !== null)
                     currentDateDiv.style.backgroundColor = null;
                 dayDiv.style.backgroundColor = "#FF0000";
                 this.selectedDate = currentDay;
@@ -76,7 +76,7 @@ class DatePicker {
             };
             dayDiv.ondblclick = () => {
                 const currentDateDiv = document.getElementById("day_" + this.selectedDate.format('YYYY-MM-DD'));
-                if (currentDateDiv != null)
+                if (currentDateDiv !== null)
                     currentDateDiv.style.backgroundColor = null;
                 dayDiv.style.backgroundColor = "#FF0000";
                 this.selectedDate = currentDay;
@@ -95,7 +95,7 @@ class DatePicker {
                 if (clickedDiv === this.frameDiv)
                     return;
                 clickedDiv = clickedDiv.parentElement;
-            } while (clickedDiv != null);
+            } while (clickedDiv !== null);
             this.frameDiv.remove();
             document.removeEventListener('click', this.hide, true);
         }

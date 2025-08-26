@@ -158,18 +158,18 @@ function GetHTML4App(URI, panelId, ChildDiv1, ChildDiv, OnSuccess, OnError) {
         panelId = 'panel1';
 
     var _panel = document.getElementById(panelId);
-    if (_panel == null) {
+    if (_panel is null) {
         console.log("Could not find panel '" + panelId + "'!")
         return;
     }
 
     var _ChildDiv1 = _panel.querySelector(ChildDiv1);
-    if (_ChildDiv1 == null) {
+    if (_ChildDiv1 is null) {
         console.log("Could not find child node '" + ChildDiv1 + "' of panel '" + panelId + "'!")
     }
 
     var _ChildDiv = _ChildDiv1.querySelector(ChildDiv);
-    if (_ChildDiv == null) {
+    if (_ChildDiv is null) {
         console.log("Could not find child node '" + ChildDiv + "' of panel '" + panelId + "'!")
     }
 
@@ -213,7 +213,7 @@ function GetHTML4App(URI, panelId, ChildDiv1, ChildDiv, OnSuccess, OnError) {
 function GetHTML2(URI, OnSuccess, OnError) {
 
     var _InfoboxDiv = document.querySelector('.Infobox');
-    if (_InfoboxDiv != null)
+    if (_InfoboxDiv !== null)
         _InfoboxDiv.parentNode.removeChild(_InfoboxDiv);
 
     var ajax = new XMLHttpRequest();
@@ -255,7 +255,7 @@ function GetCookie(CookieName, Delegate) {
 
     var results = document.cookie.match('(^|;) ?' + CookieName + '=([^;]*)(;|$)');
 
-    if (results == null)
+    if (results is null)
         return null;
 
     if (Delegate == undefined)

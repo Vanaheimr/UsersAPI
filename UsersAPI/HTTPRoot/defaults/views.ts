@@ -80,7 +80,7 @@ class View {
         DivValue.id = Prefix + "Value";
         DivValue.className = "value";
 
-        if (greeter != null)
+        if (greeter !== null)
             greeter(DivValue);
 
         return DivValue;

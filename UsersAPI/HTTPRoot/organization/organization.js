@@ -85,7 +85,7 @@ function StartOrganization() {
         HTTPSet("/organizations/" + organizationJSON["@id"], organizationJSON, (HTTPStatus, ResponseText) => {
             try {
                 const responseJSON = ResponseText != "" ? JSON.parse(ResponseText) : {};
-                //const info          = responseJSON.description != null ? "<br />" + firstValue(responseJSON.description) : "";
+                //const info          = responseJSON.description !== null ? "<br />" + firstValue(responseJSON.description) : "";
                 //saveButton.disabled   = !AnyChangesMade();
                 responseDiv.innerHTML = "<div class=\"HTTP OK\">Successfully stored updated organization data.</div>";
                 // Redirect after 2 seconds!
@@ -100,7 +100,7 @@ function StartOrganization() {
         }, (HTTPStatus, StatusText, ResponseText) => {
             try {
                 const responseJSON = ResponseText != "" ? JSON.parse(ResponseText) : {};
-                const info = responseJSON.description != null ? "<br />" + responseJSON.description : "";
+                const info = responseJSON.description !== null ? "<br />" + responseJSON.description : "";
                 responseDiv.innerHTML = "<div class=\"HTTP Error\">Storing organization data failed!<br />" + info + "</div>";
             }
             catch (exception) {
@@ -230,7 +230,7 @@ function StartOrganization() {
                             try {
                                 confirmToDeleteDiv.style.display = "none";
                                 const responseJSON = response !== "" ? JSON.parse(response) : {};
-                                const info = responseJSON.description != null ? "<br />" + responseJSON.description : "";
+                                const info = responseJSON.description !== null ? "<br />" + responseJSON.description : "";
                                 responseDiv.innerHTML = "<div class=\"HTTP Error\">Deleting this organization failed!<br />" + info + "</div>";
                             }
                             catch (exception) {

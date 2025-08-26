@@ -121,14 +121,14 @@ function StartProfile() {
             }
         }, (statusCode, status, response) => {
             let responseJSON = { "description": "HTTP Error " + statusCode + " - " + status + "!" };
-            if (response != null && response != "") {
+            if (response !== null && response != "") {
                 try {
                     responseJSON = JSON.parse(response);
                 }
                 catch (_a) { }
             }
             responseDiv.innerHTML = "<div class=\"HTTP Error\">Storing user profile data failed!" +
-                (responseJSON.description != null ? "<br />" + responseJSON.description : "") +
+                (responseJSON.description !== null ? "<br />" + responseJSON.description : "") +
                 "</div>";
         });
     }
@@ -252,12 +252,12 @@ function StartProfile() {
         }
     }
     function VerifyAll() {
-        //if (newUserJSON["@id"]      != null &&
+        //if (newUserJSON["@id"]      !== null &&
         //    newUserJSON.username    != ""   &&
         //    newUserJSON.email       != ""   &&
-        //    newUserJSON.telephone   != null &&
-        //    newUserJSON.mobilephone != null &&
-        //    newUserJSON.homepage    != null)
+        //    newUserJSON.telephone   !== null &&
+        //    newUserJSON.mobilephone !== null &&
+        //    newUserJSON.homepage    !== null)
         //{
         //    saveButton.disabled    = false;
         //    responseDiv.innerHTML  = "";

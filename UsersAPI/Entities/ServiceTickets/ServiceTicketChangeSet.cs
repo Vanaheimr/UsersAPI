@@ -287,18 +287,18 @@ namespace social.OpenData.UsersAPI
             this.Priority             = Priority;
             this.Location             = Location;
             this.GeoLocation          = GeoLocation;
-            this.ProblemDescriptions  = ProblemDescriptions != null ? ProblemDescriptions.Distinct() : Array.Empty<ProblemDescriptionI18N>();
-            this.StatusIndicators     = StatusIndicators    != null ? StatusIndicators.   Distinct() : Array.Empty<Tag>();
+            this.ProblemDescriptions  = ProblemDescriptions is not null ? ProblemDescriptions.Distinct() : Array.Empty<ProblemDescriptionI18N>();
+            this.StatusIndicators     = StatusIndicators    is not null ? StatusIndicators.   Distinct() : Array.Empty<Tag>();
             this.FirstResponse        = FirstResponse;
             this.Reactions            = Reactions           ?? Array.Empty<Tag>();
             this.AdditionalInfo       = AdditionalInfo;
-            this.AttachedFiles        = AttachedFiles       != null ? AttachedFiles.      Distinct() : Array.Empty<AttachedFile>();
-            this.TicketReferences     = TicketReferences    != null ? TicketReferences.   Distinct() : Array.Empty<ServiceTicketReference>();
-            this.DataLicenses         = DataLicenses        != null ? DataLicenses.       Distinct() : Array.Empty<DataLicense>();
+            this.AttachedFiles        = AttachedFiles       is not null ? AttachedFiles.      Distinct() : Array.Empty<AttachedFile>();
+            this.TicketReferences     = TicketReferences    is not null ? TicketReferences.   Distinct() : Array.Empty<ServiceTicketReference>();
+            this.DataLicenses         = DataLicenses        is not null ? DataLicenses.       Distinct() : Array.Empty<DataLicense>();
 
             this.Comment              = Comment;
             this.InReplyTo            = InReplyTo;
-            this.CommentReferences    = CommentReferences   != null ? CommentReferences.  Distinct() : Array.Empty<ServiceTicketChangeSetReference>();
+            this.CommentReferences    = CommentReferences   is not null ? CommentReferences.  Distinct() : Array.Empty<ServiceTicketChangeSetReference>();
 
         }
 
@@ -336,7 +336,7 @@ namespace social.OpenData.UsersAPI
 
                 new JProperty("timestamp",                       Timestamp.ToISO8601()),
 
-                Author != null
+                Author is not null
                     ? ExpandAuthorId.Switch(
                           () => new JProperty("author",          new JObject(
                                                                      new JProperty("@id",   Author.Id.ToString()),
@@ -607,7 +607,7 @@ namespace social.OpenData.UsersAPI
                     if (ErrorResponse is not null)
                         return false;
 
-                    if (AffectedJSON != null)
+                    if (AffectedJSON is not null)
                     {
 
                         try
@@ -710,7 +710,7 @@ namespace social.OpenData.UsersAPI
                     if (ErrorResponse is not null)
                         return false;
 
-                    if (statusIndicatorsJSON != null)
+                    if (statusIndicatorsJSON is not null)
                     {
 
                         var text = "";
@@ -1368,18 +1368,18 @@ namespace social.OpenData.UsersAPI
                 this.Priority             = Priority;
                 this.Location             = Location;
                 this.GeoLocation          = GeoLocation;
-                this.ProblemDescriptions  = ProblemDescriptions != null ? ProblemDescriptions.Distinct() : Array.Empty<ProblemDescriptionI18N>();
-                this.StatusIndicators     = StatusIndicators    != null ? StatusIndicators.   Distinct() : Array.Empty<Tag>();
+                this.ProblemDescriptions  = ProblemDescriptions is not null ? ProblemDescriptions.Distinct() : Array.Empty<ProblemDescriptionI18N>();
+                this.StatusIndicators     = StatusIndicators    is not null ? StatusIndicators.   Distinct() : Array.Empty<Tag>();
                 this.FirstResponse        = FirstResponse;
                 this.Reactions            = Reactions     ?? Array.Empty<Tag>();
                 this.AdditionalInfo       = AdditionalInfo;
-                this.AttachedFiles        = AttachedFiles       != null ? AttachedFiles.      Distinct() : Array.Empty<AttachedFile>();
-                this.TicketReferences     = TicketReferences    != null ? TicketReferences.   Distinct() : Array.Empty<ServiceTicketReference>();
+                this.AttachedFiles        = AttachedFiles       is not null ? AttachedFiles.      Distinct() : Array.Empty<AttachedFile>();
+                this.TicketReferences     = TicketReferences    is not null ? TicketReferences.   Distinct() : Array.Empty<ServiceTicketReference>();
                 this.DataLicenses         = DataLicenses  ?? Array.Empty<DataLicense>();
 
                 this.Comment              = Comment;
                 this.InReplyTo            = InReplyTo;
-                this.CommentReferences    = CommentReferences != null ? CommentReferences.Distinct() : Array.Empty<ServiceTicketChangeSetReference>();
+                this.CommentReferences    = CommentReferences is not null ? CommentReferences.Distinct() : Array.Empty<ServiceTicketChangeSetReference>();
 
                 this.DataSource           = DataSource;
 

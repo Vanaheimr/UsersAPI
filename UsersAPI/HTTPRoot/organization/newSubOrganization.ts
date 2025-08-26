@@ -77,7 +77,7 @@ function StartNewSubOrganization() {
 
                         // Redirect to updated service ticket after 2 sec!
                         setTimeout(function () {
-                            if (responseJSON["@id"] != null)
+                            if (responseJSON["@id"] !== null)
                                 window.location.href = "../" + responseJSON["@id"];
                         }, 2000);
 
@@ -101,7 +101,7 @@ function StartNewSubOrganization() {
 
                         const responseJSON     = JSON.parse(response);
                         responseDiv.innerHTML  = "<div class=\"HTTP Error\">Creating the new sub-organization failed!<br />" +
-                                                     (responseJSON.description != null
+                                                     (responseJSON.description !== null
                                                           ? responseJSON.description
                                                           : "HTTP Error " + statusCode + " - " + status) +
                                                  "</div>";
@@ -131,7 +131,7 @@ function StartNewSubOrganization() {
                     (headlineDiv.querySelector("#name #language")        as HTMLDivElement).innerText = firstKey  (organizationJSON.name);
                     (headlineDiv.querySelector("#name #I18NText")        as HTMLDivElement).innerText = firstValue(organizationJSON.name);
 
-                    if (organizationJSON.description != null && firstValue(organizationJSON.description) != null) {
+                    if (organizationJSON.description !== null && firstValue(organizationJSON.description) !== null) {
                         (headlineDiv.querySelector("#description")           as HTMLDivElement).style.display = "block";
                         (headlineDiv.querySelector("#description #language") as HTMLDivElement).innerText = firstKey  (organizationJSON.description);
                         (headlineDiv.querySelector("#description #I18NText") as HTMLDivElement).innerText = firstValue(organizationJSON.description);
@@ -154,7 +154,7 @@ function StartNewSubOrganization() {
 
                     const responseJSON     = JSON.parse(response);
                     responseDiv.innerHTML  = "<div class=\"HTTP Error\">Could not fetch organization data from server!<br />" +
-                                                 (responseJSON.description != null
+                                                 (responseJSON.description !== null
                                                       ? responseJSON.description
                                                       : "HTTP Error " + statusCode + " - " + status) +
                                              "</div>";

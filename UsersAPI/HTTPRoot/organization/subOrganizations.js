@@ -77,7 +77,7 @@ function StartSubOrganizations() {
         try {
             const responseJSON = JSON.parse(response);
             responseDiv.innerHTML = "<div class=\"HTTP Error\">Could not fetch sub-organizations data from server!<br />" +
-                (responseJSON.description != null
+                (responseJSON.description !== null
                     ? responseJSON.description
                     : "HTTP Error " + statusCode + " - " + status) +
                 "</div>";

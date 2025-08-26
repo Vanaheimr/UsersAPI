@@ -45,7 +45,7 @@ function StartSearch2(requestURL, searchFilters, doStartUp, nameOfItem, nameOfIt
     const dateFilters = controlsDiv.querySelector("#dateFilters");
     const dateFrom = dateFilters === null || dateFilters === void 0 ? void 0 : dateFilters.querySelector("#dateFromText");
     const dateTo = dateFilters === null || dateFilters === void 0 ? void 0 : dateFilters.querySelector("#dateToText");
-    const datepicker = dateFilters != null ? new DatePicker() : null;
+    const datepicker = dateFilters !== null ? new DatePicker() : null;
     const listViewButton = controlsDiv.querySelector("#listView");
     const tableViewButton = controlsDiv.querySelector("#tableView");
     const messageDiv = document.getElementById('message');
@@ -69,7 +69,7 @@ function StartSearch2(requestURL, searchFilters, doStartUp, nameOfItem, nameOfIt
             (typeof searchFilters !== 'undefined' && searchFilters ? searchFilters() : "") +
             (currentDateFrom != null && currentDateFrom !== "" ? "&from=" + currentDateFrom : "") +
             (currentDateTo != null && currentDateTo !== "" ? "&to=" + currentDateTo : "");
-        if (downLoadButton != null)
+        if (downLoadButton !== null)
             downLoadButton.href = requestURL.replace("?", ".csv?") + "withMetadata&download" + filters;
         HTTPGet(requestURL + "withMetadata" + filters + "&skip=" + skip + "&take=" + take +
             (context__["statusFilter"] !== undefined ? context__["statusFilter"] : ""), // + "&expand=members",
@@ -98,13 +98,13 @@ function StartSearch2(requestURL, searchFilters, doStartUp, nameOfItem, nameOfIt
                     // List view
                     default:
                         if (searchResults.length > 0) {
-                            if (downLoadButton != null)
+                            if (downLoadButton !== null)
                                 downLoadButton.style.display = "block";
                             for (const searchResult of searchResults) {
                                 const searchResultDiv = searchResultsDiv.appendChild(document.createElement('a'));
                                 searchResultDiv.id = nameOfItem + "_" + searchResult["@id"];
                                 searchResultDiv.className = "searchResult " + nameOfItem;
-                                if (typeof linkPrefix !== 'undefined' && linkPrefix && linkPrefix(searchResult) != null)
+                                if (typeof linkPrefix !== 'undefined' && linkPrefix && linkPrefix(searchResult) !== null)
                                     searchResultDiv.href = linkPrefix(searchResult) + searchResult["@id"];
                                 try {
                                     doListView(searchResult, searchResultDiv);
@@ -115,7 +115,7 @@ function StartSearch2(requestURL, searchFilters, doStartUp, nameOfItem, nameOfIt
                             }
                         }
                         else {
-                            if (downLoadButton != null)
+                            if (downLoadButton !== null)
                                 downLoadButton.style.display = "none";
                         }
                 }
@@ -223,7 +223,7 @@ function StartSearch2(requestURL, searchFilters, doStartUp, nameOfItem, nameOfIt
             Search(true, false);
         }
     };
-    if (dateFrom != null) {
+    if (dateFrom !== null) {
         dateFrom.onclick = () => {
             datepicker.show(dateFrom, currentDateFrom, function (newDate) {
                 dateFrom.value = parseUTCDate(newDate);
@@ -232,7 +232,7 @@ function StartSearch2(requestURL, searchFilters, doStartUp, nameOfItem, nameOfIt
             });
         };
     }
-    if (dateTo != null) {
+    if (dateTo !== null) {
         dateTo.onclick = () => {
             datepicker.show(dateTo, currentDateTo, function (newDate) {
                 dateTo.value = parseUTCDate(newDate);

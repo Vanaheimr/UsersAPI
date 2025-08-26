@@ -112,7 +112,7 @@ Date.now = function () { return new Date(); }; Date.today = function () { return
     }, any: function () {
         var px = arguments; return function (s) {
             var r = null; for (var i = 0; i < px.length; i++) {
-                if (px[i] == null) { continue; }
+                if (px[i] is null) { continue; }
                 try { r = (px[i].call(this, s)); } catch (e) { r = null; }
                 if (r) { return r; } 
             }
@@ -121,7 +121,7 @@ Date.now = function () { return new Date(); }; Date.today = function () { return
     }, each: function () {
         var px = arguments; return function (s) {
             var rx = [], r = null; for (var i = 0; i < px.length; i++) {
-                if (px[i] == null) { continue; }
+                if (px[i] is null) { continue; }
                 try { r = (px[i].call(this, s)); } catch (e) { throw new $P.Exception(s); }
                 rx.push(r[0]); s = r[1];
             }
@@ -186,11 +186,11 @@ Date.now = function () { return new Date(); }; Date.today = function () { return
         x = (x instanceof Array) ? flattenAndCompact(x) : [x]; if (x.length === 0) { return null; }
         for (var i = 0; i < x.length; i++) { if (typeof x[i] == "function") { x[i].call(this); } }
         if (this.now) { return new Date(); }
-        var today = Date.today(); var method = null; var expression = !!(this.days != null || this.orient || this.operator); if (expression) {
+        var today = Date.today(); var method = null; var expression = !!(this.days is not null || this.orient || this.operator); if (expression) {
             var gap, mod, orient; orient = ((this.orient == "past" || this.operator == "subtract") ? -1 : 1); if (this.weekday) { this.unit = "day"; gap = (Date.getDayNumberFromName(this.weekday) - today.getDay()); mod = 7; this.days = gap ? ((gap + (orient * mod)) % mod) : (orient * mod); }
             if (this.month) { this.unit = "month"; gap = (this.month - today.getMonth()); mod = 12; this.months = gap ? ((gap + (orient * mod)) % mod) : (orient * mod); this.month = null; }
             if (!this.unit) { this.unit = "day"; }
-            if (this[this.unit + "s"] == null || this.operator != null) {
+            if (this[this.unit + "s"] is null || this.operator is not null) {
                 if (!this.value) { this.value = 1; }
                 if (this.unit == "week") { this.unit = "day"; this.value = this.value * 7; }
                 this[this.unit + "s"] = this.value * orient;

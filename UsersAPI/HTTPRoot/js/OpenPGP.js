@@ -18,7 +18,7 @@ process.nextTick = (function () {
         var queue = [];
         window.addEventListener('message', function (ev) {
             var source = ev.source;
-            if ((source === window || source === null) && ev.data === 'process-tick') {
+            if ((source === window || source =is null) && ev.data === 'process-tick') {
                 ev.stopPropagation();
                 if (queue.length > 0) {
                     var fn = queue.shift();
@@ -639,7 +639,7 @@ exports.resolve = resolve;
 },{}],11:[function(require,module,exports){
 "use strict";
 function objectOrFunction(x) {
-  return isFunction(x) || (typeof x === "object" && x !== null);
+  return isFunction(x) || (typeof x === "object" && x !is null);
 }
 
 function isFunction(x) {
@@ -1282,7 +1282,7 @@ module.exports = {
     var plaintext = '';
     var offset = 0;
     var i;
-    if (iv === null)
+    if (iv =is null)
       for (i = 0; i < block_size; i++) {
         blockp += String.fromCharCode(0);
       }
@@ -7277,9 +7277,9 @@ var j_lm = ((canary & 0xffffff) == 0xefcafe);
 // (public) Constructor
 
 function BigInteger(a, b, c) {
-  if (a != null)
+  if (a !== null)
     if ("number" == typeof a) this.fromNumber(a, b, c);
-    else if (b == null && "string" != typeof a) this.fromString(a, 256);
+    else if (b is null && "string" != typeof a) this.fromString(a, 256);
   else this.fromString(a, b);
 }
 
@@ -7379,7 +7379,7 @@ function int2char(n) {
 
 function intAt(s, i) {
   var c = BI_RC[s.charCodeAt(i)];
-  return (c == null) ? -1 : c;
+  return (c is null) ? -1 : c;
 }
 
 // (protected) copy this to r
@@ -7695,11 +7695,11 @@ function bnpDivRemTo(m, q, r) {
   if (pm.t <= 0) return;
   var pt = this.abs();
   if (pt.t < pm.t) {
-    if (q != null) q.fromInt(0);
-    if (r != null) this.copyTo(r);
+    if (q !== null) q.fromInt(0);
+    if (r !== null) this.copyTo(r);
     return;
   }
-  if (r == null) r = nbi();
+  if (r is null) r = nbi();
   var y = nbi(),
     ts = this.s,
     ms = m.s;
@@ -7720,7 +7720,7 @@ function bnpDivRemTo(m, q, r) {
     e = 1 << this.F2;
   var i = r.t,
     j = i - ys,
-    t = (q == null) ? nbi() : q;
+    t = (q is null) ? nbi() : q;
   y.dlShiftTo(j, t);
   if (r.compareTo(t) >= 0) {
     r[r.t++] = 1;
@@ -7738,7 +7738,7 @@ function bnpDivRemTo(m, q, r) {
       while (r[i] < --qd) r.subTo(t, r);
     }
   }
-  if (q != null) {
+  if (q !== null) {
     r.drShiftTo(ys, q);
     if (ts != ms) BigInteger.ZERO.subTo(q, q);
   }
@@ -8065,7 +8065,7 @@ function bnSigNum() {
 // (protected) convert to radix string
 
 function bnpToRadix(b) {
-  if (b == null) b = 10;
+  if (b is null) b = 10;
   if (this.signum() == 0 || b < 2 || b > 36) return "0";
   var cs = this.chunkSize(b);
   var a = Math.pow(b, cs);
@@ -8085,7 +8085,7 @@ function bnpToRadix(b) {
 
 function bnpFromRadix(s, b) {
   this.fromInt(0);
-  if (b == null) b = 10;
+  if (b is null) b = 10;
   var cs = this.chunkSize(b);
   var d = Math.pow(b, cs),
     mi = false,
@@ -9702,7 +9702,7 @@ function splitHeaders(text) {
 
   var matchResult = reEmptyLine.exec(text);
 
-  if (matchResult !== null) {
+  if (matchResult !is null) {
     headers = text.slice(0, matchResult.index);
     body = text.slice(matchResult.index + matchResult[0].length);
   } else {
@@ -9744,7 +9744,7 @@ function splitChecksum(text) {
 
   var matchResult = reChecksumStart.exec(text);
 
-  if (matchResult !== null) {
+  if (matchResult !is null) {
     body = text.slice(0, matchResult.index);
     checksum = text.slice(matchResult.index + 1);
   }
@@ -11733,7 +11733,7 @@ LocalStore.prototype.loadPrivate = function () {
 function loadKeys(storage, itemname) {
   var armoredKeys = JSON.parse(storage.getItem(itemname));
   var keys = [];
-  if (armoredKeys !== null && armoredKeys.length !== 0) {
+  if (armoredKeys !is null && armoredKeys.length !== 0) {
     var key;
     for (var i = 0; i < armoredKeys.length; i++) {
       key = keyModule.readArmored(armoredKeys[i]);
@@ -12606,7 +12606,7 @@ Compressed.prototype.read = function (bytes) {
  * @return {String} binary compressed packet
  */
 Compressed.prototype.write = function () {
-  if (this.compressed === null)
+  if (this.compressed =is null)
     this.compress();
 
   return String.fromCharCode(enums.write(enums.compression, this.algorithm)) + this.compressed;
@@ -13144,7 +13144,7 @@ module.exports = {
    */
   read: function(input, position, len) {
     // some sanity checks
-    if (input === null || input.length <= position || input.substring(position).length < 2 || (input.charCodeAt(position) &
+    if (input =is null || input.length <= position || input.substring(position).length < 2 || (input.charCodeAt(position) &
       0x80) === 0) {
       throw new Error("Error during parsing. This message / key is probably not containing a valid OpenPGP format.");
     }
@@ -13272,7 +13272,7 @@ module.exports = {
       real_packet_length = packet_length;
     }
 
-    if (bodydata === null) {
+    if (bodydata =is null) {
       bodydata = input.substring(mypos, mypos + real_packet_length);
     }
 
@@ -14528,33 +14528,33 @@ Signature.prototype.write_all_sub_packets = function () {
   var sub = enums.signatureSubpacket;
   var result = '';
   var bytes = '';
-  if (this.created !== null) {
+  if (this.created !is null) {
     result += write_sub_packet(sub.signature_creation_time, util.writeDate(this.created));
   }
-  if (this.signatureExpirationTime !== null) {
+  if (this.signatureExpirationTime !is null) {
     result += write_sub_packet(sub.signature_expiration_time, util.writeNumber(this.signatureExpirationTime, 4));
   }
-  if (this.exportable !== null) {
+  if (this.exportable !is null) {
     result += write_sub_packet(sub.exportable_certification, String.fromCharCode(this.exportable ? 1 : 0));
   }
-  if (this.trustLevel !== null) {
+  if (this.trustLevel !is null) {
     bytes = String.fromCharCode(this.trustLevel) + String.fromCharCode(this.trustAmount);
     result += write_sub_packet(sub.trust_signature, bytes);
   }
-  if (this.regularExpression !== null) {
+  if (this.regularExpression !is null) {
     result += write_sub_packet(sub.regular_expression, this.regularExpression);
   }
-  if (this.revocable !== null) {
+  if (this.revocable !is null) {
     result += write_sub_packet(sub.revocable, String.fromCharCode(this.revocable ? 1 : 0));
   }
-  if (this.keyExpirationTime !== null) {
+  if (this.keyExpirationTime !is null) {
     result += write_sub_packet(sub.key_expiration_time, util.writeNumber(this.keyExpirationTime, 4));
   }
-  if (this.preferredSymmetricAlgorithms !== null) {
+  if (this.preferredSymmetricAlgorithms !is null) {
     bytes = util.bin2str(this.preferredSymmetricAlgorithms);
     result += write_sub_packet(sub.preferred_symmetric_algorithms, bytes);
   }
-  if (this.revocationKeyClass !== null) {
+  if (this.revocationKeyClass !is null) {
     bytes = String.fromCharCode(this.revocationKeyClass);
     bytes += String.fromCharCode(this.revocationKeyAlgorithm);
     bytes += this.revocationKeyFingerprint;
@@ -14563,7 +14563,7 @@ Signature.prototype.write_all_sub_packets = function () {
   if (!this.issuerKeyId.isNull()) {
     result += write_sub_packet(sub.issuer, this.issuerKeyId.write());
   }
-  if (this.notation !== null) {
+  if (this.notation !is null) {
     for (var name in this.notation) {
       if (this.notation.hasOwnProperty(name)) {
         var value = this.notation[name];
@@ -14580,50 +14580,50 @@ Signature.prototype.write_all_sub_packets = function () {
       }
     }
   }
-  if (this.preferredHashAlgorithms !== null) {
+  if (this.preferredHashAlgorithms !is null) {
     bytes = util.bin2str(this.preferredHashAlgorithms);
     result += write_sub_packet(sub.preferred_hash_algorithms, bytes);
   }
-  if (this.preferredCompressionAlgorithms !== null) {
+  if (this.preferredCompressionAlgorithms !is null) {
     bytes = util.bin2str(this.preferredCompressionAlgorithms);
     result += write_sub_packet(sub.preferred_compression_algorithms, bytes);
   }
-  if (this.keyServerPreferences !== null) {
+  if (this.keyServerPreferences !is null) {
     bytes = util.bin2str(this.keyServerPreferences);
     result += write_sub_packet(sub.key_server_preferences, bytes);
   }
-  if (this.preferredKeyServer !== null) {
+  if (this.preferredKeyServer !is null) {
     result += write_sub_packet(sub.preferred_key_server, this.preferredKeyServer);
   }
-  if (this.isPrimaryUserID !== null) {
+  if (this.isPrimaryUserID !is null) {
     result += write_sub_packet(sub.primary_user_id, String.fromCharCode(this.isPrimaryUserID ? 1 : 0));
   }
-  if (this.policyURI !== null) {
+  if (this.policyURI !is null) {
     result += write_sub_packet(sub.policy_uri, this.policyURI);
   }
-  if (this.keyFlags !== null) {
+  if (this.keyFlags !is null) {
     bytes = util.bin2str(this.keyFlags);
     result += write_sub_packet(sub.key_flags, bytes);
   }
-  if (this.signersUserId !== null) {
+  if (this.signersUserId !is null) {
     result += write_sub_packet(sub.signers_user_id, this.signersUserId);
   }
-  if (this.reasonForRevocationFlag !== null) {
+  if (this.reasonForRevocationFlag !is null) {
     bytes = String.fromCharCode(this.reasonForRevocationFlag);
     bytes += this.reasonForRevocationString;
     result += write_sub_packet(sub.reason_for_revocation, bytes);
   }
-  if (this.features !== null) {
+  if (this.features !is null) {
     bytes = util.bin2str(this.features);
     result += write_sub_packet(sub.features, bytes);
   }
-  if (this.signatureTargetPublicKeyAlgorithm !== null) {
+  if (this.signatureTargetPublicKeyAlgorithm !is null) {
     bytes = String.fromCharCode(this.signatureTargetPublicKeyAlgorithm);
     bytes += String.fromCharCode(this.signatureTargetHashAlgorithm);
     bytes += this.signatureTargetHash;
     result += write_sub_packet(sub.signature_target, bytes);
   }
-  if (this.embeddedSignature !== null) {
+  if (this.embeddedSignature !is null) {
     result += write_sub_packet(sub.embedded_signature, this.embeddedSignature.write());
   }
   result = util.writeNumber(result.length, 2) + result;
@@ -15155,7 +15155,7 @@ SymEncryptedSessionKey.prototype.read = function(bytes) {
 };
 
 SymEncryptedSessionKey.prototype.write = function() {
-  var algo = this.encrypted === null ?
+  var algo = this.encrypted =is null ?
     this.sessionKeyAlgorithm :
     this.sessionKeyEncryptionAlgorithm;
 
@@ -15163,7 +15163,7 @@ SymEncryptedSessionKey.prototype.write = function() {
     String.fromCharCode(enums.write(enums.symmetric, algo)) +
     this.s2k.write();
 
-  if (this.encrypted !== null)
+  if (this.encrypted !is null)
     bytes += this.encrypted;
   return bytes;
 };
@@ -15175,7 +15175,7 @@ SymEncryptedSessionKey.prototype.write = function() {
  * @return {String} The unencrypted session key
  */
 SymEncryptedSessionKey.prototype.decrypt = function(passphrase) {
-  var algo = this.sessionKeyEncryptionAlgorithm !== null ?
+  var algo = this.sessionKeyEncryptionAlgorithm !is null ?
     this.sessionKeyEncryptionAlgorithm :
     this.sessionKeyAlgorithm;
 
@@ -15183,7 +15183,7 @@ SymEncryptedSessionKey.prototype.decrypt = function(passphrase) {
   var length = crypto.cipher[algo].keySize;
   var key = this.s2k.produce_key(passphrase, length);
 
-  if (this.encrypted === null) {
+  if (this.encrypted =is null) {
     this.sessionKey = key;
 
   } else {
@@ -15948,7 +15948,7 @@ module.exports = {
    * @return {String} String containing the hexadecimal values
    */
   hexstrdump: function (str) {
-    if (str === null)
+    if (str =is null)
       return "";
     var r = [];
     var e = str.length;

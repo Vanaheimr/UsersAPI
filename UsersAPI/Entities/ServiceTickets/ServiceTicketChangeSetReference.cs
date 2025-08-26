@@ -83,7 +83,7 @@ namespace social.OpenData.UsersAPI
         //        return true;
 
         //    // If one is null, but not both, return false.
-        //    if (((Object) ServiceTicketChangeSetReference1 == null) || ((Object) ServiceTicketChangeSetReference2 == null))
+        //    if (((Object) ServiceTicketChangeSetReference1 is null) || ((Object) ServiceTicketChangeSetReference2 is null))
         //        return false;
 
         //    return ServiceTicketChangeSetReference1.Equals(ServiceTicketChangeSetReference2);
@@ -116,7 +116,7 @@ namespace social.OpenData.UsersAPI
         //public static Boolean operator < (ServiceTicketChangeSetReference ServiceTicketChangeSetReference1, ServiceTicketChangeSetReference ServiceTicketChangeSetReference2)
         //{
 
-        //    if ((Object) ServiceTicketChangeSetReference1 == null)
+        //    if ((Object) ServiceTicketChangeSetReference1 is null)
         //        throw new ArgumentNullException(nameof(ServiceTicketChangeSetReference1), "The given ServiceTicketChangeSetReference1 must not be null!");
 
         //    return ServiceTicketChangeSetReference1.CompareTo(ServiceTicketChangeSetReference2) < 0;
@@ -149,7 +149,7 @@ namespace social.OpenData.UsersAPI
         //public static Boolean operator > (ServiceTicketChangeSetReference ServiceTicketChangeSetReference1, ServiceTicketChangeSetReference ServiceTicketChangeSetReference2)
         //{
 
-        //    if ((Object) ServiceTicketChangeSetReference1 == null)
+        //    if ((Object) ServiceTicketChangeSetReference1 is null)
         //        throw new ArgumentNullException(nameof(ServiceTicketChangeSetReference1), "The given ServiceTicketChangeSetReference1 must not be null!");
 
         //    return ServiceTicketChangeSetReference1.CompareTo(ServiceTicketChangeSetReference2) > 0;
@@ -184,7 +184,7 @@ namespace social.OpenData.UsersAPI
         public Int32 CompareTo(Object Object)
         {
 
-            if (Object == null)
+            if (Object is null)
                 throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
 
             if (!(Object is ServiceTicketChangeSetReference))
@@ -206,7 +206,7 @@ namespace social.OpenData.UsersAPI
         public Int32 CompareTo(ServiceTicketChangeSetReference ServiceTicketChangeSetReference)
         {
 
-            if ((Object) ServiceTicketChangeSetReference == null)
+            if ((Object) ServiceTicketChangeSetReference is null)
                 throw new ArgumentNullException(nameof(ServiceTicketChangeSetReference), "The given ServiceTicketChangeSetReference must not be null!");
 
             // Compare ServiceTicket Ids
@@ -236,7 +236,7 @@ namespace social.OpenData.UsersAPI
         public override Boolean Equals(Object Object)
         {
 
-            if (Object == null)
+            if (Object is null)
                 return false;
 
             if (!(Object is ServiceTicketChangeSetReference))
@@ -258,7 +258,7 @@ namespace social.OpenData.UsersAPI
         public Boolean Equals(ServiceTicketChangeSetReference ServiceTicketChangeSetReference)
         {
 
-            if ((Object) ServiceTicketChangeSetReference == null)
+            if ((Object) ServiceTicketChangeSetReference is null)
                 return false;
 
             return Id.Equals(ServiceTicketChangeSetReference.Id);// &&

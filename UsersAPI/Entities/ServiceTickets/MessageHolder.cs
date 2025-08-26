@@ -59,7 +59,7 @@ namespace social.OpenData.UsersAPI
         public Int32 CompareTo(Object Object)
         {
 
-            if (Object == null)
+            if (Object is null)
                 throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
 
             if (!(Object is MessageHolder<TId, TMessage> MessageHolder))
@@ -80,7 +80,7 @@ namespace social.OpenData.UsersAPI
         public Int32 CompareTo(MessageHolder<TId, TMessage> MessageHolder)
         {
 
-            if ((Object) MessageHolder == null)
+            if ((Object) MessageHolder is null)
                 throw new ArgumentNullException(nameof(ServiceTicket), "The given message holder must not be null!");
 
             return Id.CompareTo(MessageHolder.Id);
@@ -125,7 +125,7 @@ namespace social.OpenData.UsersAPI
         public Boolean Equals(MessageHolder<TId, TMessage> MessageHolder)
         {
 
-            if ((Object) MessageHolder == null)
+            if ((Object) MessageHolder is null)
                 return false;
 
             return Id.Equals(MessageHolder.Id);

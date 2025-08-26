@@ -120,7 +120,7 @@ function StartSearch2<TMetadata extends TMetadataDefaults, TSearchResult>(reques
     const dateFilters              = controlsDiv. querySelector ("#dateFilters")          as HTMLDivElement;
     const dateFrom                 = dateFilters?.querySelector ("#dateFromText")         as HTMLInputElement;
     const dateTo                   = dateFilters?.querySelector ("#dateToText")           as HTMLInputElement;
-    const datepicker               = dateFilters != null ? new DatePicker() : null;
+    const datepicker               = dateFilters !== null ? new DatePicker() : null;
 
     const listViewButton           = controlsDiv. querySelector ("#listView")             as HTMLButtonElement;
     const tableViewButton          = controlsDiv. querySelector ("#tableView")            as HTMLButtonElement;
@@ -163,7 +163,7 @@ function StartSearch2<TMetadata extends TMetadataDefaults, TSearchResult>(reques
                                 (currentDateFrom     !=  null && currentDateFrom !== "" ? "&from="    + currentDateFrom                : "") +
                                 (currentDateTo       !=  null && currentDateTo   !== "" ? "&to="      + currentDateTo                  : "");
 
-        if (downLoadButton != null)
+        if (downLoadButton !== null)
             downLoadButton.href = requestURL.replace("?", ".csv?") + "withMetadata&download" + filters;
 
         HTTPGet(requestURL + "withMetadata" + filters + "&skip=" + skip + "&take=" + take +
@@ -206,7 +206,7 @@ function StartSearch2<TMetadata extends TMetadataDefaults, TSearchResult>(reques
                             default:
                                 if (searchResults.length > 0) {
 
-                                    if (downLoadButton != null)
+                                    if (downLoadButton !== null)
                                         downLoadButton.style.display = "block";
 
                                     for (const searchResult of searchResults) {
@@ -215,7 +215,7 @@ function StartSearch2<TMetadata extends TMetadataDefaults, TSearchResult>(reques
                                         searchResultDiv.id         = nameOfItem + "_" + searchResult["@id"];
                                         searchResultDiv.className  = "searchResult " + nameOfItem;
 
-                                        if (typeof linkPrefix !== 'undefined' && linkPrefix && linkPrefix(searchResult) != null)
+                                        if (typeof linkPrefix !== 'undefined' && linkPrefix && linkPrefix(searchResult) !== null)
                                             searchResultDiv.href   = linkPrefix(searchResult) + searchResult["@id"];
 
                                         try
@@ -232,7 +232,7 @@ function StartSearch2<TMetadata extends TMetadataDefaults, TSearchResult>(reques
                                 }
                                 else
                                 {
-                                    if (downLoadButton != null)
+                                    if (downLoadButton !== null)
                                         downLoadButton.style.display = "none";
                                 }
 
@@ -393,7 +393,7 @@ function StartSearch2<TMetadata extends TMetadataDefaults, TSearchResult>(reques
 
     }
 
-    if (dateFrom != null) {
+    if (dateFrom !== null) {
         dateFrom.onclick = () => {
             datepicker.show(dateFrom,
                 currentDateFrom,
@@ -405,7 +405,7 @@ function StartSearch2<TMetadata extends TMetadataDefaults, TSearchResult>(reques
         }
     }
 
-    if (dateTo != null) {
+    if (dateTo !== null) {
         dateTo.onclick = () => {
             datepicker.show(dateTo,
                 currentDateTo,

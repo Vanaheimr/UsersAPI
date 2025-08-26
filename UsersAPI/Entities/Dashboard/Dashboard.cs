@@ -114,10 +114,10 @@ namespace social.OpenData.UsersAPI
             set
             {
 
-                if (_API != null)
+                if (_API is not null)
                     throw new ArgumentException("Illegal attempt to change the API of this communicator!");
 
-                if (value == null)
+                if (value is null)
                     throw new ArgumentException("Illegal attempt to delete the API reference of this communicator!");
 
                 _API = value;
@@ -446,7 +446,7 @@ namespace social.OpenData.UsersAPI
                 return true;
 
             // If one is null, but not both, return false.
-            if (((Object) DashboardId1 == null) || ((Object) DashboardId2 == null))
+            if (((Object) DashboardId1 is null) || ((Object) DashboardId2 is null))
                 return false;
 
             return DashboardId1.Equals(DashboardId2);
@@ -479,7 +479,7 @@ namespace social.OpenData.UsersAPI
         public static Boolean operator < (Dashboard DashboardId1, Dashboard DashboardId2)
         {
 
-            if ((Object) DashboardId1 == null)
+            if ((Object) DashboardId1 is null)
                 throw new ArgumentNullException(nameof(DashboardId1), "The given DashboardId1 must not be null!");
 
             return DashboardId1.CompareTo(DashboardId2) < 0;
@@ -512,7 +512,7 @@ namespace social.OpenData.UsersAPI
         public static Boolean operator > (Dashboard DashboardId1, Dashboard DashboardId2)
         {
 
-            if ((Object) DashboardId1 == null)
+            if ((Object) DashboardId1 is null)
                 throw new ArgumentNullException(nameof(DashboardId1), "The given DashboardId1 must not be null!");
 
             return DashboardId1.CompareTo(DashboardId2) > 0;
@@ -547,11 +547,11 @@ namespace social.OpenData.UsersAPI
         public override Int32 CompareTo(Object Object)
         {
 
-            if (Object == null)
+            if (Object is null)
                 throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
 
             var Dashboard = Object as Dashboard;
-            if ((Object) Dashboard == null)
+            if ((Object) Dashboard is null)
                 throw new ArgumentException("The given object is not an Dashboard!");
 
             return CompareTo(Dashboard);
@@ -569,7 +569,7 @@ namespace social.OpenData.UsersAPI
         public override Int32 CompareTo(Dashboard Dashboard)
         {
 
-            if ((Object) Dashboard == null)
+            if ((Object) Dashboard is null)
                 throw new ArgumentNullException("The given Dashboard must not be null!");
 
             return Id.CompareTo(Dashboard.Id);
@@ -592,11 +592,11 @@ namespace social.OpenData.UsersAPI
         public override Boolean Equals(Object Object)
         {
 
-            if (Object == null)
+            if (Object is null)
                 return false;
 
             var Dashboard = Object as Dashboard;
-            if ((Object) Dashboard == null)
+            if ((Object) Dashboard is null)
                 return false;
 
             return Equals(Dashboard);
@@ -615,7 +615,7 @@ namespace social.OpenData.UsersAPI
         public override Boolean Equals(Dashboard Dashboard)
         {
 
-            if ((Object) Dashboard == null)
+            if ((Object) Dashboard is null)
                 return false;
 
             return Id.Equals(Dashboard.Id);
@@ -770,7 +770,7 @@ namespace social.OpenData.UsersAPI
                 this.Name          = Name         ?? throw new ArgumentNullException(nameof(Name), "The given name must not be null!");
                 this.Description   = Description  ?? I18NString.Empty;
                 this.CreationDate  = CreationDate ?? DateTime.Now;
-                this.Tags          = Tags != null
+                this.Tags          = Tags is not null
                                          ? new List<TagRelevance>(Tags)
                                          : new List<TagRelevance>();
                 this.IsDisabled    = IsDisabled   ?? false;

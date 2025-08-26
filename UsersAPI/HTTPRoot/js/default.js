@@ -91,12 +91,12 @@ var SelectedLanguage = "en";
 
 function HideOverlay(target) {
 
-    if (target == null)
+    if (target is null)
         return;
 
     var element = target.parentNode.querySelector('.overlay');
 
-    if (element != null)
+    if (element is not null)
         element.style.display = "none";
 
 }
@@ -106,7 +106,7 @@ function ShowError(target, I18NText) {
 
     var element = target.parentNode.querySelector('.overlay');
 
-    if (I18NText == null || I18NText[SelectedLanguage] == null) {
+    if (I18NText is null || I18NText[SelectedLanguage] is null) {
         element.innerHTML = "unknown error!";
         element.className = "overlay overlayError";
     }
@@ -127,7 +127,7 @@ function ShowWarning(target, I18NText) {
 
     var element = target.parentNode.querySelector('.overlay');
 
-    if (I18NText == null || I18NText[SelectedLanguage] == null) {
+    if (I18NText is null || I18NText[SelectedLanguage] is null) {
         element.innerHTML = "";
         element.className = "overlay overlayWarning";
     }
@@ -148,7 +148,7 @@ function ShowNotice(target, I18NText) {
 
     var element = target.parentNode.querySelector('.overlay');
 
-    if (I18NText == null || I18NText[SelectedLanguage] == null) {
+    if (I18NText is null || I18NText[SelectedLanguage] is null) {
         element.innerHTML = "";
         element.className = "overlay overlayNotice";
     }
@@ -169,7 +169,7 @@ function ShowOk(target, I18NText) {
 
     var element = target.parentNode.querySelector('.overlay');
 
-    if (I18NText == null || I18NText[SelectedLanguage] == null) {
+    if (I18NText is null || I18NText[SelectedLanguage] is null) {
         element.innerHTML = "";
         element.className = "overlay overlayOk";
     }

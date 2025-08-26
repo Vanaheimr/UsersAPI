@@ -39,7 +39,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         public static Boolean IsEmpty(this Affected Affected)
 
-            => Affected == null ||
+            => Affected is null ||
              !(Affected.ServiceTickets.SafeAny() ||
                Affected.Users.         SafeAny() ||
                Affected.Organizations. SafeAny());
@@ -50,7 +50,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         public static Affected.Builder ToBuilder(this Affected Affected)
 
-            => Affected == null
+            => Affected is null
                    ? new Affected.Builder()
                    : new Affected.Builder(ServiceTicketLinks:  Affected.ServiceTickets,
                                           UserLinks:           Affected.Users,
@@ -256,7 +256,7 @@ namespace social.OpenData.UsersAPI
                     if (ErrorResponse is not null)
                         return false;
 
-                    if (ServiceTicketProvider != null)
+                    if (ServiceTicketProvider is not null)
                         foreach (var relatedServiceTicketId in RelatedServiceTicketIds)
                             if (ServiceTicketProvider(relatedServiceTicketId, out ServiceTicket relatedServiceTicket))
                                 RelatedServiceTickets.Add(new MessageHolder<ServiceTicket_Id, ServiceTicket>(relatedServiceTicketId, relatedServiceTicket));
@@ -279,7 +279,7 @@ namespace social.OpenData.UsersAPI
                     if (ErrorResponse is not null)
                         return false;
 
-                    if (UserProvider != null)
+                    if (UserProvider is not null)
                         foreach (var relatedUserId in RelatedUserIds)
                             if (UserProvider(relatedUserId, out var relatedUser))
                                 RelatedUsers.Add(new MessageHolder<User_Id, IUser>(relatedUserId, relatedUser));
@@ -302,7 +302,7 @@ namespace social.OpenData.UsersAPI
                     if (ErrorResponse is not null)
                         return false;
 
-                    if (OrganizationProvider != null)
+                    if (OrganizationProvider is not null)
                         foreach (var relatedOrganizationId in RelatedOrganizationIds)
                             if (OrganizationProvider(relatedOrganizationId, out var relatedOrganization))
                                 RelatedOrganizations.Add(new MessageHolder<Organization_Id, IOrganization>(relatedOrganizationId, relatedOrganization));

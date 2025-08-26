@@ -67,7 +67,7 @@ function StartEditUserNotifications()
             let   newNotificationJSON    = {};
             const DescriptionValue       = (document.getElementById('DescriptionValue').children[0] as HTMLInputElement).value;
 
-            switch (existingNotification != null && existingNotification["@context"] != newNotification_Context
+            switch (existingNotification !== null && existingNotification["@context"] != newNotification_Context
                         ? existingNotification["@context"]
                         : NotificationTypeSelect.selectedOptions[0].innerText)
             {
@@ -116,13 +116,13 @@ function StartEditUserNotifications()
                     }
 
                     const APIKey = (document.getElementById('APIKeyValue').children[0] as HTMLInputElement).value;
-                    if (APIKey != null && APIKey != "")
+                    if (APIKey !== null && APIKey != "")
                         newNotificationJSON["APIKey"] = APIKey;
 
                     const basicAuthLogin    = (document.getElementById('BasicAuthLoginValue').children[0]    as HTMLInputElement).value;
                     const basicAuthPassword = (document.getElementById('BasicAuthPasswordValue').children[0] as HTMLInputElement).value;
 
-                    if (basicAuthLogin != null && basicAuthLogin != "" && basicAuthPassword != null && basicAuthPassword != "") {
+                    if (basicAuthLogin !== null && basicAuthLogin != "" && basicAuthPassword !== null && basicAuthPassword != "") {
                         newNotificationJSON["basicAuth"]              = {};
                         newNotificationJSON["basicAuth"]["login"]     = basicAuthLogin;
                         newNotificationJSON["basicAuth"]["password"]  = basicAuthPassword;
@@ -147,7 +147,7 @@ function StartEditUserNotifications()
             if (messageTypes.length > 0)
                 newNotificationJSON["messageTypes"] = messageTypes;
 
-            if (DescriptionValue != null && DescriptionValue != "")
+            if (DescriptionValue !== null && DescriptionValue != "")
                 newNotificationJSON["description"] = DescriptionValue;
 
 
@@ -185,7 +185,7 @@ function StartEditUserNotifications()
 
                         let responseJSON = { "description": "HTTP Error " + HTTPStatus + " - " + status + "!" };
 
-                        if (response != null && response != "") {
+                        if (response !== null && response != "") {
                             try
                             {
                                 responseJSON = JSON.parse(response);
@@ -193,7 +193,7 @@ function StartEditUserNotifications()
                             catch { }
                         }
 
-                        responseDiv.innerHTML = "<div class=\"HTTP Error\">Storing notification data failed!<br />" + (responseJSON.description != null ? responseJSON.description : "") + "</div>";
+                        responseDiv.innerHTML = "<div class=\"HTTP Error\">Storing notification data failed!<br />" + (responseJSON.description !== null ? responseJSON.description : "") + "</div>";
 
                     }
 
@@ -229,7 +229,7 @@ function StartEditUserNotifications()
 
         const SMSGroup                = AddNotificationsView.CreateGroup ("SMS",               false);
         const PhoneNumberValue        = AddNotificationsView.CreateRow   ("SMS",               "Phone number",          _ => _.innerHTML = "<input placeholder=\"Your phone number...\"/>");
-        if (notification.user != null && notification.user.phoneNumber != null && notification.user.phoneNumber != "")
+        if (notification.user !== null && notification.user.phoneNumber !== null && notification.user.phoneNumber != "")
             (PhoneNumberValue.children[0] as HTMLInputElement).value = notification.user.phoneNumber;
 
         const HTTPSGroup              = AddNotificationsView.CreateGroup ("HTTPS",             false);
@@ -253,7 +253,7 @@ function StartEditUserNotifications()
             SaveOrDeleteNotification(false);
         };
 
-        if (existingNotification != null && existingNotification["@context"] !== newNotification_Context) {
+        if (existingNotification !== null && existingNotification["@context"] !== newNotification_Context) {
 
             RemoveButton.style.display = "block";
             RemoveButton.disabled = false;
@@ -321,7 +321,7 @@ function StartEditUserNotifications()
                                                        (MessageType.visibility == "system" ? "<span class=\"systemNotification\">system</span>" : "") +
                                                        (MessageType.visibility == "admins" ? "<span class=\"adminNotification\">admin</span>"   : "") +
 
-                                                       (MessageType.tags != null &&
+                                                       (MessageType.tags !== null &&
                                                         MessageType.tags.includes('NewUserDefault') &&
                                                         (isAdmin == "readOnly" || isAdmin == "readWrite")
                                                                                            ? "<span class=\"newUserDefault\">New User</span>"   : "");
@@ -349,8 +349,8 @@ function StartEditUserNotifications()
 
                     }
 
-                    if (existingNotification              != null &&
-                        existingNotification.messageTypes != null &&
+                    if (existingNotification              !== null &&
+                        existingNotification.messageTypes !== null &&
                         existingNotification.messageTypes.includes(MessageType.messages[0]))
                     {
                         MessageTypeOption.classList.add("on");
@@ -416,7 +416,7 @@ function StartEditUserNotifications()
             HTTPSGroup.style.display            = "none";
             EMailGroup.style.display            = "none";
 
-            if (existingNotification.description != null && existingNotification.description != "")
+            if (existingNotification.description !== null && existingNotification.description != "")
                 (DescriptionValue.children[0] as HTMLInputElement).value = existingNotification.description;
 
             switch (existingNotification["@context"]) {
@@ -450,15 +450,15 @@ function StartEditUserNotifications()
                     HTTPSGroup.style.display = "table-row-group";
                     (URLValue.children[0] as HTMLInputElement).value = existingNotification["URL"];
 
-                    if (existingNotification["APIKey"] != null && existingNotification["APIKey"] != "")
+                    if (existingNotification["APIKey"] !== null && existingNotification["APIKey"] != "")
                         (APIKeyValue.children[0]            as HTMLInputElement).value = existingNotification["APIKey"];
 
-                    if (existingNotification["basicAuth"] != null) {
+                    if (existingNotification["basicAuth"] !== null) {
 
-                        if (existingNotification["basicAuth"]["login"]    != null && existingNotification["basicAuth"]["login"]    != "")
+                        if (existingNotification["basicAuth"]["login"]    !== null && existingNotification["basicAuth"]["login"]    != "")
                             (BasicAuthLoginValue.children[0] as HTMLInputElement).value = existingNotification["basicAuth"]["login"];
 
-                        if (existingNotification["basicAuth"]["password"] != null && existingNotification["basicAuth"]["password"] != "")
+                        if (existingNotification["basicAuth"]["password"] !== null && existingNotification["basicAuth"]["password"] != "")
                             (BasicAuthPasswordValue.children[0] as HTMLInputElement).value = existingNotification["basicAuth"]["password"];
 
                     }

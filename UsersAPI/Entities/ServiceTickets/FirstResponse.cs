@@ -203,7 +203,7 @@ namespace social.OpenData.UsersAPI
                                                   ChangeSetId);
 
 
-                if (CustomFirstResponseParser != null)
+                if (CustomFirstResponseParser is not null)
                     FirstResponse = CustomFirstResponseParser(JSON,
                                                               FirstResponse);
 
