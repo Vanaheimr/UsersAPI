@@ -936,161 +936,91 @@ namespace social.OpenData.UsersAPI
         /// <param name="LogfileCreator">A delegate for creating the name of the logfile for this API.</param>
         /// <param name="DNSClient">The DNS client of the API.</param>
         /// <param name="AutoStart">Whether to start the API automatically.</param>
-        public UsersAPIX(HTTPTestServerX?               HTTPTestServer     = null,
-                         IEnumerable<HTTPHostname>?     Hostnames          = null,
-                         HTTPPath?                      RootPath           = null,
-                         IEnumerable<HTTPContentType>?  HTTPContentTypes   = null,
-                         I18NString?                    Description        = null,
+        public UsersAPIX(HTTPTestServerX?               HTTPTestServer                   = null,
+                         IEnumerable<HTTPHostname>?     Hostnames                        = null,
+                         HTTPPath?                      RootPath                         = null,
+                         IEnumerable<HTTPContentType>?  HTTPContentTypes                 = null,
+                         I18NString?                    Description                      = null,
 
-                         String?                                                    ExternalDNSName                  = null,
-                         HTTPPath?                                                  BasePath                         = null,
+                         String?                        ExternalDNSName                  = null,
+                         HTTPPath?                      BasePath                         = null,
 
-                         String?                                                    HTTPServerName                   = DefaultHTTPServerName,
-                         String?                                                    HTTPServiceName                  = DefaultHTTPServiceName,
-                         String?                                                    APIVersionHash                   = null,
-                         JObject?                                                   APIVersionHashes                 = null,
+                         String?                        HTTPServerName                   = DefaultHTTPServerName,
+                         String?                        HTTPServiceName                  = DefaultHTTPServiceName,
+                         String?                        APIVersionHash                   = null,
+                         JObject?                       APIVersionHashes                 = null,
 
-                         String?                                                    HTMLTemplate                     = null,
+                         String?                        HTMLTemplate                     = null,
 
-                         Organization_Id?                                           AdminOrganizationId              = null,
-                         EMailAddress?                                              APIRobotEMailAddress             = null,
-                         String?                                                    APIRobotGPGPassphrase            = null,
-                         ISMTPClient?                                               SMTPClient                       = null,
+                         Organization_Id?               AdminOrganizationId              = null,
+                         EMailAddress?                  APIRobotEMailAddress             = null,
+                         String?                        APIRobotGPGPassphrase            = null,
+                         ISMTPClient?                   SMTPClient                       = null,
 
-                         PasswordQualityCheckDelegate?                              PasswordQualityCheck             = null,
-                         HTTPCookieName?                                            CookieName                       = null,
-                         Boolean                                                    UseSecureCookies                 = true,
-                         TimeSpan?                                                  MaxSignInSessionLifetime         = null,
-                         Languages?                                                 DefaultLanguage                  = null,
-                         Byte?                                                      MinUserIdLength                  = null,
-                         Byte?                                                      MinRealmLength                   = null,
-                         Byte?                                                      MinUserNameLength                = null,
-                         Byte?                                                      MinUserGroupIdLength             = null,
-                         UInt16?                                                    MinAPIKeyLength                  = null,
-                         Byte?                                                      MinMessageIdLength               = null,
-                         Byte?                                                      MinOrganizationIdLength          = null,
-                         Byte?                                                      MinOrganizationGroupIdLength     = null,
-                         Byte?                                                      MinNotificationMessageIdLength   = null,
-                         Byte?                                                      MinNewsPostingIdLength           = null,
-                         Byte?                                                      MinNewsBannerIdLength            = null,
-                         Byte?                                                      MinFAQIdLength                   = null,
+                         PasswordQualityCheckDelegate?  PasswordQualityCheck             = null,
+                         HTTPCookieName?                CookieName                       = null,
+                         Boolean                        UseSecureCookies                 = true,
+                         TimeSpan?                      MaxSignInSessionLifetime         = null,
+                         Languages?                     DefaultLanguage                  = null,
+                         Byte?                          MinUserIdLength                  = null,
+                         Byte?                          MinRealmLength                   = null,
+                         Byte?                          MinUserNameLength                = null,
+                         Byte?                          MinUserGroupIdLength             = null,
+                         UInt16?                        MinAPIKeyLength                  = null,
+                         Byte?                          MinMessageIdLength               = null,
+                         Byte?                          MinOrganizationIdLength          = null,
+                         Byte?                          MinOrganizationGroupIdLength     = null,
+                         Byte?                          MinNotificationMessageIdLength   = null,
+                         Byte?                          MinNewsPostingIdLength           = null,
+                         Byte?                          MinNewsBannerIdLength            = null,
+                         Byte?                          MinFAQIdLength                   = null,
 
-                         Boolean?                                                   DisableMaintenanceTasks          = null,
-                         TimeSpan?                                                  MaintenanceInitialDelay          = null,
-                         TimeSpan?                                                  MaintenanceEvery                 = null,
+                         Boolean?                       DisableMaintenanceTasks          = null,
+                         TimeSpan?                      MaintenanceInitialDelay          = null,
+                         TimeSpan?                      MaintenanceEvery                 = null,
 
-                         Boolean?                                                   DisableWardenTasks               = null,
-                         TimeSpan?                                                  WardenInitialDelay               = null,
-                         TimeSpan?                                                  WardenCheckEvery                 = null,
+                         Boolean?                       DisableWardenTasks               = null,
+                         TimeSpan?                      WardenInitialDelay               = null,
+                         TimeSpan?                      WardenCheckEvery                 = null,
 
-                         IEnumerable<URLWithAPIKey>?                                RemoteAuthServers                = null,
-                         IEnumerable<APIKey_Id>?                                    RemoteAuthAPIKeys                = null,
+                         IEnumerable<URLWithAPIKey>?    RemoteAuthServers                = null,
+                         IEnumerable<APIKey_Id>?        RemoteAuthAPIKeys                = null,
 
-                         Boolean?                                                   IsDevelopment                    = null,
-                         IEnumerable<String>?                                       DevelopmentServers               = null,
-                         Boolean                                                    SkipURLTemplates                 = false,
-                         String?                                                    DatabaseFileName                 = DefaultHTTPExtAPIX_DatabaseFileName,
-                         Boolean?                                                   DisableNotifications             = false,
-                         //Boolean                                                    DisableLogging                   = false,
-                         //String?                                                    LoggingPath                      = null,
-                         //String?                                                    LogfileName                      = DefaultHTTPExtAPIX_LogfileName,
-                         //LogfileCreatorDelegate?                                    LogfileCreator                   = null,
-                         //DNSClient?                                                 DNSClient                        = null,
-                         //Boolean                                                    AutoStart                        = false)
+                         Boolean?                       IsDevelopment                    = null,
+                         IEnumerable<String>?           DevelopmentServers               = null,
+                         Boolean                        SkipURLTemplates                 = false,
+                         String?                        DatabaseFileName                 = DefaultHTTPExtAPIX_DatabaseFileName,
+                         Boolean?                       DisableNotifications             = false,
+                         //Boolean                        DisableLogging                   = false,
+                         //String?                        LoggingPath                      = null,
+                         //String?                        LogfileName                      = DefaultHTTPExtAPIX_LogfileName,
+                         //LogfileCreatorDelegate?        LogfileCreator                   = null,
+                         //DNSClient?                     DNSClient                        = null,
+                         //Boolean                        AutoStart                        = false)
 
                          Boolean?                       DisableLogging     = false,
-                         String                         LoggingPath        = null, //DefaultHTTPExtAPIX_LoggingPath,
-                         String                         LoggingContext     = null, //DefaultHTTPExtAPIX_LoggingContext,
-                         String                         LogfileName        = DefaultHTTPExtAPIX_LogfileName,
+                         String?                        LoggingPath        = null, //DefaultHTTPExtAPIX_LoggingPath,
+                         String?                        LoggingContext     = null, //DefaultHTTPExtAPIX_LoggingContext,
+                         String?                        LogfileName        = DefaultHTTPExtAPIX_LogfileName,
                          LogfileCreatorDelegate?        LogfileCreator     = null)
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            //HTTPHostname?                                              HTTPHostname                     = null,
-            //            String?                                                    ExternalDNSName                  = null,
-            //            IPPort?                                                    HTTPServerPort                   = null,
-            //            HTTPPath?                                                  BasePath                         = null,
-            //            String?                                                    HTTPServerName                   = DefaultHTTPServerName,
 
-            //            HTTPPath?                                                  URLPathPrefix                    = null,
-            //            String?                                                    HTTPServiceName                  = DefaultHTTPServiceName,
-            //            String?                                                    HTMLTemplate                     = null,
-            //            JObject?                                                   APIVersionHashes                 = null,
+                         //HTTPHostname?                HTTPHostname                     = null,
+                         //String?                      ExternalDNSName                  = null,
+                         //IPPort?                      HTTPServerPort                   = null,
+                         //HTTPPath?                    BasePath                         = null,
+                         //String?                      HTTPServerName                   = DefaultHTTPServerName,
 
-            //            ServerCertificateSelectorDelegate?                         ServerCertificateSelector        = null,
-            //            RemoteTLSClientCertificateValidationHandler<IHTTPServer>?  ClientCertificateValidator       = null,
-            //            LocalCertificateSelectionHandler?                          LocalCertificateSelector         = null,
-            //            SslProtocols?                                              AllowedTLSProtocols              = null,
-            //            Boolean?                                                   ClientCertificateRequired        = null,
-            //            Boolean?                                                   CheckCertificateRevocation       = null,
+                         //HTTPPath?                    URLPathPrefix                    = null,
+                         //String?                      HTTPServiceName                  = DefaultHTTPServiceName,
+                         //String?                      HTMLTemplate                     = null,
+                         //JObject?                     APIVersionHashes                 = null,
 
-            //            ServerThreadNameCreatorDelegate?                           ServerThreadNameCreator          = null,
-            //            ServerThreadPriorityDelegate?                              ServerThreadPrioritySetter       = null,
-            //            Boolean?                                                   ServerThreadIsBackground         = null,
-            //            ConnectionIdBuilder?                                       ConnectionIdBuilder              = null,
-            //            TimeSpan?                                                  ConnectionTimeout                = null,
-            //            UInt32?                                                    MaxClientConnections             = null,
+                         //SMSAPI.ISMSClient?           SMSClient                        = null,
+                         //String?                      SMSSenderName                    = null,
+                         //ITelegramStore?              TelegramClient                   = null,
 
-            //            Organization_Id?                                           AdminOrganizationId              = null,
-            //            EMailAddress?                                              APIRobotEMailAddress             = null,
-            //            String?                                                    APIRobotGPGPassphrase            = null,
-            //            ISMTPClient?                                               SMTPClient                       = null,
-            //            SMSAPI.ISMSClient?                                         SMSClient                        = null,
-            //            String?                                                    SMSSenderName                    = null,
-            //            ITelegramStore?                                            TelegramClient                   = null,
-
-            //            PasswordQualityCheckDelegate?                              PasswordQualityCheck             = null,
-            //            HTTPCookieName?                                            CookieName                       = null,
-            //            Boolean                                                    UseSecureCookies                 = true,
-            //            TimeSpan?                                                  MaxSignInSessionLifetime         = null,
-            //            Languages?                                                 DefaultLanguage                  = null,
-            //            Byte?                                                      MinUserIdLength                  = null,
-            //            Byte?                                                      MinRealmLength                   = null,
-            //            Byte?                                                      MinUserNameLength                = null,
-            //            Byte?                                                      MinUserGroupIdLength             = null,
-            //            UInt16?                                                    MinAPIKeyLength                  = null,
-            //            Byte?                                                      MinMessageIdLength               = null,
-            //            Byte?                                                      MinOrganizationIdLength          = null,
-            //            Byte?                                                      MinOrganizationGroupIdLength     = null,
-            //            Byte?                                                      MinNotificationMessageIdLength   = null,
-            //            Byte?                                                      MinNewsPostingIdLength           = null,
-            //            Byte?                                                      MinNewsBannerIdLength            = null,
-            //            Byte?                                                      MinFAQIdLength                   = null,
-
-            //            Boolean?                                                   DisableMaintenanceTasks          = null,
-            //            TimeSpan?                                                  MaintenanceInitialDelay          = null,
-            //            TimeSpan?                                                  MaintenanceEvery                 = null,
-
-            //            Boolean?                                                   DisableWardenTasks               = null,
-            //            TimeSpan?                                                  WardenInitialDelay               = null,
-            //            TimeSpan?                                                  WardenCheckEvery                 = null,
-
-            //            IEnumerable<URLWithAPIKey>?                                RemoteAuthServers                = null,
-            //            IEnumerable<APIKey_Id>?                                    RemoteAuthAPIKeys                = null,
-
-            //            Boolean?                                                   IsDevelopment                    = null,
-            //            IEnumerable<String>?                                       DevelopmentServers               = null,
-            //            Boolean                                                    SkipURLTemplates                 = false,
-            //            String?                                                    DatabaseFileName                 = DefaultUsersAPI_DatabaseFileName,
-            //            Boolean                                                    DisableNotifications             = false,
-            //            Boolean                                                    DisableLogging                   = false,
-            //            String?                                                    LoggingPath                      = null,
-            //            String?                                                    LogfileName                      = DefaultUsersAPI_LogfileName,
-            //            LogfileCreatorDelegate?                                    LogfileCreator                   = null,
-            //            DNSClient?                                                 DNSClient                        = null,
-            //            Boolean                                                    AutoStart                        = false)
+                         //IEnumerable<URLWithAPIKey>?  RemoteAuthServers                = null,
+                         //IEnumerable<APIKey_Id>?      RemoteAuthAPIKeys                = null,
 
             : base(HTTPTestServer,
                    Hostnames,
@@ -1153,75 +1083,6 @@ namespace social.OpenData.UsersAPI
                    LoggingContext,
                    LogfileName,
                    LogfileCreator)
-
-                  //HTTPHostname,
-            //       ExternalDNSName,
-            //       HTTPServerPort,
-            //       BasePath,
-            //       HTTPServerName  ?? DefaultHTTPServerName,
-
-            //       URLPathPrefix,
-            //       HTTPServiceName ?? DefaultHTTPServiceName,
-            //       HTMLTemplate,
-            //       APIVersionHashes,
-
-            //       ServerCertificateSelector,
-            //       ClientCertificateValidator,
-            //       LocalCertificateSelector,
-            //       AllowedTLSProtocols,
-            //       ClientCertificateRequired,
-            //       CheckCertificateRevocation,
-
-            //       ServerThreadNameCreator,
-            //       ServerThreadPrioritySetter,
-            //       ServerThreadIsBackground,
-            //       ConnectionIdBuilder,
-            //       ConnectionTimeout,
-            //       MaxClientConnections,
-
-            //       AdminOrganizationId,
-            //       APIRobotEMailAddress,
-            //       APIRobotGPGPassphrase,
-            //       SMTPClient,
-
-            //       PasswordQualityCheck,
-            //       CookieName,
-            //       UseSecureCookies,
-            //       MaxSignInSessionLifetime,
-            //       DefaultLanguage,
-            //       MinUserIdLength,
-            //       MinRealmLength,
-            //       MinUserNameLength,
-            //       MinUserGroupIdLength,
-            //       MinAPIKeyLength,
-            //       MinMessageIdLength,
-            //       MinOrganizationIdLength,
-            //       MinOrganizationGroupIdLength,
-            //       MinNotificationMessageIdLength,
-            //       MinNewsPostingIdLength,
-            //       MinNewsBannerIdLength,
-            //       MinFAQIdLength,
-
-            //       DisableMaintenanceTasks,
-            //       MaintenanceInitialDelay,
-            //       MaintenanceEvery,
-
-            //       DisableWardenTasks,
-            //       WardenInitialDelay,
-            //       WardenCheckEvery,
-
-            //       RemoteAuthServers,
-            //       RemoteAuthAPIKeys,
-
-            //       IsDevelopment,
-            //       DevelopmentServers,
-            //       SkipURLTemplates,
-            //       DatabaseFileName,
-            //       DisableNotifications,
-            //       DisableLogging,
-            //       LoggingPath,
-            //       LogfileName,
-            //       LogfileCreator)
 
         {
 
@@ -1330,7 +1191,7 @@ namespace social.OpenData.UsersAPI
             if (!SkipURLTemplates)
                 RegisterURLTemplates();
 
-            DebugX.Log(nameof(UsersAPI) + " version '" + APIVersionHash + "' initialized...");
+            DebugX.Log($"{nameof(UsersAPI)} version '{this.APIVersionHash}' initialized...");
 
         }
 
