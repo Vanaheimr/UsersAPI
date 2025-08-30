@@ -182,8 +182,6 @@
     <None Remove="HTTPRoot\profile\profile.shtml" />
     <None Remove="HTTPRoot\profile\profile.ts" />
     <None Remove="HTTPRoot\robots.txt" />
-    <None Remove="HTTPRoot\SignInOut\SignInOut.css" />
-    <None Remove="HTTPRoot\SignInOut\SignInOut.js" />
     <None Remove="HTTPRoot\SignUp\SignUp-de.html" />
     <None Remove="HTTPRoot\SignUp\SignUp-en.html" />
     <None Remove="HTTPRoot\SignUp\SignUp.js" />
@@ -406,8 +404,6 @@
     <EmbeddedResource Include="HTTPRoot\profile\profile.shtml" />
     <EmbeddedResource Include="HTTPRoot\profile\profile.ts" />
     <EmbeddedResource Include="HTTPRoot\robots.txt" />
-    <EmbeddedResource Include="HTTPRoot\SignInOut\SignInOut.css" />
-    <EmbeddedResource Include="HTTPRoot\SignInOut\SignInOut.js" />
     <EmbeddedResource Include="HTTPRoot\SignUp\SignUp-de.html" />
     <EmbeddedResource Include="HTTPRoot\SignUp\SignUp-en.html" />
     <EmbeddedResource Include="HTTPRoot\SignUp\SignUp.js" />

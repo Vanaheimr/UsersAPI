@@ -46,10 +46,8 @@ function VerifyLogin() {
     const redirectInputHidden = document.getElementById("redirect");
     const loginform = document.getElementById("loginform");
     const _login = document.getElementById("_login");
-    const _realm = document.getElementById("_realm");
     const _password = document.getElementById("_password");
     const responseDiv = document.getElementById("response");
-    const loginButton = document.getElementById("loginButton");
     const loginInput = document.getElementById("loginInput");
     const EULA = document.getElementById("EULA");
     const IAcceptDiv = document.getElementById("IAccept");
@@ -106,18 +104,18 @@ function VerifyLogin() {
             loginInput.classList.add("error");
     }
     function VerifyPassword() {
-        const ResponseText = HTTPAuth((URLPathPrefix !== null && URLPathPrefix !== void 0 ? URLPathPrefix : "") + "/users/" + _login.value, {
+        const responseText = HTTPAuth((URLPathPrefix !== null && URLPathPrefix !== void 0 ? URLPathPrefix : "") + "/users/" + _login.value, {
             "login": _login.value,
             "password": _password.value,
             "acceptsEULA": acceptsEULA
         });
-        if (ResponseText === "") {
+        if (responseText === "") {
             responseDiv.style.display = 'block';
             responseDiv.innerHTML = "<i class='fas fa-exclamation-triangle  fa-2x menuicons'></i> Could not login!";
             return false;
         }
         try {
-            const responseJSON = JSON.parse(ResponseText);
+            const responseJSON = JSON.parse(responseText);
             if (responseJSON.showEULA == true) {
                 EULA.style.display = 'block';
                 return false;
@@ -154,9 +152,7 @@ function VerifyLogin() {
 function LostPassword() {
     const loginform = document.getElementById("loginform");
     const _id = document.getElementById("_id");
-    const _realm = document.getElementById("_realm");
     const responseDiv = document.getElementById("response");
-    const resetPasswordButton = document.getElementById("resetPasswordButton");
     const resetPasswordInput = document.getElementById("resetPasswordInput");
     _id.onchange = () => {
         _id.value = _id.value.toLowerCase();
@@ -166,7 +162,7 @@ function LostPassword() {
         _id.value = _id.value.toLowerCase();
         ToogleSaveButton();
     };
-    loginform.onsubmit = function (ev) {
+    loginform.onsubmit = function () {
         return ResetPassword();
     };
     function ToogleSaveButton() {
@@ -184,7 +180,8 @@ function LostPassword() {
     function ResetPassword() {
         responseDiv.style.display = 'block';
         responseDiv.innerHTML = '<i class="fa fa-spinner faa-spin animated"></i> Verifying your login... please wait!';
-        HTTPSet((URLPathPrefix !== null && URLPathPrefix !== void 0 ? URLPathPrefix : "") + "/resetPassword", {
+        const cacheBust = new Date().getTime();
+        HTTPSet((URLPathPrefix !== null && URLPathPrefix !== void 0 ? URLPathPrefix : "") + "/resetPassword?_=" + cacheBust, {
             "id": _id.value
         }, (HTTPStatus, ResponseText) => {
             try {
@@ -203,7 +200,7 @@ function LostPassword() {
             responseDiv.innerHTML = "<i class='fas fa-exclamation-triangle  fa-2x menuicons'></i> Resetting your password failed!";
             responseDiv.classList.remove("responseOk");
             responseDiv.classList.add("responseError");
-        }, (HTTPStatus, StatusText, ResponseText) => {
+        }, () => {
             responseDiv.style.display = 'block';
             responseDiv.innerHTML = "<i class='fas fa-exclamation-triangle  fa-2x menuicons'></i> Resetting your password failed!";
             responseDiv.classList.remove("responseOk");
@@ -308,7 +305,7 @@ function SetPassword() {
             responseDiv.innerHTML = "<i class='fas fa-exclamation-triangle  fa-2x menuicons'></i> Setting your password failed!";
             responseDiv.classList.remove("responseOk");
             responseDiv.classList.add("responseError");
-        }, (HTTPStatus, StatusText, ResponseText) => {
+        }, () => {
             responseDiv.style.display = 'block';
             responseDiv.innerHTML = "<i class='fas fa-exclamation-triangle  fa-2x menuicons'></i> Setting your password failed!";
             responseDiv.classList.remove("responseOk");
@@ -366,14 +363,15 @@ function SignIn() {
     const SignInErrors = SignInPanel.querySelector('#errors');
     SignInErrors.style.display = "none";
     SignInErrors.innerText = "";
-    SendJSON("AUTH", (URLPathPrefix !== null && URLPathPrefix !== void 0 ? URLPathPrefix : "") + "/users/" + Username, {
+    const cacheBust = new Date().getTime();
+    SendJSON("AUTH", (URLPathPrefix !== null && URLPathPrefix !== void 0 ? URLPathPrefix : "") + "/users/" + Username + "&_=" + cacheBust, {
         "realm": Realm,
         "password": Password,
         "rememberme": RememberMe
-    }, function (status, response) {
+    }, function () {
         //(<HTMLFormElement> document.querySelector('#loginform')).submit();
         location.href = URLPathPrefix !== null && URLPathPrefix != "" ? URLPathPrefix : "/";
-    }, function (HTTPStatus, status, response) {
+    }, function (httpStatus, status, response) {
         SignInErrors.style.display = "block";
         SignInErrors.innerText = JSON.parse(response).description;
     });
@@ -453,16 +451,20 @@ function checkNotSignedIn() {
     }, () => { });
 }
 function SignOut() {
-    SendJSON("DEAUTH", (URLPathPrefix !== null && URLPathPrefix !== void 0 ? URLPathPrefix : "") + "/users", null, function (HTTPStatus, ResponseText) {
-    }, function (HTTPStatus, StatusText, ResponseText) {
+    SendJSON("DEAUTH", (URLPathPrefix !== null && URLPathPrefix !== void 0 ? URLPathPrefix : "") + "/users", null, function () {
+        DeleteCookie(HTTPCookieId);
+        const cacheBust = new Date().getTime();
+        location.href = (URLPathPrefix !== null && URLPathPrefix !== void 0 ? URLPathPrefix : "") + "/login?_=" + cacheBust;
+    }, function () {
+        DeleteCookie(HTTPCookieId);
+        const cacheBust = new Date().getTime();
+        location.href = (URLPathPrefix !== null && URLPathPrefix !== void 0 ? URLPathPrefix : "") + "/login?_=" + cacheBust;
     });
-    DeleteCookie(HTTPCookieId);
-    location.href = (URLPathPrefix !== null && URLPathPrefix !== void 0 ? URLPathPrefix : "") + "/login";
 }
 function Depersonate() {
-    HTTPDepersonate((URLPathPrefix !== null && URLPathPrefix !== void 0 ? URLPathPrefix : "") + "/users/" + SignInUser, (status, response) => {
+    HTTPDepersonate((URLPathPrefix !== null && URLPathPrefix !== void 0 ? URLPathPrefix : "") + "/users/" + SignInUser, () => {
         window.location.reload();
-    }, (status, statusText, response) => {
+    }, () => {
         alert("Not allowed!");
     });
 }
@@ -511,6 +513,6 @@ function checkNewsBanner(knownNewsIds) {
                 }
             }
         }
-    }, (status, statusText, response) => { });
+    }, () => { });
 }
 //# sourceMappingURL=SignInOut.js.map

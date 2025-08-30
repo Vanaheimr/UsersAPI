@@ -81,10 +81,8 @@ function VerifyLogin() {
     const redirectInputHidden             = document.getElementById("redirect")                        as HTMLInputElement;
     const loginform                       = document.getElementById("loginform")                       as HTMLFormElement;
     const _login                          = document.getElementById("_login")                          as HTMLInputElement;
-    const _realm                          = document.getElementById("_realm")                          as HTMLInputElement;
     const _password                       = document.getElementById("_password")                       as HTMLInputElement;
     const responseDiv                     = document.getElementById("response")                        as HTMLDivElement;
-    const loginButton                     = document.getElementById("loginButton")                     as HTMLDivElement;
     const loginInput                      = document.getElementById("loginInput")                      as HTMLInputElement;
     const EULA                            = document.getElementById("EULA")                            as HTMLDivElement;
     const IAcceptDiv                      = document.getElementById("IAccept")                         as HTMLDivElement;
@@ -167,14 +165,16 @@ function VerifyLogin() {
 
     function VerifyPassword(): boolean {
 
-        const ResponseText = HTTPAuth((URLPathPrefix ?? "") + "/users/" + _login.value,
-                                      {
-                                          "login":        _login.value,
-                                          "password":     _password.value,
-                                          "acceptsEULA":  acceptsEULA
-                                      });
+        const responseText = HTTPAuth(
+                                 (URLPathPrefix ?? "") + "/users/" + _login.value,
+                                 {
+                                     "login":        _login.value,
+                                     "password":     _password.value,
+                                     "acceptsEULA":  acceptsEULA
+                                 }
+                             );
 
-        if (ResponseText === "") {
+        if (responseText === "") {
             responseDiv.style.display = 'block';
             responseDiv.innerHTML = "<i class='fas fa-exclamation-triangle  fa-2x menuicons'></i> Could not login!";
             return false;
@@ -183,7 +183,7 @@ function VerifyLogin() {
         try
         {
 
-            const responseJSON = JSON.parse(ResponseText);
+            const responseJSON = JSON.parse(responseText);
 
             if (responseJSON.showEULA == true) {
                 EULA.style.display = 'block';
@@ -237,9 +237,7 @@ function LostPassword() {
 
     const loginform            = document.getElementById("loginform")           as HTMLFormElement;
     const _id                  = document.getElementById("_id")                 as HTMLInputElement;
-    const _realm               = document.getElementById("_realm")              as HTMLInputElement;
     const responseDiv          = document.getElementById("response")            as HTMLDivElement;
-    const resetPasswordButton  = document.getElementById("resetPasswordButton") as HTMLDivElement;
     const resetPasswordInput   = document.getElementById("resetPasswordInput")  as HTMLInputElement;
 
     _id.onchange       = () => {
@@ -252,7 +250,7 @@ function LostPassword() {
         ToogleSaveButton();
     }
 
-    loginform.onsubmit = function (this: HTMLElement, ev: Event) {
+    loginform.onsubmit = function (this: HTMLElement) {
         return ResetPassword();
     }
 
@@ -281,42 +279,47 @@ function LostPassword() {
         responseDiv.style.display = 'block';
         responseDiv.innerHTML = '<i class="fa fa-spinner faa-spin animated"></i> Verifying your login... please wait!';
 
-        HTTPSet((URLPathPrefix ?? "") + "/resetPassword",
-                {
-                    "id":  _id.value
-                },
+        const cacheBust = new Date().getTime();
 
-                (HTTPStatus, ResponseText) => {
+        HTTPSet(
+            (URLPathPrefix ?? "") + "/resetPassword?_=" + cacheBust,
+            {
+                "id":  _id.value
+            },
 
-                    try {
+            (HTTPStatus, ResponseText) => {
 
-                        const responseJSON = JSON.parse(ResponseText);
+                try {
 
-                        if (responseJSON.numberOfAccountsFound !== null) {
-                            responseDiv.style.display = 'block';
-                            responseDiv.innerHTML = "<i class='fas fa-user-check  fa-2x menuicons'></i> Found " + responseJSON.numberOfAccountsFound + " account(s). Please check your e-mails!";
-                            responseDiv.classList.remove("responseError");
-                            responseDiv.classList.add("responseOk");
-                            return;
-                        }
+                    const responseJSON = JSON.parse(ResponseText);
 
+                    if (responseJSON.numberOfAccountsFound !== null) {
+                        responseDiv.style.display = 'block';
+                        responseDiv.innerHTML = "<i class='fas fa-user-check  fa-2x menuicons'></i> Found " + responseJSON.numberOfAccountsFound + " account(s). Please check your e-mails!";
+                        responseDiv.classList.remove("responseError");
+                        responseDiv.classList.add("responseOk");
+                        return;
                     }
-                    catch (e) {
-                    }
 
-                    responseDiv.style.display = 'block';
-                    responseDiv.innerHTML = "<i class='fas fa-exclamation-triangle  fa-2x menuicons'></i> Resetting your password failed!";
-                    responseDiv.classList.remove("responseOk");
-                    responseDiv.classList.add("responseError");
+                }
+                catch (e) {
+                }
 
-                },
+                responseDiv.style.display = 'block';
+                responseDiv.innerHTML = "<i class='fas fa-exclamation-triangle  fa-2x menuicons'></i> Resetting your password failed!";
+                responseDiv.classList.remove("responseOk");
+                responseDiv.classList.add("responseError");
 
-                (HTTPStatus, StatusText, ResponseText) => {
-                    responseDiv.style.display = 'block';
-                    responseDiv.innerHTML = "<i class='fas fa-exclamation-triangle  fa-2x menuicons'></i> Resetting your password failed!";
-                    responseDiv.classList.remove("responseOk");
-                    responseDiv.classList.add("responseError");
-                });
+            },
+
+            () => {
+                responseDiv.style.display = 'block';
+                responseDiv.innerHTML = "<i class='fas fa-exclamation-triangle  fa-2x menuicons'></i> Resetting your password failed!";
+                responseDiv.classList.remove("responseOk");
+                responseDiv.classList.add("responseError");
+            }
+
+        );
 
         return false;
 
@@ -465,7 +468,7 @@ function SetPassword() {
 
                 },
 
-                (HTTPStatus, StatusText, ResponseText) => {
+                () => {
                     responseDiv.style.display = 'block';
                     responseDiv.innerHTML     = "<i class='fas fa-exclamation-triangle  fa-2x menuicons'></i> Setting your password failed!";
                     responseDiv.classList.remove("responseOk");
@@ -544,120 +547,126 @@ function SetPassword() {
 
 function SignIn() {
 
-    const SignInPanel  =     document.querySelector('#login');
-    const Username     = (SignInPanel.querySelector('#_login')      as HTMLInputElement).value.toLowerCase();
-    const Realm        = (SignInPanel.querySelector('#_realm')      as HTMLInputElement).value.toLowerCase();
-    const Password     = (SignInPanel.querySelector('#_password')   as HTMLInputElement).value;
-    const RememberMe   = (SignInPanel.querySelector('#_rememberme') as HTMLInputElement).checked;
+    const SignInPanel   =     document.querySelector('#login');
+    const Username      = (SignInPanel.querySelector('#_login')      as HTMLInputElement).value.toLowerCase();
+    const Realm         = (SignInPanel.querySelector('#_realm')      as HTMLInputElement).value.toLowerCase();
+    const Password      = (SignInPanel.querySelector('#_password')   as HTMLInputElement).value;
+    const RememberMe    = (SignInPanel.querySelector('#_rememberme') as HTMLInputElement).checked;
 
-    const SignInErrors =  SignInPanel.querySelector('#errors')      as HTMLElement;
+    const SignInErrors  =  SignInPanel.querySelector('#errors')      as HTMLElement;
     SignInErrors.style.display = "none";
     SignInErrors.innerText     = "";
 
-    SendJSON("AUTH",
-             (URLPathPrefix ?? "") + "/users/" + Username,
-             {
-                 "realm":      Realm,
-                 "password":   Password,
-                 "rememberme": RememberMe
-             },
+    const cacheBust     = new Date().getTime();
 
-             function (status, response) {
-                 //(<HTMLFormElement> document.querySelector('#loginform')).submit();
-                 location.href = URLPathPrefix !== null && URLPathPrefix != "" ? URLPathPrefix : "/";
-             },
+    SendJSON(
+        "AUTH",
+        (URLPathPrefix ?? "") + "/users/" + Username  + "&_=" + cacheBust,
+        {
+            "realm":      Realm,
+            "password":   Password,
+            "rememberme": RememberMe
+        },
 
-             function (HTTPStatus, status, response) {
-                 SignInErrors.style.display = "block";
-                 SignInErrors.innerText = JSON.parse(response).description;
-             });
+        function () {
+            //(<HTMLFormElement> document.querySelector('#loginform')).submit();
+            location.href = URLPathPrefix !== null && URLPathPrefix != "" ? URLPathPrefix : "/";
+        },
+
+        function (httpStatus, status, response) {
+            SignInErrors.style.display = "block";
+            SignInErrors.innerText = JSON.parse(response).description;
+        }
+
+    );
 
 }
 
 function checkSignedIn(RedirectUnknownUsers: boolean) {
 
-    WithCookie(HTTPCookieId,
+    WithCookie(
+        HTTPCookieId,
 
-               cookie => {
+        cookie => {
 
-                   isAdmin   = "false";
-                   Astronaut = "";
+            isAdmin   = "false";
+            Astronaut = "";
 
-                   // Crumbs are base64 encoded!
-                   cookie.split(":").forEach(crumb => {
+            // Crumbs are base64 encoded!
+            cookie.split(":").forEach(crumb => {
 
-                       if (crumb.indexOf("login")     >= 0)
-                           SignInUser  = atob(crumb.split("=")[1]);
+                if (crumb.indexOf("login")     >= 0)
+                    SignInUser  = atob(crumb.split("=")[1]);
 
-                       if (crumb.indexOf("username")  >= 0)
-                           Username    = atob(crumb.split("=")[1]);
+                if (crumb.indexOf("username")  >= 0)
+                    Username    = atob(crumb.split("=")[1]);
 
-                       if (crumb.indexOf("email")     >= 0)
-                           UserEMail   = atob(crumb.split("=")[1]);
+                if (crumb.indexOf("email")     >= 0)
+                    UserEMail   = atob(crumb.split("=")[1]);
 
-                       if (crumb.indexOf("astronaut") >= 0)
-                           Astronaut   = atob(crumb.split("=")[1]);
+                if (crumb.indexOf("astronaut") >= 0)
+                    Astronaut   = atob(crumb.split("=")[1]);
 
-                       if (crumb.indexOf("isAdminRO")   >= 0) {
-                           isAdmin = "readOnly";
-                           ShowElement('#admin');
-                           ShowElement('.admin');
-                       }
+                if (crumb.indexOf("isAdminRO")   >= 0) {
+                    isAdmin = "readOnly";
+                    ShowElement('#admin');
+                    ShowElement('.admin');
+                }
 
-                       if (crumb.indexOf("isAdminRW")   >= 0) {
-                           isAdmin = "readWrite";
-                           ShowElement('#admin');
-                           ShowElement('.admin');
-                       }
+                if (crumb.indexOf("isAdminRW")   >= 0) {
+                    isAdmin = "readWrite";
+                    ShowElement('#admin');
+                    ShowElement('.admin');
+                }
 
-                       if (crumb.indexOf("language") >= 0) {
-                           UILanguage  = atob(crumb.split("=")[1]);
-                       }
+                if (crumb.indexOf("language") >= 0) {
+                    UILanguage  = atob(crumb.split("=")[1]);
+                }
 
-                   });
+            });
 
-                   (document.querySelector('#username')  as HTMLDivElement).innerText = Username;
-                   (document.querySelector('#astronaut') as HTMLDivElement).innerText = Astronaut;
+            (document.querySelector('#username')  as HTMLDivElement).innerText = Username;
+            (document.querySelector('#astronaut') as HTMLDivElement).innerText = Astronaut;
 
-                   if (Astronaut != "")
-                       ShowElement2('#astronautFrame', 'inline-block');
+            if (Astronaut != "")
+                ShowElement2('#astronautFrame', 'inline-block');
 
-                   if (window.matchMedia("(min-device-width : 376px)").matches) {
-                       ShowElement2('#username', 'inline-block');
-                       ShowElement2('.username', 'inline-block');
-                   }
+            if (window.matchMedia("(min-device-width : 376px)").matches) {
+                ShowElement2('#username', 'inline-block');
+                ShowElement2('.username', 'inline-block');
+            }
 
-                   ShowElement('#profile');
-                   ShowElement('.profile');
+            ShowElement('#profile');
+            ShowElement('.profile');
 
-                   ShowElement('#SignOut');
-                   ShowElement('.SignOut');
+            ShowElement('#SignOut');
+            ShowElement('.SignOut');
 
-                   HideElement('#SignIn');
-                   HideElement('.SignIn');
+            HideElement('#SignIn');
+            HideElement('.SignIn');
 
-               },
+        },
 
-               () => {
+        () => {
 
-                   HideElement('#SignOut');
-                   HideElement('.SignOut');
+            HideElement('#SignOut');
+            HideElement('.SignOut');
 
-                   HideElement('#profile');
-                   HideElement('.profile');
+            HideElement('#profile');
+            HideElement('.profile');
 
-                   ShowElement('#SignIn');
-                   ShowElement('.SignIn');
+            ShowElement('#SignIn');
+            ShowElement('.SignIn');
 
-                   const usernameDiv = document.querySelector('#username') as HTMLElement;
+            const usernameDiv = document.querySelector('#username') as HTMLElement;
 
-                   if (usernameDiv !== null)
-                       usernameDiv.innerText = "anonymous";
+            if (usernameDiv !== null)
+                usernameDiv.innerText = "anonymous";
 
-                   if (RedirectUnknownUsers)
-                       location.href = (URLPathPrefix ?? "") + "/login";
+            if (RedirectUnknownUsers)
+                location.href = (URLPathPrefix ?? "") + "/login";
 
-               }
+        }
 
     );
 
@@ -670,24 +679,25 @@ function checkSignedIn(RedirectUnknownUsers: boolean) {
 
 function checkAdminSignedIn(RedirectUnknownUsers: boolean) {
 
-    WithCookie(HTTPCookieId,
+    WithCookie(
+        HTTPCookieId,
 
-               cookie => {
+        cookie => {
 
-                   ShowElement('#admin');
-                   ShowElement('.admin');
+            ShowElement('#admin');
+            ShowElement('.admin');
 
-                   if (cookie.indexOf(":isAdmin") < 0)
-                       location.href = URLPathPrefix !== null && URLPathPrefix != "" ? URLPathPrefix : "/";
+            if (cookie.indexOf(":isAdmin") < 0)
+                location.href = URLPathPrefix !== null && URLPathPrefix != "" ? URLPathPrefix : "/";
 
-               },
+        },
 
-               () => {
+        () => {
 
-                   if (RedirectUnknownUsers)
-                       location.href = (URLPathPrefix ?? "") + "/login";
+            if (RedirectUnknownUsers)
+                location.href = (URLPathPrefix ?? "") + "/login";
 
-               }
+        }
 
     );
 
@@ -697,47 +707,56 @@ function checkAdminSignedIn(RedirectUnknownUsers: boolean) {
 
 function checkNotSignedIn() {
 
-    WithCookie(HTTPCookieId,
+    WithCookie(
+        HTTPCookieId,
 
-               () => {
-                   location.href = (URLPathPrefix ?? "") + "/index.shtml";
-               },
+        () => {
+            location.href = (URLPathPrefix ?? "") + "/index.shtml";
+        },
 
-               () => { }
+        () => { }
 
-        );
+    );
 
 }
 
 function SignOut() {
 
-    SendJSON("DEAUTH",
-             (URLPathPrefix ?? "") + "/users",
-             null,
+    SendJSON(
+        "DEAUTH",
+        (URLPathPrefix ?? "") + "/users",
+        null,
 
-             function (HTTPStatus, ResponseText) {
-             },
+        function () {
+            DeleteCookie(HTTPCookieId);
+            const cacheBust = new Date().getTime();
+            location.href = (URLPathPrefix ?? "") + "/login?_=" + cacheBust;
+        },
 
-             function (HTTPStatus, StatusText, ResponseText) {
-             });
+        function () {
+            DeleteCookie(HTTPCookieId);
+            const cacheBust = new Date().getTime();
+            location.href = (URLPathPrefix ?? "") + "/login?_=" + cacheBust;
+        }
 
-    DeleteCookie(HTTPCookieId);
-
-    location.href = (URLPathPrefix ?? "") + "/login";
+    );
 
 }
 
 function Depersonate() {
 
-    HTTPDepersonate((URLPathPrefix ?? "") + "/users/" + SignInUser,
+    HTTPDepersonate(
+        (URLPathPrefix ?? "") + "/users/" + SignInUser,
 
-                    (status, response) => {
-                        window.location.reload();
-                    },
+        () => {
+            window.location.reload();
+        },
 
-                    (status, statusText, response) => {
-                        alert("Not allowed!");
-                    });
+        () => {
+            alert("Not allowed!");
+        }
+
+    );
 
 }
 
@@ -820,7 +839,7 @@ function checkNewsBanner(knownNewsIds: string[]) {
 
             },
 
-            (status, statusText, response) => { }
+            () => { }
 
            );
 
