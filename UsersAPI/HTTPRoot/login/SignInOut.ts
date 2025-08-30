@@ -277,21 +277,21 @@ function LostPassword() {
     function ResetPassword() : boolean {
 
         responseDiv.style.display = 'block';
-        responseDiv.innerHTML = '<i class="fa fa-spinner faa-spin animated"></i> Verifying your login... please wait!';
+        responseDiv.innerHTML     = '<i class="fa fa-spinner faa-spin animated"></i> Verifying your login... please wait!';
 
         const cacheBust = new Date().getTime();
 
         HTTPSet(
-            (URLPathPrefix ?? "") + "/resetPassword?_=" + cacheBust,
+            (URLPathPrefix ?? "") + "/resetPassword?v=" + cacheBust,
             {
                 "id":  _id.value
             },
 
-            (HTTPStatus, ResponseText) => {
+            (httpStatus, responseText) => {
 
                 try {
 
-                    const responseJSON = JSON.parse(ResponseText);
+                    const responseJSON = JSON.parse(responseText);
 
                     if (responseJSON.numberOfAccountsFound !== null) {
                         responseDiv.style.display = 'block';
@@ -312,7 +312,7 @@ function LostPassword() {
 
             },
 
-            () => {
+            (httpStatus, status, responseText) => {
                 responseDiv.style.display = 'block';
                 responseDiv.innerHTML = "<i class='fas fa-exclamation-triangle  fa-2x menuicons'></i> Resetting your password failed!";
                 responseDiv.classList.remove("responseOk");
@@ -324,7 +324,6 @@ function LostPassword() {
         return false;
 
     }
-
 
     checkNotSignedIn();
     ToogleSaveButton();
@@ -561,21 +560,25 @@ function SignIn() {
 
     SendJSON(
         "AUTH",
-        (URLPathPrefix ?? "") + "/users/" + Username  + "&_=" + cacheBust,
+        (URLPathPrefix ?? "") + "/users/" + Username + "&v=" + cacheBust,
         {
             "realm":      Realm,
             "password":   Password,
             "rememberme": RememberMe
         },
 
-        function () {
+        function (httpStatus, responseText) {
             //(<HTMLFormElement> document.querySelector('#loginform')).submit();
-            location.href = URLPathPrefix !== null && URLPathPrefix != "" ? URLPathPrefix : "/";
+            setTimeout(() => {
+                location.href = URLPathPrefix !== null && URLPathPrefix != ""
+                                    ? URLPathPrefix
+                                    : "/";
+            }, 10);
         },
 
-        function (httpStatus, status, response) {
-            SignInErrors.style.display = "block";
-            SignInErrors.innerText = JSON.parse(response).description;
+        function (httpStatus, status, responseText) {
+            SignInErrors.style.display  = "block";
+            SignInErrors.innerText      = JSON.parse(responseText).description;
         }
 
     );
@@ -722,21 +725,27 @@ function checkNotSignedIn() {
 
 function SignOut() {
 
+    const cacheBust = new Date().getTime();
+
     SendJSON(
         "DEAUTH",
-        (URLPathPrefix ?? "") + "/users",
+        (URLPathPrefix ?? "") + "/users?v=" + cacheBust,
         null,
 
-        function () {
+        function (httpStatus, responseText) {
             DeleteCookie(HTTPCookieId);
-            const cacheBust = new Date().getTime();
-            location.href = (URLPathPrefix ?? "") + "/login?_=" + cacheBust;
+            const cacheBust2 = new Date().getTime();
+            setTimeout(() => {
+                location.href = (URLPathPrefix ?? "") + "/login?v=" + cacheBust2;
+            }, 10);
         },
 
-        function () {
+        function (httpStatus, status, responseText) {
             DeleteCookie(HTTPCookieId);
-            const cacheBust = new Date().getTime();
-            location.href = (URLPathPrefix ?? "") + "/login?_=" + cacheBust;
+            const cacheBust2 = new Date().getTime();
+            setTimeout(() => {
+                location.href = (URLPathPrefix ?? "") + "/login?v=" + cacheBust2;
+            }, 10);
         }
 
     );
@@ -745,14 +754,18 @@ function SignOut() {
 
 function Depersonate() {
 
-    HTTPDepersonate(
-        (URLPathPrefix ?? "") + "/users/" + SignInUser,
+    const cacheBust = new Date().getTime();
 
-        () => {
-            window.location.reload();
+    HTTPDepersonate(
+        (URLPathPrefix ?? "") + "/users/" + SignInUser + "?v=" + cacheBust,
+
+        (httpStatus, responseText) => {
+            setTimeout(() => {
+                window.location.reload();
+            }, 10);
         },
 
-        () => {
+        (httpStatus, status, responseText) => {
             alert("Not allowed!");
         }
 
@@ -773,62 +786,61 @@ function checkNewsBanner(knownNewsIds: string[]) {
                            ? "?match=" + knownNewsIds.map(knownNewsId => "!" + knownNewsId).join(",")
                            : "";
 
-    HTTPGet((URLPathPrefix ?? "") + "/newsBanners" + newsFilter,
+    HTTPGet(
+        (URLPathPrefix ?? "") + "/newsBanners" + newsFilter,
 
-            (status, response) => {
+        (httpStatus, responseText) => {
 
-                const newsBanners  = ParseJSON_LD<INewsBanner[]>(response);
-                const currentDate  = new Date().getTime();
+            const newsBanners  = ParseJSON_LD<INewsBanner[]>(responseText);
+            const currentDate  = new Date().getTime();
 
-                if (Array.isArray(newsBanners)) {
+            if (Array.isArray(newsBanners)) {
 
-                    const knownNewsBannerIds = GetCookie(newsBannersCookieId)?.split(",") ?? [];
+                const knownNewsBannerIds = GetCookie(newsBannersCookieId)?.split(",") ?? [];
 
-                    for (const newsBanner of newsBanners) {
+                for (const newsBanner of newsBanners) {
 
-                        var expires = new Date(newsBanner.endTimestamp);
+                    var expires = new Date(newsBanner.endTimestamp);
 
-                        if (expires.getTime() > currentDate) {
+                    if (expires.getTime() > currentDate) {
 
-                            // The expire date of the cookies...
-                            expires.setDate(expires.getDate() + 1);
+                        // The expire date of the cookies...
+                        expires.setDate(expires.getDate() + 1);
 
-                            if (knownNewsBannerIds.indexOf(newsBanner["@id"]) < 0) {
+                        if (knownNewsBannerIds.indexOf(newsBanner["@id"]) < 0) {
 
-                                const newsBannerDiv = document.getElementById("newsBanner") as HTMLDivElement;
-                                newsBannerDiv.style.display = "flex";
+                            const newsBannerDiv = document.getElementById("newsBanner") as HTMLDivElement;
+                            newsBannerDiv.style.display = "flex";
 
-                                const bannerTextDiv = newsBannerDiv.querySelector("#bannerText") as HTMLDivElement;
-                                bannerTextDiv.innerHTML = newsBanner.text != undefined && newsBanner.text !== null
-                                    ? firstValue(newsBanner.text)
-                                    : "No news found!";
+                            const bannerTextDiv = newsBannerDiv.querySelector("#bannerText") as HTMLDivElement;
+                            bannerTextDiv.innerHTML = newsBanner.text != undefined && newsBanner.text !== null
+                                ? firstValue(newsBanner.text)
+                                : "No news found!";
 
-                                const ignoreNewsButton = newsBannerDiv.querySelector("#ignoreNewsButton") as HTMLButtonElement;
-                                ignoreNewsButton.onclick = () => {
+                            const ignoreNewsButton = newsBannerDiv.querySelector("#ignoreNewsButton") as HTMLButtonElement;
+                            ignoreNewsButton.onclick = () => {
 
-                                    let updatedKnownNewsBannerIds = GetCookie(newsBannersCookieId)?.split(",") ?? [];
-                                    updatedKnownNewsBannerIds.push(newsBanner["@id"]);
+                                let updatedKnownNewsBannerIds = GetCookie(newsBannersCookieId)?.split(",") ?? [];
+                                updatedKnownNewsBannerIds.push(newsBanner["@id"]);
 
-                                    document.cookie = newsBannersCookieId + '=' + updatedKnownNewsBannerIds.join(",") + '; expires=' + expires + '; path=/';
+                                document.cookie = newsBannersCookieId + '=' + updatedKnownNewsBannerIds.join(",") + '; expires=' + expires + '; path=/';
 
-                                    newsBannerDiv.style.display = "none";
+                                newsBannerDiv.style.display = "none";
 
-                                }
+                            }
 
-                                const clickLinks = newsBannerDiv.querySelectorAll("a.clickLink") as NodeListOf<HTMLAnchorElement>;
-                                if (clickLinks != undefined && clickLinks.length > 0) {
-                                    for (const clickLink of clickLinks) {
-                                        clickLink.onclick = () => {
+                            const clickLinks = newsBannerDiv.querySelectorAll("a.clickLink") as NodeListOf<HTMLAnchorElement>;
+                            if (clickLinks != undefined && clickLinks.length > 0) {
+                                for (const clickLink of clickLinks) {
+                                    clickLink.onclick = () => {
 
-                                            let updatedKnownNewsBannerIds = GetCookie(newsBannersCookieId)?.split(",") ?? [];
-                                            updatedKnownNewsBannerIds.push(newsBanner["@id"]);
+                                        let updatedKnownNewsBannerIds = GetCookie(newsBannersCookieId)?.split(",") ?? [];
+                                        updatedKnownNewsBannerIds.push(newsBanner["@id"]);
 
-                                            document.cookie = newsBannersCookieId + '=' + updatedKnownNewsBannerIds.join(",") + '; expires=' + expires + '; path=/';
+                                        document.cookie = newsBannersCookieId + '=' + updatedKnownNewsBannerIds.join(",") + '; expires=' + expires + '; path=/';
 
-                                        }
                                     }
                                 }
-
                             }
 
                         }
@@ -837,10 +849,12 @@ function checkNewsBanner(knownNewsIds: string[]) {
 
                 }
 
-            },
+            }
 
-            () => { }
+        },
 
-           );
+        (httpStatus, status, responseText) => { }
+
+    );
 
 }

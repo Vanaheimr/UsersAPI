@@ -181,11 +181,11 @@ function LostPassword() {
         responseDiv.style.display = 'block';
         responseDiv.innerHTML = '<i class="fa fa-spinner faa-spin animated"></i> Verifying your login... please wait!';
         const cacheBust = new Date().getTime();
-        HTTPSet((URLPathPrefix !== null && URLPathPrefix !== void 0 ? URLPathPrefix : "") + "/resetPassword?_=" + cacheBust, {
+        HTTPSet((URLPathPrefix !== null && URLPathPrefix !== void 0 ? URLPathPrefix : "") + "/resetPassword?v=" + cacheBust, {
             "id": _id.value
-        }, (HTTPStatus, ResponseText) => {
+        }, (httpStatus, responseText) => {
             try {
-                const responseJSON = JSON.parse(ResponseText);
+                const responseJSON = JSON.parse(responseText);
                 if (responseJSON.numberOfAccountsFound !== null) {
                     responseDiv.style.display = 'block';
                     responseDiv.innerHTML = "<i class='fas fa-user-check  fa-2x menuicons'></i> Found " + responseJSON.numberOfAccountsFound + " account(s). Please check your e-mails!";
@@ -200,7 +200,7 @@ function LostPassword() {
             responseDiv.innerHTML = "<i class='fas fa-exclamation-triangle  fa-2x menuicons'></i> Resetting your password failed!";
             responseDiv.classList.remove("responseOk");
             responseDiv.classList.add("responseError");
-        }, () => {
+        }, (httpStatus, status, responseText) => {
             responseDiv.style.display = 'block';
             responseDiv.innerHTML = "<i class='fas fa-exclamation-triangle  fa-2x menuicons'></i> Resetting your password failed!";
             responseDiv.classList.remove("responseOk");
@@ -364,16 +364,20 @@ function SignIn() {
     SignInErrors.style.display = "none";
     SignInErrors.innerText = "";
     const cacheBust = new Date().getTime();
-    SendJSON("AUTH", (URLPathPrefix !== null && URLPathPrefix !== void 0 ? URLPathPrefix : "") + "/users/" + Username + "&_=" + cacheBust, {
+    SendJSON("AUTH", (URLPathPrefix !== null && URLPathPrefix !== void 0 ? URLPathPrefix : "") + "/users/" + Username + "&v=" + cacheBust, {
         "realm": Realm,
         "password": Password,
         "rememberme": RememberMe
-    }, function () {
+    }, function (httpStatus, responseText) {
         //(<HTMLFormElement> document.querySelector('#loginform')).submit();
-        location.href = URLPathPrefix !== null && URLPathPrefix != "" ? URLPathPrefix : "/";
-    }, function (httpStatus, status, response) {
+        setTimeout(() => {
+            location.href = URLPathPrefix !== null && URLPathPrefix != ""
+                ? URLPathPrefix
+                : "/";
+        }, 10);
+    }, function (httpStatus, status, responseText) {
         SignInErrors.style.display = "block";
-        SignInErrors.innerText = JSON.parse(response).description;
+        SignInErrors.innerText = JSON.parse(responseText).description;
     });
 }
 function checkSignedIn(RedirectUnknownUsers) {
@@ -451,20 +455,28 @@ function checkNotSignedIn() {
     }, () => { });
 }
 function SignOut() {
-    SendJSON("DEAUTH", (URLPathPrefix !== null && URLPathPrefix !== void 0 ? URLPathPrefix : "") + "/users", null, function () {
+    const cacheBust = new Date().getTime();
+    SendJSON("DEAUTH", (URLPathPrefix !== null && URLPathPrefix !== void 0 ? URLPathPrefix : "") + "/users?v=" + cacheBust, null, function (httpStatus, responseText) {
         DeleteCookie(HTTPCookieId);
-        const cacheBust = new Date().getTime();
-        location.href = (URLPathPrefix !== null && URLPathPrefix !== void 0 ? URLPathPrefix : "") + "/login?_=" + cacheBust;
-    }, function () {
+        const cacheBust2 = new Date().getTime();
+        setTimeout(() => {
+            location.href = (URLPathPrefix !== null && URLPathPrefix !== void 0 ? URLPathPrefix : "") + "/login?v=" + cacheBust2;
+        }, 10);
+    }, function (httpStatus, status, responseText) {
         DeleteCookie(HTTPCookieId);
-        const cacheBust = new Date().getTime();
-        location.href = (URLPathPrefix !== null && URLPathPrefix !== void 0 ? URLPathPrefix : "") + "/login?_=" + cacheBust;
+        const cacheBust2 = new Date().getTime();
+        setTimeout(() => {
+            location.href = (URLPathPrefix !== null && URLPathPrefix !== void 0 ? URLPathPrefix : "") + "/login?v=" + cacheBust2;
+        }, 10);
     });
 }
 function Depersonate() {
-    HTTPDepersonate((URLPathPrefix !== null && URLPathPrefix !== void 0 ? URLPathPrefix : "") + "/users/" + SignInUser, () => {
-        window.location.reload();
-    }, () => {
+    const cacheBust = new Date().getTime();
+    HTTPDepersonate((URLPathPrefix !== null && URLPathPrefix !== void 0 ? URLPathPrefix : "") + "/users/" + SignInUser + "?v=" + cacheBust, (httpStatus, responseText) => {
+        setTimeout(() => {
+            window.location.reload();
+        }, 10);
+    }, (httpStatus, status, responseText) => {
         alert("Not allowed!");
     });
 }
@@ -472,9 +484,9 @@ function checkNewsBanner(knownNewsIds) {
     const newsFilter = knownNewsIds.length > 0
         ? "?match=" + knownNewsIds.map(knownNewsId => "!" + knownNewsId).join(",")
         : "";
-    HTTPGet((URLPathPrefix !== null && URLPathPrefix !== void 0 ? URLPathPrefix : "") + "/newsBanners" + newsFilter, (status, response) => {
+    HTTPGet((URLPathPrefix !== null && URLPathPrefix !== void 0 ? URLPathPrefix : "") + "/newsBanners" + newsFilter, (httpStatus, responseText) => {
         var _a, _b;
-        const newsBanners = ParseJSON_LD(response);
+        const newsBanners = ParseJSON_LD(responseText);
         const currentDate = new Date().getTime();
         if (Array.isArray(newsBanners)) {
             const knownNewsBannerIds = (_b = (_a = GetCookie(newsBannersCookieId)) === null || _a === void 0 ? void 0 : _a.split(",")) !== null && _b !== void 0 ? _b : [];
@@ -513,6 +525,6 @@ function checkNewsBanner(knownNewsIds) {
                 }
             }
         }
-    }, () => { });
+    }, (httpStatus, status, responseText) => { });
 }
 //# sourceMappingURL=SignInOut.js.map
