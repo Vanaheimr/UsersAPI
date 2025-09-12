@@ -883,18 +883,6 @@ namespace social.OpenData.UsersAPI
         /// <param name="HTMLTemplate">An optional HTML template.</param>
         /// <param name="APIVersionHashes">The API version hashes (git commit hash values).</param>
         /// 
-        /// <param name="ServerCertificateSelector">An optional delegate to select a TLS server certificate.</param>
-        /// <param name="ClientCertificateValidator">An optional delegate to verify the TLS client certificate used for authentication.</param>
-        /// <param name="LocalCertificateSelector">An optional delegate to select the TLS client certificate used for authentication.</param>
-        /// <param name="AllowedTLSProtocols">The TLS protocol(s) allowed for this connection.</param>
-        /// 
-        /// <param name="ServerThreadName">The optional name of the TCP server thread.</param>
-        /// <param name="ServerThreadPriority">The optional priority of the TCP server thread.</param>
-        /// <param name="ServerThreadIsBackground">Whether the TCP server thread is a background thread or not.</param>
-        /// <param name="ConnectionIdBuilder">An optional delegate to build a connection identification based on IP socket information.</param>
-        /// <param name="ConnectionTimeout">The TCP client timeout for all incoming client connections in seconds (default: 30 sec).</param>
-        /// <param name="MaxClientConnections">The maximum number of concurrent TCP client connections (default: 4096).</param>
-        /// 
         /// <param name="AdminOrganizationId">The admins' organization identification.</param>
         /// <param name="APIRobotEMailAddress">An e-mail address for this API.</param>
         /// <param name="APIRobotGPGPassphrase">A GPG passphrase for this API.</param>
@@ -914,14 +902,6 @@ namespace social.OpenData.UsersAPI
         /// <param name="MinUserGroupIdLength">The minimal user group identification length.</param>
         /// <param name="MinAPIKeyLength">The minimal API key length.</param>
         /// 
-        /// <param name="DisableMaintenanceTasks">Disable all maintenance tasks.</param>
-        /// <param name="MaintenanceInitialDelay">The initial delay of the maintenance tasks.</param>
-        /// <param name="MaintenanceEvery">The maintenance interval.</param>
-        /// 
-        /// <param name="DisableWardenTasks">Disable all warden tasks.</param>
-        /// <param name="WardenInitialDelay">The initial delay of the warden tasks.</param>
-        /// <param name="WardenCheckEvery">The warden interval.</param>
-        /// 
         /// <param name="RemoteAuthServers">Servers for remote authorization.</param>
         /// <param name="RemoteAuthAPIKeys">API keys for incoming remote authorizations.</param>
         /// 
@@ -934,8 +914,6 @@ namespace social.OpenData.UsersAPI
         /// <param name="LoggingPath">The path for all logfiles.</param>
         /// <param name="LogfileName">The name of the logfile.</param>
         /// <param name="LogfileCreator">A delegate for creating the name of the logfile for this API.</param>
-        /// <param name="DNSClient">The DNS client of the API.</param>
-        /// <param name="AutoStart">Whether to start the API automatically.</param>
         public UsersAPIX(HTTPTestServerX?               HTTPTestServer                   = null,
                          IEnumerable<HTTPHostname>?     Hostnames                        = null,
                          HTTPPath?                      RootPath                         = null,
@@ -974,14 +952,6 @@ namespace social.OpenData.UsersAPI
                          Byte?                          MinNewsPostingIdLength           = null,
                          Byte?                          MinNewsBannerIdLength            = null,
                          Byte?                          MinFAQIdLength                   = null,
-
-                         Boolean?                       DisableMaintenanceTasks          = null,
-                         TimeSpan?                      MaintenanceInitialDelay          = null,
-                         TimeSpan?                      MaintenanceEvery                 = null,
-
-                         Boolean?                       DisableWardenTasks               = null,
-                         TimeSpan?                      WardenInitialDelay               = null,
-                         TimeSpan?                      WardenCheckEvery                 = null,
 
                          IEnumerable<URLWithAPIKey>?    RemoteAuthServers                = null,
                          IEnumerable<APIKey_Id>?        RemoteAuthAPIKeys                = null,
@@ -1060,14 +1030,6 @@ namespace social.OpenData.UsersAPI
                    MinNewsPostingIdLength,
                    MinNewsBannerIdLength,
                    MinFAQIdLength,
-
-                   DisableMaintenanceTasks,
-                   MaintenanceInitialDelay,
-                   MaintenanceEvery,
-
-                   DisableWardenTasks,
-                   WardenInitialDelay,
-                   WardenCheckEvery,
 
                    RemoteAuthServers,
                    RemoteAuthAPIKeys,
@@ -1156,33 +1118,35 @@ namespace social.OpenData.UsersAPI
 
             #region Warden: Observe CPU/RAM => Send admin e-mails...
 
-            Warden.EveryMinutes(15,
-                                Environment.OSVersion.Platform == PlatformID.Unix
-                                    ? new DriveInfo("/")
-                                    : new DriveInfo(Directory.GetCurrentDirectory()),
-                                async (timestamp, driveInfo, ct) => {
+            HTTPServer.Warden.EveryMinutes(
+                15,
+                Environment.OSVersion.Platform == PlatformID.Unix
+                    ? new DriveInfo("/")
+                    : new DriveInfo(Directory.GetCurrentDirectory()),
+                async (timestamp, driveInfo, ct) => {
 
-                                    var MBytesFree       = driveInfo.AvailableFreeSpace / 1024 / 1024;
-                                    var HDPercentageFree = 100 * driveInfo.AvailableFreeSpace / driveInfo.TotalSize;
+                    var MBytesFree       = driveInfo.AvailableFreeSpace / 1024 / 1024;
+                    var HDPercentageFree = 100 * driveInfo.AvailableFreeSpace / driveInfo.TotalSize;
 
-                                    if (HDPercentageFree < 3 &&
-                                        TryGetOrganization(this.AdminOrganizationId, out var adminOrganization))
-                                    {
+                    if (HDPercentageFree < 3 &&
+                        TryGetOrganization(this.AdminOrganizationId, out var adminOrganization))
+                    {
 
-                                        // lowStorage_MessageType
-                                        await SMTPClient.Send(new HTMLEMailBuilder {
-                                                                     From           = Robot.EMail,
-                                                                     To             = EMailAddressList.Create(adminOrganization.Admins.Select(admin => admin.EMail)),
-                                                                     Passphrase     = APIRobotGPGPassphrase,
-                                                                     Subject        = HTTPServiceName + " is low on disc (<" + HDPercentageFree + "%, " + MBytesFree + " MB free)",
-                                                                     HTMLText       = HTTPServiceName + " is low on disc (<" + HDPercentageFree + "%, " + MBytesFree + " MB free)" + Environment.NewLine + Environment.NewLine,
-                                                                     PlainText      = HTTPServiceName + " is low on disc (<" + HDPercentageFree + "%, " + MBytesFree + " MB free)" + Environment.NewLine + Environment.NewLine,
-                                                                     SecurityLevel  = EMailSecurity.autosign
-                                                                 }).ConfigureAwait(false);
+                        // lowStorage_MessageType
+                        await SMTPClient.Send(new HTMLEMailBuilder {
+                                                     From           = Robot.EMail,
+                                                     To             = EMailAddressList.Create(adminOrganization.Admins.Select(admin => admin.EMail)),
+                                                     Passphrase     = APIRobotGPGPassphrase,
+                                                     Subject        = HTTPServiceName + " is low on disc (<" + HDPercentageFree + "%, " + MBytesFree + " MB free)",
+                                                     HTMLText       = HTTPServiceName + " is low on disc (<" + HDPercentageFree + "%, " + MBytesFree + " MB free)" + Environment.NewLine + Environment.NewLine,
+                                                     PlainText      = HTTPServiceName + " is low on disc (<" + HDPercentageFree + "%, " + MBytesFree + " MB free)" + Environment.NewLine + Environment.NewLine,
+                                                     SecurityLevel  = EMailSecurity.autosign
+                                                 }).ConfigureAwait(false);
 
-                                    }
+                    }
 
-                                });
+                }
+            );
 
             #endregion
 
