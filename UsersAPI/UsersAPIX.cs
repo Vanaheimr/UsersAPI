@@ -956,6 +956,8 @@ namespace social.OpenData.UsersAPI
                          IEnumerable<URLWithAPIKey>?    RemoteAuthServers                = null,
                          IEnumerable<APIKey_Id>?        RemoteAuthAPIKeys                = null,
 
+                         ServiceCheckKeys?              ServiceCheckKeys                 = null,
+
                          Boolean?                       IsDevelopment                    = null,
                          IEnumerable<String>?           DevelopmentServers               = null,
                          Boolean                        SkipURLTemplates                 = false,
@@ -968,11 +970,11 @@ namespace social.OpenData.UsersAPI
                          //DNSClient?                     DNSClient                        = null,
                          //Boolean                        AutoStart                        = false)
 
-                         Boolean?                       DisableLogging     = false,
-                         String?                        LoggingPath        = null, //DefaultHTTPExtAPIX_LoggingPath,
-                         String?                        LoggingContext     = null, //DefaultHTTPExtAPIX_LoggingContext,
-                         String?                        LogfileName        = DefaultHTTPExtAPIX_LogfileName,
-                         LogfileCreatorDelegate?        LogfileCreator     = null)
+                         Boolean?                       DisableLogging                   = false,
+                         String?                        LoggingPath                      = null, //DefaultHTTPExtAPIX_LoggingPath,
+                         String?                        LoggingContext                   = null, //DefaultHTTPExtAPIX_LoggingContext,
+                         String?                        LogfileName                      = DefaultHTTPExtAPIX_LogfileName,
+                         LogfileCreatorDelegate?        LogfileCreator                   = null)
 
                          //HTTPHostname?                HTTPHostname                     = null,
                          //String?                      ExternalDNSName                  = null,
@@ -1033,6 +1035,8 @@ namespace social.OpenData.UsersAPI
 
                    RemoteAuthServers,
                    RemoteAuthAPIKeys,
+
+                   ServiceCheckKeys,
 
                    IsDevelopment,
                    DevelopmentServers,
