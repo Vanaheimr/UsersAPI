@@ -1560,7 +1560,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="ExternalDNSName">The official URL/DNS name of this service, e.g. for sending e-mails.</param>
         /// <param name="HTTPServerPort">A TCP port to listen on.</param>
         /// <param name="BasePath">When the API is served from an optional subdirectory path.</param>
-        /// <param name="HTTPServerName">The default HTTP servername, used whenever no HTTP Host-header has been given.</param>
+        /// <param name="HTTPServerName">The default HTTP server name, used whenever no HTTP Host-header has been given.</param>
         /// 
         /// <param name="URLPathPrefix">A common prefix for all URLs.</param>
         /// <param name="HTTPServiceName">The name of the HTTP service.</param>
@@ -4737,8 +4737,8 @@ namespace social.OpenData.UsersAPI
                                   var withMetadata        = Request.QueryString.GetBoolean    ("withMetadata", false);
                                   var matchFilter         = Request.QueryString.CreateStringFilter<BlogPosting>("match",
                                                                                                                 (blogPosting, pattern) => blogPosting.Id.ToString().Contains(pattern) ||
-                                                                                                                                          blogPosting.Title.Matches(pattern, IgnoreCase: true) ||
-                                                                                                                                          blogPosting.Text. Matches(pattern, IgnoreCase: true));
+                                                                                                                                          blogPosting.Title.Matches(pattern, StringComparison.OrdinalIgnoreCase) ||
+                                                                                                                                          blogPosting.Text. Matches(pattern, StringComparison.OrdinalIgnoreCase));
 
                                   var from                = Request.QueryString.TryGetDateTime("from");
                                   var to                  = Request.QueryString.TryGetDateTime("to");
@@ -5093,8 +5093,8 @@ namespace social.OpenData.UsersAPI
                                              var withMetadata        = Request.QueryString.GetBoolean    ("withMetadata", false);
                                              var matchFilter         = Request.QueryString.CreateStringFilter<NewsPosting>("match",
                                                                                                                            (newsPosting, pattern) => newsPosting.Id.ToString().Contains(pattern) ||
-                                                                                                                                                     newsPosting.Headline.Matches(pattern, IgnoreCase: true) ||
-                                                                                                                                                     newsPosting.Text.    Matches(pattern, IgnoreCase: true));
+                                                                                                                                                     newsPosting.Headline.Matches(pattern, StringComparison.OrdinalIgnoreCase) ||
+                                                                                                                                                     newsPosting.Text.    Matches(pattern, StringComparison.OrdinalIgnoreCase));
 
                                              var from                = Request.QueryString.TryGetDateTime("from");
                                              var to                  = Request.QueryString.TryGetDateTime("to");
@@ -5449,7 +5449,7 @@ namespace social.OpenData.UsersAPI
                                              var withMetadata        = Request.QueryString.GetBoolean    ("withMetadata", false);
                                              var matchFilter         = Request.QueryString.CreateStringFilter<NewsBanner>("match",
                                                                                                                           (newsBanner, pattern) => newsBanner.Id.ToString().Contains(pattern) ||
-                                                                                                                                                   newsBanner.Text.Matches(pattern, IgnoreCase: true));
+                                                                                                                                                   newsBanner.Text.Matches(pattern, StringComparison.OrdinalIgnoreCase));
 
                                              var from                = Request.QueryString.TryGetDateTime("from");
                                              var to                  = Request.QueryString.TryGetDateTime("to");
@@ -5804,8 +5804,8 @@ namespace social.OpenData.UsersAPI
                                              var withMetadata        = Request.QueryString.GetBoolean    ("withMetadata", false);
                                              var matchFilter         = Request.QueryString.CreateStringFilter<FAQ>("match",
                                                                                                                    (faq, pattern) => faq.Id.ToString().Contains(pattern) ||
-                                                                                                                                     faq.Question.Matches(pattern, IgnoreCase: true) ||
-                                                                                                                                     faq.Answer.  Matches(pattern, IgnoreCase: true));
+                                                                                                                                     faq.Question.Matches(pattern, StringComparison.OrdinalIgnoreCase) ||
+                                                                                                                                     faq.Answer.  Matches(pattern, StringComparison.OrdinalIgnoreCase));
 
                                              var from                = Request.QueryString.TryGetDateTime("from");
                                              var to                  = Request.QueryString.TryGetDateTime("to");
