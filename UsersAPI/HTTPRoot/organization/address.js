@@ -158,16 +158,16 @@ function StartOrganizationGeoLocation() {
                 responseDiv.innerHTML = "<div class=\"HTTP OK\">Successfully stored updated organization address data.</div>";
             }
             catch (exception) {
-                responseDiv.innerHTML = "<div class=\"HTTP Error\">An exception occured while storing updated organization address data:<br />" + exception + "</div>";
+                responseDiv.innerHTML = "<div class=\"HTTP Error\">An exception occurred while storing updated organization address data:<br />" + exception + "</div>";
             }
         }, (statusCode, status, response) => {
             try {
                 var responseJSON = response !== "" ? JSON.parse(response) : { "description": "Received an empty response from the remote API!" };
                 var info = responseJSON.description !== null ? "<br />" + responseJSON.description : "";
-                responseDiv.innerHTML = "<div class=\"HTTP Error\">An error occured while storing updated organization address data: " + info + "</div>";
+                responseDiv.innerHTML = "<div class=\"HTTP Error\">An error occurred while storing updated organization address data: " + info + "</div>";
             }
             catch (exception) {
-                responseDiv.innerHTML = "<div class=\"HTTP Error\">An exception occured while storing updated organization address data:<br />" + exception + "</div>";
+                responseDiv.innerHTML = "<div class=\"HTTP Error\">An exception occurred while storing updated organization address data:<br />" + exception + "</div>";
             }
         });
     }
@@ -390,16 +390,16 @@ function StartOrganizationGeoLocation() {
             }
         }
         catch (exception) {
-            responseDiv.innerHTML = "<div class=\"HTTP Error\">An error occured while getting organization address data from the remote API:<br />" + exception + "</div>";
+            responseDiv.innerHTML = "<div class=\"HTTP Error\">An error occurred while getting organization address data from the remote API:<br />" + exception + "</div>";
         }
     }, (statusCode, status, response) => {
         try {
             var responseJSON = response !== "" ? JSON.parse(response) : { "description": "Received an empty response from the remote API!" };
             var info = responseJSON.description !== null ? "<br />" + responseJSON.description : "";
-            responseDiv.innerHTML = "<div class=\"HTTP Error\">An error occured while getting organization address data from the remote API: " + info + "</div>";
+            responseDiv.innerHTML = "<div class=\"HTTP Error\">An error occurred while getting organization address data from the remote API: " + info + "</div>";
         }
         catch (exception) {
-            responseDiv.innerHTML = "<div class=\"HTTP Error\">An exception occured while getting organization address data from the remote API:<br />" + exception + "</div>";
+            responseDiv.innerHTML = "<div class=\"HTTP Error\">An exception occurred while getting organization address data from the remote API:<br />" + exception + "</div>";
         }
     });
 }

@@ -509,7 +509,7 @@ function StartUser() {
                         //                       }
                         //                   },
 
-                        //                   // Some error occured!
+                        //                   // Some error occurred!
                         //                   (statusCode, status, response) => {
                         //                       try
                         //                       {
@@ -555,11 +555,11 @@ function StartUser() {
                     var responseJSON = response !== "" ? JSON.parse(response) : { "description": "Received an empty response from the remote API!" };
                     var info = responseJSON.description !== null ? "<br />" + responseJSON.description : "";
 
-                    responseDiv.innerHTML = "<div class=\"HTTP Error\">An error occured while getting user data from the remote API: " + info + "</div>";
+                    responseDiv.innerHTML = "<div class=\"HTTP Error\">An error occurred while getting user data from the remote API: " + info + "</div>";
 
                 }
                 catch (exception) {
-                    responseDiv.innerHTML = "<div class=\"HTTP Error\">An exception occured while getting user data from the remote API:<br />" + exception + "</div>";
+                    responseDiv.innerHTML = "<div class=\"HTTP Error\">An exception occurred while getting user data from the remote API:<br />" + exception + "</div>";
                 }
 
             });

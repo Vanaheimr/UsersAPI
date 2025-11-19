@@ -225,7 +225,7 @@ function StartOrganization() {
                                 responseDiv.innerHTML = "<div class=\"HTTP Error\">Deleting this organization failed!</div>";
                             }
                         }, 
-                        // Some error occured!
+                        // Some error occurred!
                         (statusCode, status, response) => {
                             try {
                                 confirmToDeleteDiv.style.display = "none";

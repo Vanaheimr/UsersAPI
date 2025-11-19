@@ -81,7 +81,7 @@ function StartOrganizationMembers() {
                             responseDiv.innerHTML = "<div class=\"HTTP Error\">Removing this user from the organization failed!</div>";
                         }
                     }, 
-                    // Some error occured!
+                    // Some error occurred!
                     (statusCode, status, response) => {
                         try {
                             confirmToRemoveUserDiv.style.display = "none";
@@ -151,10 +151,10 @@ function StartOrganizationMembers() {
         try {
             var responseJSON = response !== "" ? JSON.parse(response) : { "description": "Received an empty response from the remote API!" };
             var info = responseJSON.description !== null ? "<br />" + responseJSON.description : "";
-            responseDiv.innerHTML = "<div class=\"HTTP Error\">An error occured while getting organization members from the remote API: " + info + "</div>";
+            responseDiv.innerHTML = "<div class=\"HTTP Error\">An error occurred while getting organization members from the remote API: " + info + "</div>";
         }
         catch (exception) {
-            responseDiv.innerHTML = "<div class=\"HTTP Error\">An exception occured while getting organization members from the remote API:<br />" + exception + "</div>";
+            responseDiv.innerHTML = "<div class=\"HTTP Error\">An exception occurred while getting organization members from the remote API:<br />" + exception + "</div>";
         }
     });
 }

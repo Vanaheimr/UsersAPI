@@ -358,7 +358,7 @@ function StartOrganization() {
                                                }
                                            },
 
-                                           // Some error occured!
+                                           // Some error occurred!
                                            (statusCode, status, response) => {
                                                try
                                                {
