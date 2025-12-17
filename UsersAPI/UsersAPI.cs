@@ -696,7 +696,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An event sent whenever add users request was received.
         /// </summary>
-        public HTTPRequestLogEvent OnAddUsersRequest = new ();
+        public HTTPRequestLogEvent OnAddUsersRequest = new();
 
         /// <summary>
         /// An event sent whenever add users request was received.
@@ -719,7 +719,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An event sent whenever a response on an add users request was sent.
         /// </summary>
-        public HTTPResponseLogEvent OnAddUsersResponse = new ();
+        public HTTPResponseLogEvent OnAddUsersResponse = new();
 
         /// <summary>
         /// An event sent whenever a response on an add users request was sent.
@@ -746,7 +746,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An event sent whenever add user request was received.
         /// </summary>
-        public HTTPRequestLogEvent OnAddUserHTTPRequest = new ();
+        public HTTPRequestLogEvent OnAddUserHTTPRequest = new();
 
         /// <summary>
         /// An event sent whenever add user request was received.
@@ -769,7 +769,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An event sent whenever a response on an add user request was sent.
         /// </summary>
-        public HTTPResponseLogEvent OnAddUserHTTPResponse = new ();
+        public HTTPResponseLogEvent OnAddUserHTTPResponse = new();
 
         /// <summary>
         /// An event sent whenever a response on an add user request was sent.
@@ -796,7 +796,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An event sent whenever set user request was received.
         /// </summary>
-        public HTTPRequestLogEvent OnSetUserHTTPRequest = new ();
+        public HTTPRequestLogEvent OnSetUserHTTPRequest = new();
 
         /// <summary>
         /// An event sent whenever set user request was received.
@@ -819,7 +819,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An event sent whenever a response on a set user request was sent.
         /// </summary>
-        public HTTPResponseLogEvent OnSetUserHTTPResponse = new ();
+        public HTTPResponseLogEvent OnSetUserHTTPResponse = new();
 
         /// <summary>
         /// An event sent whenever a response on a set user request was sent.
