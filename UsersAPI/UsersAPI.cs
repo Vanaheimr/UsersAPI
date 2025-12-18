@@ -1692,6 +1692,7 @@ namespace social.OpenData.UsersAPI
                         String?                                                    LogfileName                      = DefaultUsersAPI_LogfileName,
                         LogfileCreatorDelegate?                                    LogfileCreator                   = null,
                         DNSClient?                                                 DNSClient                        = null,
+                        String?                                                    Description                  = null,
                         Boolean                                                    AutoStart                        = false)
 
             : base(HTTPHostname,
@@ -1763,6 +1764,7 @@ namespace social.OpenData.UsersAPI
                    LogfileName,
                    LogfileCreator,
                    DNSClient,
+                   Description,
                    false) // AutoStart
 
         {
