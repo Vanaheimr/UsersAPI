@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (c) 2014-2025 GraphDefined GmbH <achim.friedland@graphdefined.com>
+ * Copyright (c) 2014-2026 GraphDefined GmbH <achim.friedland@graphdefined.com>
  * This file is part of UsersAPI <https://www.github.com/Vanaheimr/UsersAPI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -46,7 +46,7 @@ namespace social.OpenData.UsersAPI
 
 
         /// <summary>
-        /// Create a new CardiCloudAffected builder.
+        /// Create a new Open DataAffected builder.
         /// </summary>
         public static Affected.Builder ToBuilder(this Affected Affected)
 
