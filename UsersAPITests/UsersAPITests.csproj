@@ -14,9 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Hermod\HermodTests\HermodTests.csproj" />
-    <ProjectReference Include="..\..\Hermod\Hermod\Hermod.csproj" />
     <ProjectReference Include="..\..\Styx\StyxTests\StyxTests.csproj" />
-    <ProjectReference Include="..\..\Styx\Styx\Styx.csproj" />
     <ProjectReference Include="..\UsersAPI\UsersAPI.csproj" />
   </ItemGroup>
 
