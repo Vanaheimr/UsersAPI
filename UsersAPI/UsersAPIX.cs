@@ -914,7 +914,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="LoggingPath">The path for all logfiles.</param>
         /// <param name="LogfileName">The name of the logfile.</param>
         /// <param name="LogfileCreator">A delegate for creating the name of the logfile for this API.</param>
-        public UsersAPIX(HTTPTestServerX?               HTTPTestServer                   = null,
+        public UsersAPIX(HTTPTestServerX                HTTPTestServer,
                          IEnumerable<HTTPHostname>?     Hostnames                        = null,
                          HTTPPath?                      RootPath                         = null,
                          IEnumerable<HTTPContentType>?  HTTPContentTypes                 = null,
@@ -5545,7 +5545,7 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region AddMessage           (Message, OnAdded = null,                   CurrentUserId = null)
+        #region AddMessage            (Message, OnAdded = null,                   CurrentUserId = null)
 
         /// <summary>
         /// A delegate called whenever a message was added.
@@ -5562,7 +5562,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An event fired whenever a message was added.
         /// </summary>
-        public event OnMessageAddedDelegate OnMessageAdded;
+        public event OnMessageAddedDelegate? OnMessageAdded;
 
 
         #region (protected internal) _AddMessage(Message,                                OnAdded = null, ...)
@@ -5678,7 +5678,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddMessageIfNotExists(Message, OnAdded = null,                   CurrentUserId = null)
+        #region AddMessageIfNotExists (Message, OnAdded = null,                   CurrentUserId = null)
 
         #region (protected internal) _AddMessageIfNotExists(Message,                                OnAdded = null, ...)
 
@@ -5788,7 +5788,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddOrUpdateMessage   (Message, OnAdded = null, OnUpdated = null, ...)
+        #region AddOrUpdateMessage    (Message, OnAdded = null, OnUpdated = null, ...)
 
         #region (protected internal) _AddOrUpdateMessage   (Message,   OnAdded = null, OnUpdated = null, ...)
 
@@ -5938,7 +5938,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region UpdateMessage        (Message,                 OnUpdated = null, ...)
+        #region UpdateMessage         (Message,                 OnUpdated = null, ...)
 
         /// <summary>
         /// A delegate called whenever a message was updated.
@@ -5957,7 +5957,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An event fired whenever a message was updated.
         /// </summary>
-        public event OnMessageUpdatedDelegate OnMessageUpdated;
+        public event OnMessageUpdatedDelegate? OnMessageUpdated;
 
 
         #region (protected internal) _UpdateMessage(Message, OnUpdated = null, ...)
@@ -6188,7 +6188,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region RemoveMessage(Message, OnRemoved = null, ...)
+        #region RemoveMessage         (Message, OnRemoved = null, ...)
 
         /// <summary>
         /// A delegate called whenever a message was removed.
@@ -6205,7 +6205,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An event fired whenever a message was removed.
         /// </summary>
-        public event OnMessageRemovedDelegate OnMessageRemoved;
+        public event OnMessageRemovedDelegate? OnMessageRemoved;
 
 
         #region (class) DeleteMessageResult
@@ -6382,7 +6382,6 @@ namespace social.OpenData.UsersAPI
         #endregion
 
         #endregion
-
 
 
         #region MessageExists(MessageId)
@@ -6580,7 +6579,7 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region AddDashboard           (Dashboard,                   CurrentUserId = null)
+        #region AddDashboard            (Dashboard,                   CurrentUserId = null)
 
         /// <summary>
         /// Add the given dashboard to the API.
@@ -6624,7 +6623,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddDashboardIfNotExists(Dashboard,                   CurrentUserId = null)
+        #region AddDashboardIfNotExists (Dashboard,                   CurrentUserId = null)
 
         /// <summary>
         /// When it has not been created before, add the given dashboard to the API.
@@ -6667,7 +6666,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddOrUpdateDashboard   (Dashboard,                   CurrentUserId = null)
+        #region AddOrUpdateDashboard    (Dashboard,                   CurrentUserId = null)
 
         /// <summary>
         /// Add or update the given dashboard to/within the API.
@@ -6714,7 +6713,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region UpdateDashboard        (Dashboard,                   CurrentUserId = null)
+        #region UpdateDashboard         (Dashboard,                   CurrentUserId = null)
 
         /// <summary>
         /// Update the given dashboard within the API.
@@ -6764,7 +6763,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region UpdateDashboard        (DashboardId, UpdateDelegate, ...)
+        #region UpdateDashboard         (DashboardId, UpdateDelegate, ...)
 
         /// <summary>
         /// Update the given dashboard.
@@ -6803,6 +6802,50 @@ namespace social.OpenData.UsersAPI
                 NewDashboard.CopyAllLinkedDataFromBase(OldDashboard);
 
                 return _Dashboards.AddAndReturnValue(NewDashboard.Id, NewDashboard);
+
+            }
+            finally
+            {
+                DashboardsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region RemoveDashboard         (DashboardId,                 CurrentUserId = null)
+
+        /// <summary>
+        /// Remove the given dashboard from this API.
+        /// </summary>
+        /// <param name="DashboardId">The unique identification of the dashboard.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<Dashboard> RemoveDashboard(Dashboard_Id  DashboardId,
+                                                     User_Id?      CurrentUserId  = null)
+        {
+
+            try
+            {
+
+                await DashboardsSemaphore.WaitAsync();
+
+                if (_Dashboards.TryGetValue(DashboardId, out Dashboard Dashboard))
+                {
+
+                    await WriteToDatabaseFile(removeDashboard_MessageType,
+                                              Dashboard.ToJSON(),
+                                              EventTracking_Id.New,
+                                              CurrentUserId);
+
+                    _Dashboards.Remove(DashboardId);
+
+                    //Dashboard.API = null;
+
+                    return Dashboard;
+
+                }
+
+                return null;
 
             }
             finally
@@ -6932,51 +6975,6 @@ namespace social.OpenData.UsersAPI
                 DashboardsSemaphore.Wait();
 
                 return _Dashboards.TryGetValue(DashboardId, out Dashboard);
-
-            }
-            finally
-            {
-                DashboardsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-
-        #region RemoveDashboard        (DashboardId,                 CurrentUserId = null)
-
-        /// <summary>
-        /// Remove the given dashboard from this API.
-        /// </summary>
-        /// <param name="DashboardId">The unique identification of the dashboard.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<Dashboard> RemoveDashboard(Dashboard_Id  DashboardId,
-                                                     User_Id?      CurrentUserId  = null)
-        {
-
-            try
-            {
-
-                await DashboardsSemaphore.WaitAsync();
-
-                if (_Dashboards.TryGetValue(DashboardId, out Dashboard Dashboard))
-                {
-
-                    await WriteToDatabaseFile(removeDashboard_MessageType,
-                                              Dashboard.ToJSON(),
-                                              EventTracking_Id.New,
-                                              CurrentUserId);
-
-                    _Dashboards.Remove(DashboardId);
-
-                    //Dashboard.API = null;
-
-                    return Dashboard;
-
-                }
-
-                return null;
 
             }
             finally
@@ -7306,7 +7304,7 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region AddServiceTicket           (ServiceTicket,   CurrentUserId = null)
+        #region AddServiceTicket            (ServiceTicket,   CurrentUserId = null)
 
         /// <summary>
         /// Add the given service ticket to the API.
@@ -7361,7 +7359,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddServiceTicketIfNotExists(ServiceTicket,   CurrentUserId = null)
+        #region AddServiceTicketIfNotExists (ServiceTicket,   CurrentUserId = null)
 
         /// <summary>
         /// Add the given service ticket to the API.
@@ -7415,7 +7413,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddOrUpdateServiceTicket   (ServiceTicket, DisableAnalyzeServiceTicketStatus = false,   CurrentUserId = null)
+        #region AddOrUpdateServiceTicket    (ServiceTicket, DisableAnalyzeServiceTicketStatus = false,   CurrentUserId = null)
 
         /// <summary>
         /// Add or update the given service ticket to/within the API.
@@ -7516,7 +7514,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region UpdateServiceTicket        (ServiceTicket, DisableAnalyzeServiceTicketStatus = false,   CurrentUserId = null)
+        #region UpdateServiceTicket         (ServiceTicket, DisableAnalyzeServiceTicketStatus = false,   CurrentUserId = null)
 
         /// <summary>
         /// Update the given service ticket within the API.
@@ -7608,7 +7606,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region UpdateServiceTicket        (ServiceTicketId, UpdateDelegate, DoNotAnalyzeTheServiceTicketStatus = false, ...)
+        #region UpdateServiceTicket         (ServiceTicketId, UpdateDelegate, DoNotAnalyzeTheServiceTicketStatus = false, ...)
 
         /// <summary>
         /// Update the given service ticket.
@@ -7702,7 +7700,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region RemoveServiceTicket        (ServiceTicketId, ...)
+        #region RemoveServiceTicket         (ServiceTicketId, ...)
 
         /// <summary>
         /// Remove the given service ticket from this API.
@@ -7750,7 +7748,7 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region ServiceTicketExists        (ServiceTicketId)
+        #region ServiceTicketExists         (ServiceTicketId)
 
         /// <summary>
         /// Whether this API contains a service ticket having the given unique identification.
@@ -7776,7 +7774,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region GetServiceTicket           (ServiceTicketId)
+        #region GetServiceTicket            (ServiceTicketId)
 
         /// <summary>
         /// Get the service ticket having the given unique identification.
@@ -7805,7 +7803,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region TryGetServiceTicket        (ServiceTicketId, out ServiceTicket)
+        #region TryGetServiceTicket         (ServiceTicketId, out ServiceTicket)
 
         /// <summary>
         /// Try to get the service ticket having the given unique identification.
@@ -7859,7 +7857,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An event sent whenever a service ticket status changed.
         /// </summary>
-        public event ServiceTicketStatusChangedDelegate       OnServiceTicketStatusChanged;
+        public event ServiceTicketStatusChangedDelegate? OnServiceTicketStatusChanged;
 
         #endregion
 
@@ -8044,7 +8042,7 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region AddBlogPosting           (BlogPosting, OnAdded = null,                   CurrentUserId = null)
+        #region AddBlogPosting            (BlogPosting, OnAdded = null,                   CurrentUserId = null)
 
         /// <summary>
         /// A delegate called whenever a blog posting was added.
@@ -8061,7 +8059,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An event fired whenever a blog posting was added.
         /// </summary>
-        public event OnBlogPostingAddedDelegate OnBlogPostingAdded;
+        public event OnBlogPostingAddedDelegate? OnBlogPostingAdded;
 
 
         #region (protected internal) _AddBlogPosting(BlogPosting,                                OnAdded = null, ...)
@@ -8177,7 +8175,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddBlogPostingIfNotExists(BlogPosting, OnAdded = null,                   CurrentUserId = null)
+        #region AddBlogPostingIfNotExists (BlogPosting, OnAdded = null,                   CurrentUserId = null)
 
         #region (protected internal) _AddBlogPostingIfNotExists(BlogPosting,                                OnAdded = null, ...)
 
@@ -8287,7 +8285,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddOrUpdateBlogPosting   (BlogPosting, OnAdded = null, OnUpdated = null, ...)
+        #region AddOrUpdateBlogPosting    (BlogPosting, OnAdded = null, OnUpdated = null, ...)
 
         #region (protected internal) _AddOrUpdateBlogPosting   (BlogPosting,   OnAdded = null, OnUpdated = null, ...)
 
@@ -8437,7 +8435,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region UpdateBlogPosting        (BlogPosting,                 OnUpdated = null, ...)
+        #region UpdateBlogPosting         (BlogPosting,                 OnUpdated = null, ...)
 
         /// <summary>
         /// A delegate called whenever a blog posting was updated.
@@ -8456,7 +8454,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An event fired whenever a blog posting was updated.
         /// </summary>
-        public event OnBlogPostingUpdatedDelegate OnBlogPostingUpdated;
+        public event OnBlogPostingUpdatedDelegate? OnBlogPostingUpdated;
 
 
         #region (protected internal) _UpdateBlogPosting(BlogPosting, OnUpdated = null, ...)
@@ -8687,164 +8685,6 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-
-        #region BlogPostingExists(BlogPostingId)
-
-        /// <summary>
-        /// Determines whether the given blog posting identification exists within this API.
-        /// </summary>
-        /// <param name="BlogPostingId">The unique identification of an blog posting.</param>
-        protected internal Boolean _BlogPostingExists(BlogPosting_Id BlogPostingId)
-
-            => !BlogPostingId.IsNullOrEmpty && _BlogPostings.ContainsKey(BlogPostingId);
-
-
-        /// <summary>
-        /// Determines whether the given blog posting identification exists within this API.
-        /// </summary>
-        /// <param name="BlogPostingId">The unique identification of an blog posting.</param>
-        public Boolean BlogPostingExists(BlogPosting_Id BlogPostingId)
-        {
-
-            try
-            {
-
-                if (BlogPostingsSemaphore.Wait(SemaphoreSlimTimeout) &&
-                    _BlogPostingExists(BlogPostingId))
-                {
-                    return true;
-                }
-
-            }
-            catch
-            { }
-            finally
-            {
-                try
-                {
-                    BlogPostingsSemaphore.Release();
-                }
-                catch
-                { }
-            }
-
-            return false;
-
-        }
-
-        #endregion
-
-        #region GetBlogPosting   (BlogPostingId)
-
-        /// <summary>
-        /// Get the blog posting having the given unique identification.
-        /// </summary>
-        /// <param name="BlogPostingId">The unique identification of an blog posting.</param>
-        protected internal BlogPosting _GetBlogPosting(BlogPosting_Id BlogPostingId)
-        {
-
-            if (!BlogPostingId.IsNullOrEmpty && _BlogPostings.TryGetValue(BlogPostingId, out BlogPosting blogPosting))
-                return blogPosting;
-
-            return null;
-
-        }
-
-
-        /// <summary>
-        /// Get the blog posting having the given unique identification.
-        /// </summary>
-        /// <param name="BlogPostingId">The unique identification of the blog posting.</param>
-        public BlogPosting GetBlogPosting(BlogPosting_Id BlogPostingId)
-        {
-
-            try
-            {
-
-                if (BlogPostingsSemaphore.Wait(SemaphoreSlimTimeout))
-                    return _GetBlogPosting(BlogPostingId);
-
-            }
-            catch
-            { }
-            finally
-            {
-                try
-                {
-                    BlogPostingsSemaphore.Release();
-                }
-                catch
-                { }
-            }
-
-            return null;
-
-        }
-
-        #endregion
-
-        #region TryGetBlogPosting(BlogPostingId, out BlogPosting)
-
-        /// <summary>
-        /// Try to get the blog posting having the given unique identification.
-        /// </summary>
-        /// <param name="BlogPostingId">The unique identification of an blog posting.</param>
-        /// <param name="BlogPosting">The blog posting.</param>
-        protected internal Boolean _TryGetBlogPosting(BlogPosting_Id BlogPostingId, out BlogPosting BlogPosting)
-        {
-
-            if (!BlogPostingId.IsNullOrEmpty && _BlogPostings.TryGetValue(BlogPostingId, out BlogPosting blogPosting))
-            {
-                BlogPosting = blogPosting;
-                return true;
-            }
-
-            BlogPosting = null;
-            return false;
-
-        }
-
-
-        /// <summary>
-        /// Try to get the blog posting having the given unique identification.
-        /// </summary>
-        /// <param name="BlogPostingId">The unique identification of an blog posting.</param>
-        /// <param name="BlogPosting">The blog posting.</param>
-        public Boolean TryGetBlogPosting(BlogPosting_Id   BlogPostingId,
-                                         out BlogPosting  BlogPosting)
-        {
-
-            try
-            {
-
-                if (BlogPostingsSemaphore.Wait(SemaphoreSlimTimeout) &&
-                    _TryGetBlogPosting(BlogPostingId, out BlogPosting blogPosting))
-                {
-                    BlogPosting = blogPosting;
-                    return true;
-                }
-
-            }
-            catch
-            { }
-            finally
-            {
-                try
-                {
-                    BlogPostingsSemaphore.Release();
-                }
-                catch
-                { }
-            }
-
-            BlogPosting = null;
-            return false;
-
-        }
-
-        #endregion
-
-
         #region RemoveBlogPosting(BlogPosting, OnRemoved = null, ...)
 
         /// <summary>
@@ -8862,7 +8702,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An event fired whenever a blog posting was removed.
         /// </summary>
-        public event OnBlogPostingRemovedDelegate OnBlogPostingRemoved;
+        public event OnBlogPostingRemovedDelegate? OnBlogPostingRemoved;
 
 
         #region (class) DeleteBlogPostingResult
@@ -9037,6 +8877,163 @@ namespace social.OpenData.UsersAPI
         }
 
         #endregion
+
+        #endregion
+
+
+        #region BlogPostingExists(BlogPostingId)
+
+        /// <summary>
+        /// Determines whether the given blog posting identification exists within this API.
+        /// </summary>
+        /// <param name="BlogPostingId">The unique identification of an blog posting.</param>
+        protected internal Boolean _BlogPostingExists(BlogPosting_Id BlogPostingId)
+
+            => !BlogPostingId.IsNullOrEmpty && _BlogPostings.ContainsKey(BlogPostingId);
+
+
+        /// <summary>
+        /// Determines whether the given blog posting identification exists within this API.
+        /// </summary>
+        /// <param name="BlogPostingId">The unique identification of an blog posting.</param>
+        public Boolean BlogPostingExists(BlogPosting_Id BlogPostingId)
+        {
+
+            try
+            {
+
+                if (BlogPostingsSemaphore.Wait(SemaphoreSlimTimeout) &&
+                    _BlogPostingExists(BlogPostingId))
+                {
+                    return true;
+                }
+
+            }
+            catch
+            { }
+            finally
+            {
+                try
+                {
+                    BlogPostingsSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+            return false;
+
+        }
+
+        #endregion
+
+        #region GetBlogPosting   (BlogPostingId)
+
+        /// <summary>
+        /// Get the blog posting having the given unique identification.
+        /// </summary>
+        /// <param name="BlogPostingId">The unique identification of an blog posting.</param>
+        protected internal BlogPosting _GetBlogPosting(BlogPosting_Id BlogPostingId)
+        {
+
+            if (!BlogPostingId.IsNullOrEmpty && _BlogPostings.TryGetValue(BlogPostingId, out BlogPosting blogPosting))
+                return blogPosting;
+
+            return null;
+
+        }
+
+
+        /// <summary>
+        /// Get the blog posting having the given unique identification.
+        /// </summary>
+        /// <param name="BlogPostingId">The unique identification of the blog posting.</param>
+        public BlogPosting GetBlogPosting(BlogPosting_Id BlogPostingId)
+        {
+
+            try
+            {
+
+                if (BlogPostingsSemaphore.Wait(SemaphoreSlimTimeout))
+                    return _GetBlogPosting(BlogPostingId);
+
+            }
+            catch
+            { }
+            finally
+            {
+                try
+                {
+                    BlogPostingsSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+            return null;
+
+        }
+
+        #endregion
+
+        #region TryGetBlogPosting(BlogPostingId, out BlogPosting)
+
+        /// <summary>
+        /// Try to get the blog posting having the given unique identification.
+        /// </summary>
+        /// <param name="BlogPostingId">The unique identification of an blog posting.</param>
+        /// <param name="BlogPosting">The blog posting.</param>
+        protected internal Boolean _TryGetBlogPosting(BlogPosting_Id BlogPostingId, out BlogPosting BlogPosting)
+        {
+
+            if (!BlogPostingId.IsNullOrEmpty && _BlogPostings.TryGetValue(BlogPostingId, out BlogPosting blogPosting))
+            {
+                BlogPosting = blogPosting;
+                return true;
+            }
+
+            BlogPosting = null;
+            return false;
+
+        }
+
+
+        /// <summary>
+        /// Try to get the blog posting having the given unique identification.
+        /// </summary>
+        /// <param name="BlogPostingId">The unique identification of an blog posting.</param>
+        /// <param name="BlogPosting">The blog posting.</param>
+        public Boolean TryGetBlogPosting(BlogPosting_Id   BlogPostingId,
+                                         out BlogPosting  BlogPosting)
+        {
+
+            try
+            {
+
+                if (BlogPostingsSemaphore.Wait(SemaphoreSlimTimeout) &&
+                    _TryGetBlogPosting(BlogPostingId, out BlogPosting blogPosting))
+                {
+                    BlogPosting = blogPosting;
+                    return true;
+                }
+
+            }
+            catch
+            { }
+            finally
+            {
+                try
+                {
+                    BlogPostingsSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+            BlogPosting = null;
+            return false;
+
+        }
 
         #endregion
 
@@ -9223,7 +9220,7 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region AddNewsPosting           (NewsPosting, OnAdded = null,                   CurrentUserId = null)
+        #region AddNewsPosting            (NewsPosting, OnAdded = null,                   CurrentUserId = null)
 
         /// <summary>
         /// A delegate called whenever a news posting was added.
@@ -9240,7 +9237,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An event fired whenever a news posting was added.
         /// </summary>
-        public event OnNewsPostingAddedDelegate OnNewsPostingAdded;
+        public event OnNewsPostingAddedDelegate? OnNewsPostingAdded;
 
 
         #region (protected internal) _AddNewsPosting(NewsPosting,                                OnAdded = null, ...)
@@ -9356,7 +9353,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddNewsPostingIfNotExists(NewsPosting, OnAdded = null,                   CurrentUserId = null)
+        #region AddNewsPostingIfNotExists (NewsPosting, OnAdded = null,                   CurrentUserId = null)
 
         #region (protected internal) _AddNewsPostingIfNotExists(NewsPosting,                                OnAdded = null, ...)
 
@@ -9466,7 +9463,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddOrUpdateNewsPosting   (NewsPosting, OnAdded = null, OnUpdated = null, ...)
+        #region AddOrUpdateNewsPosting    (NewsPosting, OnAdded = null, OnUpdated = null, ...)
 
         #region (protected internal) _AddOrUpdateNewsPosting   (NewsPosting,   OnAdded = null, OnUpdated = null, ...)
 
@@ -9616,7 +9613,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region UpdateNewsPosting        (NewsPosting,                 OnUpdated = null, ...)
+        #region UpdateNewsPosting         (NewsPosting,                 OnUpdated = null, ...)
 
         /// <summary>
         /// A delegate called whenever a news posting was updated.
@@ -9635,7 +9632,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An event fired whenever a news posting was updated.
         /// </summary>
-        public event OnNewsPostingUpdatedDelegate OnNewsPostingUpdated;
+        public event OnNewsPostingUpdatedDelegate? OnNewsPostingUpdated;
 
 
         #region (protected internal) _UpdateNewsPosting(NewsPosting, OnUpdated = null, ...)
@@ -9866,6 +9863,201 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
+        #region RemoveNewsPosting         (NewsPosting, OnRemoved = null, ...)
+
+        /// <summary>
+        /// A delegate called whenever a news posting was removed.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp when the news posting was removed.</param>
+        /// <param name="NewsPosting">The removed news posting.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking news posting identification</param>
+        public delegate Task OnNewsPostingRemovedDelegate(DateTimeOffset     Timestamp,
+                                                          NewsPosting        NewsPosting,
+                                                          EventTracking_Id?  EventTrackingId   = null,
+                                                          User_Id?           CurrentUserId     = null);
+
+        /// <summary>
+        /// An event fired whenever a news posting was removed.
+        /// </summary>
+        public event OnNewsPostingRemovedDelegate? OnNewsPostingRemoved;
+
+
+        #region (class) DeleteNewsPostingResult
+
+        public class DeleteNewsPostingResult
+        {
+
+            public Boolean     IsSuccess           { get; }
+
+            public I18NString  ErrorDescription    { get; }
+
+
+            private DeleteNewsPostingResult(Boolean     IsSuccess,
+                                          I18NString  ErrorDescription  = null)
+            {
+                this.IsSuccess         = IsSuccess;
+                this.ErrorDescription  = ErrorDescription;
+            }
+
+
+            public static DeleteNewsPostingResult Success
+
+                => new DeleteNewsPostingResult(true);
+
+            public static DeleteNewsPostingResult Failed(I18NString Reason)
+
+                => new DeleteNewsPostingResult(false,
+                                             Reason);
+
+            public static DeleteNewsPostingResult Failed(Exception Exception)
+
+                => new DeleteNewsPostingResult(false,
+                                             I18NString.Create(
+                                                               Exception.Message));
+
+            public override String ToString()
+
+                => IsSuccess
+                       ? "Success"
+                       : "Failed" + (ErrorDescription.IsNullOrEmpty()
+                                         ? ": " + ErrorDescription.FirstText()
+                                         : "!");
+
+        }
+
+        #endregion
+
+        #region (protected internal virtual) CanDeleteNewsPosting(NewsPosting)
+
+        /// <summary>
+        /// Determines whether the news posting can safely be removed from the API.
+        /// </summary>
+        /// <param name="NewsPosting">The news posting to be removed.</param>
+        protected internal virtual I18NString CanDeleteNewsPosting(NewsPosting NewsPosting)
+        {
+            return new I18NString(Languages.en, "Currently not possible!");
+        }
+
+        #endregion
+
+
+        #region (protected internal) _RemoveNewsPosting(NewsPosting, OnRemoved = null, ...)
+
+        /// <summary>
+        /// Remove the given news posting from the API.
+        /// </summary>
+        /// <param name="NewsPosting">The news posting to be removed from this API.</param>
+        /// <param name="OnRemoved">A delegate run whenever the news posting had been removed successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional news posting identification initiating this command/request.</param>
+        protected internal async Task<DeleteNewsPostingResult> _RemoveNewsPosting(NewsPosting                            NewsPosting,
+                                                                         Action<NewsPosting, EventTracking_Id>  OnRemoved         = null,
+                                                                         EventTracking_Id?                      EventTrackingId   = null,
+                                                                         User_Id?                               CurrentUserId     = null)
+        {
+
+            if (NewsPosting is null)
+                throw new ArgumentNullException(nameof(NewsPosting),
+                                                "The given news posting must not be null!");
+
+            if (NewsPosting.API != this || !_NewsPostings.TryGetValue(NewsPosting.Id, out NewsPosting NewsPostingToBeRemoved))
+                throw new ArgumentException    ("The given news posting '" + NewsPosting.Id + "' does not exists in this API!",
+                                                nameof(NewsPosting));
+
+
+            var result = CanDeleteNewsPosting(NewsPosting);
+
+            if (result is null)
+            {
+
+                var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+                await WriteToDatabaseFile(removeNewsPosting_MessageType,
+                                          NewsPosting.ToJSON(false),
+                                          eventTrackingId,
+                                          CurrentUserId);
+
+                _NewsPostings.Remove(NewsPosting.Id);
+
+
+                var OnNewsPostingRemovedLocal = OnNewsPostingRemoved;
+                if (OnNewsPostingRemovedLocal is not null)
+                    await OnNewsPostingRemovedLocal?.Invoke(Timestamp.Now,
+                                                            NewsPosting,
+                                                            eventTrackingId,
+                                                            CurrentUserId);
+
+                await SendNotifications(NewsPosting,
+                                        removeNewsPosting_MessageType,
+                                        null,
+                                        eventTrackingId,
+                                        CurrentUserId);
+
+                OnRemoved?.Invoke(NewsPosting,
+                                  eventTrackingId);
+
+                return DeleteNewsPostingResult.Success;
+
+            }
+            else
+                return DeleteNewsPostingResult.Failed(result);
+
+        }
+
+        #endregion
+
+        #region RemoveNewsPosting              (NewsPosting, OnRemoved = null, ...)
+
+        /// <summary>
+        /// Remove the given news posting from the API.
+        /// </summary>
+        /// <param name="NewsPosting">The news posting to be removed from this API.</param>
+        /// <param name="OnRemoved">A delegate run whenever the news posting had been removed successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional news posting identification initiating this command/request.</param>
+        public async Task<DeleteNewsPostingResult> RemoveNewsPosting(NewsPosting                            NewsPosting,
+                                                                     Action<NewsPosting, EventTracking_Id>  OnRemoved         = null,
+                                                                     EventTracking_Id?                      EventTrackingId   = null,
+                                                                     User_Id?                               CurrentUserId     = null)
+        {
+
+            if (NewsPosting is null)
+                throw new ArgumentNullException(nameof(NewsPosting), "The given news posting must not be null!");
+
+            try
+            {
+
+                return (await NewsPostingsSemaphore.WaitAsync(SemaphoreSlimTimeout))
+
+                            ? await _RemoveNewsPosting(NewsPosting,
+                                                       OnRemoved,
+                                                       EventTrackingId,
+                                                       CurrentUserId)
+
+                            : null;
+
+            }
+            catch (Exception e)
+            {
+                return DeleteNewsPostingResult.Failed(e);
+            }
+            finally
+            {
+                try
+                {
+                    NewsPostingsSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
 
         #region NewsPostingExists(NewsPostingId)
 
@@ -10024,200 +10216,6 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region RemoveNewsPosting(NewsPosting, OnRemoved = null, ...)
-
-        /// <summary>
-        /// A delegate called whenever a news posting was removed.
-        /// </summary>
-        /// <param name="Timestamp">The timestamp when the news posting was removed.</param>
-        /// <param name="NewsPosting">The removed news posting.</param>
-        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
-        /// <param name="CurrentUserId">The invoking news posting identification</param>
-        public delegate Task OnNewsPostingRemovedDelegate(DateTimeOffset     Timestamp,
-                                                          NewsPosting        NewsPosting,
-                                                          EventTracking_Id?  EventTrackingId   = null,
-                                                          User_Id?           CurrentUserId     = null);
-
-        /// <summary>
-        /// An event fired whenever a news posting was removed.
-        /// </summary>
-        public event OnNewsPostingRemovedDelegate OnNewsPostingRemoved;
-
-
-        #region (class) DeleteNewsPostingResult
-
-        public class DeleteNewsPostingResult
-        {
-
-            public Boolean     IsSuccess           { get; }
-
-            public I18NString  ErrorDescription    { get; }
-
-
-            private DeleteNewsPostingResult(Boolean     IsSuccess,
-                                          I18NString  ErrorDescription  = null)
-            {
-                this.IsSuccess         = IsSuccess;
-                this.ErrorDescription  = ErrorDescription;
-            }
-
-
-            public static DeleteNewsPostingResult Success
-
-                => new DeleteNewsPostingResult(true);
-
-            public static DeleteNewsPostingResult Failed(I18NString Reason)
-
-                => new DeleteNewsPostingResult(false,
-                                             Reason);
-
-            public static DeleteNewsPostingResult Failed(Exception Exception)
-
-                => new DeleteNewsPostingResult(false,
-                                             I18NString.Create(
-                                                               Exception.Message));
-
-            public override String ToString()
-
-                => IsSuccess
-                       ? "Success"
-                       : "Failed" + (ErrorDescription.IsNullOrEmpty()
-                                         ? ": " + ErrorDescription.FirstText()
-                                         : "!");
-
-        }
-
-        #endregion
-
-        #region (protected internal virtual) CanDeleteNewsPosting(NewsPosting)
-
-        /// <summary>
-        /// Determines whether the news posting can safely be removed from the API.
-        /// </summary>
-        /// <param name="NewsPosting">The news posting to be removed.</param>
-        protected internal virtual I18NString CanDeleteNewsPosting(NewsPosting NewsPosting)
-        {
-            return new I18NString(Languages.en, "Currently not possible!");
-        }
-
-        #endregion
-
-
-        #region (protected internal) _RemoveNewsPosting(NewsPosting, OnRemoved = null, ...)
-
-        /// <summary>
-        /// Remove the given news posting from the API.
-        /// </summary>
-        /// <param name="NewsPosting">The news posting to be removed from this API.</param>
-        /// <param name="OnRemoved">A delegate run whenever the news posting had been removed successfully.</param>
-        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
-        /// <param name="CurrentUserId">An optional news posting identification initiating this command/request.</param>
-        protected internal async Task<DeleteNewsPostingResult> _RemoveNewsPosting(NewsPosting                            NewsPosting,
-                                                                         Action<NewsPosting, EventTracking_Id>  OnRemoved         = null,
-                                                                         EventTracking_Id?                      EventTrackingId   = null,
-                                                                         User_Id?                               CurrentUserId     = null)
-        {
-
-            if (NewsPosting is null)
-                throw new ArgumentNullException(nameof(NewsPosting),
-                                                "The given news posting must not be null!");
-
-            if (NewsPosting.API != this || !_NewsPostings.TryGetValue(NewsPosting.Id, out NewsPosting NewsPostingToBeRemoved))
-                throw new ArgumentException    ("The given news posting '" + NewsPosting.Id + "' does not exists in this API!",
-                                                nameof(NewsPosting));
-
-
-            var result = CanDeleteNewsPosting(NewsPosting);
-
-            if (result is null)
-            {
-
-                var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
-
-                await WriteToDatabaseFile(removeNewsPosting_MessageType,
-                                          NewsPosting.ToJSON(false),
-                                          eventTrackingId,
-                                          CurrentUserId);
-
-                _NewsPostings.Remove(NewsPosting.Id);
-
-
-                var OnNewsPostingRemovedLocal = OnNewsPostingRemoved;
-                if (OnNewsPostingRemovedLocal is not null)
-                    await OnNewsPostingRemovedLocal?.Invoke(Timestamp.Now,
-                                                            NewsPosting,
-                                                            eventTrackingId,
-                                                            CurrentUserId);
-
-                await SendNotifications(NewsPosting,
-                                        removeNewsPosting_MessageType,
-                                        null,
-                                        eventTrackingId,
-                                        CurrentUserId);
-
-                OnRemoved?.Invoke(NewsPosting,
-                                  eventTrackingId);
-
-                return DeleteNewsPostingResult.Success;
-
-            }
-            else
-                return DeleteNewsPostingResult.Failed(result);
-
-        }
-
-        #endregion
-
-        #region RemoveNewsPosting             (NewsPosting, OnRemoved = null, ...)
-
-        /// <summary>
-        /// Remove the given news posting from the API.
-        /// </summary>
-        /// <param name="NewsPosting">The news posting to be removed from this API.</param>
-        /// <param name="OnRemoved">A delegate run whenever the news posting had been removed successfully.</param>
-        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
-        /// <param name="CurrentUserId">An optional news posting identification initiating this command/request.</param>
-        public async Task<DeleteNewsPostingResult> RemoveNewsPosting(NewsPosting                            NewsPosting,
-                                                                     Action<NewsPosting, EventTracking_Id>  OnRemoved         = null,
-                                                                     EventTracking_Id?                      EventTrackingId   = null,
-                                                                     User_Id?                               CurrentUserId     = null)
-        {
-
-            if (NewsPosting is null)
-                throw new ArgumentNullException(nameof(NewsPosting), "The given news posting must not be null!");
-
-            try
-            {
-
-                return (await NewsPostingsSemaphore.WaitAsync(SemaphoreSlimTimeout))
-
-                            ? await _RemoveNewsPosting(NewsPosting,
-                                                       OnRemoved,
-                                                       EventTrackingId,
-                                                       CurrentUserId)
-
-                            : null;
-
-            }
-            catch (Exception e)
-            {
-                return DeleteNewsPostingResult.Failed(e);
-            }
-            finally
-            {
-                try
-                {
-                    NewsPostingsSemaphore.Release();
-                }
-                catch
-                { }
-            }
-
-        }
-
-        #endregion
-
-        #endregion
 
         #endregion
 
@@ -10402,7 +10400,7 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region AddNewsBanner           (NewsBanner, OnAdded = null,                   CurrentUserId = null)
+        #region AddNewsBanner            (NewsBanner, OnAdded = null,                   CurrentUserId = null)
 
         /// <summary>
         /// A delegate called whenever a news banner was added.
@@ -10419,7 +10417,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An event fired whenever a news banner was added.
         /// </summary>
-        public event OnNewsBannerAddedDelegate OnNewsBannerAdded;
+        public event OnNewsBannerAddedDelegate? OnNewsBannerAdded;
 
 
         #region (protected internal) _AddNewsBanner(NewsBanner,                                OnAdded = null, ...)
@@ -10535,7 +10533,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddNewsBannerIfNotExists(NewsBanner, OnAdded = null,                   CurrentUserId = null)
+        #region AddNewsBannerIfNotExists (NewsBanner, OnAdded = null,                   CurrentUserId = null)
 
         #region (protected internal) _AddNewsBannerIfNotExists(NewsBanner,                                OnAdded = null, ...)
 
@@ -10645,7 +10643,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddOrUpdateNewsBanner   (NewsBanner, OnAdded = null, OnUpdated = null, ...)
+        #region AddOrUpdateNewsBanner    (NewsBanner, OnAdded = null, OnUpdated = null, ...)
 
         #region (protected internal) _AddOrUpdateNewsBanner   (NewsBanner,   OnAdded = null, OnUpdated = null, ...)
 
@@ -10795,7 +10793,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region UpdateNewsBanner        (NewsBanner,                 OnUpdated = null, ...)
+        #region UpdateNewsBanner         (NewsBanner,                 OnUpdated = null, ...)
 
         /// <summary>
         /// A delegate called whenever a news banner was updated.
@@ -10814,7 +10812,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An event fired whenever a news banner was updated.
         /// </summary>
-        public event OnNewsBannerUpdatedDelegate OnNewsBannerUpdated;
+        public event OnNewsBannerUpdatedDelegate? OnNewsBannerUpdated;
 
 
         #region (protected internal) _UpdateNewsBanner(NewsBanner, OnUpdated = null, ...)
@@ -11045,6 +11043,201 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
+        #region RemoveNewsBanner         (NewsBanner, OnRemoved = null, ...)
+
+        /// <summary>
+        /// A delegate called whenever a news banner was removed.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp when the news banner was removed.</param>
+        /// <param name="NewsBanner">The removed news banner.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking news banner identification</param>
+        public delegate Task OnNewsBannerRemovedDelegate(DateTimeOffset     Timestamp,
+                                                         NewsBanner         NewsBanner,
+                                                         EventTracking_Id?  EventTrackingId   = null,
+                                                         User_Id?           CurrentUserId     = null);
+
+        /// <summary>
+        /// An event fired whenever a news banner was removed.
+        /// </summary>
+        public event OnNewsBannerRemovedDelegate? OnNewsBannerRemoved;
+
+
+        #region (class) DeleteNewsBannerResult
+
+        public class DeleteNewsBannerResult
+        {
+
+            public Boolean     IsSuccess           { get; }
+
+            public I18NString  ErrorDescription    { get; }
+
+
+            private DeleteNewsBannerResult(Boolean     IsSuccess,
+                                          I18NString  ErrorDescription  = null)
+            {
+                this.IsSuccess         = IsSuccess;
+                this.ErrorDescription  = ErrorDescription;
+            }
+
+
+            public static DeleteNewsBannerResult Success
+
+                => new DeleteNewsBannerResult(true);
+
+            public static DeleteNewsBannerResult Failed(I18NString Reason)
+
+                => new DeleteNewsBannerResult(false,
+                                             Reason);
+
+            public static DeleteNewsBannerResult Failed(Exception Exception)
+
+                => new DeleteNewsBannerResult(false,
+                                             I18NString.Create(
+                                                               Exception.Message));
+
+            public override String ToString()
+
+                => IsSuccess
+                       ? "Success"
+                       : "Failed" + (ErrorDescription.IsNullOrEmpty()
+                                         ? ": " + ErrorDescription.FirstText()
+                                         : "!");
+
+        }
+
+        #endregion
+
+        #region (protected internal virtual) CanDeleteNewsBanner(NewsBanner)
+
+        /// <summary>
+        /// Determines whether the news banner can safely be removed from the API.
+        /// </summary>
+        /// <param name="NewsBanner">The news banner to be removed.</param>
+        protected internal virtual I18NString CanDeleteNewsBanner(NewsBanner NewsBanner)
+        {
+            return new I18NString(Languages.en, "Currently not possible!");
+        }
+
+        #endregion
+
+
+        #region (protected internal) _RemoveNewsBanner(NewsBanner, OnRemoved = null, ...)
+
+        /// <summary>
+        /// Remove the given news banner from the API.
+        /// </summary>
+        /// <param name="NewsBanner">The news banner to be removed from this API.</param>
+        /// <param name="OnRemoved">A delegate run whenever the news banner had been removed successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional news banner identification initiating this command/request.</param>
+        protected internal async Task<DeleteNewsBannerResult> _RemoveNewsBanner(NewsBanner                             NewsBanner,
+                                                                                Action<NewsBanner, EventTracking_Id>?  OnRemoved         = null,
+                                                                                EventTracking_Id?                      EventTrackingId   = null,
+                                                                                User_Id?                               CurrentUserId     = null)
+        {
+
+            if (NewsBanner is null)
+                throw new ArgumentNullException(nameof(NewsBanner),
+                                                "The given news banner must not be null!");
+
+            if (NewsBanner.API != this || !_NewsBanners.TryGetValue(NewsBanner.Id, out NewsBanner NewsBannerToBeRemoved))
+                throw new ArgumentException    ("The given news banner '" + NewsBanner.Id + "' does not exists in this API!",
+                                                nameof(NewsBanner));
+
+
+            var result = CanDeleteNewsBanner(NewsBanner);
+
+            if (result is null)
+            {
+
+                var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+                await WriteToDatabaseFile(removeNewsBanner_MessageType,
+                                          NewsBanner.ToJSON(false),
+                                          eventTrackingId,
+                                          CurrentUserId);
+
+                _NewsBanners.Remove(NewsBanner.Id);
+
+
+                var OnNewsBannerRemovedLocal = OnNewsBannerRemoved;
+                if (OnNewsBannerRemovedLocal is not null)
+                    await OnNewsBannerRemovedLocal?.Invoke(Timestamp.Now,
+                                                            NewsBanner,
+                                                            eventTrackingId,
+                                                            CurrentUserId);
+
+                await SendNotifications(NewsBanner,
+                                        removeNewsBanner_MessageType,
+                                        null,
+                                        eventTrackingId,
+                                        CurrentUserId);
+
+                OnRemoved?.Invoke(NewsBanner,
+                                  eventTrackingId);
+
+                return DeleteNewsBannerResult.Success;
+
+            }
+            else
+                return DeleteNewsBannerResult.Failed(result);
+
+        }
+
+        #endregion
+
+        #region RemoveNewsBanner              (NewsBanner, OnRemoved = null, ...)
+
+        /// <summary>
+        /// Remove the given news banner from the API.
+        /// </summary>
+        /// <param name="NewsBanner">The news banner to be removed from this API.</param>
+        /// <param name="OnRemoved">A delegate run whenever the news banner had been removed successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional news banner identification initiating this command/request.</param>
+        public async Task<DeleteNewsBannerResult> RemoveNewsBanner(NewsBanner                             NewsBanner,
+                                                                   Action<NewsBanner, EventTracking_Id>?  OnRemoved         = null,
+                                                                   EventTracking_Id?                      EventTrackingId   = null,
+                                                                   User_Id?                               CurrentUserId     = null)
+        {
+
+            if (NewsBanner is null)
+                throw new ArgumentNullException(nameof(NewsBanner), "The given news banner must not be null!");
+
+            try
+            {
+
+                return (await NewsBannersSemaphore.WaitAsync(SemaphoreSlimTimeout))
+
+                            ? await _RemoveNewsBanner(NewsBanner,
+                                                       OnRemoved,
+                                                       EventTrackingId,
+                                                       CurrentUserId)
+
+                            : null;
+
+            }
+            catch (Exception e)
+            {
+                return DeleteNewsBannerResult.Failed(e);
+            }
+            finally
+            {
+                try
+                {
+                    NewsBannersSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
 
         #region NewsBannerExists(NewsBannerId)
 
@@ -11199,202 +11392,6 @@ namespace social.OpenData.UsersAPI
             return false;
 
         }
-
-        #endregion
-
-
-        #region RemoveNewsBanner(NewsBanner, OnRemoved = null, ...)
-
-        /// <summary>
-        /// A delegate called whenever a news banner was removed.
-        /// </summary>
-        /// <param name="Timestamp">The timestamp when the news banner was removed.</param>
-        /// <param name="NewsBanner">The removed news banner.</param>
-        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
-        /// <param name="CurrentUserId">The invoking news banner identification</param>
-        public delegate Task OnNewsBannerRemovedDelegate(DateTimeOffset     Timestamp,
-                                                         NewsBanner         NewsBanner,
-                                                         EventTracking_Id?  EventTrackingId   = null,
-                                                         User_Id?           CurrentUserId     = null);
-
-        /// <summary>
-        /// An event fired whenever a news banner was removed.
-        /// </summary>
-        public event OnNewsBannerRemovedDelegate OnNewsBannerRemoved;
-
-
-        #region (class) DeleteNewsBannerResult
-
-        public class DeleteNewsBannerResult
-        {
-
-            public Boolean     IsSuccess           { get; }
-
-            public I18NString  ErrorDescription    { get; }
-
-
-            private DeleteNewsBannerResult(Boolean     IsSuccess,
-                                          I18NString  ErrorDescription  = null)
-            {
-                this.IsSuccess         = IsSuccess;
-                this.ErrorDescription  = ErrorDescription;
-            }
-
-
-            public static DeleteNewsBannerResult Success
-
-                => new DeleteNewsBannerResult(true);
-
-            public static DeleteNewsBannerResult Failed(I18NString Reason)
-
-                => new DeleteNewsBannerResult(false,
-                                             Reason);
-
-            public static DeleteNewsBannerResult Failed(Exception Exception)
-
-                => new DeleteNewsBannerResult(false,
-                                             I18NString.Create(
-                                                               Exception.Message));
-
-            public override String ToString()
-
-                => IsSuccess
-                       ? "Success"
-                       : "Failed" + (ErrorDescription.IsNullOrEmpty()
-                                         ? ": " + ErrorDescription.FirstText()
-                                         : "!");
-
-        }
-
-        #endregion
-
-        #region (protected internal virtual) CanDeleteNewsBanner(NewsBanner)
-
-        /// <summary>
-        /// Determines whether the news banner can safely be removed from the API.
-        /// </summary>
-        /// <param name="NewsBanner">The news banner to be removed.</param>
-        protected internal virtual I18NString CanDeleteNewsBanner(NewsBanner NewsBanner)
-        {
-            return new I18NString(Languages.en, "Currently not possible!");
-        }
-
-        #endregion
-
-
-        #region (protected internal) _RemoveNewsBanner(NewsBanner, OnRemoved = null, ...)
-
-        /// <summary>
-        /// Remove the given news banner from the API.
-        /// </summary>
-        /// <param name="NewsBanner">The news banner to be removed from this API.</param>
-        /// <param name="OnRemoved">A delegate run whenever the news banner had been removed successfully.</param>
-        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
-        /// <param name="CurrentUserId">An optional news banner identification initiating this command/request.</param>
-        protected internal async Task<DeleteNewsBannerResult> _RemoveNewsBanner(NewsBanner                            NewsBanner,
-                                                                         Action<NewsBanner, EventTracking_Id>  OnRemoved         = null,
-                                                                         EventTracking_Id?                      EventTrackingId   = null,
-                                                                         User_Id?                               CurrentUserId     = null)
-        {
-
-            if (NewsBanner is null)
-                throw new ArgumentNullException(nameof(NewsBanner),
-                                                "The given news banner must not be null!");
-
-            if (NewsBanner.API != this || !_NewsBanners.TryGetValue(NewsBanner.Id, out NewsBanner NewsBannerToBeRemoved))
-                throw new ArgumentException    ("The given news banner '" + NewsBanner.Id + "' does not exists in this API!",
-                                                nameof(NewsBanner));
-
-
-            var result = CanDeleteNewsBanner(NewsBanner);
-
-            if (result is null)
-            {
-
-                var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
-
-                await WriteToDatabaseFile(removeNewsBanner_MessageType,
-                                          NewsBanner.ToJSON(false),
-                                          eventTrackingId,
-                                          CurrentUserId);
-
-                _NewsBanners.Remove(NewsBanner.Id);
-
-
-                var OnNewsBannerRemovedLocal = OnNewsBannerRemoved;
-                if (OnNewsBannerRemovedLocal is not null)
-                    await OnNewsBannerRemovedLocal?.Invoke(Timestamp.Now,
-                                                            NewsBanner,
-                                                            eventTrackingId,
-                                                            CurrentUserId);
-
-                await SendNotifications(NewsBanner,
-                                        removeNewsBanner_MessageType,
-                                        null,
-                                        eventTrackingId,
-                                        CurrentUserId);
-
-                OnRemoved?.Invoke(NewsBanner,
-                                  eventTrackingId);
-
-                return DeleteNewsBannerResult.Success;
-
-            }
-            else
-                return DeleteNewsBannerResult.Failed(result);
-
-        }
-
-        #endregion
-
-        #region RemoveNewsBanner             (NewsBanner, OnRemoved = null, ...)
-
-        /// <summary>
-        /// Remove the given news banner from the API.
-        /// </summary>
-        /// <param name="NewsBanner">The news banner to be removed from this API.</param>
-        /// <param name="OnRemoved">A delegate run whenever the news banner had been removed successfully.</param>
-        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
-        /// <param name="CurrentUserId">An optional news banner identification initiating this command/request.</param>
-        public async Task<DeleteNewsBannerResult> RemoveNewsBanner(NewsBanner                            NewsBanner,
-                                                                     Action<NewsBanner, EventTracking_Id>  OnRemoved         = null,
-                                                                     EventTracking_Id?                      EventTrackingId   = null,
-                                                                     User_Id?                               CurrentUserId     = null)
-        {
-
-            if (NewsBanner is null)
-                throw new ArgumentNullException(nameof(NewsBanner), "The given news banner must not be null!");
-
-            try
-            {
-
-                return (await NewsBannersSemaphore.WaitAsync(SemaphoreSlimTimeout))
-
-                            ? await _RemoveNewsBanner(NewsBanner,
-                                                       OnRemoved,
-                                                       EventTrackingId,
-                                                       CurrentUserId)
-
-                            : null;
-
-            }
-            catch (Exception e)
-            {
-                return DeleteNewsBannerResult.Failed(e);
-            }
-            finally
-            {
-                try
-                {
-                    NewsBannersSemaphore.Release();
-                }
-                catch
-                { }
-            }
-
-        }
-
-        #endregion
 
         #endregion
 
@@ -11581,7 +11578,7 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region AddFAQ           (FAQ, OnAdded = null,                   CurrentUserId = null)
+        #region AddFAQ            (FAQ, OnAdded = null,                   CurrentUserId = null)
 
         /// <summary>
         /// A delegate called whenever a FAQ was added.
@@ -11598,7 +11595,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An event fired whenever a FAQ was added.
         /// </summary>
-        public event OnFAQAddedDelegate OnFAQAdded;
+        public event OnFAQAddedDelegate? OnFAQAdded;
 
 
         #region (protected internal) _AddFAQ(FAQ,                                OnAdded = null, ...)
@@ -11714,7 +11711,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddFAQIfNotExists(FAQ, OnAdded = null,                   CurrentUserId = null)
+        #region AddFAQIfNotExists (FAQ, OnAdded = null,                   CurrentUserId = null)
 
         #region (protected internal) _AddFAQIfNotExists(FAQ,                                OnAdded = null, ...)
 
@@ -11824,7 +11821,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddOrUpdateFAQ   (FAQ, OnAdded = null, OnUpdated = null, ...)
+        #region AddOrUpdateFAQ    (FAQ, OnAdded = null, OnUpdated = null, ...)
 
         #region (protected internal) _AddOrUpdateFAQ   (FAQ,   OnAdded = null, OnUpdated = null, ...)
 
@@ -11974,7 +11971,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region UpdateFAQ        (FAQ,                 OnUpdated = null, ...)
+        #region UpdateFAQ         (FAQ,                 OnUpdated = null, ...)
 
         /// <summary>
         /// A delegate called whenever a FAQ was updated.
@@ -11993,7 +11990,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An event fired whenever a FAQ was updated.
         /// </summary>
-        public event OnFAQUpdatedDelegate OnFAQUpdated;
+        public event OnFAQUpdatedDelegate? OnFAQUpdated;
 
 
         #region (protected internal) _UpdateFAQ(FAQ, OnUpdated = null, ...)
@@ -12224,165 +12221,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-
-        #region FAQExists(FAQId)
-
-        /// <summary>
-        /// Determines whether the given FAQ identification exists within this API.
-        /// </summary>
-        /// <param name="FAQId">The unique identification of an FAQ.</param>
-        protected internal Boolean _FAQExists(FAQ_Id FAQId)
-
-            => !FAQId.IsNullOrEmpty && _FAQs.ContainsKey(FAQId);
-
-
-        /// <summary>
-        /// Determines whether the given FAQ identification exists within this API.
-        /// </summary>
-        /// <param name="FAQId">The unique identification of an FAQ.</param>
-        public Boolean FAQExists(FAQ_Id FAQId)
-        {
-
-            try
-            {
-
-                if (FAQsSemaphore.Wait(SemaphoreSlimTimeout) &&
-                    _FAQExists(FAQId))
-                {
-                    return true;
-                }
-
-            }
-            catch
-            { }
-            finally
-            {
-                try
-                {
-                    FAQsSemaphore.Release();
-                }
-                catch
-                { }
-            }
-
-            return false;
-
-        }
-
-        #endregion
-
-        #region GetFAQ   (FAQId)
-
-        /// <summary>
-        /// Get the FAQ having the given unique identification.
-        /// </summary>
-        /// <param name="FAQId">The unique identification of an FAQ.</param>
-        protected internal FAQ _GetFAQ(FAQ_Id FAQId)
-        {
-
-            if (!FAQId.IsNullOrEmpty && _FAQs.TryGetValue(FAQId, out FAQ faq))
-                return faq;
-
-            return null;
-
-        }
-
-
-        /// <summary>
-        /// Get the FAQ having the given unique identification.
-        /// </summary>
-        /// <param name="FAQId">The unique identification of the FAQ.</param>
-        public FAQ GetFAQ(FAQ_Id FAQId)
-        {
-
-            try
-            {
-
-                if (FAQsSemaphore.Wait(SemaphoreSlimTimeout))
-                    return _GetFAQ(FAQId);
-
-            }
-            catch
-            { }
-            finally
-            {
-                try
-                {
-                    FAQsSemaphore.Release();
-                }
-                catch
-                { }
-            }
-
-            return null;
-
-        }
-
-        #endregion
-
-        #region TryGetFAQ(FAQId, out FAQ)
-
-        /// <summary>
-        /// Try to get the FAQ having the given unique identification.
-        /// </summary>
-        /// <param name="FAQId">The unique identification of an FAQ.</param>
-        /// <param name="FAQ">The FAQ.</param>
-        protected internal Boolean _TryGetFAQ(FAQ_Id FAQId, out FAQ FAQ)
-        {
-
-            if (!FAQId.IsNullOrEmpty && _FAQs.TryGetValue(FAQId, out FAQ faq))
-            {
-                FAQ = faq;
-                return true;
-            }
-
-            FAQ = null;
-            return false;
-
-        }
-
-
-        /// <summary>
-        /// Try to get the FAQ having the given unique identification.
-        /// </summary>
-        /// <param name="FAQId">The unique identification of an FAQ.</param>
-        /// <param name="FAQ">The FAQ.</param>
-        public Boolean TryGetFAQ(FAQ_Id   FAQId,
-                                         out FAQ  FAQ)
-        {
-
-            try
-            {
-
-                if (FAQsSemaphore.Wait(SemaphoreSlimTimeout) &&
-                    _TryGetFAQ(FAQId, out FAQ faq))
-                {
-                    FAQ = faq;
-                    return true;
-                }
-
-            }
-            catch
-            { }
-            finally
-            {
-                try
-                {
-                    FAQsSemaphore.Release();
-                }
-                catch
-                { }
-            }
-
-            FAQ = null;
-            return false;
-
-        }
-
-        #endregion
-
-
-        #region RemoveFAQ(FAQ, OnRemoved = null, ...)
+        #region RemoveFAQ         (FAQ, OnRemoved = null, ...)
 
         /// <summary>
         /// A delegate called whenever a FAQ was removed.
@@ -12399,7 +12238,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An event fired whenever a FAQ was removed.
         /// </summary>
-        public event OnFAQRemovedDelegate OnFAQRemoved;
+        public event OnFAQRemovedDelegate? OnFAQRemoved;
 
 
         #region (class) DeleteFAQResult
@@ -12503,9 +12342,9 @@ namespace social.OpenData.UsersAPI
                 var OnFAQRemovedLocal = OnFAQRemoved;
                 if (OnFAQRemovedLocal is not null)
                     await OnFAQRemovedLocal?.Invoke(Timestamp.Now,
-                                                            FAQ,
-                                                            eventTrackingId,
-                                                            CurrentUserId);
+                                                    FAQ,
+                                                    eventTrackingId,
+                                                    CurrentUserId);
 
                 await SendNotifications(FAQ,
                                         removeFAQ_MessageType,
@@ -12574,6 +12413,163 @@ namespace social.OpenData.UsersAPI
         }
 
         #endregion
+
+        #endregion
+
+
+        #region FAQExists (FAQId)
+
+        /// <summary>
+        /// Determines whether the given FAQ identification exists within this API.
+        /// </summary>
+        /// <param name="FAQId">The unique identification of an FAQ.</param>
+        protected internal Boolean _FAQExists(FAQ_Id FAQId)
+
+            => !FAQId.IsNullOrEmpty && _FAQs.ContainsKey(FAQId);
+
+
+        /// <summary>
+        /// Determines whether the given FAQ identification exists within this API.
+        /// </summary>
+        /// <param name="FAQId">The unique identification of an FAQ.</param>
+        public Boolean FAQExists(FAQ_Id FAQId)
+        {
+
+            try
+            {
+
+                if (FAQsSemaphore.Wait(SemaphoreSlimTimeout) &&
+                    _FAQExists(FAQId))
+                {
+                    return true;
+                }
+
+            }
+            catch
+            { }
+            finally
+            {
+                try
+                {
+                    FAQsSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+            return false;
+
+        }
+
+        #endregion
+
+        #region GetFAQ    (FAQId)
+
+        /// <summary>
+        /// Get the FAQ having the given unique identification.
+        /// </summary>
+        /// <param name="FAQId">The unique identification of an FAQ.</param>
+        protected internal FAQ _GetFAQ(FAQ_Id FAQId)
+        {
+
+            if (!FAQId.IsNullOrEmpty && _FAQs.TryGetValue(FAQId, out FAQ faq))
+                return faq;
+
+            return null;
+
+        }
+
+
+        /// <summary>
+        /// Get the FAQ having the given unique identification.
+        /// </summary>
+        /// <param name="FAQId">The unique identification of the FAQ.</param>
+        public FAQ GetFAQ(FAQ_Id FAQId)
+        {
+
+            try
+            {
+
+                if (FAQsSemaphore.Wait(SemaphoreSlimTimeout))
+                    return _GetFAQ(FAQId);
+
+            }
+            catch
+            { }
+            finally
+            {
+                try
+                {
+                    FAQsSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+            return null;
+
+        }
+
+        #endregion
+
+        #region TryGetFAQ (FAQId, out FAQ)
+
+        /// <summary>
+        /// Try to get the FAQ having the given unique identification.
+        /// </summary>
+        /// <param name="FAQId">The unique identification of an FAQ.</param>
+        /// <param name="FAQ">The FAQ.</param>
+        protected internal Boolean _TryGetFAQ(FAQ_Id FAQId, out FAQ FAQ)
+        {
+
+            if (!FAQId.IsNullOrEmpty && _FAQs.TryGetValue(FAQId, out FAQ faq))
+            {
+                FAQ = faq;
+                return true;
+            }
+
+            FAQ = null;
+            return false;
+
+        }
+
+
+        /// <summary>
+        /// Try to get the FAQ having the given unique identification.
+        /// </summary>
+        /// <param name="FAQId">The unique identification of an FAQ.</param>
+        /// <param name="FAQ">The FAQ.</param>
+        public Boolean TryGetFAQ(FAQ_Id   FAQId,
+                                         out FAQ  FAQ)
+        {
+
+            try
+            {
+
+                if (FAQsSemaphore.Wait(SemaphoreSlimTimeout) &&
+                    _TryGetFAQ(FAQId, out FAQ faq))
+                {
+                    FAQ = faq;
+                    return true;
+                }
+
+            }
+            catch
+            { }
+            finally
+            {
+                try
+                {
+                    FAQsSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+            FAQ = null;
+            return false;
+
+        }
 
         #endregion
 
