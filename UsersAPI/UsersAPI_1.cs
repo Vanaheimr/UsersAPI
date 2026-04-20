@@ -50,13 +50,11 @@ using org.GraphDefined.Vanaheimr.Hermod.SMTP;
 using org.GraphDefined.Vanaheimr.Hermod.Sockets;
 using org.GraphDefined.Vanaheimr.Hermod.Sockets.TCP;
 using org.GraphDefined.Vanaheimr.Hermod.Logging;
+using org.GraphDefined.Vanaheimr.Hermod.HTTP.Notifications;
+using org.GraphDefined.Vanaheimr.Hermod.WebSocket;
 
 using SMSAPI     = com.GraphDefined.SMSApi.API;
 using SMSAPIResp = com.GraphDefined.SMSApi.API.Response;
-
-using org.GraphDefined.Vanaheimr.Hermod.HTTP.Notifications;
-using org.GraphDefined.Vanaheimr.Hermod.WebSocket;
-using org.GraphDefined.Vanaheimr.Hermod.HTTPTest;
 
 #endregion
 
@@ -82,7 +80,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="HTTPResponse">A HTTP error response.</param>
         /// <returns>True, when Blog identification was found; false else.</returns>
         public static Boolean ParseBlogPostingId(this HTTPRequest           HTTPRequest,
-                                                 UsersAPIX                  UsersAPI,
+                                                 UsersAPI                  UsersAPI,
                                                  out BlogPosting_Id?        BlogPostingId,
                                                  out HTTPResponse.Builder?  HTTPResponse)
         {
@@ -152,7 +150,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="HTTPResponse">A HTTP error response.</param>
         /// <returns>True, when Blog identification was found; false else.</returns>
         public static Boolean ParseBlogPosting(this HTTPRequest           HTTPRequest,
-                                               UsersAPIX                  UsersAPI,
+                                               UsersAPI                  UsersAPI,
                                                out BlogPosting_Id?        BlogPostingId,
                                                out BlogPosting?           BlogPosting,
                                                out HTTPResponse.Builder?  HTTPResponse)
@@ -237,7 +235,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="HTTPResponse">A HTTP error response.</param>
         /// <returns>True, when News identification was found; false else.</returns>
         public static Boolean ParseNewsPostingId(this HTTPRequest           HTTPRequest,
-                                                 UsersAPIX                  UsersAPI,
+                                                 UsersAPI                  UsersAPI,
                                                  out NewsPosting_Id?        NewsPostingId,
                                                  out HTTPResponse.Builder?  HTTPResponse)
         {
@@ -307,7 +305,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="HTTPResponse">A HTTP error response.</param>
         /// <returns>True, when News identification was found; false else.</returns>
         public static Boolean ParseNewsPosting(this HTTPRequest           HTTPRequest,
-                                               UsersAPIX                  UsersAPI,
+                                               UsersAPI                  UsersAPI,
                                                out NewsPosting_Id?        NewsPostingId,
                                                out NewsPosting?           NewsPosting,
                                                out HTTPResponse.Builder?  HTTPResponse)
@@ -392,7 +390,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="HTTPResponse">A HTTP error response.</param>
         /// <returns>True, when News identification was found; false else.</returns>
         public static Boolean ParseNewsId(this HTTPRequest           HTTPRequest,
-                                          UsersAPIX                  UsersAPI,
+                                          UsersAPI                  UsersAPI,
                                           out NewsBanner_Id?         NewsBannerId,
                                           out HTTPResponse.Builder?  HTTPResponse)
         {
@@ -462,7 +460,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="HTTPResponse">A HTTP error response.</param>
         /// <returns>True, when News identification was found; false else.</returns>
         public static Boolean ParseNewsBanner(this HTTPRequest           HTTPRequest,
-                                              UsersAPIX                  UsersAPI,
+                                              UsersAPI                  UsersAPI,
                                               out NewsBanner_Id?         NewsBannerId,
                                               out NewsBanner?            NewsBanner,
                                               out HTTPResponse.Builder?  HTTPResponse)
@@ -539,7 +537,7 @@ namespace social.OpenData.UsersAPI
     /// <summary>
     /// Managing users and organizations et al. within a HTTP API.
     /// </summary>
-    public class UsersAPIX : HTTPExtAPIX
+    public class UsersAPI : HTTPExtAPI
     {
 
         #region Data
@@ -697,7 +695,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An event sent whenever a add service ticket request was received.
         /// </summary>
-        public HTTPRequestLogEventX OnAddServiceTicketRequest = new();
+        public HTTPRequestLogEvent OnAddServiceTicketRequest = new();
 
         /// <summary>
         /// An event sent whenever a add service ticket request was received.
@@ -706,7 +704,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="API">The HTTP API.</param>
         /// <param name="Request">A HTTP request.</param>
         protected internal Task AddServiceTicketRequest(DateTimeOffset     Timestamp,
-                                                        HTTPAPIX           HTTPAPI,
+                                                        HTTPAPI           HTTPAPI,
                                                         HTTPRequest        Request,
                                                         CancellationToken  CancellationToken)
 
@@ -724,7 +722,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An event sent whenever a add service ticket response was sent.
         /// </summary>
-        public HTTPResponseLogEventX OnAddServiceTicketResponse = new();
+        public HTTPResponseLogEvent OnAddServiceTicketResponse = new();
 
         /// <summary>
         /// An event sent whenever a add service ticket response was sent.
@@ -734,7 +732,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="Request">A HTTP request.</param>
         /// <param name="Response">A HTTP response.</param>
         protected internal Task AddServiceTicketResponse(DateTimeOffset     Timestamp,
-                                                         HTTPAPIX           HTTPAPI,
+                                                         HTTPAPI           HTTPAPI,
                                                          HTTPRequest        Request,
                                                          HTTPResponse       Response,
                                                          CancellationToken  CancellationToken)
@@ -755,7 +753,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An event sent whenever a set service ticket request was received.
         /// </summary>
-        public HTTPRequestLogEventX OnSetServiceTicketRequest = new();
+        public HTTPRequestLogEvent OnSetServiceTicketRequest = new();
 
         /// <summary>
         /// An event sent whenever a set service ticket request was received.
@@ -764,7 +762,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="API">The HTTP API.</param>
         /// <param name="Request">A HTTP request.</param>
         protected internal Task SetServiceTicketRequest(DateTimeOffset     Timestamp,
-                                                        HTTPAPIX           HTTPAPI,
+                                                        HTTPAPI           HTTPAPI,
                                                         HTTPRequest        Request,
                                                         CancellationToken  CancellationToken)
 
@@ -782,7 +780,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An event sent whenever a set service ticket response was sent.
         /// </summary>
-        public HTTPResponseLogEventX OnSetServiceTicketResponse = new();
+        public HTTPResponseLogEvent OnSetServiceTicketResponse = new();
 
         /// <summary>
         /// An event sent whenever a set service ticket response was sent.
@@ -792,7 +790,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="Request">A HTTP request.</param>
         /// <param name="Response">A HTTP response.</param>
         protected internal Task SetServiceTicketResponse(DateTimeOffset     Timestamp,
-                                                         HTTPAPIX           HTTPAPI,
+                                                         HTTPAPI           HTTPAPI,
                                                          HTTPRequest        Request,
                                                          HTTPResponse       Response,
                                                          CancellationToken  CancellationToken)
@@ -813,7 +811,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An event sent whenever a add service ticket change set request was received.
         /// </summary>
-        public HTTPRequestLogEventX OnAddServiceTicketChangeSetRequest = new();
+        public HTTPRequestLogEvent OnAddServiceTicketChangeSetRequest = new();
 
         /// <summary>
         /// An event sent whenever a add service ticket change set request was received.
@@ -822,7 +820,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="API">The HTTP API.</param>
         /// <param name="Request">A HTTP request.</param>
         protected internal Task AddServiceTicketChangeSetRequest(DateTimeOffset     Timestamp,
-                                                                 HTTPAPIX           HTTPAPI,
+                                                                 HTTPAPI           HTTPAPI,
                                                                  HTTPRequest        Request,
                                                                  CancellationToken  CancellationToken)
 
@@ -840,7 +838,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An event sent whenever a add service ticket change set response was sent.
         /// </summary>
-        public HTTPResponseLogEventX OnAddServiceTicketChangeSetResponse = new();
+        public HTTPResponseLogEvent OnAddServiceTicketChangeSetResponse = new();
 
         /// <summary>
         /// An event sent whenever a add service ticket change set response was sent.
@@ -850,7 +848,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="Request">A HTTP request.</param>
         /// <param name="Response">A HTTP response.</param>
         protected internal Task AddServiceTicketChangeSetResponse(DateTimeOffset     Timestamp,
-                                                                  HTTPAPIX           HTTPAPI,
+                                                                  HTTPAPI           HTTPAPI,
                                                                   HTTPRequest        Request,
                                                                   HTTPResponse       Response,
                                                                   CancellationToken  CancellationToken)
@@ -914,7 +912,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="LoggingPath">The path for all logfiles.</param>
         /// <param name="LogfileName">The name of the logfile.</param>
         /// <param name="LogfileCreator">A delegate for creating the name of the logfile for this API.</param>
-        public UsersAPIX(HTTPTestServerX                HTTPTestServer,
+        public UsersAPI(HTTPTestServerX                HTTPTestServer,
                          IEnumerable<HTTPHostname>?     Hostnames                        = null,
                          HTTPPath?                      RootPath                         = null,
                          IEnumerable<HTTPContentType>?  HTTPContentTypes                 = null,
@@ -1043,7 +1041,7 @@ namespace social.OpenData.UsersAPI
             this._FAQs                           = new Dictionary<FAQ_Id,                     FAQ>();
 
 
-            this.APIVersionHash                  = APIVersionHashes?[nameof(UsersAPI)]?.Value<String>()?.Trim();
+            this.APIVersionHash                  = APIVersionHashes?[nameof(OpenData.UsersAPI)]?.Value<String>()?.Trim();
 
             if (this.APIVersionHash.IsNullOrEmpty())
                 this.APIVersionHash              = "unknown";
@@ -1127,7 +1125,7 @@ namespace social.OpenData.UsersAPI
             if (!SkipURLTemplates)
                 RegisterURLTemplates();
 
-            DebugX.Log($"{nameof(UsersAPI)} version '{this.APIVersionHash}' initialized...");
+            DebugX.Log($"{nameof(OpenData.UsersAPI)} version '{this.APIVersionHash}' initialized...");
 
         }
 
@@ -1735,7 +1733,7 @@ namespace social.OpenData.UsersAPI
                             try
                             {
 
-                                using (var httpsClient = new HTTPSClient(
+                                using (var httpsClient = new HTTPClient(
                                                              notification.RemoteURL,
                                                              RemoteCertificateValidator:   notification.RemoteURL.Protocol == URLProtocols.https
                                                                                                ? (sender, certificate, chain, server, policyErrors) => (true, Array.Empty<String>())
@@ -1743,7 +1741,7 @@ namespace social.OpenData.UsersAPI
                                                              LocalCertificateSelector:     null,
                                                              ClientCertificates:           null,
                                                              HTTPUserAgent:                null,
-                                                             RequestTimeout:               null,
+                                                          //   RequestTimeout:               null,
                                                              DNSClient:                    HTTPServer.DNSClient
                                                          ))
                                 {
@@ -1768,13 +1766,13 @@ namespace social.OpenData.UsersAPI
                                                                         : null
                                     };
 
-                                    result  = await httpsClient.Execute(Request:              request,
-                                                                        RequestLogDelegate:   (timestamp, client, req)       => LogRequest (timestamp, client, notification.RemoteURL.Hostname.ToString(), req),
-                                                                        ResponseLogDelegate:  (timestamp, client, req, resp) => LogResponse(timestamp, client, notification.RemoteURL.Hostname.ToString(), req, resp),
-                                                                        CancellationToken:    default,
-                                                                        EventTrackingId:      EventTracking_Id.New,
-                                                                        RequestTimeout:       notification.RequestTimeout,
-                                                                        NumberOfRetry:        TransmissionRetry++);
+                                    //result  = await httpsClient.Execute(Request:              request,
+                                    //                                    RequestLogDelegate:   (timestamp, client, req)       => LogRequest (timestamp, client, notification.RemoteURL.Hostname.ToString(), req),
+                                    //                                    ResponseLogDelegate:  (timestamp, client, req, resp) => LogResponse(timestamp, client, notification.RemoteURL.Hostname.ToString(), req, resp),
+                                    //                                    CancellationToken:    default,
+                                    //                                    EventTrackingId:      EventTracking_Id.New,
+                                    //                                    RequestTimeout:       notification.RequestTimeout,
+                                    //                                    NumberOfRetry:        TransmissionRetry++);
 
                                 }
 
@@ -5289,7 +5287,7 @@ namespace social.OpenData.UsersAPI
                     }
 
                     else
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, Sender.IsNotNullOrEmpty() ? " via " + Sender : "", LineNumber.HasValue ? ", line " + LineNumber.Value : "", ": ", errorResponse));
+                        DebugX.Log(string.Concat(nameof(OpenData.UsersAPI), " ", Command, Sender.IsNotNullOrEmpty() ? " via " + Sender : "", LineNumber.HasValue ? ", line " + LineNumber.Value : "", ": ", errorResponse));
 
                     break;
 
@@ -5314,7 +5312,7 @@ namespace social.OpenData.UsersAPI
                     }
 
                     else
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, Sender.IsNotNullOrEmpty() ? " via " + Sender : "", LineNumber.HasValue ? ", line " + LineNumber.Value : "", ": ", errorResponse));
+                        DebugX.Log(string.Concat(nameof(OpenData.UsersAPI), " ", Command, Sender.IsNotNullOrEmpty() ? " via " + Sender : "", LineNumber.HasValue ? ", line " + LineNumber.Value : "", ": ", errorResponse));
 
                     break;
 
@@ -5339,7 +5337,7 @@ namespace social.OpenData.UsersAPI
                     }
 
                     else
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, Sender.IsNotNullOrEmpty() ? " via " + Sender : "", LineNumber.HasValue ? ", line " + LineNumber.Value : "", ": ", errorResponse));
+                        DebugX.Log(string.Concat(nameof(OpenData.UsersAPI), " ", Command, Sender.IsNotNullOrEmpty() ? " via " + Sender : "", LineNumber.HasValue ? ", line " + LineNumber.Value : "", ": ", errorResponse));
 
                     break;
 
@@ -6863,10 +6861,10 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An event sent whenever set dashboard (data) request was received.
         /// </summary>
-        public HTTPRequestLogEventX OnSetDashboardRequest = new();
+        public HTTPRequestLogEvent OnSetDashboardRequest = new();
 
         protected internal Task SetDashboardRequest(DateTimeOffset     Timestamp,
-                                                    HTTPAPIX           HTTPAPI,
+                                                    HTTPAPI           HTTPAPI,
                                                     HTTPRequest        Request,
                                                     CancellationToken  CancellationToken)
 
@@ -6884,10 +6882,10 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An event sent whenever a response on a set dashboard (data) request was sent.
         /// </summary>
-        public HTTPResponseLogEventX OnSetDashboardResponse = new();
+        public HTTPResponseLogEvent OnSetDashboardResponse = new();
 
         protected internal Task SetDashboardResponse(DateTimeOffset     Timestamp,
-                                                     HTTPAPIX           HTTPAPI,
+                                                     HTTPAPI           HTTPAPI,
                                                      HTTPRequest        Request,
                                                      HTTPResponse       Response,
                                                      CancellationToken  CancellationToken)

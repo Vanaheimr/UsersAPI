@@ -30,7 +30,7 @@ namespace social.OpenData.UsersAPI
     /// <summary>
     /// The Users API logger.
     /// </summary>
-    public class UsersAPILogger : HTTPServerLogger
+    public class UsersAPILogger : HTTPServerLoggerX
     {
 
         #region Data
@@ -62,10 +62,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="LoggingPath">The logging path.</param>
         /// <param name="Context">A context of this API.</param>
         /// <param name="LogfileCreator">A delegate to create a log file from the given context and log file name.</param>
-        public UsersAPILogger(UsersAPI                UsersAPI,
-                              String                  LoggingPath,
-                              String                  Context         = DefaultContext,
-                              LogfileCreatorDelegate  LogfileCreator  = null)
+        public UsersAPILogger(UsersAPI                 UsersAPI,
+                              String                   LoggingPath,
+                              String                   Context         = DefaultContext,
+                              LogfileCreatorDelegate?  LogfileCreator  = null)
 
             : this(UsersAPI,
                    LoggingPath,
@@ -157,90 +157,90 @@ namespace social.OpenData.UsersAPI
                            handler => UsersAPI.OnAddUserHTTPRequest += handler,
                            handler => UsersAPI.OnAddUserHTTPRequest -= handler,
                            "User", "Request",  "All").
-                RegisterDefaultConsoleLogTarget(this).
-                RegisterDefaultDiscLogTarget(this);
+                RegisterDefaultConsoleLogTargetX(this).
+                RegisterDefaultDiscLogTargetX(this);
 
             RegisterEvent2("AddUserResponse",
                            handler => UsersAPI.OnAddUserHTTPResponse += handler,
                            handler => UsersAPI.OnAddUserHTTPResponse -= handler,
                            "User", "Response", "All").
-                RegisterDefaultConsoleLogTarget(this).
-                RegisterDefaultDiscLogTarget(this);
+                RegisterDefaultConsoleLogTargetX(this).
+                RegisterDefaultDiscLogTargetX(this);
 
 
             RegisterEvent2("SetUserRequest",
                            handler => UsersAPI.OnSetUserHTTPRequest += handler,
                            handler => UsersAPI.OnSetUserHTTPRequest -= handler,
                            "User", "Request",  "All").
-                RegisterDefaultConsoleLogTarget(this).
-                RegisterDefaultDiscLogTarget(this);
+                RegisterDefaultConsoleLogTargetX(this).
+                RegisterDefaultDiscLogTargetX(this);
 
             RegisterEvent2("SetUserResponse",
                            handler => UsersAPI.OnSetUserHTTPResponse += handler,
                            handler => UsersAPI.OnSetUserHTTPResponse -= handler,
                            "User", "Response", "All").
-                RegisterDefaultConsoleLogTarget(this).
-                RegisterDefaultDiscLogTarget(this);
+                RegisterDefaultConsoleLogTargetX(this).
+                RegisterDefaultDiscLogTargetX(this);
 
 
             RegisterEvent2("ChangePasswordRequest",
                            handler => UsersAPI.OnChangePasswordRequest += handler,
                            handler => UsersAPI.OnChangePasswordRequest -= handler,
                            "User", "ChangePassword", "Password", "Request", "All").
-                RegisterDefaultConsoleLogTarget(this).
-                RegisterDefaultDiscLogTarget(this);
+                RegisterDefaultConsoleLogTargetX(this).
+                RegisterDefaultDiscLogTargetX(this);
 
             RegisterEvent2("ChangePasswordResponse",
                            handler => UsersAPI.OnChangePasswordResponse += handler,
                            handler => UsersAPI.OnChangePasswordResponse -= handler,
                            "User", "ChangePassword", "Password", "Response", "All").
-                RegisterDefaultConsoleLogTarget(this).
-                RegisterDefaultDiscLogTarget(this);
+                RegisterDefaultConsoleLogTargetX(this).
+                RegisterDefaultDiscLogTargetX(this);
 
 
             RegisterEvent2("ImpersonateUserRequest",
                            handler => UsersAPI.OnImpersonateUserRequest += handler,
                            handler => UsersAPI.OnImpersonateUserRequest -= handler,
                            "User", "Impersonate", "Request", "All").
-                RegisterDefaultConsoleLogTarget(this).
-                RegisterDefaultDiscLogTarget(this);
+                RegisterDefaultConsoleLogTargetX(this).
+                RegisterDefaultDiscLogTargetX(this);
 
             RegisterEvent2("ImpersonateUserResponse",
                            handler => UsersAPI.OnImpersonateUserResponse += handler,
                            handler => UsersAPI.OnImpersonateUserResponse -= handler,
                            "User", "Impersonate", "Response", "All").
-                RegisterDefaultConsoleLogTarget(this).
-                RegisterDefaultDiscLogTarget(this);
+                RegisterDefaultConsoleLogTargetX(this).
+                RegisterDefaultDiscLogTargetX(this);
 
 
             RegisterEvent2("SetUserNotificationsRequest",
                            handler => UsersAPI.OnSetUserNotificationsRequest  += handler,
                            handler => UsersAPI.OnSetUserNotificationsRequest  -= handler,
                            "SetUserNotifications", "Notifications", "Request",  "All").
-                RegisterDefaultConsoleLogTarget(this).
-                RegisterDefaultDiscLogTarget(this);
+                RegisterDefaultConsoleLogTargetX(this).
+                RegisterDefaultDiscLogTargetX(this);
 
             RegisterEvent2("SetUserNotificationsResponse",
                            handler => UsersAPI.OnSetUserNotificationsResponse += handler,
                            handler => UsersAPI.OnSetUserNotificationsResponse -= handler,
                            "SetUserNotifications", "Notifications", "Response", "All").
-                RegisterDefaultConsoleLogTarget(this).
-                RegisterDefaultDiscLogTarget(this);
+                RegisterDefaultConsoleLogTargetX(this).
+                RegisterDefaultDiscLogTargetX(this);
 
 
             RegisterEvent2("DeleteUserNotificationsRequest",
                            handler => UsersAPI.OnDeleteUserNotificationsRequest += handler,
                            handler => UsersAPI.OnDeleteUserNotificationsRequest -= handler,
                            "DeleteUserNotifications", "Notifications", "Request", "All").
-                RegisterDefaultConsoleLogTarget(this).
-                RegisterDefaultDiscLogTarget(this);
+                RegisterDefaultConsoleLogTargetX(this).
+                RegisterDefaultDiscLogTargetX(this);
 
             RegisterEvent2("DeleteUserNotificationsResponse",
                            handler => UsersAPI.OnDeleteUserNotificationsResponse += handler,
                            handler => UsersAPI.OnDeleteUserNotificationsResponse -= handler,
                            "DeleteUserNotifications", "Notifications", "Response", "All").
-                RegisterDefaultConsoleLogTarget(this).
-                RegisterDefaultDiscLogTarget(this);
+                RegisterDefaultConsoleLogTargetX(this).
+                RegisterDefaultDiscLogTargetX(this);
 
             #endregion
 
@@ -250,75 +250,75 @@ namespace social.OpenData.UsersAPI
                            handler => UsersAPI.OnAddOrganizationHTTPRequest += handler,
                            handler => UsersAPI.OnAddOrganizationHTTPRequest -= handler,
                            "Organization", "Request",  "All").
-                RegisterDefaultConsoleLogTarget(this).
-                RegisterDefaultDiscLogTarget(this);
+                RegisterDefaultConsoleLogTargetX(this).
+                RegisterDefaultDiscLogTargetX(this);
 
             RegisterEvent2("AddOrganizationResponse",
                            handler => UsersAPI.OnAddOrganizationHTTPResponse += handler,
                            handler => UsersAPI.OnAddOrganizationHTTPResponse -= handler,
                            "Organization", "Response", "All").
-                RegisterDefaultConsoleLogTarget(this).
-                RegisterDefaultDiscLogTarget(this);
+                RegisterDefaultConsoleLogTargetX(this).
+                RegisterDefaultDiscLogTargetX(this);
 
 
             RegisterEvent2("SetOrganizationRequest",
                            handler => UsersAPI.OnSetOrganizationHTTPRequest += handler,
                            handler => UsersAPI.OnSetOrganizationHTTPRequest -= handler,
                            "Organization", "Request",  "All").
-                RegisterDefaultConsoleLogTarget(this).
-                RegisterDefaultDiscLogTarget(this);
+                RegisterDefaultConsoleLogTargetX(this).
+                RegisterDefaultDiscLogTargetX(this);
 
             RegisterEvent2("SetOrganizationResponse",
                            handler => UsersAPI.OnSetOrganizationHTTPResponse += handler,
                            handler => UsersAPI.OnSetOrganizationHTTPResponse -= handler,
                            "Organization", "Response", "All").
-                RegisterDefaultConsoleLogTarget(this).
-                RegisterDefaultDiscLogTarget(this);
+                RegisterDefaultConsoleLogTargetX(this).
+                RegisterDefaultDiscLogTargetX(this);
 
 
             RegisterEvent2("SetOrganizationNotificationsRequest",
                            handler => UsersAPI.OnSetOrganizationNotificationsRequest  += handler,
                            handler => UsersAPI.OnSetOrganizationNotificationsRequest  -= handler,
                            "SetOrganizationNotifications", "Organization", "Notifications", "Request",  "All").
-                RegisterDefaultConsoleLogTarget(this).
-                RegisterDefaultDiscLogTarget(this);
+                RegisterDefaultConsoleLogTargetX(this).
+                RegisterDefaultDiscLogTargetX(this);
 
             RegisterEvent2("SetOrganizationNotificationsResponse",
                            handler => UsersAPI.OnSetOrganizationNotificationsResponse += handler,
                            handler => UsersAPI.OnSetOrganizationNotificationsResponse -= handler,
                            "SetOrganizationNotifications", "Organization", "Notifications", "Response", "All").
-                RegisterDefaultConsoleLogTarget(this).
-                RegisterDefaultDiscLogTarget(this);
+                RegisterDefaultConsoleLogTargetX(this).
+                RegisterDefaultDiscLogTargetX(this);
 
 
             RegisterEvent2("DeleteOrganizationNotificationsRequest",
                            handler => UsersAPI.OnDeleteOrganizationNotificationsRequest += handler,
                            handler => UsersAPI.OnDeleteOrganizationNotificationsRequest -= handler,
                            "DeleteOrganizationNotifications", "Organization", "Notifications", "Request", "All").
-                RegisterDefaultConsoleLogTarget(this).
-                RegisterDefaultDiscLogTarget(this);
+                RegisterDefaultConsoleLogTargetX(this).
+                RegisterDefaultDiscLogTargetX(this);
 
             RegisterEvent2("DeleteOrganizationNotificationsResponse",
                            handler => UsersAPI.OnDeleteOrganizationNotificationsResponse += handler,
                            handler => UsersAPI.OnDeleteOrganizationNotificationsResponse -= handler,
                            "DeleteOrganizationNotifications", "Organization", "Notifications", "Response", "All").
-                RegisterDefaultConsoleLogTarget(this).
-                RegisterDefaultDiscLogTarget(this);
+                RegisterDefaultConsoleLogTargetX(this).
+                RegisterDefaultDiscLogTargetX(this);
 
 
             RegisterEvent2("DeleteOrganizationRequest",
                            handler => UsersAPI.OnDeleteOrganizationHTTPRequest += handler,
                            handler => UsersAPI.OnDeleteOrganizationHTTPRequest -= handler,
                            "DeleteOrganizations", "Organization", "Request", "All").
-                     RegisterDefaultConsoleLogTarget(this).
-                     RegisterDefaultDiscLogTarget(this);
+                     RegisterDefaultConsoleLogTargetX(this).
+                     RegisterDefaultDiscLogTargetX(this);
 
             RegisterEvent2("DeleteOrganizationResponse",
                            handler => UsersAPI.OnDeleteOrganizationHTTPResponse += handler,
                            handler => UsersAPI.OnDeleteOrganizationHTTPResponse -= handler,
                            "DeleteOrganizations", "Organization", "Response", "All").
-                     RegisterDefaultConsoleLogTarget(this).
-                     RegisterDefaultDiscLogTarget(this);
+                     RegisterDefaultConsoleLogTargetX(this).
+                     RegisterDefaultDiscLogTargetX(this);
 
             #endregion
 
@@ -328,45 +328,45 @@ namespace social.OpenData.UsersAPI
                            handler => UsersAPI.OnAddServiceTicketRequest += handler,
                            handler => UsersAPI.OnAddServiceTicketRequest -= handler,
                            "ServiceTicket", "Request", "All").
-                RegisterDefaultConsoleLogTarget(this).
-                RegisterDefaultDiscLogTarget(this);
+                RegisterDefaultConsoleLogTargetX(this).
+                RegisterDefaultDiscLogTargetX(this);
 
             RegisterEvent2("AddServiceTicketResponse",
                            handler => UsersAPI.OnAddServiceTicketResponse += handler,
                            handler => UsersAPI.OnAddServiceTicketResponse -= handler,
                            "ServiceTicket", "Response", "All").
-                RegisterDefaultConsoleLogTarget(this).
-                RegisterDefaultDiscLogTarget(this);
+                RegisterDefaultConsoleLogTargetX(this).
+                RegisterDefaultDiscLogTargetX(this);
 
 
             RegisterEvent2("SetServiceTicketRequest",
                            handler => UsersAPI.OnSetServiceTicketRequest += handler,
                            handler => UsersAPI.OnSetServiceTicketRequest -= handler,
                            "ServiceTicket", "Request", "All").
-                RegisterDefaultConsoleLogTarget(this).
-                RegisterDefaultDiscLogTarget(this);
+                RegisterDefaultConsoleLogTargetX(this).
+                RegisterDefaultDiscLogTargetX(this);
 
             RegisterEvent2("SetServiceTicketResponse",
                            handler => UsersAPI.OnSetServiceTicketResponse += handler,
                            handler => UsersAPI.OnSetServiceTicketResponse -= handler,
                            "ServiceTicket", "Response", "All").
-                RegisterDefaultConsoleLogTarget(this).
-                RegisterDefaultDiscLogTarget(this);
+                RegisterDefaultConsoleLogTargetX(this).
+                RegisterDefaultDiscLogTargetX(this);
 
 
             RegisterEvent2("AddServiceTicketCommentRequest",
                            handler => UsersAPI.OnAddServiceTicketChangeSetRequest += handler,
                            handler => UsersAPI.OnAddServiceTicketChangeSetRequest -= handler,
                            "ServiceTicketComment", "ServiceTicket", "Request", "All").
-                RegisterDefaultConsoleLogTarget(this).
-                RegisterDefaultDiscLogTarget(this);
+                RegisterDefaultConsoleLogTargetX(this).
+                RegisterDefaultDiscLogTargetX(this);
 
             RegisterEvent2("AddServiceTicketCommentResponse",
                            handler => UsersAPI.OnAddServiceTicketChangeSetResponse += handler,
                            handler => UsersAPI.OnAddServiceTicketChangeSetResponse -= handler,
                            "ServiceTicketComment", "ServiceTicket", "Response", "All").
-                RegisterDefaultConsoleLogTarget(this).
-                RegisterDefaultDiscLogTarget(this);
+                RegisterDefaultConsoleLogTargetX(this).
+                RegisterDefaultDiscLogTargetX(this);
 
             #endregion
 
@@ -376,30 +376,30 @@ namespace social.OpenData.UsersAPI
                            handler => UsersAPI.OnRestartHTTPRequest += handler,
                            handler => UsersAPI.OnRestartHTTPRequest -= handler,
                            "api", "restart", "request",  "all").
-                RegisterDefaultConsoleLogTarget(this).
-                RegisterDefaultDiscLogTarget(this);
+                RegisterDefaultConsoleLogTargetX(this).
+                RegisterDefaultDiscLogTargetX(this);
 
             RegisterEvent2("RestartResponse",
                            handler => UsersAPI.OnRestartHTTPResponse += handler,
                            handler => UsersAPI.OnRestartHTTPResponse -= handler,
                            "api", "restart", "response", "all").
-                RegisterDefaultConsoleLogTarget(this).
-                RegisterDefaultDiscLogTarget(this);
+                RegisterDefaultConsoleLogTargetX(this).
+                RegisterDefaultDiscLogTargetX(this);
 
 
             RegisterEvent2("StopRequest",
                            handler => UsersAPI.OnStopHTTPRequest += handler,
                            handler => UsersAPI.OnStopHTTPRequest -= handler,
                            "api", "stop", "request", "all").
-                RegisterDefaultConsoleLogTarget(this).
-                RegisterDefaultDiscLogTarget(this);
+                RegisterDefaultConsoleLogTargetX(this).
+                RegisterDefaultDiscLogTargetX(this);
 
             RegisterEvent2("StopResponse",
                            handler => UsersAPI.OnStopHTTPResponse += handler,
                            handler => UsersAPI.OnStopHTTPResponse -= handler,
                            "api", "stop", "response", "all").
-                RegisterDefaultConsoleLogTarget(this).
-                RegisterDefaultDiscLogTarget(this);
+                RegisterDefaultConsoleLogTargetX(this).
+                RegisterDefaultDiscLogTargetX(this);
 
             #endregion
 

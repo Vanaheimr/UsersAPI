@@ -76,12 +76,12 @@ namespace social.OpenData.UsersAPI
 
         #region API
 
-        private UsersAPIX _API;
+        private UsersAPI _API;
 
         /// <summary>
         /// The UsersAPI of this service ticket.
         /// </summary>
-        public UsersAPIX API
+        public UsersAPI API
         {
 
             get
