@@ -1736,7 +1736,7 @@ namespace social.OpenData.UsersAPI
                                 using (var httpsClient = new HTTPClient(
                                                              notification.RemoteURL,
                                                              RemoteCertificateValidator:   notification.RemoteURL.Protocol == URLProtocols.https
-                                                                                               ? (sender, certificate, chain, server, policyErrors) => (true, Array.Empty<String>())
+                                                                                               ? (sender, certificate, chain, server, policyErrors) => TLSValidationResult.Success()
                                                                                                : null,
                                                              LocalCertificateSelector:     null,
                                                              ClientCertificates:           null,
