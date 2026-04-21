@@ -29,7 +29,7 @@ using System.Security.Cryptography;
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod.DNS;
 using org.GraphDefined.Vanaheimr.Hermod.Mail;
-using org.GraphDefined.Vanaheimr.Hermod.Sockets.TCP;
+using org.GraphDefined.Vanaheimr.Hermod.TCP;
 using com.GraphDefined.SMSApi.API;
 using com.GraphDefined.SMSApi.API.Action;
 using System.IO;
