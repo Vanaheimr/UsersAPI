@@ -30,7 +30,7 @@ namespace social.OpenData.UsersAPI
     /// <summary>
     /// The Users API logger.
     /// </summary>
-    public class UsersAPILogger : HTTPServerLoggerX
+    public class UsersAPILogger : HTTPServerLogger
     {
 
         #region Data

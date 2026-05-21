@@ -912,62 +912,62 @@ namespace social.OpenData.UsersAPI
         /// <param name="LoggingPath">The path for all logfiles.</param>
         /// <param name="LogfileName">The name of the logfile.</param>
         /// <param name="LogfileCreator">A delegate for creating the name of the logfile for this API.</param>
-        public UsersAPI(HTTPTestServerX                HTTPTestServer,
-                         IEnumerable<HTTPHostname>?     Hostnames                        = null,
-                         HTTPPath?                      RootPath                         = null,
-                         IEnumerable<HTTPContentType>?  HTTPContentTypes                 = null,
-                         I18NString?                    Description                      = null,
+        public UsersAPI(HTTPServer                     HTTPServer,
+                        IEnumerable<HTTPHostname>?     Hostnames                        = null,
+                        HTTPPath?                      RootPath                         = null,
+                        IEnumerable<HTTPContentType>?  HTTPContentTypes                 = null,
+                        I18NString?                    Description                      = null,
 
-                         String?                        ExternalDNSName                  = null,
-                         HTTPPath?                      BasePath                         = null,
+                        String?                        ExternalDNSName                  = null,
+                        HTTPPath?                      BasePath                         = null,
 
-                         String?                        HTTPServerName                   = DefaultHTTPServerName,
-                         String?                        HTTPServiceName                  = DefaultHTTPServiceName,
-                         String?                        APIVersionHash                   = null,
-                         JObject?                       APIVersionHashes                 = null,
+                        String?                        HTTPServerName                   = DefaultHTTPServerName,
+                        String?                        HTTPServiceName                  = DefaultHTTPServiceName,
+                        String?                        APIVersionHash                   = null,
+                        JObject?                       APIVersionHashes                 = null,
 
-                         String?                        HTMLTemplate                     = null,
+                        String?                        HTMLTemplate                     = null,
 
-                         Organization_Id?               AdminOrganizationId              = null,
-                         EMailAddress?                  APIRobotEMailAddress             = null,
-                         String?                        APIRobotGPGPassphrase            = null,
-                         ISMTPClient?                   SMTPClient                       = null,
+                        Organization_Id?               AdminOrganizationId              = null,
+                        EMailAddress?                  APIRobotEMailAddress             = null,
+                        String?                        APIRobotGPGPassphrase            = null,
+                        ISMTPClient?                   SMTPClient                       = null,
 
-                         PasswordQualityCheckDelegate?  PasswordQualityCheck             = null,
-                         HTTPCookieName?                CookieName                       = null,
-                         Boolean                        UseSecureCookies                 = true,
-                         TimeSpan?                      MaxSignInSessionLifetime         = null,
-                         Languages?                     DefaultLanguage                  = null,
-                         Byte?                          MinUserIdLength                  = null,
-                         Byte?                          MinRealmLength                   = null,
-                         Byte?                          MinUserNameLength                = null,
-                         Byte?                          MinUserGroupIdLength             = null,
-                         UInt16?                        MinAPIKeyLength                  = null,
-                         Byte?                          MinMessageIdLength               = null,
-                         Byte?                          MinOrganizationIdLength          = null,
-                         Byte?                          MinOrganizationGroupIdLength     = null,
-                         Byte?                          MinNotificationMessageIdLength   = null,
-                         Byte?                          MinNewsPostingIdLength           = null,
-                         Byte?                          MinNewsBannerIdLength            = null,
-                         Byte?                          MinFAQIdLength                   = null,
+                        PasswordQualityCheckDelegate?  PasswordQualityCheck             = null,
+                        HTTPCookieName?                CookieName                       = null,
+                        Boolean                        UseSecureCookies                 = true,
+                        TimeSpan?                      MaxSignInSessionLifetime         = null,
+                        Languages?                     DefaultLanguage                  = null,
+                        Byte?                          MinUserIdLength                  = null,
+                        Byte?                          MinRealmLength                   = null,
+                        Byte?                          MinUserNameLength                = null,
+                        Byte?                          MinUserGroupIdLength             = null,
+                        UInt16?                        MinAPIKeyLength                  = null,
+                        Byte?                          MinMessageIdLength               = null,
+                        Byte?                          MinOrganizationIdLength          = null,
+                        Byte?                          MinOrganizationGroupIdLength     = null,
+                        Byte?                          MinNotificationMessageIdLength   = null,
+                        Byte?                          MinNewsPostingIdLength           = null,
+                        Byte?                          MinNewsBannerIdLength            = null,
+                        Byte?                          MinFAQIdLength                   = null,
 
-                         IEnumerable<URLWithAPIKey>?    RemoteAuthServers                = null,
-                         IEnumerable<APIKey_Id>?        RemoteAuthAPIKeys                = null,
+                        IEnumerable<URLWithAPIKey>?    RemoteAuthServers                = null,
+                        IEnumerable<APIKey_Id>?        RemoteAuthAPIKeys                = null,
 
-                         ServiceCheckKeys?              ServiceCheckKeys                 = null,
+                        ServiceCheckKeys?              ServiceCheckKeys                 = null,
 
-                         Boolean?                       IsDevelopment                    = null,
-                         IEnumerable<String>?           DevelopmentServers               = null,
-                         Boolean                        SkipURLTemplates                 = false,
-                         String?                        DatabaseFileName                 = DefaultHTTPExtAPIX_DatabaseFileName,
-                         Boolean?                       DisableNotifications             = false,
-                         Boolean?                       DisableLogging                   = false,
-                         String?                        LoggingPath                      = null, //DefaultHTTPExtAPIX_LoggingPath,
-                         String?                        LoggingContext                   = null, //DefaultHTTPExtAPIX_LoggingContext,
-                         String?                        LogfileName                      = DefaultHTTPExtAPIX_LogfileName,
-                         LogfileCreatorDelegate?        LogfileCreator                   = null)
+                        Boolean?                       IsDevelopment                    = null,
+                        IEnumerable<String>?           DevelopmentServers               = null,
+                        Boolean                        SkipURLTemplates                 = false,
+                        String?                        DatabaseFileName                 = DefaultHTTPExtAPIX_DatabaseFileName,
+                        Boolean?                       DisableNotifications             = false,
+                        Boolean?                       DisableLogging                   = false,
+                        String?                        LoggingPath                      = null, //DefaultHTTPExtAPIX_LoggingPath,
+                        String?                        LoggingContext                   = null, //DefaultHTTPExtAPIX_LoggingContext,
+                        String?                        LogfileName                      = DefaultHTTPExtAPIX_LogfileName,
+                        LogfileCreatorDelegate?        LogfileCreator                   = null)
 
-            : base(HTTPTestServer,
+            : base(HTTPServer,
                    Hostnames,
                    RootPath,
                    HTTPContentTypes,
@@ -1020,8 +1020,8 @@ namespace social.OpenData.UsersAPI
 
             #region Inital checks
 
-            if (HTTPServer is null)
-                throw new ArgumentNullException(nameof(HTTPServer),            "The given HTTP server must not be null!");
+            if (base.HTTPServer is null)
+                throw new ArgumentNullException(nameof(HTTPAPI.HTTPServer),            "The given HTTP server must not be null!");
 
             if (APIRobotEMailAddress is null)
                 throw new ArgumentNullException(nameof(APIRobotEMailAddress),  "The given API robot e-mail address must not be null!");
@@ -1088,7 +1088,7 @@ namespace social.OpenData.UsersAPI
 
             #region Warden: Observe CPU/RAM => Send admin e-mails...
 
-            HTTPServer.Warden.EveryMinutes(
+            base.HTTPServer.Warden.EveryMinutes(
                 15,
                 Environment.OSVersion.Platform == PlatformID.Unix
                     ? new DriveInfo("/")
@@ -1103,7 +1103,8 @@ namespace social.OpenData.UsersAPI
                     {
 
                         // lowStorage_MessageType
-                        await SMTPClient.Send(new HTMLEMailBuilder {
+                        await SMTPClient.Send(new HTMLEMailBuilder
+                        {
                                                      From           = Robot.EMail,
                                                      To             = EMailAddressList.Create(adminOrganization.Admins.Select(admin => admin.EMail)),
                                                      Passphrase     = APIRobotGPGPassphrase,
