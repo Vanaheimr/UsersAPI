@@ -959,12 +959,12 @@ namespace social.OpenData.UsersAPI
                         Boolean?                       IsDevelopment                    = null,
                         IEnumerable<String>?           DevelopmentServers               = null,
                         Boolean                        SkipURLTemplates                 = false,
-                        String?                        DatabaseFileName                 = DefaultHTTPExtAPIX_DatabaseFileName,
+                        String?                        DatabaseFileName                 = DefaultHTTPExtAPI_DatabaseFileName,
                         Boolean?                       DisableNotifications             = false,
                         Boolean?                       DisableLogging                   = false,
                         String?                        LoggingPath                      = null, //DefaultHTTPExtAPIX_LoggingPath,
                         String?                        LoggingContext                   = null, //DefaultHTTPExtAPIX_LoggingContext,
-                        String?                        LogfileName                      = DefaultHTTPExtAPIX_LogfileName,
+                        String?                        LogfileName                      = DefaultHTTPExtAPI_LogfileName,
                         LogfileCreatorDelegate?        LogfileCreator                   = null)
 
             : base(HTTPServer,
