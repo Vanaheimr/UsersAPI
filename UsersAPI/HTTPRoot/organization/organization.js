@@ -1,3 +1,4 @@
+"use strict";
 function StartOrganization() {
     function AnyChangesMade() {
         // name

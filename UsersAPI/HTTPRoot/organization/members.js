@@ -1,3 +1,4 @@
+"use strict";
 function StartOrganizationMembers() {
     function ImpersonateUser(newUserId) {
         HTTPImpersonate("/users/" + newUserId, (HTTPStatus, ResponseText) => {

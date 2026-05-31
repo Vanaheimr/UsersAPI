@@ -1,3 +1,4 @@
+"use strict";
 function StartUser() {
     function AnyChangesMade() {
         // name

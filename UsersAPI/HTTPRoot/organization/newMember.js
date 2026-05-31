@@ -1,3 +1,4 @@
+"use strict";
 function StartNewMember() {
     let newUserJSON = {
         "@id": "",

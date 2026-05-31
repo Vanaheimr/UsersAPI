@@ -1,3 +1,4 @@
+"use strict";
 function StartSubOrganizations() {
     function ShowSubOrganization(subOrganizationsDiv, subOrganization) {
         const subOrganizationDiv = subOrganizationsDiv.appendChild(document.createElement('div'));

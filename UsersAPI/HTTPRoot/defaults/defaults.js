@@ -1,3 +1,4 @@
+"use strict";
 var HTTPCookieId = "UsersAPI";
 var URLPathPrefix = null;
 var APIKey = null;

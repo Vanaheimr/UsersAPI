@@ -1,3 +1,4 @@
+"use strict";
 /////<reference path="../../../../UsersAPI/UsersAPI/HTTPRoot/libs/date.format.ts" />
 /////<reference path="../../../../UsersAPI/UsersAPI/HTTPRoot/defaults/defaults.ts" />
 function AddProperty(parentDiv, className, key, content) {

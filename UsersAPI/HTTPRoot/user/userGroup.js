@@ -1,3 +1,4 @@
+"use strict";
 function StartUserGroup() {
     function AnyChangesMade() {
         // name
