@@ -1,5 +1,5 @@
-﻿@import "../defaults/_defaults.scss";
-@import "../defaults/datePicker.scss";
+@use "../defaults/_defaults.scss" as *;
+@use "../defaults/datePicker.scss" as *;
 
 //$searchbarColor:                    #e8e8e8;
 $searchbarColor:                    #f38124;

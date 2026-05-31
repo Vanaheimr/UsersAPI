@@ -1,4 +1,4 @@
-﻿@import "../defaults/_defaults.scss";
+@use "../defaults/_defaults.scss" as *;
 
 #newSubOrganization {
     padding:    30px 30px 20px 25px;
