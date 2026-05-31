@@ -24,29 +24,28 @@ function StartOrganizationGeoLocation() {
         }
     }
     function AnyChangesMade() {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
         // address
-        if ((((_a = organizationJSON.address) === null || _a === void 0 ? void 0 : _a.street) !== undefined ? organizationJSON.address.street : "") !== street.value)
+        if ((organizationJSON.address?.street !== undefined ? organizationJSON.address.street : "") !== street.value)
             return true;
-        if ((((_b = organizationJSON.address) === null || _b === void 0 ? void 0 : _b.houseNumber) !== undefined ? organizationJSON.address.houseNumber : "") !== houseNumber.value)
+        if ((organizationJSON.address?.houseNumber !== undefined ? organizationJSON.address.houseNumber : "") !== houseNumber.value)
             return true;
-        if ((((_c = organizationJSON.address) === null || _c === void 0 ? void 0 : _c.floorLevel) !== undefined ? organizationJSON.address.floorLevel : "") !== floorLevel.value)
+        if ((organizationJSON.address?.floorLevel !== undefined ? organizationJSON.address.floorLevel : "") !== floorLevel.value)
             return true;
-        if ((((_d = organizationJSON.address) === null || _d === void 0 ? void 0 : _d.postalCode) !== undefined ? organizationJSON.address.postalCode : "") !== postalCode.value)
+        if ((organizationJSON.address?.postalCode !== undefined ? organizationJSON.address.postalCode : "") !== postalCode.value)
             return true;
-        if ((((_e = organizationJSON.address) === null || _e === void 0 ? void 0 : _e.city) !== undefined ? firstValue(organizationJSON.address.city) : "") !== city.value)
+        if ((organizationJSON.address?.city !== undefined ? firstValue(organizationJSON.address.city) : "") !== city.value)
             return true;
-        if ((((_f = organizationJSON.address) === null || _f === void 0 ? void 0 : _f.country) !== undefined ? organizationJSON.address.country : "") !== country.value)
+        if ((organizationJSON.address?.country !== undefined ? organizationJSON.address.country : "") !== country.value)
             return true;
-        if ((((_g = organizationJSON.address) === null || _g === void 0 ? void 0 : _g.comment) !== undefined ? firstValue(organizationJSON.address.comment) : "") !== comment.value)
+        if ((organizationJSON.address?.comment !== undefined ? firstValue(organizationJSON.address.comment) : "") !== comment.value)
             return true;
         // geo location
-        if ((latitude.value === "" && ((_h = organizationJSON.geoLocation) === null || _h === void 0 ? void 0 : _h.lat) !== undefined) ||
-            (latitude.value !== "" && !isNaN(_latitude) && _latitude !== ((_j = organizationJSON.geoLocation) === null || _j === void 0 ? void 0 : _j.lat))) {
+        if ((latitude.value === "" && organizationJSON.geoLocation?.lat !== undefined) ||
+            (latitude.value !== "" && !isNaN(_latitude) && _latitude !== organizationJSON.geoLocation?.lat)) {
             return true;
         }
-        if ((longitude.value === "" && ((_k = organizationJSON.geoLocation) === null || _k === void 0 ? void 0 : _k.lng) !== undefined) ||
-            (longitude.value !== "" && !isNaN(_longitude) && _longitude !== ((_l = organizationJSON.geoLocation) === null || _l === void 0 ? void 0 : _l.lng))) {
+        if ((longitude.value === "" && organizationJSON.geoLocation?.lng !== undefined) ||
+            (longitude.value !== "" && !isNaN(_longitude) && _longitude !== organizationJSON.geoLocation?.lng)) {
             return true;
         }
         responseDiv.innerHTML = "";
@@ -60,65 +59,64 @@ function StartOrganizationGeoLocation() {
         return changesDetected;
     }
     function SaveData() {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t;
         // Only modify a copy of the original data
         let updatedOrganizationJSON = JSON.parse(JSON.stringify(organizationJSON));
         //#region Address
         // street
-        if ((((_a = updatedOrganizationJSON.address) === null || _a === void 0 ? void 0 : _a.street) !== undefined ? updatedOrganizationJSON.address.street : "") !== street.value) {
+        if ((updatedOrganizationJSON.address?.street !== undefined ? updatedOrganizationJSON.address.street : "") !== street.value) {
             if (updatedOrganizationJSON.address === undefined)
                 updatedOrganizationJSON.address = {};
             updatedOrganizationJSON.address.street = street.value.trim();
         }
-        if (((_b = updatedOrganizationJSON.address) === null || _b === void 0 ? void 0 : _b.street) === "")
+        if (updatedOrganizationJSON.address?.street === "")
             delete updatedOrganizationJSON.address.street;
         // house number
-        if ((((_c = updatedOrganizationJSON.address) === null || _c === void 0 ? void 0 : _c.houseNumber) !== undefined ? updatedOrganizationJSON.address.houseNumber : "") !== houseNumber.value) {
+        if ((updatedOrganizationJSON.address?.houseNumber !== undefined ? updatedOrganizationJSON.address.houseNumber : "") !== houseNumber.value) {
             if (updatedOrganizationJSON.address === undefined)
                 updatedOrganizationJSON.address = {};
             updatedOrganizationJSON.address.houseNumber = houseNumber.value.trim();
         }
-        if (((_d = updatedOrganizationJSON.address) === null || _d === void 0 ? void 0 : _d.houseNumber) === "")
+        if (updatedOrganizationJSON.address?.houseNumber === "")
             delete updatedOrganizationJSON.address.houseNumber;
         // floor level
-        if ((((_e = updatedOrganizationJSON.address) === null || _e === void 0 ? void 0 : _e.floorLevel) !== undefined ? updatedOrganizationJSON.address.floorLevel : "") !== floorLevel.value) {
+        if ((updatedOrganizationJSON.address?.floorLevel !== undefined ? updatedOrganizationJSON.address.floorLevel : "") !== floorLevel.value) {
             if (updatedOrganizationJSON.address === undefined)
                 updatedOrganizationJSON.address = {};
             updatedOrganizationJSON.address.floorLevel = floorLevel.value.trim();
         }
-        if (((_f = updatedOrganizationJSON.address) === null || _f === void 0 ? void 0 : _f.floorLevel) === "")
+        if (updatedOrganizationJSON.address?.floorLevel === "")
             delete updatedOrganizationJSON.address.floorLevel;
         // postal code
-        if ((((_g = updatedOrganizationJSON.address) === null || _g === void 0 ? void 0 : _g.postalCode) !== undefined ? updatedOrganizationJSON.address.postalCode : "") !== postalCode.value) {
+        if ((updatedOrganizationJSON.address?.postalCode !== undefined ? updatedOrganizationJSON.address.postalCode : "") !== postalCode.value) {
             if (updatedOrganizationJSON.address === undefined)
                 updatedOrganizationJSON.address = {};
             updatedOrganizationJSON.address.postalCode = postalCode.value.trim();
         }
-        if (((_h = updatedOrganizationJSON.address) === null || _h === void 0 ? void 0 : _h.postalCode) === "")
+        if (updatedOrganizationJSON.address?.postalCode === "")
             delete updatedOrganizationJSON.address.postalCode;
         // city
-        if ((((_j = updatedOrganizationJSON.address) === null || _j === void 0 ? void 0 : _j.city) !== undefined ? updatedOrganizationJSON.address.city : "") !== city.value) {
+        if ((updatedOrganizationJSON.address?.city !== undefined ? updatedOrganizationJSON.address.city : "") !== city.value) {
             if (updatedOrganizationJSON.address === undefined)
                 updatedOrganizationJSON.address = {};
             updatedOrganizationJSON.address.city = { "en": city.value.trim() };
         }
-        if (((_m = (_l = (_k = updatedOrganizationJSON.address) === null || _k === void 0 ? void 0 : _k.city) === null || _l === void 0 ? void 0 : _l.en) === null || _m === void 0 ? void 0 : _m.toString()) === "")
+        if (updatedOrganizationJSON.address?.city?.en?.toString() === "")
             delete updatedOrganizationJSON.address.city;
         // country
-        if ((((_o = updatedOrganizationJSON.address) === null || _o === void 0 ? void 0 : _o.country) !== undefined ? updatedOrganizationJSON.address.country : "") !== country.value) {
+        if ((updatedOrganizationJSON.address?.country !== undefined ? updatedOrganizationJSON.address.country : "") !== country.value) {
             if (updatedOrganizationJSON.address === undefined)
                 updatedOrganizationJSON.address = {};
             updatedOrganizationJSON.address.country = country.value.trim();
         }
-        if (((_p = updatedOrganizationJSON.address) === null || _p === void 0 ? void 0 : _p.country) === "")
+        if (updatedOrganizationJSON.address?.country === "")
             delete updatedOrganizationJSON.address.country;
         // comment
-        if ((((_q = updatedOrganizationJSON.address) === null || _q === void 0 ? void 0 : _q.comment) !== undefined ? updatedOrganizationJSON.address.comment : "") !== comment.value) {
+        if ((updatedOrganizationJSON.address?.comment !== undefined ? updatedOrganizationJSON.address.comment : "") !== comment.value) {
             if (updatedOrganizationJSON.address === undefined)
                 updatedOrganizationJSON.address = {};
             updatedOrganizationJSON.address.comment = { "en": comment.value.trim() };
         }
-        if (((_t = (_s = (_r = updatedOrganizationJSON.address) === null || _r === void 0 ? void 0 : _r.comment) === null || _s === void 0 ? void 0 : _s.en) === null || _t === void 0 ? void 0 : _t.toString()) === "")
+        if (updatedOrganizationJSON.address?.comment?.en?.toString() === "")
             delete updatedOrganizationJSON.address.comment;
         // address
         if (updatedOrganizationJSON.address !== undefined &&
@@ -362,7 +360,6 @@ function StartOrganizationGeoLocation() {
     });
     //#endregion
     HTTPGet("/organizations/" + organizationId, (status, response) => {
-        var _a, _b, _c, _d;
         try {
             organizationJSON = ParseJSON_LD(response);
             headlineDiv.querySelector("#name #language").innerText = firstKey(organizationJSON.name);
@@ -377,12 +374,12 @@ function StartOrganizationGeoLocation() {
                 houseNumber.value = organizationJSON.address.houseNumber !== undefined ? organizationJSON.address.houseNumber : "";
                 floorLevel.value = organizationJSON.address.floorLevel !== undefined ? organizationJSON.address.floorLevel : "";
                 postalCode.value = organizationJSON.address.postalCode !== undefined ? organizationJSON.address.postalCode : "";
-                city.value = ((_a = organizationJSON.address.city) === null || _a === void 0 ? void 0 : _a.en) !== undefined ? organizationJSON.address.city.en : "";
+                city.value = organizationJSON.address.city?.en !== undefined ? organizationJSON.address.city.en : "";
                 country.value = organizationJSON.address.country !== undefined ? organizationJSON.address.country : "";
-                comment.value = ((_b = organizationJSON.address.comment) === null || _b === void 0 ? void 0 : _b.en) !== undefined ? organizationJSON.address.comment.en : "";
+                comment.value = organizationJSON.address.comment?.en !== undefined ? organizationJSON.address.comment.en : "";
             }
-            if (((_c = organizationJSON.geoLocation) === null || _c === void 0 ? void 0 : _c.lat) !== undefined &&
-                ((_d = organizationJSON.geoLocation) === null || _d === void 0 ? void 0 : _d.lng) !== undefined) {
+            if (organizationJSON.geoLocation?.lat !== undefined &&
+                organizationJSON.geoLocation?.lng !== undefined) {
                 _latitude = organizationJSON.geoLocation.lat;
                 _longitude = organizationJSON.geoLocation.lng;
                 latitude.value = organizationJSON.geoLocation.lat.toString();

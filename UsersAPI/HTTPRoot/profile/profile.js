@@ -126,7 +126,7 @@ function StartProfile() {
                 try {
                     responseJSON = JSON.parse(response);
                 }
-                catch (_a) { }
+                catch { }
             }
             responseDiv.innerHTML = "<div class=\"HTTP Error\">Storing user profile data failed!" +
                 (responseJSON.description !== null ? "<br />" + responseJSON.description : "") +
@@ -266,15 +266,14 @@ function StartProfile() {
         ToogleSaveButton();
     }
     HTTPGet("/users/" + SignInUser, (status, response) => {
-        var _a, _b, _c, _d;
         try {
             UserProfileJSON = ParseJSON_LD(response);
             username.value = UserProfileJSON.name;
             eMail.value = UserProfileJSON.email;
-            telephone.value = (_a = UserProfileJSON.telephone) !== null && _a !== void 0 ? _a : "";
-            mobilePhone.value = (_b = UserProfileJSON.mobilePhone) !== null && _b !== void 0 ? _b : "";
-            telegram.value = (_c = UserProfileJSON.telegram) !== null && _c !== void 0 ? _c : "";
-            homepage.value = (_d = UserProfileJSON.homepage) !== null && _d !== void 0 ? _d : "";
+            telephone.value = UserProfileJSON.telephone ?? "";
+            mobilePhone.value = UserProfileJSON.mobilePhone ?? "";
+            telegram.value = UserProfileJSON.telegram ?? "";
+            homepage.value = UserProfileJSON.homepage ?? "";
             if (UserProfileJSON.language !== undefined)
                 language.add(new Option(languageKey2Text(UserProfileJSON.language, UILanguage), UserProfileJSON.language, true, true));
             UpdateI18N(description, UserProfileJSON.description);

@@ -1,5 +1,10 @@
 "use strict";
 class View {
+    //  myself:           HTMLDivElement;
+    HeadlineDiv;
+    ContentDiv;
+    CurrentGroupDiv;
+    ButtonDiv;
     constructor(Parent) {
         //this.myself    = Parent.appendChild(document.createElement('div')) as HTMLDivElement;
         //this.myself.id = Prefix + "View";

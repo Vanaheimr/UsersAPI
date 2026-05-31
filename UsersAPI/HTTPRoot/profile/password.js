@@ -51,7 +51,7 @@ function StartChangePassword() {
                 try {
                     responseJSON = JSON.parse(ResponseText);
                 }
-                catch (_a) { }
+                catch { }
             }
             responseDiv.style.display = 'block';
             responseDiv.innerHTML = "<div class=\"HTTP Error\">Updating your password failed!" + (responseJSON.description !== null ? responseJSON.description : "") + "</div>";

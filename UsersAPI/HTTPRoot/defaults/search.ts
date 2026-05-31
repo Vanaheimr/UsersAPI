@@ -252,7 +252,7 @@ function StartSearch2<TMetadata extends TMetadataDefaults, TSearchResult>(reques
                     }
                     catch (exception)
                     {
-                        messageDiv.innerHTML = exception;
+                        messageDiv.innerHTML = String(exception);
                     }
 
                     if (typeof whenDone !== 'undefined' && whenDone)

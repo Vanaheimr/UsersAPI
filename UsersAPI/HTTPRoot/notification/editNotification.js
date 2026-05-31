@@ -124,7 +124,7 @@ function StartEditUserNotifications() {
                     try {
                         responseJSON = JSON.parse(response);
                     }
-                    catch (_a) { }
+                    catch { }
                 }
                 responseDiv.innerHTML = "<div class=\"HTTP Error\">Storing notification data failed!<br />" + (responseJSON.description !== null ? responseJSON.description : "") + "</div>";
             });

@@ -21,7 +21,6 @@ function StartSearch(requestURL, nameOfItem, nameOfItems, nameOfItems2, doListVi
     return StartSearch2(requestURL, () => "", () => { }, nameOfItem, nameOfItems, nameOfItems2, doListView, doTableView, linkPrefix, startView, context);
 }
 function StartSearch2(requestURL, searchFilters, doStartUp, nameOfItem, nameOfItems, nameOfItems2, doListView, doTableView, linkPrefix, startView, context) {
-    var _a;
     requestURL = requestURL.indexOf('?') === -1
         ? requestURL + '?'
         : requestURL.endsWith('&')
@@ -44,15 +43,16 @@ function StartSearch2(requestURL, searchFilters, doStartUp, nameOfItem, nameOfIt
     const leftButton = controlsDiv.querySelector("#leftButton");
     const rightButton = controlsDiv.querySelector("#rightButton");
     const dateFilters = controlsDiv.querySelector("#dateFilters");
-    const dateFrom = dateFilters === null || dateFilters === void 0 ? void 0 : dateFilters.querySelector("#dateFromText");
-    const dateTo = dateFilters === null || dateFilters === void 0 ? void 0 : dateFilters.querySelector("#dateToText");
+    const dateFrom = dateFilters?.querySelector("#dateFromText");
+    const dateTo = dateFilters?.querySelector("#dateToText");
     const datepicker = dateFilters !== null ? new DatePicker() : null;
     const listViewButton = controlsDiv.querySelector("#listView");
     const tableViewButton = controlsDiv.querySelector("#tableView");
     const messageDiv = document.getElementById('message');
     const localSearchMessageDiv = document.getElementById('localSearchMessage');
     const resultsBox = document.getElementById('resultsBox');
-    const searchResultsDiv = ((_a = resultsBox.querySelector("#" + nameOfItems)) !== null && _a !== void 0 ? _a : resultsBox.querySelector(".searchResults"));
+    const searchResultsDiv = (resultsBox.querySelector("#" + nameOfItems) ??
+        resultsBox.querySelector(".searchResults"));
     const downLoadButton = document.getElementById("downLoadButton");
     function Search(deletePreviousResults, resetSkip, whenDone) {
         if (resetSkip)
@@ -130,7 +130,7 @@ function StartSearch2(requestURL, searchFilters, doStartUp, nameOfItem, nameOfIt
                     rightButton.disabled = false;
             }
             catch (exception) {
-                messageDiv.innerHTML = exception;
+                messageDiv.innerHTML = String(exception);
             }
             if (typeof whenDone !== 'undefined' && whenDone)
                 whenDone();

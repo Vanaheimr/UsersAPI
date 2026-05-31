@@ -119,7 +119,6 @@ function StartOrganizationMembers() {
     const ok = removalFailedDiv.querySelector('#ok');
     ok.onclick = () => { removalFailedDiv.style.display = "none"; };
     HTTPGet("/organizations/" + organizationId + "?showMgt&expand=members", (status, response) => {
-        var _a, _b, _c;
         try {
             organizationJSON = ParseJSON_LD(response);
             headlineDiv.querySelector("#name #language").innerText = firstKey(organizationJSON.name);
@@ -129,13 +128,13 @@ function StartOrganizationMembers() {
                 headlineDiv.querySelector("#description #language").innerText = firstKey(organizationJSON.description);
                 headlineDiv.querySelector("#description #I18NText").innerText = firstValue(organizationJSON.description);
             }
-            if (((_a = organizationJSON.admins) === null || _a === void 0 ? void 0 : _a.length) > 0)
+            if (organizationJSON.admins?.length > 0)
                 for (const admin of organizationJSON.admins)
                     ShowUser(adminsDiv, admin);
-            if (((_b = organizationJSON.members) === null || _b === void 0 ? void 0 : _b.length) > 0)
+            if (organizationJSON.members?.length > 0)
                 for (const member of organizationJSON.members)
                     ShowUser(membersDiv, member);
-            if (((_c = organizationJSON.guests) === null || _c === void 0 ? void 0 : _c.length) > 0)
+            if (organizationJSON.guests?.length > 0)
                 for (const guest of organizationJSON.guests)
                     ShowUser(guestsDiv, guest);
             if (organizationJSON.youCanAddMembers) {

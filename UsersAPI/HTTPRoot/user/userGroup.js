@@ -46,7 +46,7 @@ function StartUserGroup() {
                 try {
                     responseJSON = JSON.parse(response);
                 }
-                catch (_a) { }
+                catch { }
             }
             responseDiv.innerHTML = "<div class=\"HTTP Error\">Storing user profile data failed!" +
                 (responseJSON.description !== null ? "<br />" + responseJSON.description : "") +

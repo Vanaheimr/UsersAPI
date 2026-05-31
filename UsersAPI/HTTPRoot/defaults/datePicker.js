@@ -1,6 +1,12 @@
 "use strict";
 ///<reference path="../libs/date.format.ts" />
 class DatePicker {
+    frameDiv;
+    currentMonth;
+    selectedDate;
+    resultDelegate;
+    centerDiv;
+    daysDiv;
     constructor() {
         this.show = this.show.bind(this);
         this.paint = this.paint.bind(this);

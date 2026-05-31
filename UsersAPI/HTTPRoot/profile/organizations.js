@@ -181,7 +181,7 @@ function ShowOrganizations() {
                         try {
                             responseJSON = JSON.parse(response);
                         }
-                        catch (_a) { }
+                        catch { }
                     }
                     responseDiv.innerHTML = "<div class=\"HTTP Error\">Storing new user data failed!" + (responseJSON.description !== null ? responseJSON.description : "") + "</div>";
                 });

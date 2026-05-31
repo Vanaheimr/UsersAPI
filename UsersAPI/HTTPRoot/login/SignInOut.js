@@ -105,7 +105,7 @@ function VerifyLogin() {
             loginInput.classList.add("error");
     }
     function VerifyPassword() {
-        const responseText = HTTPAuth((URLPathPrefix !== null && URLPathPrefix !== void 0 ? URLPathPrefix : "") + "/users/" + _login.value, {
+        const responseText = HTTPAuth((URLPathPrefix ?? "") + "/users/" + _login.value, {
             "login": _login.value,
             "password": _password.value,
             "acceptsEULA": acceptsEULA
@@ -182,7 +182,7 @@ function LostPassword() {
         responseDiv.style.display = 'block';
         responseDiv.innerHTML = '<i class="fa fa-spinner faa-spin animated"></i> Verifying your login... please wait!';
         const cacheBust = new Date().getTime();
-        HTTPSet((URLPathPrefix !== null && URLPathPrefix !== void 0 ? URLPathPrefix : "") + "/resetPassword?v=" + cacheBust, {
+        HTTPSet((URLPathPrefix ?? "") + "/resetPassword?v=" + cacheBust, {
             "id": _id.value
         }, (httpStatus, responseText) => {
             try {
@@ -286,7 +286,7 @@ function SetPassword() {
         };
         if (securityToken2.value != "")
             SetPasswordJSON["securityToken2"] = securityToken2.value;
-        HTTPSet((URLPathPrefix !== null && URLPathPrefix !== void 0 ? URLPathPrefix : "") + "/setPassword", SetPasswordJSON, (HTTPStatus, ResponseText) => {
+        HTTPSet((URLPathPrefix ?? "") + "/setPassword", SetPasswordJSON, (HTTPStatus, ResponseText) => {
             try {
                 var responseJSON = JSON.parse(ResponseText);
                 if (responseJSON.numberOfAccountsFound !== null) {
@@ -350,7 +350,7 @@ function SetPassword() {
         return SetPassword();
     };
     gotoLoginButton.onclick = () => {
-        window.location.href = (URLPathPrefix !== null && URLPathPrefix !== void 0 ? URLPathPrefix : "") + "/login";
+        window.location.href = (URLPathPrefix ?? "") + "/login";
     };
     DeleteCookie(HTTPCookieId);
     ToogleSaveButton();
@@ -365,7 +365,7 @@ function SignIn() {
     SignInErrors.style.display = "none";
     SignInErrors.innerText = "";
     const cacheBust = new Date().getTime();
-    SendJSON("AUTH", (URLPathPrefix !== null && URLPathPrefix !== void 0 ? URLPathPrefix : "") + "/users/" + Username + "&v=" + cacheBust, {
+    SendJSON("AUTH", (URLPathPrefix ?? "") + "/users/" + Username + "&v=" + cacheBust, {
         "realm": Realm,
         "password": Password,
         "rememberme": RememberMe
@@ -434,7 +434,7 @@ function checkSignedIn(RedirectUnknownUsers) {
         if (usernameDiv !== null)
             usernameDiv.innerText = "anonymous";
         if (RedirectUnknownUsers)
-            location.href = (URLPathPrefix !== null && URLPathPrefix !== void 0 ? URLPathPrefix : "") + "/login";
+            location.href = (URLPathPrefix ?? "") + "/login";
     });
     WithCookie(newsBannersCookieId, cookie => checkNewsBanner(cookie.split(":")), () => checkNewsBanner([]));
 }
@@ -446,34 +446,34 @@ function checkAdminSignedIn(RedirectUnknownUsers) {
             location.href = URLPathPrefix !== null && URLPathPrefix != "" ? URLPathPrefix : "/";
     }, () => {
         if (RedirectUnknownUsers)
-            location.href = (URLPathPrefix !== null && URLPathPrefix !== void 0 ? URLPathPrefix : "") + "/login";
+            location.href = (URLPathPrefix ?? "") + "/login";
     });
     checkSignedIn(RedirectUnknownUsers);
 }
 function checkNotSignedIn() {
     WithCookie(HTTPCookieId, () => {
-        location.href = (URLPathPrefix !== null && URLPathPrefix !== void 0 ? URLPathPrefix : "") + "/index.shtml";
+        location.href = (URLPathPrefix ?? "") + "/index.shtml";
     }, () => { });
 }
 function SignOut() {
     const cacheBust = new Date().getTime();
-    SendJSON("DEAUTH", (URLPathPrefix !== null && URLPathPrefix !== void 0 ? URLPathPrefix : "") + "/users?v=" + cacheBust, null, function (httpStatus, responseText) {
+    SendJSON("DEAUTH", (URLPathPrefix ?? "") + "/users?v=" + cacheBust, null, function (httpStatus, responseText) {
         DeleteCookie(HTTPCookieId);
         const cacheBust2 = new Date().getTime();
         setTimeout(() => {
-            location.href = (URLPathPrefix !== null && URLPathPrefix !== void 0 ? URLPathPrefix : "") + "/login?v=" + cacheBust2;
+            location.href = (URLPathPrefix ?? "") + "/login?v=" + cacheBust2;
         }, 10);
     }, function (httpStatus, status, responseText) {
         DeleteCookie(HTTPCookieId);
         const cacheBust2 = new Date().getTime();
         setTimeout(() => {
-            location.href = (URLPathPrefix !== null && URLPathPrefix !== void 0 ? URLPathPrefix : "") + "/login?v=" + cacheBust2;
+            location.href = (URLPathPrefix ?? "") + "/login?v=" + cacheBust2;
         }, 10);
     });
 }
 function Depersonate() {
     const cacheBust = new Date().getTime();
-    HTTPDepersonate((URLPathPrefix !== null && URLPathPrefix !== void 0 ? URLPathPrefix : "") + "/users/" + SignInUser + "?v=" + cacheBust, (httpStatus, responseText) => {
+    HTTPDepersonate((URLPathPrefix ?? "") + "/users/" + SignInUser + "?v=" + cacheBust, (httpStatus, responseText) => {
         setTimeout(() => {
             window.location.reload();
         }, 10);
@@ -485,12 +485,11 @@ function checkNewsBanner(knownNewsIds) {
     const newsFilter = knownNewsIds.length > 0
         ? "?match=" + knownNewsIds.map(knownNewsId => "!" + knownNewsId).join(",")
         : "";
-    HTTPGet((URLPathPrefix !== null && URLPathPrefix !== void 0 ? URLPathPrefix : "") + "/newsBanners" + newsFilter, (httpStatus, responseText) => {
-        var _a, _b;
+    HTTPGet((URLPathPrefix ?? "") + "/newsBanners" + newsFilter, (httpStatus, responseText) => {
         const newsBanners = ParseJSON_LD(responseText);
         const currentDate = new Date().getTime();
         if (Array.isArray(newsBanners)) {
-            const knownNewsBannerIds = (_b = (_a = GetCookie(newsBannersCookieId)) === null || _a === void 0 ? void 0 : _a.split(",")) !== null && _b !== void 0 ? _b : [];
+            const knownNewsBannerIds = GetCookie(newsBannersCookieId)?.split(",") ?? [];
             for (const newsBanner of newsBanners) {
                 var expires = new Date(newsBanner.endTimestamp);
                 if (expires.getTime() > currentDate) {
@@ -505,8 +504,7 @@ function checkNewsBanner(knownNewsIds) {
                             : "No news found!";
                         const ignoreNewsButton = newsBannerDiv.querySelector("#ignoreNewsButton");
                         ignoreNewsButton.onclick = () => {
-                            var _a, _b;
-                            let updatedKnownNewsBannerIds = (_b = (_a = GetCookie(newsBannersCookieId)) === null || _a === void 0 ? void 0 : _a.split(",")) !== null && _b !== void 0 ? _b : [];
+                            let updatedKnownNewsBannerIds = GetCookie(newsBannersCookieId)?.split(",") ?? [];
                             updatedKnownNewsBannerIds.push(newsBanner["@id"]);
                             document.cookie = newsBannersCookieId + '=' + updatedKnownNewsBannerIds.join(",") + '; expires=' + expires + '; path=/';
                             newsBannerDiv.style.display = "none";
@@ -515,8 +513,7 @@ function checkNewsBanner(knownNewsIds) {
                         if (clickLinks != undefined && clickLinks.length > 0) {
                             for (const clickLink of clickLinks) {
                                 clickLink.onclick = () => {
-                                    var _a, _b;
-                                    let updatedKnownNewsBannerIds = (_b = (_a = GetCookie(newsBannersCookieId)) === null || _a === void 0 ? void 0 : _a.split(",")) !== null && _b !== void 0 ? _b : [];
+                                    let updatedKnownNewsBannerIds = GetCookie(newsBannersCookieId)?.split(",") ?? [];
                                     updatedKnownNewsBannerIds.push(newsBanner["@id"]);
                                     document.cookie = newsBannersCookieId + '=' + updatedKnownNewsBannerIds.join(",") + '; expires=' + expires + '; path=/';
                                 };

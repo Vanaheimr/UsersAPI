@@ -42,7 +42,6 @@ function StartSubOrganizations() {
     const subOrganizationsDiv = organizationDiv.querySelector('#subOrganizations');
     const responseDiv = document.getElementById("response");
     HTTPGet("/organizations/" + organizationId + "?showMgt&expand=subOrganizations", (status, response) => {
-        var _a;
         try {
             organizationJSON = ParseJSON_LD(response);
             headlineDiv.querySelector("#name #language").innerText = firstKey(organizationJSON.name);
@@ -56,7 +55,7 @@ function StartSubOrganizations() {
                 newSubOrganizationButton.disabled = false;
                 newSubOrganizationButton.onclick = () => window.location.href = "newSubOrganization";
             }
-            if (((_a = organizationJSON.subOrganizations) === null || _a === void 0 ? void 0 : _a.length) > 0) {
+            if (organizationJSON.subOrganizations?.length > 0) {
                 //const rowDiv = dataDiv.appendChild(document.createElement('div')) as HTMLDivElement;
                 //rowDiv.className = "row";
                 //const keyDiv = rowDiv.appendChild(document.createElement('div')) as HTMLDivElement;
