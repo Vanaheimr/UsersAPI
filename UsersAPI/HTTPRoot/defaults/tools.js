@@ -1,3 +1,4 @@
+"use strict";
 let UserProfileJSON;
 let UserGroupJSON;
 let organizationJSON;

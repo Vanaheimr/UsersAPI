@@ -1,3 +1,4 @@
+"use strict";
 let SignInUser = "";
 let Username = "";
 let UserEMail = "";

@@ -1,3 +1,4 @@
+"use strict";
 ///<reference path="../libs/date.format.ts" />
 function StartOrganizationGroupSearch() {
     StartSearch("/organizationGroups", "organizationGroup", "organizationGroups", "organization groups", (organizationGroup, organizationGroupDiv) => {

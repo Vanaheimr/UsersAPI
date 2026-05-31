@@ -1,3 +1,4 @@
+"use strict";
 function StartOrganizationGeoLocation() {
     let geoMarker;
     let _latitude;

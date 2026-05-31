@@ -1,3 +1,4 @@
+"use strict";
 function StartNewSubOrganization() {
     const pathElements = window.location.pathname.split("/");
     const organizationId = pathElements[pathElements.length - 2];

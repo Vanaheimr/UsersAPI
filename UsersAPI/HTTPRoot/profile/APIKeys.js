@@ -1,3 +1,4 @@
+"use strict";
 ///<reference path="../libs/date.format.ts" />
 function ShowAPIKey(parentDiv, JSON) {
     const DescriptionDiv = parentDiv.appendChild(document.createElement('div'));

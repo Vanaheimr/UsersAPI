@@ -1,3 +1,4 @@
+"use strict";
 class View {
     constructor(Parent) {
         //this.myself    = Parent.appendChild(document.createElement('div')) as HTMLDivElement;
