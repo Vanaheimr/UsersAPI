@@ -142,7 +142,7 @@
 //                                                     Server                     = HTTPServerName,
 //                                                     Date                       = Timestamp.Now,
 //                                                     AccessControlAllowOrigin   = "*",
-//                                                     AccessControlAllowMethods  = new[] { "GET", "EXISTS", "COUNT" },
+//                                                     AccessControlAllowMethods  = [ HTTPMethod.GET, HTTPMethod.EXISTS, HTTPMethod.COUNT ],
 //                                                     AccessControlAllowHeaders  = [ "Content-Type", "Accept", "Authorization" ],
 //                                                     ETag                       = "1",
 //                                                     ContentType                = HTTPContentType.Application.JSON_UTF8,

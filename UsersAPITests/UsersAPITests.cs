@@ -97,7 +97,7 @@
 //            //                                                                Server                     = "Test Server",
 //            //                                                                Date                       = org.GraphDefined.Vanaheimr.Illias.Timestamp.Now,
 //            //                                                                AccessControlAllowOrigin   = "*",
-//            //                                                                AccessControlAllowMethods  = [ "GET" ],
+//            //                                                                AccessControlAllowMethods  = [ HTTPMethod.GET ],
 //            //                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
 //            //                                                                ContentType                = HTTPContentType.Text.TEXT_UTF8,
 //            //                                                                Content                    = "Hello World!".ToUTF8Bytes(),
