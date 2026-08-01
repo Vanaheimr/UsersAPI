@@ -199,7 +199,7 @@ namespace social.OpenData.UsersAPI
 
                    IEnumerable<Signature23>?   Signatures        = null,
 
-                   JObject?                    CustomData        = default,
+                   CustomDataNew?              CustomData        = default,
                    String?                     DataSource        = default,
                    DateTimeOffset?             LastChange        = default)
 
@@ -238,7 +238,7 @@ namespace social.OpenData.UsersAPI
 
                    IEnumerable<Signature23>?   Signatures        = null,
 
-                   JObject?                    CustomData        = default,
+                   CustomDataNew?              CustomData        = default,
                    String?                     DataSource        = default,
                    DateTimeOffset?             LastChange        = default)
 
@@ -848,7 +848,7 @@ namespace social.OpenData.UsersAPI
                            Boolean                     IsHidden          = false,
                            IEnumerable<Signature23>?   Signatures        = null,
 
-                           JObject?                    CustomData        = default,
+                           CustomDataNew?              CustomData        = default,
                            String?                     DataSource        = default,
                            DateTimeOffset?             LastChange        = default)
 

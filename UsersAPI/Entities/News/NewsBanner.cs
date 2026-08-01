@@ -180,7 +180,7 @@ namespace social.OpenData.UsersAPI
                           IUser            Author,
                           Boolean          IsHidden     = false,
 
-                          JObject?         CustomData   = default,
+                          CustomDataNew?   CustomData   = default,
                           String?          DataSource   = default,
                           DateTimeOffset?  LastChange   = default)
 
@@ -214,7 +214,7 @@ namespace social.OpenData.UsersAPI
                           IUser            Author,
                           Boolean          IsHidden     = false,
 
-                          JObject?         CustomData   = default,
+                          CustomDataNew?   CustomData   = default,
                           String?          DataSource   = default,
                           DateTimeOffset?  LastChange   = default)
 
@@ -830,7 +830,7 @@ namespace social.OpenData.UsersAPI
                            IUser?           Author           = null,
                            Boolean          IsHidden         = false,
 
-                           JObject?         CustomData       = default,
+                           CustomDataNew?   CustomData       = default,
                            String?          DataSource       = default,
                            DateTimeOffset?  LastChange       = default)
 

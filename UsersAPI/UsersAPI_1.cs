@@ -1736,7 +1736,7 @@ namespace social.OpenData.UsersAPI
 
                                 using (var httpsClient = new HTTPClient(
                                                              notification.RemoteURL,
-                                                             RemoteCertificateValidator:   notification.RemoteURL.Protocol == URLProtocols.https
+                                                             RemoteCertificateValidator:   notification.RemoteURL.Scheme == URIScheme.https
                                                                                                ? (sender, certificate, chain, server, policyErrors) => TLSValidationResult.Success()
                                                                                                : null,
                                                              LocalCertificateSelector:     null,
@@ -1751,7 +1751,7 @@ namespace social.OpenData.UsersAPI
 
                                     request  = new HTTPRequest.Builder(httpsClient) {
                                                    HTTPMethod     = notification.Method,
-                                                   Host           = notification.RemoteURL.Hostname,
+                                                   Host           = notification.RemoteURL.HostHeader,
                                                    Path           = notification.RemoteURL.Path,
                                                    Content        = new JArray(JSONNotification).ToUTF8Bytes(),
                                                    ContentType    = HTTPContentType.Application.JSON_UTF8,

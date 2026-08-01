@@ -247,7 +247,7 @@ namespace social.OpenData.UsersAPI
                            Boolean                     IsHidden          = false,
 
                            IEnumerable<Signature23>?   Signatures        = null,
-                           JObject?                    CustomData        = default,
+                           CustomDataNew?              CustomData        = default,
                            String?                     DataSource        = default)
 
             : base(Id ?? BlogPosting_Id.Random(),
@@ -923,7 +923,7 @@ namespace social.OpenData.UsersAPI
                            Boolean                     IsHidden          = false,
 
                            IEnumerable<Signature23>?   Signatures        = null,
-                           JObject?                    CustomData        = null,
+                           CustomDataNew?              CustomData        = null,
                            String?                     DataSource        = null)
 
                 : base(Id ?? BlogPosting_Id.Random(),

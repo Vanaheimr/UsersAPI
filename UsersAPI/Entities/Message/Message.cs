@@ -133,7 +133,7 @@ namespace social.OpenData.UsersAPI
                        I18NString                  Text,
                        Message_Id?                 InReplyTo       = null,
 
-                       JObject?                    CustomData      = default,
+                       CustomDataNew?              CustomData      = default,
                        IEnumerable<AttachedFile>?  AttachedFiles   = default,
                        JSONLDContext?              JSONLDContext   = default,
                        String?                     DataSource      = default,
@@ -393,7 +393,7 @@ namespace social.OpenData.UsersAPI
                            I18NString                  Text,
                            Message_Id?                 InReplyTo       = null,
 
-                           JObject?                    CustomData      = default,
+                           CustomDataNew?              CustomData      = default,
                            IEnumerable<AttachedFile>?  AttachedFiles   = default,
                            JSONLDContext?              JSONLDContext   = default,
                            String?                     DataSource      = default,
