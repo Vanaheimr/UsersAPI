@@ -1756,15 +1756,15 @@ namespace social.OpenData.UsersAPI
                                                    Content        = new JArray(JSONNotification).ToUTF8Bytes(),
                                                    ContentType    = HTTPContentType.Application.JSON_UTF8,
                                                    UserAgent      = "UsersAPI Notification API",
-                                                   API_Key        = notification.APIKey.HasValue
-                                                                        ? notification.APIKey
-                                                                        : null,
-                                                   Authorization  = notification.BasicAuthenticationLogin.IsNotNullOrEmpty()
-                                                                        ? HTTPBasicAuthentication.Create(
-                                                                              notification.BasicAuthenticationLogin,
-                                                                              notification.BasicAuthenticationPassword
-                                                                          )
-                                                                        : null
+                                                   //API_Key        = notification.APIKey.HasValue
+                                                   //                     ? notification.APIKey
+                                                   //                     : null,
+                                                   //Authorization  = notification.BasicAuthenticationLogin.IsNotNullOrEmpty()
+                                                   //                     ? HTTPBasicAuthentication.Create(
+                                                   //                           notification.BasicAuthenticationLogin,
+                                                   //                           notification.BasicAuthenticationPassword
+                                                   //                       )
+                                                   //                     : null
                                     };
 
                                     //result  = await httpsClient.Execute(Request:              request,
