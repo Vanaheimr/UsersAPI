@@ -554,7 +554,7 @@ namespace social.OpenData.UsersAPI
                                   PrivacyLevel,
                                   IsHidden          ?? false,
                                   Signatures,
-                                  CustomData,
+                                  null,//CustomData,
                                   DataSource
                               );
 

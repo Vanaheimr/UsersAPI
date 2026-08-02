@@ -464,7 +464,7 @@ namespace social.OpenData.UsersAPI
                                             Author,
                                             IsHidden ?? false,
 
-                                            CustomData,
+                                            null,//CustomData,
                                             DataSource,
                                             LastChange);
 

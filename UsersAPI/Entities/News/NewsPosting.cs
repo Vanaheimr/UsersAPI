@@ -467,7 +467,7 @@ namespace social.OpenData.UsersAPI
                                               IsHidden ?? false,
                                               Signatures,
 
-                                              CustomData,
+                                              null,//CustomData,
                                               DataSource);
 
                 ErrorResponse = null;
